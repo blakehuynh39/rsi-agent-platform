@@ -19361,3 +19361,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b7fdc3d4e21cdc83760c4dfc49a9d75e
 - summary: Poseidon provides an S3-compatible API supporting a subset of AWS S3 operations for bucket management, object operations, and multipart uploads.
 
+## [2026-05-07T15:18:50Z] synthesis | Poseidon Storage Node Responsibilities
+
+- status: published
+- slug: systems/poseidon-storage-node-responsibilities
+- wiki_revision_id: wikirev_1dad0246952630201ad41b1b3056a9bf
+- summary: Responsibilities of system components relevant to the Poseidon storage nodes, including Trident Platform (S3 API, KMS, Storage Client) and SN Database.
+
+## [2026-05-07T15:22:37Z] synthesis | KMS Core System
+
+- status: published
+- slug: systems/kms-core-system
+- wiki_revision_id: wikirev_2f1ceda7d5449a5146e0cae8b8ba85d2
+- summary: A key management service that splits secrets using Shamir's Secret Sharing and distributes shares across service nodes, with a coordinator handling create and reconstruct requests.
+
+## [2026-05-07T15:22:37Z] synthesis | Shamir's Secret Sharing
+
+- status: published
+- slug: concepts/shamir-secret-sharing
+- wiki_revision_id: wikirev_73fe0b2a7e9762d84ea37730b38c7547
+- summary: A cryptographic algorithm used to split a secret into multiple shares, requiring a threshold number of shares to reconstruct the original secret.
+
+## [2026-05-07T15:22:37Z] synthesis | Deterministic Bucket to Nodes Mapping
+
+- status: published
+- slug: decisions/deterministic-bucket-mapping
+- wiki_revision_id: wikirev_0a49b3a48b48e803de694df3c19bec51
+- summary: Decision to use consistent hashing for deterministically mapping buckets to service nodes for share distribution.
+
+## [2026-05-07T15:22:37Z] synthesis | KMS Access Control
+
+- status: published
+- slug: policies/kms-access-control
+- wiki_revision_id: wikirev_950cb50fd68008be0acaf56d0384d063
+- summary: Access control policy for the KMS, with MVP relying on infrastructure-side controls and future plans for bucket permission verification.
+
+## [2026-05-07T15:22:37Z] synthesis | KMS Coordinator
+
+- status: published
+- slug: systems/kms-coordinator
+- wiki_revision_id: wikirev_e4d5e6ec4876b334e6b45936a64b2543
+- summary: The coordinator (or any service node) handles key creation and reconstruction requests, splitting keys, distributing shares, and combining them.
+

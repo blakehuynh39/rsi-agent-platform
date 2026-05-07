@@ -2876,13 +2876,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2e25c3e63d23bdb936cb03903cd41779094aecc85afef5831c3f190d9c9b1157",
-        "size": 481610
+        "sha256": "282f2ff7f493978fb27a12f6ebaba83ce8caaf9f4bcdef6ccb10b1cffdb7489c",
+        "size": 483598
       },
       {
         "path": "log.md",
-        "sha256": "390b421e54434fa72e5d25cda68710d31d0f4eacbc2fff0e5e2d674ac0b11797",
-        "size": 918301
+        "sha256": "5d3f97ae8fc5c625f933027bb4207b42b6e67778c97fbe2fdcae45f7798ae972",
+        "size": 920361
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3375,6 +3375,11 @@
         "size": 1303
       },
       {
+        "path": "pages/concepts/shamir-secret-sharing.md",
+        "sha256": "512b028667851dd6538cc836913fad89e337db1c1631181e3ab6e2041497252b",
+        "size": 1262
+      },
+      {
         "path": "pages/concepts/smart-contract-security-resources.md",
         "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
         "size": 1888
@@ -3498,6 +3503,11 @@
         "path": "pages/decisions/deployment-chain-decision.md",
         "sha256": "5badf5ec71bcf5e24fc8432524347a18a5852818f644feebc6ffedc3b299feaa",
         "size": 4760
+      },
+      {
+        "path": "pages/decisions/deterministic-bucket-mapping.md",
+        "sha256": "f49773e34622cfa8dddb7387a9c3602f6745ade52563dd69087c8807f5038471",
+        "size": 1380
       },
       {
         "path": "pages/decisions/dispute-policy-immutability.md",
@@ -3723,6 +3733,11 @@
         "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
         "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
         "size": 2928
+      },
+      {
+        "path": "pages/policies/kms-access-control.md",
+        "sha256": "88d579f15fd3f333aae48b9969c7a62c47cfc129fb1b02de13ef59163e2562c7",
+        "size": 1821
       },
       {
         "path": "pages/policies/l1-urgent-contacts.md",
@@ -4550,6 +4565,16 @@
         "size": 4630
       },
       {
+        "path": "pages/systems/kms-coordinator.md",
+        "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
+        "size": 2649
+      },
+      {
+        "path": "pages/systems/kms-core-system.md",
+        "sha256": "7a2e79062e70ddffd1496ec4fa8510e0a13c049d1baa6f4aea36ebb3cb8ce946",
+        "size": 3578
+      },
+      {
         "path": "pages/systems/l1-design-doc.md",
         "sha256": "3bc89edb9cb1230deff42649f86ea2554f403972174053f8e9c6a516e258035e",
         "size": 1804
@@ -4593,6 +4618,11 @@
         "path": "pages/systems/poseidon-s3-compatible-apis.md",
         "sha256": "1f624ba1c870ed92ade001e4ef3aafebcf8ac29e10bd452448dfb9cd56ab5a1d",
         "size": 1383
+      },
+      {
+        "path": "pages/systems/poseidon-storage-node-responsibilities.md",
+        "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
+        "size": 5422
       },
       {
         "path": "pages/systems/projects-database.md",
@@ -4674,8 +4704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T15:17:06Z",
-  "file_count": 933,
+  "exported_at": "2026-05-07T15:23:12Z",
+  "file_count": 939,
   "files": [
     {
       "path": ".curator_state",
@@ -7547,7 +7577,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "d07314f91cf48003ca5dc9193e40b82626b1ddb50abc35b95e50e2751ab1bca8",
+  "previous_tree_hash": "bcbb4e71dbe44dfb25b32ae785ef8a930f51e5534c8da95a3775299bd99194ff",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7560,14 +7590,14 @@
   ],
   "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bcbb4e71dbe44dfb25b32ae785ef8a930f51e5534c8da95a3775299bd99194ff",
+  "tree_hash": "62fc34f9b6029033c49cf8e010d2af25eb3c6ca5aa1cb7aa84ff604bb165fd42",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 360,
+  "wiki_file_count": 366,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7576,13 +7606,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2e25c3e63d23bdb936cb03903cd41779094aecc85afef5831c3f190d9c9b1157",
-      "size": 481610
+      "sha256": "282f2ff7f493978fb27a12f6ebaba83ce8caaf9f4bcdef6ccb10b1cffdb7489c",
+      "size": 483598
     },
     {
       "path": "log.md",
-      "sha256": "390b421e54434fa72e5d25cda68710d31d0f4eacbc2fff0e5e2d674ac0b11797",
-      "size": 918301
+      "sha256": "5d3f97ae8fc5c625f933027bb4207b42b6e67778c97fbe2fdcae45f7798ae972",
+      "size": 920361
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8075,6 +8105,11 @@
       "size": 1303
     },
     {
+      "path": "pages/concepts/shamir-secret-sharing.md",
+      "sha256": "512b028667851dd6538cc836913fad89e337db1c1631181e3ab6e2041497252b",
+      "size": 1262
+    },
+    {
       "path": "pages/concepts/smart-contract-security-resources.md",
       "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
       "size": 1888
@@ -8198,6 +8233,11 @@
       "path": "pages/decisions/deployment-chain-decision.md",
       "sha256": "5badf5ec71bcf5e24fc8432524347a18a5852818f644feebc6ffedc3b299feaa",
       "size": 4760
+    },
+    {
+      "path": "pages/decisions/deterministic-bucket-mapping.md",
+      "sha256": "f49773e34622cfa8dddb7387a9c3602f6745ade52563dd69087c8807f5038471",
+      "size": 1380
     },
     {
       "path": "pages/decisions/dispute-policy-immutability.md",
@@ -8423,6 +8463,11 @@
       "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
       "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
       "size": 2928
+    },
+    {
+      "path": "pages/policies/kms-access-control.md",
+      "sha256": "88d579f15fd3f333aae48b9969c7a62c47cfc129fb1b02de13ef59163e2562c7",
+      "size": 1821
     },
     {
       "path": "pages/policies/l1-urgent-contacts.md",
@@ -9250,6 +9295,16 @@
       "size": 4630
     },
     {
+      "path": "pages/systems/kms-coordinator.md",
+      "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
+      "size": 2649
+    },
+    {
+      "path": "pages/systems/kms-core-system.md",
+      "sha256": "7a2e79062e70ddffd1496ec4fa8510e0a13c049d1baa6f4aea36ebb3cb8ce946",
+      "size": 3578
+    },
+    {
       "path": "pages/systems/l1-design-doc.md",
       "sha256": "3bc89edb9cb1230deff42649f86ea2554f403972174053f8e9c6a516e258035e",
       "size": 1804
@@ -9293,6 +9348,11 @@
       "path": "pages/systems/poseidon-s3-compatible-apis.md",
       "sha256": "1f624ba1c870ed92ade001e4ef3aafebcf8ac29e10bd452448dfb9cd56ab5a1d",
       "size": 1383
+    },
+    {
+      "path": "pages/systems/poseidon-storage-node-responsibilities.md",
+      "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
+      "size": 5422
     },
     {
       "path": "pages/systems/projects-database.md",
@@ -9371,5 +9431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2ecd276a46ae0c4fa9c568a164f8d2511c52096455212ba02849e2609b9cda69"
+  "wiki_tree_hash": "1bdaeb2bce9663ea1d66be70040f69995288c99fc446eb7fc64625461334302a"
 }
