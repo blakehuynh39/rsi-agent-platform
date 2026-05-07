@@ -19277,3 +19277,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cf290d2b9f42802450c0e5fe9e2b64a2
 - summary: Defines the goals, requirements, and schedule for engineering meetings, including all-hands, design reviews, learning sessions, and team-specific meetings.
 
+## [2026-05-07T12:05:05Z] synthesis | Sahara AI Platform
+
+- status: published
+- slug: systems/sahara-ai-platform
+- wiki_revision_id: wikirev_c9cb3f177e8f1250f3b23089f81093cb
+- summary: Sahara AI provides two core product suites: AI Studio for compute, models, data, and vaults, and a Data Service Platform (DSP) for data labeling and task management.
+
