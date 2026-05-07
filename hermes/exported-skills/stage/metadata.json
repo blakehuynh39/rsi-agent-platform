@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "1bb8dd5e92860f93cee7f03d6b2a393884a35596472cca4555b7fb82a79b4826",
+        "sha256": "30cb160bb151c8b67667d24b96453decdcd7d4a703f39f7225733df6e20f8517",
         "size": 1578
       },
       {
@@ -2754,13 +2754,23 @@
       },
       {
         "path": "story-company/cloudflare-management/SKILL.md",
-        "sha256": "9d47dc26d8d0d7c595c570436c9169251c99025db8a63e92259041351f4864d1",
-        "size": 11943
+        "sha256": "50122aa032663aae7681846475baa098b002e77a17b10ef65371a0c3569b8af6",
+        "size": 12366
+      },
+      {
+        "path": "story-company/cloudflare-management/references/diagnosing-403-origin-vs-cf.md",
+        "sha256": "095f6976e36b7ecef6de4ae2f6f9fb7c99a608639b5eaf9ed2b88139759742de",
+        "size": 3017
       },
       {
         "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
         "sha256": "f1408c92a1fd7e14e028aadf24361f57cd46dd4a085e23066097a646c38302d9",
         "size": 6005
+      },
+      {
+        "path": "story-company/cloudflare-management/references/pulumi-gha-log-fetching.md",
+        "sha256": "c4460b3171bfb17e0749fb890360e2e2ed04d07583ac1b3b3087738154d825b5",
+        "size": 2335
       },
       {
         "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
@@ -4499,8 +4509,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T07:11:39Z",
-  "file_count": 898,
+  "exported_at": "2026-05-07T07:17:50Z",
+  "file_count": 900,
   "files": [
     {
       "path": ".curator_state",
@@ -4509,7 +4519,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "1bb8dd5e92860f93cee7f03d6b2a393884a35596472cca4555b7fb82a79b4826",
+      "sha256": "30cb160bb151c8b67667d24b96453decdcd7d4a703f39f7225733df6e20f8517",
       "size": 1578
     },
     {
@@ -7254,13 +7264,23 @@
     },
     {
       "path": "story-company/cloudflare-management/SKILL.md",
-      "sha256": "9d47dc26d8d0d7c595c570436c9169251c99025db8a63e92259041351f4864d1",
-      "size": 11943
+      "sha256": "50122aa032663aae7681846475baa098b002e77a17b10ef65371a0c3569b8af6",
+      "size": 12366
+    },
+    {
+      "path": "story-company/cloudflare-management/references/diagnosing-403-origin-vs-cf.md",
+      "sha256": "095f6976e36b7ecef6de4ae2f6f9fb7c99a608639b5eaf9ed2b88139759742de",
+      "size": 3017
     },
     {
       "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
       "sha256": "f1408c92a1fd7e14e028aadf24361f57cd46dd4a085e23066097a646c38302d9",
       "size": 6005
+    },
+    {
+      "path": "story-company/cloudflare-management/references/pulumi-gha-log-fetching.md",
+      "sha256": "c4460b3171bfb17e0749fb890360e2e2ed04d07583ac1b3b3087738154d825b5",
+      "size": 2335
     },
     {
       "path": "story-company/cloudflare-management/references/waf-rules-numolabs.md",
@@ -7347,9 +7367,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "bc5329c35be78ce1fdbd9511c5cb4d5f1cab314f5b9c334f58f168806e5912ac",
+  "previous_tree_hash": "a9623cbb6f0d117bcbb46a20dd9167a6196f334ad17d89993a8122732b2decd8",
   "schema_version": 1,
-  "skill_file_count": 568,
+  "skill_file_count": 570,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -7358,9 +7378,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "d4b99de4c5d843f6f128ea457b46c7bf135237cf39e8a80c0440b03ec6b1a3e2",
+  "skill_tree_hash": "86fef06eeff25d278ce7375d360f0c038a99c1681b5ebd0e259ed1935855131d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a9623cbb6f0d117bcbb46a20dd9167a6196f334ad17d89993a8122732b2decd8",
+  "tree_hash": "f7ca6061224c965dc07521b946144eb60fbf44e7b2bb71278a113abd59eb3a9c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

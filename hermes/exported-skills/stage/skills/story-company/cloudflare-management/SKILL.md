@@ -227,4 +227,6 @@ Before pushing a Cloudflare PR:
 - `references/waf-rules-numolabs.md` — Full WAF rule expressions, rate-limit tiers, IP allowlist structure, and block page IP extraction pattern
 - `references/internal-endpoints-numolabs.md` — Internal service-to-server endpoints behind numolabs.ai with their own origin-level auth (NDV, slackbot); guidance for WAF skip-rule decisions and auth model audit template
 - `references/waf-skip-custom-phase-pitfall.md` — **CRITICAL**: The `numolabs.ai` zone plan does NOT authorize WAF skip rules targeting `http_request_firewall_custom` phase (error 20120). Correct two-part fix: skip rule for managed+SBFM only + path exclusion in origin-check expression. Evidence from failed Pulumi run #25461941289.
+- `references/diagnosing-403-origin-vs-cf.md` — How to distinguish origin-level 403 (empty body, e.g. `NUMO_VALIDATION_ENABLED=false`) from Cloudflare WAF block (HTML block page). Includes error code mapping table and env var checklist.
+- `references/pulumi-gha-log-fetching.md` — Reliable technique for downloading Pulumi GHA logs when `gh run view --log` returns empty. Zip download via `gh api` + Python extraction.
 - `templates/pr-body-ip-allowlist.md` — PR description template for IP allowlist additions
