@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "1989ea7b77389b0b62e311cdea61fd1d08699ab0fc14ee0f8b112e1b897cebb4",
+        "sha256": "6cec1d02f21409664cf00b59571b02c70682bf3f6758b96b96117547cfcde787",
         "size": 1579
       },
       {
@@ -2876,13 +2876,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e2ecdc7e696bfc1d3f1c925894f0f9b622ca06de3b14392d9df85f2ea102a22d",
-        "size": 485161
+        "sha256": "c7a368d22b5372b2935bacbf382db2e3f9b145022912fded873ab4b29d22ac5b",
+        "size": 486174
       },
       {
         "path": "log.md",
-        "sha256": "e9c45f699215278f7145bbe4a92ecf0c20df94640b6d12372b0b77cb0fa9821e",
-        "size": 922204
+        "sha256": "27e84889ee3f9755771d386785b4d15d8b8397dfe04c040c35a64a1559dbeafe",
+        "size": 923253
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3608,6 +3608,21 @@
         "path": "pages/decisions/subnet-design-decisions.md",
         "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
         "size": 1222
+      },
+      {
+        "path": "pages/decisions/subnet-stale-task-detection.md",
+        "sha256": "688d1f2816301df67f9689e594239690e75a812db085a02e11f63ccc02f7fca3",
+        "size": 3418
+      },
+      {
+        "path": "pages/decisions/subnet-worker-concurrency.md",
+        "sha256": "45f21abd1c410ec6216297945b17cd1752fcbb403adcade3d74e6ad045d22678",
+        "size": 1500
+      },
+      {
+        "path": "pages/decisions/subnet-worker-heartbeat.md",
+        "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
+        "size": 1384
       },
       {
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -4729,8 +4744,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T16:41:36Z",
-  "file_count": 944,
+  "exported_at": "2026-05-07T16:57:48Z",
+  "file_count": 947,
   "files": [
     {
       "path": ".curator_state",
@@ -4739,7 +4754,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "1989ea7b77389b0b62e311cdea61fd1d08699ab0fc14ee0f8b112e1b897cebb4",
+      "sha256": "6cec1d02f21409664cf00b59571b02c70682bf3f6758b96b96117547cfcde787",
       "size": 1579
     },
     {
@@ -7602,7 +7617,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "7a1c03c5f6d38ef1c4b617c5a9559249a200d15b4a7e061fc587546a8476ea45",
+  "previous_tree_hash": "da8e22980465c8d372e8837eb74508df174aee5691f1591bcc499928aca2d74d",
   "schema_version": 1,
   "skill_file_count": 573,
   "skill_manage_sessions": [
@@ -7613,16 +7628,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "28608c7248fc5dcd9142c2521d24ce87a8dbdf56f63028d0367e299b1383271a",
+  "skill_tree_hash": "c32effca68ce239f5156373756dbd964569b125abbe252fbc43aecc3a763995c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "da8e22980465c8d372e8837eb74508df174aee5691f1591bcc499928aca2d74d",
+  "tree_hash": "823687bfdb77bbdaf742e7d51375c62320279f51cfa3fc4c6748554f7ebd162d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 371,
+  "wiki_file_count": 374,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7631,13 +7646,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e2ecdc7e696bfc1d3f1c925894f0f9b622ca06de3b14392d9df85f2ea102a22d",
-      "size": 485161
+      "sha256": "c7a368d22b5372b2935bacbf382db2e3f9b145022912fded873ab4b29d22ac5b",
+      "size": 486174
     },
     {
       "path": "log.md",
-      "sha256": "e9c45f699215278f7145bbe4a92ecf0c20df94640b6d12372b0b77cb0fa9821e",
-      "size": 922204
+      "sha256": "27e84889ee3f9755771d386785b4d15d8b8397dfe04c040c35a64a1559dbeafe",
+      "size": 923253
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8363,6 +8378,21 @@
       "path": "pages/decisions/subnet-design-decisions.md",
       "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
       "size": 1222
+    },
+    {
+      "path": "pages/decisions/subnet-stale-task-detection.md",
+      "sha256": "688d1f2816301df67f9689e594239690e75a812db085a02e11f63ccc02f7fca3",
+      "size": 3418
+    },
+    {
+      "path": "pages/decisions/subnet-worker-concurrency.md",
+      "sha256": "45f21abd1c410ec6216297945b17cd1752fcbb403adcade3d74e6ad045d22678",
+      "size": 1500
+    },
+    {
+      "path": "pages/decisions/subnet-worker-heartbeat.md",
+      "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
+      "size": 1384
     },
     {
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -9481,5 +9511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7a8dc89db48eedc35621fbed054b5eac3246c7b1c2cf10895e495c5be84a7c0a"
+  "wiki_tree_hash": "a6371fadcaae65cdf0b2b3be2274fe41ef07ca433fda6e7e6e90bc7b041c4db0"
 }

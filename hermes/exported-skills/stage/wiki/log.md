@@ -19445,3 +19445,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3a55a149153351ef0c00df037291d4df
 - summary: Configuration for Cloudflare protection of PSDN frontend and backend endpoints, including origin hardening, rate limiting rules, and bot management.
 
+## [2026-05-07T16:56:04Z] synthesis | Stale Task Detection Mechanisms
+
+- status: published
+- slug: decisions/subnet-stale-task-detection
+- wiki_revision_id: wikirev_aaa02c3c12c45581ccc32160b6540e95
+- summary: Proposed mechanisms for detecting stale tasks in the subnet scheduling system, including round-robin jail detection and community keeper incentives.
+
+## [2026-05-07T16:56:04Z] synthesis | Worker Concurrent Job Limits
+
+- status: published
+- slug: decisions/subnet-worker-concurrency
+- wiki_revision_id: wikirev_f69c5a84919c684d97983f10d8fbd546
+- summary: Proposal to allow workers to specify how many concurrent jobs they can handle, with an upper bound limit, to increase system throughput.
+
+## [2026-05-07T16:56:04Z] synthesis | Worker Heartbeat Signal Design
+
+- status: published
+- slug: decisions/subnet-worker-heartbeat
+- wiki_revision_id: wikirev_5bcb6b15b46276f4bc59870776f2e398
+- summary: Decision that worker heartbeat should be a global liveness signal rather than per-activity, since it only indicates whether a worker is alive.
+
