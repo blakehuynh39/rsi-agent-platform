@@ -2866,18 +2866,23 @@
       },
       {
         "path": "index.md",
-        "sha256": "be124867b0f896c35ae0429abdfa4516ce8db46badeb9084b80d757f15ba3fbc",
-        "size": 471777
+        "sha256": "56d19a6299f3645a13970ec0da8db207b4edd0b7e4b9cd457b1c800a8c49cf15",
+        "size": 472612
       },
       {
         "path": "log.md",
-        "sha256": "abaf9f7aae129df0ccf688163740bce42efd0900b03d56dcaa8704feafeb2939",
-        "size": 907829
+        "sha256": "09782cc5ba1eb9410eaa7cce3cc011ef966f60c4ff1759ab0a3d0d4cc220b2e4",
+        "size": 908688
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
         "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
+      },
+      {
+        "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
+        "sha256": "e9822a4f6db7643dd3f643f45a38bf99d9b88fa8b23b923909da9b1fdc027f1f",
+        "size": 8817
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
@@ -3780,6 +3785,11 @@
         "size": 1259
       },
       {
+        "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
+        "sha256": "fe1c15e4108d2166d663beb4551bff2a0d47dbdbdc1371e4a2b6589e75739356",
+        "size": 5616
+      },
+      {
         "path": "pages/projects/emergence-universe.md",
         "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
         "size": 2353
@@ -4514,8 +4524,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T08:00:41Z",
-  "file_count": 901,
+  "exported_at": "2026-05-07T08:06:50Z",
+  "file_count": 903,
   "files": [
     {
       "path": ".curator_state",
@@ -7377,7 +7387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c89c4f2tzr",
-  "previous_tree_hash": "e10dc24035e012528b908735483e4b8df42cd83d52d4c4cc923bc981c109b44f",
+  "previous_tree_hash": "1db5c88beefe2ffb6ba7b2c8f30bcb89acc252dc8728189e05599813304630ee",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7390,14 +7400,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1db5c88beefe2ffb6ba7b2c8f30bcb89acc252dc8728189e05599813304630ee",
+  "tree_hash": "bd0d6cb501f01b13cd64dfecd01dd31f1a0c3d9d64afca2d87679e86d244a41b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 330,
+  "wiki_file_count": 332,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7406,18 +7416,23 @@
     },
     {
       "path": "index.md",
-      "sha256": "be124867b0f896c35ae0429abdfa4516ce8db46badeb9084b80d757f15ba3fbc",
-      "size": 471777
+      "sha256": "56d19a6299f3645a13970ec0da8db207b4edd0b7e4b9cd457b1c800a8c49cf15",
+      "size": 472612
     },
     {
       "path": "log.md",
-      "sha256": "abaf9f7aae129df0ccf688163740bce42efd0900b03d56dcaa8704feafeb2939",
-      "size": 907829
+      "sha256": "09782cc5ba1eb9410eaa7cce3cc011ef966f60c4ff1759ab0a3d0d4cc220b2e4",
+      "size": 908688
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
       "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
+    },
+    {
+      "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
+      "sha256": "e9822a4f6db7643dd3f643f45a38bf99d9b88fa8b23b923909da9b1fdc027f1f",
+      "size": 8817
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
@@ -8320,6 +8335,11 @@
       "size": 1259
     },
     {
+      "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
+      "sha256": "fe1c15e4108d2166d663beb4551bff2a0d47dbdbdc1371e4a2b6589e75739356",
+      "size": 5616
+    },
+    {
       "path": "pages/projects/emergence-universe.md",
       "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
       "size": 2353
@@ -9051,5 +9071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "846530b5e33e42051a44b110ce2b5435363365b035f1265a8c65dd78f7b00b7d"
+  "wiki_tree_hash": "90ea0bc1eeb94abbe4a46af9e0eb97f32660258597c4fd1bbdd92f192bbda46e"
 }

@@ -19151,3 +19151,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bbd2be2aaf92da27f4ceaf2a08ced9ba
 - summary: Proposed approach to train a model using Group1's codebase on Prime Intellect, implement inference with Ollama/Llama.cpp for experiments and vllm/sglang for production, and validat...
 
+## [2026-05-07T08:04:30Z] synthesis | AI Model Training and Fine-Tuning Strategies
+
+- status: published
+- slug: concepts/ai-model-training-and-fine-tuning-strategies
+- wiki_revision_id: wikirev_9f7a7bf75ca89394417c22ed27cdc58d
+- summary: Overview of various AI model training and fine-tuning methods including pretraining, full fine-tuning, parameter-efficient fine-tuning (PEFT), instruction tuning, and RLHF, with th...
+
