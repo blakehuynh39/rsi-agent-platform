@@ -25,11 +25,12 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 	if err != nil {
 		return err
 	}
-	holder := "db-read-worker-" + uuid.NewString()
-	var slackAPI slackMessagePoster
-	if cfg.SlackBotToken != "" {
-		slackAPI = slack.New(cfg.SlackBotToken)
+	lambdaInvoker, err := dbread.NewLambdaInvoker(context.Background())
+	if err != nil {
+		log.Printf("db-read-worker lambda invoker unavailable error=%v", err)
 	}
+	holder := "db-read-worker-" + uuid.NewString()
+	slackAPI := dbReadSlackAPI(cfg)
 	log.Printf("starting db-read-worker holder=%s targets=%v", holder, cfg.DBReadWorkerTargets)
 	prioritizeValidation := true
 	for {
@@ -52,7 +53,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				continue
 			}
 			if ok {
-				handleDBReadValidationLease(context.Background(), cfg, store, registry, slackAPI, validationLease)
+				handleDBReadValidationLease(context.Background(), cfg, store, registry, slackAPI, lambdaInvoker, validationLease)
 				continue
 			}
 			lease, ok, err := store.ClaimNextDBReadRequest(holder, cfg.WorkItemLeaseDuration, now, cfg.DBReadWorkerTargets)
@@ -65,7 +66,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				time.Sleep(cfg.WorkerPollInterval)
 				continue
 			}
-			handleDBReadLease(context.Background(), store, registry, slackAPI, lease)
+			handleDBReadLease(context.Background(), store, registry, slackAPI, lambdaInvoker, lease)
 		} else {
 			lease, ok, err := store.ClaimNextDBReadRequest(holder, cfg.WorkItemLeaseDuration, now, cfg.DBReadWorkerTargets)
 			if err != nil {
@@ -74,7 +75,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				continue
 			}
 			if ok {
-				handleDBReadLease(context.Background(), store, registry, slackAPI, lease)
+				handleDBReadLease(context.Background(), store, registry, slackAPI, lambdaInvoker, lease)
 				continue
 			}
 			validationLease, ok, err := store.ClaimNextDBReadValidationRequest(holder, cfg.WorkItemLeaseDuration, now, cfg.DBReadWorkerTargets)
@@ -87,12 +88,19 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				time.Sleep(cfg.WorkerPollInterval)
 				continue
 			}
-			handleDBReadValidationLease(context.Background(), cfg, store, registry, slackAPI, validationLease)
+			handleDBReadValidationLease(context.Background(), cfg, store, registry, slackAPI, lambdaInvoker, validationLease)
 		}
 	}
 }
 
-func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lease storepkg.DBReadLease) {
+func dbReadSlackAPI(cfg config.Config) slackMessagePoster {
+	if cfg.SlackBotToken == "" {
+		return nil
+	}
+	return slack.New(cfg.SlackBotToken)
+}
+
+func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lambdaInvoker *dbread.LambdaInvoker, lease storepkg.DBReadLease) {
 	request := lease.Request
 	target, ok := registry.Target(request.Target)
 	now := time.Now().UTC()
@@ -109,7 +117,20 @@ func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store s
 		})
 		return
 	}
-	validation := dbread.ValidateAgainstTarget(ctx, target, request.SQL)
+	var validation dbread.SQLValidation
+	if target.ExecutionBoundary() == "aws_lambda" {
+		if lambdaInvoker == nil {
+			validation = dbread.SQLValidation{SQLSHA256: request.SQLSHA256, ErrorCode: "lambda_unavailable", Message: "Lambda invoker is not configured"}
+		} else {
+			lambdaValidation, err := lambdaInvoker.Validate(ctx, target, lease)
+			validation = lambdaValidation
+			if err != nil {
+				log.Printf("db-read-worker lambda validation request=%s target=%s error=%v", request.ID, request.Target, err)
+			}
+		}
+	} else {
+		validation = dbread.ValidateAgainstTarget(ctx, target, request.SQL)
+	}
 	status := storepkg.DBReadValidationStatusFailed
 	if validation.OK {
 		status = storepkg.DBReadValidationStatusSucceeded
@@ -132,7 +153,7 @@ func appendDBReadValidation(store storepkg.Store, request storepkg.DBReadRequest
 	return store.AppendDBReadValidationAttempt(attempt)
 }
 
-func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lease storepkg.DBReadLease) {
+func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lambdaInvoker *dbread.LambdaInvoker, lease storepkg.DBReadLease) {
 	request := lease.Request
 	target, ok := registry.Target(request.Target)
 	if !ok {
@@ -174,7 +195,16 @@ func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbrea
 	if err := updateDBReadSlackCard(ctx, slackAPI, request, "executing"); err != nil {
 		log.Printf("db-read-worker slack executing update request=%s error=%v", request.ID, err)
 	}
-	result, err := dbread.ExecuteRead(ctx, target, request)
+	var result dbread.DBResult
+	if target.ExecutionBoundary() == "aws_lambda" {
+		if lambdaInvoker == nil {
+			err = fmt.Errorf("Lambda invoker is not configured")
+		} else {
+			result, err = lambdaInvoker.Execute(ctx, target, storepkg.DBReadLease{Request: request, Token: lease.Token})
+		}
+	} else {
+		result, err = dbread.ExecuteRead(ctx, target, request)
+	}
 	status := storepkg.DBReadExecutionStatusSucceeded
 	errorCode := ""
 	errorMessage := ""

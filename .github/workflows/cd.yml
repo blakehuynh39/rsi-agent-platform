@@ -113,6 +113,11 @@ jobs:
             tag_prefix: improvement-plane
             build_args: |
               SERVICE=improvement-plane
+          - name: db-read-lambda
+            dockerfile: ./Dockerfile.db-read-lambda
+            repository: rsi-agent-platform-db-read-lambda
+            tag_prefix: db-read-lambda
+            build_args: ""
           - name: hermes-executor
             dockerfile: ./runner/Dockerfile.hermes-executor
             repository: rsi-agent-platform-hermes-executor
@@ -183,6 +188,7 @@ jobs:
           build-args: ${{ matrix.build_args }}
           provenance: false
           sbom: false
+          platforms: linux/amd64
           push: true
           tags: ${{ format('{0}/{1}:{2}-{3}', steps.login-ecr.outputs.registry, matrix.repository, matrix.tag_prefix, env.IMAGE_VERSION) }}
           cache-from: type=gha,scope=${{ matrix.name }}

@@ -23,10 +23,18 @@ func ValidateAgainstTarget(ctx context.Context, target Target, sqlText string) S
 	if !safety.OK {
 		return safety
 	}
+	var err error
+	target, err = resolveTargetDSN(ctx, target)
+	if err != nil {
+		safety.OK = false
+		safety.ErrorCode = "dsn_secret_failed"
+		safety.Message = sanitizeError(err)
+		return safety
+	}
 	if strings.TrimSpace(target.DSN) == "" {
 		safety.OK = false
 		safety.ErrorCode = "target_dsn_missing"
-		safety.Message = "Target-side validation requires a configured DSN on the local worker/relay"
+		safety.Message = "Target-side validation requires a configured DSN on the local execution boundary"
 		return safety
 	}
 	db, err := sql.Open("pgx", target.DSN)
@@ -70,6 +78,11 @@ func ValidateAgainstTarget(ctx context.Context, target Target, sqlText string) S
 }
 
 func ExecuteRead(ctx context.Context, target Target, request storepkg.DBReadRequest) (DBResult, error) {
+	var err error
+	target, err = resolveTargetDSN(ctx, target)
+	if err != nil {
+		return DBResult{}, err
+	}
 	if strings.TrimSpace(target.DSN) == "" {
 		return DBResult{}, fmt.Errorf("target DSN is not configured")
 	}

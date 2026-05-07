@@ -1,0 +1,16 @@
+ARG GO_VERSION=1.26.2
+
+FROM golang:${GO_VERSION}-bookworm AS builder
+
+ARG TARGETOS=linux
+ARG TARGETARCH
+WORKDIR /src
+COPY go.mod go.sum* ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=1 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -tags lambda.norpc -o /out/bootstrap ./cmd/db-read-lambda
+
+FROM public.ecr.aws/lambda/provided:al2023
+COPY --from=builder /out/bootstrap /var/runtime/bootstrap
+ENTRYPOINT ["/var/runtime/bootstrap"]

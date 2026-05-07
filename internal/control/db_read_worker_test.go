@@ -48,7 +48,7 @@ func TestDBReadWorkerExpiresApprovedRequestBeforeExecution(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handleDBReadLease(context.Background(), store, registry, nil, lease)
+	handleDBReadLease(context.Background(), store, registry, nil, nil, lease)
 
 	updated, ok := store.GetDBReadRequest(request.ID)
 	if !ok {

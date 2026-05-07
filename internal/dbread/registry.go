@@ -12,17 +12,20 @@ import (
 )
 
 type Target struct {
-	ID             string                         `json:"id"`
-	Placement      string                         `json:"placement,omitempty"`
-	DSN            string                         `json:"dsn,omitempty"`
-	DSNEnv         string                         `json:"dsn_env,omitempty"`
-	AllowedSchemas []string                       `json:"allowed_schemas,omitempty"`
-	AllowedTables  []string                       `json:"allowed_tables,omitempty"`
-	AllowedColumns map[string][]string            `json:"allowed_columns,omitempty"`
-	Caps           storepkg.DBReadCaps            `json:"caps"`
-	ApprovalTTL    string                         `json:"approval_ttl,omitempty"`
-	Redaction      storepkg.DBReadRedactionPolicy `json:"redaction,omitempty"`
-	RelayIdentity  string                         `json:"relay_identity,omitempty"`
+	ID              string                         `json:"id"`
+	Placement       string                         `json:"placement,omitempty"`
+	DSN             string                         `json:"dsn,omitempty"`
+	DSNEnv          string                         `json:"dsn_env,omitempty"`
+	DSNSecretARN    string                         `json:"dsn_secret_arn,omitempty"`
+	DSNSecretARNEnv string                         `json:"dsn_secret_arn_env,omitempty"`
+	AllowedSchemas  []string                       `json:"allowed_schemas,omitempty"`
+	AllowedTables   []string                       `json:"allowed_tables,omitempty"`
+	AllowedColumns  map[string][]string            `json:"allowed_columns,omitempty"`
+	Caps            storepkg.DBReadCaps            `json:"caps"`
+	ApprovalTTL     string                         `json:"approval_ttl,omitempty"`
+	Redaction       storepkg.DBReadRedactionPolicy `json:"redaction,omitempty"`
+	LambdaFunction  string                         `json:"lambda_function_name,omitempty"`
+	LambdaQualifier string                         `json:"lambda_qualifier,omitempty"`
 }
 
 type Registry struct {
@@ -77,6 +80,9 @@ func (r Registry) Target(id string) (Target, bool) {
 	if target.DSN == "" && target.DSNEnv != "" {
 		target.DSN = strings.TrimSpace(os.Getenv(target.DSNEnv))
 	}
+	if target.DSNSecretARN == "" && target.DSNSecretARNEnv != "" {
+		target.DSNSecretARN = strings.TrimSpace(os.Getenv(target.DSNSecretARNEnv))
+	}
 	return target, true
 }
 
@@ -90,13 +96,19 @@ func (r Registry) PublicSources() []map[string]any {
 			"allowed_tables":  target.AllowedTables,
 			"caps":            target.Caps,
 			"approval_ttl":    firstNonEmpty(target.ApprovalTTL, "1h"),
-			"relay_identity":  target.RelayIdentity,
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
 		return out[i]["id"].(string) < out[j]["id"].(string)
 	})
 	return out
+}
+
+func (t Target) ExecutionBoundary() string {
+	if strings.TrimSpace(t.LambdaFunction) != "" {
+		return "aws_lambda"
+	}
+	return "local"
 }
 
 func (t Target) TTL() time.Duration {
