@@ -6,6 +6,7 @@ freshness: "2025-08-12T19:35:00Z"
 tags:
   - "depin"
   - "release"
+  - "v1.0.0"
 owners: []
 source_revision_ids:
   - "srcrev_2544ae5ba0876322b29d51f1d3cf1cd4"
@@ -25,6 +26,6 @@ DePIN version 1.0.0 release.
 
 ## Sources
 
-- `source_document_id`: `srcdoc_6fb352b7724efb40f127dc15a87ad22f`
-- `source_revision_id`: `srcrev_2544ae5ba0876322b29d51f1d3cf1cd4`
-- `source_url`: [Notion source](https://www.notion.so/DePIN-Releases-247051299a54801087f9dcbf2aa69f55)
+- `source_document_id`: `srcdoc_9629c83bb142d4c64626587d15a5e6c7`
+- `source_revision_id`: `srcrev_1f5f2e21400280ff67fe94e573c908e7`
+- `source_url`: [Notion source](https://www.notion.so/v1-0-0-24d051299a54806eb368fcb13bf2e2fd)
