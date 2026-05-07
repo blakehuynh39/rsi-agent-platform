@@ -19711,3 +19711,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8782fca7853f86c869dd4ab5c679426c
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-07T23:03:10Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_6b5d69fe3590b1cfd9fe75577484258c
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+

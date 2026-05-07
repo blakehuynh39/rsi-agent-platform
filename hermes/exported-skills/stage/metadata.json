@@ -2906,13 +2906,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ebc3bf59648589276c75a1c4fd4130f2faaebdf9279238af8a0e84200e9c9326",
+        "sha256": "dd3d44319ab4b4f1dc699a69c2bea84c134289a0c5de3802543094e42654e99b",
         "size": 496238
       },
       {
         "path": "log.md",
-        "sha256": "27ba03b7ed94d929a6fc7cbe17ef66b984b6280dda756fda84bea2cd8311f9e1",
-        "size": 934870
+        "sha256": "46698f36c37b36f47cda4ec285fbc84fb6c9f2db71732a26309bf1a50cdd9133",
+        "size": 935164
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4811,8 +4811,8 @@
       },
       {
         "path": "pages/systems/numo-product-backlog.md",
-        "sha256": "aa7f969c504c9e6d7556ade6989ec90b03e638c453e09b6170d5a6d19a3275c3",
-        "size": 1101
+        "sha256": "1cbfb725d8cd4c757031f592c58a1399cbb4626382f5765804921bec035846a2",
+        "size": 1135
       },
       {
         "path": "pages/systems/polygon-token-oracle-backend.md",
@@ -4929,7 +4929,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T23:02:26Z",
+  "exported_at": "2026-05-07T23:08:01Z",
   "file_count": 984,
   "files": [
     {
@@ -7831,8 +7831,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd97nwjk",
-  "previous_tree_hash": "e5838ab078633773e1cc19317ea2a213aa6c2f059c2214cf9aa9c50b2d30d84b",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd97tb5m",
+  "previous_tree_hash": "71b153c9ca96ad1cd3da9273d5094fdbdd0d0ec527c00221d750dc337e85990e",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7845,7 +7845,7 @@
   ],
   "skill_tree_hash": "74117d619064610324c6f04f91504585b9e20fd5cd813b4f53eedfbfc7fcb2f2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "71b153c9ca96ad1cd3da9273d5094fdbdd0d0ec527c00221d750dc337e85990e",
+  "tree_hash": "4e32f3e2741a77dd2cb81fe679d96b4cdc0e55712da80afa27036685b33dee38",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7861,13 +7861,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ebc3bf59648589276c75a1c4fd4130f2faaebdf9279238af8a0e84200e9c9326",
+      "sha256": "dd3d44319ab4b4f1dc699a69c2bea84c134289a0c5de3802543094e42654e99b",
       "size": 496238
     },
     {
       "path": "log.md",
-      "sha256": "27ba03b7ed94d929a6fc7cbe17ef66b984b6280dda756fda84bea2cd8311f9e1",
-      "size": 934870
+      "sha256": "46698f36c37b36f47cda4ec285fbc84fb6c9f2db71732a26309bf1a50cdd9133",
+      "size": 935164
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9766,8 +9766,8 @@
     },
     {
       "path": "pages/systems/numo-product-backlog.md",
-      "sha256": "aa7f969c504c9e6d7556ade6989ec90b03e638c453e09b6170d5a6d19a3275c3",
-      "size": 1101
+      "sha256": "1cbfb725d8cd4c757031f592c58a1399cbb4626382f5765804921bec035846a2",
+      "size": 1135
     },
     {
       "path": "pages/systems/polygon-token-oracle-backend.md",
@@ -9881,5 +9881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "402a0ecfffdab26e852d1f50fe12a1e2666d0e6eb73a77b584500f5124132422"
+  "wiki_tree_hash": "5a499358abc935f6265c0aae8816849c18f4ce11477bf768af016927b6a6b39b"
 }
