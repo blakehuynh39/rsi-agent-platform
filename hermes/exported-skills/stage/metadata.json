@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "60ab2f55c69b2adb9b4b39d8314424dd34c1c99bdbcc8ddfa0c54057a233f209",
-        "size": 479777
+        "sha256": "51bb95df0cbfcf1aacbf9d1765723899442630d4993e5c109111a7ffb8444405",
+        "size": 480155
       },
       {
         "path": "log.md",
-        "sha256": "9fd3b58160c77a3fea0028a4676bb6e800961b26c8d791816b6ffadd8c7e565e",
-        "size": 916396
+        "sha256": "ff9b94c3da8e7b9d54a6c9c273c26b93104c8330af89dcb1bea410c33e7c03da",
+        "size": 916786
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2953,6 +2953,11 @@
         "path": "pages/concepts/cross-chain-interactions.md",
         "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
         "size": 5888
+      },
+      {
+        "path": "pages/concepts/data-preparation-and-training-research.md",
+        "sha256": "561526742d95ab7b27769aad18091fba04021c68e31a3ca6140671b4793d7c92",
+        "size": 4133
       },
       {
         "path": "pages/concepts/debias-and-denoise-attribution-dda.md",
@@ -4634,8 +4639,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T13:09:16Z",
-  "file_count": 925,
+  "exported_at": "2026-05-07T13:20:25Z",
+  "file_count": 926,
   "files": [
     {
       "path": ".curator_state",
@@ -7497,7 +7502,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "8a335fa609cc165362bb74d90b0f7c641218f65664ea69f20d59e369a836055e",
+  "previous_tree_hash": "3b96652e7d22adb78f3a72a0561cfa34a0e6f06d398a81d989259fa86782ed28",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7510,14 +7515,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3b96652e7d22adb78f3a72a0561cfa34a0e6f06d398a81d989259fa86782ed28",
+  "tree_hash": "2681beb3607f2d65660b724192a3fc6b5d71d6732c218fd4f7c9649ba7d59624",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 354,
+  "wiki_file_count": 355,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7526,13 +7531,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "60ab2f55c69b2adb9b4b39d8314424dd34c1c99bdbcc8ddfa0c54057a233f209",
-      "size": 479777
+      "sha256": "51bb95df0cbfcf1aacbf9d1765723899442630d4993e5c109111a7ffb8444405",
+      "size": 480155
     },
     {
       "path": "log.md",
-      "sha256": "9fd3b58160c77a3fea0028a4676bb6e800961b26c8d791816b6ffadd8c7e565e",
-      "size": 916396
+      "sha256": "ff9b94c3da8e7b9d54a6c9c273c26b93104c8330af89dcb1bea410c33e7c03da",
+      "size": 916786
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -7613,6 +7618,11 @@
       "path": "pages/concepts/cross-chain-interactions.md",
       "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
       "size": 5888
+    },
+    {
+      "path": "pages/concepts/data-preparation-and-training-research.md",
+      "sha256": "561526742d95ab7b27769aad18091fba04021c68e31a3ca6140671b4793d7c92",
+      "size": 4133
     },
     {
       "path": "pages/concepts/debias-and-denoise-attribution-dda.md",
@@ -9291,5 +9301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "65933f0d3a974901d62707daf5adae2bc657f4544605e10388ca02ca8b35c4d5"
+  "wiki_tree_hash": "e7f543fc058c96d75eaad2827abdc77b2faebf295fd396f696f1be03ae362192"
 }

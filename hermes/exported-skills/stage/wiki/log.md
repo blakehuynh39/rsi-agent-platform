@@ -19319,3 +19319,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8b5d7f91a65d17cdf3da7762e0d9237c
 - summary: Open questions and decisions regarding product features, World ID verification, rewards, licensing, and compliance.
 
+## [2026-05-07T13:19:47Z] synthesis | Data Preparation and Training Research
+
+- status: published
+- slug: concepts/data-preparation-and-training-research
+- wiki_revision_id: wikirev_2d5ed19416094466acd7a259d4c84a3c
+- summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
+
