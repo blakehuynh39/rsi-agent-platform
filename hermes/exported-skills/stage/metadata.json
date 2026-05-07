@@ -2789,8 +2789,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "915190c790ab44977b233bd336c939e3bdda6bd1e312f8b003a2d83aa46cf8fd",
-        "size": 14000
+        "sha256": "a18a28fdc9a5ea23b9f66c6603db936b166b10c34c79ee359cbeb50b9682f29a",
+        "size": 15459
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -4799,7 +4799,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T17:33:30Z",
+  "exported_at": "2026-05-07T17:44:40Z",
   "file_count": 958,
   "files": [
     {
@@ -7589,8 +7589,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "915190c790ab44977b233bd336c939e3bdda6bd1e312f8b003a2d83aa46cf8fd",
-      "size": 14000
+      "sha256": "a18a28fdc9a5ea23b9f66c6603db936b166b10c34c79ee359cbeb50b9682f29a",
+      "size": 15459
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -7677,7 +7677,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "ac50bb2a65280794fb05c65a7c3c32b06ef62e63c0847ab2769aea954c5e55b8",
+  "previous_tree_hash": "c1795b50e6d8d167052c161e1a3ea61679e14a561d568ca97166f2264212d610",
   "schema_version": 1,
   "skill_file_count": 574,
   "skill_manage_sessions": [
@@ -7688,9 +7688,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "988d7c20d7c0ae8a10adfffa4ac6cf4f2a3e85375fad2f22858eadbf44a2bb28",
+  "skill_tree_hash": "370edd1e02aa8747970f44e2814b02395b36aee8011cf532cdd294025684ec2f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c1795b50e6d8d167052c161e1a3ea61679e14a561d568ca97166f2264212d610",
+  "tree_hash": "823f67b89c123772747d79f3ef39c3eb9b7855cf95f0a402b76257f38cbb6e2e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

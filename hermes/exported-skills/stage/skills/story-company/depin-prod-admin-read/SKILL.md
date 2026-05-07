@@ -20,6 +20,15 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 - Never print, summarize, export, or store the credential value. Only report whether it is present.
 - Treat this credential as read-only. Do not use it for write, mutation, delete, or admin management actions.
 
+## Choose The Read Path
+
+There are two separate read paths. Pick one deliberately and do not mix their results unless the user asks for comparison.
+
+- **Admin REST/curl path**: use this first for supported aggregate depin admin endpoints such as `/v1/admin/stats/*`, `/v1/admin/cohorts/languages`, and `/v1/admin/overview`. It uses `DEPIN_ADMIN_BASE_URL` plus the mounted admin read key. It is best for predefined product metrics and fast aggregate stats.
+- **DB Read Tool / `rsi-db` path**: use this only when REST endpoints cannot answer the exact question, such as table-level counts, arbitrary filters, joins, or validating data semantics directly in PostgreSQL. It creates a Slack-approved SQL read request. After `rsi-db query` submits the request, stop: the approval/result card in the Slack thread is the user-facing response.
+
+For language-related counts, be precise about semantics. `/v1/admin/cohorts/languages` groups by `users.primary_language`; direct SQL against `scripts.language_code` counts transcript/script records. These are different questions and can return different numbers.
+
 ## Pitfalls
 
 - **`execute_code` Python env is blind to `DEPIN_*` vars.** The Python subprocess spawned by `execute_code` runs in a limited environment that does not inherit the admin read key env vars. Use `terminal` (shell `env | grep DEPIN`) to confirm credential presence. If `execute_code` reports all vars as MISSING but `terminal` shows them present, trust the shell output.
@@ -53,7 +62,7 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
    - request blocked before reaching depin
    - **stats key hitting a non-stats endpoint** (e.g., `/v1/admin/users`) — the key is working; the endpoint expects different auth. Report this as an auth scope mismatch, not a key rejection.
 11. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
-12. **When REST endpoints are insufficient** (e.g., need table-level counts, arbitrary filters, or joins not exposed via `/v1/admin/*`), fall back to the **DB Read Tool** (`/internal/db-read/query` on the control plane). See the "DB Read Tool (Direct SQL)" section above for full workflow, caps, and pitfalls. Key steps: find control plane pod IP → confirm `RSI_DB_READ_CLIENT_TOKEN` → validate SQL → submit query → wait for Slack approval.
+12. **When REST endpoints are insufficient** (e.g., need table-level counts, arbitrary filters, or joins not exposed via `/v1/admin/*`), fall back to the **DB Read Tool** (`rsi-db query`). See the "DB Read Tool (Direct SQL)" section below for full workflow, caps, and pitfalls. Key steps: inspect schema if needed → write exact read-only SQL → submit one `rsi-db query` request → stop and let the approval/result card handle the Slack response.
 
 ## Response Standard
 
@@ -99,14 +108,14 @@ When the admin REST API endpoints don't support the needed query (e.g., table-le
 1. `POST /internal/db-read/validate` with `{target, sql}` to pre-validate (optional but recommended)
 2. `POST /internal/db-read/query` with `{target, sql, purpose, requester, channel_id, thread_ts, ...}` to submit
 3. The control plane validates SQL, stores the request, and for prod targets posts a Slack approval card in the specified channel/thread
-4. The approving user clicks "Approve once" — the query goes to the Lambda and results are posted back to the thread
-5. Results include row count, truncation status, and a sample
+4. An authorized DB-read admin clicks "Approve once" — the query goes to the Lambda and results are posted back to the thread
+5. Results include row count, truncation status, and either `Result` for complete rows or `Result (truncated)` when output was capped
 
 ### Approval Flow
 
 Prod queries require explicit human approval via Slack interactive buttons ("Approve once" / "Deny"). The approval card is posted to the thread specified in `channel_id`/`thread_ts`. Stage queries may auto-approve depending on configuration.
 
-**Important**: Do NOT try to self-approve programmatically. Wait for the user to click "Approve once" in Slack.
+**Important**: Do NOT try to self-approve programmatically. Do not say the request is waiting for "your" approval; it is waiting for an authorized admin. After `rsi-db query` submits a request, do not send a separate Slack reply or tell the requester to approve it. The approval/result card is the response.
 
 ### Query Examples
 
@@ -126,7 +135,7 @@ GROUP BY s.language_code ORDER BY transcript_count DESC LIMIT 20
 - **kubectl port-forward is RBAC-blocked.** The hermes executor SA lacks `pods/portforward` permission in `rsi-platform`. Use direct pod IP instead.
 - **Control plane pod IP changes on restart.** Re-run the discovery step each session.
 - **Prod timeout is 20s.** Keep queries simple. Complex joins on large tables may timeout.
-- **Results sample may be truncated.** The `truncated` field in the result indicates if the full result exceeded the byte cap.
+- **Results may be truncated.** The Slack card labels complete output as `Result` and partial output as `Result (truncated)`. The `truncated` field indicates whether the full result exceeded row/byte caps.
 - **SQL is validated offline first**, then on-target. Make sure column names exist in the schema before submitting. Use `/internal/db-read/schema?target=depin-prod` to inspect available tables and columns.
 - Full API details, endpoint schemas, and request/response formats are documented in `references/db-read-api.md`.
 
