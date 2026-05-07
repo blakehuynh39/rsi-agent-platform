@@ -19165,3 +19165,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_41f9a478be8fbfba8b28b63047270c6f
 - summary: Vana is an L1 blockchain network for user-owned data, enabling data pooling via DataDAOs while preserving privacy. It allows developers to build AI models and data-driven dApps usi...
 
+## [2026-05-07T09:06:53Z] synthesis | Bria AI
+
+- status: published
+- slug: concepts/bria-ai
+- wiki_revision_id: wikirev_676c44f5145272fe800623d74d0edcf6
+- summary: Bria AI is an AI model company that trains models exclusively on licensed data and programmatically compensates data owners through a patented attribution engine. It recently raise...
+
