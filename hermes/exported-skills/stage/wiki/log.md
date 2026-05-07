@@ -18988,3 +18988,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4805bcf2a18f2508330f5ae7adcf425a
 - summary: Steps to sign up for the weekly design review: create a new page under 'Project/Product' and use the 'Design Review Template' to prepare share-out materials.
 
+## [2026-05-07T04:49:27Z] synthesis | Hook System Design
+
+- status: published
+- slug: systems/hook-system
+- wiki_revision_id: wikirev_822b55c97e5a6acfc9379b16e3c0f085
+- summary: Design of the hook system for extending and customizing module behavior, supporting synchronous and asynchronous operations, with a generic interface, registry, and role-based acce...
+
