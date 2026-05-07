@@ -19186,3 +19186,52 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_302a694126c22371b3edfd7849444b80
 - summary: A gradient-based method for identifying influential training examples, outperforming prior methods but with limitations in fact-entailment retrieval.
 
+## [2026-05-07T10:31:16Z] synthesis | Parallel Upload Optimization
+
+- status: published
+- slug: projects/parallel-upload-optimization
+- wiki_revision_id: wikirev_a1e19b5fe7673ae0edfdf28d0cf184cd
+- summary: Implement data chunking and network layer optimization to address network bandwidth bottlenecks during parallel uploads.
+
+## [2026-05-07T10:31:16Z] synthesis | Pre-Processing Optimization
+
+- status: published
+- slug: projects/pre-processing-optimization
+- wiki_revision_id: wikirev_5841e55844df78b370a6eaa4a0dda73e
+- summary: Optimize the merging of smaller data during pre-processing, depending on the pattern of data.
+
+## [2026-05-07T10:31:16Z] synthesis | Batch Upload and Dual-Tier Pipelines
+
+- status: published
+- slug: projects/batch-upload-and-dual-tier-pipelines
+- wiki_revision_id: wikirev_52c913c73622bfe035e1825ddc3feb6b
+- summary: Implement batch upload and dual-tier pipelines at the application layer.
+
+## [2026-05-07T10:31:16Z] synthesis | Erasure Coding Investigation
+
+- status: published
+- slug: projects/erasure-coding-investigation
+- wiki_revision_id: wikirev_888202284d574737e5f239d4c430b44f
+- summary: Further investigation into erasure coding, which is supported by MinIO.
+
+## [2026-05-07T10:31:17Z] synthesis | Metadata Scaling
+
+- status: published
+- slug: projects/metadata-scaling
+- wiki_revision_id: wikirev_d3e4369154f3900490ea776d5a9bded1
+- summary: Design and test L1 metadata scaling. Build a dedicated off-chain indexing solution for metadata.
+
+## [2026-05-07T10:31:17Z] synthesis | Egress Pricing
+
+- status: published
+- slug: projects/egress-pricing
+- wiki_revision_id: wikirev_64a7caf972d968a37c8bbb17feb20294
+- summary: Initially offer free egress to compete with cloud providers. Develop a sustainable long-term pricing model.
+
+## [2026-05-07T10:34:59Z] synthesis | STRIFED Threat Model for Decentralized Video DePIN
+
+- status: published
+- slug: concepts/strifed-threat-model-decentralized-video-depin
+- wiki_revision_id: wikirev_b3f487f9dbbfe40998ab4097df99c39d
+- summary: A comprehensive STRIFED threat model analysis for a decentralized video DePIN, covering spoofing, tampering, repudiation, information disclosure, fraudulent exploitation, elevation...
+

@@ -2871,8 +2871,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b000dadd6e06bc438dcb9f005473a90eb7a7cf5aa67f30dc6883a46fc4fd0341",
-        "size": 910051
+        "sha256": "c888043afd89af1717f58eb70fd55d6c27843930d2ac2af952db7458f63e1f85",
+        "size": 911820
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3755,6 +3755,11 @@
         "size": 1232
       },
       {
+        "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
+        "sha256": "071091d8d6299c3ee3346f91ea6e06f3a2b20e532efd9b17e1decfd33cfb04dc",
+        "size": 1247
+      },
+      {
         "path": "pages/projects/beta-protocol-sdk.md",
         "sha256": "589ee139d444fedb315525efdbc8d33219802a53d57afcf45d22467752000b50",
         "size": 3780
@@ -3805,6 +3810,11 @@
         "size": 5616
       },
       {
+        "path": "pages/projects/egress-pricing.md",
+        "sha256": "2ebcc9016ced7d96767869f3ac263069d6b7a86a14df15655e35f29fff96618f",
+        "size": 1699
+      },
+      {
         "path": "pages/projects/emergence-universe.md",
         "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
         "size": 2353
@@ -3818,6 +3828,11 @@
         "path": "pages/projects/engineering-team-cost-optimization.md",
         "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
         "size": 2663
+      },
+      {
+        "path": "pages/projects/erasure-coding-investigation.md",
+        "sha256": "44424878d08095e021cde52c25565ed0071027455aa419d599c8309a0ca517cf",
+        "size": 1794
       },
       {
         "path": "pages/projects/ethdenver-fun-57b-activation.md",
@@ -3985,6 +4000,11 @@
         "size": 4023
       },
       {
+        "path": "pages/projects/metadata-scaling.md",
+        "sha256": "907ed2cbd0fbe3cf51af6287d22285630d0975c93b1647b913185869c45e7c1d",
+        "size": 1684
+      },
+      {
         "path": "pages/projects/migrate-web-app-to-react-native.md",
         "sha256": "52260fd6f4a7d44d5de9abee09776cfee50d22c246550293ecd1c8418e3ba202",
         "size": 2902
@@ -4030,6 +4050,11 @@
         "size": 1212
       },
       {
+        "path": "pages/projects/parallel-upload-optimization.md",
+        "sha256": "7a2597853286fea5ce59d1c10657705e6e13e316c743d8f78b8823cc145a161b",
+        "size": 1317
+      },
+      {
         "path": "pages/projects/partner-testnet-release-v1-0-1.md",
         "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
         "size": 5007
@@ -4043,6 +4068,11 @@
         "path": "pages/projects/platform-beta-plan.md",
         "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
         "size": 3847
+      },
+      {
+        "path": "pages/projects/pre-processing-optimization.md",
+        "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
+        "size": 1257
       },
       {
         "path": "pages/projects/precompiles-plan.md",
@@ -4544,8 +4574,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T09:23:04Z",
-  "file_count": 907,
+  "exported_at": "2026-05-07T10:34:42Z",
+  "file_count": 913,
   "files": [
     {
       "path": ".curator_state",
@@ -7407,7 +7437,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "daf0f7a421e550d81a35284e75179fb73a661edb840b6c5f9a809608890ba24a",
+  "previous_tree_hash": "0ff3320381cc440a745cda23d3e770448b4391f88c6b2fdc7e468a39247ee67c",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7420,14 +7450,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0ff3320381cc440a745cda23d3e770448b4391f88c6b2fdc7e468a39247ee67c",
+  "tree_hash": "4078d06a79d0e722bb93519634774480d2d723ce7ab8e7330684ad36b1e6d445",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 336,
+  "wiki_file_count": 342,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7441,8 +7471,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b000dadd6e06bc438dcb9f005473a90eb7a7cf5aa67f30dc6883a46fc4fd0341",
-      "size": 910051
+      "sha256": "c888043afd89af1717f58eb70fd55d6c27843930d2ac2af952db7458f63e1f85",
+      "size": 911820
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8325,6 +8355,11 @@
       "size": 1232
     },
     {
+      "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
+      "sha256": "071091d8d6299c3ee3346f91ea6e06f3a2b20e532efd9b17e1decfd33cfb04dc",
+      "size": 1247
+    },
+    {
       "path": "pages/projects/beta-protocol-sdk.md",
       "sha256": "589ee139d444fedb315525efdbc8d33219802a53d57afcf45d22467752000b50",
       "size": 3780
@@ -8375,6 +8410,11 @@
       "size": 5616
     },
     {
+      "path": "pages/projects/egress-pricing.md",
+      "sha256": "2ebcc9016ced7d96767869f3ac263069d6b7a86a14df15655e35f29fff96618f",
+      "size": 1699
+    },
+    {
       "path": "pages/projects/emergence-universe.md",
       "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
       "size": 2353
@@ -8388,6 +8428,11 @@
       "path": "pages/projects/engineering-team-cost-optimization.md",
       "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
       "size": 2663
+    },
+    {
+      "path": "pages/projects/erasure-coding-investigation.md",
+      "sha256": "44424878d08095e021cde52c25565ed0071027455aa419d599c8309a0ca517cf",
+      "size": 1794
     },
     {
       "path": "pages/projects/ethdenver-fun-57b-activation.md",
@@ -8555,6 +8600,11 @@
       "size": 4023
     },
     {
+      "path": "pages/projects/metadata-scaling.md",
+      "sha256": "907ed2cbd0fbe3cf51af6287d22285630d0975c93b1647b913185869c45e7c1d",
+      "size": 1684
+    },
+    {
       "path": "pages/projects/migrate-web-app-to-react-native.md",
       "sha256": "52260fd6f4a7d44d5de9abee09776cfee50d22c246550293ecd1c8418e3ba202",
       "size": 2902
@@ -8600,6 +8650,11 @@
       "size": 1212
     },
     {
+      "path": "pages/projects/parallel-upload-optimization.md",
+      "sha256": "7a2597853286fea5ce59d1c10657705e6e13e316c743d8f78b8823cc145a161b",
+      "size": 1317
+    },
+    {
       "path": "pages/projects/partner-testnet-release-v1-0-1.md",
       "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
       "size": 5007
@@ -8613,6 +8668,11 @@
       "path": "pages/projects/platform-beta-plan.md",
       "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
       "size": 3847
+    },
+    {
+      "path": "pages/projects/pre-processing-optimization.md",
+      "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
+      "size": 1257
     },
     {
       "path": "pages/projects/precompiles-plan.md",
@@ -9111,5 +9171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8aab9a04d890ce77c0775e13864d5bda20c8673569ce9d07f16460cecb66631d"
+  "wiki_tree_hash": "d8f7e5de2e296468d1a71eff0857baf782b6e3dccffecb95636dede251eb6da9"
 }
