@@ -60,6 +60,72 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 - If live data is unavailable, explain the exact blocker and the next required infrastructure or API fix.
 - Do not ask the user for a credential when the credential is already mounted but rejected; report that the Vault/config value needs to be fixed.
 
+## DB Read Tool (Direct SQL)
+
+When the admin REST API endpoints don't support the needed query (e.g., table-level counts, arbitrary filters, joins not exposed via REST), use the **db-read tool** — a control-plane service that runs read-only SQL directly against prod PostgreSQL via an AWS Lambda proxy.
+
+### Architecture
+
+- **Control plane API**: `http://<control-plane-pod-ip>:8080/internal/db-read/*`
+- **Credentials**: `RSI_DB_READ_CLIENT_TOKEN` env var (bearer token in `Authorization: Bearer <token>` header)
+- **Prod path**: control-plane → db-read-worker → AWS Lambda `use1-prod-rsi-db-read-depin-prod` → prod PostgreSQL
+- **Stage path**: control-plane → db-read-worker → direct PostgreSQL connection (Vault-injected DSN)
+- **Worker pod**: `use1-stage-rsi-agent-platform-control-plane-db-read-worker-*` in `rsi-platform` namespace
+
+### Discovery
+
+1. **Find control plane pod IP**: `kubectl get pod -n rsi-platform -l app.kubernetes.io/component=control-plane -o jsonpath='{.items[0].status.podIP}'`
+2. **Confirm token**: `env | grep RSI_DB_READ_CLIENT_TOKEN`
+3. **List available targets**: `GET /internal/db-read/sources` with `Authorization: Bearer $RSI_DB_READ_CLIENT_TOKEN`
+
+### Prod Caps and Constraints
+
+| Cap | Value |
+|-----|-------|
+| max_rows | 100 |
+| max_bytes | 65,536 |
+| timeout_seconds | 20 |
+| lock_timeout_ms | 250 |
+| approval_ttl | 1 hour |
+
+**Redacted columns** (automatically stripped from results): `access_token`, `api_key`, `authorization`, `email`, `password`, `phone`, `private_key`, `refresh_token`, `secret`, `token`.
+
+### Query Flow
+
+1. `POST /internal/db-read/validate` with `{target, sql}` to pre-validate (optional but recommended)
+2. `POST /internal/db-read/query` with `{target, sql, purpose, requester, channel_id, thread_ts, ...}` to submit
+3. The control plane validates SQL, stores the request, and for prod targets posts a Slack approval card in the specified channel/thread
+4. The approving user clicks "Approve once" — the query goes to the Lambda and results are posted back to the thread
+5. Results include row count, truncation status, and a sample
+
+### Approval Flow
+
+Prod queries require explicit human approval via Slack interactive buttons ("Approve once" / "Deny"). The approval card is posted to the thread specified in `channel_id`/`thread_ts`. Stage queries may auto-approve depending on configuration.
+
+**Important**: Do NOT try to self-approve programmatically. Wait for the user to click "Approve once" in Slack.
+
+### Query Examples
+
+```
+# Count active scripts (transcripts)
+SELECT COUNT(*) AS available_transcripts FROM scripts WHERE is_active = TRUE
+
+# Active scripts by language in active campaigns
+SELECT s.language_code, COUNT(*) AS transcript_count
+FROM scripts s JOIN campaigns c ON c.id = s.campaign_id
+WHERE s.is_active = TRUE AND c.is_active = TRUE
+GROUP BY s.language_code ORDER BY transcript_count DESC LIMIT 20
+```
+
+### Pitfalls
+
+- **kubectl port-forward is RBAC-blocked.** The hermes executor SA lacks `pods/portforward` permission in `rsi-platform`. Use direct pod IP instead.
+- **Control plane pod IP changes on restart.** Re-run the discovery step each session.
+- **Prod timeout is 20s.** Keep queries simple. Complex joins on large tables may timeout.
+- **Results sample may be truncated.** The `truncated` field in the result indicates if the full result exceeded the byte cap.
+- **SQL is validated offline first**, then on-target. Make sure column names exist in the schema before submitting. Use `/internal/db-read/schema?target=depin-prod` to inspect available tables and columns.
+- Full API details, endpoint schemas, and request/response formats are documented in `references/db-read-api.md`.
+
 ## DB Observability Gap
 
 The depin-backend API does **not** instrument database queries in its Prometheus metrics layer. `observability/metrics.rs` tracks HTTP requests, external service calls (Dynamic, World), and NDV endpoints — but has zero DB query metrics (no histograms, no connection pool gauges, no query error counters).
