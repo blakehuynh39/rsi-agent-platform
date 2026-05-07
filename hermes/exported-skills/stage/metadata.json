@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "74cfd541902fe56c2d79b23721a1e67dedba24f40eaaddf1944347e04582e748",
-        "size": 476043
+        "sha256": "62c90326988822d50b8c616c1ed9121711f0645affca937bff377916444adc43",
+        "size": 476833
       },
       {
         "path": "log.md",
-        "sha256": "d61e4f3ae278e0c37a73ee13d4e7f7207e544a20984e80da8b7900f67aa0bff1",
-        "size": 912685
+        "sha256": "d12a6ed4ca5255e3f608342a926fed0993cc6d510090b9425a48384c2da32ee3",
+        "size": 913065
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4578,14 +4578,19 @@
         "path": "pages/systems/upload-system.md",
         "sha256": "3a2b31c93c32a138724f3dec534dfa2f432fc80b775065953eb1a4a022671a1b",
         "size": 3182
+      },
+      {
+        "path": "pages/systems/web2-infra-threat-model.md",
+        "sha256": "18620f9aca8ccec643a3a5db37d26e8fb18da8af97d7541a8e333ce137167bf8",
+        "size": 7123
       }
     ]
   },
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T10:51:51Z",
-  "file_count": 915,
+  "exported_at": "2026-05-07T10:57:56Z",
+  "file_count": 916,
   "files": [
     {
       "path": ".curator_state",
@@ -7447,7 +7452,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "102b0effa28deae8f6d7e44767e3fa6782675ef4335125958bead8cbc4355a67",
+  "previous_tree_hash": "01bcfa964d320f06375c96b662057c2f56682fcaafb502d29c906b2cf052bfe4",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7460,14 +7465,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "01bcfa964d320f06375c96b662057c2f56682fcaafb502d29c906b2cf052bfe4",
+  "tree_hash": "3ed283ea50c1980b87f1c40d85145a05ee2461fa40ae4b2576bc974d27ff8b3b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 344,
+  "wiki_file_count": 345,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7476,13 +7481,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "74cfd541902fe56c2d79b23721a1e67dedba24f40eaaddf1944347e04582e748",
-      "size": 476043
+      "sha256": "62c90326988822d50b8c616c1ed9121711f0645affca937bff377916444adc43",
+      "size": 476833
     },
     {
       "path": "log.md",
-      "sha256": "d61e4f3ae278e0c37a73ee13d4e7f7207e544a20984e80da8b7900f67aa0bff1",
-      "size": 912685
+      "sha256": "d12a6ed4ca5255e3f608342a926fed0993cc6d510090b9425a48384c2da32ee3",
+      "size": 913065
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9188,8 +9193,13 @@
       "path": "pages/systems/upload-system.md",
       "sha256": "3a2b31c93c32a138724f3dec534dfa2f432fc80b775065953eb1a4a022671a1b",
       "size": 3182
+    },
+    {
+      "path": "pages/systems/web2-infra-threat-model.md",
+      "sha256": "18620f9aca8ccec643a3a5db37d26e8fb18da8af97d7541a8e333ce137167bf8",
+      "size": 7123
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ecc0c0fdf45175b89bed4a282cbbd438951c3699f2f02f6977a61eb99911ff26"
+  "wiki_tree_hash": "289dc4a7ea8b9e2fc1b265342943b1c68fbcc2200764beb6e1cb4baa22f06806"
 }
