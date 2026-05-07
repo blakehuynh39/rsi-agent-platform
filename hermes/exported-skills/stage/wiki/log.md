@@ -18974,3 +18974,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_817ac6e5a027ee6ef9e0f96c1998d90d
 - summary: Postmortem for the List IP Asset API not returning the latest data on May 22-23, 2024. The root cause was data ingestion being turned off, resolved by Ruimin. Delays in response we...
 
+## [2026-05-07T04:23:11Z] synthesis | Reward backward compatibility patch
+
+- status: published
+- slug: systems/reward-backward-compatibility-patch
+- wiki_revision_id: wikirev_2e0b5cdbba7e4447aaba56fe1cd18f6e
+- summary: A patch to fix Cantina issue #67 by handling multiple reward requests from the same address caused state sync failures for old blocks. Only Kraken reported the issue and received a...
+

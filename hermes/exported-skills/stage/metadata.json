@@ -2851,8 +2851,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "675d3aab5056eff181d6cde4821753b547023ccf680961b21189232bce6584cc",
-        "size": 899936
+        "sha256": "65686e28a926f719e3520ae5c90f4f50901914eb8383380586c7bfbf12361bf4",
+        "size": 900340
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4380,6 +4380,11 @@
         "size": 5826
       },
       {
+        "path": "pages/systems/reward-backward-compatibility-patch.md",
+        "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
+        "size": 6925
+      },
+      {
         "path": "pages/systems/sdk-v1-3-contract-structure.md",
         "sha256": "6a2728da285072daff3275eeab5bd4a1708af0f97dfe56935b9a824a161ff89c",
         "size": 3173
@@ -4424,8 +4429,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T04:08:57Z",
-  "file_count": 883,
+  "exported_at": "2026-05-07T04:25:16Z",
+  "file_count": 884,
   "files": [
     {
       "path": ".curator_state",
@@ -7267,7 +7272,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "aa46f29ec3734c8040d6296ee4969e1727f02eddbe2b5bdb76bc2292cec1596b",
+  "previous_tree_hash": "bdf1653713d6826d1e875c19d7fd268f44990ea6adc73ea0dcc40de7935d720a",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7280,14 +7285,14 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bdf1653713d6826d1e875c19d7fd268f44990ea6adc73ea0dcc40de7935d720a",
+  "tree_hash": "bebdb1c4b1d6d613b2c3c4fe56b57e9fd18ea88ceb1c88acb2257a356b756a68",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 316,
+  "wiki_file_count": 317,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7301,8 +7306,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "675d3aab5056eff181d6cde4821753b547023ccf680961b21189232bce6584cc",
-      "size": 899936
+      "sha256": "65686e28a926f719e3520ae5c90f4f50901914eb8383380586c7bfbf12361bf4",
+      "size": 900340
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8830,6 +8835,11 @@
       "size": 5826
     },
     {
+      "path": "pages/systems/reward-backward-compatibility-patch.md",
+      "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
+      "size": 6925
+    },
+    {
       "path": "pages/systems/sdk-v1-3-contract-structure.md",
       "sha256": "6a2728da285072daff3275eeab5bd4a1708af0f97dfe56935b9a824a161ff89c",
       "size": 3173
@@ -8871,5 +8881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "69fa0deef45426bd4628cfbb77586fa00b3b0bf2b018ee128db6bd3f25e9e1c1"
+  "wiki_tree_hash": "3570757e9e8c548795fe310187c5b13dca99fcac2ddca5a127cde78023c49c6e"
 }
