@@ -19410,3 +19410,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0e09cd686974c9cfa5a1a73a54146349
 - summary: On-chain scheduling system for a rollup-based subnet that manages job queues, worker registration, staking, and reward distribution using an epoch-driven push model.
 
+## [2026-05-07T15:56:00Z] synthesis | DevNet Deployment Addresses
+
+- status: published
+- slug: systems/devnet-deployment-addresses
+- wiki_revision_id: wikirev_183b7fa8e5713e13455fbff515d07eee
+- summary: Details of the Poseidon DevNet deployment including network configuration, contract addresses, queues, and workflows.
+
