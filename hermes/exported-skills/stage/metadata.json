@@ -2866,13 +2866,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "39873be01cdd140fa6dbb5c7d1bdbff9549d8bc62073d10f1dfd736b35f4418e",
-        "size": 478876
+        "sha256": "0a0b95e5613358fe6bb9f67f6200b3f3a5479c39d742729db1002d0133c258f9",
+        "size": 479472
       },
       {
         "path": "log.md",
-        "sha256": "2ad3cdc80c5853fff21f8a8afa08b4632400f5cad79b6c76a4bf8532660def3e",
-        "size": 915459
+        "sha256": "e306587b92227b1873c96a5a823080a5b048c4375c11d99f91599e39a708595d",
+        "size": 916079
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3573,6 +3573,11 @@
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
         "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
         "size": 3856
+      },
+      {
+        "path": "pages/decisions/subnet-design-decisions.md",
+        "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
+        "size": 1222
       },
       {
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -4545,6 +4550,11 @@
         "size": 2631
       },
       {
+        "path": "pages/systems/poseidon-eng-tracking.md",
+        "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
+        "size": 1352
+      },
+      {
         "path": "pages/systems/projects-database.md",
         "sha256": "d1907bf97dab6d42c7a0d2072ccf0e6c4e528d886d5c677b96b52280cf0bfa78",
         "size": 1112
@@ -4619,8 +4629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T12:26:52Z",
-  "file_count": 922,
+  "exported_at": "2026-05-07T12:53:05Z",
+  "file_count": 924,
   "files": [
     {
       "path": ".curator_state",
@@ -7482,7 +7492,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c746c9dz98",
-  "previous_tree_hash": "3b725f2dccbf10cc2cc69a2b61531e9d83359fc1ca29f61cc6ed9a56cda61ed2",
+  "previous_tree_hash": "768177de3d04f67cfc1d00a38a8c61343f27a7f91e20e0db7b0e7b3848935d7e",
   "schema_version": 1,
   "skill_file_count": 571,
   "skill_manage_sessions": [
@@ -7495,14 +7505,14 @@
   ],
   "skill_tree_hash": "ff72ad0c56115e95b1a106829f032a3ff4a43e92c933d812f680df1c04ef1c5c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "768177de3d04f67cfc1d00a38a8c61343f27a7f91e20e0db7b0e7b3848935d7e",
+  "tree_hash": "8a335fa609cc165362bb74d90b0f7c641218f65664ea69f20d59e369a836055e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 351,
+  "wiki_file_count": 353,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7511,13 +7521,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "39873be01cdd140fa6dbb5c7d1bdbff9549d8bc62073d10f1dfd736b35f4418e",
-      "size": 478876
+      "sha256": "0a0b95e5613358fe6bb9f67f6200b3f3a5479c39d742729db1002d0133c258f9",
+      "size": 479472
     },
     {
       "path": "log.md",
-      "sha256": "2ad3cdc80c5853fff21f8a8afa08b4632400f5cad79b6c76a4bf8532660def3e",
-      "size": 915459
+      "sha256": "e306587b92227b1873c96a5a823080a5b048c4375c11d99f91599e39a708595d",
+      "size": 916079
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8218,6 +8228,11 @@
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
       "sha256": "8e86f1c12c3d8d2d935d081c1bbe0f2b43a36478f68b78334c0ef8a88096cd51",
       "size": 3856
+    },
+    {
+      "path": "pages/decisions/subnet-design-decisions.md",
+      "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
+      "size": 1222
     },
     {
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -9190,6 +9205,11 @@
       "size": 2631
     },
     {
+      "path": "pages/systems/poseidon-eng-tracking.md",
+      "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
+      "size": 1352
+    },
+    {
       "path": "pages/systems/projects-database.md",
       "sha256": "d1907bf97dab6d42c7a0d2072ccf0e6c4e528d886d5c677b96b52280cf0bfa78",
       "size": 1112
@@ -9261,5 +9281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bc66e9dbbf9b336ad524c8116a342111fb8749d94f7517d0a4cc363557b36f47"
+  "wiki_tree_hash": "746d3cd7e71610ffaee742d281986f7fc1a5633ddb797416de6c584d449e3916"
 }

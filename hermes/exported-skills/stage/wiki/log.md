@@ -19298,3 +19298,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_20ac0c709e756b8b445b319f2729cdfc
 - summary: User guide for the Trident MVP website covering sign-in, storage subscription, file operations, licensing, and account management.
 
+## [2026-05-07T12:48:35Z] synthesis | Poseidon Eng Tracking
+
+- status: published
+- slug: systems/poseidon-eng-tracking
+- wiki_revision_id: wikirev_499fafffee2b030f98a5666ab20d8f26
+- summary: A Notion-based engineering tracking system using two connected databases: Program (overview of pipeline projects) and Projects (detailed task breakdown).
+
+## [2026-05-07T12:49:35Z] synthesis | Subnet Design Decisions
+
+- status: published
+- slug: decisions/subnet-design-decisions
+- wiki_revision_id: wikirev_234014f9904f24b700af1f15264ee711
+- summary: A Notion database tracking design decisions related to subnet architecture.
+
