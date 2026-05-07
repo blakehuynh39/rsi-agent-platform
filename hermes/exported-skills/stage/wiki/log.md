@@ -19077,3 +19077,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d806620775e20834409e4414e0345022
 - summary: Guide for running the Gemma3 model on MacOS using PyTorch, transformers, and accelerate.
 
+## [2026-05-07T06:30:48Z] ingest | Internal Agentic Initiative
+
+- status: published
+- slug: notion_document/internal-agentic-initiative-f70ad61c
+- wiki_revision_id: wikirev_2fea1197f685620ca969137d8ec910a5
+- source_document_id: srcdoc_6e51ed65cd3d5fc9a6e910a8f70ad61c
+- source_revision_id: srcrev_9c5e09b5acd3c87b0439ad3da5ad49b7
+- summary: Source: [Notion source](https://www.notion.so/Internal-Agentic-Initiative-359051299a54809986fdd6b48194f75e)
+
+## [2026-05-07T06:30:53Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_e52b694d00a8b798ed5ee4bf91dd029b
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_16b923b0470e07ac8ed1889dee034395
+- summary: Source: [Notion source](https://www.notion.so/Lion-Team-359051299a54806da510c461d07c72a3)
+
