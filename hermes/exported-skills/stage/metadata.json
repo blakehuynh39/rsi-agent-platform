@@ -2846,13 +2846,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0668f199b041a2f7a2d5c1f454063772606beed280a7152869d29fa4980c0849",
+        "sha256": "de9e25bdc10c61559a50da4dbad030a042e8d0f53ba6c0de0c630d2f7d7f128b",
         "size": 466527
       },
       {
         "path": "log.md",
-        "sha256": "2b1c04475d738688eecd3e5502739b24a8e677ced135435dc3dd1786e99213ce",
-        "size": 899511
+        "sha256": "675d3aab5056eff181d6cde4821753b547023ccf680961b21189232bce6584cc",
+        "size": 899936
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4181,8 +4181,8 @@
       },
       {
         "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
-        "sha256": "63e12ee7e7a52b82b4484ce5f117c17eb34aa4d44483b4384664b4815aeb4b1f",
-        "size": 5189
+        "sha256": "2f6c160744a7fb45f9d1f569e7f612b93478cb19485bbb2b2e68cc120e7e619c",
+        "size": 5689
       },
       {
         "path": "pages/runbooks/network-rolling-upgrade.md",
@@ -4424,7 +4424,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-07T03:52:40Z",
+  "exported_at": "2026-05-07T04:08:57Z",
   "file_count": 883,
   "files": [
     {
@@ -7267,7 +7267,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fdf64db9b7d",
-  "previous_tree_hash": "4d58cebed991779953567e472cbfed74f0737c91cbb14b408a6330faecde596d",
+  "previous_tree_hash": "aa46f29ec3734c8040d6296ee4969e1727f02eddbe2b5bdb76bc2292cec1596b",
   "schema_version": 1,
   "skill_file_count": 567,
   "skill_manage_sessions": [
@@ -7280,7 +7280,7 @@
   ],
   "skill_tree_hash": "3193aa399d4116a5e0e3e5b0906417c67f296eb836d8aa8d22f9c66a2a363757",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "aa46f29ec3734c8040d6296ee4969e1727f02eddbe2b5bdb76bc2292cec1596b",
+  "tree_hash": "bdf1653713d6826d1e875c19d7fd268f44990ea6adc73ea0dcc40de7935d720a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7296,13 +7296,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0668f199b041a2f7a2d5c1f454063772606beed280a7152869d29fa4980c0849",
+      "sha256": "de9e25bdc10c61559a50da4dbad030a042e8d0f53ba6c0de0c630d2f7d7f128b",
       "size": 466527
     },
     {
       "path": "log.md",
-      "sha256": "2b1c04475d738688eecd3e5502739b24a8e677ced135435dc3dd1786e99213ce",
-      "size": 899511
+      "sha256": "675d3aab5056eff181d6cde4821753b547023ccf680961b21189232bce6584cc",
+      "size": 899936
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8631,8 +8631,8 @@
     },
     {
       "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
-      "sha256": "63e12ee7e7a52b82b4484ce5f117c17eb34aa4d44483b4384664b4815aeb4b1f",
-      "size": 5189
+      "sha256": "2f6c160744a7fb45f9d1f569e7f612b93478cb19485bbb2b2e68cc120e7e619c",
+      "size": 5689
     },
     {
       "path": "pages/runbooks/network-rolling-upgrade.md",
@@ -8871,5 +8871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6ded73a4da6fdf0954594f9a446e80c9fedd14813dcc586402e14a7cc0492fa3"
+  "wiki_tree_hash": "69fa0deef45426bd4628cfbb77586fa00b3b0bf2b018ee128db6bd3f25e9e1c1"
 }
