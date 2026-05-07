@@ -19592,3 +19592,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_88918a76789aa1ad017179eb0fe67ca8
 - summary: Plan for the Poseidon internal devnet to run the video processing pipeline end-to-end on the subnet, expose engineering issues, and experiment with new tech stacks like Rust, reth,...
 
+## [2026-05-07T19:37:33Z] synthesis | Poseidon Subnet as a Rollup-based Layer2
+
+- status: published
+- slug: systems/poseidon-subnet-rollup-layer2
+- wiki_revision_id: wikirev_9924d00f540ded0ee2dede20f6eaa7b6
+- summary: High-level design for a scalable, programmable Subnet infrastructure where the Subnet Server is a Layer 2 chain built on OP Stack, supporting workflow execution as smart contracts,...
+
