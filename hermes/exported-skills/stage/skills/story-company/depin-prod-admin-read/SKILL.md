@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin user/submission stats admin reads."
-version: 1.0.1
+version: 1.1.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, vault]
@@ -23,7 +23,8 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 ## Pitfalls
 
 - **`execute_code` Python env is blind to `DEPIN_*` vars.** The Python subprocess spawned by `execute_code` runs in a limited environment that does not inherit the admin read key env vars. Use `terminal` (shell `env | grep DEPIN`) to confirm credential presence. If `execute_code` reports all vars as MISSING but `terminal` shows them present, trust the shell output.
-- **Admin read key is stats-scoped only.** `DEPIN_ADMIN_READ_API_KEY` authorizes `/v1/admin/stats/*` (user-growth, submissions) but does **not** work for per-user routes (`/v1/admin/users/**`). Those endpoints require a different auth mechanism (likely JWT or a separate key). Do not report "credential rejected" when `/v1/admin/users` returns 401 — the stats key is working as designed; the endpoint just expects a different authorization header.
+- **Admin read key is stats-scoped only.** `DEPIN_ADMIN_READ_API_KEY` authorizes endpoints gated by `AdminReadOnlyAccess` (which includes `/v1/admin/stats/*`, `/v1/admin/cohorts/languages`, and `/v1/admin/overview`) but does **not** work for endpoints gated by `AdminAccess` such as `/v1/admin/users/**` and `/v1/admin/cohorts/demographics`. Those endpoints require JWT. `/v1/admin/cohorts/demographics` returning `401` with the stats key is expected — it needs `Authorization: Bearer <jwt>`, not the read key header. Do not report "credential rejected" when a `401` comes from an `AdminAccess`-gated endpoint.
+- **`/v1/admin/stats/submissions` is dimension-blind.** It returns only `[{date, count}]` with no way to filter by language, nationality, campaign, or state. When the user asks for submissions by a specific language or country (e.g., "Vietnamese submissions"), this endpoint cannot answer the question. Reach for `/v1/admin/cohorts/languages` (by `users.primary_language`) or `/v1/admin/cohorts/demographics` (by `users.nationality`, JWT required) instead.
 
 ## Source Of Truth
 
@@ -39,15 +40,17 @@ Use this skill when a Story request asks for live Numo/depin user stats, submiss
 2. For public/client-facing route context, prefer the checked-in `piplabs/depin-backend` OpenAPI/source generation over the production OpenAPI document. Do not expect production OpenAPI to advertise internal admin stats.
 3. For internal admin stats route shape, inspect the deployed `piplabs/depin-backend` source code and `story-deployments` image pin before answering from memory.
 4. For aggregate user stats, call `/v1/admin/stats/user-growth` directly with the configured read-key header.
-5. For aggregate submission stats, call `/v1/admin/stats/submissions` directly with the configured read-key header.
-6. For a specific user lookup, note that the admin read key is **aggregate-stats-only** and will return `401` on `/v1/admin/users/**`. Per-user routes require a different authorization mechanism. Report this limitation to the user rather than treating it as a credential failure.
-7. If the public endpoint returns a Cloudflare block before reaching depin, report it as a Cloudflare/WAF routing issue and check the Cloudflare SoT before guessing.
-8. If depin returns `401` or `403`, distinguish these cases without exposing the credential:
+5. For aggregate submission stats, call `/v1/admin/stats/submissions` directly with the configured read-key header. Note: this returns only `[{date, count}]` — no dimension filtering.
+6. For stats broken down by **language** (e.g., "how many Vietnamese submissions"), call `/v1/admin/cohorts/languages?range=all` with the read key. This endpoint groups submissions by `users.primary_language` and returns `{range, items: [{language_code, user_count, submission_count, avg_submissions_per_user}]}`. Supported range values: `all`, `30d`, `90d`, `7d`, `1d`. (Source: `admin_dashboard.rs` `fetch_languages_cohort`.)
+7. For stats broken down by **nationality/country** (e.g., "how many submissions from Vietnam/VN"), call `/v1/admin/cohorts/demographics?dimension=country&range=all`. **Note:** this endpoint is gated by `AdminAccess` (JWT), NOT `AdminReadOnlyAccess` — the admin read key will return `401`. If the user needs nationality data, report the auth limitation. (Source: `admin.rs` line 704–711, `admin_dashboard.rs` `fetch_demographics`.)
+8. For a specific user lookup, note that the admin read key is **aggregate-stats-only** and will return `401` on `/v1/admin/users/**`. Per-user routes require a different authorization mechanism. Report this limitation to the user rather than treating it as a credential failure.
+9. If the public endpoint returns a Cloudflare block before reaching depin, report it as a Cloudflare/WAF routing issue and check the Cloudflare SoT before guessing.
+10. If depin returns `401` or `403`, distinguish these cases without exposing the credential:
    - credential env var absent (check with `terminal` shell, not `execute_code` Python)
    - credential env var mounted but rejected by prod
    - request blocked before reaching depin
    - **stats key hitting a non-stats endpoint** (e.g., `/v1/admin/users`) — the key is working; the endpoint expects different auth. Report this as an auth scope mismatch, not a key rejection.
-9. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
+11. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
 
 ## Response Standard
 
