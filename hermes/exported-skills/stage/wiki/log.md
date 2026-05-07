@@ -19697,3 +19697,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f3d375504fc6f3ac07a626d373be81e0
 - summary: A Notion document collecting ideas at the intersection of AI and crypto.
 
+## [2026-05-07T22:47:52Z] synthesis | Engineering Meeting Cadence
+
+- status: published
+- slug: policies/engineering-meeting-cadence
+- wiki_revision_id: wikirev_454c1496d6f3dbaff902326506b2a932
+- summary: Defines the weekly engineering meeting schedule: Monday for weekly goals and breakout, Wednesday for mid-point review and blocking issues, and Friday for weekly demos.
+
