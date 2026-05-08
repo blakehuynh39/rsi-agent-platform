@@ -56,6 +56,11 @@ type Store interface {
 	AppendDBReadExecutionResult(result DBReadExecutionResult) (DBReadExecutionResult, error)
 	ListDBReadExecutionResults(requestID string) []DBReadExecutionResult
 	ExpirePendingDBReadRequests(now time.Time) ([]DBReadRequest, error)
+	ListExternalToolPauses() []ExternalToolPause
+	GetExternalToolPause(id string) (ExternalToolPause, bool)
+	GetExternalToolPauseByDBReadRequestID(requestID string) (ExternalToolPause, bool)
+	UpsertExternalToolPause(input ExternalToolPauseCreateInput, now time.Time) (ExternalToolPause, bool, error)
+	UpdateExternalToolPause(id string, mutate func(*ExternalToolPause) error) (ExternalToolPause, error)
 	ListDomainEvents() []transition.DomainEvent
 	ListEffectExecutions() []transition.EffectExecution
 	ListEffectExecutionsByAggregate(machineKind transition.MachineKind, aggregateID string) []transition.EffectExecution
@@ -179,6 +184,8 @@ type MemoryStore struct {
 	dbReadRequestByIdempotencyKey     map[string]string
 	dbReadValidationAttempts          map[string][]DBReadValidationAttempt
 	dbReadExecutionResults            map[string][]DBReadExecutionResult
+	externalToolPauses                map[string]ExternalToolPause
+	externalToolPauseByIdempotencyKey map[string]string
 	domainEvents                      []transition.DomainEvent
 	effectExecutions                  map[string]transition.EffectExecution
 	runnerExecutions                  map[string]RunnerExecution
@@ -247,6 +254,8 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.dbReadRequestByIdempotencyKey = replacement.dbReadRequestByIdempotencyKey
 	s.dbReadValidationAttempts = replacement.dbReadValidationAttempts
 	s.dbReadExecutionResults = replacement.dbReadExecutionResults
+	s.externalToolPauses = replacement.externalToolPauses
+	s.externalToolPauseByIdempotencyKey = replacement.externalToolPauseByIdempotencyKey
 	s.domainEvents = replacement.domainEvents
 	s.effectExecutions = replacement.effectExecutions
 	s.commandReceipts = replacement.commandReceipts

@@ -1037,6 +1037,7 @@ class RunnerTaskRequest:
     execution_phase: str | None
     contract_version: str | None
     execution_intent: JsonObject
+    external_tool_resume: JsonObject
     delivery_policy: JsonObject
     workspace_policy: JsonObject
     approval_policy: JsonObject
@@ -1096,6 +1097,7 @@ class RunnerTaskRequest:
             execution_phase=_optional_string(task.get("execution_phase")),
             contract_version=_optional_string(task.get("contract_version")),
             execution_intent=_json_object_or_empty(task.get("execution_intent")),
+            external_tool_resume=_json_object_or_empty(task.get("external_tool_resume")),
             delivery_policy=_json_object_or_empty(task.get("delivery_policy")),
             workspace_policy=_json_object_or_empty(task.get("workspace_policy")),
             approval_policy=_json_object_or_empty(task.get("approval_policy")),
@@ -3146,6 +3148,7 @@ class HermesRuntime:
             "RSI_SLACK_CHANNEL_ID": task.channel_id or "",
             "RSI_SLACK_THREAD_TS": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
             "RSI_TASK_REQUESTER": task.user_peer_id or "hermes",
+            "RSI_EXTERNAL_TOOL_RESUME_ENABLED": "true" if self._config.external_tool_resume_enabled else "false",
         }
         token = self._db_read_execution_token(task)
         if token:
@@ -3188,6 +3191,7 @@ class HermesRuntime:
             "kubernetes_read_namespaces": task.kubernetes_read_namespaces,
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
+            "external_tool_resume": task.external_tool_resume,
             "delivery_policy": task.delivery_policy,
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
@@ -5011,10 +5015,40 @@ class HermesRuntime:
                 },
             )
             return partial_result
+        external_tool_pending = (
+            parsed_result_loaded
+            and _string_or_json(completion_meta.get("termination_reason")) == "external_tool_pending"
+        )
         should_validate_envelope = (completed_returncode == 0 or (_bool_or_false(parsed_result.get("ok")) and parsed_result_loaded)) and (
             not parsed_result_loaded or _bool_or_false(parsed_result.get("ok"))
         )
-        if should_validate_envelope:
+        if external_tool_pending:
+            result = HermesExecutionResult(
+                ok=True,
+                message="",
+                provider="hermes-native-executor",
+                raw={
+                    **base_raw,
+                    **self._workflow_evidence_raw(task, observed, "external_tool_pending"),
+                    **completion_meta,
+                    "result": _json_object_or_empty(parsed_result.get("result")),
+                    "external_tool_pending": _json_object_or_empty(_json_object_or_empty(parsed_result.get("result")).get("external_tool_pending")),
+                    "external_tool_pause_id": _string_or_json(parsed_result.get("external_tool_pause_id")) or _string_or_json(_json_object_or_empty(parsed_result.get("result")).get("external_tool_pause_id")),
+                    "suppress_delivery": True,
+                    "runner_diagnostics": self._runner_diagnostics(
+                        failure_kind="",
+                        provider_error_message="",
+                        termination_reason="external_tool_pending",
+                        session_ready_issues=self._session_manager.ready_issues,
+                        repair_attempted=False,
+                        repair_succeeded=False,
+                        observed={**observed, "suppress_delivery": True},
+                    ),
+                    "harness_profile_id": task.harness_profile_id,
+                    "effective_overlay_version": task.harness_overlay_version,
+                },
+            )
+        elif should_validate_envelope:
             envelope, envelope_failure_class, envelope_diagnostics = self._load_native_execution_envelope(
                 task,
                 envelope_path=envelope_path,

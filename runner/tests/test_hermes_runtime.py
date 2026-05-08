@@ -41,7 +41,7 @@ from rsi_runner.rsi_tools import transport_tool_schema
 from rsi_runner.session_manager import MemoryTracker, SessionManager
 
 
-HERMES_TEST_PIN = "130f8eaa1bd8a5e9bead893bf584bc4f4a3b3335"
+HERMES_TEST_PIN = "0aa2b52d52e6fdaf7992b9d6ac224573f3212f5d"
 
 
 def runner_env(role: str = "prod") -> dict[str, str]:
@@ -4163,8 +4163,107 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(payload["output"]["delivery_mode"], "card_only")
         self.assertEqual(seen["url"], "https://control.example.test/internal/db-read/query")
         self.assertEqual(seen["headers"].get("Authorization"), "Bearer scoped-token")
-        self.assertEqual(seen["body"], {"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"})
+        self.assertEqual(seen["body"]["target"], "depin-prod")
+        self.assertEqual(seen["body"]["sql"], "SELECT 1")
+        self.assertEqual(seen["body"]["purpose"], "query")
+        self.assertEqual(seen["body"]["hermes_session_id"], "sess-db")
+        self.assertEqual(seen["body"]["canonical_tool_name"], "db_read.query")
+        self.assertEqual(seen["body"]["transport_tool_name"], "db_read_query")
+        self.assertTrue(str(seen["body"]["args_hash"]).startswith("sha256:"))
         self.assertEqual(submission["kind"], "db_read_request_submitted")
+        self.assertIn("db_read.request_submitted", [event["event"] for event in lifecycle_events])
+
+    def test_plugin_db_read_query_raises_external_pause_when_enabled(self) -> None:
+        class FakeExternalToolPending(Exception):
+            pass
+
+        tools_module = types.ModuleType("tools")
+        pause_module = types.ModuleType("tools.external_tool_pause")
+        pause_module.ExternalToolPending = FakeExternalToolPending
+        original_tools = sys.modules.get("tools")
+        original_pause = sys.modules.get("tools.external_tool_pause")
+        sys.modules["tools"] = tools_module
+        sys.modules["tools.external_tool_pause"] = pause_module
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "delivery_mode": "external_tool_resume",
+                        "status": "validating",
+                        "request": {
+                            "id": "dbread_1",
+                            "target": "depin-prod",
+                            "state": "validating",
+                            "sql_sha256": "sha256:abc",
+                        },
+                        "validation": {"ok": True},
+                        "external_tool_pause": {
+                            "id": "etpause_1",
+                            "transport_tool_name": "db_read_query",
+                            "tool_call_id": "call_1",
+                            "hermes_session_id": "sess-db",
+                        },
+                    }
+                ).encode("utf-8")
+
+        seen: dict[str, object] = {}
+
+        def fake_urlopen(req, timeout):  # type: ignore[no-untyped-def]
+            seen["body"] = json.loads(req.data.decode("utf-8"))
+            return Response()
+
+        try:
+            with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+                os.environ,
+                {
+                    "HERMES_HOME": hermes_home,
+                    "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                    "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
+                    "RSI_DB_READ_SUBMISSION_PATH": str(Path(tempdir, "submission.json")),
+                    "RSI_EXTERNAL_TOOL_RESUME_ENABLED": "true",
+                    "RSI_WORKFLOW_ID": "wf-1",
+                    "RSI_TRACE_ID": "trace-1",
+                    "RSI_CONVERSATION_ID": "conv-1",
+                },
+                clear=True,
+            ), mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                namespace: dict[str, object] = {}
+                exec(_build_plugin_module(), namespace)
+                handler = namespace["_tool_handler"]("db_read_query")
+                with self.assertRaises(FakeExternalToolPending) as raised:
+                    handler(
+                        {"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"},
+                        task_id="sess-db",
+                        session_id="sess-db",
+                        tool_call_id="call_1",
+                    )
+                lifecycle_path = Path(hermes_home, "rsi_runtime", "lifecycle", "sess-db.jsonl")
+                lifecycle_events = [json.loads(line) for line in lifecycle_path.read_text(encoding="utf-8").splitlines()]
+                submission = json.loads(Path(tempdir, "submission.json").read_text(encoding="utf-8"))
+        finally:
+            if original_tools is None:
+                sys.modules.pop("tools", None)
+            else:
+                sys.modules["tools"] = original_tools
+            if original_pause is None:
+                sys.modules.pop("tools.external_tool_pause", None)
+            else:
+                sys.modules["tools.external_tool_pause"] = original_pause
+
+        pending = raised.exception.args[0]
+        self.assertEqual(pending["kind"], "external_tool_pending")
+        self.assertEqual(pending["external_tool_pause_id"], "etpause_1")
+        self.assertEqual(pending["tool_call_id"], "call_1")
+        self.assertEqual(seen["body"]["workflow_id"], "wf-1")
+        self.assertEqual(seen["body"]["hermes_tool_call_id"], "call_1")
+        self.assertEqual(submission["kind"], "external_tool_pending")
         self.assertIn("db_read.request_submitted", [event["event"] for event in lifecycle_events])
 
     def test_plugin_db_read_tools_require_execution_scoped_token(self) -> None:

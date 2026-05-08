@@ -3,6 +3,7 @@ package control
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -205,6 +206,615 @@ func TestWorkflowRunnerSuppressesReplyWhenDBReadCardOwnsResponse(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("expected db_read.response_owned_by_card trace event, got %#v", trace.Events)
+	}
+}
+
+func TestWorkflowRunnerPausesAndResumesExternalDBReadTool(t *testing.T) {
+	var pause storepkg.ExternalToolPause
+	callCount := 0
+	var resumeTask clients.RunnerTask
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/execute" {
+			t.Fatalf("runner path = %q, want /execute", r.URL.Path)
+		}
+		var payload struct {
+			Task clients.RunnerTask `json:"task"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("Decode() error = %v", err)
+		}
+		callCount++
+		if callCount == 1 {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"ok":       true,
+				"provider": "fake",
+				"message":  "",
+				"raw": map[string]any{
+					"termination_reason":      "external_tool_pending",
+					"completion_verdict":      "paused",
+					"suppress_delivery":       true,
+					"external_tool_pause_id":  pause.ID,
+					"external_tool_pending":   map[string]any{"external_tool_pause_id": pause.ID},
+					"structured_output":       map[string]any{},
+					"runner_diagnostics":      map[string]any{},
+					"external_tool_action_id": pause.ID,
+					"result": map[string]any{
+						"messages": []any{
+							map[string]any{
+								"role": "assistant",
+								"tool_calls": []any{
+									map[string]any{
+										"id":   pause.ToolCallID,
+										"type": "function",
+										"function": map[string]any{
+											"name":      pause.TransportToolName,
+											"arguments": `{"target":"depin-prod","sql":"select count(*) from scripts"}`,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			})
+			return
+		}
+		resumeTask = payload.Task
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  `{"visible_reasoning":[],"reply_draft":"","final_answer":"","confidence":1,"context_summary":"DB result consumed.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[],"artifact_failure_reason":""}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning":       []any{},
+					"reply_draft":             "",
+					"final_answer":            "",
+					"confidence":              1.0,
+					"context_summary":         "DB result consumed.",
+					"self_critique":           "",
+					"proposed_actions":        []any{},
+					"knowledge_drafts":        []any{},
+					"outcome_hypotheses":      []any{},
+					"produced_artifacts":      []any{},
+					"artifact_failure_reason": "",
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey:    "db-read-external-tool",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:abc",
+		Requester:         "user:U123",
+		ConversationID:    "conv-1",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		ChannelID:         "C123",
+		ThreadTS:          "171000001.000100",
+		ExecutionScopeKey: "workflow:" + workflowItem.workflowID,
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-db-read-external-tool",
+		ConversationID:    request.ConversationID,
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-1",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_1",
+		ArgsHash:          "sha256:args",
+		DBReadRequestID:   request.ID,
+		SQLSHA256:         request.SQLSHA256,
+		ExpiresAt:         request.ExpiresAt,
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ExternalToolResumeEnabled: true,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect(pause) error = %v", err)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow")
+	}
+	if workflow.Status != string(transition.WorkflowStateWaitingExternalTool) {
+		t.Fatalf("workflow status = %s, want waiting_external_tool", workflow.Status)
+	}
+	updatedPause, ok := store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external tool pause")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeNotReady || updatedPause.ToolOutcome != storepkg.ExternalToolOutcomePending {
+		t.Fatalf("unexpected pause state after pending: %+v", updatedPause)
+	}
+	if len(updatedPause.PendingAssistantMessage) == 0 || len(updatedPause.TranscriptSnapshot) == 0 {
+		t.Fatalf("expected pending assistant message and transcript snapshot, got %+v", updatedPause)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("paused external tool must not create Slack reply intents, got %#v", intents)
+	}
+
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateValidating, storepkg.DBReadStatePendingApproval, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, func(item *storepkg.DBReadRequest) error {
+		item.ApprovedBySlackUserID = "UADMIN"
+		approvedAt := now.Add(time.Minute)
+		item.ApprovedAt = &approvedAt
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateApproved, storepkg.DBReadStateExecuting, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateExecuting, storepkg.DBReadStateSucceeded, func(item *storepkg.DBReadRequest) error {
+		item.RowCount = 1
+		item.Truncated = false
+		item.ResultArtifactRef = "artifact://db-read/result"
+		item.ResultSample = []map[string]string{{"count": "1"}}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	markDBReadExternalToolOutcome(cfg, store, request, storepkg.ExternalToolOutcomeSucceeded, "")
+
+	updatedPause, ok = store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external tool pause after DB result")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeQueued || updatedPause.ToolOutcome != storepkg.ExternalToolOutcomeSucceeded {
+		t.Fatalf("expected queued successful resume, got %+v", updatedPause)
+	}
+	resumeEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, resumeEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect(resume) error = %v", err)
+	}
+	if len(resumeTask.ExternalToolResume) == 0 {
+		t.Fatalf("expected resume task to carry external_tool_resume, got %#v", resumeTask)
+	}
+	if got := stringValueFromMap(resumeTask.ExternalToolResume, "tool_call_id"); got != pause.ToolCallID {
+		t.Fatalf("resume tool_call_id = %q, want %q", got, pause.ToolCallID)
+	}
+	if transcriptSnapshotLen(resumeTask.ExternalToolResume["transcript_snapshot"]) == 0 {
+		t.Fatalf("expected resume payload to include transcript snapshot, got %#v", resumeTask.ExternalToolResume["transcript_snapshot"])
+	}
+	updatedPause, ok = store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external tool pause after resume")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeResumed {
+		t.Fatalf("resume status = %s, want resumed", updatedPause.ResumeStatus)
+	}
+}
+
+func TestWorkflowRunnerResumeCanPauseAgainWithoutLeavingPriorPauseRunning(t *testing.T) {
+	var firstPause storepkg.ExternalToolPause
+	var secondPause storepkg.ExternalToolPause
+	callCount := 0
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/execute" {
+			t.Fatalf("runner path = %q, want /execute", r.URL.Path)
+		}
+		callCount++
+		pause := firstPause
+		sql := "select count(*) from scripts"
+		if callCount == 2 {
+			pause = secondPause
+			sql = "select language_code, count(*) from scripts group by language_code"
+		}
+		if callCount > 2 {
+			t.Fatalf("unexpected runner call %d", callCount)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  "",
+			"raw": map[string]any{
+				"termination_reason":     "external_tool_pending",
+				"completion_verdict":     "paused",
+				"suppress_delivery":      true,
+				"external_tool_pause_id": pause.ID,
+				"external_tool_pending":  map[string]any{"external_tool_pause_id": pause.ID},
+				"structured_output":      map[string]any{},
+				"runner_diagnostics":     map[string]any{},
+				"result": map[string]any{
+					"messages": []any{
+						map[string]any{
+							"role": "assistant",
+							"tool_calls": []any{
+								map[string]any{
+									"id":   pause.ToolCallID,
+									"type": "function",
+									"function": map[string]any{
+										"name":      pause.TransportToolName,
+										"arguments": fmt.Sprintf(`{"target":"depin-prod","sql":%q}`, sql),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	firstRequest, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey:    "db-read-chained-first",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:first",
+		Requester:         "user:U123",
+		ConversationID:    "conv-1",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		ChannelID:         "C123",
+		ThreadTS:          "171000001.000100",
+		ExecutionScopeKey: "workflow:" + workflowItem.workflowID,
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstPause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-db-read-chained-first",
+		ConversationID:    firstRequest.ConversationID,
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-1",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_1",
+		ArgsHash:          "sha256:args:first",
+		DBReadRequestID:   firstRequest.ID,
+		SQLSHA256:         firstRequest.SQLSHA256,
+		ExpiresAt:         firstRequest.ExpiresAt,
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondRequest, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey:    "db-read-chained-second",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select language_code, count(*) from scripts group by language_code",
+		SQLSHA256:         "sha256:second",
+		Requester:         "user:U123",
+		ConversationID:    "conv-1",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		ChannelID:         "C123",
+		ThreadTS:          "171000001.000100",
+		ExecutionScopeKey: "workflow:" + workflowItem.workflowID,
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondPause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-db-read-chained-second",
+		ConversationID:    secondRequest.ConversationID,
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-1",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_2",
+		ArgsHash:          "sha256:args:second",
+		DBReadRequestID:   secondRequest.ID,
+		SQLSHA256:         secondRequest.SQLSHA256,
+		ExpiresAt:         secondRequest.ExpiresAt,
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ExternalToolResumeEnabled: true,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect(first pause) error = %v", err)
+	}
+
+	var errTransition error
+	firstRequest, errTransition = store.TransitionDBReadRequest(firstRequest.ID, storepkg.DBReadStateValidating, storepkg.DBReadStatePendingApproval, nil)
+	if errTransition != nil {
+		t.Fatal(errTransition)
+	}
+	firstRequest, errTransition = store.TransitionDBReadRequest(firstRequest.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, nil)
+	if errTransition != nil {
+		t.Fatal(errTransition)
+	}
+	firstRequest, errTransition = store.TransitionDBReadRequest(firstRequest.ID, storepkg.DBReadStateApproved, storepkg.DBReadStateExecuting, nil)
+	if errTransition != nil {
+		t.Fatal(errTransition)
+	}
+	firstRequest, errTransition = store.TransitionDBReadRequest(firstRequest.ID, storepkg.DBReadStateExecuting, storepkg.DBReadStateSucceeded, func(item *storepkg.DBReadRequest) error {
+		item.RowCount = 1
+		item.ResultArtifactRef = "artifact://db-read/first-result"
+		item.ResultSample = []map[string]string{{"count": "1"}}
+		return nil
+	})
+	if errTransition != nil {
+		t.Fatal(errTransition)
+	}
+	markDBReadExternalToolOutcome(cfg, store, firstRequest, storepkg.ExternalToolOutcomeSucceeded, "")
+	resumeEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, resumeEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect(second pause) error = %v", err)
+	}
+
+	firstUpdated, ok := store.GetExternalToolPause(firstPause.ID)
+	if !ok {
+		t.Fatal("expected first pause")
+	}
+	if firstUpdated.ResumeStatus != storepkg.ExternalToolResumeResumed {
+		t.Fatalf("first pause resume status = %s, want resumed", firstUpdated.ResumeStatus)
+	}
+	secondUpdated, ok := store.GetExternalToolPause(secondPause.ID)
+	if !ok {
+		t.Fatal("expected second pause")
+	}
+	if secondUpdated.ResumeStatus != storepkg.ExternalToolResumeNotReady || secondUpdated.ToolOutcome != storepkg.ExternalToolOutcomePending {
+		t.Fatalf("unexpected second pause state: %+v", secondUpdated)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow")
+	}
+	if workflow.Status != string(transition.WorkflowStateWaitingExternalTool) {
+		t.Fatalf("workflow status = %s, want waiting_external_tool", workflow.Status)
+	}
+	if callCount != 2 {
+		t.Fatalf("runner call count = %d, want 2", callCount)
+	}
+}
+
+func TestWorkflowRunnerPauseRefreshesImmediateDBReadOutcomeWithTranscript(t *testing.T) {
+	var pause storepkg.ExternalToolPause
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/execute" {
+			t.Fatalf("runner path = %q, want /execute", r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "fake",
+			"message":  "",
+			"raw": map[string]any{
+				"termination_reason":     "external_tool_pending",
+				"completion_verdict":     "paused",
+				"suppress_delivery":      true,
+				"external_tool_pause_id": pause.ID,
+				"external_tool_pending":  map[string]any{"external_tool_pause_id": pause.ID},
+				"result": map[string]any{
+					"messages": []any{
+						map[string]any{
+							"role": "assistant",
+							"tool_calls": []any{
+								map[string]any{
+									"id":   pause.ToolCallID,
+									"type": "function",
+									"function": map[string]any{
+										"name":      pause.TransportToolName,
+										"arguments": `{"target":"depin-prod","sql":"select count(*) from scripts"}`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey:    "db-read-immediate-result",
+		Target:            "depin-prod",
+		Purpose:           "query",
+		SQL:               "select count(*) from scripts",
+		SQLSHA256:         "sha256:abc",
+		Requester:         "user:U123",
+		ConversationID:    "conv-1",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		ChannelID:         "C123",
+		ThreadTS:          "171000001.000100",
+		ExecutionScopeKey: "workflow:" + workflowItem.workflowID,
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-db-read-immediate-result",
+		ConversationID:    request.ConversationID,
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-1",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_1",
+		ArgsHash:          "sha256:args",
+		DBReadRequestID:   request.ID,
+		SQLSHA256:         request.SQLSHA256,
+		ExpiresAt:         request.ExpiresAt,
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateValidating, storepkg.DBReadStatePendingApproval, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateApproved, storepkg.DBReadStateExecuting, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateExecuting, storepkg.DBReadStateSucceeded, func(item *storepkg.DBReadRequest) error {
+		item.RowCount = 1
+		item.ResultArtifactRef = "artifact://db-read/result"
+		item.ResultSample = []map[string]string{{"count": "1"}}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		ExternalToolResumeEnabled: true,
+	}
+	markDBReadExternalToolOutcome(cfg, store, request, storepkg.ExternalToolOutcomeSucceeded, "")
+	prePause, _ := store.GetExternalToolPause(pause.ID)
+	if _, ok := prePause.ResumePayload["transcript_snapshot"]; ok {
+		t.Fatalf("pre-pause race setup unexpectedly had transcript snapshot: %#v", prePause.ResumePayload)
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect(pause) error = %v", err)
+	}
+	updatedPause, ok := store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected pause")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeQueued {
+		t.Fatalf("resume status = %s, want queued", updatedPause.ResumeStatus)
+	}
+	if transcriptSnapshotLen(updatedPause.ResumePayload["transcript_snapshot"]) == 0 {
+		t.Fatalf("expected refreshed resume payload to include transcript snapshot, got %#v", updatedPause.ResumePayload)
+	}
+}
+
+func TestExternalToolResumeQueueLeavesPauseRetryableWhenCommandSubmitFails(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	if err := startWorkflowViaCommand(config.Config{ServiceName: "control-plane"}, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	pause, _, err := store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-submit-fails",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-1",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_1",
+		ResumePayload: map[string]interface{}{
+			"kind":         "external_tool_result",
+			"session_id":   "session-1",
+			"tool_call_id": "call_db_1",
+			"tool_name":    "db_read_query",
+			"status":       "ok",
+			"content":      map[string]interface{}{"ok": true},
+		},
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.UpdateExternalToolPause(pause.ID, func(item *storepkg.ExternalToolPause) error {
+		item.ToolOutcome = storepkg.ExternalToolOutcomeSucceeded
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	waiting := transition.CommandEnvelope{
+		MachineKind: transition.MachineWorkflow,
+		AggregateID: workflowItem.workflowID,
+		CommandKind: string(transition.CommandWorkflowWaitingExternalTool),
+		CommandID:   "cmd-test-waiting-external-tool",
+		Actor:       "test",
+		OccurredAt:  now,
+		Payload: map[string]any{
+			"external_tool_pause_id": pause.ID,
+		},
+	}
+	if _, err := store.SubmitCommand(waiting); err != nil {
+		t.Fatal(err)
+	}
+
+	failing := failingExternalToolResultStore{Store: store}
+	tryQueueExternalToolResume(config.Config{ExternalToolResumeEnabled: true, ServiceName: "control-plane"}, failing, pause.ID)
+	updated, _ := store.GetExternalToolPause(pause.ID)
+	if updated.ResumeStatus != storepkg.ExternalToolResumeNotReady {
+		t.Fatalf("resume status = %s, want not_ready after submit failure", updated.ResumeStatus)
+	}
+	if !strings.Contains(updated.ErrorMessage, "forced submit failure") {
+		t.Fatalf("expected submit failure to be recorded, got %q", updated.ErrorMessage)
 	}
 }
 
@@ -5598,6 +6208,17 @@ func assertWorkflowEffectStatus(t *testing.T, store storepkg.Store, workflowID s
 	t.Fatalf("expected workflow effect %s for workflow %s", kind, workflowID)
 }
 
+func transcriptSnapshotLen(value any) int {
+	switch typed := value.(type) {
+	case []map[string]interface{}:
+		return len(typed)
+	case []interface{}:
+		return len(typed)
+	default:
+		return 0
+	}
+}
+
 type failingActionCommandStore struct {
 	storepkg.Store
 	FailActionID string
@@ -5609,6 +6230,10 @@ type failingWorkflowCommandStore struct {
 	FailWorkflowID  string
 	FailCommandKind transition.WorkflowCommandKind
 	Err             error
+}
+
+type failingExternalToolResultStore struct {
+	storepkg.Store
 }
 
 type noopWorkflowCommandStore struct {
@@ -5635,6 +6260,13 @@ func (s *failingActionCommandStore) SubmitCommand(command transition.CommandEnve
 				return transition.CommandReceipt{}, s.Err
 			}
 		}
+	}
+	return s.Store.SubmitCommand(command)
+}
+
+func (s failingExternalToolResultStore) SubmitCommand(command transition.CommandEnvelope) (transition.CommandReceipt, error) {
+	if transition.WorkflowCommandKind(command.CommandKind) == transition.CommandExternalToolResultReady {
+		return transition.CommandReceipt{}, errors.New("forced submit failure")
 	}
 	return s.Store.SubmitCommand(command)
 }

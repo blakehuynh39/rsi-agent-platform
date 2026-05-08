@@ -2972,6 +2972,8 @@ func workflowStateFromStatus(status string) transition.WorkflowStateKind {
 		return transition.WorkflowStateCollectingContext
 	case string(transition.WorkflowStateWaitingOnActions):
 		return transition.WorkflowStateWaitingOnActions
+	case string(transition.WorkflowStateWaitingExternalTool):
+		return transition.WorkflowStateWaitingExternalTool
 	case "reasoning", string(transition.WorkflowStateExecuting):
 		return transition.WorkflowStateExecuting
 	case string(transition.WorkflowStateReplyPending):
@@ -3360,6 +3362,14 @@ func (s *MemoryStore) projectWorkflowTraceLocked(workflow Workflow, command tran
 		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 		update.ToolCalls = append(update.ToolCalls, toolCallRecordsFromCommand(command, "tool_calls")...)
 		update.SlackActions = append(update.SlackActions, slackActionsFromCommand(command, "slack_actions")...)
+	case transition.CommandWorkflowWaitingExternalTool:
+		update.Status = ptrStatus(events.StatusRunning)
+		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
+	case transition.CommandExternalToolResultReady:
+		update.Status = ptrStatus(events.StatusRunning)
+		update.Events = append(update.Events, traceEventsFromCommand(command, "trace_events")...)
+		update.Reasoning = append(update.Reasoning, reasoningStepsFromCommand(command, "reasoning_steps")...)
 	case transition.CommandWorkflowExecutionNeedsHuman:
 		if traceHasEventType(trace, "workflow.blocked") {
 			if trace.Summary.Status != events.StatusNeedsHuman {

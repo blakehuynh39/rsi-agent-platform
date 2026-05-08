@@ -43,6 +43,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 			if err := updateDBReadSlackCard(context.Background(), slackAPI, request, "expired"); err != nil {
 				log.Printf("db-read-worker expire slack update request=%s error=%v", request.ID, err)
 			}
+			markDBReadExternalToolOutcome(cfg, store, request, storepkg.ExternalToolOutcomeExpired, "DB read request expired")
 		}
 		prioritizeValidation = !prioritizeValidation
 		if prioritizeValidation {
@@ -66,7 +67,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				time.Sleep(cfg.WorkerPollInterval)
 				continue
 			}
-			handleDBReadLease(context.Background(), store, registry, slackAPI, lambdaInvoker, lease)
+			handleDBReadLease(context.Background(), cfg, store, registry, slackAPI, lambdaInvoker, lease)
 		} else {
 			lease, ok, err := store.ClaimNextDBReadRequest(holder, cfg.WorkItemLeaseDuration, now, cfg.DBReadWorkerTargets)
 			if err != nil {
@@ -75,7 +76,7 @@ func RunDBReadWorker(cfg config.Config, store storepkg.Store) error {
 				continue
 			}
 			if ok {
-				handleDBReadLease(context.Background(), store, registry, slackAPI, lambdaInvoker, lease)
+				handleDBReadLease(context.Background(), cfg, store, registry, slackAPI, lambdaInvoker, lease)
 				continue
 			}
 			validationLease, ok, err := store.ClaimNextDBReadValidationRequest(holder, cfg.WorkItemLeaseDuration, now, cfg.DBReadWorkerTargets)
@@ -108,13 +109,26 @@ func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store s
 		if _, err := appendDBReadValidation(store, request, storepkg.DBReadValidationStatusFailed, "target_lookup", "target is not configured", "unknown_target", now); err != nil {
 			log.Printf("db-read-worker validation target lookup append request=%s error=%v", request.ID, err)
 		}
+		if updated, found := store.GetDBReadRequest(request.ID); found {
+			markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, "target is not configured")
+		}
 		return
 	}
 	if request.ExpiresAt.Before(now) {
-		_, _ = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateValidating, storepkg.DBReadStateExpired, func(item *storepkg.DBReadRequest) error {
+		expired, err := store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateValidating, storepkg.DBReadStateExpired, func(item *storepkg.DBReadRequest) error {
 			item.ErrorMessage = "validation expired before target-side prepare"
 			return nil
 		})
+		if err != nil {
+			log.Printf("db-read-worker validation expiry transition request=%s error=%v", request.ID, err)
+			if latest, found := store.GetDBReadRequest(request.ID); found {
+				markDBReadExternalToolOutcome(cfg, store, latest, storepkg.ExternalToolOutcomeFailed, "validation expiry transition failed: "+err.Error())
+			} else {
+				markDBReadExternalToolOutcome(cfg, store, request, storepkg.ExternalToolOutcomeFailed, "validation expiry transition failed: "+err.Error())
+			}
+			return
+		}
+		markDBReadExternalToolOutcome(cfg, store, expired, storepkg.ExternalToolOutcomeExpired, "validation expired before target-side prepare")
 		return
 	}
 	var validation dbread.SQLValidation
@@ -141,7 +155,11 @@ func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store s
 		return
 	}
 	updated, _ := store.GetDBReadRequest(request.ID)
-	if validation.OK && updated.ChannelID != "" {
+	if !validation.OK {
+		markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, firstNonEmpty(validation.Message, validation.ErrorCode, "target-side validation failed"))
+		return
+	}
+	if updated.ChannelID != "" {
 		if err := postDBReadApprovalCard(ctx, cfg, store, slackAPI, updated, attempt, validation.Preview); err != nil {
 			log.Printf("db-read-worker approval card request=%s error=%v", request.ID, err)
 		}
@@ -153,11 +171,14 @@ func appendDBReadValidation(store storepkg.Store, request storepkg.DBReadRequest
 	return store.AppendDBReadValidationAttempt(attempt)
 }
 
-func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lambdaInvoker *dbread.LambdaInvoker, lease storepkg.DBReadLease) {
+func handleDBReadLease(ctx context.Context, cfg config.Config, store storepkg.Store, registry dbread.Registry, slackAPI slackMessagePoster, lambdaInvoker *dbread.LambdaInvoker, lease storepkg.DBReadLease) {
 	request := lease.Request
 	target, ok := registry.Target(request.Target)
 	if !ok {
 		recordDBReadExecutionFailure(store, request, lease.Token, "unknown_target", "target is not configured")
+		if updated, found := store.GetDBReadRequest(request.ID); found {
+			markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, "target is not configured")
+		}
 		return
 	}
 	now := time.Now().UTC()
@@ -187,9 +208,13 @@ func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbrea
 			} else if slackErr := updateDBReadSlackCard(ctx, slackAPI, expired, "expired"); slackErr != nil {
 				log.Printf("db-read-worker expire slack update request=%s error=%v", lease.Request.ID, slackErr)
 			}
+			markDBReadExternalToolOutcome(cfg, store, expired, storepkg.ExternalToolOutcomeExpired, errDBReadRequestExpired.Error())
 			return
 		}
 		recordDBReadExecutionFailure(store, lease.Request, lease.Token, "transition_failed", err.Error())
+		if updated, found := store.GetDBReadRequest(lease.Request.ID); found {
+			markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, err.Error())
+		}
 		return
 	}
 	if err := updateDBReadSlackCard(ctx, slackAPI, request, "executing"); err != nil {
@@ -226,8 +251,10 @@ func handleDBReadLease(ctx context.Context, store storepkg.Store, registry dbrea
 	updated, _ := store.GetDBReadRequest(request.ID)
 	if status == storepkg.DBReadExecutionStatusSucceeded {
 		_ = updateDBReadSlackCard(ctx, slackAPI, updated, fmt.Sprintf("succeeded; rows=%d truncated=%t", result.RowCount, result.Truncated))
+		markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeSucceeded, "")
 	} else {
 		_ = updateDBReadSlackCard(ctx, slackAPI, updated, "failed: "+truncateSlackText(errorMessage, 800))
+		markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, errorMessage)
 	}
 }
 

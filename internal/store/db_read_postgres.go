@@ -90,22 +90,8 @@ func (p *PostgresStore) GetDBReadRequestByIdempotencyKey(key string) (DBReadRequ
 	return item, err == nil
 }
 
-func (p *PostgresStore) getDBReadRequestByExecutionScope(target string, scopeKey string) (DBReadRequest, bool) {
-	target = strings.TrimSpace(target)
-	scopeKey = strings.TrimSpace(scopeKey)
-	if target == "" || scopeKey == "" {
-		return DBReadRequest{}, false
-	}
-	row := p.db.QueryRow(`select `+dbReadRequestColumns+` from db_read_request where target = $1 and execution_scope_key = $2 and state <> $3 order by created_at desc limit 1`, target, scopeKey, string(DBReadStateValidationFailed))
-	item, err := scanDBReadRequest(row)
-	return item, err == nil
-}
-
 func (p *PostgresStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Time) (DBReadRequest, bool, error) {
 	if existing, ok := p.GetDBReadRequestByIdempotencyKey(input.IdempotencyKey); ok {
-		return existing, false, nil
-	}
-	if existing, ok := p.getDBReadRequestByExecutionScope(input.Target, input.ExecutionScopeKey); ok {
 		return existing, false, nil
 	}
 	item, err := NewDBReadRequest(input, now)
@@ -123,9 +109,6 @@ func (p *PostgresStore) UpsertDBReadRequest(input DBReadCreateInput, now time.Ti
 	)
 	if err != nil {
 		if existing, ok := p.GetDBReadRequestByIdempotencyKey(input.IdempotencyKey); ok {
-			return existing, false, nil
-		}
-		if existing, ok := p.getDBReadRequestByExecutionScope(input.Target, input.ExecutionScopeKey); ok {
 			return existing, false, nil
 		}
 		return DBReadRequest{}, false, err

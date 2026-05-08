@@ -3,15 +3,16 @@ package transition
 type WorkflowStateKind string
 
 const (
-	WorkflowStateQueued            WorkflowStateKind = "queued"
-	WorkflowStateCollectingContext WorkflowStateKind = "collecting_context"
-	WorkflowStateWaitingOnActions  WorkflowStateKind = "waiting_on_actions"
-	WorkflowStateExecuting         WorkflowStateKind = "executing"
-	WorkflowStateReplyPending      WorkflowStateKind = "reply_pending"
-	WorkflowStateNeedsHuman        WorkflowStateKind = "needs_human"
-	WorkflowStateCompleted         WorkflowStateKind = "completed"
-	WorkflowStateFailed            WorkflowStateKind = "failed"
-	WorkflowStateSuperseded        WorkflowStateKind = "superseded"
+	WorkflowStateQueued              WorkflowStateKind = "queued"
+	WorkflowStateCollectingContext   WorkflowStateKind = "collecting_context"
+	WorkflowStateWaitingOnActions    WorkflowStateKind = "waiting_on_actions"
+	WorkflowStateWaitingExternalTool WorkflowStateKind = "waiting_external_tool"
+	WorkflowStateExecuting           WorkflowStateKind = "executing"
+	WorkflowStateReplyPending        WorkflowStateKind = "reply_pending"
+	WorkflowStateNeedsHuman          WorkflowStateKind = "needs_human"
+	WorkflowStateCompleted           WorkflowStateKind = "completed"
+	WorkflowStateFailed              WorkflowStateKind = "failed"
+	WorkflowStateSuperseded          WorkflowStateKind = "superseded"
 )
 
 type WorkflowCommandKind string
@@ -25,6 +26,8 @@ const (
 	CommandWorkflowExecutionCompletedPartial        WorkflowCommandKind = "workflow_execution_completed_partial"
 	CommandWorkflowExecutionCompletedNoReply        WorkflowCommandKind = "workflow_execution_completed_no_reply"
 	CommandWorkflowExecutionCompletedPartialNoReply WorkflowCommandKind = "workflow_execution_completed_partial_no_reply"
+	CommandWorkflowWaitingExternalTool              WorkflowCommandKind = "workflow_waiting_external_tool"
+	CommandExternalToolResultReady                  WorkflowCommandKind = "external_tool_result_ready"
 	CommandReplyPosted                              WorkflowCommandKind = "reply_posted"
 	CommandReplyPostedPartial                       WorkflowCommandKind = "reply_posted_partial"
 	CommandWorkflowExecutionNeedsHuman              WorkflowCommandKind = "workflow_execution_needs_human"
@@ -72,9 +75,16 @@ var workflowReducers = map[WorkflowStateKind]map[WorkflowCommandKind]workflowRed
 		CommandWorkflowExecutionCompletedPartial:        reduceExecutionCompletedPartial,
 		CommandWorkflowExecutionCompletedNoReply:        reduceExecutionCompletedNoReply,
 		CommandWorkflowExecutionCompletedPartialNoReply: reduceExecutionCompletedPartialNoReply,
+		CommandWorkflowWaitingExternalTool:              reduceWorkflowWaitingExternalTool,
 		CommandWorkflowExecutionFailed:                  reduceWorkflowFailed,
 		CommandWorkflowExecutionNeedsHuman:              reduceWorkflowNeedsHuman,
 		CommandWorkflowSuperseded:                       reduceWorkflowSuperseded,
+	},
+	WorkflowStateWaitingExternalTool: {
+		CommandExternalToolResultReady:     reduceExternalToolResultReady,
+		CommandWorkflowExecutionFailed:     reduceWorkflowFailed,
+		CommandWorkflowExecutionNeedsHuman: reduceWorkflowNeedsHuman,
+		CommandWorkflowSuperseded:          reduceWorkflowSuperseded,
 	},
 	WorkflowStateReplyPending: {
 		CommandReplyPosted:                 reduceReplyPosted,
@@ -218,6 +228,62 @@ func reduceExecutionCompletedNoReply(snapshot WorkflowSnapshot, _ CommandEnvelop
 
 func reduceExecutionCompletedPartialNoReply(snapshot WorkflowSnapshot, _ CommandEnvelope) WorkflowDecision {
 	return reduceExecutionCompletedWithoutReply(snapshot, true)
+}
+
+func reduceWorkflowWaitingExternalTool(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
+	pauseID := commandPayloadString(command, "external_tool_pause_id")
+	if pauseID == "" {
+		return rejectWorkflow(snapshot.State, WorkflowCommandKind(command.CommandKind), "external tool pause id is required")
+	}
+	return WorkflowDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "workflow paused while an external tool waits for approval or execution",
+			Events: []DomainEventDescriptor{{
+				Kind: "workflow_waiting_external_tool",
+				Payload: map[string]any{
+					"external_tool_pause_id": pauseID,
+				},
+			}},
+		},
+		NextState:     WorkflowStateWaitingExternalTool,
+		ExpectedState: snapshot.State,
+		AllowedNext:   []WorkflowStateKind{WorkflowStateWaitingExternalTool},
+	}
+}
+
+func reduceExternalToolResultReady(snapshot WorkflowSnapshot, command CommandEnvelope) WorkflowDecision {
+	pauseID := commandPayloadString(command, "external_tool_pause_id")
+	if pauseID == "" {
+		return rejectWorkflow(snapshot.State, WorkflowCommandKind(command.CommandKind), "external tool pause id is required")
+	}
+	payload := map[string]any{
+		"external_tool_pause_id": pauseID,
+	}
+	if resumePayload, ok := command.Payload["external_tool_resume"].(map[string]any); ok && len(resumePayload) > 0 {
+		payload["external_tool_resume"] = resumePayload
+	}
+	return WorkflowDecision{
+		TransitionDecision: TransitionDecision{
+			DecisionKind: DecisionAdvance,
+			Reason:       "external tool result is ready and workflow execution can resume",
+			Events: []DomainEventDescriptor{{
+				Kind: "external_tool_result_ready",
+				Payload: map[string]any{
+					"external_tool_pause_id": pauseID,
+				},
+			}},
+			Effects: []EffectRequest{{
+				Kind:           EffectInvokeRunner,
+				Status:         EffectQueued,
+				IdempotencyKey: "invoke_runner_external_tool:" + pauseID,
+				Payload:        payload,
+			}},
+		},
+		NextState:     WorkflowStateExecuting,
+		ExpectedState: snapshot.State,
+		AllowedNext:   []WorkflowStateKind{WorkflowStateExecuting},
+	}
 }
 
 func reduceExecutionCompletedWithoutReply(snapshot WorkflowSnapshot, partial bool) WorkflowDecision {

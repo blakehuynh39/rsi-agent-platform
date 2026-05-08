@@ -74,6 +74,7 @@ class RunnerConfig:
     hermes_kubernetes_service_account_namespace_path: str
     grafana_observability_configured: bool
     db_read_gateway_configured: bool
+    external_tool_resume_enabled: bool
     execution_envelope_v1_enabled: bool
     execution_ledger_first_projection_enabled: bool
     runner_planner_mode: str
@@ -159,6 +160,7 @@ class RunnerConfig:
             and optional_env("RSI_CONTROL_PLANE_BASE_URL")
             and optional_env("RSI_DB_READ_CLIENT_TOKEN")
         )
+        external_tool_resume_enabled = parse_bool(optional_env("RSI_EXTERNAL_TOOL_RESUME_ENABLED") or "false", "RSI_EXTERNAL_TOOL_RESUME_ENABLED")
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
@@ -237,6 +239,7 @@ class RunnerConfig:
             hermes_kubernetes_service_account_namespace_path=hermes_kubernetes_service_account_namespace_path,
             grafana_observability_configured=grafana_observability_configured,
             db_read_gateway_configured=db_read_gateway_configured,
+            external_tool_resume_enabled=external_tool_resume_enabled,
             execution_envelope_v1_enabled=execution_envelope_v1_enabled,
             execution_ledger_first_projection_enabled=execution_ledger_first_projection_enabled,
             runner_planner_mode=runner_planner_mode,

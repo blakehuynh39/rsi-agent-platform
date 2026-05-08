@@ -1,6 +1,7 @@
 package control
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -11,6 +12,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf16"
+	"unicode/utf8"
 
 	"github.com/go-chi/chi/v5"
 
@@ -21,15 +24,22 @@ import (
 )
 
 type dbReadQueryRequest struct {
-	Target         string `json:"target"`
-	SQL            string `json:"sql"`
-	Purpose        string `json:"purpose,omitempty"`
-	Requester      string `json:"requester,omitempty"`
-	ConversationID string `json:"conversation_id,omitempty"`
-	WorkflowID     string `json:"workflow_id,omitempty"`
-	TraceID        string `json:"trace_id,omitempty"`
-	ChannelID      string `json:"channel_id,omitempty"`
-	ThreadTS       string `json:"thread_ts,omitempty"`
+	Target            string `json:"target"`
+	SQL               string `json:"sql"`
+	Purpose           string `json:"purpose,omitempty"`
+	Requester         string `json:"requester,omitempty"`
+	ConversationID    string `json:"conversation_id,omitempty"`
+	WorkflowID        string `json:"workflow_id,omitempty"`
+	TraceID           string `json:"trace_id,omitempty"`
+	OperationID       string `json:"operation_id,omitempty"`
+	ExecutionID       string `json:"execution_id,omitempty"`
+	ChannelID         string `json:"channel_id,omitempty"`
+	ThreadTS          string `json:"thread_ts,omitempty"`
+	HermesSessionID   string `json:"hermes_session_id,omitempty"`
+	HermesToolCallID  string `json:"hermes_tool_call_id,omitempty"`
+	CanonicalToolName string `json:"canonical_tool_name,omitempty"`
+	TransportToolName string `json:"transport_tool_name,omitempty"`
+	ArgsHash          string `json:"args_hash,omitempty"`
 }
 
 type dbReadAuthContext struct {
@@ -38,6 +48,8 @@ type dbReadAuthContext struct {
 	ConversationID string
 	WorkflowID     string
 	TraceID        string
+	OperationID    string
+	ExecutionID    string
 	ChannelID      string
 	ThreadTS       string
 }
@@ -50,6 +62,8 @@ func (ctx dbReadAuthContext) apply(input *dbReadQueryRequest) {
 	input.ConversationID = ctx.ConversationID
 	input.WorkflowID = ctx.WorkflowID
 	input.TraceID = ctx.TraceID
+	input.OperationID = ctx.OperationID
+	input.ExecutionID = ctx.ExecutionID
 	input.ChannelID = ctx.ChannelID
 	input.ThreadTS = ctx.ThreadTS
 }
@@ -126,6 +140,10 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 			return
 		}
 		authCtx.apply(&input)
+		if cfg.ExternalToolResumeEnabled && len([]rune(strings.TrimSpace(input.SQL))) > 2200 {
+			app.WriteError(w, http.StatusBadRequest, fmt.Errorf("db read SQL is too long for exact Slack approval display; shorten the query or split it into smaller reads"))
+			return
+		}
 		registry, err := dbread.LoadRegistry(cfg.DBReadTargetsJSON)
 		if err != nil {
 			app.WriteError(w, http.StatusInternalServerError, err)
@@ -138,6 +156,14 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 		}
 		validation := dbread.ValidateSQLSafety(input.SQL)
 		now := time.Now().UTC()
+		metadata := map[string]any{}
+		if strings.TrimSpace(input.HermesSessionID) != "" || strings.TrimSpace(input.HermesToolCallID) != "" {
+			metadata["hermes_session_id"] = strings.TrimSpace(input.HermesSessionID)
+			metadata["hermes_tool_call_id"] = strings.TrimSpace(input.HermesToolCallID)
+			metadata["canonical_tool_name"] = strings.TrimSpace(input.CanonicalToolName)
+			metadata["transport_tool_name"] = strings.TrimSpace(input.TransportToolName)
+			metadata["args_hash"] = strings.TrimSpace(input.ArgsHash)
+		}
 		request, created, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
 			IdempotencyKey:    dbReadIdempotencyKey(input, validation.SQLSHA256),
 			Target:            target.ID,
@@ -154,6 +180,7 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 			ExpiresAt:         now.Add(target.TTL()),
 			Caps:              target.Caps,
 			Redaction:         target.Redaction,
+			Metadata:          metadata,
 		}, now)
 		if err != nil {
 			statusCode := http.StatusInternalServerError
@@ -183,13 +210,44 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 			}
 		}
 		request, _ = store.GetDBReadRequest(request.ID)
+		var pause storepkg.ExternalToolPause
+		if cfg.ExternalToolResumeEnabled && validation.OK && dbReadHasHermesToolCall(input) {
+			pause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+				IdempotencyKey:    externalToolPauseIdempotencyKey(input, request.ID),
+				ConversationID:    request.ConversationID,
+				WorkflowID:        request.WorkflowID,
+				TraceID:           request.TraceID,
+				OperationID:       strings.TrimSpace(input.OperationID),
+				ExecutionID:       strings.TrimSpace(input.ExecutionID),
+				HermesSessionID:   strings.TrimSpace(input.HermesSessionID),
+				CanonicalToolName: firstNonEmpty(strings.TrimSpace(input.CanonicalToolName), "db_read.query"),
+				TransportToolName: firstNonEmpty(strings.TrimSpace(input.TransportToolName), "db_read_query"),
+				ToolCallID:        strings.TrimSpace(input.HermesToolCallID),
+				ArgsHash:          firstNonEmpty(strings.TrimSpace(input.ArgsHash), dbReadArgsHash(input)),
+				DBReadRequestID:   request.ID,
+				SQLSHA256:         request.SQLSHA256,
+				ExpiresAt:         request.ExpiresAt,
+				Metadata: map[string]any{
+					"target": request.Target,
+				},
+			}, now)
+			if err != nil {
+				app.WriteError(w, http.StatusInternalServerError, err)
+				return
+			}
+		}
 		statusText := string(request.State)
-		app.WriteJSON(w, http.StatusAccepted, map[string]any{
+		response := map[string]any{
 			"request":            request,
 			"validation":         validation,
 			"validation_attempt": attempt,
 			"status":             statusText,
-		})
+		}
+		if pause.ID != "" {
+			response["external_tool_pause"] = pause
+			response["delivery_mode"] = "external_tool_resume"
+		}
+		app.WriteJSON(w, http.StatusAccepted, response)
 	})
 
 	r.Get("/internal/db-read/requests/{requestID}", func(w http.ResponseWriter, r *http.Request) {
@@ -261,6 +319,8 @@ func verifyDBReadExecutionToken(secret string, auth string, now time.Time) (dbRe
 		ConversationID: strings.TrimSpace(stringValueFromMap(claims, "conversation_id")),
 		WorkflowID:     strings.TrimSpace(stringValueFromMap(claims, "workflow_id")),
 		TraceID:        strings.TrimSpace(stringValueFromMap(claims, "trace_id")),
+		OperationID:    strings.TrimSpace(stringValueFromMap(claims, "operation_id")),
+		ExecutionID:    strings.TrimSpace(stringValueFromMap(claims, "execution_id")),
 		ChannelID:      strings.TrimSpace(stringValueFromMap(claims, "channel_id")),
 		ThreadTS:       strings.TrimSpace(stringValueFromMap(claims, "thread_ts")),
 	}, true
@@ -287,6 +347,17 @@ func floatValueFromMap(values map[string]any, key string) float64 {
 }
 
 func dbReadIdempotencyKey(input dbReadQueryRequest, hash string) string {
+	if dbReadHasHermesToolCall(input) {
+		parts := []string{
+			strings.TrimSpace(input.WorkflowID),
+			strings.TrimSpace(input.HermesSessionID),
+			strings.TrimSpace(input.HermesToolCallID),
+			firstNonEmpty(strings.TrimSpace(input.ArgsHash), dbReadArgsHash(input)),
+		}
+		raw, _ := json.Marshal(parts)
+		sum := sha256.Sum256(raw)
+		return "dbread-tool:sha256:" + hex.EncodeToString(sum[:])
+	}
 	parts := []string{
 		strings.TrimSpace(input.ConversationID),
 		strings.TrimSpace(input.ThreadTS),
@@ -298,6 +369,89 @@ func dbReadIdempotencyKey(input dbReadQueryRequest, hash string) string {
 	raw, _ := json.Marshal(parts)
 	sum := sha256.Sum256(raw)
 	return "dbread:sha256:" + hex.EncodeToString(sum[:])
+}
+
+func dbReadHasHermesToolCall(input dbReadQueryRequest) bool {
+	return strings.TrimSpace(input.HermesSessionID) != "" &&
+		strings.TrimSpace(input.HermesToolCallID) != "" &&
+		strings.TrimSpace(input.WorkflowID) != ""
+}
+
+func dbReadArgsHash(input dbReadQueryRequest) string {
+	var buf bytes.Buffer
+	buf.WriteByte('{')
+	writeASCIIJSONString(&buf, "purpose")
+	buf.WriteByte(':')
+	writeASCIIJSONString(&buf, strings.TrimSpace(firstNonEmpty(input.Purpose, "query")))
+	buf.WriteByte(',')
+	writeASCIIJSONString(&buf, "sql")
+	buf.WriteByte(':')
+	writeASCIIJSONString(&buf, strings.TrimSpace(input.SQL))
+	buf.WriteByte(',')
+	writeASCIIJSONString(&buf, "target")
+	buf.WriteByte(':')
+	writeASCIIJSONString(&buf, strings.TrimSpace(input.Target))
+	buf.WriteByte('}')
+	raw := buf.Bytes()
+	sum := sha256.Sum256(raw)
+	return "sha256:" + hex.EncodeToString(sum[:])
+}
+
+func writeASCIIJSONString(buf *bytes.Buffer, value string) {
+	buf.WriteByte('"')
+	for len(value) > 0 {
+		r, size := utf8.DecodeRuneInString(value)
+		if r == utf8.RuneError && size == 1 {
+			writeJSONUnicodeEscape(buf, r)
+			value = value[size:]
+			continue
+		}
+		switch r {
+		case '\\', '"':
+			buf.WriteByte('\\')
+			buf.WriteRune(r)
+		case '\b':
+			buf.WriteString(`\b`)
+		case '\f':
+			buf.WriteString(`\f`)
+		case '\n':
+			buf.WriteString(`\n`)
+		case '\r':
+			buf.WriteString(`\r`)
+		case '\t':
+			buf.WriteString(`\t`)
+		default:
+			if r < 0x20 || r >= 0x80 {
+				writeJSONUnicodeEscape(buf, r)
+			} else {
+				buf.WriteRune(r)
+			}
+		}
+		value = value[size:]
+	}
+	buf.WriteByte('"')
+}
+
+func writeJSONUnicodeEscape(buf *bytes.Buffer, r rune) {
+	if r <= 0xffff {
+		_, _ = fmt.Fprintf(buf, `\u%04x`, r)
+		return
+	}
+	hi, lo := utf16.EncodeRune(r)
+	_, _ = fmt.Fprintf(buf, `\u%04x\u%04x`, hi, lo)
+}
+
+func externalToolPauseIdempotencyKey(input dbReadQueryRequest, requestID string) string {
+	parts := []string{
+		strings.TrimSpace(input.WorkflowID),
+		strings.TrimSpace(input.HermesSessionID),
+		strings.TrimSpace(input.HermesToolCallID),
+		firstNonEmpty(strings.TrimSpace(input.ArgsHash), dbReadArgsHash(input)),
+		strings.TrimSpace(requestID),
+	}
+	raw, _ := json.Marshal(parts)
+	sum := sha256.Sum256(raw)
+	return "external-tool-pause:sha256:" + hex.EncodeToString(sum[:])
 }
 
 func dbReadExecutionScopeKey(input dbReadQueryRequest) string {

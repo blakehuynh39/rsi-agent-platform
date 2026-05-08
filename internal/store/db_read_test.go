@@ -100,7 +100,7 @@ func TestMemoryDBReadLifecycleAndIdempotency(t *testing.T) {
 	}
 }
 
-func TestMemoryDBReadExecutionScopeBlocksSecondApprovalRequest(t *testing.T) {
+func TestMemoryDBReadExecutionScopeAllowsDistinctToolRequests(t *testing.T) {
 	store := NewMemoryStore()
 	now := time.Now().UTC()
 	first, created, err := store.UpsertDBReadRequest(DBReadCreateInput{
@@ -133,8 +133,8 @@ func TestMemoryDBReadExecutionScopeBlocksSecondApprovalRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if created || second.ID != first.ID {
-		t.Fatalf("expected scoped upsert to return existing request, created=%t id=%s want=%s", created, second.ID, first.ID)
+	if !created || second.ID == first.ID {
+		t.Fatalf("expected distinct scoped request to be created, created=%t first=%s second=%s", created, first.ID, second.ID)
 	}
 }
 

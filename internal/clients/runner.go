@@ -251,6 +251,7 @@ type RunnerTask struct {
 	KubernetesReadNamespaces  []string                        `json:"kubernetes_read_namespaces,omitempty"`
 	ContractVersion           string                          `json:"contract_version,omitempty"`
 	ExecutionIntent           map[string]any                  `json:"execution_intent,omitempty"`
+	ExternalToolResume        map[string]any                  `json:"external_tool_resume,omitempty"`
 	DeliveryPolicy            *RunnerDeliveryPolicy           `json:"delivery_policy,omitempty"`
 	WorkspacePolicy           *RunnerWorkspacePolicy          `json:"workspace_policy,omitempty"`
 	ApprovalPolicy            *RunnerApprovalPolicy           `json:"approval_policy,omitempty"`

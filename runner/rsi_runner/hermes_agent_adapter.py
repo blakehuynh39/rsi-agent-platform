@@ -544,11 +544,27 @@ class HermesAgentAdapter:
             },
         )
         try:
-            result = agent.run_conversation(
-                user_message=_string(self._payload.get("prompt")),
-                conversation_history=conversation_history,
-                task_id=session_id,
-            )
+            resume_payload = _json_object(self._payload.get("external_tool_resume"))
+            if resume_payload:
+                content = resume_payload.get("content")
+                if not isinstance(content, str):
+                    content = json.dumps(content if content is not None else {}, ensure_ascii=True, sort_keys=True)
+                resume_history = _json_object_list(resume_payload.get("transcript_snapshot")) or conversation_history
+                result = agent.resume_with_tool_result(
+                    session_id=_string(resume_payload.get("session_id")) or session_id,
+                    tool_call_id=_string(resume_payload.get("tool_call_id")),
+                    tool_name=_string(resume_payload.get("tool_name")),
+                    content=content,
+                    conversation_history=resume_history,
+                    task_id=session_id,
+                    metadata=_json_object(resume_payload.get("metadata")),
+                )
+            else:
+                result = agent.run_conversation(
+                    user_message=_string(self._payload.get("prompt")),
+                    conversation_history=conversation_history,
+                    task_id=session_id,
+                )
         except Exception as exc:
             self._lifecycle.record(
                 "model.call.failed",
@@ -564,11 +580,14 @@ class HermesAgentAdapter:
             response = _string(result.get("final_response"))
         if not response:
             response = _string(result)
-        reply_delivery = self._commit_final_delivery_if_required(response, result if isinstance(result, dict) else {})
+        completion_meta = self._completion_meta(result)
+        if completion_meta["termination_reason"] == "external_tool_pending":
+            reply_delivery = {}
+        else:
+            reply_delivery = self._commit_final_delivery_if_required(response, result if isinstance(result, dict) else {})
         self_review_candidate = self._write_self_review_candidate(result if isinstance(result, dict) else {})
         safe_result = dict(result) if isinstance(result, dict) else {"value": response}
         safe_result.pop("self_review_observation", None)
-        completion_meta = self._completion_meta(result)
         self._lifecycle.record(
             "model.call.completed",
             {
@@ -580,7 +599,7 @@ class HermesAgentAdapter:
                 or _string(self_review_candidate.get("status")),
             },
         )
-        return {
+        out = {
             "ok": not (isinstance(result, dict) and bool(result.get("failed"))),
             "response": response,
             "result": safe_result,
@@ -590,6 +609,11 @@ class HermesAgentAdapter:
             "reply_delivery": reply_delivery,
             **completion_meta,
         }
+        if isinstance(result, dict) and bool(result.get("suppress_delivery")):
+            out["suppress_delivery"] = True
+        if isinstance(result, dict) and _string(result.get("external_tool_pause_id")):
+            out["external_tool_pause_id"] = _string(result.get("external_tool_pause_id"))
+        return out
 
     def _commit_final_delivery_if_required(self, response: str, result: JsonObject) -> JsonObject:
         policy = self._delivery_policy()

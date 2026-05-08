@@ -239,6 +239,7 @@ func (s *slackSurfaceRuntime) handleInteractiveCallback(ctx context.Context, cal
 		})
 		if err == nil {
 			_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "expired")
+			markDBReadExternalToolOutcome(s.cfg, s.store, updated, storepkg.ExternalToolOutcomeExpired, "approval expired before Slack action")
 		}
 		return
 	}
@@ -254,6 +255,13 @@ func (s *slackSurfaceRuntime) handleInteractiveCallback(ctx context.Context, cal
 			return
 		}
 		_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "approved by `<@"+userID+">`; queued for execution")
+		if pause, ok := s.store.GetExternalToolPauseByDBReadRequestID(updated.ID); ok {
+			_, _ = s.store.UpdateExternalToolPause(pause.ID, func(item *storepkg.ExternalToolPause) error {
+				item.ApprovalStatus = storepkg.ExternalToolApprovalApproved
+				item.ApprovalRef = userID
+				return nil
+			})
+		}
 	case dbReadSlackDenyAction:
 		updated, err := s.store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateDenied, func(item *storepkg.DBReadRequest) error {
 			item.ErrorMessage = "denied by Slack approver"
@@ -264,6 +272,7 @@ func (s *slackSurfaceRuntime) handleInteractiveCallback(ctx context.Context, cal
 			return
 		}
 		_ = updateDBReadSlackCard(ctx, s.slackAPI, updated, "denied by `<@"+userID+">`")
+		markDBReadExternalToolOutcome(s.cfg, s.store, updated, storepkg.ExternalToolOutcomeDenied, "denied by Slack approver")
 	}
 }
 

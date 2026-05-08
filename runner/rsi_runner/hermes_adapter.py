@@ -44,6 +44,11 @@ from urllib import request as urlrequest
 
 from rsi_runner.slack_uploads import prepare_local_slack_upload_payload
 
+try:
+    from tools.external_tool_pause import ExternalToolPending
+except (ImportError, ModuleNotFoundError):
+    ExternalToolPending = None
+
 
 _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
@@ -450,6 +455,28 @@ def _db_read_submission_event(payload: JsonObject) -> JsonObject:
     }
 
 
+def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
+    event = _db_read_submission_event(payload)
+    pause = payload.get("external_tool_pause")
+    if not event or not isinstance(pause, dict):
+        return {}
+    pause_id = str(pause.get("id") or "").strip()
+    request_id = str(event.get("request_id") or "").strip()
+    if not pause_id or not request_id:
+        return {}
+    return {
+        "kind": "external_tool_pending",
+        "external_tool_pause_id": pause_id,
+        "external_action_id": pause_id,
+        "request_ref": request_id,
+        "request_id": request_id,
+        "tool_name": str(pause.get("transport_tool_name") or "db_read_query").strip(),
+        "tool_call_id": str(pause.get("tool_call_id") or "").strip(),
+        "session_id": str(pause.get("hermes_session_id") or "").strip(),
+        "summary": "DB read request is pending Slack admin approval and execution.",
+    }
+
+
 def _compact_db_read_query_payload(payload: JsonObject) -> JsonObject:
     event = _db_read_submission_event(payload)
     if event:
@@ -491,8 +518,23 @@ def _record_db_read_submission(session_id: str, event: JsonObject) -> None:
         )
 
 
+def _db_read_args_hash(target: str, sql: str, purpose: str) -> str:
+    raw = json.dumps(
+        {"target": target.strip(), "sql": sql.strip(), "purpose": (purpose or "query").strip() or "query"},
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _external_tool_resume_enabled() -> bool:
+    return os.getenv("RSI_EXTERNAL_TOOL_RESUME_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
     session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    tool_call_id = str(kwargs.get("tool_call_id", "") or "").strip()
     safe_args = args if isinstance(args, dict) else {}
     try:
         if canonical_name == "db_read.sources":
@@ -511,15 +553,35 @@ def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject,
                 },
             )
         elif canonical_name == "db_read.query":
+            target = _string_value(safe_args.get("target"))
+            sql = str(safe_args.get("sql") or "")
+            purpose = _string_value(safe_args.get("purpose")) or "query"
             payload = _db_read_request_json(
                 "POST",
                 "/internal/db-read/query",
                 {
-                    "target": _string_value(safe_args.get("target")),
-                    "sql": str(safe_args.get("sql") or ""),
-                    "purpose": _string_value(safe_args.get("purpose")) or "query",
+                    "target": target,
+                    "sql": sql,
+                    "purpose": purpose,
+                    "hermes_session_id": session_id,
+                    "hermes_tool_call_id": tool_call_id,
+                    "canonical_tool_name": canonical_name,
+                    "transport_tool_name": transport_name,
+                    "args_hash": _db_read_args_hash(target, sql, purpose),
+                    "operation_id": os.getenv("RSI_OPERATION_ID", "").strip(),
+                    "execution_id": os.getenv("RSI_EXECUTION_ID", "").strip(),
+                    "conversation_id": os.getenv("RSI_CONVERSATION_ID", "").strip(),
+                    "workflow_id": os.getenv("RSI_WORKFLOW_ID", "").strip(),
+                    "trace_id": os.getenv("RSI_TRACE_ID", "").strip(),
+                    "channel_id": os.getenv("RSI_SLACK_CHANNEL_ID", "").strip(),
+                    "thread_ts": os.getenv("RSI_SLACK_THREAD_TS", "").strip(),
                 },
             )
+            if _external_tool_resume_enabled():
+                pending = _db_read_external_pause_event(payload)
+                if pending and ExternalToolPending is not None:
+                    _record_db_read_submission(session_id, pending)
+                    raise ExternalToolPending(pending)
             event = _db_read_submission_event(payload)
             _record_db_read_submission(session_id, event)
             payload = _compact_db_read_query_payload(payload)
@@ -538,6 +600,8 @@ def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject,
             output["summary"] = "DB-read request submitted; the Slack approval/result card owns the response."
         return json.dumps(output, sort_keys=True)
     except Exception as exc:
+        if ExternalToolPending is not None and isinstance(exc, ExternalToolPending):
+            raise
         failed_payload = {
             "tool_name": canonical_name,
             "transport_tool_name": transport_name,
@@ -864,6 +928,7 @@ def register(ctx):
             handler=_tool_handler(str(item["transport_name"])),
             check_fn=lambda canonical_name=canonical_name: _rsi_tool_available(canonical_name),
             description=str(item["schema"].get("description", "")),
+            external_pause=canonical_name == "db_read.query",
         )
     ctx.register_hook("pre_llm_call", pre_llm_call)
     ctx.register_hook("on_session_start", on_session_start)

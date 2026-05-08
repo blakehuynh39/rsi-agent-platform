@@ -44,6 +44,33 @@ func TestDBReadApprovalBlocksShowExactSQLAndApproverScope(t *testing.T) {
 	}
 }
 
+func TestDBReadApprovalBlocksUseStoredSQLNotValidationPreview(t *testing.T) {
+	sql := "SELECT '" + strings.Repeat("x", 1900) + "' AS visible_sql"
+	preview := truncateSlackText(sql, 1800)
+	request := storepkg.DBReadRequest{
+		ID:        "dbread_1",
+		Target:    "depin-prod",
+		Purpose:   "query",
+		SQL:       sql,
+		SQLSHA256: "sha256:1234567890abcdef1234567890abcdef",
+		Requester: "user:U123",
+		ExpiresAt: time.Date(2026, 5, 7, 20, 0, 0, 0, time.UTC),
+		Caps:      storepkg.DBReadCaps{MaxRows: 20, MaxBytes: 4096, TimeoutSeconds: 10},
+	}
+	raw, err := json.Marshal(dbReadApprovalBlocks(request, storepkg.DBReadValidationAttempt{ID: "dbreadval_1"}, preview))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := strings.ReplaceAll(string(raw), "\\u003c", "<")
+	body = strings.ReplaceAll(body, "\\u003e", ">")
+	if !strings.Contains(body, "visible_sql") {
+		t.Fatalf("approval card should render the full stored SQL under the server limit: %s", body)
+	}
+	if strings.Contains(body, dbReadSlackTruncated) {
+		t.Fatalf("approval card should not approve from truncated validator preview: %s", body)
+	}
+}
+
 func TestPostDBReadApprovalCardIsIdempotentWhenSlackMessageExists(t *testing.T) {
 	request := storepkg.DBReadRequest{
 		ID:                    "dbread_1",
@@ -69,7 +96,7 @@ func TestPostDBReadApprovalCardIsIdempotentWhenSlackMessageExists(t *testing.T) 
 	}
 }
 
-func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
+func TestDBReadResultUpdateFormatsAuditSummaryAndRemovesButtons(t *testing.T) {
 	request := storepkg.DBReadRequest{
 		ID:                         "dbread_1",
 		Target:                     "depin-prod",
@@ -80,6 +107,7 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 		CurrentValidationAttemptID: "dbreadval_1",
 		ApprovedBySlackUserID:      "UADMIN",
 		RowCount:                   2,
+		ResultArtifactRef:          "artifact:dbread_1",
 		SlackMessageChannelID:      "C123",
 		SlackMessageTS:             "171000001.000200",
 		ResultSample: []map[string]string{
@@ -99,9 +127,9 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 	body = strings.ReplaceAll(body, "%3E", ">")
 	decodedBody, _ := url.QueryUnescape(body)
 	for _, want := range []string{
-		"language_code",
-		"transcript_count",
-		"350000",
+		"rows%3D2",
+		"truncated%3Dfalse",
+		"artifact%3Adbread_1",
 		"Approved+by",
 		"UADMIN",
 	} {
@@ -115,8 +143,8 @@ func TestDBReadResultUpdateFormatsSampleAsTableAndRemovesButtons(t *testing.T) {
 	if !strings.Contains(decodedBody, "*Result:*") {
 		t.Fatalf("complete result card should label rows as Result: %s", decodedBody)
 	}
-	if strings.Contains(decodedBody, "*Sample:*") || strings.Contains(decodedBody, "*Result (truncated):*") {
-		t.Fatalf("complete result card should not label rows as sample: %s", decodedBody)
+	if strings.Contains(decodedBody, "350000") || strings.Contains(decodedBody, "*Result (truncated):*") {
+		t.Fatalf("complete audit card should not include sample rows or truncated label: %s", decodedBody)
 	}
 	if strings.Contains(body, dbReadSlackApproveAction) || strings.Contains(body, dbReadSlackDenyAction) {
 		t.Fatalf("finalized result update should not keep approval actions: %s", body)
@@ -134,6 +162,7 @@ func TestDBReadResultUpdateLabelsPartialRowsAsTruncated(t *testing.T) {
 		CurrentValidationAttemptID: "dbreadval_1",
 		ApprovedBySlackUserID:      "UADMIN",
 		RowCount:                   10,
+		Truncated:                  true,
 		SlackMessageChannelID:      "C123",
 		SlackMessageTS:             "171000001.000200",
 		ResultSample: []map[string]string{

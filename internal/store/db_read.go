@@ -252,10 +252,6 @@ func ValidateDBReadStateTransition(from DBReadState, to DBReadState) error {
 	return nil
 }
 
-func DBReadRequestBlocksNewScopedRequest(state DBReadState) bool {
-	return state != DBReadStateValidationFailed
-}
-
 func SortDBReadRequests(items []DBReadRequest) {
 	sort.SliceStable(items, func(i, j int) bool {
 		return items[i].CreatedAt.After(items[j].CreatedAt)

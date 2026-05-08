@@ -63,7 +63,7 @@ func dbReadApprovalBlocks(request storepkg.DBReadRequest, attempt storepkg.DBRea
 		slack.NewTextBlockObject(slack.PlainTextType, "Deny", false, false),
 	)
 	deny.Style = slack.StyleDanger
-	sqlPreview := truncateSlackText(preview, 2200)
+	sqlPreview := truncateSlackText(firstNonEmpty(request.SQL, preview), 2200)
 	return []slack.Block{
 		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, dbReadApprovalText(request, attempt), false, false), nil, nil),
 		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, "*Exact SQL to run:*\n```"+escapeSlackCode(sqlPreview)+"```", false, false), nil, nil),
@@ -96,25 +96,23 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 		header += fmt.Sprintf("\nApproved by: <@%s>", request.ApprovedBySlackUserID)
 	}
 	footer := "\n" + dbReadRequestFooter(request, storepkg.DBReadValidationAttempt{ID: request.CurrentValidationAttemptID})
-	overhead := len(header) + len(footer) + len("\n*Exact SQL:*\n``````") + len("\n*Result (truncated):*\n``````")
+	overhead := len(header) + len(footer) + len("\n*Exact SQL:*\n``````") + len("\nResult: rows= truncated= ref=``")
 	remainingBudget := slackSectionTextLimit - overhead
 	if remainingBudget < 0 {
 		remainingBudget = 0
 	}
 	sqlLimit := 1000
-	sampleLimit := remainingBudget - sqlLimit
-	if sampleLimit < 0 {
+	if remainingBudget < sqlLimit {
 		sqlLimit = remainingBudget
-		sampleLimit = 0
 	}
 	text := header
 	text += "\n*Exact SQL:*\n```" + escapeSlackCode(truncateSlackText(request.SQL, sqlLimit)) + "```"
-	if len(request.ResultSample) > 0 && sampleLimit > 0 {
+	if request.RowCount > 0 || request.ResultArtifactRef != "" || request.Truncated {
 		resultLabel := "Result"
-		if request.Truncated || (request.RowCount > 0 && len(request.ResultSample) < request.RowCount) {
+		if request.Truncated {
 			resultLabel = "Result (truncated)"
 		}
-		text += "\n*" + resultLabel + ":*\n```" + escapeSlackCode(formatDBReadSampleTable(request.ResultSample, sampleLimit)) + "```"
+		text += fmt.Sprintf("\n*%s:* rows=%d truncated=%t ref=`%s`", resultLabel, request.RowCount, request.Truncated, firstNonEmpty(request.ResultArtifactRef, request.ID))
 	}
 	text += footer
 	_, _, _, err := api.UpdateMessageContext(
@@ -128,12 +126,8 @@ func updateDBReadSlackCard(ctx context.Context, api slackMessagePoster, request 
 }
 
 func dbReadRequestFooter(request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt) string {
-	hash := request.SQLSHA256
-	if len(hash) > 24 {
-		hash = hash[:24] + "..."
-	}
 	validationID := firstNonEmpty(attempt.ID, request.CurrentValidationAttemptID, "n/a")
-	return fmt.Sprintf("Request `%s` | Hash `%s` | Validation `%s`", request.ID, hash, validationID)
+	return fmt.Sprintf("Request `%s` | Hash `%s` | Validation `%s`", request.ID, request.SQLSHA256, validationID)
 }
 
 func dbReadRequesterLabel(requester string) string {

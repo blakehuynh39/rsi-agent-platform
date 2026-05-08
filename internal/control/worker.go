@@ -329,6 +329,16 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerTask := buildRunnerTask(cfg, store, runnerRole, ctx.trace, effectiveWorkflow, ctx.ingestion, contextSummary, contextRefs)
 	runnerTask.OperationID = effect.ID
 	runnerTask.ExecutionID = workflowExecutionID(effect.ID, runnerStarted)
+	if resumePayload := mapValue(effect.Payload["external_tool_resume"]); len(resumePayload) > 0 {
+		runnerTask.ExternalToolResume = resumePayload
+	}
+	resumePauseID := strings.TrimSpace(stringValueFromMap(effect.Payload, "external_tool_pause_id"))
+	if resumePauseID != "" && len(runnerTask.ExternalToolResume) > 0 {
+		_, _ = store.UpdateExternalToolPause(resumePauseID, func(item *storepkg.ExternalToolPause) error {
+			item.ResumeStatus = storepkg.ExternalToolResumeRunning
+			return nil
+		})
+	}
 	executorClient := runnerClient
 	if useHermesExecutor {
 		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
@@ -398,6 +408,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
+	if cfg.ExternalToolResumeEnabled && workflowTerminationReason(runnerResp.Raw) == "external_tool_pending" {
+		markExternalToolResumeAttemptFinished(store, resumePauseID, runnerResp)
+		return handleExternalToolPendingRunnerResult(cfg, store, ctx, effect, runnerResp, runnerStarted)
+	}
+	markExternalToolResumeAttemptFinished(store, resumePauseID, runnerResp)
 	if !runnerResp.OK {
 		if strings.TrimSpace(stringValue(runnerResp.Raw["failure_class"])) == "runner_reply_delivery_uncertain" {
 			runnerCompleted := time.Now().UTC()
@@ -838,6 +853,24 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 	}
 	return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner", ctx.trace.Summary.TraceID))
+}
+
+func markExternalToolResumeAttemptFinished(store storepkg.Store, pauseID string, runnerResp clients.RunnerResponse) {
+	pauseID = strings.TrimSpace(pauseID)
+	if pauseID == "" {
+		return
+	}
+	nextStatus := storepkg.ExternalToolResumeResumed
+	if !runnerResp.OK {
+		nextStatus = storepkg.ExternalToolResumeFailed
+	}
+	_, _ = store.UpdateExternalToolPause(pauseID, func(item *storepkg.ExternalToolPause) error {
+		item.ResumeStatus = nextStatus
+		if !runnerResp.OK {
+			item.ErrorMessage = firstNonEmpty(strings.TrimSpace(runnerResp.Message), item.ErrorMessage)
+		}
+		return nil
+	})
 }
 
 func workflowExecutionID(operationID string, startedAt time.Time) string {
