@@ -20261,3 +20261,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_9dffec19ed28f75842d953f159263a00
 - summary: Source: [Notion source](https://www.notion.so/AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-08T18:18:39Z] synthesis | Protocol V1.1 Contract Addresses
+
+- status: published
+- slug: systems/protocol-v1-1-contract-addresses
+- wiki_revision_id: wikirev_75d50f827071061b1e5b6819c4795857
+- summary: Deployed contract addresses for Protocol V1.1 core modules.
+
