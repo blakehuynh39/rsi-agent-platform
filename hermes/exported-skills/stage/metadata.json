@@ -2911,13 +2911,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8c1ce9ee0a82be23b9592223a68603e90c962b670ac91ef93afb30db0a8f3db9",
-        "size": 498555
+        "sha256": "8a5e52950960cf14691a5a74506cdf05eaf2ba4a209b6adef9b65b9f9a800cfd",
+        "size": 498835
       },
       {
         "path": "log.md",
-        "sha256": "b5cc33ac88c3b7719dab36d0a019e2db5fb6d7fc1d4d7f3369a1ad7b6f7df425",
-        "size": 940394
+        "sha256": "276bbe5b658e1e6fe4956ce8f7d1332393bfe81cc7f390cb0815fc12cb5f5101",
+        "size": 941327
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3036,8 +3036,8 @@
       },
       {
         "path": "pages/concepts/devex.md",
-        "sha256": "478394ca7b97bed22e251cc2bf9379422222a18cc88ee754b8102e12d3baef51",
-        "size": 1196
+        "sha256": "d1e796824e366344e03774ace13736121d57f40b9d5a570ea796ae0ce60c6cbb",
+        "size": 1275
       },
       {
         "path": "pages/concepts/dutch-auction-minting.md",
@@ -4525,6 +4525,11 @@
         "size": 2497
       },
       {
+        "path": "pages/runbooks/aws-cli-setup.md",
+        "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
+        "size": 3333
+      },
+      {
         "path": "pages/runbooks/backend-onboarding.md",
         "sha256": "cb89743501ca8a8da487c7f007de88754f3726946673e0bbcd7bf44960b17494",
         "size": 1205
@@ -4666,8 +4671,8 @@
       },
       {
         "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
-        "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
-        "size": 2863
+        "sha256": "a3074722bbede668a221d7efe62f17ec65d6fc3f59a50487c11c89cc6a85e99b",
+        "size": 2850
       },
       {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
@@ -4969,8 +4974,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T03:20:08Z",
-  "file_count": 992,
+  "exported_at": "2026-05-08T03:41:37Z",
+  "file_count": 993,
   "files": [
     {
       "path": ".curator_state",
@@ -7877,7 +7882,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-b44bdfmmn4n",
-  "previous_tree_hash": "11e4769c51932eac1c563b5f946d35dc0ee9dd5b2d820be6aa325cb23644698d",
+  "previous_tree_hash": "6d0702d8481a17382499d80bfbc8ac4f92b0844cb8482cc576ff8a75dff9c1aa",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7890,14 +7895,14 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6d0702d8481a17382499d80bfbc8ac4f92b0844cb8482cc576ff8a75dff9c1aa",
+  "tree_hash": "7529335fcfc8d59ee6f60b0958747a4f9ab48caea5492dcfaa55b997e5205e9f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 412,
+  "wiki_file_count": 413,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7906,13 +7911,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8c1ce9ee0a82be23b9592223a68603e90c962b670ac91ef93afb30db0a8f3db9",
-      "size": 498555
+      "sha256": "8a5e52950960cf14691a5a74506cdf05eaf2ba4a209b6adef9b65b9f9a800cfd",
+      "size": 498835
     },
     {
       "path": "log.md",
-      "sha256": "b5cc33ac88c3b7719dab36d0a019e2db5fb6d7fc1d4d7f3369a1ad7b6f7df425",
-      "size": 940394
+      "sha256": "276bbe5b658e1e6fe4956ce8f7d1332393bfe81cc7f390cb0815fc12cb5f5101",
+      "size": 941327
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8031,8 +8036,8 @@
     },
     {
       "path": "pages/concepts/devex.md",
-      "sha256": "478394ca7b97bed22e251cc2bf9379422222a18cc88ee754b8102e12d3baef51",
-      "size": 1196
+      "sha256": "d1e796824e366344e03774ace13736121d57f40b9d5a570ea796ae0ce60c6cbb",
+      "size": 1275
     },
     {
       "path": "pages/concepts/dutch-auction-minting.md",
@@ -9520,6 +9525,11 @@
       "size": 2497
     },
     {
+      "path": "pages/runbooks/aws-cli-setup.md",
+      "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
+      "size": 3333
+    },
+    {
       "path": "pages/runbooks/backend-onboarding.md",
       "sha256": "cb89743501ca8a8da487c7f007de88754f3726946673e0bbcd7bf44960b17494",
       "size": 1205
@@ -9661,8 +9671,8 @@
     },
     {
       "path": "pages/runbooks/rds-backup-and-recovery-runbook.md",
-      "sha256": "2f3a0b02767fac5e079f851de2a964434234f703ff5d2b3bd0f72cb724d139c4",
-      "size": 2863
+      "sha256": "a3074722bbede668a221d7efe62f17ec65d6fc3f59a50487c11c89cc6a85e99b",
+      "size": 2850
     },
     {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
@@ -9961,5 +9971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3ae89daba03e44b637965c76d193e1ace121770157ea879dc680d11f1c50dd87"
+  "wiki_tree_hash": "4b5f1c8e305806a860872ba1c07816959244ea437362ef807c91405b6b7ef0f8"
 }

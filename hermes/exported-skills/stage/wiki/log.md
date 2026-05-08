@@ -19830,3 +19830,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1ebdc8ce45c331d90f8e6dbe4e1ec8a7
 - summary: Details of the AWS accounts used by the organization, including account IDs, purposes, regions, and deprecation status.
 
+## [2026-05-08T03:37:08Z] synthesis | DevEx
+
+- status: published
+- slug: concepts/devex
+- wiki_revision_id: wikirev_4ebb802761decb67aa7deed15ad1691f
+- summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
+
+## [2026-05-08T03:37:08Z] synthesis | RDS Backup and Recovery Runbook
+
+- status: published
+- slug: runbooks/rds-backup-and-recovery-runbook
+- wiki_revision_id: wikirev_5099b6946bcf16e72dfc3eb4d0d6482b
+- summary: Steps to configure automated daily RDS backups with 7-day retention, using AWS Management Console or CLI.
+
+## [2026-05-08T03:37:08Z] synthesis | AWS CLI Setup
+
+- status: published
+- slug: runbooks/aws-cli-setup
+- wiki_revision_id: wikirev_3940664e4c67532e74610616f3c5e307
+- summary: Instructions for installing and configuring AWS CLI v2 with SSO authentication, including profile setup and login.
+
