@@ -19851,3 +19851,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3940664e4c67532e74610616f3c5e307
 - summary: Instructions for installing and configuring AWS CLI v2 with SSO authentication, including profile setup and login.
 
+## [2026-05-08T03:48:15Z] synthesis | DevEx
+
+- status: published
+- slug: concepts/devex
+- wiki_revision_id: wikirev_c7cd4d811caf5a3a3eb6b520e744950d
+- summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
+
