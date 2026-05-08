@@ -19872,3 +19872,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b66b7d12cf72bfaff05e6c3d8980ea47
 - summary: A Notion document outlining the design of the SDK, including requirements, testing, protocol metadata, CLI, CI/CD, and beta protocol SDK.
 
+## [2026-05-08T05:04:46Z] synthesis | Web3 Registrations for Web2 Integration Partners
+
+- status: published
+- slug: concepts/web3-registrations-for-web2-integration-partners
+- wiki_revision_id: wikirev_46f8958c6c08f5d42aef6d0bceb09f60
+- summary: Design exploration for onboarding Web2 users to Web3 via integration partners, using account abstraction and profile managers.
+
