@@ -918,6 +918,39 @@ func loadIngestions(r sqlReader, store *MemoryStore) error {
 	return rows.Err()
 }
 
+func scanWorkflowRow(rows *sql.Rows) (Workflow, error) {
+	var item Workflow
+	var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastVerdict, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	var runnerDiagnostics []byte
+	if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastVerdict, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &runnerDiagnostics, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		return item, err
+	}
+	item.IngestionID = ingestionID.String
+	item.TraceID = traceID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Intent = intent.String
+	item.ApprovalMode = approvalMode.String
+	item.ResponseMode = responseMode.String
+	item.LastVerdict = lastVerdict.String
+	item.LastError = lastError.String
+	item.ParentWorkflowID = parentWorkflowID.String
+	item.FailureClass = failureClass.String
+	item.FailureSummary = failureSummary.String
+	item.RetryDecision = retryDecision.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
+	item.RunnerDiagnostics = decodeJSON(runnerDiagnostics, map[string]any{})
+	if completedAt.Valid {
+		t := completedAt.Time
+		item.CompletedAt = &t
+	}
+	return item, nil
+}
+
 func loadWorkflows(r sqlReader, store *MemoryStore) error {
 	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow order by created_at desc`)
 	if err != nil {
@@ -925,34 +958,25 @@ func loadWorkflows(r sqlReader, store *MemoryStore) error {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var item Workflow
-		var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastVerdict, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
-		var retryAfter, completedAt sql.NullTime
-		var runnerDiagnostics []byte
-		if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastVerdict, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &runnerDiagnostics, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		item, err := scanWorkflowRow(rows)
+		if err != nil {
 			return err
 		}
-		item.IngestionID = ingestionID.String
-		item.TraceID = traceID.String
-		item.ConversationID = conversationID.String
-		item.CaseID = caseID.String
-		item.Intent = intent.String
-		item.ApprovalMode = approvalMode.String
-		item.ResponseMode = responseMode.String
-		item.LastVerdict = lastVerdict.String
-		item.LastError = lastError.String
-		item.ParentWorkflowID = parentWorkflowID.String
-		item.FailureClass = failureClass.String
-		item.FailureSummary = failureSummary.String
-		item.RetryDecision = retryDecision.String
-		if retryAfter.Valid {
-			t := retryAfter.Time
-			item.RetryAfter = &t
-		}
-		item.RunnerDiagnostics = decodeJSON(runnerDiagnostics, map[string]any{})
-		if completedAt.Valid {
-			t := completedAt.Time
-			item.CompletedAt = &t
+		store.workflows = append(store.workflows, item)
+	}
+	return rows.Err()
+}
+
+func loadWorkflowsByStatus(r sqlReader, store *MemoryStore, status string) error {
+	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow where status = $1 order by created_at desc`, status)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanWorkflowRow(rows)
+		if err != nil {
+			return err
 		}
 		store.workflows = append(store.workflows, item)
 	}
@@ -2786,6 +2810,14 @@ func (p *PostgresStore) ListWorkflows() []Workflow {
 		return nil
 	}
 	return store.ListWorkflows()
+}
+
+func (p *PostgresStore) ListWorkflowsByStatus(status string) []Workflow {
+	store := newEmptyMemoryStore()
+	if err := loadWorkflowsByStatus(p.db, store, status); err != nil {
+		return nil
+	}
+	return store.workflows
 }
 
 func (p *PostgresStore) ListAssignments() []Assignment {

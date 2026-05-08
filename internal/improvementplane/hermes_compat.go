@@ -19,6 +19,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func registerHermesCompatibilityRoutes(r chi.Router, cfg config.Config, store storepkg.Repository) {
@@ -418,6 +419,7 @@ func buildHermesStatus(cfg config.Config, store storepkg.Repository) map[string]
 func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesSessionInfo {
 	items := []hermesSessionInfo{}
 	live := buildHermesLiveSessionIndex(cfg, store)
+	waitingExternalTool := live.waitingExternalTool
 	traces := store.ListTraces()
 	traceCountByConversation := map[string]int{}
 	for _, trace := range traces {
@@ -443,7 +445,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		}
 	}
 	caseIndex := buildCaseSummaryIndex(store, traces, proposals)
-	conversationList := buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache)
+	conversationList := buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache, waitingExternalTool)
 
 	for _, conv := range conversationList {
 		entries := store.ListConversationEntries(conv.ConversationID)
@@ -487,6 +489,12 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 		toolCallCount := hermesTraceToolCallCount(store, trace.TraceID, trace.ToolCallCount)
 		title := traceTitleForDisplayWithCache(store, trace, titleCache)
 		preview := stringPtr(firstNonEmptyString(trace.LastVerdict, string(trace.Status)))
+		status := string(trace.Status)
+		endedAtPtr := unixPtrIfSet(trace.EndedAt)
+		if waitingExternalTool[trace.TraceID] {
+			status = string(transition.WorkflowStateWaitingExternalTool)
+			endedAtPtr = nil
+		}
 		items = append(items, hermesSessionInfo{
 			ID:              trace.TraceID,
 			Type:            "trace",
@@ -496,9 +504,9 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			OriginalTitle:   title.OriginalTitle,
 			TitleIsSummary:  title.IsSummary,
 			StartedAt:       unixSeconds(trace.StartedAt),
-			EndedAt:         unixPtrIfSet(trace.EndedAt),
+			EndedAt:         endedAtPtr,
 			LastActive:      unixSeconds(last),
-			IsActive:        live.traces[trace.TraceID],
+			IsActive:        live.traces[trace.TraceID] || waitingExternalTool[trace.TraceID],
 			MessageCount:    trace.EventCount + trace.ReasoningStepCount + toolCallCount,
 			ToolCallCount:   toolCallCount,
 			InputTokens:     0,
@@ -511,7 +519,7 @@ func buildHermesSessions(cfg config.Config, store storepkg.Repository) []hermesS
 			TriggerEventID:  trace.TriggerEventID,
 			ThreadKey:       trace.ThreadKey,
 			WorkflowKind:    trace.WorkflowKind,
-			Status:          string(trace.Status),
+			Status:          status,
 		})
 	}
 	sort.Slice(items, func(i, j int) bool {
@@ -532,7 +540,8 @@ func buildHermesSessionsPage(cfg config.Config, store storepkg.Repository, limit
 	}
 	page := reader.ListHermesSessionsPage(limit, offset)
 	live := buildHermesLiveSessionIndex(cfg, store)
-	
+	waitingExternalTool := live.waitingExternalTool
+
 	traceToConversation := make(map[string]string)
 	for _, item := range page.Items {
 		if item.Type == "trace" && item.TraceID != "" && item.ConversationID != "" {
@@ -549,14 +558,20 @@ func buildHermesSessionsPage(cfg config.Config, store storepkg.Repository, limit
 			}
 		}
 	}
-	
+
 	out := make([]hermesSessionInfo, 0, len(page.Items))
 	for _, item := range page.Items {
 		switch item.Type {
 		case "conversation":
 			out = append(out, hermesConversationSessionFromListItem(item, live))
 		case "trace":
-			out = append(out, hermesTraceSessionFromListItem(item, live))
+			session := hermesTraceSessionFromListItem(item, live)
+			if waitingExternalTool[item.TraceID] {
+				session.Status = string(transition.WorkflowStateWaitingExternalTool)
+				session.IsActive = true
+				session.EndedAt = nil
+			}
+			out = append(out, session)
 		}
 	}
 	return out, page.Total, true
@@ -666,6 +681,7 @@ func hermesTraceSessionFromListItem(item storepkg.HermesSessionListItem, live he
 
 func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID string) (hermesSessionInfo, bool) {
 	live := buildHermesLiveSessionIndex(cfg, store)
+	waitingExternalTool := live.waitingExternalTool
 	if conv, ok := store.GetConversation(sessionID); ok {
 		entries := store.ListConversationEntries(conv.ID)
 		var activeCase *caseSummary
@@ -689,6 +705,9 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		ledgerActivityByTrace := latestHermesLedgerActivityByTraceIDBatched(store, traceIDs)
 		openTraceCount := 0
 		for _, t := range traces {
+			if waitingExternalTool[t.TraceID] {
+				openTraceCount++
+			}
 			traceLastActive := t.StartedAt
 			if ledgerLast := live.traceLastActive[t.TraceID]; ledgerLast.After(traceLastActive) {
 				traceLastActive = ledgerLast
@@ -699,7 +718,7 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 			if traceLastActive.After(latestMessageAt) {
 				latestMessageAt = traceLastActive
 			}
-			if isOpenTraceStatus(t.Status) {
+			if isOpenTraceStatus(t.Status) && !waitingExternalTool[t.TraceID] {
 				openTraceCount++
 			}
 		}
@@ -747,6 +766,12 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 		toolCallCount := hermesTraceToolCallCountFromRecords(store, summary.TraceID, summary.ToolCallCount, trace.ToolCalls)
 		title := traceTitleForDisplay(store, summary)
 		preview := stringPtr(firstNonEmptyString(summary.LastVerdict, string(summary.Status)))
+		status := string(summary.Status)
+		endedAtPtr := unixPtrIfSet(endedAt)
+		if waitingExternalTool[summary.TraceID] {
+			status = string(transition.WorkflowStateWaitingExternalTool)
+			endedAtPtr = nil
+		}
 		return hermesSessionInfo{
 			ID:              summary.TraceID,
 			Type:            "trace",
@@ -756,9 +781,9 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 			OriginalTitle:   title.OriginalTitle,
 			TitleIsSummary:  title.IsSummary,
 			StartedAt:       unixSeconds(summary.StartedAt),
-			EndedAt:         unixPtrIfSet(endedAt),
+			EndedAt:         endedAtPtr,
 			LastActive:      unixSeconds(last),
-			IsActive:        live.traces[summary.TraceID],
+			IsActive:        live.traces[summary.TraceID] || waitingExternalTool[summary.TraceID],
 			MessageCount:    summary.EventCount + summary.ReasoningStepCount + toolCallCount,
 			ToolCallCount:   toolCallCount,
 			InputTokens:     0,
@@ -771,7 +796,7 @@ func buildHermesSession(cfg config.Config, store storepkg.Repository, sessionID 
 			TriggerEventID:  summary.TriggerEventID,
 			ThreadKey:       summary.ThreadKey,
 			WorkflowKind:    summary.WorkflowKind,
-			Status:          string(summary.Status),
+			Status:          status,
 		}, true
 	}
 	return hermesSessionInfo{}, false
@@ -782,6 +807,7 @@ type hermesLiveSessionIndex struct {
 	traces                 map[string]bool
 	conversationLastActive map[string]time.Time
 	traceLastActive        map[string]time.Time
+	waitingExternalTool    map[string]bool
 }
 
 func buildHermesLiveSessionIndex(cfg config.Config, store storepkg.Repository) hermesLiveSessionIndex {
@@ -790,8 +816,48 @@ func buildHermesLiveSessionIndex(cfg config.Config, store storepkg.Repository) h
 		traces:                 map[string]bool{},
 		conversationLastActive: map[string]time.Time{},
 		traceLastActive:        map[string]time.Time{},
+		waitingExternalTool:    map[string]bool{},
 	}
 	now := time.Now().UTC()
+	workflows := []storepkg.Workflow{}
+	if reader, ok := store.(interface {
+		ListWorkflowsByStatus(string) []storepkg.Workflow
+	}); ok {
+		workflows = reader.ListWorkflowsByStatus(string(transition.WorkflowStateWaitingExternalTool))
+	} else {
+		for _, workflow := range store.ListWorkflows() {
+			if strings.TrimSpace(workflow.Status) == string(transition.WorkflowStateWaitingExternalTool) {
+				workflows = append(workflows, workflow)
+			}
+		}
+	}
+	for _, workflow := range workflows {
+		traceID := strings.TrimSpace(workflow.TraceID)
+		if traceID == "" {
+			continue
+		}
+		out.traces[traceID] = true
+		out.waitingExternalTool[traceID] = true
+		activityAt := workflow.UpdatedAt.UTC()
+		if activityAt.IsZero() {
+			activityAt = workflow.CreatedAt.UTC()
+		}
+		if activityAt.After(out.traceLastActive[traceID]) {
+			out.traceLastActive[traceID] = activityAt
+		}
+		conversationID := strings.TrimSpace(workflow.ConversationID)
+		if conversationID == "" {
+			if trace, ok := store.GetTrace(traceID); ok {
+				conversationID = strings.TrimSpace(trace.Summary.ConversationID)
+			}
+		}
+		if conversationID != "" {
+			out.conversations[conversationID] = true
+			if activityAt.After(out.conversationLastActive[conversationID]) {
+				out.conversationLastActive[conversationID] = activityAt
+			}
+		}
+	}
 	for _, execution := range store.ListActiveRunnerExecutions() {
 		if !hermesRunnerExecutionFresh(cfg, execution, now) {
 			continue

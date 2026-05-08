@@ -554,7 +554,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("artifact.write.completed", source)
         self.assertIn("artifact_write_file", source)
         self.assertIn("db_read_query", source)
-        self.assertIn("db_read.request_submitted", source)
+        self.assertIn("external_tool.pending", source)
 
     def test_github_repo_activity_default_payload_ignores_context_windows(self) -> None:
         namespace: dict[str, object] = {}
@@ -1687,10 +1687,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(env["RSI_SLACK_CHANNEL_ID"], "C123")
         self.assertEqual(env["RSI_SLACK_THREAD_TS"], "171000001.000100")
         self.assertEqual(env["RSI_TASK_REQUESTER"], "user:U123")
-        self.assertEqual(
-            str(Path(env["RSI_DB_READ_SUBMISSION_PATH"]).resolve()),
-            str(Path(tempdir, "rsi_runtime", "db_read_submissions", "hexec-1.json").resolve()),
-        )
         self.assertNotIn("RSI_DB_READ_EXECUTION_TOKEN", env)
         self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
 
@@ -4071,72 +4067,7 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertIn("artifact.list.completed", [event["event"] for event in events])
             self.assertIn("artifact.list.failed", [event["event"] for event in events])
 
-    def test_plugin_db_read_query_posts_to_control_plane_and_records_lifecycle(self) -> None:
-        class Response:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, *_args):
-                return False
-
-            def read(self) -> bytes:
-                return json.dumps(
-                    {
-                        "status": "pending_approval",
-                        "request": {
-                            "id": "dbread_1",
-                            "target": "depin-prod",
-                            "state": "pending_approval",
-                            "sql_sha256": "sha256:abc",
-                        },
-                        "validation": {"ok": True},
-                    }
-                ).encode("utf-8")
-
-        seen: dict[str, object] = {}
-
-        def fake_urlopen(req, timeout):  # type: ignore[no-untyped-def]
-            seen["url"] = req.full_url
-            seen["headers"] = dict(req.header_items())
-            seen["body"] = json.loads(req.data.decode("utf-8"))
-            seen["timeout"] = timeout
-            return Response()
-
-        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
-            os.environ,
-            {
-                "HERMES_HOME": hermes_home,
-                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
-                "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
-                "RSI_DB_READ_SUBMISSION_PATH": str(Path(tempdir, "submission.json")),
-            },
-            clear=True,
-        ), mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
-            namespace: dict[str, object] = {}
-            exec(_build_plugin_module(), namespace)
-            handler = namespace["_tool_handler"]("db_read_query")
-            payload = json.loads(handler({"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"}, task_id="sess-db"))
-            lifecycle_path = Path(hermes_home, "rsi_runtime", "lifecycle", "sess-db.jsonl")
-            lifecycle_events = [json.loads(line) for line in lifecycle_path.read_text(encoding="utf-8").splitlines()]
-            submission = json.loads(Path(tempdir, "submission.json").read_text(encoding="utf-8"))
-
-        self.assertEqual(payload["status"], "ok")
-        self.assertEqual(payload["output"]["request_id"], "dbread_1")
-        self.assertEqual(payload["output"]["response_owner"], "slack_db_read_card")
-        self.assertEqual(payload["output"]["delivery_mode"], "card_only")
-        self.assertEqual(seen["url"], "https://control.example.test/internal/db-read/query")
-        self.assertEqual(seen["headers"].get("Authorization"), "Bearer scoped-token")
-        self.assertEqual(seen["body"]["target"], "depin-prod")
-        self.assertEqual(seen["body"]["sql"], "SELECT 1")
-        self.assertEqual(seen["body"]["purpose"], "query")
-        self.assertEqual(seen["body"]["hermes_session_id"], "sess-db")
-        self.assertEqual(seen["body"]["canonical_tool_name"], "db_read.query")
-        self.assertEqual(seen["body"]["transport_tool_name"], "db_read_query")
-        self.assertTrue(str(seen["body"]["args_hash"]).startswith("sha256:"))
-        self.assertEqual(submission["kind"], "db_read_request_submitted")
-        self.assertIn("db_read.request_submitted", [event["event"] for event in lifecycle_events])
-
-    def test_plugin_db_read_query_raises_external_pause_when_enabled(self) -> None:
+    def test_plugin_db_read_query_raises_external_pause(self) -> None:
         class FakeExternalToolPending(Exception):
             pass
 
@@ -4183,14 +4114,12 @@ class HermesRuntimeTests(unittest.TestCase):
             return Response()
 
         try:
-            with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
                 os.environ,
                 {
                     "HERMES_HOME": hermes_home,
                     "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
                     "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
-                    "RSI_DB_READ_SUBMISSION_PATH": str(Path(tempdir, "submission.json")),
-                    "RSI_EXTERNAL_TOOL_RESUME_ENABLED": "true",
                     "RSI_WORKFLOW_ID": "wf-1",
                     "RSI_TRACE_ID": "trace-1",
                     "RSI_CONVERSATION_ID": "conv-1",
@@ -4209,7 +4138,6 @@ class HermesRuntimeTests(unittest.TestCase):
                     )
                 lifecycle_path = Path(hermes_home, "rsi_runtime", "lifecycle", "sess-db.jsonl")
                 lifecycle_events = [json.loads(line) for line in lifecycle_path.read_text(encoding="utf-8").splitlines()]
-                submission = json.loads(Path(tempdir, "submission.json").read_text(encoding="utf-8"))
         finally:
             if original_tools is None:
                 sys.modules.pop("tools", None)
@@ -4223,11 +4151,56 @@ class HermesRuntimeTests(unittest.TestCase):
         pending = raised.exception.args[0]
         self.assertEqual(pending["kind"], "external_tool_pending")
         self.assertEqual(pending["external_tool_pause_id"], "etpause_1")
+        self.assertEqual(pending["request_id"], "dbread_1")
+        self.assertEqual(pending["target"], "depin-prod")
+        self.assertEqual(pending["sql_sha256"], "sha256:abc")
         self.assertEqual(pending["tool_call_id"], "call_1")
         self.assertEqual(seen["body"]["workflow_id"], "wf-1")
         self.assertEqual(seen["body"]["hermes_tool_call_id"], "call_1")
-        self.assertEqual(submission["kind"], "external_tool_pending")
-        self.assertIn("db_read.request_submitted", [event["event"] for event in lifecycle_events])
+        self.assertIn("external_tool.pending", [event["event"] for event in lifecycle_events])
+
+    def test_plugin_db_read_query_returns_validation_feedback_without_pause(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "validation_failed",
+                        "request": {
+                            "id": "dbread_bad",
+                            "target": "depin-prod",
+                            "state": "validation_failed",
+                            "sql_sha256": "sha256:bad",
+                        },
+                        "validation": {
+                            "ok": False,
+                            "message": "syntax error at or near FROM",
+                            "error_code": "offline_parse_failed",
+                        },
+                    }
+                ).encode("utf-8")
+
+        with mock.patch.dict(
+            os.environ,
+            {
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
+            },
+            clear=True,
+        ), mock.patch("urllib.request.urlopen", return_value=Response()):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            handler = namespace["_tool_handler"]("db_read_query")
+            payload = json.loads(handler({"target": "depin-prod", "sql": "SELECT FROM", "purpose": "query"}, task_id="sess-db"))
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["output"]["status"], "validation_failed")
+        self.assertIn("repair the SQL", payload["output"]["message"])
 
     def test_plugin_db_read_tools_require_execution_scoped_token(self) -> None:
         with mock.patch.dict(

@@ -430,7 +430,7 @@ def _db_read_request_json(method: str, path: str, body: JsonObject | None = None
     return parsed
 
 
-def _db_read_submission_event(payload: JsonObject) -> JsonObject:
+def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
     request = payload.get("request")
     if not isinstance(request, dict):
         return {}
@@ -443,26 +443,11 @@ def _db_read_submission_event(payload: JsonObject) -> JsonObject:
     request_id = str(request.get("id") or "").strip()
     if not request_id:
         return {}
-    return {
-        "kind": "db_read_request_submitted",
-        "request_id": request_id,
-        "target": str(request.get("target") or "").strip(),
-        "state": state,
-        "sql_sha256": str(request.get("sql_sha256") or "").strip(),
-        "status": str(payload.get("status") or state).strip(),
-        "response_owner": "slack_db_read_card",
-        "delivery_mode": "card_only",
-    }
-
-
-def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
-    event = _db_read_submission_event(payload)
     pause = payload.get("external_tool_pause")
-    if not event or not isinstance(pause, dict):
+    if not isinstance(pause, dict):
         return {}
     pause_id = str(pause.get("id") or "").strip()
-    request_id = str(event.get("request_id") or "").strip()
-    if not pause_id or not request_id:
+    if not pause_id:
         return {}
     return {
         "kind": "external_tool_pending",
@@ -470,6 +455,10 @@ def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
         "external_action_id": pause_id,
         "request_ref": request_id,
         "request_id": request_id,
+        "target": str(request.get("target") or "").strip(),
+        "state": state,
+        "sql_sha256": str(request.get("sql_sha256") or "").strip(),
+        "status": str(payload.get("status") or state).strip(),
         "tool_name": str(pause.get("transport_tool_name") or "db_read_query").strip(),
         "tool_call_id": str(pause.get("tool_call_id") or "").strip(),
         "session_id": str(pause.get("hermes_session_id") or "").strip(),
@@ -477,42 +466,16 @@ def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
     }
 
 
-def _compact_db_read_query_payload(payload: JsonObject) -> JsonObject:
-    event = _db_read_submission_event(payload)
-    if event:
-        return dict(event)
-    request = payload.get("request")
-    if isinstance(request, dict):
-        return {
-            "request_id": str(request.get("id") or "").strip(),
-            "target": str(request.get("target") or "").strip(),
-            "state": str(request.get("state") or payload.get("status") or "").strip(),
-            "sql_sha256": str(request.get("sql_sha256") or "").strip(),
-            "status": str(payload.get("status") or "").strip(),
-            "response_owner": "slack_db_read_card",
-            "delivery_mode": "card_only",
-        }
-    return {"status": str(payload.get("status") or "").strip()}
-
-
-def _record_db_read_submission(session_id: str, event: JsonObject) -> None:
+def _record_external_tool_pending(session_id: str, event: JsonObject) -> None:
     if not event:
         return
-    path = os.getenv("RSI_DB_READ_SUBMISSION_PATH", "").strip()
-    if path:
-        try:
-            destination = Path(path).expanduser()
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(json.dumps(event, indent=2, sort_keys=True), encoding="utf-8")
-        except OSError:
-            pass
     if session_id:
         _append_event(
             session_id,
-            "db_read.request_submitted",
+            "external_tool.pending",
             {
-                "event_type": "db_read.request_submitted",
-                "status": "completed",
+                "event_type": "external_tool.pending",
+                "status": "pending",
                 "payload": dict(event),
             },
         )
@@ -526,10 +489,6 @@ def _db_read_args_hash(target: str, sql: str, purpose: str) -> str:
         separators=(",", ":"),
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(raw).hexdigest()
-
-
-def _external_tool_resume_enabled() -> bool:
-    return os.getenv("RSI_EXTERNAL_TOOL_RESUME_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
@@ -577,14 +536,23 @@ def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject,
                     "thread_ts": os.getenv("RSI_SLACK_THREAD_TS", "").strip(),
                 },
             )
-            if _external_tool_resume_enabled():
-                pending = _db_read_external_pause_event(payload)
-                if pending and ExternalToolPending is not None:
-                    _record_db_read_submission(session_id, pending)
-                    raise ExternalToolPending(pending)
-            event = _db_read_submission_event(payload)
-            _record_db_read_submission(session_id, event)
-            payload = _compact_db_read_query_payload(payload)
+            pending = _db_read_external_pause_event(payload)
+            if pending:
+                if ExternalToolPending is None:
+                    raise RuntimeError("Hermes external tool pause support is unavailable for db_read.query")
+                _record_external_tool_pending(session_id, pending)
+                raise ExternalToolPending(pending)
+            validation = payload.get("validation")
+            request = payload.get("request")
+            if isinstance(validation, dict) and validation.get("ok") is False:
+                payload = {
+                    "status": "validation_failed",
+                    "request": request,
+                    "validation": validation,
+                    "message": "DB read SQL validation failed; repair the SQL and call db_read.query again.",
+                }
+            else:
+                raise RuntimeError("db-read query did not create an external tool pause")
         elif canonical_name == "db_read.status":
             request_id = urlparse.quote(_string_value(safe_args.get("request_id")))
             payload = _db_read_request_json("GET", f"/internal/db-read/requests/{request_id}")
@@ -596,8 +564,6 @@ def _db_read_handler(canonical_name: str, transport_name: str, args: JsonObject,
             "status": "ok",
             "output": payload,
         }
-        if canonical_name == "db_read.query":
-            output["summary"] = "DB-read request submitted; the Slack approval/result card owns the response."
         return json.dumps(output, sort_keys=True)
     except Exception as exc:
         if ExternalToolPending is not None and isinstance(exc, ExternalToolPending):

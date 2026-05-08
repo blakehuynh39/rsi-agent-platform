@@ -1212,6 +1212,91 @@ func TestHermesCompatibilityLiveSessionsFollowFreshLedgerActivity(t *testing.T) 
 	}
 }
 
+func TestHermesCompatibilityShowsExternalToolWaitAsLiveSession(t *testing.T) {
+	cfg := config.Config{
+		PublicBaseURL:                   "http://example.test",
+		HermesExecutionHeartbeatTimeout: time.Minute,
+	}
+	store := storepkg.NewMemoryStore()
+	workflow := store.ListWorkflows()[0]
+	traceID := workflow.TraceID
+	conversationID := workflow.ConversationID
+	now := time.Now().UTC()
+	commands := []transition.CommandEnvelope{
+		{
+			MachineKind: transition.MachineWorkflow,
+			AggregateID: workflow.ID,
+			CommandKind: string(transition.CommandWorkflowStarted),
+			CommandID:   "cmd-test-ext-wait-started",
+			OccurredAt:  now,
+		},
+		{
+			MachineKind: transition.MachineWorkflow,
+			AggregateID: workflow.ID,
+			CommandKind: string(transition.CommandContextSkipped),
+			CommandID:   "cmd-test-ext-wait-context-skipped",
+			OccurredAt:  now.Add(time.Second),
+		},
+		{
+			MachineKind: transition.MachineWorkflow,
+			AggregateID: workflow.ID,
+			CommandKind: string(transition.CommandWorkflowWaitingExternalTool),
+			CommandID:   "cmd-test-ext-wait-waiting",
+			OccurredAt:  now.Add(2 * time.Second),
+			Payload: map[string]any{
+				"external_tool_pause_id": "extpause-test",
+			},
+		},
+	}
+	for _, command := range commands {
+		if _, err := store.SubmitCommand(command); err != nil {
+			t.Fatalf("SubmitCommand(%s) error = %v", command.CommandKind, err)
+		}
+	}
+	router := NewRouter(cfg, store)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions?limit=200", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sessions status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var payload struct {
+		Sessions []struct {
+			ID       string `json:"id"`
+			IsActive bool   `json:"is_active"`
+			Status   string `json:"status"`
+		} `json:"sessions"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("decode sessions: %v", err)
+	}
+	for _, want := range []struct {
+		id            string
+		expectedTrace bool
+	}{
+		{id: traceID, expectedTrace: true},
+		{id: conversationID},
+	} {
+		found := false
+		for _, session := range payload.Sessions {
+			if session.ID != want.id {
+				continue
+			}
+			found = true
+			if !session.IsActive {
+				t.Fatalf("session %s is_active=false, want true while external tool is pending", want.id)
+			}
+			if want.expectedTrace && session.Status != string(transition.WorkflowStateWaitingExternalTool) {
+				t.Fatalf("trace status = %q, want %q", session.Status, transition.WorkflowStateWaitingExternalTool)
+			}
+		}
+		if !found {
+			t.Fatalf("missing session %s in %+v", want.id, payload.Sessions)
+		}
+	}
+}
+
 type batchedHermesLiveLedgerStore struct {
 	*storepkg.MemoryStore
 	events       []storepkg.HermesLiveLedgerEvent

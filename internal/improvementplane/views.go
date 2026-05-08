@@ -707,7 +707,7 @@ func buildConversationList(store storepkg.Repository) []conversationListItem {
 	}
 	caseIndex := buildCaseSummaryIndex(store, traces, proposals)
 	titleCache := buildTitleCache(store, traces)
-	return buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache)
+	return buildConversationListWithCache(store, conversations, tracesByConversation, proposalsByConversation, caseIndex, titleCache, nil)
 }
 
 func buildConversationListWithCache(
@@ -717,6 +717,7 @@ func buildConversationListWithCache(
 	proposalsByConversation map[string]int,
 	caseIndex map[string]*caseSummary,
 	cache titleCache,
+	waitingExternalTool map[string]bool,
 ) []conversationListItem {
 	out := make([]conversationListItem, 0, len(conversations))
 	for _, item := range conversations {
@@ -732,7 +733,9 @@ func buildConversationListWithCache(
 			if latestTraceVerdict == "" && trace.LatestEval != nil {
 				latestTraceVerdict = trace.LatestEval.Verdict
 			}
-			if isOpenTraceStatus(trace.Status) {
+			if waitingExternalTool[trace.TraceID] {
+				openTraceCount++
+			} else if isOpenTraceStatus(trace.Status) {
 				openTraceCount++
 			}
 		}

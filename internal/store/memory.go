@@ -1324,6 +1324,19 @@ func (s *MemoryStore) ListWorkflows() []Workflow {
 	return out
 }
 
+func (s *MemoryStore) ListWorkflowsByStatus(status string) []Workflow {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := []Workflow{}
+	for _, workflow := range s.workflows {
+		if workflow.Status == status {
+			out = append(out, workflow)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
+	return out
+}
+
 func (s *MemoryStore) ListAssignments() []Assignment {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

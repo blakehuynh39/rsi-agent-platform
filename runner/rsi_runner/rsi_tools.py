@@ -70,7 +70,7 @@ _DB_READ_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     },
     "db_read.query": {
         "name": "db_read.query",
-        "description": "Submit one Slack-approved read-only SQL query. After this tool succeeds, stop; the Slack approval/result card owns the response.",
+        "description": "Submit one Slack-approved read-only SQL query. This pauses the tool call until an admin approves or denies it, then resumes with a sanitized result.",
         "parameters": {
             "type": "object",
             "properties": {
