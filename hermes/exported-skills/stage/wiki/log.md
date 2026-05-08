@@ -19965,3 +19965,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7dfead0a2cdf0f1f889b9c9d4c6c535
 - summary: Decision to deprecate the IPAssetRenderer contract. IPAsset is not an NFT, so SVG rendering is unnecessary. JSON metadata generation can be consolidated into existing metadata-rela...
 
+## [2026-05-08T07:24:00Z] synthesis | IPAccount Data Storage Decision
+
+- status: published
+- slug: decisions/ip-account-data-storage-decision
+- wiki_revision_id: wikirev_8bb834c66e24cebd2dc628e94294faaf
+- summary: Decision finalized via voting bypass for PR #2 to adopt the Open Data Access system over the Module-based Data System for IPAccount storage. IPAccount will hold all relevant data i...
+

@@ -2916,13 +2916,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1fa86f1e322ae026faae3fc27120af3fc44fcb1f75d373fa8c56ed715634b335",
-        "size": 502678
+        "sha256": "e31392c17c84265d245e97bf695c41bd98bacbb5ee2723861ab79528fa29a558",
+        "size": 503448
       },
       {
         "path": "log.md",
-        "sha256": "22c4e4ce6361d16169a2aa8c27f7e0b4acf52096fdb229b5256ab8714ed66802",
-        "size": 947474
+        "sha256": "61be32a78ff0eace4478f7779ab71d1c493ff6a7f82b680f620b68ff704cca42",
+        "size": 947873
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3648,6 +3648,11 @@
         "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
         "sha256": "b9aec1eba3cf47b2b0abb89248e1c03557493048891690b90badfea12aa3df6f",
         "size": 6715
+      },
+      {
+        "path": "pages/decisions/ip-account-data-storage-decision.md",
+        "sha256": "345ac845d42268bdee67b4275630e948d94340eb0974f1bc301e4356cd06a712",
+        "size": 4397
       },
       {
         "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
@@ -5034,8 +5039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T07:19:33Z",
-  "file_count": 1005,
+  "exported_at": "2026-05-08T07:25:48Z",
+  "file_count": 1006,
   "files": [
     {
       "path": ".curator_state",
@@ -7947,7 +7952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5444b78jhbn",
-  "previous_tree_hash": "b92b3925b4f7049115bc50e579308d9471249e8d6fbb7fe1c9fe84730689e4ce",
+  "previous_tree_hash": "70de932562d8ff946bda5ad93af6732beecbbfcec5edd2187621d7cd04f3666a",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7960,14 +7965,14 @@
   ],
   "skill_tree_hash": "7329b919ae6d5ddc5b51171fb713f0e7549a9e960623cd9c64ea3a9764dad8f0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "70de932562d8ff946bda5ad93af6732beecbbfcec5edd2187621d7cd04f3666a",
+  "tree_hash": "4f8ac10d077e427facbe2ad941249e744c25f35507b6a1b57f8cc40a319651b2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 424,
+  "wiki_file_count": 425,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7976,13 +7981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1fa86f1e322ae026faae3fc27120af3fc44fcb1f75d373fa8c56ed715634b335",
-      "size": 502678
+      "sha256": "e31392c17c84265d245e97bf695c41bd98bacbb5ee2723861ab79528fa29a558",
+      "size": 503448
     },
     {
       "path": "log.md",
-      "sha256": "22c4e4ce6361d16169a2aa8c27f7e0b4acf52096fdb229b5256ab8714ed66802",
-      "size": 947474
+      "sha256": "61be32a78ff0eace4478f7779ab71d1c493ff6a7f82b680f620b68ff704cca42",
+      "size": 947873
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8708,6 +8713,11 @@
       "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
       "sha256": "b9aec1eba3cf47b2b0abb89248e1c03557493048891690b90badfea12aa3df6f",
       "size": 6715
+    },
+    {
+      "path": "pages/decisions/ip-account-data-storage-decision.md",
+      "sha256": "345ac845d42268bdee67b4275630e948d94340eb0974f1bc301e4356cd06a712",
+      "size": 4397
     },
     {
       "path": "pages/decisions/ip-account-wallet-architecture-decision.md",
@@ -10091,5 +10101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "dcbdb25663e1aaf4c68ee8445a42183463824784d26fb5a97094b6777000a394"
+  "wiki_tree_hash": "cddad31340743a52fdb41437c4634d90c3c3e77cedd0a280900e45cfc3a49f76"
 }
