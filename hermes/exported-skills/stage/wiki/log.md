@@ -20000,3 +20000,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_29307ca1c18753c613019dca3d5b62f1
 - summary: Project to implement and test a Stripe-based payment solution for P0 countries, including a proof of concept for global payouts and safeguards against spam and malicious withdrawal...
 
+## [2026-05-08T08:35:19Z] synthesis | Web2 Wallet Solution
+
+- status: published
+- slug: projects/web2-wallet-solution
+- wiki_revision_id: wikirev_b5bc117e9cbbdad0d01fd1af22d15757
+- summary: Project to provide a simple onboarding experience for web2 partners to create wallets for their users, using a non-custodial solution to avoid liability and legal risk.
+
