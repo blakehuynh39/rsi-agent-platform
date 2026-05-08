@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "b7e4dfd65489f2c09bc877e7e824df626afdc725be2d1daba53c69b4c269110f",
+        "sha256": "3d2b492b2697cda7295b5e9a0c28d827fe2f4a91be34e7cc0e5082a810f25c16",
         "size": 2435
       },
       {
@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bcea959990c17b91f0916462a61eab55f82bb4e92370afd3b357ce33c4a12a0f",
-        "size": 518612
+        "sha256": "e9e78167789608134608953bd105a869d3890c45d9e3651d818e24ed63b524fa",
+        "size": 518904
       },
       {
         "path": "log.md",
-        "sha256": "7fb9f8ec82c0be3752168d1726ba4e2db80624eaaf166d80e6a25f5e0b0ef120",
-        "size": 970010
+        "sha256": "d9f08b318c03baefc36e0c475e4f46b27e7d6fad21bf74c52e2684033c84ac93",
+        "size": 970314
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4410,6 +4410,11 @@
         "size": 10782
       },
       {
+        "path": "pages/projects/omni-security-fixes.md",
+        "sha256": "4bce0634348e21912dc20aeb245998ce1752eaaeba1ef156e9bbd13a2b819360",
+        "size": 8446
+      },
+      {
         "path": "pages/projects/open-source-development-plan.md",
         "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
         "size": 8717
@@ -5244,8 +5249,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T23:10:31Z",
-  "file_count": 1047,
+  "exported_at": "2026-05-08T23:26:55Z",
+  "file_count": 1048,
   "files": [
     {
       "path": ".curator_state",
@@ -5254,7 +5259,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "b7e4dfd65489f2c09bc877e7e824df626afdc725be2d1daba53c69b4c269110f",
+      "sha256": "3d2b492b2697cda7295b5e9a0c28d827fe2f4a91be34e7cc0e5082a810f25c16",
       "size": 2435
     },
     {
@@ -8167,7 +8172,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "8ec5fc1c639c881d1515cde6224f5e6374bc4540b9626f756e50f6a9aa062356",
+  "previous_tree_hash": "5dd51cfa876c377d3e5d9ac41aeeb5a66fb60cacb7d6d414b40abb39e282127b",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8178,16 +8183,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ab5058a468fd30daf163314775c66add19b9f7029fddebc981df6d3dcaff86e7",
+  "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5dd51cfa876c377d3e5d9ac41aeeb5a66fb60cacb7d6d414b40abb39e282127b",
+  "tree_hash": "c0fb6459ce08d685326e9fec6ee4eb21f59e4b740021388588d99d590f2e6693",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 464,
+  "wiki_file_count": 465,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8196,13 +8201,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bcea959990c17b91f0916462a61eab55f82bb4e92370afd3b357ce33c4a12a0f",
-      "size": 518612
+      "sha256": "e9e78167789608134608953bd105a869d3890c45d9e3651d818e24ed63b524fa",
+      "size": 518904
     },
     {
       "path": "log.md",
-      "sha256": "7fb9f8ec82c0be3752168d1726ba4e2db80624eaaf166d80e6a25f5e0b0ef120",
-      "size": 970010
+      "sha256": "d9f08b318c03baefc36e0c475e4f46b27e7d6fad21bf74c52e2684033c84ac93",
+      "size": 970314
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9680,6 +9685,11 @@
       "size": 10782
     },
     {
+      "path": "pages/projects/omni-security-fixes.md",
+      "sha256": "4bce0634348e21912dc20aeb245998ce1752eaaeba1ef156e9bbd13a2b819360",
+      "size": 8446
+    },
+    {
       "path": "pages/projects/open-source-development-plan.md",
       "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
       "size": 8717
@@ -10511,5 +10521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5a6c4d4804f101a0aa98f6dcd96d4069a0fbdaf19b2c3ac42874785b72415e58"
+  "wiki_tree_hash": "e4344e187e79bc7e46ea8707f7b67ea84d71f854cf3c4bb120270f4787efc784"
 }

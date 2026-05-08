@@ -20405,3 +20405,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_63c2805e68556a199e9f920fb8dc78f1
 - summary: Checklist for V1.2 periphery contract changes to ensure backward compatibility. Most workflow functions are 100% BC, but a few require updates due to contract size limits or signat...
 
+## [2026-05-08T23:23:18Z] synthesis | Omni Security Fixes
+
+- status: published
+- slug: projects/omni-security-fixes
+- wiki_revision_id: wikirev_30b611398644ab7bc4b3636a1cd2dae1
+- summary: Collection of security-related pull requests and improvements in the Omni project, including Spearbit audit fixes.
+
