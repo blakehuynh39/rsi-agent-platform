@@ -2926,8 +2926,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ce5a84a340fef7adc3750dc1f260bd5741f5a198afdb21811f39825f763ca47c",
-        "size": 955117
+        "sha256": "6c6a0b1f8c230186fab741664648f4b0a67717dcec8f67fd6c25199da7eb3a31",
+        "size": 955391
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3353,6 +3353,11 @@
         "path": "pages/concepts/platform-api-a.md",
         "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
         "size": 1152
+      },
+      {
+        "path": "pages/concepts/poseidon-user-multiplier.md",
+        "sha256": "3631ac641af57580bb9bedc8a5cda978aa4b7c4b9423daca419903cb9dac51f4",
+        "size": 1186
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -5124,8 +5129,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T14:23:15Z",
-  "file_count": 1023,
+  "exported_at": "2026-05-08T14:34:19Z",
+  "file_count": 1024,
   "files": [
     {
       "path": ".curator_state",
@@ -8042,7 +8047,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "34963428a7788042bbc1ada3e827a19c2b9d0fdb82dbbdbb5282c7ba798e0dfc",
+  "previous_tree_hash": "151e9f3e09ab1b552c5ffa419ed443f6620f2eb02e17755813c82d0439ecac14",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8055,14 +8060,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "151e9f3e09ab1b552c5ffa419ed443f6620f2eb02e17755813c82d0439ecac14",
+  "tree_hash": "47e3a646dd88336bb4f46c8e54dd632618c11300118ad23860d7bcab7c6473ef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 441,
+  "wiki_file_count": 442,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8076,8 +8081,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ce5a84a340fef7adc3750dc1f260bd5741f5a198afdb21811f39825f763ca47c",
-      "size": 955117
+      "sha256": "6c6a0b1f8c230186fab741664648f4b0a67717dcec8f67fd6c25199da7eb3a31",
+      "size": 955391
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8503,6 +8508,11 @@
       "path": "pages/concepts/platform-api-a.md",
       "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
       "size": 1152
+    },
+    {
+      "path": "pages/concepts/poseidon-user-multiplier.md",
+      "sha256": "3631ac641af57580bb9bedc8a5cda978aa4b7c4b9423daca419903cb9dac51f4",
+      "size": 1186
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -10271,5 +10281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ddd1952184ce43ea8f4bd0da857ce5c817254a6a5a0618755edc519a9a8e9e13"
+  "wiki_tree_hash": "a253de852ec969936e5709a852b0e0e9993a57bcf0721a4aa5b812b132ac493a"
 }

@@ -20112,3 +20112,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c82c9744d41cba9f1be975c15bd61f7
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-08T14:31:07Z] synthesis | Poseidon User Multiplier
+
+- status: published
+- slug: concepts/poseidon-user-multiplier
+- wiki_revision_id: wikirev_891971660066b554341b194ca8b95db4
+- summary: Concept page for the Poseidon User multiplier, based on a Notion document.
+
