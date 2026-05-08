@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "a0bd93860985a78a476fff00f4ddcb74dc6695be91e14a37bce15f4aec07d66a",
+        "sha256": "9d011ac8b8b53d2a094b658ddc6789b1bfd155ac53b49f15f906146c66872586",
         "size": 2435
       },
       {
@@ -2814,8 +2814,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "d8f88ec237145257983f5a93f73bc53954f883ffe1031dcbadb3b6c504dbf72a",
-        "size": 14351
+        "sha256": "37b5e626e4271f4ecb76591414498f5591c0f04e167971daa2f0b5550fcbb9e2",
+        "size": 14613
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2834,8 +2834,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/references/vi-transcript-queries.md",
-        "sha256": "91a02209253c9391c6caac446a7abbb84918c8cf6fc2d0a0a1dffe6daffea00e",
-        "size": 2661
+        "sha256": "252933e63e453f7211972f68b6f8ba72509b627d85dcb0560e0aea9ec2ceaa1c",
+        "size": 2956
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
@@ -5174,7 +5174,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T17:46:54Z",
+  "exported_at": "2026-05-08T17:53:04Z",
   "file_count": 1033,
   "files": [
     {
@@ -5184,7 +5184,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "a0bd93860985a78a476fff00f4ddcb74dc6695be91e14a37bce15f4aec07d66a",
+      "sha256": "9d011ac8b8b53d2a094b658ddc6789b1bfd155ac53b49f15f906146c66872586",
       "size": 2435
     },
     {
@@ -7989,8 +7989,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "d8f88ec237145257983f5a93f73bc53954f883ffe1031dcbadb3b6c504dbf72a",
-      "size": 14351
+      "sha256": "37b5e626e4271f4ecb76591414498f5591c0f04e167971daa2f0b5550fcbb9e2",
+      "size": 14613
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -8009,8 +8009,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/references/vi-transcript-queries.md",
-      "sha256": "91a02209253c9391c6caac446a7abbb84918c8cf6fc2d0a0a1dffe6daffea00e",
-      "size": 2661
+      "sha256": "252933e63e453f7211972f68b6f8ba72509b627d85dcb0560e0aea9ec2ceaa1c",
+      "size": 2956
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
@@ -8097,7 +8097,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
-  "previous_tree_hash": "3f6774025d293659aa8f4dd670ca9ebc967589c3c248af0e1a37bedaf626af82",
+  "previous_tree_hash": "be6b10619899f0819e80a02d32134d605a50dca8d691db659e86e10801c569b2",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8108,9 +8108,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "c0e1be16a37d7c718a2d68b5e442e576a1739a2ab7c4e0839514f25df865585e",
+  "skill_tree_hash": "8fd71ac3c8d99d7835f5779dd3829339e06371a18a3c5d00660c0f3ba755abc5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "be6b10619899f0819e80a02d32134d605a50dca8d691db659e86e10801c569b2",
+  "tree_hash": "b15c7efa8737f4d4959e4f69dbb7286e1f97dd3b18067550f8f57ee851eb6e6d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
