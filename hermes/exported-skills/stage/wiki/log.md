@@ -19865,3 +19865,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6e79ae99bcc4caac44fec0dd54e06b88
 - summary: Steps to diagnose and fix secret manager permission issues in EKS using OIDC, including verifying OIDC provider, service account role, trust relationship, and testing with a pod.
 
+## [2026-05-08T04:21:38Z] synthesis | SDK Designs
+
+- status: published
+- slug: projects/sdk-designs
+- wiki_revision_id: wikirev_b66b7d12cf72bfaff05e6c3d8980ea47
+- summary: A Notion document outlining the design of the SDK, including requirements, testing, protocol metadata, CLI, CI/CD, and beta protocol SDK.
+

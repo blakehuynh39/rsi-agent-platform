@@ -2911,13 +2911,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "967423840549538c20f78c128fa95a46ae294f69ccbcfdb5a4388ee83c2cd4b8",
+        "sha256": "aa7d9438770d575ba85725f8aafff5fef28118e973368eafd00a0af5c9da33e0",
         "size": 499253
       },
       {
         "path": "log.md",
-        "sha256": "f04a00ddf24c4d7ce75c0135d1aed6a3e6f4993c2ab35d0f4c64fbaa2c7d53f0",
-        "size": 942079
+        "sha256": "bda9a81c21c643235c2b61b96d5fe1f1faf492dbbff5196cdbd3d206cbace7c3",
+        "size": 942390
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4416,8 +4416,8 @@
       },
       {
         "path": "pages/projects/sdk-designs.md",
-        "sha256": "86acc071ba216e2eec8e4b57fff2ba0eeb2a065f9d7433c377407aa2bebe7bc6",
-        "size": 1256
+        "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
+        "size": 2579
       },
       {
         "path": "pages/projects/sp-tokenomics-blast.md",
@@ -4979,7 +4979,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T04:09:16Z",
+  "exported_at": "2026-05-08T04:25:25Z",
   "file_count": 994,
   "files": [
     {
@@ -7886,8 +7886,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-b44bdfmmn4n",
-  "previous_tree_hash": "0c520af12d8e72cbc9190e880374e61394d4f17eeeec7e708866c0bfd2704cef",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-78db8f9wh6f",
+  "previous_tree_hash": "ddd993af8b66fa0f21ef2f35da077a3edf8604ee9bebbf80a1ce23f24906ff26",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7900,7 +7900,7 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ddd993af8b66fa0f21ef2f35da077a3edf8604ee9bebbf80a1ce23f24906ff26",
+  "tree_hash": "6642747d65dfcb5b242391296284d4365ca6731d0af53c458a5cbd005ecaabb0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7916,13 +7916,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "967423840549538c20f78c128fa95a46ae294f69ccbcfdb5a4388ee83c2cd4b8",
+      "sha256": "aa7d9438770d575ba85725f8aafff5fef28118e973368eafd00a0af5c9da33e0",
       "size": 499253
     },
     {
       "path": "log.md",
-      "sha256": "f04a00ddf24c4d7ce75c0135d1aed6a3e6f4993c2ab35d0f4c64fbaa2c7d53f0",
-      "size": 942079
+      "sha256": "bda9a81c21c643235c2b61b96d5fe1f1faf492dbbff5196cdbd3d206cbace7c3",
+      "size": 942390
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9421,8 +9421,8 @@
     },
     {
       "path": "pages/projects/sdk-designs.md",
-      "sha256": "86acc071ba216e2eec8e4b57fff2ba0eeb2a065f9d7433c377407aa2bebe7bc6",
-      "size": 1256
+      "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
+      "size": 2579
     },
     {
       "path": "pages/projects/sp-tokenomics-blast.md",
@@ -9981,5 +9981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "176355f8ba06bd17532035756fd59be40497806825f0b4ff1731e333cb70786e"
+  "wiki_tree_hash": "4f38a75a726a541a78d18c90ce415c77f1195ec237b4024d305a8031e4615e33"
 }
