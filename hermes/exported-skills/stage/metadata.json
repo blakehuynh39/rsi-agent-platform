@@ -2921,8 +2921,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1c792ee9cf9d43f8926f93fce3af31d64ade93f4d1bfc025951b791bf34c5759",
-        "size": 948721
+        "sha256": "0656d29ee16b1439e9de6c9b084166066bace24fdbae61a3b82f5cbe8dce3788",
+        "size": 949133
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3708,6 +3708,11 @@
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
         "size": 1593
+      },
+      {
+        "path": "pages/decisions/meta-transaction-architecture-decision.md",
+        "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
+        "size": 4651
       },
       {
         "path": "pages/decisions/partner-testnet-phase-out.md",
@@ -5049,8 +5054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T07:58:06Z",
-  "file_count": 1008,
+  "exported_at": "2026-05-08T08:09:14Z",
+  "file_count": 1009,
   "files": [
     {
       "path": ".curator_state",
@@ -7962,7 +7967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "1336fcc560dab9fc8a376031bfb5fadb36ec19a3207cf4834f423df81b0097cf",
+  "previous_tree_hash": "e36c5281149f23d1c5608e45ad8ef8f4e35598139b5adb660f369044b1fa1fd0",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7975,14 +7980,14 @@
   ],
   "skill_tree_hash": "f8d8b7a37cd07751286821fabecb8d623dbcfbe21b949a58dbd644fa6a7d396d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e36c5281149f23d1c5608e45ad8ef8f4e35598139b5adb660f369044b1fa1fd0",
+  "tree_hash": "6632c58e3e7064a6057132515c31c3c6d6379176018768fe835c6252ce33a440",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 427,
+  "wiki_file_count": 428,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7996,8 +8001,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1c792ee9cf9d43f8926f93fce3af31d64ade93f4d1bfc025951b791bf34c5759",
-      "size": 948721
+      "sha256": "0656d29ee16b1439e9de6c9b084166066bace24fdbae61a3b82f5cbe8dce3788",
+      "size": 949133
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8783,6 +8788,11 @@
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
       "size": 1593
+    },
+    {
+      "path": "pages/decisions/meta-transaction-architecture-decision.md",
+      "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
+      "size": 4651
     },
     {
       "path": "pages/decisions/partner-testnet-phase-out.md",
@@ -10121,5 +10131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "135085d9b8e2be08aeae18fcf956f5797d14551a6915a1d2a1deb8da3bbbcc42"
+  "wiki_tree_hash": "830edf524a6855a876a0333ed10d264a025290891c40876e86f40b543b80fa13"
 }

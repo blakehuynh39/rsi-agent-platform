@@ -19986,3 +19986,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_299f19e6d63dd37f553d086f886e1a38
 - summary: Proposes a metadata standard for IP Assets (IPAs) stored off-chain (e.g., IPFS, Arweave) to supplement on-chain data. Two alternative JSON schemas are under consideration: one usin...
 
+## [2026-05-08T08:05:27Z] synthesis | Meta-Transaction Architecture Decision
+
+- status: published
+- slug: decisions/meta-transaction-architecture-decision
+- wiki_revision_id: wikirev_bf3277bd4f768ca6072b4594bbf135b0
+- summary: Analysis of two approaches for implementing meta-transactions in Story Protocol: IPAccount-level (current) vs Protocol-level. The current approach uses a single entry point via IPA...
+
