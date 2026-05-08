@@ -51,6 +51,31 @@ Always read `AGENTS.md` first — it's the codebase table of contents. It points
 | Config resolution order | `AGENTS.md` "Config model" section |
 | Reward config table schema | `apps/api/migrations/0021_reward_system.sql` |
 
+### Season 1 multiplier — two-layer clamp architecture
+
+The Poseidon Season 1 handoff has a **two-layer clamp** that's easy to confuse. Understanding both layers prevents wrong answers about the effective range.
+
+| Layer | What | Floor | Cap | Where |
+|---|---|---|---|---|
+| `m_szn_initial` | Season 1 multiplier value at compute time | 1.05 | 2.00 | `scripts/ingest_poseidon_season1.py:74` |
+| `effective_multiplier` | Overall multiplier applied to earnings | 1.0 | 2.00 (`max_effective_multiplier` in `reward_config`) | `multipliers.rs:79` |
+
+The `m_szn_initial` formula: `clamp(tier_value + lang_value, 1.05, 2.00)`.
+
+**Edge cases demonstrating the clamp:**
+
+| User | tier_value | lang_value | raw | m_szn_initial | Clamp direction |
+|------|-----------|------------|-----|---------------|-----------------|
+| T4 Hindi-only | 2.00 | +0.30 | 2.30 | **2.00** | Ceiling `min(2.00, 2.30)` |
+| T1 English-only | 1.10 | −0.15 | 0.95 | **1.05** | Floor `max(1.05, 0.95)` |
+
+**The decay curve** (`poseidon.rs::cliff_decay_value`):
+- Weeks 0–4 (cliff): full `m_szn_initial` value
+- Weeks 4–12 (decay): linear drop from `m_szn_initial` to 1.0
+- Weeks 12+: returns to 1.0
+
+**Key insight for public-facing answers:** Saying "Season 1 multipliers range from 1.05x to 2.00x" is correct at both bounds. The overall multiplier floor of 1.0 is the baseline (no bonus), so the bonus range is effectively 1.05–2.00.
+
 ## Investigation flow
 
 1. **Search broad** → `search_files(pattern="multiplier|reward|season|language")` to see all files that mention the concept
