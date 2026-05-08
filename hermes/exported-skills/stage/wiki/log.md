@@ -20275,3 +20275,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0f56bf7f9abe2b4d811a5f6e7da756e5
 - summary: Post-mortem analysis of the iliad testnet NFT mint event that caused a massive gas price spike up to 7000 Gwei on August 27. The incident was triggered by a backup plan that remove...
 
+## [2026-05-08T19:03:02Z] synthesis | Graph DB Study
+
+- status: published
+- slug: concepts/graph-database-study
+- wiki_revision_id: wikirev_61d39167f959f046c3f5964c7cffa2ae
+- summary: A study comparing graph databases to relational databases, exploring decentralized graph DB concepts, and evaluating existing graph database technologies for potential use in block...
+
