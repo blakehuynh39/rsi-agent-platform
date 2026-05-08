@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5f184a18f1c0b5511a60100243b048bd7b3168ea036832e6f81fc2029c2d77de",
-        "size": 510200
+        "sha256": "03cfbe1344bd5cfa4e15c193fabb5e59b4dbac370755a6001ffffe766d37534d",
+        "size": 510870
       },
       {
         "path": "log.md",
-        "sha256": "a3beba3ef9716118e455a5a3e229ec0a21b13902151e3f1356f40f18e9948786",
-        "size": 956209
+        "sha256": "5f39ab6259940d9516fb5a763ce7c57ae7158afc8b7e254680c8bd3c9c19d531",
+        "size": 957189
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3156,8 +3156,8 @@
       },
       {
         "path": "pages/concepts/how-to-series.md",
-        "sha256": "1defdb1c3c5f2fb1255a09cdc004160eebe342b32d240093cf2b1fe8594a84c4",
-        "size": 3350
+        "sha256": "f1f4894f818a87cb4d5dc3dd11b79dd03bc1d0aec9dc3d64304a555174058334",
+        "size": 4530
       },
       {
         "path": "pages/concepts/iliad-code-walkthrough.md",
@@ -4415,6 +4415,11 @@
         "size": 4953
       },
       {
+        "path": "pages/projects/partner-testnet-v1-0-0-alpha-release.md",
+        "sha256": "326ad0734583761c61994ac8753bc58d6c202f55d66419edb2ab8774d3a2e97d",
+        "size": 7372
+      },
+      {
         "path": "pages/projects/pfp-engineering-specs.md",
         "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
@@ -4748,6 +4753,11 @@
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
         "size": 1395
+      },
+      {
+        "path": "pages/runbooks/how-to-ssh-to-a-testnet-server.md",
+        "sha256": "666335a64641dcb0d0e941885ce35e08baca26aa0f04e2bd3006ef237dc288a0",
+        "size": 2522
       },
       {
         "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
@@ -5139,8 +5149,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T14:57:30Z",
-  "file_count": 1026,
+  "exported_at": "2026-05-08T15:18:43Z",
+  "file_count": 1028,
   "files": [
     {
       "path": ".curator_state",
@@ -8057,7 +8067,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "419086d0e882dbbf02c0000dc0f4ff521685c8769d5a4de1fb6f30320bb904f6",
+  "previous_tree_hash": "31cb07c3d3931544acd35b5b26c05af9ee5b5db873f063bd28af817b2511c0ae",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8070,14 +8080,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "31cb07c3d3931544acd35b5b26c05af9ee5b5db873f063bd28af817b2511c0ae",
+  "tree_hash": "f5e8c0de6303de756a085e5be63ffe1cde699f610604dde19ed8fa6f02aee298",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 444,
+  "wiki_file_count": 446,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8086,13 +8096,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5f184a18f1c0b5511a60100243b048bd7b3168ea036832e6f81fc2029c2d77de",
-      "size": 510200
+      "sha256": "03cfbe1344bd5cfa4e15c193fabb5e59b4dbac370755a6001ffffe766d37534d",
+      "size": 510870
     },
     {
       "path": "log.md",
-      "sha256": "a3beba3ef9716118e455a5a3e229ec0a21b13902151e3f1356f40f18e9948786",
-      "size": 956209
+      "sha256": "5f39ab6259940d9516fb5a763ce7c57ae7158afc8b7e254680c8bd3c9c19d531",
+      "size": 957189
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8321,8 +8331,8 @@
     },
     {
       "path": "pages/concepts/how-to-series.md",
-      "sha256": "1defdb1c3c5f2fb1255a09cdc004160eebe342b32d240093cf2b1fe8594a84c4",
-      "size": 3350
+      "sha256": "f1f4894f818a87cb4d5dc3dd11b79dd03bc1d0aec9dc3d64304a555174058334",
+      "size": 4530
     },
     {
       "path": "pages/concepts/iliad-code-walkthrough.md",
@@ -9580,6 +9590,11 @@
       "size": 4953
     },
     {
+      "path": "pages/projects/partner-testnet-v1-0-0-alpha-release.md",
+      "sha256": "326ad0734583761c61994ac8753bc58d6c202f55d66419edb2ab8774d3a2e97d",
+      "size": 7372
+    },
+    {
       "path": "pages/projects/pfp-engineering-specs.md",
       "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
@@ -9913,6 +9928,11 @@
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
       "size": 1395
+    },
+    {
+      "path": "pages/runbooks/how-to-ssh-to-a-testnet-server.md",
+      "sha256": "666335a64641dcb0d0e941885ce35e08baca26aa0f04e2bd3006ef237dc288a0",
+      "size": 2522
     },
     {
       "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
@@ -10301,5 +10321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8a8b825f2f69f898ce37438fdcc9393596b5c9cbd7af00249ec26a691f51f529"
+  "wiki_tree_hash": "1f1f212faa59c88f719fd0558739023a148d4c4924928806108d2d5570a0fcf0"
 }

@@ -20133,3 +20133,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bd2093b723f2e22624f1d7fcdfe1be39
 - summary: On July 17-18, 2024, the L1 testnet failed to restart after a network reset. The root cause was an external node connecting to the testnet bootnode, causing a network partition and...
 
+## [2026-05-08T15:17:12Z] synthesis | Partner Testnet v1.0.0-alpha Release
+
+- status: published
+- slug: projects/partner-testnet-v1-0-0-alpha-release
+- wiki_revision_id: wikirev_1a49dc541e87b96128f01ebd09574363
+- summary: Release of the L1 blockchain partner testnet version 1.0.0-alpha, enabling partners to test and develop with EVM-equivalence, 2-second block time, staking, and slashing.
+
+## [2026-05-08T15:18:20Z] synthesis | HOW-TO Series
+
+- status: published
+- slug: concepts/how-to-series
+- wiki_revision_id: wikirev_0237fc8a234af93529497f84bde07410
+- summary: A collection of how-to guides covering SSH, GitHub commit signing, bastion hosts, and Cloudflare Zero Trust.
+
+## [2026-05-08T15:18:20Z] synthesis | HOW-TO SSH to a Testnet Server
+
+- status: published
+- slug: runbooks/how-to-ssh-to-a-testnet-server
+- wiki_revision_id: wikirev_ee4ad6327caaf85306bb87496e752dfb
+- summary: A guide providing SSH commands and key information for accessing partner-testnet servers.
+
