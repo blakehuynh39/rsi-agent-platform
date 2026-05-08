@@ -20310,3 +20310,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_59a88de2269593af128e764ace2dfec6
 - summary: Instructions for setting up a single-node private Story L1 network locally on macOS, including execution client (geth), consensus client (iliad), genesis configuration, and debuggi...
 
+## [2026-05-08T21:06:06Z] synthesis | Story Testnet Troubleshooting Commands
+
+- status: published
+- slug: runbooks/story-testnet-troubleshooting-commands
+- wiki_revision_id: wikirev_0f19910bdf99aa3fde3b9d16417051ad
+- summary: A collection of commands for troubleshooting Story Protocol testnet nodes, including checking genesis hash, process status, network resources, latest block number, account balance,...
+
+## [2026-05-08T21:06:34Z] synthesis | Learning Center
+
+- status: published
+- slug: concepts/learning-center
+- wiki_revision_id: wikirev_8e003d930eb7415b56d319c3a3c2f540
+- summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
+

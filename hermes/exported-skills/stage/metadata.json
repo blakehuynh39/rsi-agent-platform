@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "bbdb8b5096fd41457b88c9efb9bc27bf8101bee7a3317a61ebdad3f4aa61b07f",
+        "sha256": "a1fe8e546f3117751d3db8733e17140375b69ffc3b448d82bff7554eee9e74f8",
         "size": 2435
       },
       {
@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "da40d696aabb218f9170c85a6795489f24ccd4ffa62a505b3dec0821dafe6acd",
-        "size": 515680
+        "sha256": "ffed9cb95116a62baf65ebd6aa4401280c8e04be4ab795bb03d30ddfc04509c7",
+        "size": 516079
       },
       {
         "path": "log.md",
-        "sha256": "5fc5e0012513daa3f9b8627f611a95e5f3317e7c5c46eae168c609dd80770018",
-        "size": 965190
+        "sha256": "bd5b6f4330a80a74ddf00dd4f49f74ce2549cba438a21e3a882e2c0486869180",
+        "size": 965899
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3251,8 +3251,8 @@
       },
       {
         "path": "pages/concepts/learning-center.md",
-        "sha256": "56914bdf6a610721f45b6caf80d5efdcd9290ee28874dff6ddeb9afcf85a6eea",
-        "size": 1328
+        "sha256": "d76d0fc8857d7ed7a06bb2a23fbbdea320804f5cbcb08a152cb55abf61e4f737",
+        "size": 1310
       },
       {
         "path": "pages/concepts/license-nft.md",
@@ -4905,6 +4905,11 @@
         "size": 1225
       },
       {
+        "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
+        "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
+        "size": 4946
+      },
+      {
         "path": "pages/runbooks/track-nft-purchases-ethereum.md",
         "sha256": "24baadd462c91f9a66de27de7d2e998ac1ec49a639c687692de901080ee16766",
         "size": 3685
@@ -5209,8 +5214,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T21:03:04Z",
-  "file_count": 1040,
+  "exported_at": "2026-05-08T21:09:02Z",
+  "file_count": 1041,
   "files": [
     {
       "path": ".curator_state",
@@ -5219,7 +5224,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "bbdb8b5096fd41457b88c9efb9bc27bf8101bee7a3317a61ebdad3f4aa61b07f",
+      "sha256": "a1fe8e546f3117751d3db8733e17140375b69ffc3b448d82bff7554eee9e74f8",
       "size": 2435
     },
     {
@@ -8132,7 +8137,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8bf96tkqw",
-  "previous_tree_hash": "9bc098702fdfe4cb4d992fcfeaa25e66c87a3908c433476746674d2bfd63670d",
+  "previous_tree_hash": "2f37ac935024221f823a4c4acaa30fa2885dfc0f09a91638634aaa0752b61988",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8143,16 +8148,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ad12a971ee969d076ec8fef2d0e845a5e10379e9a21e0fc6ad5aa86d81a6de2c",
+  "skill_tree_hash": "7ead533eaaceb9ec01b9ba243e30e16d04ef698f83061dd20e480b3709e5c791",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2f37ac935024221f823a4c4acaa30fa2885dfc0f09a91638634aaa0752b61988",
+  "tree_hash": "0503f8183b3bf386d586de30013c55bd59f4767fd2bbff717048e4a7434ab629",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 457,
+  "wiki_file_count": 458,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8161,13 +8166,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "da40d696aabb218f9170c85a6795489f24ccd4ffa62a505b3dec0821dafe6acd",
-      "size": 515680
+      "sha256": "ffed9cb95116a62baf65ebd6aa4401280c8e04be4ab795bb03d30ddfc04509c7",
+      "size": 516079
     },
     {
       "path": "log.md",
-      "sha256": "5fc5e0012513daa3f9b8627f611a95e5f3317e7c5c46eae168c609dd80770018",
-      "size": 965190
+      "sha256": "bd5b6f4330a80a74ddf00dd4f49f74ce2549cba438a21e3a882e2c0486869180",
+      "size": 965899
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8486,8 +8491,8 @@
     },
     {
       "path": "pages/concepts/learning-center.md",
-      "sha256": "56914bdf6a610721f45b6caf80d5efdcd9290ee28874dff6ddeb9afcf85a6eea",
-      "size": 1328
+      "sha256": "d76d0fc8857d7ed7a06bb2a23fbbdea320804f5cbcb08a152cb55abf61e4f737",
+      "size": 1310
     },
     {
       "path": "pages/concepts/license-nft.md",
@@ -10140,6 +10145,11 @@
       "size": 1225
     },
     {
+      "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
+      "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
+      "size": 4946
+    },
+    {
       "path": "pages/runbooks/track-nft-purchases-ethereum.md",
       "sha256": "24baadd462c91f9a66de27de7d2e998ac1ec49a639c687692de901080ee16766",
       "size": 3685
@@ -10441,5 +10451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c1f56c881d783a13082943320a44710a14a5d0ed42f991cf0826a619f7a7eecc"
+  "wiki_tree_hash": "c7e9d0713f3358558ce7a263ea542cccc282c89bbf102dd62c8db7b4af59c25d"
 }
