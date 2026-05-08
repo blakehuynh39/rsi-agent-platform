@@ -2916,13 +2916,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d5a05255181f524deb7e9bca6ef0fce66e343e3c55dccd59608552a25a1d9641",
-        "size": 503868
+        "sha256": "aca2be51e5787df9e7390f1d7a9f794eeb0544ce57de36e46a2506ac94956a77",
+        "size": 504272
       },
       {
         "path": "log.md",
-        "sha256": "d843b011e22e70cce1b21c97dd7694f1733f7bee7d11ceae4fa68db41eef7245",
-        "size": 948305
+        "sha256": "1c792ee9cf9d43f8926f93fce3af31d64ade93f4d1bfc025951b791bf34c5759",
+        "size": 948721
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3663,6 +3663,11 @@
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
         "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
         "size": 5472
+      },
+      {
+        "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
+        "sha256": "ebd2609693e6ead5b870a66bf8b90e6310d248f9863dc23c83a61158bed736ba",
+        "size": 4945
       },
       {
         "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
@@ -5044,8 +5049,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T07:52:04Z",
-  "file_count": 1007,
+  "exported_at": "2026-05-08T07:58:06Z",
+  "file_count": 1008,
   "files": [
     {
       "path": ".curator_state",
@@ -7957,7 +7962,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "6f8e1f07719d6cff71319612c0301da78d8c9c7e76beb77e99c4783ffad67eea",
+  "previous_tree_hash": "1336fcc560dab9fc8a376031bfb5fadb36ec19a3207cf4834f423df81b0097cf",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7970,14 +7975,14 @@
   ],
   "skill_tree_hash": "f8d8b7a37cd07751286821fabecb8d623dbcfbe21b949a58dbd644fa6a7d396d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1336fcc560dab9fc8a376031bfb5fadb36ec19a3207cf4834f423df81b0097cf",
+  "tree_hash": "e36c5281149f23d1c5608e45ad8ef8f4e35598139b5adb660f369044b1fa1fd0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 426,
+  "wiki_file_count": 427,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7986,13 +7991,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d5a05255181f524deb7e9bca6ef0fce66e343e3c55dccd59608552a25a1d9641",
-      "size": 503868
+      "sha256": "aca2be51e5787df9e7390f1d7a9f794eeb0544ce57de36e46a2506ac94956a77",
+      "size": 504272
     },
     {
       "path": "log.md",
-      "sha256": "d843b011e22e70cce1b21c97dd7694f1733f7bee7d11ceae4fa68db41eef7245",
-      "size": 948305
+      "sha256": "1c792ee9cf9d43f8926f93fce3af31d64ade93f4d1bfc025951b791bf34c5759",
+      "size": 948721
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8733,6 +8738,11 @@
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
       "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
       "size": 5472
+    },
+    {
+      "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
+      "sha256": "ebd2609693e6ead5b870a66bf8b90e6310d248f9863dc23c83a61158bed736ba",
+      "size": 4945
     },
     {
       "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
@@ -10111,5 +10121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "25c4a249f4eedcffe24feedbc87996e552c2ff26f8e9707f7ff0d24d427948bf"
+  "wiki_tree_hash": "135085d9b8e2be08aeae18fcf956f5797d14551a6915a1d2a1deb8da3bbbcc42"
 }

@@ -19979,3 +19979,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_75f956cd8c03aa0401c5e56ed367d280
 - summary: Explores two design directions for the relationship between the License Registry and License NFT contracts: D.1 (tight coupling, all licenses on one address) and D.2 (decoupling, e...
 
+## [2026-05-08T07:55:36Z] synthesis | IPA Off-Chain Metadata Standard Proposal
+
+- status: published
+- slug: decisions/ipa-off-chain-metadata-standard-proposal
+- wiki_revision_id: wikirev_299f19e6d63dd37f553d086f886e1a38
+- summary: Proposes a metadata standard for IP Assets (IPAs) stored off-chain (e.g., IPFS, Arweave) to supplement on-chain data. Two alternative JSON schemas are under consideration: one usin...
+
