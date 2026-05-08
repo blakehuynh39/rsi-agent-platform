@@ -65,10 +65,15 @@ This returns the full distribution in a few rows (one per distinct unique_user c
 - REST API: 887 users with `primary_language = 'vi'`, 7,744 submissions, avg 8.73/user
 - Campaign: 8,981 completed / 36,000 target tasks
 
-### Prod (depin-prod — 2026-05-08 earlier session)
-- ~1,000 active Vietnamese scripts (from prior session count)
-- Top 100 (LIMIT 100): ALL have exactly 9 unique submitters each
-- Strong evidence of a system-enforced per-script cap of 9 unique users
+### Prod (depin-prod — 2026-05-08 ~09:00 UTC, second session)
+- **2,000** active Vietnamese scripts (up from ~1,000 in earlier session)
+- Distribution spans **0–12 unique users** (prior cap of 9 appears raised or batch-refreshed)
+- **903 scripts (45.1%)** in the 3–4 user bucket — dominant cluster
+- **519 scripts (25.9%)** at 10+ users — near/at new cap of 12
+- **480 scripts (24.0%)** in the 6–9 user range
+- Only **98 scripts (4.9%)** underutilized (0–2 users)
+- 12,815 total unique user→script submission pairs
+- Distribution has diversified significantly compared to the earlier May 8 session
 
 ### Cross-Validation with REST API
 
