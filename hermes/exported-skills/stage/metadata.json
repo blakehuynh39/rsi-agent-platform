@@ -2926,8 +2926,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ea6c40f9743dc254ca1ac8a970b1de00670f5619f0186f2822fb0bb16c772791",
-        "size": 950296
+        "sha256": "b04dd1b6ea957f866768e17528b92485db3da4337e472a9406272bb75696243a",
+        "size": 950731
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3668,6 +3668,11 @@
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
         "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
         "size": 5472
+      },
+      {
+        "path": "pages/decisions/ip-staking-and-restaking-configuration-options.md",
+        "sha256": "53996433aff3c31de50cfe545644ed94bf0585cb520e8598d3cccc47d55f735e",
+        "size": 6795
       },
       {
         "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
@@ -5074,8 +5079,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T09:07:13Z",
-  "file_count": 1013,
+  "exported_at": "2026-05-08T10:49:15Z",
+  "file_count": 1014,
   "files": [
     {
       "path": ".curator_state",
@@ -7992,7 +7997,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "7583366821043d176ed6fe156135bdba2cfd5a780674aa8c95f3827d4f8ee57f",
+  "previous_tree_hash": "71d33c568f5c7c3dd8d284adc3748cf5b817635136807978c27831563342f3fc",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8005,14 +8010,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "71d33c568f5c7c3dd8d284adc3748cf5b817635136807978c27831563342f3fc",
+  "tree_hash": "32db4925f07598b311e35cd54dee3c28e1b31aa1cda3d70d441e1feb25d92b10",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 431,
+  "wiki_file_count": 432,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8026,8 +8031,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ea6c40f9743dc254ca1ac8a970b1de00670f5619f0186f2822fb0bb16c772791",
-      "size": 950296
+      "sha256": "b04dd1b6ea957f866768e17528b92485db3da4337e472a9406272bb75696243a",
+      "size": 950731
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8768,6 +8773,11 @@
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
       "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
       "size": 5472
+    },
+    {
+      "path": "pages/decisions/ip-staking-and-restaking-configuration-options.md",
+      "sha256": "53996433aff3c31de50cfe545644ed94bf0585cb520e8598d3cccc47d55f735e",
+      "size": 6795
     },
     {
       "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
@@ -10171,5 +10181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "88f34f2b17912d6a9d2beb421e40221b6f859e4e2a10cd926848769a9da5cd23"
+  "wiki_tree_hash": "f7f168b32c334f83dfabe678caa6634ac44cefb366e4a9439919b585088879d3"
 }

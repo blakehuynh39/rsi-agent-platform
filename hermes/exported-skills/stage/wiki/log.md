@@ -20014,3 +20014,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b1d3a591acad0665eb37864c954b24b6
 - summary: Story Network is an L2 built on OP Stack with Caldera, using ETH as a settlement layer. It provides resources for developers including RPC endpoints, bridge, contract addresses, an...
 
+## [2026-05-08T10:48:13Z] synthesis | $IP Staking and Restaking Configuration Options
+
+- status: published
+- slug: decisions/ip-staking-and-restaking-configuration-options
+- wiki_revision_id: wikirev_317650bd2758dc4f8c8df6a4cf877709
+- summary: Explores possible configurations for $IP staking into validators ($IP → $sIP) and IPA pools ($IP → $LIP or $sIP → $rIP), including trade-offs around restaking independence, slashin...
+
+## [2026-05-08T10:49:34Z] synthesis | Restaking and AVS
+
+- status: published
+- slug: concepts/restaking-and-avs
+- wiki_revision_id: wikirev_c93bc44e3876f3667121d3657a00268e
+- summary: Overview of restaking protocols and the mechanism for building Actively Validated Services (AVS), referencing Eigenlayer resources.
+
