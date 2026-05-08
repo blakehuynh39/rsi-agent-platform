@@ -20042,3 +20042,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec9e2d157af01a57a84ebde8ec0023f1
 - summary: An introductory overview of Layer 1 (L1) blockchains, covering definitions, properties, core elements, consensus mechanisms, infrastructure, smart contracts, and typical workflows.
 
+## [2026-05-08T11:38:47Z] synthesis | Partner Testnet Release v1.0.1
+
+- status: published
+- slug: projects/partner-testnet-release-v1-0-1
+- wiki_revision_id: wikirev_052f8c94cea7ef2f6c2ff25955cdd551
+- summary: Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashi...
+

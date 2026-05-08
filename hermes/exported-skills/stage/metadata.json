@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9a72ce6767eb986e83bf863b7b13ee53597e4b2371690126c3db4b18c6d7aedc",
+        "sha256": "7ee59eda63aef57a15981891a40b406cfe2bc868c6baeecd1d00b9d3020af0d5",
         "size": 507193
       },
       {
         "path": "log.md",
-        "sha256": "7a1f9fa03ce34be5e7dc4aeab655278bae0b6f3c5c4f19a1b7665fd23f1ffe4f",
-        "size": 951738
+        "sha256": "0912bff4d84469d2a226ad3da348e3e37a3adaa527d214b4d9b59655b8ac240d",
+        "size": 952133
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4401,8 +4401,8 @@
       },
       {
         "path": "pages/projects/partner-testnet-release-v1-0-1.md",
-        "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
-        "size": 5007
+        "sha256": "f498e4357cefb73d6fa42a18b7f225de8c096cdf02ec9a20b42969ee25a294b8",
+        "size": 4953
       },
       {
         "path": "pages/projects/pfp-engineering-specs.md",
@@ -5094,7 +5094,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T11:21:29Z",
+  "exported_at": "2026-05-08T11:42:45Z",
   "file_count": 1017,
   "files": [
     {
@@ -8012,7 +8012,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "ed30707ddb2c5498a05c6ec3fb85c06bf21d61b73b4231ee8ecb68c4fff4c8a5",
+  "previous_tree_hash": "8fee78ff7aba6480a52a6f7207b018e65bc77f2770450bc2d4508de817ce78d9",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8025,7 +8025,7 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8fee78ff7aba6480a52a6f7207b018e65bc77f2770450bc2d4508de817ce78d9",
+  "tree_hash": "ff3ea5cafdef2a96780cf189811533fa1d50b2b58d7f8d6c9b49ec9f013e37c7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8041,13 +8041,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9a72ce6767eb986e83bf863b7b13ee53597e4b2371690126c3db4b18c6d7aedc",
+      "sha256": "7ee59eda63aef57a15981891a40b406cfe2bc868c6baeecd1d00b9d3020af0d5",
       "size": 507193
     },
     {
       "path": "log.md",
-      "sha256": "7a1f9fa03ce34be5e7dc4aeab655278bae0b6f3c5c4f19a1b7665fd23f1ffe4f",
-      "size": 951738
+      "sha256": "0912bff4d84469d2a226ad3da348e3e37a3adaa527d214b4d9b59655b8ac240d",
+      "size": 952133
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9521,8 +9521,8 @@
     },
     {
       "path": "pages/projects/partner-testnet-release-v1-0-1.md",
-      "sha256": "e88137727b21fadf8767cfa2f0b90071ef7fef1809c13cca16d57f296e5687fb",
-      "size": 5007
+      "sha256": "f498e4357cefb73d6fa42a18b7f225de8c096cdf02ec9a20b42969ee25a294b8",
+      "size": 4953
     },
     {
       "path": "pages/projects/pfp-engineering-specs.md",
@@ -10211,5 +10211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "28b38ddfd2eb38e9a38bb318069926865af1f5546e4651108cbfea5bb967b889"
+  "wiki_tree_hash": "277693ec10059415af3eae58f49f5bc604e2023478a50ab3a6bdb898bb99fd49"
 }
