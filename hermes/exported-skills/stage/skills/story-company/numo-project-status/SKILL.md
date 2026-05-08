@@ -150,13 +150,18 @@ gh pr checks <N> --repo piplabs/numo-monorepo  # confirm Vercel + Wiz all pass
 ### 5. Check Kubernetes deployment status
 
 ```bash
-kubectl get deployments -n story | grep -E "depin|NAME"
-kubectl get pods -n story | grep -E "depin|NAME"
+# Stage
+kubectl --context hermes-company-computer get deployments -n story | grep -E "depin|NAME"
+kubectl --context hermes-company-computer get pods -n story | grep -E "depin|NAME"
+
+# Prod
+kubectl --context use1-prod get deployments -n story | grep -E "depin|NAME"
+kubectl --context use1-prod get pods -n story | grep -E "depin|NAME"
 ```
 
-Look for: replica counts, recent restarts (indicating deploys), age. The `story` namespace hosts `use1-stage-depin-backend`, `use1-stage-depin-ip-registration-confirmer`, `use1-stage-depin-ip-registration-poller`, and `use1-stage-depin-ip-registration-submitter`.
+Look for: replica counts, recent restarts (indicating deploys), age. The stage `story` namespace hosts `use1-stage-depin-backend`, `use1-stage-depin-ip-registration-confirmer`, `use1-stage-depin-ip-registration-poller`, and `use1-stage-depin-ip-registration-submitter`. The prod `story` namespace hosts the corresponding `use1-prod-*` deployments.
 
-**PITFALL:** The `rsi-platform` namespace does NOT host depin services. Always use the `story` namespace.
+**PITFALL:** The `rsi-platform` namespace does NOT host depin services. Always use the `story` namespace, and always pass `--context use1-prod` for production checks. A plain `kubectl -n story` command reads the stage context inside the executor.
 
 ### 6. Check Grafana/Thanos metrics for runtime health
 
@@ -183,7 +188,7 @@ curl -s \
 - Request rate by status, error breakdown (4xx/5xx), latency percentiles (p50/p95/p99), 24h total requests
 - Pod CPU (millicores) and memory (MB) from `container_cpu_usage_seconds_total` and `container_memory_working_set_bytes`
 - Stage: job label `use1-stage-depin-backend`, namespace `story`
-- Prod: job label `use1-prod-depin-backend`. Prod pods live in a different K8s namespace — use Thanos, not `kubectl`.
+- Prod: job label `use1-prod-depin-backend`, namespace `story`. Use Thanos for time-series metrics and `kubectl --context use1-prod -n story` for read-only pod/deployment/log facts.
 
 **PITFALL — 404 noise masquerading as errors:** Stage often shows an ~89% "error rate" but 88.9% of that is `404 unmatched` — crawlers, health probes, and scanners hitting non-existent paths. To get the real error rate, exclude `path="unmatched"` or focus on `5xx` only. Prod has ~6% 404 from unmatched paths but the noise is much lower relative to real traffic.
 

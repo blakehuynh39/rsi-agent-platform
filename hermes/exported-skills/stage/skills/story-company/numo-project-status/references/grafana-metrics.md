@@ -25,10 +25,10 @@ Query reference and pitfalls for Grafana → Thanos (Prometheus) metrics used in
 
 ### Prod
 - `job`: `use1-prod-depin-backend`
-- `namespace`: `story` (in Thanos kube-state-metrics — `container_*` metrics for prod pods also appear under `namespace="story"` despite prod pods NOT being in the K8s `story` namespace. This is a quirk of how Thanos federates metrics. **Always confirm with pod name prefix** — `use1-prod-*` vs `use1-stage-*`.)
+- `namespace`: `story`
 - `cluster`: `use1-prod`
 - `environment`: `prod`
-- Note: Prod pods are NOT accessible via `kubectl` from the stage cluster. Use Thanos metrics exclusively for prod pod data.
+- Note: Prod pods are accessible for read-only diagnostics via `kubectl --context use1-prod -n story`. Use Thanos for time-series metrics and `kubectl` for pod/deployment/log facts.
 
 ### IP Registration Jobs (stage only)
 - `job`: `use1-stage-depin-ip-registration-confirmer`, `use1-stage-depin-ip-registration-poller`, `use1-stage-depin-ip-registration-submitter`
@@ -185,19 +185,19 @@ sum(rate(http_requests_total{job="use1-stage-depin-backend",path!="unmatched"}[1
 ### 2. CF-Access Headers NOT Required (verified 2026-05-06)
 Contrary to earlier documentation, `GRAFANA_TOKEN` works for ALL endpoints including the datasource proxy. CF-Access headers are not needed. If the proxy returns 401, the token permissions are insufficient — request a token with datasource query access.
 
-### 3. Prod Pods Share `namespace="story"` in Thanos Container Metrics
+### 3. Prod Pods Use `namespace="story"` in Thanos and Kubernetes
 
-Prod pods (`use1-prod-depin-backend-*`) are NOT in the K8s `story` namespace and cannot be accessed via `kubectl -n story`. However, in Thanos kube-state-metrics, `container_*` queries with `namespace="story"` return **both stage and prod** depin-backend pods. Always filter by pod name prefix to separate environments:
+Prod pods (`use1-prod-depin-backend-*`) are in the prod cluster's `story` namespace and can be accessed with `kubectl --context use1-prod -n story`. In Thanos, `container_*` queries with `namespace="story"` can return **both stage and prod** depin-backend pods. Always filter by pod name prefix or cluster/environment labels to separate environments:
 
 ```promql
 # Stage pods
 sum by (pod) (container_memory_working_set_bytes{namespace="story",container="depin-backend",pod=~"use1-stage.*"})
 
-# Prod pods — same namespace filter works, but use pod prefix
+# Prod pods: same namespace filter works, but use pod prefix or cluster label
 sum by (pod) (container_memory_working_set_bytes{namespace="story",container="depin-backend",pod=~"use1-prod.*"})
 ```
 
-`kubectl get pods -n story` shows **stage pods only**. For prod pod restarts/status, you must use Thanos metrics (container restarts via `kube_pod_container_status_restarts_total`).
+Plain `kubectl get pods -n story` uses the executor's default stage context and shows stage pods only. For prod pod restarts/status/logs, pass the prod context explicitly: `kubectl --context use1-prod get pods -n story`.
 
 ### 4. Memory Anomaly (jemalloc Arena Retention)
 A prod pod may show 14× memory vs siblings (e.g., 570 MB vs 40 MB) without being a leak. Characteristics of jemalloc arena retention:
@@ -263,14 +263,13 @@ sum by (pod) (container_memory_working_set_bytes{job="use1-prod-depin-backend",c
 After querying Thanos, always cross-reference with `kubectl` for pod-level details:
 
 ```bash
-# Stage pod status
-kubectl get pods -n story | grep depin
+# Stage pod status/deployment health
+kubectl --context hermes-company-computer get pods -n story | grep depin
+kubectl --context hermes-company-computer get deployments -n story | grep depin
 
-# Resource usage snapshot
-kubectl top pods -n story | grep depin
-
-# Deployment health
-kubectl get deployments -n story | grep depin
+# Prod pod status/deployment health
+kubectl --context use1-prod get pods -n story | grep depin
+kubectl --context use1-prod get deployments -n story | grep depin
 ```
 
 **Expected healthy baseline** (stage, 2026-05-06):

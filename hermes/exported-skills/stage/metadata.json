@@ -2774,8 +2774,8 @@
       },
       {
         "path": "story-company/cloudflare-management/references/diagnosing-403-origin-vs-cf.md",
-        "sha256": "83dd1e18c014e34ecc81104a148e230ee415997b7f0e8d012c2372402280d4c9",
-        "size": 4110
+        "sha256": "2a661f6199133f6f11fcf246231bfc0de9734bd17b478799075d18ef8585731c",
+        "size": 4150
       },
       {
         "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
@@ -2819,8 +2819,8 @@
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "8aae902eea0eb1703857aca1f6dadacdbf4a66c558ef5b96a7b32f70e639701d",
-        "size": 16608
+        "sha256": "d8cc877d0db8425d993570e3df37d7eef8c8d427c5d70aa0b441984e20bdb0d3",
+        "size": 17124
       },
       {
         "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -2854,8 +2854,8 @@
       },
       {
         "path": "story-company/numo-project-status/references/grafana-metrics.md",
-        "sha256": "4d6d59a5c626154ee24dfe7769056e9ce02893a149d3eb52b7bd5cfb734d988b",
-        "size": 18542
+        "sha256": "0fb1525b6acaefbbce2a57982065d695f2eb4c2ba751a3d22158e52ec751f863",
+        "size": 18546
       },
       {
         "path": "story-company/numo-project-status/references/report-template.md",
@@ -4944,7 +4944,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T01:58:54Z",
+  "exported_at": "2026-05-08T02:21:50Z",
   "file_count": 987,
   "files": [
     {
@@ -7719,8 +7719,8 @@
     },
     {
       "path": "story-company/cloudflare-management/references/diagnosing-403-origin-vs-cf.md",
-      "sha256": "83dd1e18c014e34ecc81104a148e230ee415997b7f0e8d012c2372402280d4c9",
-      "size": 4110
+      "sha256": "2a661f6199133f6f11fcf246231bfc0de9734bd17b478799075d18ef8585731c",
+      "size": 4150
     },
     {
       "path": "story-company/cloudflare-management/references/internal-endpoints-numolabs.md",
@@ -7764,8 +7764,8 @@
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "8aae902eea0eb1703857aca1f6dadacdbf4a66c558ef5b96a7b32f70e639701d",
-      "size": 16608
+      "sha256": "d8cc877d0db8425d993570e3df37d7eef8c8d427c5d70aa0b441984e20bdb0d3",
+      "size": 17124
     },
     {
       "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -7799,8 +7799,8 @@
     },
     {
       "path": "story-company/numo-project-status/references/grafana-metrics.md",
-      "sha256": "4d6d59a5c626154ee24dfe7769056e9ce02893a149d3eb52b7bd5cfb734d988b",
-      "size": 18542
+      "sha256": "0fb1525b6acaefbbce2a57982065d695f2eb4c2ba751a3d22158e52ec751f863",
+      "size": 18546
     },
     {
       "path": "story-company/numo-project-status/references/report-template.md",
@@ -7847,7 +7847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd9dffqc",
-  "previous_tree_hash": "a8af63a3da428a210f769853436841c8f75955735e06bcdf4dbbf0b9a9bbd5ff",
+  "previous_tree_hash": "bf40798b2ca5ddd51c4f3b2b3e7c0255bf02a4a9763d5cc06d0a59b141593f62",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7858,9 +7858,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "98297a6a75edd33fd7ca12f77cbf52a2bc35dbd6d984abc6fcfa91bbc91befd0",
+  "skill_tree_hash": "9efb7f05340df549c159a157596acd27b18322d6d3da79caa0c563917f0e7e66",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bf40798b2ca5ddd51c4f3b2b3e7c0255bf02a4a9763d5cc06d0a59b141593f62",
+  "tree_hash": "d97ed591e61aa60bf8524cf3ca5707034dd9be3ce2d1aab69a14b5b5b22b15bb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

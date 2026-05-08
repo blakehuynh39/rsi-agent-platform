@@ -63,12 +63,12 @@ Both reached origin (CF WAF skip rule + origin-check exclusion working), but ori
 
 ## Operational access constraints
 
-**RSI cannot directly modify production K8s deployments.** The production `depin-backend` deployment is NOT in the `story` or `rsi-platform` Kubernetes namespaces (only staging `use1-stage-depin-backend` is visible). The production ALB (`use1-prod-depin-backend-520197523.us-east-1.elb.amazonaws.com`, from `cloudflare/records.ts:35`) exists but its backend targets are in a separate cluster/namespace outside RSI's read scope.
+**RSI cannot directly modify production K8s deployments.** The executor has read-only prod Kubernetes access through `kubectl --context use1-prod`. Use `kubectl --context use1-prod -n story` to inspect production `depin-backend` deployments, pods, and logs. Mutation operations such as restart, scale, patch, or secret reads remain outside RSI's access and must be handled by someone with production write permissions.
 
 **What RSI CAN do for production fixes:**
 - Create PRs in `piplabs/depin-backend` to fix config files (e.g., `production.toml`)
 - Create PRs in `piplabs/cloudflare` to adjust WAF/DNS rules (these apply to both staging and production via `${API_HOSTS}`)
-- Diagnose issues from code analysis and CF Ray ID evidence
+- Diagnose issues from code analysis, CF Ray ID evidence, and read-only Kubernetes pod/deployment/log checks
 - After PR merge, the production deployment must be updated/restarted by someone with production K8s access
 
 **PR #449** is the reference pattern for production config fixes: added `enabled = true` explicitly to `production.toml`'s `[numo_validation]` section (the file had an empty section header with no values).
