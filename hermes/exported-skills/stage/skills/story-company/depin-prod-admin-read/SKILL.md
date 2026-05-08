@@ -29,13 +29,17 @@ There are two separate read paths. Pick one deliberately and do not mix their re
 
 For language-related counts, be precise about semantics. `/v1/admin/cohorts/languages` groups by `users.primary_language`; direct SQL against `scripts.language_code` counts transcript/script records. These are different questions and can return different numbers.
 
+For per-transcript distribution queries (e.g., "how many unique users submitted to each Vietnamese script"), see `references/vi-transcript-queries.md` for the full join pattern, histogram query, and cross-validation technique.
+
 ## Native DB Read Rules
 
 - Use `db_read.sources` to list available DB targets.
 - Use `db_read.schema` to inspect allowlisted tables and columns for a target.
 - Use `db_read.validate` when you need repair feedback before submitting an approval request.
 - Use `db_read.query` exactly once for the SQL you intend to run. The tool must show the exact SQL to an authorized admin before execution.
-- After `db_read.query` pauses, do not use terminal, Kubernetes, or hand-built network calls to bypass the native permission flow.
+- **CRITICAL**: `db_read.query` may return `"db-read query did not create an external tool pause"` — this error is often a false negative. The RSI platform posts the Slack approval card **asynchronously** while Hermes receives the error synchronously. Each apparent failure call actually creates a new approval card in the thread. **Never loop-retry db_read.query** — check the Slack thread for approval cards instead.
+- After `db_read.query` is called, **check the Slack thread immediately** before pursuing fallbacks. If approval cards appeared, the queries are live — use `db_read.status` with each request ID to retrieve the full result data (including the `result_sample` rows that Slack cards summarize).
+- Do not use terminal, Kubernetes, or hand-built network calls to bypass the native permission flow.
 - Do not self-approve. The approval is for an authorized DB-read admin, not necessarily the requester.
 - The approval card is audit UI. The resumed Hermes run owns the final user-facing answer in the original Slack thread.
 - If the DB result is denied, expired, or fails, use the resumed tool result to explain the blocker and propose a safe next query.
@@ -44,6 +48,7 @@ For language-related counts, be precise about semantics. `/v1/admin/cohorts/lang
 
 - **`execute_code` Python env is blind to `DEPIN_*` vars.** The Python subprocess spawned by `execute_code` runs in a limited environment that does not inherit the admin read key env vars. Use terminal only to confirm credential presence without printing values. If `execute_code` reports all vars as missing but terminal shows them present, trust the shell output.
 - **Admin read key is stats-scoped only.** `DEPIN_ADMIN_READ_API_KEY` authorizes endpoints gated by `AdminReadOnlyAccess` (including `/v1/admin/stats/*`, `/v1/admin/cohorts/languages`, and `/v1/admin/overview`) but does not work for endpoints gated by `AdminAccess` such as `/v1/admin/users/**` and `/v1/admin/cohorts/demographics`. Those endpoints require JWT. A `401` from an `AdminAccess` endpoint is expected and should be reported as an auth scope mismatch, not a credential failure.
+- **send_message is trace-scoped idempotent: only one message lands per trace.** The RSI gateway uses a fixed idempotency key `{channel}:{thread_ts}:trace-{trace_id}` for all `send_message` calls in one trace. The second call deduplicates to the first silently. **Never send a placeholder or "stand by" message first.** Collect all data, build the complete answer, then send exactly one message with all content at the end. If a placeholder was already sent, accept that no further messages will land and provide the full answer in the Hermes conversation instead.
 - **`/v1/admin/stats/submissions` is dimension-blind.** It returns only `[{date, count}]` with no language, nationality, campaign, or state filter. For "Vietnamese submissions", always try `/v1/admin/cohorts/languages?range=all` first. Only use DB read if the user asks for script/transcript-level semantics or campaign-language semantics that REST cannot answer.
 - **`/v1/admin/submissions` is cursor-paginated with no total.** The response contains only `{items, next_cursor}`. Prefer aggregate endpoints or DB read for exact counts when pagination would be slow or ambiguous.
 - **`cohorts/languages` uses `users.primary_language`, not campaign language.** For campaign-scoped language counts, find the campaign by `supported_languages` in `/v1/admin/campaigns`, then paginate `/v1/admin/submissions?campaign_id=X` or use native DB read when exact SQL is appropriate. Full enumeration technique and script: `references/campaign-language-filtering.md`.
