@@ -105,7 +105,7 @@ func TestDBReadValidationExpiryTransitionFailureMarksExternalPauseFailed(t *test
 		t.Fatal(err)
 	}
 	store := failingDBReadTransitionStore{Store: base, requestID: request.ID, err: errors.New("forced transition failure")}
-	handleDBReadValidationLease(context.Background(), config.Config{ExternalToolResumeEnabled: true}, store, registry, nil, nil, storepkg.DBReadLease{Request: request})
+	handleDBReadValidationLease(context.Background(), config.Config{}, store, registry, nil, nil, storepkg.DBReadLease{Request: request})
 
 	updated, ok := base.GetExternalToolPause(pause.ID)
 	if !ok {
@@ -116,6 +116,59 @@ func TestDBReadValidationExpiryTransitionFailureMarksExternalPauseFailed(t *test
 	}
 	if updated.ErrorMessage == "" {
 		t.Fatalf("expected error message to be recorded: %+v", updated)
+	}
+}
+
+func TestDBReadWorkerDoesNotExecuteWithoutExternalToolPause(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey: "legacy-approved",
+		Target:         "depin-stage",
+		Purpose:        "query",
+		SQL:            "select 1",
+		SQLSHA256:      "sha256:abc",
+		Requester:      "hermes",
+		ExpiresAt:      now.Add(time.Hour),
+		Caps:           storepkg.DBReadCaps{MaxRows: 10, MaxBytes: 1024, TimeoutSeconds: 5},
+	}, now.Add(-time.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt := storepkg.NewDBReadValidationAttempt(request, storepkg.DBReadValidationStatusSucceeded, "target_prepare", "", nil, now.Add(-30*time.Minute))
+	if _, err := store.AppendDBReadValidationAttempt(attempt); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, func(item *storepkg.DBReadRequest) error {
+		item.ApprovedBySlackUserID = "UADMIN"
+		item.ApprovedAt = &now
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	lease, ok, err := store.ClaimNextDBReadRequest("worker", time.Minute, now, []string{"depin-stage"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("expected approved request to be claimable")
+	}
+	registry, err := dbread.LoadRegistry(`{"targets":[{"id":"depin-stage","allowed_schemas":["public"],"allowed_tables":["*"]}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handleDBReadLease(context.Background(), config.Config{}, store, registry, nil, nil, lease)
+
+	updated, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected request")
+	}
+	if updated.State != storepkg.DBReadStateApproved {
+		t.Fatalf("expected request to remain approved until external pause is ready, got %s", updated.State)
+	}
+	if results := store.ListDBReadExecutionResults(request.ID); len(results) != 0 {
+		t.Fatalf("legacy request should not execute: %#v", results)
 	}
 }
 

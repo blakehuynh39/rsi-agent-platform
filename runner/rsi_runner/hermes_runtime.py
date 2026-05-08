@@ -1245,6 +1245,7 @@ class HermesRuntime:
                 bin_dir = Path(self._config.hermes_company_bin_dir).expanduser().resolve()
                 terminal_cwd.mkdir(parents=True, exist_ok=True)
                 bin_dir.mkdir(parents=True, exist_ok=True)
+                removed_legacy_tools = self._remove_legacy_company_bin_tools(bin_dir)
                 os.environ["TERMINAL_ENV"] = self._config.hermes_terminal_env
                 os.environ["TERMINAL_CWD"] = str(terminal_cwd)
                 os.environ["TERMINAL_TIMEOUT"] = str(self._config.hermes_terminal_timeout_seconds)
@@ -1260,6 +1261,7 @@ class HermesRuntime:
                         "status": "configured",
                         "terminal_cwd": str(terminal_cwd),
                         "bin_dir": str(bin_dir),
+                        "removed_legacy_tools": removed_legacy_tools,
                         "terminal_env": self._config.hermes_terminal_env,
                         "terminal_timeout_seconds": self._config.hermes_terminal_timeout_seconds,
                         "terminal_lifetime_seconds": self._config.hermes_terminal_lifetime_seconds,
@@ -1284,6 +1286,18 @@ class HermesRuntime:
             status["status"] = "failed"
             status["errors"] = errors
         return status
+
+    def _remove_legacy_company_bin_tools(self, bin_dir: Path) -> list[str]:
+        removed: list[str] = []
+        for name in ("rsi-db",):
+            path = bin_dir / name
+            if not path.exists() and not path.is_symlink():
+                continue
+            if not path.is_file() and not path.is_symlink():
+                raise RuntimeError(f"legacy company bin path {path} exists but is not a file")
+            path.unlink()
+            removed.append(name)
+        return removed
 
     def _configure_grafana_cli_environment(self) -> JsonObject:
         if not self._grafana_observability_configured():
@@ -3138,6 +3152,7 @@ class HermesRuntime:
         now = int(time.time())
         claims: JsonObject = {
             "version": "v1",
+            "db_read_query_allowed": True,
             "execution_id": task.execution_id or "",
             "operation_id": task.operation_id or "",
             "conversation_id": task.conversation_id or "",
@@ -7656,7 +7671,7 @@ class HermesRuntime:
                     "`db_read.validate`, `db_read.query`, and `db_read.status`. `db_read.query` pauses the tool "
                     "call for Slack admin approval, then resumes this Hermes session with a sanitized tool result. "
                     "Approval is bound to the exact target and SQL hash; do not bypass this native tool with raw "
-                    "control-plane curl or the human `rsi-db` CLI from agent code."
+                    "control-plane curl or any legacy `rsi-db` executable from agent code."
                 )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:

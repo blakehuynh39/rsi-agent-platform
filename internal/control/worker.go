@@ -409,7 +409,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
-	if cfg.ExternalToolResumeEnabled && workflowTerminationReason(runnerResp.Raw) == "external_tool_pending" {
+	if workflowTerminationReason(runnerResp.Raw) == "external_tool_pending" {
 		markExternalToolResumeAttemptFinished(store, resumePauseID, runnerResp)
 		return handleExternalToolPendingRunnerResult(cfg, store, ctx, effect, runnerResp, runnerStarted)
 	}
@@ -1815,6 +1815,9 @@ func workflowReplyDeliveryProjection(raw map[string]any, ledgerEvents []events.E
 		return rawDelivery, hasRawDelivery
 	}
 	if ledgerDelivery, ok := workflowReplyDeliveryFromExecutionLedger(ledgerEvents, fallbackChannelID, fallbackThreadTS, createdAt); ok {
+		if hasRawDelivery && !slackDeliverySameAttempt(rawDelivery, ledgerDelivery) {
+			return rawDelivery, true
+		}
 		return ledgerDelivery, true
 	}
 	return rawDelivery, hasRawDelivery
@@ -1828,7 +1831,7 @@ func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEven
 		if !strings.HasPrefix(strings.TrimSpace(item.Kind), "slack.") {
 			continue
 		}
-		status := firstNonEmpty(strings.TrimSpace(item.Status), strings.TrimSpace(stringValueFromMap(item.Payload, "send_status")), strings.TrimSpace(stringValueFromMap(item.Payload, "status")))
+		status := firstNonEmpty(strings.TrimSpace(stringValueFromMap(item.Payload, "send_status")), strings.TrimSpace(stringValueFromMap(item.Payload, "status")), strings.TrimSpace(item.Status))
 		record := slackActionRecordFromDeliveryMap(item.Payload, fallbackChannelID, fallbackThreadTS, createdAt)
 		record.ID = firstNonEmpty(record.ID, item.ID)
 		record.IdempotencyKey = firstNonEmpty(record.IdempotencyKey, item.IdempotencyKey, item.ID)
@@ -1853,6 +1856,22 @@ func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEven
 		return latestAttempt, true
 	}
 	return events.SlackActionRecord{}, false
+}
+
+func slackDeliverySameAttempt(left events.SlackActionRecord, right events.SlackActionRecord) bool {
+	if strings.TrimSpace(left.FinalBody) != "" && strings.TrimSpace(right.FinalBody) != "" {
+		return strings.TrimSpace(left.FinalBody) == strings.TrimSpace(right.FinalBody)
+	}
+	if strings.TrimSpace(left.DraftBody) != "" && strings.TrimSpace(right.DraftBody) != "" {
+		return strings.TrimSpace(left.DraftBody) == strings.TrimSpace(right.DraftBody)
+	}
+	if strings.TrimSpace(left.ID) != "" && strings.TrimSpace(right.ID) != "" {
+		return strings.TrimSpace(left.ID) == strings.TrimSpace(right.ID)
+	}
+	if strings.TrimSpace(left.IdempotencyKey) != "" && strings.TrimSpace(right.IdempotencyKey) != "" {
+		return strings.TrimSpace(left.IdempotencyKey) == strings.TrimSpace(right.IdempotencyKey)
+	}
+	return false
 }
 
 func slackActionRecordFromDeliveryMap(item map[string]any, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) events.SlackActionRecord {

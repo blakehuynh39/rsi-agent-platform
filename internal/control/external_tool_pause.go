@@ -95,9 +95,6 @@ func handleExternalToolPendingRunnerResult(cfg config.Config, store storepkg.Sto
 }
 
 func markDBReadExternalToolOutcome(cfg config.Config, store storepkg.Store, request storepkg.DBReadRequest, outcome storepkg.ExternalToolOutcome, message string) {
-	if !cfg.ExternalToolResumeEnabled {
-		return
-	}
 	pause, ok := store.GetExternalToolPauseByDBReadRequestID(request.ID)
 	if !ok {
 		return
@@ -173,9 +170,6 @@ func buildDBReadExternalToolResumePayload(pause storepkg.ExternalToolPause, requ
 }
 
 func tryQueueExternalToolResume(cfg config.Config, store storepkg.Store, pauseID string) {
-	if !cfg.ExternalToolResumeEnabled {
-		return
-	}
 	pause, ok := store.GetExternalToolPause(pauseID)
 	if !ok || !storepkg.ExternalToolPauseTerminalOutcome(pause.ToolOutcome) || pause.ResumeStatus != storepkg.ExternalToolResumeNotReady {
 		return

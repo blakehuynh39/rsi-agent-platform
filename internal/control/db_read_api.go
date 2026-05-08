@@ -43,15 +43,16 @@ type dbReadQueryRequest struct {
 }
 
 type dbReadAuthContext struct {
-	Scoped         bool
-	Requester      string
-	ConversationID string
-	WorkflowID     string
-	TraceID        string
-	OperationID    string
-	ExecutionID    string
-	ChannelID      string
-	ThreadTS       string
+	Scoped             bool
+	DBReadQueryAllowed bool
+	Requester          string
+	ConversationID     string
+	WorkflowID         string
+	TraceID            string
+	OperationID        string
+	ExecutionID        string
+	ChannelID          string
+	ThreadTS           string
 }
 
 func (ctx dbReadAuthContext) apply(input *dbReadQueryRequest) {
@@ -140,8 +141,12 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 			return
 		}
 		authCtx.apply(&input)
-		if cfg.ExternalToolResumeEnabled && len([]rune(strings.TrimSpace(input.SQL))) > 2200 {
+		if len([]rune(strings.TrimSpace(input.SQL))) > 2200 {
 			app.WriteError(w, http.StatusBadRequest, fmt.Errorf("db read SQL is too long for exact Slack approval display; shorten the query or split it into smaller reads"))
+			return
+		}
+		if err := validateDBReadNativeQuery(input, authCtx); err != nil {
+			app.WriteError(w, http.StatusForbidden, err)
 			return
 		}
 		registry, err := dbread.LoadRegistry(cfg.DBReadTargetsJSON)
@@ -211,7 +216,7 @@ func registerDBReadRoutes(r chi.Router, cfg config.Config, store storepkg.Store)
 		}
 		request, _ = store.GetDBReadRequest(request.ID)
 		var pause storepkg.ExternalToolPause
-		if cfg.ExternalToolResumeEnabled && validation.OK && dbReadHasHermesToolCall(input) {
+		if validation.OK {
 			pause, _, err = store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
 				IdempotencyKey:    externalToolPauseIdempotencyKey(input, request.ID),
 				ConversationID:    request.ConversationID,
@@ -314,16 +319,36 @@ func verifyDBReadExecutionToken(secret string, auth string, now time.Time) (dbRe
 		return dbReadAuthContext{}, false
 	}
 	return dbReadAuthContext{
-		Scoped:         true,
-		Requester:      firstNonEmpty(strings.TrimSpace(stringValueFromMap(claims, "requester")), "hermes"),
-		ConversationID: strings.TrimSpace(stringValueFromMap(claims, "conversation_id")),
-		WorkflowID:     strings.TrimSpace(stringValueFromMap(claims, "workflow_id")),
-		TraceID:        strings.TrimSpace(stringValueFromMap(claims, "trace_id")),
-		OperationID:    strings.TrimSpace(stringValueFromMap(claims, "operation_id")),
-		ExecutionID:    strings.TrimSpace(stringValueFromMap(claims, "execution_id")),
-		ChannelID:      strings.TrimSpace(stringValueFromMap(claims, "channel_id")),
-		ThreadTS:       strings.TrimSpace(stringValueFromMap(claims, "thread_ts")),
+		Scoped:             true,
+		DBReadQueryAllowed: boolValueFromMap(claims, "db_read_query_allowed"),
+		Requester:          firstNonEmpty(strings.TrimSpace(stringValueFromMap(claims, "requester")), "hermes"),
+		ConversationID:     strings.TrimSpace(stringValueFromMap(claims, "conversation_id")),
+		WorkflowID:         strings.TrimSpace(stringValueFromMap(claims, "workflow_id")),
+		TraceID:            strings.TrimSpace(stringValueFromMap(claims, "trace_id")),
+		OperationID:        strings.TrimSpace(stringValueFromMap(claims, "operation_id")),
+		ExecutionID:        strings.TrimSpace(stringValueFromMap(claims, "execution_id")),
+		ChannelID:          strings.TrimSpace(stringValueFromMap(claims, "channel_id")),
+		ThreadTS:           strings.TrimSpace(stringValueFromMap(claims, "thread_ts")),
 	}, true
+}
+
+func validateDBReadNativeQuery(input dbReadQueryRequest, authCtx dbReadAuthContext) error {
+	if !authCtx.Scoped || !authCtx.DBReadQueryAllowed {
+		return fmt.Errorf("db read query must use Hermes native db_read.query execution-scoped auth")
+	}
+	if !dbReadHasHermesToolCall(input) {
+		return fmt.Errorf("db read query must be submitted by Hermes native db_read.query")
+	}
+	if strings.TrimSpace(input.CanonicalToolName) != "db_read.query" {
+		return fmt.Errorf("db read query canonical tool mismatch")
+	}
+	if strings.TrimSpace(input.TransportToolName) != "db_read_query" {
+		return fmt.Errorf("db read query transport tool mismatch")
+	}
+	if strings.TrimSpace(input.ArgsHash) == "" {
+		return fmt.Errorf("db read query args_hash is required")
+	}
+	return nil
 }
 
 func floatValueFromMap(values map[string]any, key string) float64 {
@@ -346,29 +371,35 @@ func floatValueFromMap(values map[string]any, key string) float64 {
 	}
 }
 
-func dbReadIdempotencyKey(input dbReadQueryRequest, hash string) string {
-	if dbReadHasHermesToolCall(input) {
-		parts := []string{
-			strings.TrimSpace(input.WorkflowID),
-			strings.TrimSpace(input.HermesSessionID),
-			strings.TrimSpace(input.HermesToolCallID),
-			firstNonEmpty(strings.TrimSpace(input.ArgsHash), dbReadArgsHash(input)),
+func boolValueFromMap(values map[string]any, key string) bool {
+	switch value := values[key].(type) {
+	case bool:
+		return value
+	case string:
+		switch strings.ToLower(strings.TrimSpace(value)) {
+		case "1", "true", "yes":
+			return true
+		default:
+			return false
 		}
-		raw, _ := json.Marshal(parts)
-		sum := sha256.Sum256(raw)
-		return "dbread-tool:sha256:" + hex.EncodeToString(sum[:])
+	case float64:
+		return value != 0
+	default:
+		return false
 	}
+}
+
+func dbReadIdempotencyKey(input dbReadQueryRequest, hash string) string {
 	parts := []string{
-		strings.TrimSpace(input.ConversationID),
-		strings.TrimSpace(input.ThreadTS),
-		strings.TrimSpace(input.Target),
+		strings.TrimSpace(input.WorkflowID),
+		strings.TrimSpace(input.HermesSessionID),
+		strings.TrimSpace(input.HermesToolCallID),
+		firstNonEmpty(strings.TrimSpace(input.ArgsHash), dbReadArgsHash(input)),
 		strings.TrimSpace(hash),
-		strings.TrimSpace(firstNonEmpty(input.Requester, "hermes")),
-		strings.TrimSpace(firstNonEmpty(input.Purpose, "query")),
 	}
 	raw, _ := json.Marshal(parts)
 	sum := sha256.Sum256(raw)
-	return "dbread:sha256:" + hex.EncodeToString(sum[:])
+	return "dbread-tool:sha256:" + hex.EncodeToString(sum[:])
 }
 
 func dbReadHasHermesToolCall(input dbReadQueryRequest) bool {

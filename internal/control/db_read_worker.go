@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +14,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/dbread"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 var errDBReadRequestExpired = errors.New("db read request expired")
@@ -182,6 +184,45 @@ func handleDBReadLease(ctx context.Context, cfg config.Config, store storepkg.St
 		return
 	}
 	now := time.Now().UTC()
+	if request.ExpiresAt.Before(now) {
+		expired, expireErr := store.TransitionDBReadRequest(lease.Request.ID, storepkg.DBReadStateApproved, storepkg.DBReadStateExpired, func(item *storepkg.DBReadRequest) error {
+			if item.LeaseToken != lease.Token {
+				return fmt.Errorf("db read lease token mismatch")
+			}
+			item.ErrorMessage = errDBReadRequestExpired.Error()
+			item.LeaseHolder = ""
+			item.LeaseToken = ""
+			item.LeaseExpiresAt = nil
+			return nil
+		})
+		if expireErr != nil {
+			log.Printf("db-read-worker expire approved request=%s error=%v", lease.Request.ID, expireErr)
+			if latest, found := store.GetDBReadRequest(lease.Request.ID); found {
+				markDBReadExternalToolOutcome(cfg, store, latest, storepkg.ExternalToolOutcomeFailed, "expiry transition failed: "+expireErr.Error())
+			} else {
+				markDBReadExternalToolOutcome(cfg, store, lease.Request, storepkg.ExternalToolOutcomeFailed, "expiry transition failed: "+expireErr.Error())
+			}
+			return
+		}
+		if slackErr := updateDBReadSlackCard(ctx, slackAPI, expired, "expired"); slackErr != nil {
+			log.Printf("db-read-worker expire slack update request=%s error=%v", lease.Request.ID, slackErr)
+		}
+		markDBReadExternalToolOutcome(cfg, store, expired, storepkg.ExternalToolOutcomeExpired, errDBReadRequestExpired.Error())
+		return
+	}
+	ready, reason, permanent := dbReadExternalPauseReadyForExecution(store, request)
+	if !ready {
+		if permanent {
+			log.Printf("db-read-worker permanent pause readiness failure request=%s reason=%s", request.ID, reason)
+			recordDBReadExecutionFailure(store, request, lease.Token, "pause_readiness_failed", reason)
+			if updated, found := store.GetDBReadRequest(request.ID); found {
+				markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, reason)
+			}
+			return
+		}
+		log.Printf("db-read-worker waiting for external tool pause before execution request=%s reason=%s", request.ID, reason)
+		return
+	}
 	request, err := store.TransitionDBReadRequest(request.ID, storepkg.DBReadStateApproved, storepkg.DBReadStateExecuting, func(item *storepkg.DBReadRequest) error {
 		if item.LeaseToken != lease.Token {
 			return fmt.Errorf("db read lease token mismatch")
@@ -205,7 +246,14 @@ func handleDBReadLease(ctx context.Context, cfg config.Config, store storepkg.St
 			})
 			if expireErr != nil {
 				log.Printf("db-read-worker expire approved request=%s error=%v", lease.Request.ID, expireErr)
-			} else if slackErr := updateDBReadSlackCard(ctx, slackAPI, expired, "expired"); slackErr != nil {
+				if latest, found := store.GetDBReadRequest(lease.Request.ID); found {
+					markDBReadExternalToolOutcome(cfg, store, latest, storepkg.ExternalToolOutcomeFailed, "expiry transition failed: "+expireErr.Error())
+				} else {
+					markDBReadExternalToolOutcome(cfg, store, lease.Request, storepkg.ExternalToolOutcomeFailed, "expiry transition failed: "+expireErr.Error())
+				}
+				return
+			}
+			if slackErr := updateDBReadSlackCard(ctx, slackAPI, expired, "expired"); slackErr != nil {
 				log.Printf("db-read-worker expire slack update request=%s error=%v", lease.Request.ID, slackErr)
 			}
 			markDBReadExternalToolOutcome(cfg, store, expired, storepkg.ExternalToolOutcomeExpired, errDBReadRequestExpired.Error())
@@ -256,6 +304,32 @@ func handleDBReadLease(ctx context.Context, cfg config.Config, store storepkg.St
 		_ = updateDBReadSlackCard(ctx, slackAPI, updated, "failed: "+truncateSlackText(errorMessage, 800))
 		markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, errorMessage)
 	}
+}
+
+func dbReadExternalPauseReadyForExecution(store storepkg.Store, request storepkg.DBReadRequest) (ready bool, reason string, permanent bool) {
+	pause, ok := store.GetExternalToolPauseByDBReadRequestID(request.ID)
+	if !ok {
+		return false, "missing external tool pause", false
+	}
+	if strings.TrimSpace(pause.TransportToolName) != "db_read_query" ||
+		strings.TrimSpace(pause.ToolCallID) == "" ||
+		strings.TrimSpace(pause.HermesSessionID) == "" {
+		return false, "external tool pause identity is incomplete", true
+	}
+	if strings.TrimSpace(pause.DBReadRequestID) != request.ID || strings.TrimSpace(pause.SQLSHA256) != request.SQLSHA256 {
+		return false, "external tool pause request/hash mismatch", true
+	}
+	if len(pause.PendingAssistantMessage) == 0 || len(pause.TranscriptSnapshot) == 0 {
+		return false, "external tool pause transcript is not committed", false
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), pause.WorkflowID)
+	if !ok {
+		return false, "workflow not found", true
+	}
+	if workflow.Status != string(transition.WorkflowStateWaitingExternalTool) {
+		return false, "workflow is not waiting on external tool", false
+	}
+	return true, "", false
 }
 
 func recordDBReadExecutionFailure(store storepkg.Store, request storepkg.DBReadRequest, leaseToken string, code string, message string) {

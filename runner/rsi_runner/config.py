@@ -76,7 +76,6 @@ class RunnerConfig:
     grafana_metrics_datasource_uid: str
     grafana_logs_datasource_uid: str
     db_read_gateway_configured: bool
-    external_tool_resume_enabled: bool
     native_tools_enabled: bool
     native_tools_client_token_configured: bool
     native_tools_surfaces: list[str]
@@ -167,7 +166,6 @@ class RunnerConfig:
             and optional_env("RSI_CONTROL_PLANE_BASE_URL")
             and optional_env("RSI_DB_READ_CLIENT_TOKEN")
         )
-        external_tool_resume_enabled = parse_bool(optional_env("RSI_EXTERNAL_TOOL_RESUME_ENABLED") or "false", "RSI_EXTERNAL_TOOL_RESUME_ENABLED")
         native_tools_enabled = parse_bool(optional_env("RSI_NATIVE_TOOLS_ENABLED") or "false", "RSI_NATIVE_TOOLS_ENABLED")
         native_tools_client_token = optional_env("RSI_NATIVE_TOOLS_CLIENT_TOKEN")
         native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge")
@@ -251,7 +249,6 @@ class RunnerConfig:
             grafana_metrics_datasource_uid=grafana_metrics_datasource_uid,
             grafana_logs_datasource_uid=grafana_logs_datasource_uid,
             db_read_gateway_configured=db_read_gateway_configured,
-            external_tool_resume_enabled=external_tool_resume_enabled,
             native_tools_enabled=native_tools_enabled,
             native_tools_client_token_configured=bool(native_tools_client_token),
             native_tools_surfaces=native_tools_surfaces,

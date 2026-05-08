@@ -228,7 +228,6 @@ func TestWorkflowRunnerPausesAndResumesExternalDBReadTool(t *testing.T) {
 		RunnerBaseURL:             runner.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
-		ExternalToolResumeEnabled: true,
 	}
 
 	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
@@ -455,7 +454,6 @@ func TestWorkflowRunnerResumeCanPauseAgainWithoutLeavingPriorPauseRunning(t *tes
 		RunnerBaseURL:             runner.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
-		ExternalToolResumeEnabled: true,
 	}
 
 	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
@@ -629,7 +627,6 @@ func TestWorkflowRunnerPauseRefreshesImmediateDBReadOutcomeWithTranscript(t *tes
 		RunnerBaseURL:             runner.URL,
 		SandboxNamespace:          "rsi-platform",
 		DefaultReasoningVerbosity: "verbose",
-		ExternalToolResumeEnabled: true,
 	}
 	markDBReadExternalToolOutcome(cfg, store, request, storepkg.ExternalToolOutcomeSucceeded, "")
 	prePause, _ := store.GetExternalToolPause(pause.ID)
@@ -707,7 +704,7 @@ func TestExternalToolResumeQueueLeavesPauseRetryableWhenCommandSubmitFails(t *te
 	}
 
 	failing := failingExternalToolResultStore{Store: store}
-	tryQueueExternalToolResume(config.Config{ExternalToolResumeEnabled: true, ServiceName: "control-plane"}, failing, pause.ID)
+	tryQueueExternalToolResume(config.Config{ServiceName: "control-plane"}, failing, pause.ID)
 	updated, _ := store.GetExternalToolPause(pause.ID)
 	if updated.ResumeStatus != storepkg.ExternalToolResumeNotReady {
 		t.Fatalf("resume status = %s, want not_ready after submit failure", updated.ResumeStatus)
@@ -5805,6 +5802,23 @@ func TestWorkflowReplyDeliveryFromExecutionLedgerRecordsFailedStatus(t *testing.
 	if record.FinalBody != "posted reply" || record.IdempotencyKey != "idem-1" {
 		t.Fatalf("unexpected ledger delivery projection: %#v", record)
 	}
+	record, ok = workflowReplyDeliveryFromExecutionLedger([]events.ExecutionLedgerEvent{
+		{
+			ID:          "ledger-deduped",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "completed",
+			Seq:         3,
+			Payload: map[string]any{
+				"body":   "deduped reply",
+				"status": "deduped",
+			},
+			RecordedAt: createdAt,
+		},
+	}, "C-fallback", "T-fallback", createdAt)
+	if !ok || record.SendStatus != "deduped" {
+		t.Fatalf("expected payload delivery status to override generic event status, got ok=%t record=%#v", ok, record)
+	}
 }
 
 func TestWorkflowReplyDeliveryProjectionPrefersLedgerDeliveryAttempt(t *testing.T) {
@@ -5825,7 +5839,7 @@ func TestWorkflowReplyDeliveryProjectionPrefersLedgerDeliveryAttempt(t *testing.
 			Status:      "observed",
 			Seq:         1,
 			Payload: map[string]any{
-				"body":        "ledger reply",
+				"body":        "raw posted reply",
 				"channel_id":  "C-ledger",
 				"thread_ts":   "T-ledger",
 				"send_status": "observed",
@@ -5836,8 +5850,43 @@ func TestWorkflowReplyDeliveryProjectionPrefersLedgerDeliveryAttempt(t *testing.
 	if !ok {
 		t.Fatal("expected ledger delivery attempt projection")
 	}
-	if record.FinalBody != "ledger reply" || record.ChannelID != "C-ledger" || record.SendStatus != "observed" {
+	if record.FinalBody != "raw posted reply" || record.ChannelID != "C-ledger" || record.SendStatus != "observed" {
 		t.Fatalf("unexpected ledger delivery attempt: %#v", record)
+	}
+}
+
+func TestWorkflowReplyDeliveryProjectionDoesNotReplaceRawFailureWithDifferentLedgerSuccess(t *testing.T) {
+	createdAt := time.Now().UTC()
+	raw := map[string]any{
+		"reply_delivery": map[string]any{
+			"body":         "substantive final answer",
+			"channel_id":   "C-raw",
+			"thread_ts":    "T-raw",
+			"tool_call_id": "final-send",
+			"status":       "deduped",
+		},
+	}
+	record, ok := workflowReplyDeliveryProjection(raw, []events.ExecutionLedgerEvent{
+		{
+			ID:          "ledger-placeholder",
+			ExecutionID: "hexec-1",
+			Kind:        "slack.message.sent",
+			Status:      "posted",
+			Seq:         1,
+			Payload: map[string]any{
+				"body":        "placeholder",
+				"channel_id":  "C-raw",
+				"thread_ts":   "T-raw",
+				"send_status": "posted",
+			},
+			RecordedAt: createdAt,
+		},
+	}, true, "C-fallback", "T-fallback", createdAt)
+	if !ok {
+		t.Fatal("expected raw delivery attempt projection")
+	}
+	if record.FinalBody != "substantive final answer" || record.SendStatus != "deduped" {
+		t.Fatalf("expected raw deduped final attempt to win over earlier placeholder, got %#v", record)
 	}
 }
 
@@ -5859,7 +5908,7 @@ func TestWorkflowReplyDeliveryProjectionPrefersSuccessfulLedgerDelivery(t *testi
 			Status:      "posted",
 			Seq:         1,
 			Payload: map[string]any{
-				"body":        "ledger posted reply",
+				"body":        "raw posted reply",
 				"channel_id":  "C-ledger",
 				"thread_ts":   "T-ledger",
 				"send_status": "posted",
@@ -5884,7 +5933,7 @@ func TestWorkflowReplyDeliveryProjectionPrefersSuccessfulLedgerDelivery(t *testi
 	if !ok {
 		t.Fatal("expected successful ledger delivery")
 	}
-	if record.FinalBody != "ledger posted reply" || record.ChannelID != "C-ledger" {
+	if record.FinalBody != "raw posted reply" || record.ChannelID != "C-ledger" {
 		t.Fatalf("expected ledger delivery to win, got %#v", record)
 	}
 }

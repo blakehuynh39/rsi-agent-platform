@@ -962,6 +962,9 @@ class HermesRuntimeTests(unittest.TestCase):
             ca_path.symlink_to(ca_target)
             namespace_path.write_text("rsi-platform", encoding="utf-8")
             kubeconfig_path = Path(computer_root, ".rsi", "kube", "config")
+            legacy_bin_dir = Path(computer_root, ".rsi", "bin")
+            legacy_bin_dir.mkdir(parents=True)
+            legacy_bin_dir.joinpath("rsi-db").write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
             captured_env: dict[str, str] = {}
             with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
                 os.environ,
@@ -1018,6 +1021,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_env["RSI_GRAFANA_METRICS_DATASOURCE_UID"], "thanos")
         self.assertEqual(captured_env["RSI_GRAFANA_LOGS_DATASOURCE_UID"], "loki")
         self.assertEqual(bin_dir_entries, [])
+        self.assertEqual(runtime.metadata["company_computer_bootstrap_status"]["removed_legacy_tools"], ["rsi-db"])
         self.assertEqual(grafana_status["tool"], "rsi_observability")
         self.assertEqual(grafana_status["toolset"], "rsi-observability")
         self.assertTrue(grafana_status["configured"])
@@ -1742,6 +1746,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(claims["channel_id"], "C123")
         self.assertEqual(claims["thread_ts"], "171000001.000100")
         self.assertEqual(claims["requester"], "user:U123")
+        self.assertTrue(claims["db_read_query_allowed"])
 
     def test_hermes_agent_adapter_passes_rich_context_to_aiagent(self) -> None:
         captured: dict[str, object] = {}

@@ -82,7 +82,6 @@ type Config struct {
 	DBReadClientToken                    string
 	DBReadApproverSlackUserIDs           []string
 	DBReadWorkerTargets                  []string
-	ExternalToolResumeEnabled            bool
 	NotionMCPEnabled                     bool
 	NotionMCPServerURL                   string
 	NotionMCPHeaders                     map[string]string
@@ -242,7 +241,6 @@ func Load(serviceName string) Config {
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
 		DBReadApproverSlackUserIDs:           listEnv("RSI_DB_READ_APPROVER_SLACK_USER_IDS"),
 		DBReadWorkerTargets:                  listEnv("RSI_DB_READ_WORKER_TARGETS"),
-		ExternalToolResumeEnabled:            boolEnv("RSI_EXTERNAL_TOOL_RESUME_ENABLED", false),
 		NotionMCPEnabled:                     boolEnv("RSI_NOTION_MCP_ENABLED", false),
 		NotionMCPServerURL:                   stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
 		NotionMCPHeaders:                     mapEnv("RSI_NOTION_MCP_HEADERS"),
