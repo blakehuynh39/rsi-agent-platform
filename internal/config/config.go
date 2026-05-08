@@ -169,9 +169,34 @@ const (
 	defaultProposalRunnerTaskTimeout  = 420 * time.Second
 )
 
+type slackUserAllowlistEntry struct {
+	ID   string
+	Name string
+}
+
+// defaultDBReadApproverSlackUsers is the source-controlled DB-read approval allowlist.
+// Slack user IDs are not secrets; update this list by PR when DB-read approvers change.
+var defaultDBReadApproverSlackUsers = []slackUserAllowlistEntry{
+	{ID: "U0772SH7BRA", Name: "Blake"},
+	{ID: "U04L0DD6B6F", Name: "Allen"},
+	{ID: "U08V4SFU7LZ", Name: "Romain Magne"},
+	{ID: "U06A5AQ1VD3", Name: "Andrea Muttoni"},
+	{ID: "U067QP5PD6J", Name: "Jongwon Park"},
+	{ID: "U083MMT1771", Name: "Aiwei"},
+}
+
+func defaultDBReadApproverSlackUserIDs() []string {
+	out := make([]string, 0, len(defaultDBReadApproverSlackUsers))
+	for _, user := range defaultDBReadApproverSlackUsers {
+		out = append(out, user.ID)
+	}
+	return out
+}
+
 func Load(serviceName string) Config {
 	environment := stringEnv("RSI_ENV", "")
 	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "")
+	dbReadApprovers := CompactUniqueStrings(append(defaultDBReadApproverSlackUserIDs(), listEnv("RSI_DB_READ_APPROVER_SLACK_USER_IDS")...))
 	return Config{
 		ServiceName:                          stringEnv("RSI_SERVICE_NAME", serviceName),
 		ServiceKind:                          serviceName,
@@ -239,7 +264,7 @@ func Load(serviceName string) Config {
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
 		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
-		DBReadApproverSlackUserIDs:           listEnv("RSI_DB_READ_APPROVER_SLACK_USER_IDS"),
+		DBReadApproverSlackUserIDs:           dbReadApprovers,
 		DBReadWorkerTargets:                  listEnv("RSI_DB_READ_WORKER_TARGETS"),
 		NotionMCPEnabled:                     boolEnv("RSI_NOTION_MCP_ENABLED", false),
 		NotionMCPServerURL:                   stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),

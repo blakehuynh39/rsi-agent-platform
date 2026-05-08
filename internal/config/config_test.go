@@ -1,6 +1,7 @@
 package config
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -102,6 +103,37 @@ func TestLoadUsesCompanyWikiCompilerRunBudgetDefaults(t *testing.T) {
 	if cfg.CompanyWikiCompilerShutdownGrace != 30*time.Second {
 		t.Fatalf("CompanyWikiCompilerShutdownGrace = %s", cfg.CompanyWikiCompilerShutdownGrace)
 	}
+}
+
+func TestLoadUsesSourceControlledDBReadApprovers(t *testing.T) {
+	t.Setenv("RSI_DB_READ_APPROVER_SLACK_USER_IDS", "")
+
+	cfg := Load("control-plane")
+
+	want := defaultDBReadApproverSlackUserIDs()
+	if !reflect.DeepEqual(cfg.DBReadApproverSlackUserIDs, want) {
+		t.Fatalf("DBReadApproverSlackUserIDs = %#v, want %#v", cfg.DBReadApproverSlackUserIDs, want)
+	}
+}
+
+func TestLoadMergesDBReadApproverEnvWithSourceControlledDefaults(t *testing.T) {
+	t.Setenv("RSI_DB_READ_APPROVER_SLACK_USER_IDS", "U0772SH7BRA,UEXTRA")
+
+	cfg := Load("control-plane")
+
+	want := append(defaultDBReadApproverSlackUserIDs(), "UEXTRA")
+	if !reflect.DeepEqual(cfg.DBReadApproverSlackUserIDs, want) {
+		t.Fatalf("DBReadApproverSlackUserIDs = %#v, want %#v", cfg.DBReadApproverSlackUserIDs, want)
+	}
+}
+
+func TestDefaultDBReadApproversIncludesBlake(t *testing.T) {
+	for _, user := range defaultDBReadApproverSlackUsers {
+		if user.ID == "U0772SH7BRA" && user.Name == "Blake" {
+			return
+		}
+	}
+	t.Fatal("expected Blake to remain in the default DB-read approver allowlist")
 }
 
 func assertPanics(t *testing.T, fn func()) {
