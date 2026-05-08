@@ -20361,3 +20361,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1989a9853bc552ec32a4f1c4054c2208
 - summary: Deployment addresses for core and periphery smart contracts on the Aeneid testnet. The source notes that these addresses may be outdated and directs users to the official protocol ...
 
+## [2026-05-08T22:24:21Z] synthesis | PoC 1.3 Odyssey Testnet Deployment
+
+- status: published
+- slug: projects/poc-1-3-odyssey-testnet-deployment
+- wiki_revision_id: wikirev_92ca922124151fff7d51c85955995407
+- summary: Deployment addresses and integration test results for the PoC 1.3 release on the Odyssey testnet (chain ID 1516). All integration test suites passed successfully.
+
