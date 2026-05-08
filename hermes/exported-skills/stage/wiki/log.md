@@ -20391,3 +20391,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1a837d9c55bc8f4e582f17efd2c82eb1
 - summary: Integration of Facebook tracking pixel into the web application.
 
+## [2026-05-08T22:54:02Z] synthesis | Protocol Periphery Source of Truth
+
+- status: published
+- slug: projects/protocol-periphery-sot
+- wiki_revision_id: wikirev_5e6e116c2c47cfff6a3c052ad5fdcdf8
+- summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments (including Iliad testnet addresses and versions), GitHub issues/PRs, and feedback.
+

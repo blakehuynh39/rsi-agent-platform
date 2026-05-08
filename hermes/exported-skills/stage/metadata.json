@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f1dc6689d06118111b70cb1a3f4764bc1a920510ae2c6536eee8b8052d0fe2f9",
-        "size": 518178
+        "sha256": "fb200695756de051d459d761976a49f27cd14d37783e7e71f1736df49e780e01",
+        "size": 518227
       },
       {
         "path": "log.md",
-        "sha256": "82b74100519e64712869eeb78835236aa3f4f1e9ebce0eae4481030346217245",
-        "size": 969232
+        "sha256": "964c2d179a005ef0f4909fb321ab0d1f759ffb4999823eff7c6e23d416ab5e5f",
+        "size": 969613
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4526,8 +4526,8 @@
       },
       {
         "path": "pages/projects/protocol-periphery-sot.md",
-        "sha256": "d5d90ae612c77f5852ec7d3a1a81b9932785d45e4b4c1ddc7395d2d34f6bd4f1",
-        "size": 3987
+        "sha256": "85aad6f23cabaf05e583665f03d9a35d4c64eb0bc91e210d284c68faba2eefe0",
+        "size": 5887
       },
       {
         "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
@@ -5239,7 +5239,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T22:36:38Z",
+  "exported_at": "2026-05-08T22:58:01Z",
   "file_count": 1046,
   "files": [
     {
@@ -8162,7 +8162,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "1d08bb4afe1b0f7e8364e2188ff7df25ae0158517df1c1b55be7f303c06012b1",
+  "previous_tree_hash": "41b484292255dc6d25bb14efd4d78637b73e872f9fbd1c9bcdaab70cc836f4ae",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8175,7 +8175,7 @@
   ],
   "skill_tree_hash": "ab5058a468fd30daf163314775c66add19b9f7029fddebc981df6d3dcaff86e7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "41b484292255dc6d25bb14efd4d78637b73e872f9fbd1c9bcdaab70cc836f4ae",
+  "tree_hash": "e792765a32bd4fd670b6d6da46e8fe3c8ad8494b37ba35685b7bb2c185d3ceef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8191,13 +8191,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f1dc6689d06118111b70cb1a3f4764bc1a920510ae2c6536eee8b8052d0fe2f9",
-      "size": 518178
+      "sha256": "fb200695756de051d459d761976a49f27cd14d37783e7e71f1736df49e780e01",
+      "size": 518227
     },
     {
       "path": "log.md",
-      "sha256": "82b74100519e64712869eeb78835236aa3f4f1e9ebce0eae4481030346217245",
-      "size": 969232
+      "sha256": "964c2d179a005ef0f4909fb321ab0d1f759ffb4999823eff7c6e23d416ab5e5f",
+      "size": 969613
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9791,8 +9791,8 @@
     },
     {
       "path": "pages/projects/protocol-periphery-sot.md",
-      "sha256": "d5d90ae612c77f5852ec7d3a1a81b9932785d45e4b4c1ddc7395d2d34f6bd4f1",
-      "size": 3987
+      "sha256": "85aad6f23cabaf05e583665f03d9a35d4c64eb0bc91e210d284c68faba2eefe0",
+      "size": 5887
     },
     {
       "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
@@ -10501,5 +10501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c4d3967e4fceeeb3c3e037e0e166faa61cf9766abc01dfe5df8591d81bc09a44"
+  "wiki_tree_hash": "29fd624f2407ebae37dae8e25b59e1f89eb7b9047ef58afeea834810a68e53d8"
 }
