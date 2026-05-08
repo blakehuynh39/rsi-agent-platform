@@ -4031,6 +4031,78 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
 
+    def test_native_executor_request_payload_includes_external_tool_resume(self) -> None:
+        resume_payload = {
+            "kind": "external_tool_result",
+            "session_id": "rsi-prod-conversation-123",
+            "tool_call_id": "call-db-read",
+            "tool_name": "db_read_query",
+            "status": "ok",
+            "content": {
+                "kind": "db_read_result",
+                "request_id": "dbread_1",
+                "target": "depin-prod",
+                "sample": [{"unique_users": "2", "script_count": "506"}],
+            },
+            "transcript_snapshot": [
+                {"role": "user", "content": "original request"},
+                {
+                    "role": "assistant",
+                    "content": "",
+                    "tool_calls": [
+                        {
+                            "id": "call-db-read",
+                            "type": "function",
+                            "function": {
+                                "name": "db_read_query",
+                                "arguments": "{\"target\":\"depin-prod\"}",
+                            },
+                        }
+                    ],
+                },
+            ],
+        }
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "Resume the DB read.",
+                        "execution_id": "hexec-db-resume",
+                        "trace_id": "trace-db-resume",
+                        "workflow_id": "wf-db-resume",
+                        "operation_id": "op-db-resume",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-db-resume",
+                        "external_tool_resume": resume_payload,
+                    }
+                }
+            )
+            context = FakeSessionManager(runtime._config).prepare(task)
+            request = runtime._native_executor_request_payload(
+                task,
+                context,
+                toolsets=["rsi-db-read"],
+                task_scoped_mcp_registration=TaskScopedMCPRegistration(),
+                max_iterations=5,
+                workdir=Path(tempdir),
+                result_path=Path(tempdir) / "result.json",
+                phase_contract={},
+                github_cli_credentials={},
+            )
+
+        self.assertEqual(request["external_tool_resume"], resume_payload)
+
     def test_plugin_artifact_write_creates_workspace_metadata_and_lifecycle_events(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
             os.environ, {"HERMES_HOME": hermes_home}, clear=True

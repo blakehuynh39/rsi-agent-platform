@@ -3683,6 +3683,7 @@ class HermesRuntime:
             "message_ts": task.message_ts or _derive_root_message_ts(task),
             "gateway_session_key": canonical_gateway_session_key(task, self._role),
             "conversation_history": self._native_executor_conversation_history(task, context),
+            "external_tool_resume": task.external_tool_resume,
             "prompt": task.prompt,
             "system_message": task.system_message or "",
             "execution_phase": self._execution_phase(task),
