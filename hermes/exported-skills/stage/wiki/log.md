@@ -20282,3 +20282,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_61d39167f959f046c3f5964c7cffa2ae
 - summary: A study comparing graph databases to relational databases, exploring decentralized graph DB concepts, and evaluating existing graph database technologies for potential use in block...
 
+## [2026-05-08T19:06:34Z] synthesis | SPG Requests
+
+- status: published
+- slug: projects/spg-requests
+- wiki_revision_id: wikirev_ce69332cfadc8b5e4ef3505ae0b4e60a
+- summary: Feature requests and discussions for the Story Protocol Gateway (SPG) functions, including batch IP registration, base URI configuration, signature reduction, and more.
+
