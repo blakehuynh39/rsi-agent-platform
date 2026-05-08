@@ -20368,3 +20368,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_92ca922124151fff7d51c85955995407
 - summary: Deployment addresses and integration test results for the PoC 1.3 release on the Odyssey testnet (chain ID 1516). All integration test suites passed successfully.
 
+## [2026-05-08T22:30:21Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_24da3c4292d31b9f1442c1e030ae77e2
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_7a4eea71a46385588f9e1390d7ca3073
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
+## [2026-05-08T22:31:11Z] synthesis | Merge GA properties for E2E tracking
+
+- status: published
+- slug: decisions/merge-ga-properties-for-e2e-tracking
+- wiki_revision_id: wikirev_5d892130d35665c43229abcc8c149437
+- summary: Decision to merge Google Analytics properties to enable end-to-end tracking across the product.
+
+## [2026-05-08T22:32:18Z] synthesis | Add FB tracking pixel to web app
+
+- status: published
+- slug: projects/add-fb-tracking-pixel-to-web-app
+- wiki_revision_id: wikirev_1a837d9c55bc8f4e582f17efd2c82eb1
+- summary: Integration of Facebook tracking pixel into the web application.
+

@@ -24,5 +24,5 @@ Integration of Facebook tracking pixel into the web application.
 ## Sources
 
 - `source_document_id`: `srcdoc_022626af28b82199454ae4a72b068b06`
-- `source_revision_id`: `srcrev_a355a165b3b3b9c7445680850ec0c71b`
+- `source_revision_id`: `srcrev_9a9b2e73b285f8b5943e5a18281717ee`
 - `source_url`: [Notion source](https://www.notion.so/Add-FB-tracking-pixel-to-web-app-34f051299a5480039302fbcbb256e854)

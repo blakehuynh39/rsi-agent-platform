@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "92e5a0cee3b5d2841dc1740ee31a9789d766d3c2f5f2873756d70ac5998f956d",
+        "sha256": "f1dc6689d06118111b70cb1a3f4764bc1a920510ae2c6536eee8b8052d0fe2f9",
         "size": 518178
       },
       {
         "path": "log.md",
-        "sha256": "1a3354a07786639190a00550aea75a6793bc1b916ba0f74405ef91d8bfeb9ac5",
-        "size": 968197
+        "sha256": "82b74100519e64712869eeb78835236aa3f4f1e9ebce0eae4481030346217245",
+        "size": 969232
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3761,8 +3761,8 @@
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-        "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
-        "size": 1593
+        "sha256": "322bb094afc67d8f2293e35ad79ac2fa972d5d7fb5185413e4573881fd226a85",
+        "size": 1329
       },
       {
         "path": "pages/decisions/meta-transaction-architecture-decision.md",
@@ -4051,7 +4051,7 @@
       },
       {
         "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-        "sha256": "2509db3f587ac23b80a6fe620f710e6c00467b3ab811d6e009a710977e577a32",
+        "sha256": "9890cba0f3b076b8b98214ae49ca348115b90a2d9e6614f2bbf5923f80fd0d21",
         "size": 1197
       },
       {
@@ -5239,7 +5239,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T22:25:13Z",
+  "exported_at": "2026-05-08T22:36:38Z",
   "file_count": 1046,
   "files": [
     {
@@ -8162,7 +8162,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "f5bc655ca28f03d4982b27048ca469ced783b37faa406ba319a7c544be860744",
+  "previous_tree_hash": "1d08bb4afe1b0f7e8364e2188ff7df25ae0158517df1c1b55be7f303c06012b1",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8175,7 +8175,7 @@
   ],
   "skill_tree_hash": "ab5058a468fd30daf163314775c66add19b9f7029fddebc981df6d3dcaff86e7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1d08bb4afe1b0f7e8364e2188ff7df25ae0158517df1c1b55be7f303c06012b1",
+  "tree_hash": "41b484292255dc6d25bb14efd4d78637b73e872f9fbd1c9bcdaab70cc836f4ae",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8191,13 +8191,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "92e5a0cee3b5d2841dc1740ee31a9789d766d3c2f5f2873756d70ac5998f956d",
+      "sha256": "f1dc6689d06118111b70cb1a3f4764bc1a920510ae2c6536eee8b8052d0fe2f9",
       "size": 518178
     },
     {
       "path": "log.md",
-      "sha256": "1a3354a07786639190a00550aea75a6793bc1b916ba0f74405ef91d8bfeb9ac5",
-      "size": 968197
+      "sha256": "82b74100519e64712869eeb78835236aa3f4f1e9ebce0eae4481030346217245",
+      "size": 969232
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9026,8 +9026,8 @@
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
-      "sha256": "2b12602856c94cea9a0ad8a77dd41658c429d11474be9c5d03a322619e3fa0d4",
-      "size": 1593
+      "sha256": "322bb094afc67d8f2293e35ad79ac2fa972d5d7fb5185413e4573881fd226a85",
+      "size": 1329
     },
     {
       "path": "pages/decisions/meta-transaction-architecture-decision.md",
@@ -9316,7 +9316,7 @@
     },
     {
       "path": "pages/projects/add-fb-tracking-pixel-to-web-app.md",
-      "sha256": "2509db3f587ac23b80a6fe620f710e6c00467b3ab811d6e009a710977e577a32",
+      "sha256": "9890cba0f3b076b8b98214ae49ca348115b90a2d9e6614f2bbf5923f80fd0d21",
       "size": 1197
     },
     {
@@ -10501,5 +10501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "650536d6586f803bafb4374f1f05744851103af3d31269e36c13ee5471c9922d"
+  "wiki_tree_hash": "c4d3967e4fceeeb3c3e037e0e166faa61cf9766abc01dfe5df8591d81bc09a44"
 }
