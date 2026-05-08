@@ -2921,8 +2921,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8f216eba551705d641cb0d11f5fd069d9bef66f91ac431f2a8e8dfed17e5e088",
-        "size": 947079
+        "sha256": "22c4e4ce6361d16169a2aa8c27f7e0b4acf52096fdb229b5256ab8714ed66802",
+        "size": 947474
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3598,6 +3598,11 @@
         "path": "pages/decisions/core-vs-periphery-divisions.md",
         "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
+      },
+      {
+        "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
+        "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
+        "size": 2563
       },
       {
         "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -5029,8 +5034,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T07:13:21Z",
-  "file_count": 1004,
+  "exported_at": "2026-05-08T07:19:33Z",
+  "file_count": 1005,
   "files": [
     {
       "path": ".curator_state",
@@ -7942,7 +7947,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5444b78jhbn",
-  "previous_tree_hash": "53042cd8c8577ba05ef8db637b7ee472db3a6e64d3ca18af7e3ccbce45d9131b",
+  "previous_tree_hash": "b92b3925b4f7049115bc50e579308d9471249e8d6fbb7fe1c9fe84730689e4ce",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7955,14 +7960,14 @@
   ],
   "skill_tree_hash": "7329b919ae6d5ddc5b51171fb713f0e7549a9e960623cd9c64ea3a9764dad8f0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b92b3925b4f7049115bc50e579308d9471249e8d6fbb7fe1c9fe84730689e4ce",
+  "tree_hash": "70de932562d8ff946bda5ad93af6732beecbbfcec5edd2187621d7cd04f3666a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 423,
+  "wiki_file_count": 424,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7976,8 +7981,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8f216eba551705d641cb0d11f5fd069d9bef66f91ac431f2a8e8dfed17e5e088",
-      "size": 947079
+      "sha256": "22c4e4ce6361d16169a2aa8c27f7e0b4acf52096fdb229b5256ab8714ed66802",
+      "size": 947474
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8653,6 +8658,11 @@
       "path": "pages/decisions/core-vs-periphery-divisions.md",
       "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
+    },
+    {
+      "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
+      "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
+      "size": 2563
     },
     {
       "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -10081,5 +10091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "eefd52b7cdfbf1c2e6455ee2fac2150f5b50d6b78ec599e04d76dec4e0356d46"
+  "wiki_tree_hash": "dcbdb25663e1aaf4c68ee8445a42183463824784d26fb5a97094b6777000a394"
 }

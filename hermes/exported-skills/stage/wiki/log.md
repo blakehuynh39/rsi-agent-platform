@@ -19958,3 +19958,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e385b2eaca7a3154dae5e181c4911acd
 - summary: Meeting on 03/11/24 to decide whether IPAccount should be a generic AA wallet capable of interacting with external protocols, or a restricted module-based system (similar to ERC-75...
 
+## [2026-05-08T07:16:52Z] synthesis | Deprecate IPAssetRenderer
+
+- status: published
+- slug: decisions/decision-deprecate-ipassetrenderer
+- wiki_revision_id: wikirev_c7dfead0a2cdf0f1f889b9c9d4c6c535
+- summary: Decision to deprecate the IPAssetRenderer contract. IPAsset is not an NFT, so SVG rendering is unnecessary. JSON metadata generation can be consolidated into existing metadata-rela...
+
