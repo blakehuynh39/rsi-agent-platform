@@ -20268,3 +20268,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_75d50f827071061b1e5b6819c4795857
 - summary: Deployed contract addresses for Protocol V1.1 core modules.
 
+## [2026-05-08T18:32:18Z] synthesis | Post-Mortem: iliad NFT mint high gas issue
+
+- status: published
+- slug: runbooks/post-mortem-iliad-nft-mint-high-gas-issue
+- wiki_revision_id: wikirev_0f56bf7f9abe2b4d811a5f6e7da756e5
+- summary: Post-mortem analysis of the iliad testnet NFT mint event that caused a massive gas price spike up to 7000 Gwei on August 27. The incident was triggered by a backup plan that remove...
+

@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1ec7dca632a91ed064eb8c735b8ff8968592b090212ccd14b9af54a286d84da0",
-        "size": 513458
+        "sha256": "841536bee25ed19c349d8a79f3082c7bb8e7c3cca36cbeec52848eb857940162",
+        "size": 513864
       },
       {
         "path": "log.md",
-        "sha256": "ec29e82f30a31b688a8b1b484f6c914df52a5531c3b1e7474adfb24a7da16f3c",
-        "size": 962896
+        "sha256": "52f77f3c857db51ebc6823a124a0aaf22c727f50cc836eb86d7a6564d2176cd3",
+        "size": 963314
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4840,6 +4840,11 @@
         "size": 7034
       },
       {
+        "path": "pages/runbooks/post-mortem-iliad-nft-mint-high-gas-issue.md",
+        "sha256": "4d149471198c5a6a3d1bd92957e43033fd0d554abf084db09cc0baee8d7ffff9",
+        "size": 15328
+      },
+      {
         "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
         "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
         "size": 10032
@@ -5179,8 +5184,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T18:25:36Z",
-  "file_count": 1034,
+  "exported_at": "2026-05-08T18:36:48Z",
+  "file_count": 1035,
   "files": [
     {
       "path": ".curator_state",
@@ -8102,7 +8107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
-  "previous_tree_hash": "f9f794ed9f6bde0a6feec4944eefcc01607b94981bb27e0e3bcbb1a812deafda",
+  "previous_tree_hash": "5dcfc5755895592ce92e116d8e4e2fa97c52d442df9a6668079f7b035351c286",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8115,14 +8120,14 @@
   ],
   "skill_tree_hash": "8fd71ac3c8d99d7835f5779dd3829339e06371a18a3c5d00660c0f3ba755abc5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5dcfc5755895592ce92e116d8e4e2fa97c52d442df9a6668079f7b035351c286",
+  "tree_hash": "93742c07d9779197f763c39ac94e1b8051473a5c366189a21a79f820bd154daf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 451,
+  "wiki_file_count": 452,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8131,13 +8136,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1ec7dca632a91ed064eb8c735b8ff8968592b090212ccd14b9af54a286d84da0",
-      "size": 513458
+      "sha256": "841536bee25ed19c349d8a79f3082c7bb8e7c3cca36cbeec52848eb857940162",
+      "size": 513864
     },
     {
       "path": "log.md",
-      "sha256": "ec29e82f30a31b688a8b1b484f6c914df52a5531c3b1e7474adfb24a7da16f3c",
-      "size": 962896
+      "sha256": "52f77f3c857db51ebc6823a124a0aaf22c727f50cc836eb86d7a6564d2176cd3",
+      "size": 963314
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10045,6 +10050,11 @@
       "size": 7034
     },
     {
+      "path": "pages/runbooks/post-mortem-iliad-nft-mint-high-gas-issue.md",
+      "sha256": "4d149471198c5a6a3d1bd92957e43033fd0d554abf084db09cc0baee8d7ffff9",
+      "size": 15328
+    },
+    {
       "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
       "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
       "size": 10032
@@ -10381,5 +10391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "44feb7dcb056b2743853055e7553d04114e7bc3142a1163c6641a5ecde6b03fc"
+  "wiki_tree_hash": "381f4873916a283912c063fc031da844b407fa65de5fb3fb1135166ada1f5932"
 }
