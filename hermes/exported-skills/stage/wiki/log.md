@@ -19951,3 +19951,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7a0f84bfe14e360c6aec69d540c4658d
 - summary: Planning for the alpha release of the First Party App, focusing on a developer dashboard, with open questions about separate apps, prioritization, design partners, trade-offs betwe...
 
+## [2026-05-08T07:05:05Z] synthesis | Decision: IPAccount as a Generic Wallet vs. Restricted Module-based Wallet
+
+- status: published
+- slug: decisions/ipaccount-wallet-vs-module-architecture
+- wiki_revision_id: wikirev_e385b2eaca7a3154dae5e181c4911acd
+- summary: Meeting on 03/11/24 to decide whether IPAccount should be a generic AA wallet capable of interacting with external protocols, or a restricted module-based system (similar to ERC-75...
+
