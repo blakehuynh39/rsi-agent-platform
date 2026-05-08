@@ -2926,8 +2926,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a90c302c35740d6380997d53f8992ef9e5012c02e8b9763023a29b887a8dd92a",
-        "size": 954126
+        "sha256": "10ec2bee124b7963169a0f2f2c377b095f717703d3145c95cb064bbd63cf77ba",
+        "size": 954529
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4685,6 +4685,11 @@
         "size": 3620
       },
       {
+        "path": "pages/runbooks/devnet-launch-homework-june-17-21.md",
+        "sha256": "49e5e76c921c573e355b113c1dcbe7547c6ff9a3cea63276d02386e1e7b1ac7b",
+        "size": 3793
+      },
+      {
         "path": "pages/runbooks/docker-ecr-login.md",
         "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
         "size": 1616
@@ -5119,8 +5124,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T13:13:35Z",
-  "file_count": 1022,
+  "exported_at": "2026-05-08T13:19:38Z",
+  "file_count": 1023,
   "files": [
     {
       "path": ".curator_state",
@@ -8037,7 +8042,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "3efa167e17f53153838870c3b32c196c509c1721df258f7b77a93e89d79c0368",
+  "previous_tree_hash": "4fc7221b163303e5e8dbc9cbde8a3cd5f8a7c5892198f6dfcfc58956d32c667a",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8050,14 +8055,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4fc7221b163303e5e8dbc9cbde8a3cd5f8a7c5892198f6dfcfc58956d32c667a",
+  "tree_hash": "c06f0c0c33c82f41e5cdb9b92db6f2b3e1b23b51b54e935dfecdeeef356b3d6f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 440,
+  "wiki_file_count": 441,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8071,8 +8076,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a90c302c35740d6380997d53f8992ef9e5012c02e8b9763023a29b887a8dd92a",
-      "size": 954126
+      "sha256": "10ec2bee124b7963169a0f2f2c377b095f717703d3145c95cb064bbd63cf77ba",
+      "size": 954529
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9830,6 +9835,11 @@
       "size": 3620
     },
     {
+      "path": "pages/runbooks/devnet-launch-homework-june-17-21.md",
+      "sha256": "49e5e76c921c573e355b113c1dcbe7547c6ff9a3cea63276d02386e1e7b1ac7b",
+      "size": 3793
+    },
+    {
       "path": "pages/runbooks/docker-ecr-login.md",
       "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
       "size": 1616
@@ -10261,5 +10271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "12455d7bc6fa5167753962f6386de632d4c8edec45ced59e92abacd23c208911"
+  "wiki_tree_hash": "fb5200a662291b261d3616ed370524748e3eb1ad9cd3907108562c93af916048"
 }

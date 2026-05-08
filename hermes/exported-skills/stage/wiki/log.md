@@ -20091,3 +20091,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aafe2c81e4161572923bf9636dab3f44
 - summary: Retrospective on the June devnet execution, highlighting successes and areas for improvement.
 
+## [2026-05-08T13:16:03Z] synthesis | DevNet Launch Homework (June 17-21)
+
+- status: published
+- slug: runbooks/devnet-launch-homework-june-17-21
+- wiki_revision_id: wikirev_a02ae79fb7fb51d4804eeaae3b745eb6
+- summary: After the internal DevNet launch on June 17, engineers are assigned homework tasks to explore the L1 DevNet, including claiming tokens, running a validator, deploying memecoins, an...
+
