@@ -20354,3 +20354,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7bc8462f005e59de0c0d66c565dcb575
 - summary: Step-by-step guide to set up a project for sending 4844 blob transactions using viem and TypeScript.
 
+## [2026-05-08T21:51:59Z] synthesis | Aeneid Testnet Deployment Addresses
+
+- status: published
+- slug: systems/aeneid-testnet-deployment-addresses
+- wiki_revision_id: wikirev_1989a9853bc552ec32a4f1c4054c2208
+- summary: Deployment addresses for core and periphery smart contracts on the Aeneid testnet. The source notes that these addresses may be outdated and directs users to the official protocol ...
+
