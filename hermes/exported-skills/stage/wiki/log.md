@@ -20007,3 +20007,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b5bc117e9cbbdad0d01fd1af22d15757
 - summary: Project to provide a simple onboarding experience for web2 partners to create wallets for their users, using a non-custodial solution to avoid liability and legal risk.
 
+## [2026-05-08T09:05:29Z] synthesis | Story Network Testnet
+
+- status: published
+- slug: systems/story-network-testnet
+- wiki_revision_id: wikirev_b1d3a591acad0665eb37864c954b24b6
+- summary: Story Network is an L2 built on OP Stack with Caldera, using ETH as a settlement layer. It provides resources for developers including RPC endpoints, bridge, contract addresses, an...
+

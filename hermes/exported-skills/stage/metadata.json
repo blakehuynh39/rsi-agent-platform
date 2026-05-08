@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "63d2a882c42d2088b495c116c3947cddf5443fe1099bf64ec4b287f7ee7e1c5b",
+        "sha256": "0badc101b48fce6cfd4a97cc2be55b58237c54e0d551e5b832011821813ae72d",
         "size": 2435
       },
       {
@@ -2814,8 +2814,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "49452ceb2408ee826fcfdf4b387eabeb117dae0e1698ff8e5642f530477214cf",
-        "size": 14121
+        "sha256": "d8f88ec237145257983f5a93f73bc53954f883ffe1031dcbadb3b6c504dbf72a",
+        "size": 14351
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "01e6c6cd66957fef86ad2999fa643d72cab49d0665705709d058343575dc9a00",
-        "size": 505435
+        "sha256": "62a21c3518ca95c394785e0888f98407cf8fbd0c2abde6e4d88d0bca0a3aaef1",
+        "size": 505799
       },
       {
         "path": "log.md",
-        "sha256": "17c6731c3cc31a9b550da604c6389994a0b15edab0d90293162d01cacd508151",
-        "size": 949920
+        "sha256": "ea6c40f9743dc254ca1ac8a970b1de00670f5619f0186f2822fb0bb16c772791",
+        "size": 950296
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5015,6 +5015,11 @@
         "size": 3173
       },
       {
+        "path": "pages/systems/story-network-testnet.md",
+        "sha256": "1c0439577131eb1668b58780cd178a08361715e3bbbe45dc6b70aebf1e6f0a6c",
+        "size": 10081
+      },
+      {
         "path": "pages/systems/story-protocol-orchestrator-gateway.md",
         "sha256": "7ebadaaee46fd1b2f710c024ba8bd68db004d137d9651ed3f8d8762e9e7da81e",
         "size": 3026
@@ -5069,8 +5074,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T09:01:10Z",
-  "file_count": 1012,
+  "exported_at": "2026-05-08T09:07:13Z",
+  "file_count": 1013,
   "files": [
     {
       "path": ".curator_state",
@@ -5079,7 +5084,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "63d2a882c42d2088b495c116c3947cddf5443fe1099bf64ec4b287f7ee7e1c5b",
+      "sha256": "0badc101b48fce6cfd4a97cc2be55b58237c54e0d551e5b832011821813ae72d",
       "size": 2435
     },
     {
@@ -7884,8 +7889,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "49452ceb2408ee826fcfdf4b387eabeb117dae0e1698ff8e5642f530477214cf",
-      "size": 14121
+      "sha256": "d8f88ec237145257983f5a93f73bc53954f883ffe1031dcbadb3b6c504dbf72a",
+      "size": 14351
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -7987,7 +7992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "df7c087750905f250bd64f8c5d630a259e28c0c48806ff0206bd3698132946d6",
+  "previous_tree_hash": "7583366821043d176ed6fe156135bdba2cfd5a780674aa8c95f3827d4f8ee57f",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -7998,16 +8003,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "b98a605aca848d9ee3abefe5e9d588cac8a7a7035444cf1a5b5606ef7e942b60",
+  "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7583366821043d176ed6fe156135bdba2cfd5a780674aa8c95f3827d4f8ee57f",
+  "tree_hash": "71d33c568f5c7c3dd8d284adc3748cf5b817635136807978c27831563342f3fc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 430,
+  "wiki_file_count": 431,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8016,13 +8021,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "01e6c6cd66957fef86ad2999fa643d72cab49d0665705709d058343575dc9a00",
-      "size": 505435
+      "sha256": "62a21c3518ca95c394785e0888f98407cf8fbd0c2abde6e4d88d0bca0a3aaef1",
+      "size": 505799
     },
     {
       "path": "log.md",
-      "sha256": "17c6731c3cc31a9b550da604c6389994a0b15edab0d90293162d01cacd508151",
-      "size": 949920
+      "sha256": "ea6c40f9743dc254ca1ac8a970b1de00670f5619f0186f2822fb0bb16c772791",
+      "size": 950296
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10110,6 +10115,11 @@
       "size": 3173
     },
     {
+      "path": "pages/systems/story-network-testnet.md",
+      "sha256": "1c0439577131eb1668b58780cd178a08361715e3bbbe45dc6b70aebf1e6f0a6c",
+      "size": 10081
+    },
+    {
       "path": "pages/systems/story-protocol-orchestrator-gateway.md",
       "sha256": "7ebadaaee46fd1b2f710c024ba8bd68db004d137d9651ed3f8d8762e9e7da81e",
       "size": 3026
@@ -10161,5 +10171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "143e14700207d67f68a92866ded16c405015910ef6b50af8360d8820b07ac8d5"
+  "wiki_tree_hash": "88f34f2b17912d6a9d2beb421e40221b6f859e4e2a10cd926848769a9da5cd23"
 }
