@@ -2906,13 +2906,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4e0fd40db278b3008d4660f2742454d3974022261f6a966bc39ce46f312c3427",
+        "sha256": "195da952328cafa767dd76e3c7392da17624bbf21f216b3194d68ea3e0d0d097",
         "size": 496663
       },
       {
         "path": "log.md",
-        "sha256": "2cf54aff5f9abdc19e251bdfeee75cf334069a3030cf45b4a134571b85aab28d",
-        "size": 936925
+        "sha256": "f24fc9977f672077e96e5345bfbd0ab0f050b84df6cbfe61f6bd551e40129fe5",
+        "size": 938108
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3496,7 +3496,7 @@
       },
       {
         "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-        "sha256": "1154fe7e02138355304d0a5842d471eaded8b509003c8ba54fb4fd07813e14cf",
+        "sha256": "0e47259a2d836fc6dfdffe31b123c772d9f52fe85badc1a5b5803557d88ebd74",
         "size": 1132
       },
       {
@@ -4391,8 +4391,8 @@
       },
       {
         "path": "pages/projects/sdk-designs.md",
-        "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
-        "size": 1430
+        "sha256": "86acc071ba216e2eec8e4b57fff2ba0eeb2a065f9d7433c377407aa2bebe7bc6",
+        "size": 1256
       },
       {
         "path": "pages/projects/sp-tokenomics-blast.md",
@@ -4706,7 +4706,7 @@
       },
       {
         "path": "pages/systems/calendar.md",
-        "sha256": "e172c9d8d978ad40c4fd950c3c62514fd89591dc6cdd83ac879c4690dfc0f824",
+        "sha256": "97a89a7162d43f3e8e60db80389e46599c72067b80e0a45fd6f86eeaf4cdccc0",
         "size": 1050
       },
       {
@@ -4916,7 +4916,7 @@
       },
       {
         "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
-        "sha256": "0bfc48d79cfe18e8633cad97373a88a6ffa5fdccecc4b4eb44155d6944fddaeb",
+        "sha256": "7a8244326cf047d86dc98fdcfe92184ff60d74e6528462788aeb2dc384362eff",
         "size": 1192
       },
       {
@@ -4934,7 +4934,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T01:15:01Z",
+  "exported_at": "2026-05-08T01:21:11Z",
   "file_count": 985,
   "files": [
     {
@@ -7837,7 +7837,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd9dffqc",
-  "previous_tree_hash": "d8a94f2ffdacd492eb45ac054ce9a0d97666890094b7ce6e53676ac25e60d405",
+  "previous_tree_hash": "18a89bf95e5b42e927d18a3eaacb68ec54fcd8f093aeb6309ba23aa61c3628c2",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7850,7 +7850,7 @@
   ],
   "skill_tree_hash": "98297a6a75edd33fd7ca12f77cbf52a2bc35dbd6d984abc6fcfa91bbc91befd0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "18a89bf95e5b42e927d18a3eaacb68ec54fcd8f093aeb6309ba23aa61c3628c2",
+  "tree_hash": "389bb60841f98da90e47b170a7d4b263a7892d793d62a93631801e2a0072d832",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7866,13 +7866,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4e0fd40db278b3008d4660f2742454d3974022261f6a966bc39ce46f312c3427",
+      "sha256": "195da952328cafa767dd76e3c7392da17624bbf21f216b3194d68ea3e0d0d097",
       "size": 496663
     },
     {
       "path": "log.md",
-      "sha256": "2cf54aff5f9abdc19e251bdfeee75cf334069a3030cf45b4a134571b85aab28d",
-      "size": 936925
+      "sha256": "f24fc9977f672077e96e5345bfbd0ab0f050b84df6cbfe61f6bd551e40129fe5",
+      "size": 938108
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8456,7 +8456,7 @@
     },
     {
       "path": "pages/concepts/untitled-notion-page-350051299a5480f8b542e4f40de96a42.md",
-      "sha256": "1154fe7e02138355304d0a5842d471eaded8b509003c8ba54fb4fd07813e14cf",
+      "sha256": "0e47259a2d836fc6dfdffe31b123c772d9f52fe85badc1a5b5803557d88ebd74",
       "size": 1132
     },
     {
@@ -9351,8 +9351,8 @@
     },
     {
       "path": "pages/projects/sdk-designs.md",
-      "sha256": "87b412573b470045b8f3edf7b6694f8bc7383289cb2c6e2beaaa889d24f4012c",
-      "size": 1430
+      "sha256": "86acc071ba216e2eec8e4b57fff2ba0eeb2a065f9d7433c377407aa2bebe7bc6",
+      "size": 1256
     },
     {
       "path": "pages/projects/sp-tokenomics-blast.md",
@@ -9666,7 +9666,7 @@
     },
     {
       "path": "pages/systems/calendar.md",
-      "sha256": "e172c9d8d978ad40c4fd950c3c62514fd89591dc6cdd83ac879c4690dfc0f824",
+      "sha256": "97a89a7162d43f3e8e60db80389e46599c72067b80e0a45fd6f86eeaf4cdccc0",
       "size": 1050
     },
     {
@@ -9876,7 +9876,7 @@
     },
     {
       "path": "pages/systems/untitled-database-129051299a548040a4d9e22a8cd01435.md",
-      "sha256": "0bfc48d79cfe18e8633cad97373a88a6ffa5fdccecc4b4eb44155d6944fddaeb",
+      "sha256": "7a8244326cf047d86dc98fdcfe92184ff60d74e6528462788aeb2dc384362eff",
       "size": 1192
     },
     {
@@ -9891,5 +9891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c5f1eeb291f2433720fbad8a7f5d5fa196a917158c81860ca1ee90ebf1d23251"
+  "wiki_tree_hash": "f003d5043411c39b13610b7d77404aee746120b61b7c453b3a7ad6a91016c828"
 }

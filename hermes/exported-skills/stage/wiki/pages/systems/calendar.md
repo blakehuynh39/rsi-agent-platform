@@ -23,6 +23,6 @@ The Calendar system contains a child database that is currently untitled.
 
 ## Sources
 
-- `source_document_id`: `srcdoc_a85cae27a50aa64d0aaa17c7ea4f7071`
-- `source_revision_id`: `srcrev_8a988c83cf5d8b96e788370ffe5e6591`
-- `source_url`: [Notion source](https://www.notion.so/129051299a548040a4d9e22a8cd01435)
+- `source_document_id`: `srcdoc_cc5571e095cd8e02cae83339a1f88423`
+- `source_revision_id`: `srcrev_804582527d9a548e389cdc9d4a566d80`
+- `source_url`: [Notion source](https://www.notion.so/9ff9903806cb4db689cc2f68dd68e7a0)
