@@ -20412,3 +20412,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_30b611398644ab7bc4b3636a1cd2dae1
 - summary: Collection of security-related pull requests and improvements in the Omni project, including Spearbit audit fixes.
 
+## [2026-05-08T23:46:00Z] synthesis | Learning Center
+
+- status: published
+- slug: concepts/learning-center
+- wiki_revision_id: wikirev_101d0205aa72ddd0954ea6ba1a2af7b5
+- summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
+
