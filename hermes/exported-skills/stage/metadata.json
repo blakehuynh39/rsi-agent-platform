@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "62a21c3518ca95c394785e0888f98407cf8fbd0c2abde6e4d88d0bca0a3aaef1",
-        "size": 505799
+        "sha256": "fd121a68045ec74c8836132012f10895749a4572b20de32b5741417d2e2ad26c",
+        "size": 506527
       },
       {
         "path": "log.md",
-        "sha256": "b04dd1b6ea957f866768e17528b92485db3da4337e472a9406272bb75696243a",
-        "size": 950731
+        "sha256": "7144d65f458e6f92a1a5a663a7ac0d49e813cd014d10508d6ab5fe1d4f2ceb1d",
+        "size": 951048
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3428,6 +3428,11 @@
         "path": "pages/concepts/resonance.md",
         "sha256": "7477015cf929568123fb7dc775620ea324c708cf64c09d1765be59f805cc776b",
         "size": 1194
+      },
+      {
+        "path": "pages/concepts/restaking-and-avs.md",
+        "sha256": "a00618bd05f8f5764d95595989103c8f6811ca467104e2aceb7a7104d638cca1",
+        "size": 2675
       },
       {
         "path": "pages/concepts/royalty-nft.md",
@@ -5079,8 +5084,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T10:49:15Z",
-  "file_count": 1014,
+  "exported_at": "2026-05-08T10:55:16Z",
+  "file_count": 1015,
   "files": [
     {
       "path": ".curator_state",
@@ -7997,7 +8002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "71d33c568f5c7c3dd8d284adc3748cf5b817635136807978c27831563342f3fc",
+  "previous_tree_hash": "32db4925f07598b311e35cd54dee3c28e1b31aa1cda3d70d441e1feb25d92b10",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8010,14 +8015,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "32db4925f07598b311e35cd54dee3c28e1b31aa1cda3d70d441e1feb25d92b10",
+  "tree_hash": "ed30707ddb2c5498a05c6ec3fb85c06bf21d61b73b4231ee8ecb68c4fff4c8a5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 432,
+  "wiki_file_count": 433,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8026,13 +8031,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "62a21c3518ca95c394785e0888f98407cf8fbd0c2abde6e4d88d0bca0a3aaef1",
-      "size": 505799
+      "sha256": "fd121a68045ec74c8836132012f10895749a4572b20de32b5741417d2e2ad26c",
+      "size": 506527
     },
     {
       "path": "log.md",
-      "sha256": "b04dd1b6ea957f866768e17528b92485db3da4337e472a9406272bb75696243a",
-      "size": 950731
+      "sha256": "7144d65f458e6f92a1a5a663a7ac0d49e813cd014d10508d6ab5fe1d4f2ceb1d",
+      "size": 951048
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8533,6 +8538,11 @@
       "path": "pages/concepts/resonance.md",
       "sha256": "7477015cf929568123fb7dc775620ea324c708cf64c09d1765be59f805cc776b",
       "size": 1194
+    },
+    {
+      "path": "pages/concepts/restaking-and-avs.md",
+      "sha256": "a00618bd05f8f5764d95595989103c8f6811ca467104e2aceb7a7104d638cca1",
+      "size": 2675
     },
     {
       "path": "pages/concepts/royalty-nft.md",
@@ -10181,5 +10191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f7f168b32c334f83dfabe678caa6634ac44cefb366e4a9439919b585088879d3"
+  "wiki_tree_hash": "db318f879fd26ab920691c276856b2766cda00c8fafb517762db167dadc2194d"
 }
