@@ -20154,3 +20154,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ee4ad6327caaf85306bb87496e752dfb
 - summary: A guide providing SSH commands and key information for accessing partner-testnet servers.
 
+## [2026-05-08T16:03:51Z] synthesis | Serverless Design to Expose Network Status
+
+- status: published
+- slug: concepts/serverless-design-expose-network-status
+- wiki_revision_id: wikirev_718227d0d9df743b430b249b5ea80f39
+- summary: A serverless design pattern for exposing network status, originally a Golang project on EC2, proposed to be re-architected with two AWS Lambda functions and DynamoDB for scalabilit...
+

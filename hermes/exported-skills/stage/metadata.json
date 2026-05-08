@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "03cfbe1344bd5cfa4e15c193fabb5e59b4dbac370755a6001ffffe766d37534d",
-        "size": 510870
+        "sha256": "3999f90b316ad234185ffb13d5c8f1fa6b92438b89cb88623c39bf9c20b318bc",
+        "size": 510997
       },
       {
         "path": "log.md",
-        "sha256": "5f39ab6259940d9516fb5a763ce7c57ae7158afc8b7e254680c8bd3c9c19d531",
-        "size": 957189
+        "sha256": "a861dc20a1033d7032670ccf8e81fec69a0a5c9d65c8d2f5cb35ffce2636e720",
+        "size": 957605
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3466,8 +3466,8 @@
       },
       {
         "path": "pages/concepts/serverless-design-expose-network-status.md",
-        "sha256": "d119597c43de9f9bbc94c44ebd00df8292c9bad0296a038532696ae95c6e9451",
-        "size": 1303
+        "sha256": "cdb4a4002ea074a2ce6fd642f3582381ae56d4ce16c918386f75067016b6f68e",
+        "size": 5204
       },
       {
         "path": "pages/concepts/shamir-secret-sharing.md",
@@ -5149,7 +5149,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T15:18:43Z",
+  "exported_at": "2026-05-08T16:08:18Z",
   "file_count": 1028,
   "files": [
     {
@@ -8066,8 +8066,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "31cb07c3d3931544acd35b5b26c05af9ee5b5db873f063bd28af817b2511c0ae",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
+  "previous_tree_hash": "f5e8c0de6303de756a085e5be63ffe1cde699f610604dde19ed8fa6f02aee298",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8080,7 +8080,7 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f5e8c0de6303de756a085e5be63ffe1cde699f610604dde19ed8fa6f02aee298",
+  "tree_hash": "dced865fba9702ebc3905ea509195aa8bab1dd612574732d534dcbfce66ca235",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8096,13 +8096,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "03cfbe1344bd5cfa4e15c193fabb5e59b4dbac370755a6001ffffe766d37534d",
-      "size": 510870
+      "sha256": "3999f90b316ad234185ffb13d5c8f1fa6b92438b89cb88623c39bf9c20b318bc",
+      "size": 510997
     },
     {
       "path": "log.md",
-      "sha256": "5f39ab6259940d9516fb5a763ce7c57ae7158afc8b7e254680c8bd3c9c19d531",
-      "size": 957189
+      "sha256": "a861dc20a1033d7032670ccf8e81fec69a0a5c9d65c8d2f5cb35ffce2636e720",
+      "size": 957605
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8641,8 +8641,8 @@
     },
     {
       "path": "pages/concepts/serverless-design-expose-network-status.md",
-      "sha256": "d119597c43de9f9bbc94c44ebd00df8292c9bad0296a038532696ae95c6e9451",
-      "size": 1303
+      "sha256": "cdb4a4002ea074a2ce6fd642f3582381ae56d4ce16c918386f75067016b6f68e",
+      "size": 5204
     },
     {
       "path": "pages/concepts/shamir-secret-sharing.md",
@@ -10321,5 +10321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1f1f212faa59c88f719fd0558739023a148d4c4924928806108d2d5570a0fcf0"
+  "wiki_tree_hash": "720565e0a6f9e1a7cc992baf3dd85a54dc4559be6e41d6c31ffe9d7e48a4ea11"
 }
