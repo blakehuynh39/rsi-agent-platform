@@ -54,6 +54,7 @@ type Config struct {
 	SlackSocketModeEnabled               bool
 	SlackAppToken                        string
 	SlackBotToken                        string
+	SlackWorkspaceID                     string
 	SlackMirrorEnabled                   bool
 	SlackMirrorChannelDiscovery          string
 	SlackMirrorChannelAllowlist          []string
@@ -73,6 +74,9 @@ type Config struct {
 	CompanyWikiCompilerOpenRouterAPIKey  string
 	SlackMCPEnabled                      bool
 	SlackMCPServerURL                    string
+	NativeToolsEnabled                   bool
+	NativeToolsClientToken               string
+	NativeToolsSurfaces                  []string
 	DBReadEnabled                        bool
 	DBReadTargetsJSON                    string
 	DBReadClientToken                    string
@@ -210,6 +214,7 @@ func Load(serviceName string) Config {
 		SlackSocketModeEnabled:               boolEnv("RSI_SLACK_SOCKET_MODE_ENABLED", false),
 		SlackAppToken:                        stringEnv("RSI_SLACK_APP_TOKEN", ""),
 		SlackBotToken:                        stringEnv("SLACK_BOT_TOKEN", ""),
+		SlackWorkspaceID:                     stringEnv("RSI_SLACK_WORKSPACE_ID", ""),
 		SlackMirrorEnabled:                   boolEnv("RSI_SLACK_MIRROR_ENABLED", false),
 		SlackMirrorChannelDiscovery:          stringEnv("RSI_SLACK_MIRROR_CHANNEL_DISCOVERY", "joined"),
 		SlackMirrorChannelAllowlist:          listEnv("RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST"),
@@ -229,6 +234,9 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		SlackMCPEnabled:                      boolEnv("RSI_SLACK_MCP_ENABLED", false),
 		SlackMCPServerURL:                    stringEnv("RSI_SLACK_MCP_SERVER_URL", "http://127.0.0.1:8092/mcp"),
+		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", false),
+		NativeToolsClientToken:               stringEnv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", ""),
+		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge"}),
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
 		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
@@ -497,6 +505,14 @@ func listEnv(key string) []string {
 		out = append(out, part)
 	}
 	return out
+}
+
+func listEnvWithDefault(key string, fallback []string) []string {
+	values := listEnv(key)
+	if len(values) == 0 {
+		return append([]string(nil), fallback...)
+	}
+	return values
 }
 
 func CompactUniqueStrings(values []string) []string {

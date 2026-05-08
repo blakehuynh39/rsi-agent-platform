@@ -34,6 +34,7 @@ const (
 
 type Store interface {
 	CompanyWikiStore
+	ExternalToolActionStore
 	ListEvents() []ingestion.EventEnvelope
 	ListConversations() []conversation.Conversation
 	GetConversation(conversationID string) (conversation.Conversation, bool)
@@ -180,6 +181,8 @@ type MemoryStore struct {
 	feedbackRecords                   map[string][]review.FeedbackRecord
 	actionIntents                     map[string]action.Intent
 	actionResults                     map[string][]action.Result
+	externalToolActions               map[string]ExternalToolAction
+	externalToolActionByIdempotency   map[string]string
 	dbReadRequests                    map[string]DBReadRequest
 	dbReadRequestByIdempotencyKey     map[string]string
 	dbReadValidationAttempts          map[string][]DBReadValidationAttempt
@@ -250,6 +253,8 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.feedbackRecords = replacement.feedbackRecords
 	s.actionIntents = replacement.actionIntents
 	s.actionResults = replacement.actionResults
+	s.externalToolActions = replacement.externalToolActions
+	s.externalToolActionByIdempotency = replacement.externalToolActionByIdempotency
 	s.dbReadRequests = replacement.dbReadRequests
 	s.dbReadRequestByIdempotencyKey = replacement.dbReadRequestByIdempotencyKey
 	s.dbReadValidationAttempts = replacement.dbReadValidationAttempts

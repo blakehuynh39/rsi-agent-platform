@@ -3177,12 +3177,31 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 }
 
 func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
-	message := workflowRunnerSystemMessage(false, false, "none")
+	message := workflowRunnerSystemMessage(false, false, false, "none")
 	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
 		t.Fatalf("expected none-mode system message without Slack MCP to omit Slack MCP guidance, got %q", message)
 	}
 	if !strings.Contains(message, "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.") {
 		t.Fatalf("expected blocked-posting guidance in none-mode message, got %q", message)
+	}
+}
+
+func TestWorkflowRunnerNativeToolsUseMediatedReplyGuidance(t *testing.T) {
+	if got := workflowReplyDeliveryMode(true, true); got != "mediated" {
+		t.Fatalf("native tools reply delivery mode = %q, want mediated", got)
+	}
+	message := workflowRunnerSystemMessage(true, true, true, "mediated")
+	if !strings.Contains(message, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads") {
+		t.Fatalf("expected native Slack/knowledge guidance, got %q", message)
+	}
+	if !strings.Contains(message, "Prefer rsi_notion.* for live Notion reads") {
+		t.Fatalf("expected native Notion guidance, got %q", message)
+	}
+	if !strings.Contains(message, "emit exactly one proposed action with kind=slack_post") {
+		t.Fatalf("expected exactly-once mediated Slack action guidance, got %q", message)
+	}
+	if strings.Contains(message, "use Hermes native send_message exactly once") {
+		t.Fatalf("expected native-tools mediated mode to avoid direct send_message guidance, got %q", message)
 	}
 }
 

@@ -26,6 +26,9 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	if cfg.DBReadEnabled {
 		registerDBReadRoutes(r, cfg, store)
 	}
+	if cfg.NativeToolsEnabled {
+		registerNativeToolRoutes(r, cfg, store)
+	}
 
 	r.Get("/api/events", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{

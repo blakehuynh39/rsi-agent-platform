@@ -1,6 +1,7 @@
 package control
 
 import (
+	"context"
 	"crypto/sha1"
 	"encoding/json"
 	"errors"
@@ -1058,6 +1059,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 	channelID := stringFromMap(intent.RequestPayload, "channel_id")
 	threadTS := stringFromMap(intent.RequestPayload, "thread_ts")
 	blockedReason := firstNonEmpty(stringFromMap(intent.RequestPayload, "blocked_reason"), blockedReasonFromIntent(intent))
+	deliveryIdempotencyKey := slackPostDeliveryIdempotencyKey(ctx, intent, channelID, threadTS, body)
 
 	baseRecord := events.SlackActionRecord{
 		ID:             fmt.Sprintf("slack-action-%d", started.UnixNano()),
@@ -1067,7 +1069,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		CaseID:         ctx.trace.Summary.CaseID,
 		ChannelID:      channelID,
 		ThreadTS:       threadTS,
-		IdempotencyKey: intent.IdempotencyKey,
+		IdempotencyKey: deliveryIdempotencyKey,
 		DraftBody:      firstNonEmpty(draftBody, body),
 		FinalBody:      firstNonEmpty(finalBody, body),
 		PolicyVerdict:  firstNonEmpty(intent.PolicyVerdict, blockedReason),
@@ -1097,8 +1099,71 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 	if blockedReason != "" {
 		actionStatus = action.StatusBlocked
 		summary = blockedReason
-	} else {
+	} else if !cfg.NativeToolsEnabled {
 		execErr = errors.New("slack_post actions are not supported by the control plane; Hermes must reply directly through native send_message")
+		actionStatus = actionStatusFromToolResult(result, execErr)
+		summary = toolResultSummary(result, execErr)
+		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
+		baseRecord.SendStatus = slackSendStatus(actionStatus, result)
+	} else {
+		nativeCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		nativeResp, _, nativeErr := handleNativeToolAction(nativeCtx, cfg, store, nativeToolClaims{
+			Audience:       nativeToolsAudience,
+			IssuedAt:       started.Unix(),
+			ExpiresAt:      started.Add(cfg.ProdRunnerTaskTimeout + time.Minute).Unix(),
+			ExecutionID:    firstNonEmpty(ctx.trace.Summary.TraceID, ctx.workflow.ID),
+			OperationID:    firstNonEmpty(intent.OperationID, intent.ID),
+			TraceID:        ctx.trace.Summary.TraceID,
+			WorkflowID:     ctx.workflow.ID,
+			ConversationID: ctx.trace.Summary.ConversationID,
+			Actor:          cfg.ServiceName,
+			Surfaces:       []string{"slack"},
+		}, nativeToolActionRequest{
+			Surface:        "slack",
+			Operation:      "message_post",
+			TargetRef:      channelID,
+			IdempotencyKey: deliveryIdempotencyKey,
+			Reason:         firstNonEmpty(intent.Rationale, "workflow final reply"),
+			Arguments: map[string]any{
+				"channel_id": channelID,
+				"thread_ts":  threadTS,
+				"text":       body,
+			},
+		})
+		if nativeErr != nil {
+			execErr = nativeErr
+		} else if !nativeResp.OK {
+			execErr = errors.New(firstNonEmpty(nativeResp.Error, nativeResp.Action.ErrorMessage, "native Slack reply failed"))
+		}
+		result = storepkg.ToolResult{
+			Name:       "rsi_slack.message_post",
+			ToolCallID: nativeResp.Action.ID,
+			Approved:   true,
+			Status:     map[bool]string{true: "ok", false: "failed"}[nativeResp.OK],
+			Available:  nativeErr == nil,
+			Provider:   "rsi-native-tools",
+			ProviderRef: firstNonEmpty(
+				nativeResp.Action.SourceRef,
+				stringValueFromMap(mapValue(nativeResp.Output), "provider_ref"),
+				threadTS,
+			),
+			ExecutedAt: time.Now().UTC(),
+			Input: map[string]interface{}{
+				"channel_id": channelID,
+				"thread_ts":  threadTS,
+			},
+			Output: map[string]interface{}{
+				"posted":    nativeResp.OK,
+				"action_id": nativeResp.Action.ID,
+				"source":    nativeResp.Action.SourceRef,
+			},
+			Summary: firstNonEmpty(nativeResp.Action.ResponseSummary, nativeResp.Error),
+			Metadata: map[string]interface{}{
+				"external_tool_action_id": nativeResp.Action.ID,
+				"mirror_effect":           nativeResp.Action.MirrorEffect,
+			},
+		}
 		actionStatus = actionStatusFromToolResult(result, execErr)
 		summary = toolResultSummary(result, execErr)
 		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
@@ -1114,23 +1179,24 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 	}
 	completedAt := time.Now().UTC()
 	if _, err := submitActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completedAt, map[string]any{
-		"operation_id":   intent.OperationID,
-		"approval_state": firstNonEmpty(result.ApprovalState, intent.ApprovalState),
-		"policy_verdict": firstNonEmpty(intent.PolicyVerdict, blockedReason),
-		"executor":       firstNonEmpty(result.Provider, "native-hermes-required"),
-		"provider":       firstNonEmpty(result.Provider, "slack"),
-		"provider_ref":   firstNonEmpty(result.ProviderRef, threadTS),
-		"error_code":     actionErrorCode(actionStatus),
-		"error_message":  firstNonEmpty(actionErrorMessage(result, execErr), blockedReason),
-		"started_at":     started,
-		"completed_at":   completedAt,
-		"summary":        firstNonEmpty(summary, blockedReason, "Slack reply action completed."),
-		"channel_id":     channelID,
-		"thread_ts":      threadTS,
-		"draft_body":     baseRecord.DraftBody,
-		"final_body":     baseRecord.FinalBody,
-		"send_status":    baseRecord.SendStatus,
-		"artifact_refs":  append([]string(nil), baseRecord.ArtifactRefs...),
+		"operation_id":    intent.OperationID,
+		"approval_state":  firstNonEmpty(result.ApprovalState, intent.ApprovalState),
+		"policy_verdict":  firstNonEmpty(intent.PolicyVerdict, blockedReason),
+		"executor":        firstNonEmpty(result.Provider, "native-hermes-required"),
+		"provider":        firstNonEmpty(result.Provider, "slack"),
+		"provider_ref":    firstNonEmpty(result.ProviderRef, threadTS),
+		"error_code":      actionErrorCode(actionStatus),
+		"error_message":   firstNonEmpty(actionErrorMessage(result, execErr), blockedReason),
+		"started_at":      started,
+		"completed_at":    completedAt,
+		"summary":         firstNonEmpty(summary, blockedReason, "Slack reply action completed."),
+		"channel_id":      channelID,
+		"thread_ts":       threadTS,
+		"idempotency_key": deliveryIdempotencyKey,
+		"draft_body":      baseRecord.DraftBody,
+		"final_body":      baseRecord.FinalBody,
+		"send_status":     baseRecord.SendStatus,
+		"artifact_refs":   append([]string(nil), baseRecord.ArtifactRefs...),
 	}); err != nil {
 		_ = failClaimedEffect(store, replyEffect, err.Error())
 		return err
@@ -1153,6 +1219,21 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		return execErr
 	}
 	return nil
+}
+
+func slackPostDeliveryIdempotencyKey(ctx workflowContext, intent action.Intent, channelID string, threadTS string, body string) string {
+	if key := firstNonEmpty(intent.IdempotencyKey, intent.ID); key != "" {
+		return key
+	}
+	sum := sha1.Sum([]byte(strings.Join([]string{
+		ctx.workflow.ID,
+		ctx.trace.Summary.TraceID,
+		ctx.trace.Summary.ConversationID,
+		channelID,
+		threadTS,
+		body,
+	}, "\x00")))
+	return fmt.Sprintf("slack_post:%x", sum)
 }
 
 func maybeAdvanceWorkflowPhaseFromAction(cfg config.Config, store storepkg.Store, intent action.Intent) error {
@@ -1247,10 +1328,10 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg)
-	replyDeliveryMode := workflowReplyDeliveryMode(allowed)
+	replyDeliveryMode := workflowReplyDeliveryMode(allowed, cfg.NativeToolsEnabled)
 	userRequest := resolvedIntent.UserRequest
 	systemMessage := harness.ComposeSystemMessage(
-		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode),
+		workflowRunnerSystemMessage(cfg.NativeToolsEnabled, hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode),
 		effectiveHarness,
 	)
 	promptParts := []string{
@@ -1397,7 +1478,7 @@ func runnerApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy
 	return clients.NewRunnerApprovalPolicy(directSlackAllowed)
 }
 
-func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string) string {
+func workflowRunnerSystemMessage(useNativeTools bool, useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string) string {
 	if replyDeliveryMode == "direct" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
@@ -1407,13 +1488,47 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 			"You may use Hermes-native skills when they materially help satisfy the request.",
 		}
 		if useNotionMCP {
-			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+			if useNativeTools {
+				parts = append(parts, "Prefer rsi_notion.* for live Notion reads; use Notion MCP only as a legacy fallback when native tools cannot satisfy the request.")
+			} else {
+				parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+			}
 		}
 		if useSlackMCP {
-			parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
+			if useNativeTools {
+				parts = append(parts, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads; use Slack MCP only as a legacy fallback.")
+			} else {
+				parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
+			}
 		}
 		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools, include it in produced_artifacts, and attach local files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
 		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
+		return strings.Join(parts, " ")
+	}
+	if replyDeliveryMode == "mediated" {
+		parts := []string{
+			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
+			"Produce a JSON object with session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
+			"Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer.",
+			"Treat DeliveryPolicy, WorkspacePolicy, and ApprovalPolicy as execution metadata; infrastructure permissions come from the runner environment.",
+			"You may use Hermes-native skills when they materially help satisfy the request.",
+		}
+		if useNotionMCP {
+			if useNativeTools {
+				parts = append(parts, "Prefer rsi_notion.* for live Notion reads; use Notion MCP only as a legacy fallback when native tools cannot satisfy the request.")
+			} else {
+				parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+			}
+		}
+		if useSlackMCP {
+			if useNativeTools {
+				parts = append(parts, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads; use Slack MCP only as a legacy fallback.")
+			} else {
+				parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
+			}
+		}
+		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
+		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, emit exactly one proposed action with kind=slack_post and request_payload containing channel_id, thread_ts, and body. The control plane will deliver that action through rsi_slack.message_post. Do not call Slack send tools yourself for the final reply.", "Leave reply_delivery empty unless the control plane reports delivery.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1424,18 +1539,28 @@ func workflowRunnerSystemMessage(useSlackMCP bool, useNotionMCP bool, replyDeliv
 		"You may use Hermes-native skills when they materially help satisfy the request.",
 	}
 	if useNotionMCP {
-		parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		if useNativeTools {
+			parts = append(parts, "Prefer rsi_notion.* for live Notion reads; use Notion MCP only as a legacy fallback when native tools cannot satisfy the request.")
+		} else {
+			parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
+		}
 	}
 	if useSlackMCP {
-		parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
+		if useNativeTools {
+			parts = append(parts, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads; use Slack MCP only as a legacy fallback.")
+		} else {
+			parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
+		}
 	}
 	parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
 	parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.", "Leave reply_delivery empty when no Slack reply was delivered.")
 	return strings.Join(parts, " ")
 }
 
-func workflowReplyDeliveryMode(replyAllowed bool) string {
+func workflowReplyDeliveryMode(replyAllowed bool, useNativeTools bool) string {
 	switch {
+	case replyAllowed && useNativeTools:
+		return "mediated"
 	case replyAllowed:
 		return "direct"
 	default:

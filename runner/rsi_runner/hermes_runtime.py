@@ -40,6 +40,10 @@ from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     HERMES_ARTIFACT_TOOLSET,
     HERMES_DB_READ_TOOLSET,
+    HERMES_RSI_KNOWLEDGE_TOOLSET,
+    HERMES_RSI_NOTION_TOOLSET,
+    HERMES_RSI_OBSERVABILITY_TOOLSET,
+    HERMES_RSI_SLACK_TOOLSET,
     canonical_tool_name,
     normalize_tool_names,
 )
@@ -55,6 +59,11 @@ ROLE_TASK_TYPES = {
 logger = logging.getLogger(__name__)
 
 DEFAULT_HERMES_NATIVE_TOOLSETS = ("terminal", "file", "company_knowledge")
+RSI_NATIVE_TOOLSETS = (
+    HERMES_RSI_SLACK_TOOLSET,
+    HERMES_RSI_NOTION_TOOLSET,
+    HERMES_RSI_KNOWLEDGE_TOOLSET,
+)
 PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
         "task_timeout",
@@ -91,6 +100,18 @@ SELF_REVIEW_SECRET_ENV_ALLOWLIST = frozenset(
         "HERMES_STATE_POSTGRES_URL",
         "RSI_POSTGRES_URL",
         "DATABASE_URL",
+    }
+)
+NATIVE_WORKER_SOURCE_CREDENTIAL_DENYLIST = frozenset(
+    {
+        "SLACK_BOT_TOKEN",
+        "RSI_SLACK_BOT_TOKEN",
+        "NOTION_TOKEN",
+        "NOTION_API_KEY",
+        "RSI_NOTION_MCP_AUTHORIZATION",
+        "RSI_NATIVE_TOOLS_CLIENT_TOKEN",
+        "RSI_DB_READ_CLIENT_TOKEN",
+        "RSI_DB_READ_RELAY_TOKEN",
     }
 )
 SELF_REVIEW_STATE_ENV_ALLOWLIST = frozenset(
@@ -1177,11 +1198,15 @@ class HermesRuntime:
         )
 
     def _hermes_native_toolsets(self) -> list[str]:
-        if not self._config.hermes_native_terminal_enabled:
-            return []
-        toolsets = list(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
+        toolsets: list[str] = []
+        if self._config.hermes_native_terminal_enabled:
+            toolsets.extend(self._config.hermes_native_toolsets or list(DEFAULT_HERMES_NATIVE_TOOLSETS))
         if self._config.db_read_gateway_configured:
             toolsets.append(HERMES_DB_READ_TOOLSET)
+        if self._grafana_observability_configured():
+            toolsets.append(HERMES_RSI_OBSERVABILITY_TOOLSET)
+        if self._config.native_tools_enabled:
+            toolsets.extend(RSI_NATIVE_TOOLSETS)
         return normalize_tool_names(toolsets)
 
     def _grafana_observability_configured(self) -> bool:
@@ -1262,24 +1287,26 @@ class HermesRuntime:
 
     def _configure_grafana_cli_environment(self) -> JsonObject:
         if not self._grafana_observability_configured():
-            return {"configured": False, "tool": "gcx"}
+            return {"configured": False, "tool": "rsi_observability", "toolset": HERMES_RSI_OBSERVABILITY_TOOLSET}
         base_url = os.getenv("RSI_GRAFANA_BASE_URL", "").strip().rstrip("/")
         token = os.getenv("RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN", "").strip()
-        datasource_uid = os.getenv("RSI_GRAFANA_METRICS_DATASOURCE_UID", "thanos").strip() or "thanos"
+        metrics_datasource_uid = self._config.grafana_metrics_datasource_uid
+        logs_datasource_uid = self._config.grafana_logs_datasource_uid
         os.environ["GRAFANA_SERVER"] = base_url
         os.environ["GRAFANA_TOKEN"] = token
-        os.environ["RSI_GRAFANA_METRICS_DATASOURCE_UID"] = datasource_uid
-        os.environ["GCX_AGENT_MODE"] = os.getenv("GCX_AGENT_MODE", "").strip() or "true"
+        os.environ["RSI_GRAFANA_METRICS_DATASOURCE_UID"] = metrics_datasource_uid
+        os.environ["RSI_GRAFANA_LOGS_DATASOURCE_UID"] = logs_datasource_uid
         return {
             "configured": True,
-            "tool": "gcx",
+            "tool": "rsi_observability",
+            "toolset": HERMES_RSI_OBSERVABILITY_TOOLSET,
+            "transport": "grafana_datasource_proxy",
             "policy_boundary": "grafana_rbac",
             "query_guardrails_enforced": False,
             "server_env": "GRAFANA_SERVER",
             "token_env": "GRAFANA_TOKEN",
-            "agent_mode_env": "GCX_AGENT_MODE",
-            "metrics_datasource_uid": datasource_uid,
-            "default_metrics_command": 'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
+            "metrics_datasource_uid": metrics_datasource_uid,
+            "logs_datasource_uid": logs_datasource_uid,
         }
 
     def _db_read_native_tool_status(self) -> JsonObject:
@@ -1478,7 +1505,10 @@ class HermesRuntime:
                 if self._config.hermes_prod_kubernetes_context_enabled
                 else "",
             },
-            "grafana_observability": dict(status.get("grafana_observability") or {"configured": False, "tool": "gcx"}),
+            "grafana_observability": dict(
+                status.get("grafana_observability")
+                or {"configured": False, "tool": "rsi_observability", "toolset": HERMES_RSI_OBSERVABILITY_TOOLSET}
+            ),
             "bootstrap_status": status,
         }
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
@@ -3121,7 +3151,7 @@ class HermesRuntime:
         }
         raw_claims = json.dumps(claims, separators=(",", ":"), sort_keys=True).encode("utf-8")
         encoded_claims = base64.urlsafe_b64encode(raw_claims).decode("ascii").rstrip("=")
-        signature = hmac.new(secret.encode("utf-8"), encoded_claims.encode("ascii"), hashlib.sha256).digest()
+        signature = hmac.HMAC(secret.encode("utf-8"), encoded_claims.encode("ascii"), hashlib.sha256).digest()
         encoded_signature = base64.urlsafe_b64encode(signature).decode("ascii").rstrip("=")
         return f"v1.{encoded_claims}.{encoded_signature}"
 
@@ -3142,7 +3172,32 @@ class HermesRuntime:
         if token:
             env["RSI_DB_READ_EXECUTION_TOKEN"] = token
             env["RSI_DB_READ_AUTH_MODE"] = "execution_scoped"
+        native_tools_token = self._native_tools_execution_token(task)
+        if native_tools_token:
+            env["RSI_NATIVE_TOOLS_EXECUTION_TOKEN"] = native_tools_token
         return env
+
+    def _native_tools_execution_token(self, task: RunnerTaskRequest) -> str:
+        if not self._config.native_tools_enabled:
+            return ""
+        secret = os.getenv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", "").strip()
+        if not secret:
+            return ""
+        now = int(time.time())
+        lifetime = min(max(1, self._effective_task_timeout(task) + 60), 2 * 60 * 60)
+        payload: JsonObject = {
+            "aud": "rsi-native-tools",
+            "iat": now,
+            "exp": now + lifetime,
+            "execution_id": first_non_empty(task.execution_id, task.trace_id, task.workflow_id, task.session_scope_id, "execution"),
+            "operation_id": first_non_empty(task.operation_id, task.execution_id, task.trace_id, "operation"),
+            "trace_id": first_non_empty(task.trace_id, task.execution_id, task.workflow_id, "trace"),
+            "workflow_id": first_non_empty(task.workflow_id, task.trace_id, task.execution_id, "workflow"),
+            "conversation_id": first_non_empty(task.conversation_id, task.session_scope_id, task.channel_id, "conversation"),
+            "actor": first_non_empty(task.user_peer_id, task.assistant_peer_id, "hermes"),
+            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge"]),
+        }
+        return _sign_native_tools_execution_token(secret, payload)
 
     def _native_worker_session_env(self, task: RunnerTaskRequest) -> dict[str, str]:
         env = {"HERMES_SESSION_KEY": canonical_gateway_session_key(task, self._role)}
@@ -3154,6 +3209,10 @@ class HermesRuntime:
         if thread_ts:
             env["HERMES_SESSION_THREAD_ID"] = thread_ts
         return env
+
+    def _strip_native_worker_source_credentials(self, env: dict[str, str]) -> None:
+        for key in NATIVE_WORKER_SOURCE_CREDENTIAL_DENYLIST:
+            env.pop(key, None)
 
     def _native_executor_workspace_root(self, task: RunnerTaskRequest) -> Path:
         root = Path(self._config.hermes_computer_root).expanduser().resolve()
@@ -4340,6 +4399,8 @@ class HermesRuntime:
         env_copy.update(direct_slack_env)
         env_copy.update(self._native_worker_session_env(task))
         env_copy.update(self._native_runtime_env(task, context_path=context_path, envelope_path=envelope_path))
+        if self._config.native_tools_enabled:
+            self._strip_native_worker_source_credentials(env_copy)
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
@@ -6280,6 +6341,8 @@ class HermesRuntime:
     def _direct_slack_delivery_env(self, task: RunnerTaskRequest) -> tuple[JsonObject, str]:
         if task.task_type != "workflow" or self._workflow_reply_delivery_mode(task) != "direct":
             return {}, ""
+        if self._config.native_tools_enabled:
+            return {}, "direct native Slack delivery is disabled when RSI native tools are enabled; use mediated delivery"
         channel_id = (task.channel_id or "").strip()
         if not channel_id:
             return {}, "direct native Slack delivery requires a bound channel_id"
@@ -7573,15 +7636,16 @@ class HermesRuntime:
             )
             if self._grafana_observability_configured():
                 parts.append(
-                    "Grafana/Thanos read-only observability is available through the official Grafana gcx CLI. "
+                    "Grafana read-only observability is available through native `rsi_observability.*` tools in the `rsi-observability` toolset. "
                     "The Grafana service-account token is mounted in the executor environment and is shell-visible; "
-                    "Grafana Viewer/RBAC is the read boundary, and gcx is not an RSI policy-enforcement boundary. "
-                    "gcx is configured with GRAFANA_SERVER and GRAFANA_TOKEN. Do not print tokens, do not use "
-                    "`--log-http-payload`, and do not call Grafana write APIs. Treat explicit environment or cluster "
-                    "matchers as required operational guidance, not as a hard security boundary; use `gcx metrics query "
-                    "--datasource \"$RSI_GRAFANA_METRICS_DATASOURCE_UID\"` with those matchers. "
-                    "Use `gcx help-tree` or `gcx commands` to discover the exact read-only dashboard and alert "
-                    "inspection commands supported by the installed gcx version. "
+                    "Grafana Viewer/RBAC is the read boundary, and the tools are not an RSI policy-enforcement boundary. "
+                    "Use `rsi_observability.metrics_query` for Prometheus/Thanos, `rsi_observability.logs_query` for Loki, "
+                    "`rsi_observability.dashboards_search`/`dashboard_get` for dashboards, "
+                    "`rsi_observability.alert_rules_search`/`alert_rule_get`/`active_alerts` for Grafana alerts, "
+                    "and `rsi_observability.datasources` for datasource discovery. "
+                    "`rsi_observability.*` is configured with GRAFANA_SERVER, GRAFANA_TOKEN, RSI_GRAFANA_METRICS_DATASOURCE_UID, and RSI_GRAFANA_LOGS_DATASOURCE_UID. "
+                    "Do not print tokens and do not call Grafana write APIs. "
+                    "Treat explicit environment, cluster, namespace, and pod matchers as required operational guidance, not as a hard security boundary. "
                     "Dashboard edits and imports must be PRs to storyprotocol/story-infra-aws, not live Grafana writes."
                 )
             if self._config.db_read_gateway_configured:
@@ -7783,6 +7847,21 @@ def first_non_empty(*values: str | None) -> str:
         if value and value.strip():
             return value.strip()
     return ""
+
+
+def _sign_native_tools_execution_token(secret: str, payload: JsonObject) -> str:
+    header = {"alg": "HS256", "typ": "JWT"}
+    encoded_header = _base64url_json(header)
+    encoded_payload = _base64url_json(payload)
+    signed = f"{encoded_header}.{encoded_payload}"
+    signature = hmac.HMAC(secret.encode("utf-8"), signed.encode("utf-8"), hashlib.sha256).digest()
+    encoded_signature = base64.urlsafe_b64encode(signature).decode("ascii").rstrip("=")
+    return f"{signed}.{encoded_signature}"
+
+
+def _base64url_json(payload: JsonObject) -> str:
+    raw = json.dumps(payload, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
 def tool_name(schema: JsonToolWrapperSchema) -> str:

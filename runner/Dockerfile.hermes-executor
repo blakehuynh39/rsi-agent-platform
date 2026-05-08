@@ -1,28 +1,16 @@
 FROM python:3.11-slim
 
-ARG GCX_VERSION=0.2.12
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git gh ca-certificates curl jq ripgrep librsvg2-bin && \
     ARCH="$(dpkg --print-architecture)" && \
     case "$ARCH" in \
         amd64) TOOL_ARCH="amd64" ;; \
         arm64) TOOL_ARCH="arm64" ;; \
-        *) echo "unsupported architecture for gcx/kubectl: $ARCH" >&2; exit 1 ;; \
+        *) echo "unsupported architecture for kubectl: $ARCH" >&2; exit 1 ;; \
     esac && \
     KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)" && \
     curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${TOOL_ARCH}/kubectl" && \
     chmod +x /usr/local/bin/kubectl && \
-    GCX_PACKAGE="gcx_${GCX_VERSION}_linux_${TOOL_ARCH}.tar.gz" && \
-    GCX_BASE_URL="https://github.com/grafana/gcx/releases/download/v${GCX_VERSION}" && \
-    curl -fsSLO "${GCX_BASE_URL}/${GCX_PACKAGE}" && \
-    curl -fsSLO "${GCX_BASE_URL}/gcx_${GCX_VERSION}_checksums.txt" && \
-    grep " ${GCX_PACKAGE}$" "gcx_${GCX_VERSION}_checksums.txt" > /tmp/gcx.sha256 && \
-    test -s /tmp/gcx.sha256 && \
-    sha256sum -c /tmp/gcx.sha256 && \
-    tar -xzf "$GCX_PACKAGE" -C /usr/local/bin gcx && \
-    chmod +x /usr/local/bin/gcx && \
-    rm -f "$GCX_PACKAGE" "gcx_${GCX_VERSION}_checksums.txt" /tmp/gcx.sha256 && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

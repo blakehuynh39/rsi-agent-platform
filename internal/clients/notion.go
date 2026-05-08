@@ -127,6 +127,14 @@ type NotionDataSourceQueryOptions struct {
 	FilterProperties        []string
 }
 
+type NotionSearchOptions struct {
+	Query    string
+	Filter   map[string]any
+	Sort     map[string]any
+	PageSize int
+	Cursor   string
+}
+
 type NotionPageMarkdown struct {
 	Object          string   `json:"object"`
 	ID              string   `json:"id"`
@@ -179,6 +187,30 @@ func (c *NotionClient) RetrievePage(ctx context.Context, pageID string) (NotionP
 	var out NotionPage
 	if err := c.doJSON(ctx, http.MethodGet, "/v1/pages/"+strings.TrimSpace(pageID), nil, &out); err != nil {
 		return NotionPage{}, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) Search(ctx context.Context, opts NotionSearchOptions) (map[string]any, error) {
+	payload := map[string]any{}
+	if query := strings.TrimSpace(opts.Query); query != "" {
+		payload["query"] = query
+	}
+	if len(opts.Filter) > 0 {
+		payload["filter"] = opts.Filter
+	}
+	if len(opts.Sort) > 0 {
+		payload["sort"] = opts.Sort
+	}
+	if opts.PageSize > 0 {
+		payload["page_size"] = opts.PageSize
+	}
+	if cursor := strings.TrimSpace(opts.Cursor); cursor != "" {
+		payload["start_cursor"] = cursor
+	}
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPost, "/v1/search", payload, &out); err != nil {
+		return nil, err
 	}
 	return out, nil
 }
@@ -284,6 +316,54 @@ func (c *NotionClient) QueryDatabase(ctx context.Context, databaseID string, cur
 	var out NotionListResponse[NotionPage]
 	if err := c.doJSON(ctx, http.MethodPost, "/v1/databases/"+strings.TrimSpace(databaseID)+"/query", payload, &out); err != nil {
 		return NotionListResponse[NotionPage]{}, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) CreatePage(ctx context.Context, payload map[string]any) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPost, "/v1/pages", payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) UpdatePage(ctx context.Context, pageID string, payload map[string]any) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPatch, "/v1/pages/"+strings.TrimSpace(pageID), payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) AppendBlockChildren(ctx context.Context, blockID string, children []any) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPatch, "/v1/blocks/"+strings.TrimSpace(blockID)+"/children", map[string]any{"children": children}, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) UpdateBlock(ctx context.Context, blockID string, payload map[string]any) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPatch, "/v1/blocks/"+strings.TrimSpace(blockID), payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) DeleteBlock(ctx context.Context, blockID string) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodDelete, "/v1/blocks/"+strings.TrimSpace(blockID), nil, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *NotionClient) CreateComment(ctx context.Context, payload map[string]any) (map[string]any, error) {
+	var out map[string]any
+	if err := c.doJSON(ctx, http.MethodPost, "/v1/comments", payload, &out); err != nil {
+		return nil, err
 	}
 	return out, nil
 }

@@ -37,7 +37,7 @@ from rsi_runner.hermes_runtime import (
     _redact_subprocess_output,
 )
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
-from rsi_runner.rsi_tools import transport_tool_schema
+from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions, transport_tool_schema
 from rsi_runner.session_manager import MemoryTracker, SessionManager
 
 
@@ -600,14 +600,18 @@ class HermesRuntimeTests(unittest.TestCase):
 
         prompt = runtime._render_task_prompt(task)
 
-        self.assertIn("Grafana/Thanos read-only observability is available through the official Grafana gcx CLI", prompt)
+        self.assertIn("Grafana read-only observability is available through native `rsi_observability.*` tools", prompt)
         self.assertIn("Grafana Viewer/RBAC is the read boundary", prompt)
-        self.assertIn("gcx is not an RSI policy-enforcement boundary", prompt)
-        self.assertIn("gcx is configured with GRAFANA_SERVER and GRAFANA_TOKEN", prompt)
-        self.assertIn("gcx help-tree", prompt)
-        self.assertIn("gcx commands", prompt)
+        self.assertIn("`rsi_observability.metrics_query`", prompt)
+        self.assertIn("`rsi_observability.logs_query`", prompt)
+        self.assertIn("`rsi_observability.dashboards_search`/`dashboard_get`", prompt)
+        self.assertIn("`rsi_observability.alert_rules_search`/`alert_rule_get`/`active_alerts`", prompt)
+        self.assertIn("`rsi_observability.datasources`", prompt)
+        self.assertNotIn("rsi-grafana", prompt)
+        self.assertNotIn("gcx", prompt)
         self.assertIn("token is mounted in the executor environment and is shell-visible", prompt)
         self.assertIn("Dashboard edits and imports must be PRs to storyprotocol/story-infra-aws", prompt)
+        self.assertIn("rsi-observability", runtime._hermes_native_toolsets())
 
 
 
@@ -985,6 +989,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "RSI_GRAFANA_BASE_URL": "https://grafana.ops.storyprotocol.net/",
                     "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-secret-token",
                     "RSI_GRAFANA_METRICS_DATASOURCE_UID": "thanos",
+                    "RSI_GRAFANA_LOGS_DATASOURCE_UID": "loki",
                 },
                 clear=True,
             ):
@@ -996,7 +1001,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "GRAFANA_SERVER": os.environ["GRAFANA_SERVER"],
                     "GRAFANA_TOKEN": os.environ["GRAFANA_TOKEN"],
                     "RSI_GRAFANA_METRICS_DATASOURCE_UID": os.environ["RSI_GRAFANA_METRICS_DATASOURCE_UID"],
-                    "GCX_AGENT_MODE": os.environ["GCX_AGENT_MODE"],
+                    "RSI_GRAFANA_LOGS_DATASOURCE_UID": os.environ["RSI_GRAFANA_LOGS_DATASOURCE_UID"],
                 }
 
             kubeconfig = kubeconfig_path.read_text(encoding="utf-8")
@@ -1011,18 +1016,18 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_env["GRAFANA_SERVER"], "https://grafana.ops.storyprotocol.net")
         self.assertEqual(captured_env["GRAFANA_TOKEN"], "grafana-secret-token")
         self.assertEqual(captured_env["RSI_GRAFANA_METRICS_DATASOURCE_UID"], "thanos")
-        self.assertEqual(captured_env["GCX_AGENT_MODE"], "true")
+        self.assertEqual(captured_env["RSI_GRAFANA_LOGS_DATASOURCE_UID"], "loki")
         self.assertEqual(bin_dir_entries, [])
-        self.assertEqual(grafana_status["tool"], "gcx")
+        self.assertEqual(grafana_status["tool"], "rsi_observability")
+        self.assertEqual(grafana_status["toolset"], "rsi-observability")
         self.assertTrue(grafana_status["configured"])
+        self.assertEqual(grafana_status["transport"], "grafana_datasource_proxy")
         self.assertEqual(grafana_status["policy_boundary"], "grafana_rbac")
         self.assertFalse(grafana_status["query_guardrails_enforced"])
         self.assertEqual(grafana_status["metrics_datasource_uid"], "thanos")
-        self.assertEqual(
-            grafana_status["default_metrics_command"],
-            'gcx metrics query --datasource "$RSI_GRAFANA_METRICS_DATASOURCE_UID"',
-        )
-        self.assertEqual(manifest["grafana_observability"]["tool"], "gcx")
+        self.assertEqual(grafana_status["logs_datasource_uid"], "loki")
+        self.assertEqual(manifest["grafana_observability"]["tool"], "rsi_observability")
+        self.assertEqual(manifest["grafana_observability"]["toolset"], "rsi-observability")
         self.assertTrue(manifest["grafana_observability"]["configured"])
         self.assertEqual(manifest["grafana_observability"]["policy_boundary"], "grafana_rbac")
         self.assertIn("server: https://10.0.0.1:443", kubeconfig)
@@ -1042,7 +1047,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("namespace: story", kubeconfig)
         self.assertIn("current-context: hermes-company-computer", kubeconfig)
         self.assertEqual(manifest["terminal"]["bin_dir"], str(Path(computer_root, ".rsi", "bin")))
-        self.assertEqual(manifest["native_toolsets"], ["terminal", "file", "company_knowledge"])
+        self.assertEqual(manifest["native_toolsets"], ["terminal", "file", "company_knowledge", "rsi-observability"])
         self.assertEqual(manifest["prod_kubernetes_context"]["name"], "use1-prod")
         self.assertEqual(manifest["prod_kubernetes_context"]["auth"], "aws_eks_exec_assume_role")
 
@@ -4067,7 +4072,144 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertIn("artifact.list.completed", [event["event"] for event in events])
             self.assertIn("artifact.list.failed", [event["event"] for event in events])
 
-    def test_plugin_db_read_query_raises_external_pause(self) -> None:
+    def test_plugin_db_read_validate_posts_to_control_plane(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "status": "ok",
+                        "validation": {"ok": True},
+                    }
+                ).encode("utf-8")
+
+        seen: dict[str, object] = {}
+
+        def fake_urlopen(req, timeout):  # type: ignore[no-untyped-def]
+            seen["url"] = req.full_url
+            seen["headers"] = dict(req.header_items())
+            seen["body"] = json.loads(req.data.decode("utf-8"))
+            seen["timeout"] = timeout
+            return Response()
+
+        with mock.patch.dict(
+            os.environ,
+            {
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_DB_READ_EXECUTION_TOKEN": "scoped-token",
+            },
+            clear=True,
+        ), mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            handler = namespace["_tool_handler"]("db_read_validate")
+            payload = json.loads(handler({"target": "depin-prod", "sql": "SELECT 1", "purpose": "query"}, task_id="sess-db"))
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["output"]["validation"]["ok"], True)
+        self.assertEqual(seen["url"], "https://control.example.test/internal/db-read/validate")
+        self.assertEqual(seen["headers"].get("Authorization"), "Bearer scoped-token")
+        self.assertEqual(seen["body"]["target"], "depin-prod")
+        self.assertEqual(seen["body"]["sql"], "SELECT 1")
+        self.assertEqual(seen["body"]["purpose"], "query")
+
+    def test_plugin_observability_logs_query_uses_native_handler(self) -> None:
+        seen: dict[str, object] = {}
+
+        def fake_logs_query(expr: str, **kwargs: object) -> dict[str, object]:
+            seen["expr"] = expr
+            seen["kwargs"] = kwargs
+            return {
+                "status": "success",
+                "data": {
+                    "result": [
+                        {
+                            "stream": {"namespace": "rsi-platform"},
+                            "values": [["1700000000000000000", "hello from loki"]],
+                        }
+                    ]
+                },
+            }
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "GRAFANA_SERVER": "https://grafana.ops.storyprotocol.net",
+                "GRAFANA_TOKEN": "grafana-token",
+            },
+            clear=True,
+        ):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            namespace["grafana_logs_query"] = fake_logs_query
+            handler = namespace["_tool_handler"]("rsi_observability_logs_query")
+            payload = json.loads(
+                handler(
+                    {
+                        "expr": '{namespace="rsi-platform"}',
+                        "since": "30m",
+                        "limit": 5,
+                        "direction": "backward",
+                    },
+                    task_id="sess-obs",
+                )
+            )
+            lifecycle_path = Path(hermes_home, "rsi_runtime", "lifecycle", "sess-obs.jsonl")
+            lifecycle_events = [json.loads(line) for line in lifecycle_path.read_text(encoding="utf-8").splitlines()]
+
+        self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["summary"], "Returned 1 Loki log line(s).")
+        self.assertEqual(payload["log_lines"], ["hello from loki"])
+        self.assertEqual(seen["expr"], '{namespace="rsi-platform"}')
+        self.assertEqual(seen["kwargs"]["since"], "30m")
+        self.assertEqual(seen["kwargs"]["limit"], 5)
+        self.assertIn("observability.query.completed", [event["event"] for event in lifecycle_events])
+
+    def test_plugin_observability_dashboard_and_alert_tools_use_native_handlers(self) -> None:
+        seen: dict[str, object] = {}
+
+        def fake_dashboards_search(query: str = "", **kwargs: object) -> dict[str, object]:
+            seen["dashboards_query"] = query
+            seen["dashboards_kwargs"] = kwargs
+            return {"dashboards": [{"uid": "dash1", "title": "Depin Overview"}]}
+
+        def fake_alert_rules_search(query: str = "", **kwargs: object) -> dict[str, object]:
+            seen["alerts_query"] = query
+            seen["alerts_kwargs"] = kwargs
+            return {"alert_rules": [{"uid": "rule1", "title": "Pod restarts"}]}
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "GRAFANA_SERVER": "https://grafana.ops.storyprotocol.net",
+                "GRAFANA_TOKEN": "grafana-token",
+            },
+            clear=True,
+        ):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            namespace["grafana_dashboards_search"] = fake_dashboards_search
+            namespace["grafana_alert_rules_search"] = fake_alert_rules_search
+            dashboard_handler = namespace["_tool_handler"]("rsi_observability_dashboards_search")
+            alert_handler = namespace["_tool_handler"]("rsi_observability_alert_rules_search")
+            dashboard_payload = json.loads(dashboard_handler({"query": "depin", "tags": ["prod"], "limit": 3}, task_id="sess-obs"))
+            alert_payload = json.loads(alert_handler({"query": "pod", "folder_uid": "infra", "limit": 4}, task_id="sess-obs"))
+
+        self.assertEqual(dashboard_payload["summary"], "Returned 1 Grafana dashboard(s).")
+        self.assertEqual(alert_payload["summary"], "Returned 1 Grafana alert rule(s).")
+        self.assertEqual(seen["dashboards_query"], "depin")
+        self.assertEqual(seen["dashboards_kwargs"], {"tags": ["prod"], "limit": 3})
+        self.assertEqual(seen["alerts_query"], "pod")
+        self.assertEqual(seen["alerts_kwargs"], {"folder_uid": "infra", "limit": 4})
+
+    def test_plugin_db_read_query_raises_external_pause_when_enabled(self) -> None:
         class FakeExternalToolPending(Exception):
             pass
 
@@ -4626,7 +4768,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
                 "AWS_SESSION_TOKEN": "aws-session-secret",
                 "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-service-account-secret",
-                "RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET": "cf-access-client-secret",
+                "RSI_UNUSED_CLIENT_SECRET": "unused-client-secret",
             },
             clear=True,
         ):
@@ -4676,7 +4818,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("sk-secret-openrouter-key", stderr_text)
         self.assertNotIn("aws-session-secret", stderr_text)
         self.assertNotIn("grafana-service-account-secret", stderr_text)
-        self.assertNotIn("cf-access-client-secret", stderr_text)
+        self.assertNotIn("unused-client-secret", stderr_text)
         self.assertNotIn("openrouter-test-key", stderr_text)
         self.assertNotIn("fake-secret-value-for-redaction", stderr_text)
         self.assertNotIn("admin-read-key-from-cluster", stderr_text)
@@ -5793,6 +5935,149 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
 
         self.assertIn("rsi-db-read", runtime._native_toolsets_for_task(task))
+
+    def test_workflow_native_toolsets_expose_observability_when_configured(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Read Loki logs.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-obs",
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "false",
+                "RSI_GRAFANA_BASE_URL": "https://grafana.ops.storyprotocol.net",
+                "RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN": "grafana-secret-token",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertIn("rsi-observability", runtime._native_toolsets_for_task(task))
+        self.assertNotIn("terminal", runtime._native_toolsets_for_task(task))
+
+    def test_rsi_native_toolsets_are_decoupled_from_terminal_native(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Search company knowledge.",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-tools",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_NATIVE_TOOLS_ENABLED": "true",
+                "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
+                "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.internal:8080",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "false",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        toolsets = runtime._native_toolsets_for_task(task)
+
+        self.assertIn("rsi-slack", toolsets)
+        self.assertIn("rsi-notion", toolsets)
+        self.assertIn("rsi-knowledge", toolsets)
+        self.assertNotIn("terminal", toolsets)
+
+    def test_native_runtime_env_mints_execution_token_and_strips_source_credentials(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Search company knowledge.",
+                    "execution_id": "exec-native",
+                    "operation_id": "op-native",
+                    "trace_id": "trace-native",
+                    "workflow_id": "wf-native",
+                    "conversation_id": "conv-native",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "RSI_NATIVE_TOOLS_ENABLED": "true",
+                "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
+                "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.internal:8080",
+                "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "false",
+                "SLACK_BOT_TOKEN": "xoxb-test",
+                "NOTION_TOKEN": "ntn_test",
+                "NOTION_API_KEY": "secret_test",
+                "RSI_NOTION_MCP_AUTHORIZATION": "Bearer notion",
+                "RSI_DB_READ_CLIENT_TOKEN": "db-read-static",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            env = os.environ.copy()
+            runtime._strip_native_worker_source_credentials(env)
+            native_env = runtime._native_runtime_env(
+                task,
+                context_path=Path("/tmp/context.json"),
+                envelope_path=Path("/tmp/envelope.json"),
+            )
+
+        self.assertNotIn("SLACK_BOT_TOKEN", env)
+        self.assertNotIn("NOTION_TOKEN", env)
+        self.assertNotIn("NOTION_API_KEY", env)
+        self.assertNotIn("RSI_NOTION_MCP_AUTHORIZATION", env)
+        self.assertNotIn("RSI_NATIVE_TOOLS_CLIENT_TOKEN", env)
+        self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
+        self.assertIn("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", native_env)
+        self.assertNotEqual(native_env["RSI_NATIVE_TOOLS_EXECUTION_TOKEN"], "native-secret")
+
+    def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
+        definitions = rsi_plugin_toolset_definitions()
+        by_toolset: dict[str, set[str]] = {}
+        for item in definitions:
+            by_toolset.setdefault(str(item["toolset"]), set()).add(str(item["canonical_name"]))
+
+        self.assertIn("rsi_slack.message_post", by_toolset["rsi-slack"])
+        self.assertIn("rsi_notion.page_create", by_toolset["rsi-notion"])
+        self.assertIn("rsi_knowledge.wiki_search", by_toolset["rsi-knowledge"])
+        self.assertIn("rsi_observability.logs_query", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.metrics_query", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.dashboards_search", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.dashboard_get", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.alert_rules_search", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.alert_rule_get", by_toolset["rsi-observability"])
+        self.assertIn("rsi_observability.active_alerts", by_toolset["rsi-observability"])
+        self.assertIn("db_read.query", by_toolset["rsi-db-read"])
+
+        message_post = transport_tool_schema("rsi_slack.message_post")
+        required = set(message_post["parameters"]["required"])
+        self.assertIn("reason", required)
+        self.assertIn("idempotency_key", required)
+        message_delete = transport_tool_schema("rsi_slack.message_delete")
+        self.assertIn("confirm_destroy", set(message_delete["parameters"]["required"]))
 
     def test_prod_role_hides_legacy_tool_policy_from_native_prompt(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -7471,6 +7756,39 @@ class HermesRuntimeTests(unittest.TestCase):
                 "SLACK_BOT_TOKEN",
             },
         )
+
+    def test_direct_slack_delivery_env_disabled_for_native_tools(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply in Slack.",
+                    "reply_delivery_mode": "direct",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "delivery_policy": {
+                        "direct_send_allowed": True,
+                        "idempotency_key_base": "C123:171000001.000100:trace-direct-env",
+                    },
+                }
+            }
+        )
+        env = {
+            **runner_env("prod"),
+            "RSI_NATIVE_TOOLS_ENABLED": "true",
+            "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
+            "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.internal:8080",
+        }
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            direct_env, error = runtime._direct_slack_delivery_env(task)
+
+        self.assertEqual(direct_env, {})
+        self.assertIn("direct native Slack delivery is disabled", error)
 
     def test_prod_task_timeout_defaults_to_1800_when_transport_is_extended(self) -> None:
         env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}

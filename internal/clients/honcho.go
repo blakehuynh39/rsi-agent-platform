@@ -204,6 +204,37 @@ func (c *HonchoClient) ListMessages(workspaceID string, sessionID string, limit 
 	return out, nil
 }
 
+func (c *HonchoClient) QueryConclusions(workspaceID string, query string, filters map[string]any, limit int) ([]map[string]any, error) {
+	if limit <= 0 {
+		limit = 10
+	}
+	payload := map[string]any{
+		"query":   strings.TrimSpace(query),
+		"top_k":   limit,
+		"filters": filters,
+	}
+	var out []map[string]any
+	if err := c.doJSON(http.MethodPost, c.apiBaseURL+"/workspaces/"+workspaceID+"/conclusions/query", payload, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *HonchoClient) ListConclusions(workspaceID string, filters map[string]any, limit int, page int) (HonchoPage[map[string]any], error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	if page <= 0 {
+		page = 1
+	}
+	url := c.apiBaseURL + "/workspaces/" + workspaceID + "/conclusions/list?size=" + intString(limit) + "&page=" + intString(page)
+	var out HonchoPage[map[string]any]
+	if err := c.doJSON(http.MethodPost, url, map[string]any{"filters": filters}, &out); err != nil {
+		return HonchoPage[map[string]any]{}, err
+	}
+	return out, nil
+}
+
 func (c *HonchoClient) SearchMessages(workspaceID string, query string, filters map[string]any, limit int) ([]HonchoMessage, error) {
 	if limit <= 0 {
 		limit = 10

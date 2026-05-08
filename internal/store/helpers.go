@@ -26,6 +26,8 @@ func newEmptyMemoryStore() *MemoryStore {
 		feedbackRecords:                   map[string][]review.FeedbackRecord{},
 		actionIntents:                     map[string]action.Intent{},
 		actionResults:                     map[string][]action.Result{},
+		externalToolActions:               map[string]ExternalToolAction{},
+		externalToolActionByIdempotency:   map[string]string{},
 		dbReadRequests:                    map[string]DBReadRequest{},
 		dbReadRequestByIdempotencyKey:     map[string]string{},
 		dbReadValidationAttempts:          map[string][]DBReadValidationAttempt{},

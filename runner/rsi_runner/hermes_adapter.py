@@ -42,6 +42,17 @@ from urllib import error as urlerror
 from urllib import parse as urlparse
 from urllib import request as urlrequest
 
+from rsi_runner.grafana_observability import (
+    active_alerts as grafana_active_alerts,
+    alert_rule_get as grafana_alert_rule_get,
+    alert_rules_search as grafana_alert_rules_search,
+    dashboard_get as grafana_dashboard_get,
+    dashboards_search as grafana_dashboards_search,
+    datasources_query as grafana_datasources_query,
+    loki_log_lines as grafana_loki_log_lines,
+    logs_query as grafana_logs_query,
+    metrics_query as grafana_metrics_query,
+)
 from rsi_runner.slack_uploads import prepare_local_slack_upload_payload
 
 try:
@@ -54,6 +65,17 @@ _PLUGIN_TOOLS = __PLUGIN_TOOLS__
 _TRANSPORT_TO_CANONICAL = {item["transport_name"]: item["canonical_name"] for item in _PLUGIN_TOOLS}
 _ARTIFACT_CANONICAL_NAMES = {"artifact.list_files", "artifact.write_file"}
 _DB_READ_CANONICAL_NAMES = {"db_read.sources", "db_read.schema", "db_read.validate", "db_read.query", "db_read.status"}
+_OBSERVABILITY_CANONICAL_NAMES = {
+    "rsi_observability.datasources",
+    "rsi_observability.metrics_query",
+    "rsi_observability.logs_query",
+    "rsi_observability.dashboards_search",
+    "rsi_observability.dashboard_get",
+    "rsi_observability.alert_rules_search",
+    "rsi_observability.alert_rule_get",
+    "rsi_observability.active_alerts",
+}
+_NATIVE_CANONICAL_PREFIXES = ("rsi_slack.", "rsi_notion.", "rsi_knowledge.")
 
 
 def _runtime_root() -> Path:
@@ -146,11 +168,43 @@ def _db_read_tools_available() -> bool:
     return bool(os.getenv("RSI_CONTROL_PLANE_BASE_URL", "").strip() and _db_read_auth_token())
 
 
+def _native_tools_available() -> bool:
+    return bool(_control_plane_base_url() and os.getenv("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", "").strip())
+
+
+def _observability_tools_available() -> bool:
+    base_url = os.getenv("GRAFANA_SERVER", "").strip() or os.getenv("RSI_GRAFANA_BASE_URL", "").strip()
+    token = os.getenv("GRAFANA_TOKEN", "").strip() or os.getenv("RSI_GRAFANA_SERVICE_ACCOUNT_TOKEN", "").strip()
+    return bool(base_url and token)
+
+
+def _control_plane_base_url() -> str:
+    return os.getenv("RSI_CONTROL_PLANE_BASE_URL", "").strip().rstrip("/")
+
+
+def _native_tools_execution_token() -> str:
+    return os.getenv("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", "").strip()
+
+
+def _native_surface_and_operation(canonical_name: str) -> tuple[str, str]:
+    if canonical_name.startswith("rsi_slack."):
+        return "slack", canonical_name.split(".", 1)[1]
+    if canonical_name.startswith("rsi_notion."):
+        return "notion", canonical_name.split(".", 1)[1]
+    if canonical_name.startswith("rsi_knowledge."):
+        return "knowledge", canonical_name.split(".", 1)[1]
+    raise ValueError(f"unknown native RSI tool {canonical_name!r}")
+
+
 def _rsi_tool_available(canonical_name: str) -> bool:
     if canonical_name in _ARTIFACT_CANONICAL_NAMES:
         return _artifact_tools_available()
     if canonical_name in _DB_READ_CANONICAL_NAMES:
         return _db_read_tools_available()
+    if canonical_name in _OBSERVABILITY_CANONICAL_NAMES:
+        return _observability_tools_available()
+    if canonical_name.startswith(_NATIVE_CANONICAL_PREFIXES):
+        return _native_tools_available()
     return False
 
 
@@ -164,6 +218,24 @@ def _first_non_empty(*values) -> str:
 
 def _string_value(value) -> str:
     return str(value or "").strip()
+
+
+def _bool_value(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    return _string_value(value).lower() in {"1", "true", "yes", "on"}
+
+
+def _bool_value_or_default(value, default: bool) -> bool:
+    return default if value is None else _bool_value(value)
+
+
+def _int_value(value, default: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else default
 
 
 def _string_list(value) -> list[str]:
@@ -797,12 +869,289 @@ def _resolve_slack_upload_payload(payload: JsonObject) -> JsonObject:
     return prepare_local_slack_upload_payload(payload, resolved_path)
 
 
+def _native_target_ref(args: JsonObject) -> str:
+    for key in (
+        "target_ref",
+        "channel_id",
+        "page_id",
+        "database_id",
+        "data_source_id",
+        "block_id",
+        "source_ref",
+        "page_ref",
+        "slug",
+    ):
+        value = _string_value(args.get(key))
+        if value:
+            return value
+    return ""
+
+
+def _native_action_payload(canonical_name: str, args: JsonObject) -> JsonObject:
+    surface, operation = _native_surface_and_operation(canonical_name)
+    safe_args = dict(args or {})
+    payload: JsonObject = {
+        "surface": surface,
+        "operation": operation,
+        "target_ref": _native_target_ref(safe_args),
+        "arguments": safe_args,
+    }
+    for key in ("reason", "idempotency_key", "confirm_destroy"):
+        if key in safe_args:
+            payload[key] = safe_args[key]
+    destructive_ops = {
+        "rsi_slack.message_delete",
+        "rsi_slack.channel_archive",
+        "rsi_notion.page_archive",
+        "rsi_notion.block_delete",
+    }
+    if canonical_name in destructive_ops:
+        payload["destructive"] = True
+    return payload
+
+
+def _native_action_request(payload: JsonObject) -> tuple[int, JsonObject]:
+    base_url = _control_plane_base_url()
+    token = _native_tools_execution_token()
+    if not base_url:
+        raise RuntimeError("RSI_CONTROL_PLANE_BASE_URL is required for RSI native tools")
+    if not token:
+        raise RuntimeError("RSI_NATIVE_TOOLS_EXECUTION_TOKEN is required for RSI native tools")
+    body = json.dumps(payload, ensure_ascii=True, sort_keys=True).encode("utf-8")
+    req = urlrequest.Request(
+        base_url + "/internal/native-tools/actions",
+        data=body,
+        headers={
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urlrequest.urlopen(req, timeout=60) as response:
+            raw = response.read().decode("utf-8")
+            parsed = json.loads(raw) if raw else {}
+            return int(response.status), parsed if isinstance(parsed, dict) else {"raw": parsed}
+    except urlerror.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            parsed = json.loads(raw) if raw else {}
+        except json.JSONDecodeError:
+            parsed = {"error": raw}
+        if not isinstance(parsed, dict):
+            parsed = {"raw": parsed}
+        return int(exc.code), parsed
+
+
+def _native_action_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
+    session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    safe_args = args if isinstance(args, dict) else {}
+    request_payload = _native_action_payload(canonical_name, safe_args)
+    try:
+        status_code, response = _native_action_request(request_payload)
+        ok = 200 <= status_code < 300 and bool(response.get("ok", False))
+        event_payload = {
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "status_code": status_code,
+            "ok": ok,
+            "action": response.get("action"),
+        }
+        if session_id:
+            _append_event(
+                session_id,
+                "native_tool.completed" if ok else "native_tool.failed",
+                {
+                    "event_type": "native_tool.completed" if ok else "native_tool.failed",
+                    "status": "completed" if ok else "failed",
+                    "payload": event_payload,
+                },
+            )
+        return json.dumps(
+            {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "ok" if ok else "error",
+                "status_code": status_code,
+                "summary": response.get("action", {}).get("response_summary", ""),
+                "error": response.get("error", ""),
+                "output": response,
+            },
+            sort_keys=True,
+        )
+    except Exception as exc:
+        if session_id:
+            _append_event(
+                session_id,
+                "native_tool.failed",
+                {
+                    "event_type": "native_tool.failed",
+                    "status": "failed",
+                    "payload": {
+                        "tool_name": canonical_name,
+                        "transport_tool_name": transport_name,
+                        "error": str(exc),
+                    },
+                },
+            )
+        return json.dumps(
+            {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": str(exc),
+            },
+            sort_keys=True,
+        )
+
+
+def _observability_summary(canonical_name: str, output: JsonObject, lines: list[str]) -> str:
+    if canonical_name == "rsi_observability.datasources":
+        datasources = output.get("datasources")
+        count = len(datasources) if isinstance(datasources, list) else 0
+        return f"Returned {count} Grafana datasource(s)."
+    if canonical_name == "rsi_observability.logs_query":
+        return f"Returned {len(lines)} Loki log line(s)."
+    if canonical_name == "rsi_observability.dashboards_search":
+        dashboards = output.get("dashboards")
+        count = len(dashboards) if isinstance(dashboards, list) else 0
+        return f"Returned {count} Grafana dashboard(s)."
+    if canonical_name == "rsi_observability.dashboard_get":
+        dashboard = output.get("dashboard")
+        title = _string_value(dashboard.get("title")) if isinstance(dashboard, dict) else ""
+        return f"Returned Grafana dashboard{(': ' + title) if title else ''}."
+    if canonical_name == "rsi_observability.alert_rules_search":
+        rules = output.get("alert_rules")
+        count = len(rules) if isinstance(rules, list) else 0
+        return f"Returned {count} Grafana alert rule(s)."
+    if canonical_name == "rsi_observability.alert_rule_get":
+        title = _string_value(output.get("title"))
+        return f"Returned Grafana alert rule{(': ' + title) if title else ''}."
+    if canonical_name == "rsi_observability.active_alerts":
+        alerts = output.get("alerts")
+        count = len(alerts) if isinstance(alerts, list) else 0
+        return f"Returned {count} active Grafana alert(s)."
+    result = output.get("data", {}).get("result") if isinstance(output.get("data"), dict) else None
+    count = len(result) if isinstance(result, list) else 0
+    return f"Returned {count} Prometheus result item(s)."
+
+
+def _observability_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
+    session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    safe_args = args if isinstance(args, dict) else {}
+    lines: list[str] = []
+    try:
+        if canonical_name == "rsi_observability.datasources":
+            output = grafana_datasources_query(_string_value(safe_args.get("type")))
+        elif canonical_name == "rsi_observability.metrics_query":
+            output = grafana_metrics_query(
+                str(safe_args.get("expr") or ""),
+                datasource=_string_value(safe_args.get("datasource")),
+                range_query=_bool_value(safe_args.get("range")),
+                since=_string_value(safe_args.get("since")) or "1h",
+                start=_string_value(safe_args.get("start")),
+                end=_string_value(safe_args.get("end")),
+                step=_string_value(safe_args.get("step")),
+            )
+        elif canonical_name == "rsi_observability.logs_query":
+            output = grafana_logs_query(
+                str(safe_args.get("expr") or ""),
+                datasource=_string_value(safe_args.get("datasource")),
+                since=_string_value(safe_args.get("since")) or "1h",
+                start=_string_value(safe_args.get("start")),
+                end=_string_value(safe_args.get("end")),
+                limit=_int_value(safe_args.get("limit"), 50),
+                direction=_string_value(safe_args.get("direction")) or "backward",
+                step=_string_value(safe_args.get("step")),
+            )
+            lines = grafana_loki_log_lines(output)
+        elif canonical_name == "rsi_observability.dashboards_search":
+            output = grafana_dashboards_search(
+                _string_value(safe_args.get("query")),
+                tags=_string_list(safe_args.get("tags")),
+                limit=_int_value(safe_args.get("limit"), 50),
+            )
+        elif canonical_name == "rsi_observability.dashboard_get":
+            output = grafana_dashboard_get(_string_value(safe_args.get("uid")))
+        elif canonical_name == "rsi_observability.alert_rules_search":
+            output = grafana_alert_rules_search(
+                _string_value(safe_args.get("query")),
+                folder_uid=_string_value(safe_args.get("folder_uid")),
+                limit=_int_value(safe_args.get("limit"), 100),
+            )
+        elif canonical_name == "rsi_observability.alert_rule_get":
+            output = grafana_alert_rule_get(_string_value(safe_args.get("uid")))
+        elif canonical_name == "rsi_observability.active_alerts":
+            output = grafana_active_alerts(
+                _string_list(safe_args.get("filters")),
+                active=_bool_value_or_default(safe_args.get("active"), True),
+                silenced=_bool_value_or_default(safe_args.get("silenced"), False),
+                inhibited=_bool_value_or_default(safe_args.get("inhibited"), False),
+                limit=_int_value(safe_args.get("limit"), 100),
+            )
+        else:
+            raise RuntimeError("unknown RSI observability tool")
+        summary = _observability_summary(canonical_name, output, lines)
+        if session_id:
+            _append_event(
+                session_id,
+                "observability.query.completed",
+                {
+                    "event_type": "observability.query.completed",
+                    "status": "completed",
+                    "payload": {
+                        "tool_name": canonical_name,
+                        "transport_tool_name": transport_name,
+                        "summary": summary,
+                    },
+                },
+            )
+        result: JsonObject = {
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "status": "ok",
+            "summary": summary,
+            "output": output,
+        }
+        if lines:
+            result["log_lines"] = lines
+        return json.dumps(result, sort_keys=True)
+    except Exception as exc:
+        if session_id:
+            _append_event(
+                session_id,
+                "observability.query.failed",
+                {
+                    "event_type": "observability.query.failed",
+                    "status": "failed",
+                    "payload": {
+                        "tool_name": canonical_name,
+                        "transport_tool_name": transport_name,
+                        "error": str(exc),
+                    },
+                },
+            )
+        return json.dumps(
+            {
+                "tool_name": canonical_name,
+                "transport_tool_name": transport_name,
+                "status": "error",
+                "error": str(exc),
+            },
+            sort_keys=True,
+        )
+
+
 def _tool_handler(transport_name: str):
     canonical_name = _TRANSPORT_TO_CANONICAL[transport_name]
 
     def handler(args: JsonObject, task_id: str = "", **kwargs):
         if canonical_name in _DB_READ_CANONICAL_NAMES:
             return _db_read_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
+        if canonical_name in _OBSERVABILITY_CANONICAL_NAMES:
+            return _observability_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
+        if canonical_name.startswith(_NATIVE_CANONICAL_PREFIXES):
+            return _native_action_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
         return _artifact_handler(canonical_name, transport_name, args, task_id=task_id, **kwargs)
 
     return handler
