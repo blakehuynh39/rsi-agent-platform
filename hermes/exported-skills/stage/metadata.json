@@ -2911,13 +2911,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5023800e298d05b6b1b503f59e882ce8301de38fe07910cbab16a5704f4df6ac",
-        "size": 497664
+        "sha256": "10014938ce88f5938c7a03ebfc50e783b06c17688fa02f3c6e3f457005b9deb0",
+        "size": 497988
       },
       {
         "path": "log.md",
-        "sha256": "54967157fd169dc6a134e429d35867617dfbcb0293499e95a3a4e564f894b69a",
-        "size": 939145
+        "sha256": "8bed3f3107b4b7f33e60a2052ed4b4ac1159558b8dd76e1b93f7646b82e51dda",
+        "size": 939481
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3593,6 +3593,11 @@
         "path": "pages/decisions/eip-7212-precompile.md",
         "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
         "size": 5011
+      },
+      {
+        "path": "pages/decisions/hook-registry-design.md",
+        "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
+        "size": 4857
       },
       {
         "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
@@ -4954,8 +4959,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T02:57:16Z",
-  "file_count": 989,
+  "exported_at": "2026-05-08T03:08:38Z",
+  "file_count": 990,
   "files": [
     {
       "path": ".curator_state",
@@ -7862,7 +7867,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-b44bdfmmn4n",
-  "previous_tree_hash": "7e596fef034b2c8a0defe63bb3a1a82107f1e9a98787960d55092cbfe8988fb9",
+  "previous_tree_hash": "c7d33abbefb8835258ba44bed1af9feff2bcc54d8e94e507a3611872d74109a7",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7875,14 +7880,14 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c7d33abbefb8835258ba44bed1af9feff2bcc54d8e94e507a3611872d74109a7",
+  "tree_hash": "11e4769c51932eac1c563b5f946d35dc0ee9dd5b2d820be6aa325cb23644698d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 409,
+  "wiki_file_count": 410,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7891,13 +7896,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5023800e298d05b6b1b503f59e882ce8301de38fe07910cbab16a5704f4df6ac",
-      "size": 497664
+      "sha256": "10014938ce88f5938c7a03ebfc50e783b06c17688fa02f3c6e3f457005b9deb0",
+      "size": 497988
     },
     {
       "path": "log.md",
-      "sha256": "54967157fd169dc6a134e429d35867617dfbcb0293499e95a3a4e564f894b69a",
-      "size": 939145
+      "sha256": "8bed3f3107b4b7f33e60a2052ed4b4ac1159558b8dd76e1b93f7646b82e51dda",
+      "size": 939481
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8573,6 +8578,11 @@
       "path": "pages/decisions/eip-7212-precompile.md",
       "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
       "size": 5011
+    },
+    {
+      "path": "pages/decisions/hook-registry-design.md",
+      "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
+      "size": 4857
     },
     {
       "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
@@ -9931,5 +9941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "473d77f7f1d8d456a75abe650d35b2613a0b294c5282a2bfdd8833d35e4f05fa"
+  "wiki_tree_hash": "69cf9d04ed7036ee6dd649a6c36e98d986e7a4e75542753ef59e06eaa3be0537"
 }

@@ -19802,3 +19802,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a926c6328278d59898db75f58d608076
 - summary: Project to revamp Story Protocol's core infrastructure, migrating from a single AWS account with two single-ingress EKS clusters to a multi-account setup with improved IaC, CI/CD, ...
 
+## [2026-05-08T03:07:45Z] synthesis | Hook Registry Design
+
+- status: published
+- slug: decisions/hook-registry-design
+- wiki_revision_id: wikirev_09926cb7aa6d9e0a632369d6324bdcbd
+- summary: Design decisions for the Hook Registry, including proposals for a global registry, per-IPOrg configuration, and context-key-based hook storage.
+
