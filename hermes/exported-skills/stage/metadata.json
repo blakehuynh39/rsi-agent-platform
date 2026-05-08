@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bf59855aba8b3ca77300110815b2d34e45c1f25189132f986298b07354a6de0c",
-        "size": 514553
+        "sha256": "da40d696aabb218f9170c85a6795489f24ccd4ffa62a505b3dec0821dafe6acd",
+        "size": 515680
       },
       {
         "path": "log.md",
-        "sha256": "453dd6be478d2c228cb8ba554aad391be38ef87aedd03b9eeafbc92d40e64ead",
-        "size": 964027
+        "sha256": "5fc5e0012513daa3f9b8627f611a95e5f3317e7c5c46eae168c609dd80770018",
+        "size": 965190
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3498,6 +3498,11 @@
         "path": "pages/concepts/storj.md",
         "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
         "size": 1012
+      },
+      {
+        "path": "pages/concepts/story-l1-peer-discovery-insights.md",
+        "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
+        "size": 4711
       },
       {
         "path": "pages/concepts/story-paragraph-building-blocks.md",
@@ -4885,6 +4890,16 @@
         "size": 4260
       },
       {
+        "path": "pages/runbooks/story-l1-single-node-setup.md",
+        "sha256": "8e1e939fa551fc71fa6780dcf2d2964b2b59d0f398a8ad9e79f0e4475e17f207",
+        "size": 8029
+      },
+      {
+        "path": "pages/runbooks/story-l1-two-node-local-setup.md",
+        "sha256": "9a59eb2178f36d9d6bfd98f1d931e83bcdccf375380d8694efc58bbaee818d8c",
+        "size": 7237
+      },
+      {
         "path": "pages/runbooks/story-node-setup-guide.md",
         "sha256": "fe475ea6839dcda953ff0ad053043c5ebccacd04f4d8333cc6129a931e7b1308",
         "size": 1225
@@ -5194,8 +5209,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T19:09:19Z",
-  "file_count": 1037,
+  "exported_at": "2026-05-08T20:05:51Z",
+  "file_count": 1040,
   "files": [
     {
       "path": ".curator_state",
@@ -8116,8 +8131,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
-  "previous_tree_hash": "0690d11c7d218b6462dcd56c8c3464e7749a6042a305e734959f25bbc40fb7b6",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8bf96tkqw",
+  "previous_tree_hash": "0c55698748c58c6cc25a3790551309cc1afce1c8e3615ca8875467205076fa7c",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8130,14 +8145,14 @@
   ],
   "skill_tree_hash": "8fd71ac3c8d99d7835f5779dd3829339e06371a18a3c5d00660c0f3ba755abc5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0c55698748c58c6cc25a3790551309cc1afce1c8e3615ca8875467205076fa7c",
+  "tree_hash": "4431a2739b737ff0d35c295938f55f3933fb505c1aedd0faba7a2d4799b5f9d9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 454,
+  "wiki_file_count": 457,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8146,13 +8161,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bf59855aba8b3ca77300110815b2d34e45c1f25189132f986298b07354a6de0c",
-      "size": 514553
+      "sha256": "da40d696aabb218f9170c85a6795489f24ccd4ffa62a505b3dec0821dafe6acd",
+      "size": 515680
     },
     {
       "path": "log.md",
-      "sha256": "453dd6be478d2c228cb8ba554aad391be38ef87aedd03b9eeafbc92d40e64ead",
-      "size": 964027
+      "sha256": "5fc5e0012513daa3f9b8627f611a95e5f3317e7c5c46eae168c609dd80770018",
+      "size": 965190
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8718,6 +8733,11 @@
       "path": "pages/concepts/storj.md",
       "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
       "size": 1012
+    },
+    {
+      "path": "pages/concepts/story-l1-peer-discovery-insights.md",
+      "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
+      "size": 4711
     },
     {
       "path": "pages/concepts/story-paragraph-building-blocks.md",
@@ -10105,6 +10125,16 @@
       "size": 4260
     },
     {
+      "path": "pages/runbooks/story-l1-single-node-setup.md",
+      "sha256": "8e1e939fa551fc71fa6780dcf2d2964b2b59d0f398a8ad9e79f0e4475e17f207",
+      "size": 8029
+    },
+    {
+      "path": "pages/runbooks/story-l1-two-node-local-setup.md",
+      "sha256": "9a59eb2178f36d9d6bfd98f1d931e83bcdccf375380d8694efc58bbaee818d8c",
+      "size": 7237
+    },
+    {
       "path": "pages/runbooks/story-node-setup-guide.md",
       "sha256": "fe475ea6839dcda953ff0ad053043c5ebccacd04f4d8333cc6129a931e7b1308",
       "size": 1225
@@ -10411,5 +10441,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "341ea33b88ee4587a67594fc8ff82b6ca2d4c866115db1fe82f4bb03f4fbcf93"
+  "wiki_tree_hash": "c1f56c881d783a13082943320a44710a14a5d0ed42f991cf0826a619f7a7eecc"
 }

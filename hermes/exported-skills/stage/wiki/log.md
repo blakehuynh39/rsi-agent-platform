@@ -20289,3 +20289,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ce69332cfadc8b5e4ef3505ae0b4e60a
 - summary: Feature requests and discussions for the Story Protocol Gateway (SPG) functions, including batch IP registration, base URI configuration, signature reduction, and more.
 
+## [2026-05-08T20:03:44Z] synthesis | Story L1 Two-Node Local Setup
+
+- status: published
+- slug: runbooks/story-l1-two-node-local-setup
+- wiki_revision_id: wikirev_1e2d3023d708cc773482e3f34567df92
+- summary: Step-by-step guide to set up a two-node private Story L1 network on macOS, covering execution client (geth) and consensus client (iliad) configuration, genesis file customization, ...
+
+## [2026-05-08T20:03:44Z] synthesis | Story L1 Peer Discovery Insights
+
+- status: published
+- slug: concepts/story-l1-peer-discovery-insights
+- wiki_revision_id: wikirev_725c6a388fe915b938f6c56fe80c89a0
+- summary: Observations on how geth and consensus (CometBFT) nodes discover and maintain peers, including the effects of NoDiscovery, BootstrapNodes, seed mode, and PEX settings.
+
+## [2026-05-08T20:04:47Z] synthesis | Story L1 Single Node Setup
+
+- status: published
+- slug: runbooks/story-l1-single-node-setup
+- wiki_revision_id: wikirev_59a88de2269593af128e764ace2dfec6
+- summary: Instructions for setting up a single-node private Story L1 network locally on macOS, including execution client (geth), consensus client (iliad), genesis configuration, and debuggi...
+
