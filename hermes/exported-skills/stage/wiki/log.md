@@ -20119,3 +20119,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_891971660066b554341b194ca8b95db4
 - summary: Concept page for the Poseidon User multiplier, based on a Notion document.
 
+## [2026-05-08T14:48:36Z] synthesis | Q3 Key Results (L1/API/SDK)
+
+- status: published
+- slug: projects/q3-key-results-l1-api-sdk
+- wiki_revision_id: wikirev_3081b748cc317feaef3c4ce2b1e68c91
+- summary: Q3 key results for L1, API, and SDK teams, all tied to Company Objective 1: Outstanding Public Testnet launch drives developer and user adoption. Covers network performance, toolin...
+

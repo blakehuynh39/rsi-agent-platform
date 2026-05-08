@@ -2926,8 +2926,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "6c6a0b1f8c230186fab741664648f4b0a67717dcec8f67fd6c25199da7eb3a31",
-        "size": 955391
+        "sha256": "cb59f82be1c054d20b5f3e696143bc1aee90a72456d01e19b5168cc6012914ec",
+        "size": 955778
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4490,6 +4490,11 @@
         "size": 9097
       },
       {
+        "path": "pages/projects/q3-key-results-l1-api-sdk.md",
+        "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
+        "size": 4577
+      },
+      {
         "path": "pages/projects/rcade-music-app.md",
         "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
         "size": 1058
@@ -5129,8 +5134,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T14:40:22Z",
-  "file_count": 1024,
+  "exported_at": "2026-05-08T14:51:29Z",
+  "file_count": 1025,
   "files": [
     {
       "path": ".curator_state",
@@ -8047,7 +8052,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "47e3a646dd88336bb4f46c8e54dd632618c11300118ad23860d7bcab7c6473ef",
+  "previous_tree_hash": "e25274addb0124c70f48f814ef07271146c53f4ea4efd1aad17b5d6fd6f91437",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8060,14 +8065,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e25274addb0124c70f48f814ef07271146c53f4ea4efd1aad17b5d6fd6f91437",
+  "tree_hash": "419086d0e882dbbf02c0000dc0f4ff521685c8769d5a4de1fb6f30320bb904f6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 442,
+  "wiki_file_count": 443,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8081,8 +8086,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "6c6a0b1f8c230186fab741664648f4b0a67717dcec8f67fd6c25199da7eb3a31",
-      "size": 955391
+      "sha256": "cb59f82be1c054d20b5f3e696143bc1aee90a72456d01e19b5168cc6012914ec",
+      "size": 955778
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9645,6 +9650,11 @@
       "size": 9097
     },
     {
+      "path": "pages/projects/q3-key-results-l1-api-sdk.md",
+      "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
+      "size": 4577
+    },
+    {
       "path": "pages/projects/rcade-music-app.md",
       "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
       "size": 1058
@@ -10281,5 +10291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4920a446bbb7cc2fc21cb4cb9e73bfc48922ea116e5b80d26b973ab554bae851"
+  "wiki_tree_hash": "0b69e34da1bf5339aafaad66e5fd194a792f504ced8682f648846abf7d95d08b"
 }
