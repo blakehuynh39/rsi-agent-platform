@@ -19809,3 +19809,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_09926cb7aa6d9e0a632369d6324bdcbd
 - summary: Design decisions for the Hook Registry, including proposals for a global registry, per-IPOrg configuration, and context-key-based hook storage.
 
+## [2026-05-08T03:18:08Z] synthesis | Backend Onboarding
+
+- status: published
+- slug: runbooks/backend-onboarding
+- wiki_revision_id: wikirev_43a2562e6b7a712abe9f33a177880a5a
+- summary: Onboarding guide for backend developers, containing links to Typescript SDK setup and Project Nova setup.
+
+## [2026-05-08T03:19:57Z] synthesis | DevEx
+
+- status: published
+- slug: concepts/devex
+- wiki_revision_id: wikirev_d3bb036367b5d076e06fd5ac000ca89b
+- summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
+
+## [2026-05-08T03:19:58Z] synthesis | Our AWS Accounts
+
+- status: published
+- slug: systems/aws-accounts
+- wiki_revision_id: wikirev_1ebdc8ce45c331d90f8e6dbe4e1ec8a7
+- summary: Details of the AWS accounts used by the organization, including account IDs, purposes, regions, and deprecation status.
+
