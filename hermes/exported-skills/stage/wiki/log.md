@@ -19893,3 +19893,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bb4833d4aed480536d7b555990e44694
 - summary: Summary of protocol research, development milestones, module discussions, repository activities, and Beta release design ideas from May to July 2023.
 
+## [2026-05-08T06:25:26Z] synthesis | Indexer Evaluation
+
+- status: published
+- slug: decisions/indexer-evaluation
+- wiki_revision_id: wikirev_ccb34db37711c20e1f89405bfbe5a923
+- summary: Evaluation of indexer vendors (Zetablocks and Goldsky) to power protocol APIs, on-chain analytics, and third-party developer APIs. Includes requirements, fee structure, and vendor ...
+
