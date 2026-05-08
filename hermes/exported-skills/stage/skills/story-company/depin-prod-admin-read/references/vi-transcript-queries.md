@@ -60,7 +60,12 @@ This returns the full distribution in a few rows (one per distinct unique_user c
 - 64 scripts (87.7%): 0 unique submitters
 - 9 scripts (12.3%): 1 unique submitter each
 
-### Prod (depin-prod)
+### Prod (depin-prod — 2026-05-08 08:54 UTC)
+- Distribution query returned **10 rows** (histogram buckets), truncated=false
+- REST API: 887 users with `primary_language = 'vi'`, 7,744 submissions, avg 8.73/user
+- Campaign: 8,981 completed / 36,000 target tasks
+
+### Prod (depin-prod — 2026-05-08 earlier session)
 - ~1,000 active Vietnamese scripts (from prior session count)
 - Top 100 (LIMIT 100): ALL have exactly 9 unique submitters each
 - Strong evidence of a system-enforced per-script cap of 9 unique users

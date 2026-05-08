@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin stats through admin REST reads and native approved DB reads."
-version: 1.3.0
+version: 1.4.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, db-read]
@@ -41,7 +41,8 @@ For per-transcript distribution queries (e.g., "how many unique users submitted 
 - After `db_read.query` is called, **check the Slack thread immediately** before pursuing fallbacks. If approval cards appeared, the queries are live — use `db_read.status` with each request ID to retrieve the full result data (including the `result_sample` rows that Slack cards summarize).
 - **`db_read.status` frequently returns 404** even for valid, succeeded queries. Do not loop-retry `db_read.status` — it is not a reliable diagnostic. When repeated 404s occur, switch to the Slack mirror (`mcp_rsi_task_trace_*_conversation_get` on the thread) to read approval card statuses (approved/executing/succeeded/failed). The approval cards are the ground truth; `db_read.status` is a best-effort convenience.
 - **When `db_read.query` returns `"[Result unavailable — see context summary above]"`**: the query was approved and executed, but the sanitized row data was not propagated to the Hermes context. Check the Slack mirror for the approval card status (`succeeded; rows=N truncated=false`). If you need the actual row values, look for `*Result:*` or `*Sample:*` blocks in the approval cards on Slack; not all approval card templates include full result samples.
-- **Use `session_search` before diving deep**: if a prior session tackled the same task, its summary reveals what queries worked, what data was found, and what pitfalls were hit. This avoids re-inventing the schema exploration path.
+- Use `session_search` before diving deep: if a prior session tackled the same task, its summary reveals what queries worked, what data was found, and what pitfalls were hit. This avoids re-inventing the schema exploration path.
+- When `db_read.query` results fail to propagate, see `references/rsidb-propagation-architecture.md` for the full RSI platform internal mechanism — the 3-layer async pipeline, specific file/line references in `piplabs/rsi-agent-platform`, and known failure modes.
 - When targeting `depin-prod`, note that prod queries route through AWS Lambda and require Slack approval. Stage queries (`depin-stage`) route through the stage worker pod directly and have a 5s timeout. For distribution queries that fit within caps, both work; stage may return slightly stale data but avoids the Lambda relay hop.
 - Do not use terminal, Kubernetes, or hand-built network calls to bypass the native permission flow.
 - Do not self-approve. The approval is for an authorized DB-read admin, not necessarily the requester.
