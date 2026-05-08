@@ -19781,3 +19781,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1c258b836b3853230c756b950d349e58
 - summary: A Notion document outlining the design of the SDK, including requirements, testing, protocol metadata, CLI, CI/CD, and beta protocol SDK.
 
+## [2026-05-08T01:43:29Z] synthesis | NFT Standard Design
+
+- status: published
+- slug: projects/nft-standard-design
+- wiki_revision_id: wikirev_c7bf8c366d15e4a163d0738d5e418b49
+- summary: Designing a community NFT standard with features like dynamic on-chain images, staking, ENS support, and staggered minting. Includes tasks to write a token standard proposal and su...
+
+## [2026-05-08T01:47:18Z] synthesis | Dashboard Explorer
+
+- status: published
+- slug: concepts/dashboard-explorer
+- wiki_revision_id: wikirev_4b3d7341f9d952ce4ee64524915a439e
+- summary: A collection of blockchain dashboards and explorers used by the team, including Momoka and Uniswap.
+
