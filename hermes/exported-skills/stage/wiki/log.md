@@ -20347,3 +20347,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_24c69d2a3093ba86edd6f521fe961cb3
 - summary: Configuration details for the Mininet network, including chain ID, RPC endpoint, and block explorer URL.
 
+## [2026-05-08T21:35:24Z] synthesis | 4844 Blob Transaction Setup Guide
+
+- status: published
+- slug: runbooks/4844-blob-transaction-setup-guide
+- wiki_revision_id: wikirev_7bc8462f005e59de0c0d66c565dcb575
+- summary: Step-by-step guide to set up a project for sending 4844 blob transactions using viem and TypeScript.
+
