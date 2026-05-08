@@ -20098,3 +20098,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a02ae79fb7fb51d4804eeaae3b745eb6
 - summary: After the internal DevNet launch on June 17, engineers are assigned homework tasks to explore the L1 DevNet, including claiming tokens, running a validator, deploying memecoins, an...
 
+## [2026-05-08T14:16:16Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_b7bde851b429a132ba87c013128bb99f
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
+## [2026-05-08T14:17:06Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_4c82c9744d41cba9f1be975c15bd61f7
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
