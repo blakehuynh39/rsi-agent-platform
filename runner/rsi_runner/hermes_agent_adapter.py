@@ -107,6 +107,13 @@ _PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     }
 )
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})
+_STRUCTURED_RESPONSE_TEXT_SIGNALS = (
+    "final_answer",
+    "reply_draft",
+    "reply_delivery",
+    "session_title",
+    "visible_reasoning",
+)
 
 
 def _string(value: Any) -> str:
@@ -131,6 +138,16 @@ def _json_list(value: Any) -> list[Any]:
 
 def _json_object_list(value: Any) -> list[JsonObject]:
     return [item for item in _json_list(value) if isinstance(item, dict)]
+
+
+def _looks_like_structured_response_text(value: Any) -> bool:
+    text = _string(value).lstrip().lower()
+    if not text:
+        return False
+    head = text[:4096]
+    if not (head.startswith("{") or head.startswith("```json") or head.startswith("``` json") or "```json" in head):
+        return False
+    return any(signal in head for signal in _STRUCTURED_RESPONSE_TEXT_SIGNALS)
 
 
 def _string_list(value: Any) -> list[str]:
@@ -711,13 +728,21 @@ class HermesAgentAdapter:
 
     def _final_delivery_body(self, response: str, result: JsonObject) -> str:
         parsed_response = _json_object_from_string(response)
+        parsed_response_delivery = _json_object(parsed_response.get("reply_delivery"))
+        structured_output = _json_object(result.get("structured_output"))
+        structured_delivery = _json_object(structured_output.get("reply_delivery"))
+        final_response = result.get("final_response")
+        fallback_final_response = "" if _looks_like_structured_response_text(final_response) else final_response
+        fallback_response = "" if _looks_like_structured_response_text(response) else response
         candidates = [
             parsed_response.get("final_answer"),
             parsed_response.get("reply_draft"),
-            _json_object(result.get("structured_output")).get("final_answer"),
-            _json_object(result.get("structured_output")).get("reply_draft"),
-            result.get("final_response"),
-            response,
+            parsed_response_delivery.get("body"),
+            structured_output.get("final_answer"),
+            structured_output.get("reply_draft"),
+            structured_delivery.get("body"),
+            fallback_final_response,
+            fallback_response,
         ]
         for candidate in candidates:
             text = _string(candidate)

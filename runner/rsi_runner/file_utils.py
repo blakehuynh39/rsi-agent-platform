@@ -3,11 +3,18 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
 
 from .json_types import JsonObject
+
+
+_JSON_CODE_FENCE_RE = re.compile(
+    r"```[ \t]*(?:json)?[ \t]*\r?\n(?P<body>.*?)\r?\n?```",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def _fsync_parent(path: Path) -> None:
@@ -68,8 +75,16 @@ def _json_object_from_string(value: Any) -> JsonObject:
         return value
     if not isinstance(value, str) or not value.strip():
         return {}
-    try:
-        parsed = json.loads(value)
-    except (TypeError, ValueError, json.JSONDecodeError):
-        return {}
-    return parsed if isinstance(parsed, dict) else {}
+    candidates = [value.strip()]
+    for match in _JSON_CODE_FENCE_RE.finditer(value):
+        fenced_body = match.group("body").strip()
+        if fenced_body and fenced_body not in candidates:
+            candidates.append(fenced_body)
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+    return {}

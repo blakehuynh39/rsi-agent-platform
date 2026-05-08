@@ -18,6 +18,7 @@ from urllib import error as urlerror
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.execution_contract import HermesCompanyComputer
+from rsi_runner.file_utils import _json_object_from_string
 from rsi_runner.hermes_adapter import HermesAdapter, _build_plugin_module
 from rsi_runner.hermes_agent_adapter import (
     HermesAgentAdapter,
@@ -1499,6 +1500,37 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(meta["timeout_kind"], "task_timeout")
         self.assertFalse(meta["max_iterations_reached"])
         self.assertTrue(meta["native_result_partial"])
+
+    def test_json_object_from_string_accepts_json_code_fences(self) -> None:
+        payload = {"final_answer": "Clean answer", "reply_delivery": {"body": "Slack body"}}
+
+        self.assertEqual(_json_object_from_string("```json\n" + json.dumps(payload) + "\n```"), payload)
+        self.assertEqual(_json_object_from_string("draft:\n```JSON\n" + json.dumps(payload) + "\n```"), payload)
+
+    def test_hermes_agent_adapter_final_delivery_body_extracts_fenced_contract(self) -> None:
+        adapter = HermesAgentAdapter({"session_id": "session-1"})
+        response = "```json\n" + json.dumps({"final_answer": "Clean answer"}) + "\n```"
+
+        self.assertEqual(adapter._final_delivery_body(response, {"final_response": response}), "Clean answer")
+
+    def test_hermes_agent_adapter_final_delivery_body_uses_nested_reply_delivery_body(self) -> None:
+        adapter = HermesAgentAdapter({"session_id": "session-1"})
+        response = "```json\n" + json.dumps({"reply_delivery": {"body": "Slack body"}}) + "\n```"
+
+        self.assertEqual(adapter._final_delivery_body(response, {"final_response": response}), "Slack body")
+
+    def test_hermes_agent_adapter_final_delivery_body_drops_malformed_json_contract_fallback(self) -> None:
+        adapter = HermesAgentAdapter({"session_id": "session-1"})
+        malformed_response = '```json\n{"visible_reasoning": "done", "final_answer": "Raw contract"\n```'
+
+        self.assertEqual(
+            adapter._final_delivery_body(
+                malformed_response,
+                {"final_response": malformed_response, "structured_output": {"reply_draft": "Recovered draft"}},
+            ),
+            "Recovered draft",
+        )
+        self.assertEqual(adapter._final_delivery_body(malformed_response, {"final_response": malformed_response}), "")
 
     def test_hermes_agent_adapter_writes_self_review_candidate_with_runner_execution_id(self) -> None:
         captured_payload: dict[str, object] = {}
