@@ -2911,13 +2911,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8d7d8ad91d2d18895dff03ea4128ce04c1f269aeb6429cb50783c41538d666b8",
-        "size": 498835
+        "sha256": "967423840549538c20f78c128fa95a46ae294f69ccbcfdb5a4388ee83c2cd4b8",
+        "size": 499253
       },
       {
         "path": "log.md",
-        "sha256": "246f2404a728e9cd05047ec03eca1b43e0153cb133ef0f1dc6ca17cf412ffb0d",
-        "size": 941649
+        "sha256": "f04a00ddf24c4d7ce75c0135d1aed6a3e6f4993c2ab35d0f4c64fbaa2c7d53f0",
+        "size": 942079
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4575,6 +4575,11 @@
         "size": 1616
       },
       {
+        "path": "pages/runbooks/eks-oidc-secret-manager-permission-troubleshooting.md",
+        "sha256": "ae5610042d1142494faee2309e2f328d907147739566707d277edfe4f94189c9",
+        "size": 7894
+      },
+      {
         "path": "pages/runbooks/eng-demo-signup.md",
         "sha256": "4084e03af15fe3373e97baf285934ec5296f18c8147e56b1a65e8d5ae84fa430",
         "size": 1424
@@ -4974,8 +4979,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T03:52:55Z",
-  "file_count": 993,
+  "exported_at": "2026-05-08T04:09:16Z",
+  "file_count": 994,
   "files": [
     {
       "path": ".curator_state",
@@ -7882,7 +7887,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-b44bdfmmn4n",
-  "previous_tree_hash": "7529335fcfc8d59ee6f60b0958747a4f9ab48caea5492dcfaa55b997e5205e9f",
+  "previous_tree_hash": "0c520af12d8e72cbc9190e880374e61394d4f17eeeec7e708866c0bfd2704cef",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7895,14 +7900,14 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0c520af12d8e72cbc9190e880374e61394d4f17eeeec7e708866c0bfd2704cef",
+  "tree_hash": "ddd993af8b66fa0f21ef2f35da077a3edf8604ee9bebbf80a1ce23f24906ff26",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 413,
+  "wiki_file_count": 414,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7911,13 +7916,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8d7d8ad91d2d18895dff03ea4128ce04c1f269aeb6429cb50783c41538d666b8",
-      "size": 498835
+      "sha256": "967423840549538c20f78c128fa95a46ae294f69ccbcfdb5a4388ee83c2cd4b8",
+      "size": 499253
     },
     {
       "path": "log.md",
-      "sha256": "246f2404a728e9cd05047ec03eca1b43e0153cb133ef0f1dc6ca17cf412ffb0d",
-      "size": 941649
+      "sha256": "f04a00ddf24c4d7ce75c0135d1aed6a3e6f4993c2ab35d0f4c64fbaa2c7d53f0",
+      "size": 942079
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9575,6 +9580,11 @@
       "size": 1616
     },
     {
+      "path": "pages/runbooks/eks-oidc-secret-manager-permission-troubleshooting.md",
+      "sha256": "ae5610042d1142494faee2309e2f328d907147739566707d277edfe4f94189c9",
+      "size": 7894
+    },
+    {
       "path": "pages/runbooks/eng-demo-signup.md",
       "sha256": "4084e03af15fe3373e97baf285934ec5296f18c8147e56b1a65e8d5ae84fa430",
       "size": 1424
@@ -9971,5 +9981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f4ab181ef8146e58b89fe423107ab62ffcac413da70765a30b42c980a7b1e2c2"
+  "wiki_tree_hash": "176355f8ba06bd17532035756fd59be40497806825f0b4ff1731e333cb70786e"
 }

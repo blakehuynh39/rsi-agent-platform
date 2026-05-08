@@ -19858,3 +19858,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7cd4d811caf5a3a3eb6b520e744950d
 - summary: The DevEx Notion page serves as a hub for developer experience documentation, linking to key resources such as AWS accounts, Kubernetes clusters, and CLI tools.
 
+## [2026-05-08T04:05:05Z] synthesis | EKS OIDC Secret Manager Permission Troubleshooting
+
+- status: published
+- slug: runbooks/eks-oidc-secret-manager-permission-troubleshooting
+- wiki_revision_id: wikirev_6e79ae99bcc4caac44fec0dd54e06b88
+- summary: Steps to diagnose and fix secret manager permission issues in EKS using OIDC, including verifying OIDC provider, service account role, trust relationship, and testing with a pod.
+
