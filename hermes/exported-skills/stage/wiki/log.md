@@ -20063,3 +20063,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bdb462a2d6c3ec5a4181489e5ca69a39
 - summary: Manual setup procedure for a 4-validator + 1 bootnode devnet, including folder structures, configuration files, and binaries.
 
+## [2026-05-08T12:24:08Z] synthesis | Devnet (Manual Provisioned)
+
+- status: published
+- slug: systems/devnet-manual-provisioned
+- wiki_revision_id: wikirev_015d9ffd7888cdec70c0adca61600fbd
+- summary: Details of the manually provisioned devnet with 15 validators, 1 bootnode, and an explorer, hosted in AWS us-west-1.
+
