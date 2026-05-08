@@ -4940,38 +4940,6 @@ func TestBuildRunnerTaskDefersToRunnerDefaultTaskBudget(t *testing.T) {
 	}
 }
 
-func TestBuildRunnerTaskCarriesKubernetesReadScope(t *testing.T) {
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	ctx, err := loadWorkflowContext(store, workflowItem)
-	if err != nil {
-		t.Fatalf("loadWorkflowContext() error = %v", err)
-	}
-	cfg := config.Config{
-		Environment:               "stage",
-		DefaultRepo:               "depin-backend",
-		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		KubernetesReadNamespaces:  []string{"story"},
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	task := buildRunnerTask(cfg, store, "prod", ctx.trace, ctx.workflow, ctx.ingestion, "Context collected.", nil)
-
-	if got := task.KubernetesReadNamespaces; len(got) != 2 || got[0] != "story" || got[1] != "rsi-platform" {
-		t.Fatalf("kubernetes read namespaces = %#v, want story+rsi-platform", got)
-	}
-	if strings.Contains(task.Prompt, "Kubernetes read scope:") {
-		t.Fatalf("control-plane prompt should not duplicate Kubernetes read scope, got %q", task.Prompt)
-	}
-	if strings.Contains(task.ContextSummary, "Runtime deployment targets:") {
-		t.Fatalf("context summary should not advertise deterministic deployment targets, got %q", task.ContextSummary)
-	}
-	assertNoContextRefKind(t, task.ContextRefs, "kubernetes_read_scope")
-	assertNoContextRefKind(t, task.ContextRefs, "runtime_deployment_targets")
-}
-
 func TestWorkflowRetryAtSkipsRetryAfterReplyPostBegins(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")

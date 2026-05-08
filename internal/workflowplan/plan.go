@@ -6,17 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 )
 
 type RuntimeConfig struct {
-	DefaultRepo              string
-	AllowedRepos             []string
-	KnowledgeBaseURL         string
-	SandboxNamespace         string
-	KubernetesReadNamespaces []string
+	DefaultRepo      string
+	AllowedRepos     []string
+	KnowledgeBaseURL string
+	SandboxNamespace string
 }
 
 type RequestContext struct {
@@ -74,23 +72,22 @@ func BuildToolRequestPayload(cfg RuntimeConfig, ctx RequestContext, now time.Tim
 		caseID = ctx.CaseID
 	}
 	payload := map[string]any{
-		"repo":                       repo,
-		"question":                   ctx.Question,
-		"topic":                      ctx.Question,
-		"scope_id":                   repo,
-		"service":                    ctx.AssignedBot,
-		"services":                   DeploymentTargetsForRepo(repo),
-		"alert":                      ctx.Question,
-		"namespace":                  cfg.SandboxNamespace,
-		"kubernetes_read_namespaces": config.CompactUniqueStrings(cfg.KubernetesReadNamespaces),
-		"target":                     ctx.WorkflowKind,
-		"knowledge_base_url":         cfg.KnowledgeBaseURL,
-		"channel_id":                 ctx.ChannelID,
-		"thread_ts":                  ctx.ThreadTS,
-		"trace_id":                   ctx.Trace.TraceID,
-		"workflow_id":                workflowID,
-		"conversation_id":            conversationID,
-		"case_id":                    caseID,
+		"repo":               repo,
+		"question":           ctx.Question,
+		"topic":              ctx.Question,
+		"scope_id":           repo,
+		"service":            ctx.AssignedBot,
+		"services":           DeploymentTargetsForRepo(repo),
+		"alert":              ctx.Question,
+		"namespace":          cfg.SandboxNamespace,
+		"target":             ctx.WorkflowKind,
+		"knowledge_base_url": cfg.KnowledgeBaseURL,
+		"channel_id":         ctx.ChannelID,
+		"thread_ts":          ctx.ThreadTS,
+		"trace_id":           ctx.Trace.TraceID,
+		"workflow_id":        workflowID,
+		"conversation_id":    conversationID,
+		"case_id":            caseID,
 	}
 	if ShouldUseGitHubRepoActivity(ctx.Question, repo) {
 		since, until := RepoActivityWindow(ctx.Question, now)

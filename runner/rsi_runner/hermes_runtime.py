@@ -1032,7 +1032,6 @@ class RunnerTaskRequest:
     workspace_repo: str | None
     workspace_branch: str | None
     allowed_path_globs: list[str]
-    kubernetes_read_namespaces: list[str]
     mcp_servers: list[JsonObject]
     execution_phase: str | None
     contract_version: str | None
@@ -1092,7 +1091,6 @@ class RunnerTaskRequest:
             workspace_repo=_optional_string(task.get("workspace_repo")),
             workspace_branch=_optional_string(task.get("workspace_branch")),
             allowed_path_globs=_string_list(task.get("allowed_path_globs")),
-            kubernetes_read_namespaces=_string_list(task.get("kubernetes_read_namespaces")),
             mcp_servers=_json_object_list(task.get("mcp_servers")),
             execution_phase=_optional_string(task.get("execution_phase")),
             contract_version=_optional_string(task.get("contract_version")),
@@ -3188,7 +3186,6 @@ class HermesRuntime:
             "workspace_branch": task.workspace_branch,
             "attempt_id": task.attempt_id,
             "context_refs": task.context_refs,
-            "kubernetes_read_namespaces": task.kubernetes_read_namespaces,
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
             "execution_intent": task.execution_intent,
             "external_tool_resume": task.external_tool_resume,
@@ -3656,7 +3653,6 @@ class HermesRuntime:
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
             "github_cli_credentials": dict(github_cli_credentials),
-            "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
             "company_computer_bootstrap_status": dict(self._company_computer_bootstrap_status),
             "run_dir": str(result_path.parent),
             "contract_version": task.contract_version or EXECUTION_CONTRACT_VERSION,
@@ -5789,7 +5785,6 @@ class HermesRuntime:
             "hermes_company_bin_dir": self._config.hermes_company_bin_dir,
             "hermes_kubernetes_context_enabled": self._config.hermes_kubernetes_context_enabled,
             "hermes_kubeconfig_path": self._config.hermes_kubeconfig_path if (self._config.hermes_kubernetes_context_enabled or self._config.hermes_prod_kubernetes_context_enabled) else "",
-            "kubernetes_read_namespaces": list(task.kubernetes_read_namespaces),
             "context_summary": task.context_summary or "",
             "task_default_question": query_hints.get("default_question", ""),
             "task_repo_question": query_hints.get("repo_question", ""),
@@ -7847,12 +7842,6 @@ class HermesRuntime:
                     f"{self._config.hermes_prod_kubernetes_context_name} kubeconfig context. Use explicit "
                     f"kubectl --context {self._config.hermes_prod_kubernetes_context_name} commands for production reads."
                 )
-        if task.kubernetes_read_namespaces:
-            namespace_scope = ", ".join(task.kubernetes_read_namespaces)
-            parts.append(
-                "Kubernetes read namespace scope: "
-                f"{namespace_scope}. Use kubectl only with these namespaces and do not probe unlisted or archived namespaces."
-            )
         if task.delivery_policy:
             parts.append(f"Delivery policy: {json.dumps(task.delivery_policy, ensure_ascii=True, sort_keys=True)}")
         if task.workspace_policy:

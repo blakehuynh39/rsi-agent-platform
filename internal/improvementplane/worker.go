@@ -1938,7 +1938,6 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "eval", cfg.DefaultReasoningVerbosity)
 	targetRepo := evalTargetRepo(cfg, store, trace)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
-	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	candidateKey := ""
 	if candidate, ok := latestCandidateForTrace(store, trace.Summary.TraceID); ok {
 		candidateKey = candidate.CandidateKey
@@ -2045,7 +2044,6 @@ func buildEvalRunnerTask(cfg config.Config, store storepkg.Store, trace events.T
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:eval", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("line:%s", sessionScopeID),
-		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "eval",
@@ -2065,7 +2063,6 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 	targetRepo := proposalTargetRepo(cfg, proposal)
 	repoAllowlist := scopedImprovementRepoAllowlist(targetRepo)
 	sessionScopeID := proposalSessionScopeID(proposal, targetRepo)
-	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	executionMode := "investigate"
 	if workspace != nil {
 		executionMode = "implement"
@@ -2227,7 +2224,6 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 		WorkspaceRepo:             workspaceRepoValue(workspace),
 		WorkspaceBranch:           workspaceBranchValue(workspace),
 		AllowedPathGlobs:          workspaceAllowedPathGlobsValue(workspace),
-		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "proposal",
@@ -2246,7 +2242,6 @@ func buildProposalRunnerTask(cfg config.Config, store storepkg.Store, trace even
 func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, diagnosis improvement.RuntimeDiagnosis, candidate improvement.Candidate, trace events.Trace) clients.RunnerTask {
 	effectiveHarness := harness.ResolveEffectiveConfig(store, "proposal", cfg.DefaultReasoningVerbosity)
 	targetRepo := firstNonEmpty(strings.TrimSpace(diagnosis.Repo), runtimeDiagnosisTargetRepo(cfg, candidate), cfg.DefaultRepo)
-	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	contextRefs := []clients.RunnerContextRef{
 		{
 			Kind:              "candidate",
@@ -2340,7 +2335,6 @@ func buildRuntimeDiagnosisRunnerTask(cfg config.Config, store storepkg.Store, di
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:proposal", cfg.Environment),
 		UserPeerID:                fmt.Sprintf("runtime_diagnosis:%s", firstNonEmpty(strings.TrimSpace(diagnosis.SessionScopeID), runtimeDiagnosisSessionScopeID(candidate.CandidateKey, targetRepo))),
-		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                "runtime_diagnosis",

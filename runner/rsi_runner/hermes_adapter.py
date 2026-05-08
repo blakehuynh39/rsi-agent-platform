@@ -696,10 +696,6 @@ def _default_payload(canonical_name: str, payload: JsonObject) -> JsonObject:
         out["candidate_key"] = session_scope_id
     if canonical_name == "rsi.attempt_context" and attempt_id:
         out["attempt_id"] = attempt_id
-    if canonical_name in {"kubernetes.inspect", "kubernetes.logs", "kubernetes.events", "rsi.runtime_deployment_facts"}:
-        namespaces = _string_list(payload.get("kubernetes_read_namespaces"))
-        if len(namespaces) == 1:
-            out["namespace"] = namespaces[0]
     if canonical_name.startswith("workspace."):
         if workspace_id:
             out["workspace_id"] = workspace_id

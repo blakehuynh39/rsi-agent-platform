@@ -118,7 +118,6 @@ type Config struct {
 	CloudflareAPIBaseURL                 string
 	KubeconfigPath                       string
 	KubernetesContext                    string
-	KubernetesReadNamespaces             []string
 	SandboxNamespace                     string
 	SandboxImage                         string
 	SandboxServiceAccount                string
@@ -275,7 +274,6 @@ func Load(serviceName string) Config {
 		CloudflareAPIBaseURL:                 stringEnv("RSI_CLOUDFLARE_API_BASE_URL", ""),
 		KubeconfigPath:                       stringEnv("RSI_KUBECONFIG", ""),
 		KubernetesContext:                    stringEnv("RSI_KUBERNETES_CONTEXT", ""),
-		KubernetesReadNamespaces:             listEnv("RSI_KUBERNETES_READ_NAMESPACES"),
 		SandboxNamespace:                     stringEnv("RSI_SANDBOX_NAMESPACE", ""),
 		SandboxImage:                         stringEnv("RSI_SANDBOX_IMAGE", ""),
 		SandboxServiceAccount:                stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
@@ -404,13 +402,6 @@ func (c Config) RunnerTaskTimeoutForRole(role string) time.Duration {
 		}
 		return defaultProdRunnerTaskTimeout
 	}
-}
-
-func (c Config) KubernetesReadNamespaceScope() []string {
-	if len(c.KubernetesReadNamespaces) == 0 {
-		return nil
-	}
-	return CompactUniqueStrings(append(append([]string{}, c.KubernetesReadNamespaces...), c.SandboxNamespace))
 }
 
 func (c Config) EffectLeaseDuration(base time.Duration, roles ...string) time.Duration {

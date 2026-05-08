@@ -9,8 +9,7 @@ import (
 
 func TestBuildLiveHintsKeepsDeterministicToolHintsOutOfContext(t *testing.T) {
 	hints := BuildLiveHints(RuntimeConfig{
-		DefaultRepo:              "depin-backend",
-		KubernetesReadNamespaces: []string{"story", "rsi-platform"},
+		DefaultRepo: "depin-backend",
 	}, RequestContext{
 		Question: "Draw the depin-backend architecture.",
 	}, time.Unix(0, 0).UTC())

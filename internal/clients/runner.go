@@ -248,7 +248,6 @@ type RunnerTask struct {
 	WorkspaceRepo             string                          `json:"workspace_repo,omitempty"`
 	WorkspaceBranch           string                          `json:"workspace_branch,omitempty"`
 	AllowedPathGlobs          []string                        `json:"allowed_path_globs,omitempty"`
-	KubernetesReadNamespaces  []string                        `json:"kubernetes_read_namespaces,omitempty"`
 	ContractVersion           string                          `json:"contract_version,omitempty"`
 	ExecutionIntent           map[string]any                  `json:"execution_intent,omitempty"`
 	ExternalToolResume        map[string]any                  `json:"external_tool_resume,omitempty"`

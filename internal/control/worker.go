@@ -1267,11 +1267,10 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
 	resolvedIntent := resolveWorkflowIntent(ingestion, contextRefs, recentEntries)
 	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
-		DefaultRepo:              cfg.DefaultRepo,
-		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
-		KnowledgeBaseURL:         cfg.DefaultKnowledgeBaseURL,
-		SandboxNamespace:         cfg.SandboxNamespace,
-		KubernetesReadNamespaces: cfg.KubernetesReadNamespaceScope(),
+		DefaultRepo:      cfg.DefaultRepo,
+		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace: cfg.SandboxNamespace,
 	}, workflowplan.RequestContext{
 		Trace:          trace.Summary,
 		WorkflowID:     workflow.ID,
@@ -1294,7 +1293,6 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		workflowRunnerSystemMessage(hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode),
 		effectiveHarness,
 	)
-	kubernetesReadNamespaceScope := cfg.KubernetesReadNamespaceScope()
 	promptParts := []string{
 		fmt.Sprintf("User request: %s", userRequest),
 	}
@@ -1343,7 +1341,6 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		MemoryBackend:             harness.DefaultMemoryBackend,
 		AssistantPeerID:           fmt.Sprintf("rsi:%s:%s", cfg.Environment, role),
 		UserPeerID:                workflowUserPeerID(store.ListConversationEntries(trace.Summary.ConversationID), sessionScopeKind, sessionScopeID),
-		KubernetesReadNamespaces:  kubernetesReadNamespaceScope,
 		ContractVersion:           clients.RunnerExecutionContractVersion,
 		ExecutionIntent: map[string]any{
 			"kind":                workflow.Kind,
@@ -2614,11 +2611,10 @@ func workflowLocatorForEffect(store storepkg.Store, effect transition.EffectExec
 
 func toolInputForIntent(cfg config.Config, trace events.TraceSummary, workflow storepkg.Workflow, ingestion slackpkg.Ingestion) map[string]any {
 	return workflowplan.BuildToolRequestPayload(workflowplan.RuntimeConfig{
-		DefaultRepo:              cfg.DefaultRepo,
-		AllowedRepos:             append([]string(nil), cfg.AllowedTargetRepos...),
-		KnowledgeBaseURL:         cfg.DefaultKnowledgeBaseURL,
-		SandboxNamespace:         cfg.SandboxNamespace,
-		KubernetesReadNamespaces: cfg.KubernetesReadNamespaceScope(),
+		DefaultRepo:      cfg.DefaultRepo,
+		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
+		KnowledgeBaseURL: cfg.DefaultKnowledgeBaseURL,
+		SandboxNamespace: cfg.SandboxNamespace,
 	}, workflowplan.RequestContext{
 		Trace:          trace,
 		WorkflowID:     workflow.ID,

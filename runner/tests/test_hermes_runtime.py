@@ -576,43 +576,6 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(payload, {"repo": "rsi-agent-platform"})
 
-    def test_runner_task_reads_kubernetes_namespace_scope(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Inspect runtime.",
-                    "kubernetes_read_namespaces": ["story", "rsi-platform"],
-                }
-            }
-        )
-
-        self.assertEqual(task.kubernetes_read_namespaces, ["story", "rsi-platform"])
-
-    def test_task_prompt_advertises_kubernetes_read_scope(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "depin-backend",
-                    "prompt": "Inspect runtime.",
-                    "kubernetes_read_namespaces": ["story", "rsi-platform"],
-                }
-            }
-        )
-        with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
-            os.environ,
-            runner_env("prod"),
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        prompt = runtime._render_task_prompt(task)
-
-        self.assertIn("Kubernetes read namespace scope: story, rsi-platform", prompt)
-        self.assertIn("do not probe unlisted or archived namespaces", prompt)
-
     def test_task_prompt_advertises_grafana_when_configured(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
