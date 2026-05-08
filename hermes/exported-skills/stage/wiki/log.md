@@ -20324,3 +20324,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8e003d930eb7415b56d319c3a3c2f540
 - summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
 
+## [2026-05-08T21:15:28Z] ingest | Slack thread C0AKH5SNGKH 1778274128.241119
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778274128-241119-acbcbba7
+- wiki_revision_id: wikirev_d6f39b2635f7ec8a3646ed836f9996f1
+- source_document_id: srcdoc_18a0854667e42fb92706faf0acbcbba7
+- source_revision_id: srcrev_bd348ff9892c4c20309f2b6b37d4e55d
+- summary: Here's the transcript distribution from *depin-prod* — unique users per script, broken down by campaign.
+
+## [2026-05-08T21:17:09Z] synthesis | Future research direction wishlist
+
+- status: published
+- slug: concepts/future-research-direction-wishlist
+- wiki_revision_id: wikirev_c18fc750d6959f63f0d3227a123c24bf
+- summary: A wishlist of future research directions: geth database improvements for gas reduction, ZK Proof integration for on-chain ML verification, royalty claims, web2 activity proofs, cro...
+
+## [2026-05-08T21:18:38Z] synthesis | Mininet Network Configuration
+
+- status: published
+- slug: runbooks/mininet-network-configuration
+- wiki_revision_id: wikirev_24c69d2a3093ba86edd6f521fe961cb3
+- summary: Configuration details for the Mininet network, including chain ID, RPC endpoint, and block explorer URL.
+

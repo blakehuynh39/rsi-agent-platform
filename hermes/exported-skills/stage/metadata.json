@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "a1fe8e546f3117751d3db8733e17140375b69ffc3b448d82bff7554eee9e74f8",
+        "sha256": "b7e4dfd65489f2c09bc877e7e824df626afdc725be2d1daba53c69b4c269110f",
         "size": 2435
       },
       {
@@ -2814,8 +2814,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "37b5e626e4271f4ecb76591414498f5591c0f04e167971daa2f0b5550fcbb9e2",
-        "size": 14613
+        "sha256": "01f09d8e7c48b8ae0e4cf0ab43883dd8639c3bb32352c6f4e01c9a94f200911a",
+        "size": 15450
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ffed9cb95116a62baf65ebd6aa4401280c8e04be4ab795bb03d30ddfc04509c7",
-        "size": 516079
+        "sha256": "84c7594ba7fc34dff05486fb6783be5bb678789fbb638b27256685b8ce4058f8",
+        "size": 517110
       },
       {
         "path": "log.md",
-        "sha256": "bd5b6f4330a80a74ddf00dd4f49f74ce2549cba438a21e3a882e2c0486869180",
-        "size": 965899
+        "sha256": "079cb925a83fe4d8f792c8dac7ff93a2616a2d79005e1693368e063c0df2eaa7",
+        "size": 967093
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3123,6 +3123,11 @@
         "path": "pages/concepts/frontend.md",
         "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
         "size": 1255
+      },
+      {
+        "path": "pages/concepts/future-research-direction-wishlist.md",
+        "sha256": "406df965369e01ea5fdf36ec8fbe5ba70dfc7df42afb09e26b6e853a82457ce0",
+        "size": 4703
       },
       {
         "path": "pages/concepts/gas-estimations.md",
@@ -4815,6 +4820,11 @@
         "size": 1920
       },
       {
+        "path": "pages/runbooks/mininet-network-configuration.md",
+        "sha256": "a495d3160c4e528be4fccb7e24b8e0487fd68a1605a80fb5f1e1082428a09adc",
+        "size": 2299
+      },
+      {
         "path": "pages/runbooks/network-rolling-upgrade.md",
         "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
         "size": 1372
@@ -5214,8 +5224,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T21:09:02Z",
-  "file_count": 1041,
+  "exported_at": "2026-05-08T21:20:06Z",
+  "file_count": 1043,
   "files": [
     {
       "path": ".curator_state",
@@ -5224,7 +5234,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "a1fe8e546f3117751d3db8733e17140375b69ffc3b448d82bff7554eee9e74f8",
+      "sha256": "b7e4dfd65489f2c09bc877e7e824df626afdc725be2d1daba53c69b4c269110f",
       "size": 2435
     },
     {
@@ -8029,8 +8039,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "37b5e626e4271f4ecb76591414498f5591c0f04e167971daa2f0b5550fcbb9e2",
-      "size": 14613
+      "sha256": "01f09d8e7c48b8ae0e4cf0ab43883dd8639c3bb32352c6f4e01c9a94f200911a",
+      "size": 15450
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -8137,7 +8147,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8bf96tkqw",
-  "previous_tree_hash": "2f37ac935024221f823a4c4acaa30fa2885dfc0f09a91638634aaa0752b61988",
+  "previous_tree_hash": "0503f8183b3bf386d586de30013c55bd59f4767fd2bbff717048e4a7434ab629",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8148,16 +8158,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "7ead533eaaceb9ec01b9ba243e30e16d04ef698f83061dd20e480b3709e5c791",
+  "skill_tree_hash": "ab5058a468fd30daf163314775c66add19b9f7029fddebc981df6d3dcaff86e7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0503f8183b3bf386d586de30013c55bd59f4767fd2bbff717048e4a7434ab629",
+  "tree_hash": "fa8990bef1eecd7511072917d724915e940f0e3ecfb1f2068427b1492fa0ae6a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 458,
+  "wiki_file_count": 460,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8166,13 +8176,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ffed9cb95116a62baf65ebd6aa4401280c8e04be4ab795bb03d30ddfc04509c7",
-      "size": 516079
+      "sha256": "84c7594ba7fc34dff05486fb6783be5bb678789fbb638b27256685b8ce4058f8",
+      "size": 517110
     },
     {
       "path": "log.md",
-      "sha256": "bd5b6f4330a80a74ddf00dd4f49f74ce2549cba438a21e3a882e2c0486869180",
-      "size": 965899
+      "sha256": "079cb925a83fe4d8f792c8dac7ff93a2616a2d79005e1693368e063c0df2eaa7",
+      "size": 967093
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8363,6 +8373,11 @@
       "path": "pages/concepts/frontend.md",
       "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
       "size": 1255
+    },
+    {
+      "path": "pages/concepts/future-research-direction-wishlist.md",
+      "sha256": "406df965369e01ea5fdf36ec8fbe5ba70dfc7df42afb09e26b6e853a82457ce0",
+      "size": 4703
     },
     {
       "path": "pages/concepts/gas-estimations.md",
@@ -10055,6 +10070,11 @@
       "size": 1920
     },
     {
+      "path": "pages/runbooks/mininet-network-configuration.md",
+      "sha256": "a495d3160c4e528be4fccb7e24b8e0487fd68a1605a80fb5f1e1082428a09adc",
+      "size": 2299
+    },
+    {
       "path": "pages/runbooks/network-rolling-upgrade.md",
       "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
       "size": 1372
@@ -10451,5 +10471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c7e9d0713f3358558ce7a263ea542cccc282c89bbf102dd62c8db7b4af59c25d"
+  "wiki_tree_hash": "d77b5125bf8a0a749617f1270990a241c8fe28ba03ce552039277bcc3795ad4a"
 }
