@@ -542,7 +542,7 @@ func WriteIndexFile(root string, wikiStore store.CompanyWikiStore) error {
 }
 
 func BuildIndexMarkdown(wikiStore store.CompanyWikiStore) (string, error) {
-	entries, err := wikiStore.ListCompanyWikiManifestEntries()
+	entries, err := wikiStore.ListCompanyWikiIndexEntries()
 	if err != nil {
 		return "", err
 	}
@@ -556,27 +556,20 @@ func BuildIndexMarkdown(wikiStore store.CompanyWikiStore) (string, error) {
 	}
 	items := []indexItem{}
 	for _, entry := range entries {
-		page, found, err := wikiStore.GetCompanyWikiPage(entry.WikiPageID)
-		if err != nil {
-			return "", err
-		}
-		if !found {
-			continue
-		}
-		category := strings.TrimSpace(stringFromMap(page.Revision.Metadata, "type"))
+		category := strings.TrimSpace(stringFromMap(entry.Metadata, "type"))
 		if category == "evidence" {
-			category = strings.TrimSpace(stringFromMap(page.Revision.Metadata, "source_type"))
+			category = strings.TrimSpace(stringFromMap(entry.Metadata, "source_type"))
 		}
 		if category == "" {
 			category = "manual"
 		}
 		items = append(items, indexItem{
 			category: category,
-			title:    firstNonEmpty(page.Page.Title, page.Revision.Title, page.Page.Slug),
-			slug:     page.Page.Slug,
-			path:     page.Revision.Path,
-			summary:  wikiOneLineSummary(page.Revision.Body),
-			meta:     fmt.Sprintf("updated=%s; source revisions=%d; wiki_revision_id=%s", page.Revision.PublishedAt.Format(time.RFC3339), len(page.Revision.SourceRevisionIDs), page.Revision.ID),
+			title:    firstNonEmpty(entry.Title, entry.RevisionTitle, entry.Slug),
+			slug:     entry.Slug,
+			path:     entry.Path,
+			summary:  wikiOneLineSummary(entry.Body),
+			meta:     fmt.Sprintf("updated=%s; source revisions=%d; wiki_revision_id=%s", entry.PublishedAt.Format(time.RFC3339), entry.SourceRevisionCount, entry.WikiRevisionID),
 		})
 	}
 	sort.SliceStable(items, func(i, j int) bool {

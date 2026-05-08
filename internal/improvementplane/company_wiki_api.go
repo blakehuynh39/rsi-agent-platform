@@ -102,13 +102,6 @@ func companyWikiDashboardIndexFallback(repo storepkg.Repository) (string, error)
 	if !ok {
 		return "", errors.New("configured store does not support company wiki")
 	}
-	entries, err := wikiStore.ListCompanyWikiManifestEntries()
-	if err != nil {
-		return "", err
-	}
-	if len(entries) == 0 {
-		return "# Company Wiki Index\n\n_No published pages yet._\n", nil
-	}
 	return companyknowledge.BuildIndexMarkdown(wikiStore)
 }
 

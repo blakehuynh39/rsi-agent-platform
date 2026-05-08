@@ -964,6 +964,43 @@ order by path asc`)
 	return out, rows.Err()
 }
 
+func (p *PostgresStore) ListCompanyWikiIndexEntries() ([]CompanyWikiIndexEntry, error) {
+	rows, err := p.db.Query(`
+select p.id, p.slug, p.title, r.title, coalesce(nullif(r.path, ''), m.path),
+       r.id, r.body, r.metadata, r.published_at,
+       jsonb_array_length(coalesce(nullif(r.source_revision_ids, 'null'::jsonb), '[]'::jsonb))
+from company_wiki_manifest m
+join company_wiki_page p on p.id = m.wiki_page_id
+join company_wiki_revision r on r.id = m.wiki_revision_id
+order by m.path asc`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []CompanyWikiIndexEntry{}
+	for rows.Next() {
+		var item CompanyWikiIndexEntry
+		var rawMetadata []byte
+		if err := rows.Scan(
+			&item.PageID,
+			&item.Slug,
+			&item.Title,
+			&item.RevisionTitle,
+			&item.Path,
+			&item.WikiRevisionID,
+			&item.Body,
+			&rawMetadata,
+			&item.PublishedAt,
+			&item.SourceRevisionCount,
+		); err != nil {
+			return nil, err
+		}
+		item.Metadata = decodeJSON(rawMetadata, map[string]any{})
+		out = append(out, item)
+	}
+	return out, rows.Err()
+}
+
 func validateCompanyWikiSourceRevisionInput(input CompanyWikiSourceRevisionInput) error {
 	if strings.TrimSpace(input.SourceType) == "" {
 		return errors.New("source_type is required")

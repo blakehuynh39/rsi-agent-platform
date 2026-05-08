@@ -714,6 +714,47 @@ func (m *MemoryStore) ListCompanyWikiManifestEntries() ([]CompanyWikiManifestEnt
 	return out, nil
 }
 
+func (m *MemoryStore) ListCompanyWikiIndexEntries() ([]CompanyWikiIndexEntry, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	out := make([]CompanyWikiIndexEntry, 0, len(m.companyWikiManifest))
+	for _, manifest := range m.companyWikiManifest {
+		page, ok := m.companyWikiPages[manifest.WikiPageID]
+		if !ok {
+			continue
+		}
+		revision, ok := m.companyWikiRevisions[manifest.WikiRevisionID]
+		if !ok {
+			revision, ok = m.companyWikiRevisions[page.CurrentRevisionID]
+		}
+		if !ok {
+			continue
+		}
+		metadata := map[string]any{}
+		for key, value := range revision.Metadata {
+			metadata[key] = value
+		}
+		path := revision.Path
+		if path == "" {
+			path = manifest.Path
+		}
+		out = append(out, CompanyWikiIndexEntry{
+			PageID:              page.ID,
+			Slug:                page.Slug,
+			Title:               page.Title,
+			RevisionTitle:       revision.Title,
+			Path:                path,
+			WikiRevisionID:      revision.ID,
+			Body:                revision.Body,
+			Metadata:            metadata,
+			PublishedAt:         revision.PublishedAt,
+			SourceRevisionCount: len(revision.SourceRevisionIDs),
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].Path < out[j].Path })
+	return out, nil
+}
+
 func (m *MemoryStore) ListCompanyWikiCandidatePages(query CompanyWikiPageQuery) ([]CompanyWikiPageRead, error) {
 	query.Query = strings.ToLower(strings.TrimSpace(query.Query))
 	if query.Limit <= 0 || query.Limit > 50 {

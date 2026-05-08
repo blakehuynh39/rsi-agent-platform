@@ -277,6 +277,19 @@ type CompanyWikiSearchResult struct {
 	PublishedAt    time.Time `json:"published_at,omitempty"`
 }
 
+type CompanyWikiIndexEntry struct {
+	PageID              string         `json:"page_id"`
+	Slug                string         `json:"slug"`
+	Title               string         `json:"title"`
+	RevisionTitle       string         `json:"revision_title,omitempty"`
+	Path                string         `json:"path"`
+	WikiRevisionID      string         `json:"wiki_revision_id"`
+	Body                string         `json:"body,omitempty"`
+	Metadata            map[string]any `json:"metadata,omitempty"`
+	PublishedAt         time.Time      `json:"published_at,omitempty"`
+	SourceRevisionCount int            `json:"source_revision_count"`
+}
+
 type CompanyWikiPageRead struct {
 	Page      CompanyWikiPage          `json:"page"`
 	Revision  CompanyWikiRevision      `json:"revision"`
@@ -423,6 +436,7 @@ type CompanyWikiStore interface {
 	SearchCompanyWikiPages(query string, limit int) ([]CompanyWikiSearchResult, error)
 	GetCompanyWikiPage(ref string) (CompanyWikiPageRead, bool, error)
 	ListCompanyWikiManifestEntries() ([]CompanyWikiManifestEntry, error)
+	ListCompanyWikiIndexEntries() ([]CompanyWikiIndexEntry, error)
 }
 
 func CompanyWikiStableID(prefix string, parts ...string) string {
