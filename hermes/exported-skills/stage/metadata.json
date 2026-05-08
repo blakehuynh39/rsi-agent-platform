@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "00adf350b00190dc5a3f2f03bf2bcc9f72511095e2723137034fc721c68ad2cc",
-        "size": 504672
+        "sha256": "d9d03870fd1242f38ef4b2b2b256889659446a806a334a575af9d3551fd02315",
+        "size": 505087
       },
       {
         "path": "log.md",
-        "sha256": "0656d29ee16b1439e9de6c9b084166066bace24fdbae61a3b82f5cbe8dce3788",
-        "size": 949133
+        "sha256": "16fcd1b5c3b4f3a61a4d9010a481ff88ed1956096944236733c4846a1d9ac4c0",
+        "size": 949560
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4535,6 +4535,11 @@
         "size": 10431
       },
       {
+        "path": "pages/projects/stripe-poc-payment-solution.md",
+        "sha256": "10369e55a6e5f4f74bd7d74b2fdefa7b4ef51bb4b8cd776c50282270653c2ec4",
+        "size": 4527
+      },
+      {
         "path": "pages/projects/subnet-devnet.md",
         "sha256": "2844f4057e57f27fa75e2901b534bf856d1dada8413d5f59759df1f23fc68fbb",
         "size": 1650
@@ -5059,8 +5064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T08:21:24Z",
-  "file_count": 1010,
+  "exported_at": "2026-05-08T08:27:43Z",
+  "file_count": 1011,
   "files": [
     {
       "path": ".curator_state",
@@ -7977,7 +7982,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "4b5b33f61d0d0d018af4a2d81435508eab9e32b00a16e8ba77d0f4734fd4a1b7",
+  "previous_tree_hash": "7718b8bffbcf35daa794963aec8f42ca5940888a22f387543f2025a004539449",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -7990,14 +7995,14 @@
   ],
   "skill_tree_hash": "102f698d6eff910c403aa9def9e4716c3fc9b63b95a86d84f1264d875751e97c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7718b8bffbcf35daa794963aec8f42ca5940888a22f387543f2025a004539449",
+  "tree_hash": "a4ca0fdc35039842f61e2f31df205e7ad667dc568cd61c5e44e6abc3c8dd1080",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 428,
+  "wiki_file_count": 429,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8006,13 +8011,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "00adf350b00190dc5a3f2f03bf2bcc9f72511095e2723137034fc721c68ad2cc",
-      "size": 504672
+      "sha256": "d9d03870fd1242f38ef4b2b2b256889659446a806a334a575af9d3551fd02315",
+      "size": 505087
     },
     {
       "path": "log.md",
-      "sha256": "0656d29ee16b1439e9de6c9b084166066bace24fdbae61a3b82f5cbe8dce3788",
-      "size": 949133
+      "sha256": "16fcd1b5c3b4f3a61a4d9010a481ff88ed1956096944236733c4846a1d9ac4c0",
+      "size": 949560
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9620,6 +9625,11 @@
       "size": 10431
     },
     {
+      "path": "pages/projects/stripe-poc-payment-solution.md",
+      "sha256": "10369e55a6e5f4f74bd7d74b2fdefa7b4ef51bb4b8cd776c50282270653c2ec4",
+      "size": 4527
+    },
+    {
       "path": "pages/projects/subnet-devnet.md",
       "sha256": "2844f4057e57f27fa75e2901b534bf856d1dada8413d5f59759df1f23fc68fbb",
       "size": 1650
@@ -10141,5 +10151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6dbf815b03905973da424d96335d3e65d7ae5c7f9d124695b1539435457cf69d"
+  "wiki_tree_hash": "3fc1ec34eec6be1c129e5da12148a9fe53260c355017865630fa65ccfcceb5a7"
 }
