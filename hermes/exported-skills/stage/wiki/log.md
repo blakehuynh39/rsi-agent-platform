@@ -19909,3 +19909,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ad013dc596f5d11ddca1d40d631cd4ac
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-08T06:36:36Z] synthesis | First Party App
+
+- status: published
+- slug: projects/first-party-app
+- wiki_revision_id: wikirev_9e96742b9565768a471a9055f49194a5
+- summary: The First Party App is a project to build a creator tool and developer dashboard for Story Protocol, aiming to create a marketplace of creativity. It includes a Protocol Explorer, ...
+
+## [2026-05-08T06:36:36Z] synthesis | Creator vs Explorer
+
+- status: published
+- slug: concepts/creator-vs-explorer
+- wiki_revision_id: wikirev_a639596fc88d3f13258eddc0012fd7ee
+- summary: Comparison between Mirror (a creator tool) and Arweave (the underlying blockchain), and the distinction between creator tools and protocol explorers in the Story Protocol ecosystem...
+
+## [2026-05-08T06:36:36Z] synthesis | Story Protocol Marketplace Vision
+
+- status: published
+- slug: concepts/story-protocol-marketplace-vision
+- wiki_revision_id: wikirev_7d1830e12ca7f5182bd7a8fb04ed0360
+- summary: Story Protocol should be a marketplace of creativity, enabling brands to bootstrap growth through decentralized licensing and remixing, while giving control over licensing and reve...
+
+## [2026-05-08T06:36:37Z] synthesis | User Personas for First Party App
+
+- status: published
+- slug: concepts/user-personas-first-party-app
+- wiki_revision_id: wikirev_cdedae89bc247f475289837bfc965a60
+- summary: Describes the target user personas for the First Party App: IPs and Projects (e.g., Azuki, Bored Ape, Clone X) with goals to delegate IP distribution, foster collaboration, establi...
+
+## [2026-05-08T06:36:37Z] synthesis | AI-Assisted Content Generation
+
+- status: published
+- slug: concepts/ai-assisted-content-generation
+- wiki_revision_id: wikirev_34411e38ac5c9c77bb902eb4ebb99031
+- summary: Using Story Protocol IPA to map prompts for AI content generation, with user-defined attributes (audience, instructions, style) and fine-tuning modifiers (variability, constraints)...
+
+## [2026-05-08T06:36:37Z] synthesis | Alpha Release Planning
+
+- status: published
+- slug: decisions/alpha-release-planning
+- wiki_revision_id: wikirev_7a0f84bfe14e360c6aec69d540c4658d
+- summary: Planning for the alpha release of the First Party App, focusing on a developer dashboard, with open questions about separate apps, prioritization, design partners, trade-offs betwe...
+

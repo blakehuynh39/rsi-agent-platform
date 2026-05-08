@@ -2916,18 +2916,23 @@
       },
       {
         "path": "index.md",
-        "sha256": "31083a7b4b8d17c76a8b805454dee36f7a7a2af017ccad1df9734f194bd92953",
-        "size": 500002
+        "sha256": "8241a94a5c9c8de8f41f7b8c59efb1cc722cdbb4491fbd6d8de40e08db6c7911",
+        "size": 502241
       },
       {
         "path": "log.md",
-        "sha256": "196659a3d688d778973b4f91c298a8a6ed0fc12fbbf087ad24dfef1ba80f8e2f",
-        "size": 944319
+        "sha256": "12079f7a7d410b10dadd135d036755a6b5d95282700c8942fadc39505efeee40",
+        "size": 946630
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
         "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
+      },
+      {
+        "path": "pages/concepts/ai-assisted-content-generation.md",
+        "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
+        "size": 3286
       },
       {
         "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -3003,6 +3008,11 @@
         "path": "pages/concepts/core-sdk-requests.md",
         "sha256": "0e9fb881e8c48879aa79d691634bb9251902ea3b90679405a7c9725d63e96b28",
         "size": 1278
+      },
+      {
+        "path": "pages/concepts/creator-vs-explorer.md",
+        "sha256": "32d7ecc108203a1c384200cf61847baf30737fe767b861a9259f3af69156803b",
+        "size": 1489
       },
       {
         "path": "pages/concepts/cross-chain-interactions.md",
@@ -3460,6 +3470,11 @@
         "size": 5023
       },
       {
+        "path": "pages/concepts/story-protocol-marketplace-vision.md",
+        "sha256": "2d67a8dc4f47063b06f628006e20485c8696916c9f523420051236094ae315ef",
+        "size": 2280
+      },
+      {
         "path": "pages/concepts/story-protocol-vanity-addresses.md",
         "sha256": "251f737f8de7bffa5ae8605f1cd1d4c4e3445782f488287eac9e30a41a877311",
         "size": 4771
@@ -3525,6 +3540,11 @@
         "size": 1054
       },
       {
+        "path": "pages/concepts/user-personas-first-party-app.md",
+        "sha256": "b65d2f7157a10cc4315e7f73d4f14f284c50ade3cf90cbfdf0d19b8a59a82bdb",
+        "size": 2660
+      },
+      {
         "path": "pages/concepts/verbs-concept.md",
         "sha256": "4743e16188a134a6539bedfc6cc79e609730ab2e29102a8cae59fab1f11213cd",
         "size": 1153
@@ -3563,6 +3583,11 @@
         "path": "pages/decisions/ai-model-pil-term-decision.md",
         "sha256": "fbd5253a6f4f05f130a4415023439ab0b50822ed40bd9bd33a73738450eac042",
         "size": 3679
+      },
+      {
+        "path": "pages/decisions/alpha-release-planning.md",
+        "sha256": "7e40fe1a2b6e6a26d58831f6b473e1e7946b3d1be4636b7c3098b6e6d620f8d0",
+        "size": 2467
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -4098,6 +4123,11 @@
         "path": "pages/projects/eu-website-releases-tasks.md",
         "sha256": "c13218334e4de8851ad25e79a9e5928c6c7eab8812a8b9124198e70ac3fc6e38",
         "size": 2920
+      },
+      {
+        "path": "pages/projects/first-party-app.md",
+        "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
+        "size": 2358
       },
       {
         "path": "pages/projects/frame.md",
@@ -4994,8 +5024,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T06:34:36Z",
-  "file_count": 997,
+  "exported_at": "2026-05-08T06:40:45Z",
+  "file_count": 1003,
   "files": [
     {
       "path": ".curator_state",
@@ -7907,7 +7937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5444b78jhbn",
-  "previous_tree_hash": "b97e67572a8badd71e43996a5267e397780eb382ec1a70a4c7a9d0842429ea57",
+  "previous_tree_hash": "94e497951d2f965a54403e329ed8f274d00eebdb83f42ca13166f5ce793b942c",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7920,14 +7950,14 @@
   ],
   "skill_tree_hash": "7329b919ae6d5ddc5b51171fb713f0e7549a9e960623cd9c64ea3a9764dad8f0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "94e497951d2f965a54403e329ed8f274d00eebdb83f42ca13166f5ce793b942c",
+  "tree_hash": "55067b055ab25eb26a582c6782f958aaec2b04dc2486063d6703e6113be98d19",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 416,
+  "wiki_file_count": 422,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7936,18 +7966,23 @@
     },
     {
       "path": "index.md",
-      "sha256": "31083a7b4b8d17c76a8b805454dee36f7a7a2af017ccad1df9734f194bd92953",
-      "size": 500002
+      "sha256": "8241a94a5c9c8de8f41f7b8c59efb1cc722cdbb4491fbd6d8de40e08db6c7911",
+      "size": 502241
     },
     {
       "path": "log.md",
-      "sha256": "196659a3d688d778973b4f91c298a8a6ed0fc12fbbf087ad24dfef1ba80f8e2f",
-      "size": 944319
+      "sha256": "12079f7a7d410b10dadd135d036755a6b5d95282700c8942fadc39505efeee40",
+      "size": 946630
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
       "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
+    },
+    {
+      "path": "pages/concepts/ai-assisted-content-generation.md",
+      "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
+      "size": 3286
     },
     {
       "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -8023,6 +8058,11 @@
       "path": "pages/concepts/core-sdk-requests.md",
       "sha256": "0e9fb881e8c48879aa79d691634bb9251902ea3b90679405a7c9725d63e96b28",
       "size": 1278
+    },
+    {
+      "path": "pages/concepts/creator-vs-explorer.md",
+      "sha256": "32d7ecc108203a1c384200cf61847baf30737fe767b861a9259f3af69156803b",
+      "size": 1489
     },
     {
       "path": "pages/concepts/cross-chain-interactions.md",
@@ -8480,6 +8520,11 @@
       "size": 5023
     },
     {
+      "path": "pages/concepts/story-protocol-marketplace-vision.md",
+      "sha256": "2d67a8dc4f47063b06f628006e20485c8696916c9f523420051236094ae315ef",
+      "size": 2280
+    },
+    {
       "path": "pages/concepts/story-protocol-vanity-addresses.md",
       "sha256": "251f737f8de7bffa5ae8605f1cd1d4c4e3445782f488287eac9e30a41a877311",
       "size": 4771
@@ -8545,6 +8590,11 @@
       "size": 1054
     },
     {
+      "path": "pages/concepts/user-personas-first-party-app.md",
+      "sha256": "b65d2f7157a10cc4315e7f73d4f14f284c50ade3cf90cbfdf0d19b8a59a82bdb",
+      "size": 2660
+    },
+    {
       "path": "pages/concepts/verbs-concept.md",
       "sha256": "4743e16188a134a6539bedfc6cc79e609730ab2e29102a8cae59fab1f11213cd",
       "size": 1153
@@ -8583,6 +8633,11 @@
       "path": "pages/decisions/ai-model-pil-term-decision.md",
       "sha256": "fbd5253a6f4f05f130a4415023439ab0b50822ed40bd9bd33a73738450eac042",
       "size": 3679
+    },
+    {
+      "path": "pages/decisions/alpha-release-planning.md",
+      "sha256": "7e40fe1a2b6e6a26d58831f6b473e1e7946b3d1be4636b7c3098b6e6d620f8d0",
+      "size": 2467
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -9118,6 +9173,11 @@
       "path": "pages/projects/eu-website-releases-tasks.md",
       "sha256": "c13218334e4de8851ad25e79a9e5928c6c7eab8812a8b9124198e70ac3fc6e38",
       "size": 2920
+    },
+    {
+      "path": "pages/projects/first-party-app.md",
+      "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
+      "size": 2358
     },
     {
       "path": "pages/projects/frame.md",
@@ -10011,5 +10071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0d246295f14f3e0ff559e68932a98d15650547f516262f9cd5432ed82714cd5a"
+  "wiki_tree_hash": "bd026a451fd91a61e91a58e34d6e998ce65c9e6272c5ce04ed29a787ab6eaed8"
 }
