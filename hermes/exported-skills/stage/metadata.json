@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "584a41e9e6e6ff3723892354243d6334416f5eb270b8206337702dd1e4e5aa71",
-        "size": 509406
+        "sha256": "5f184a18f1c0b5511a60100243b048bd7b3168ea036832e6f81fc2029c2d77de",
+        "size": 510200
       },
       {
         "path": "log.md",
-        "sha256": "cb59f82be1c054d20b5f3e696143bc1aee90a72456d01e19b5168cc6012914ec",
-        "size": 955778
+        "sha256": "a3beba3ef9716118e455a5a3e229ec0a21b13902151e3f1356f40f18e9948786",
+        "size": 956209
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4805,6 +4805,11 @@
         "size": 7034
       },
       {
+        "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
+        "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
+        "size": 10032
+      },
+      {
         "path": "pages/runbooks/pytorch-practices-macos.md",
         "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
         "size": 2428
@@ -5134,8 +5139,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T14:51:29Z",
-  "file_count": 1025,
+  "exported_at": "2026-05-08T14:57:30Z",
+  "file_count": 1026,
   "files": [
     {
       "path": ".curator_state",
@@ -8052,7 +8057,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "e25274addb0124c70f48f814ef07271146c53f4ea4efd1aad17b5d6fd6f91437",
+  "previous_tree_hash": "419086d0e882dbbf02c0000dc0f4ff521685c8769d5a4de1fb6f30320bb904f6",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8065,14 +8070,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "419086d0e882dbbf02c0000dc0f4ff521685c8769d5a4de1fb6f30320bb904f6",
+  "tree_hash": "31cb07c3d3931544acd35b5b26c05af9ee5b5db873f063bd28af817b2511c0ae",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 443,
+  "wiki_file_count": 444,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8081,13 +8086,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "584a41e9e6e6ff3723892354243d6334416f5eb270b8206337702dd1e4e5aa71",
-      "size": 509406
+      "sha256": "5f184a18f1c0b5511a60100243b048bd7b3168ea036832e6f81fc2029c2d77de",
+      "size": 510200
     },
     {
       "path": "log.md",
-      "sha256": "cb59f82be1c054d20b5f3e696143bc1aee90a72456d01e19b5168cc6012914ec",
-      "size": 955778
+      "sha256": "a3beba3ef9716118e455a5a3e229ec0a21b13902151e3f1356f40f18e9948786",
+      "size": 956209
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9965,6 +9970,11 @@
       "size": 7034
     },
     {
+      "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
+      "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
+      "size": 10032
+    },
+    {
       "path": "pages/runbooks/pytorch-practices-macos.md",
       "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
       "size": 2428
@@ -10291,5 +10301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0b69e34da1bf5339aafaad66e5fd194a792f504ced8682f648846abf7d95d08b"
+  "wiki_tree_hash": "8a8b825f2f69f898ce37438fdcc9393596b5c9cbd7af00249ec26a691f51f529"
 }

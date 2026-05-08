@@ -20126,3 +20126,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3081b748cc317feaef3c4ce2b1e68c91
 - summary: Q3 key results for L1, API, and SDK teams, all tied to Company Objective 1: Outstanding Public Testnet launch drives developer and user adoption. Covers network performance, toolin...
 
+## [2026-05-08T14:52:16Z] synthesis | Postmortem: L1 Testnet Startup Failure (July 2024)
+
+- status: published
+- slug: runbooks/postmortem-l1-testnet-startup-failure-jul-2024
+- wiki_revision_id: wikirev_bd2093b723f2e22624f1d7fcdfe1be39
+- summary: On July 17-18, 2024, the L1 testnet failed to restart after a network reset. The root cause was an external node connecting to the testnet bootnode, causing a network partition and...
+
