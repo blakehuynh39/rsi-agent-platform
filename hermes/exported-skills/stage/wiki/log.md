@@ -20231,3 +20231,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_3f4221776d1a10482e15f99cc6e0f4e5
 - summary: Source: [Notion source](https://www.notion.so/Video-Task-need-to-have-a-user-limit-35a051299a54803ba86edeee839f2954)
 
+## [2026-05-08T17:16:37Z] synthesis | Cross-chain API v0 Design
+
+- status: published
+- slug: projects/cross-chain-api-v0
+- wiki_revision_id: wikirev_559aaa1d64d3ec3cd77920e0ed5e970c
+- summary: Design of v0 API for cross-chain IP registration, royalty claiming, and derivative IP registration, enabling NFT owners on other chains to interact with Story L1.
+
+## [2026-05-08T17:16:37Z] synthesis | Decision: API-based cross-chain solution
+
+- status: published
+- slug: decisions/api-based-cross-chain-solution-decision
+- wiki_revision_id: wikirev_872117229ff6a0cfc20148e6c9477a3d
+- summary: The team decided to adopt an API solution for cross-chain use cases, prioritizing user experience and engineering resources over full decentralization.
+
+## [2026-05-08T17:16:37Z] synthesis | How to map Solana NFT ID to an EVM address?
+
+- status: published
+- slug: open-questions/solana-nft-mapping-to-evm-address
+- wiki_revision_id: wikirev_6f061906fce811ab943b7c720cd7aeb0
+- summary: Solana doesn't have the same NFT identification scheme as EVM-based NFTs. The protocol needs changes to support Solana NFTs, and the mapping method is unresolved.
+

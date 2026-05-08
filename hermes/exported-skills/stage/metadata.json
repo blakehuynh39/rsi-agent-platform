@@ -2926,8 +2926,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d4e38b6c3484185834e8b095ce1c4559c398600e3b8863a34a388e7968d162ff",
-        "size": 961057
+        "sha256": "77c4e5030093c6f391bb1a2e9cb4a20777d9a00299a0838f139fa9030d248893",
+        "size": 962193
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3615,6 +3615,11 @@
         "size": 2467
       },
       {
+        "path": "pages/decisions/api-based-cross-chain-solution-decision.md",
+        "sha256": "2b29258527d5f1166707cb8e9e373e31a4f25d8b4fe95cdc982d5de3358ad8c1",
+        "size": 2504
+      },
+      {
         "path": "pages/decisions/character-backstory-orchestrator.md",
         "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
         "size": 4107
@@ -3900,6 +3905,11 @@
         "size": 2853
       },
       {
+        "path": "pages/open-questions/solana-nft-mapping-to-evm-address.md",
+        "sha256": "36fd44db05025dad2ee4d702533700cd7cbbd4bd03a0b6b8e2a38958802414d9",
+        "size": 1489
+      },
+      {
         "path": "pages/open-questions/sp-precompile-candidates.md",
         "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
         "size": 3834
@@ -4088,6 +4098,11 @@
         "path": "pages/projects/conference-plan-2024.md",
         "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
         "size": 4104
+      },
+      {
+        "path": "pages/projects/cross-chain-api-v0.md",
+        "sha256": "d194dcd4a5d7d32b4da29df05c286b69adb09080a087ea73dc2b2d3ebb7335d8",
+        "size": 7585
       },
       {
         "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
@@ -5154,8 +5169,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T17:02:03Z",
-  "file_count": 1029,
+  "exported_at": "2026-05-08T17:18:20Z",
+  "file_count": 1032,
   "files": [
     {
       "path": ".curator_state",
@@ -8072,7 +8087,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
-  "previous_tree_hash": "ef1d0fb4cf0c36ff6299740227b2824f2db4c18b145daaff47dfb579ddeb75dc",
+  "previous_tree_hash": "d1f4ced845a2e0745621c8109dea0fb041a5037d6fbcd9a83efdf75af055f654",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8085,14 +8100,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d1f4ced845a2e0745621c8109dea0fb041a5037d6fbcd9a83efdf75af055f654",
+  "tree_hash": "447168e5b8b7ce4d74f5d0181024e5a0b596bfd8066ed14b9fc3385ba28ab72f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 447,
+  "wiki_file_count": 450,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8106,8 +8121,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d4e38b6c3484185834e8b095ce1c4559c398600e3b8863a34a388e7968d162ff",
-      "size": 961057
+      "sha256": "77c4e5030093c6f391bb1a2e9cb4a20777d9a00299a0838f139fa9030d248893",
+      "size": 962193
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8795,6 +8810,11 @@
       "size": 2467
     },
     {
+      "path": "pages/decisions/api-based-cross-chain-solution-decision.md",
+      "sha256": "2b29258527d5f1166707cb8e9e373e31a4f25d8b4fe95cdc982d5de3358ad8c1",
+      "size": 2504
+    },
+    {
       "path": "pages/decisions/character-backstory-orchestrator.md",
       "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
       "size": 4107
@@ -9080,6 +9100,11 @@
       "size": 2853
     },
     {
+      "path": "pages/open-questions/solana-nft-mapping-to-evm-address.md",
+      "sha256": "36fd44db05025dad2ee4d702533700cd7cbbd4bd03a0b6b8e2a38958802414d9",
+      "size": 1489
+    },
+    {
       "path": "pages/open-questions/sp-precompile-candidates.md",
       "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
       "size": 3834
@@ -9268,6 +9293,11 @@
       "path": "pages/projects/conference-plan-2024.md",
       "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
       "size": 4104
+    },
+    {
+      "path": "pages/projects/cross-chain-api-v0.md",
+      "sha256": "d194dcd4a5d7d32b4da29df05c286b69adb09080a087ea73dc2b2d3ebb7335d8",
+      "size": 7585
     },
     {
       "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
@@ -10331,5 +10361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6b4b07d96751e5a35606993f68b196b1ab00bc1c613fa95c39304d1b73592fbd"
+  "wiki_tree_hash": "6da760ad844829414fc888edf086895c572e2e807780d800862d85c69898f928"
 }
