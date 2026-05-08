@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "964c2d179a005ef0f4909fb321ab0d1f759ffb4999823eff7c6e23d416ab5e5f",
-        "size": 969613
+        "sha256": "7fb9f8ec82c0be3752168d1726ba4e2db80624eaaf166d80e6a25f5e0b0ef120",
+        "size": 970010
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4860,6 +4860,11 @@
         "size": 3344
       },
       {
+        "path": "pages/runbooks/periphery-code-freeze-checklist.md",
+        "sha256": "2fad5168e57d9b31680ab38fcb7765d6c951b69f0fb7bf379ae19b60ba80cbf2",
+        "size": 11664
+      },
+      {
         "path": "pages/runbooks/periphery-new-release-runbook.md",
         "sha256": "fa7ac793cf31cde641170ca10e4ab8964428391b4f5197a9447a921c3e0e2ef8",
         "size": 5434
@@ -5239,8 +5244,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T22:58:01Z",
-  "file_count": 1046,
+  "exported_at": "2026-05-08T23:04:16Z",
+  "file_count": 1047,
   "files": [
     {
       "path": ".curator_state",
@@ -8162,7 +8167,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "41b484292255dc6d25bb14efd4d78637b73e872f9fbd1c9bcdaab70cc836f4ae",
+  "previous_tree_hash": "e792765a32bd4fd670b6d6da46e8fe3c8ad8494b37ba35685b7bb2c185d3ceef",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8175,14 +8180,14 @@
   ],
   "skill_tree_hash": "ab5058a468fd30daf163314775c66add19b9f7029fddebc981df6d3dcaff86e7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e792765a32bd4fd670b6d6da46e8fe3c8ad8494b37ba35685b7bb2c185d3ceef",
+  "tree_hash": "8ec5fc1c639c881d1515cde6224f5e6374bc4540b9626f756e50f6a9aa062356",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 463,
+  "wiki_file_count": 464,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8196,8 +8201,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "964c2d179a005ef0f4909fb321ab0d1f759ffb4999823eff7c6e23d416ab5e5f",
-      "size": 969613
+      "sha256": "7fb9f8ec82c0be3752168d1726ba4e2db80624eaaf166d80e6a25f5e0b0ef120",
+      "size": 970010
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10125,6 +10130,11 @@
       "size": 3344
     },
     {
+      "path": "pages/runbooks/periphery-code-freeze-checklist.md",
+      "sha256": "2fad5168e57d9b31680ab38fcb7765d6c951b69f0fb7bf379ae19b60ba80cbf2",
+      "size": 11664
+    },
+    {
       "path": "pages/runbooks/periphery-new-release-runbook.md",
       "sha256": "fa7ac793cf31cde641170ca10e4ab8964428391b4f5197a9447a921c3e0e2ef8",
       "size": 5434
@@ -10501,5 +10511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "29fd624f2407ebae37dae8e25b59e1f89eb7b9047ef58afeea834810a68e53d8"
+  "wiki_tree_hash": "b6ff8b5faafeb38636cd20f7a20e390ae30889119ef5e6b281734e9dcf7b4fa3"
 }

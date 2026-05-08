@@ -20398,3 +20398,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5e6e116c2c47cfff6a3c052ad5fdcdf8
 - summary: Central hub for the Protocol Periphery project, tracking tasks, documentation, deployments (including Iliad testnet addresses and versions), GitHub issues/PRs, and feedback.
 
+## [2026-05-08T23:02:13Z] synthesis | Periphery Code Freeze Checklist
+
+- status: published
+- slug: runbooks/periphery-code-freeze-checklist
+- wiki_revision_id: wikirev_63c2805e68556a199e9f920fb8dc78f1
+- summary: Checklist for V1.2 periphery contract changes to ensure backward compatibility. Most workflow functions are 100% BC, but a few require updates due to contract size limits or signat...
+
