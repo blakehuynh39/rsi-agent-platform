@@ -20028,3 +20028,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c93bc44e3876f3667121d3657a00268e
 - summary: Overview of restaking protocols and the mechanism for building Actively Validated Services (AVS), referencing Eigenlayer resources.
 
+## [2026-05-08T11:18:26Z] synthesis | Upgrade to v1.1.0
+
+- status: published
+- slug: runbooks/upgrade-to-v1-1-0
+- wiki_revision_id: wikirev_7e071d3f41ab5f3d355e906c8b39adcd
+- summary: Details of the smart contract changes in the upgrade from v1.0.0-rc.1 to v1.1.0, including new, modified, and removed contracts.
+
+## [2026-05-08T11:20:03Z] synthesis | L1 Blockchain Overview
+
+- status: published
+- slug: concepts/l1-blockchain-overview
+- wiki_revision_id: wikirev_ec9e2d157af01a57a84ebde8ec0023f1
+- summary: An introductory overview of Layer 1 (L1) blockchains, covering definitions, properties, core elements, consensus mechanisms, infrastructure, smart contracts, and typical workflows.
+
