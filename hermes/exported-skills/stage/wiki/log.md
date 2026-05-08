@@ -19879,3 +19879,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_46f8958c6c08f5d42aef6d0bceb09f60
 - summary: Design exploration for onboarding Web2 users to Web3 via integration partners, using account abstraction and profile managers.
 
+## [2026-05-08T05:15:20Z] synthesis | Multi-Parent Licensing
+
+- status: published
+- slug: concepts/multi-parent-licensing
+- wiki_revision_id: wikirev_a81879cce84db17e7926c49029e74857
+- summary: Describes how derivatives can be linked to multiple parent IPAs, including scenarios with a single common policy and the more complex case of multiple, potentially incompatible pol...
+
+## [2026-05-08T05:15:20Z] synthesis | Protocol R&D Update (May–July 2023)
+
+- status: published
+- slug: projects/protocol-rd-update-may-jul-2023
+- wiki_revision_id: wikirev_bb4833d4aed480536d7b555990e44694
+- summary: Summary of protocol research, development milestones, module discussions, repository activities, and Beta release design ideas from May to July 2023.
+

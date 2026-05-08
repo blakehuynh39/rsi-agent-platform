@@ -3,11 +3,7 @@ title: "Multi-Parent Licensing"
 type: "concept"
 slug: "concepts/multi-parent-licensing"
 freshness: "2024-01-25T04:55:00Z"
-tags:
-  - "derivatives"
-  - "licensing"
-  - "multi-parent"
-  - "policy"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_17f5ce4aca3b66fe7fb1792b7208765e"
@@ -35,13 +31,8 @@ Describes how derivatives can be linked to multiple parent IPAs, including scena
 - A proposed compromise for Beta is to limit multiple policies only to Root IPAs and to introduce Limited Policy Flavors for UML. `claim:claim_1_6` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Licensing-flavors-multiple-parents-7f8685c27d3a499b9c13da0e3dd2b2a1#chunk-3) `source_document_id=srcdoc_9fb8b8b3fadb15514caf762c155b56c6` `source_revision_id=srcrev_17f5ce4aca3b66fe7fb1792b7208765e` `chunk_id=srcchunk_77422661f7755dd9f7c13827a2f2ccf6` `native_locator=https://www.notion.so/Licensing-flavors-multiple-parents-7f8685c27d3a499b9c13da0e3dd2b2a1#chunk-3` `source_timestamp=2024-01-25T04:55:00Z`
 
-## Open Questions
-
-- How should incompatible policy terms be detected and handled on-chain?
-- What is the exact algorithm for determining the output policy when multiple compatible parent policies are merged?
-
 ## Sources
 
-- `source_document_id`: `srcdoc_9fb8b8b3fadb15514caf762c155b56c6`
-- `source_revision_id`: `srcrev_17f5ce4aca3b66fe7fb1792b7208765e`
-- `source_url`: [Notion source](https://www.notion.so/Licensing-flavors-multiple-parents-7f8685c27d3a499b9c13da0e3dd2b2a1)
+- `source_document_id`: `srcdoc_0fddaeecc02fc71b9fc66371fd61438a`
+- `source_revision_id`: `srcrev_24efa49f1987840c4072cb1e4a5b4db9`
+- `source_url`: [Notion source](https://www.notion.so/Beta-Release-7ceb51f7eebc4183a7df83b0941d0b91)

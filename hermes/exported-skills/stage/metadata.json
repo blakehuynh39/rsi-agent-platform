@@ -2911,13 +2911,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aa7d9438770d575ba85725f8aafff5fef28118e973368eafd00a0af5c9da33e0",
-        "size": 499253
+        "sha256": "eb3c4da5017eb1682a4b1e18f521f8067f7bbe13e83be93089a6fd1fccbda3d8",
+        "size": 499642
       },
       {
         "path": "log.md",
-        "sha256": "5e41d7e54db05b95adcba34b48d985e2ef0b5c654a9cddba899870d30edbd2bd",
-        "size": 942764
+        "sha256": "e9fd71fa348d25d354ddbd579ca8b969ddc1ce4e3195e6f6ce2a3c1a66a73789",
+        "size": 943512
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3261,8 +3261,8 @@
       },
       {
         "path": "pages/concepts/multi-parent-licensing.md",
-        "sha256": "bab8a21a74140bc259f45ee03383e79497e4ce30ca0a1c9376980908f38b79bd",
-        "size": 4907
+        "sha256": "a8c7e199fffa736c0d2aeff1a9130c56299177a5e6ffcbbbf782d76aa0dd7a62",
+        "size": 4612
       },
       {
         "path": "pages/concepts/mutability-support.md",
@@ -4386,8 +4386,8 @@
       },
       {
         "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
-        "sha256": "8369d474a6d941da02bf6e386f1e67170239f0bd76b65042e1ebe02a51671303",
-        "size": 4360
+        "sha256": "5ccb12f87766dfc9ba82eca5b79ca06876ca7e3c27b581663b9276c8cda1ab58",
+        "size": 9097
       },
       {
         "path": "pages/projects/rcade-music-app.md",
@@ -4984,7 +4984,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T05:06:40Z",
+  "exported_at": "2026-05-08T05:17:56Z",
   "file_count": 995,
   "files": [
     {
@@ -7892,7 +7892,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-78db8f9wh6f",
-  "previous_tree_hash": "6642747d65dfcb5b242391296284d4365ca6731d0af53c458a5cbd005ecaabb0",
+  "previous_tree_hash": "aa98396ca19ad51560ce9acc0492e06d7f2fe2bd2dbb01dff392343469db9414",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7905,7 +7905,7 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "aa98396ca19ad51560ce9acc0492e06d7f2fe2bd2dbb01dff392343469db9414",
+  "tree_hash": "5e5719d79159f6eb19a7c6e8e650468c8be1803e344902a0305ce256dfc7ac6a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -7921,13 +7921,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aa7d9438770d575ba85725f8aafff5fef28118e973368eafd00a0af5c9da33e0",
-      "size": 499253
+      "sha256": "eb3c4da5017eb1682a4b1e18f521f8067f7bbe13e83be93089a6fd1fccbda3d8",
+      "size": 499642
     },
     {
       "path": "log.md",
-      "sha256": "5e41d7e54db05b95adcba34b48d985e2ef0b5c654a9cddba899870d30edbd2bd",
-      "size": 942764
+      "sha256": "e9fd71fa348d25d354ddbd579ca8b969ddc1ce4e3195e6f6ce2a3c1a66a73789",
+      "size": 943512
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8271,8 +8271,8 @@
     },
     {
       "path": "pages/concepts/multi-parent-licensing.md",
-      "sha256": "bab8a21a74140bc259f45ee03383e79497e4ce30ca0a1c9376980908f38b79bd",
-      "size": 4907
+      "sha256": "a8c7e199fffa736c0d2aeff1a9130c56299177a5e6ffcbbbf782d76aa0dd7a62",
+      "size": 4612
     },
     {
       "path": "pages/concepts/mutability-support.md",
@@ -9396,8 +9396,8 @@
     },
     {
       "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
-      "sha256": "8369d474a6d941da02bf6e386f1e67170239f0bd76b65042e1ebe02a51671303",
-      "size": 4360
+      "sha256": "5ccb12f87766dfc9ba82eca5b79ca06876ca7e3c27b581663b9276c8cda1ab58",
+      "size": 9097
     },
     {
       "path": "pages/projects/rcade-music-app.md",
@@ -9991,5 +9991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b8a777490aa20b513b9787b4538fc0f6d8e063a2967b470c870041e111e6ee77"
+  "wiki_tree_hash": "71a50afd4fc3e158e417b8d5f5c00df4ca76a947e875b6fbdb6de9c650e9f9bc"
 }
