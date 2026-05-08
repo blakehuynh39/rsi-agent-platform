@@ -20188,3 +20188,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_1f621c3dd0c03922c4f2d31e99e9ffe4
 - summary: Source: [Notion source](https://www.notion.so/Finalize-on-non-audio-tasks-rollout-and-timeline-35a051299a54807c93a7dcf081eb3f7e)
 
+## [2026-05-08T16:52:36Z] synthesis | Nginx Setup for HTTPS and WSS on Localhost
+
+- status: published
+- slug: runbooks/nginx-setup-https-wss-localhost
+- wiki_revision_id: wikirev_3a3f92e405e0f9e2a0566fab758574e8
+- summary: A step-by-step guide to configure nginx as a reverse proxy for HTTPS and WebSocket Secure (WSS) endpoints on localhost using self-signed certificates, with geth as the backend.
+

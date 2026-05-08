@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a4394c63701a673490361429cea62e75c317c8ec94ec1ce39193796ec0fbafc1",
-        "size": 511370
+        "sha256": "58e0be6cde0c53110e2c76e8fd324f7d7c06add018f39042eca278d878a553c6",
+        "size": 511759
       },
       {
         "path": "log.md",
-        "sha256": "8dfb834342e4b15ab5c703376ac92e70bbd3ac307da970188df2b048eb8a257c",
-        "size": 958934
+        "sha256": "344d686dd8c4f32de0874b92631fdf034bd6e0d332d64cc5b54837d555426127",
+        "size": 959335
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4785,6 +4785,11 @@
         "size": 1372
       },
       {
+        "path": "pages/runbooks/nginx-setup-https-wss-localhost.md",
+        "sha256": "a186e462d85ebebc6b07689eb98bd58412441c6c80191f1778d40fb4637eefde",
+        "size": 8637
+      },
+      {
         "path": "pages/runbooks/node-recovery-process.md",
         "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
         "size": 6068
@@ -5149,8 +5154,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T16:34:41Z",
-  "file_count": 1028,
+  "exported_at": "2026-05-08T16:55:57Z",
+  "file_count": 1029,
   "files": [
     {
       "path": ".curator_state",
@@ -8067,7 +8072,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484cd8xwt",
-  "previous_tree_hash": "dced865fba9702ebc3905ea509195aa8bab1dd612574732d534dcbfce66ca235",
+  "previous_tree_hash": "27b344c9d5f5f159b79a8d5028937bb2f6163f867e948c854e84399e6198212c",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8080,14 +8085,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "27b344c9d5f5f159b79a8d5028937bb2f6163f867e948c854e84399e6198212c",
+  "tree_hash": "ef1d0fb4cf0c36ff6299740227b2824f2db4c18b145daaff47dfb579ddeb75dc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 446,
+  "wiki_file_count": 447,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8096,13 +8101,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a4394c63701a673490361429cea62e75c317c8ec94ec1ce39193796ec0fbafc1",
-      "size": 511370
+      "sha256": "58e0be6cde0c53110e2c76e8fd324f7d7c06add018f39042eca278d878a553c6",
+      "size": 511759
     },
     {
       "path": "log.md",
-      "sha256": "8dfb834342e4b15ab5c703376ac92e70bbd3ac307da970188df2b048eb8a257c",
-      "size": 958934
+      "sha256": "344d686dd8c4f32de0874b92631fdf034bd6e0d332d64cc5b54837d555426127",
+      "size": 959335
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9960,6 +9965,11 @@
       "size": 1372
     },
     {
+      "path": "pages/runbooks/nginx-setup-https-wss-localhost.md",
+      "sha256": "a186e462d85ebebc6b07689eb98bd58412441c6c80191f1778d40fb4637eefde",
+      "size": 8637
+    },
+    {
       "path": "pages/runbooks/node-recovery-process.md",
       "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
       "size": 6068
@@ -10321,5 +10331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72e04c29e5ca45b36b4512f73720dba6c41cfd1ec885c93a86b71640b994c074"
+  "wiki_tree_hash": "86b0e30eabc1137bd6881bd64d9772066d7802e7f8d5065c798ba1dcd956b65a"
 }
