@@ -20070,3 +20070,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_015d9ffd7888cdec70c0adca61600fbd
 - summary: Details of the manually provisioned devnet with 15 validators, 1 bootnode, and an explorer, hosted in AWS us-west-1.
 
+## [2026-05-08T12:38:09Z] synthesis | IPA Pool Concept
+
+- status: published
+- slug: concepts/ipa-pool-concept
+- wiki_revision_id: wikirev_e3a60c943bf917af5ffdc30b928c78bc
+- summary: A pool mechanism built on protocol-core that aggregates TVL to protect multiple IPAs, featuring governance tokens, permissionless creation, and early staker incentives.
+
