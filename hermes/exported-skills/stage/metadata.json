@@ -2906,13 +2906,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "15cc301298c4667f8d2b55b1263bd88f8445a07f5d616f26ba693e673f8a37ae",
-        "size": 496262
+        "sha256": "4e0fd40db278b3008d4660f2742454d3974022261f6a966bc39ce46f312c3427",
+        "size": 496663
       },
       {
         "path": "log.md",
-        "sha256": "fd273e450bb1ced62d51d55b02b320daf4e5cbdf0702fe07856d359c7da08484",
-        "size": 936512
+        "sha256": "2cf54aff5f9abdc19e251bdfeee75cf334069a3030cf45b4a134571b85aab28d",
+        "size": 936925
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3975,6 +3975,11 @@
         "size": 4104
       },
       {
+        "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
+        "sha256": "6a625d87043416ccd3e6060f1cdb353ae953e51d6e759d711a23ff4ed1e3497e",
+        "size": 9244
+      },
+      {
         "path": "pages/projects/depin-application-season-one.md",
         "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
         "size": 1270
@@ -4929,8 +4934,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T00:39:41Z",
-  "file_count": 984,
+  "exported_at": "2026-05-08T01:08:49Z",
+  "file_count": 985,
   "files": [
     {
       "path": ".curator_state",
@@ -7831,8 +7836,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd97tb5m",
-  "previous_tree_hash": "25d2cc831c37a91032718343367825a22c410a46e7fbe9abf16dac76f798baad",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd9dffqc",
+  "previous_tree_hash": "e8a6926cbdf5187d455f77a399036ef260fdcd48f6edaf83243d8ec154b959ec",
   "schema_version": 1,
   "skill_file_count": 579,
   "skill_manage_sessions": [
@@ -7845,14 +7850,14 @@
   ],
   "skill_tree_hash": "f6836a144752477a891413e53459d193b8fb1d0d9db00a3e5f31248de9c7aa48",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e8a6926cbdf5187d455f77a399036ef260fdcd48f6edaf83243d8ec154b959ec",
+  "tree_hash": "d8a94f2ffdacd492eb45ac054ce9a0d97666890094b7ce6e53676ac25e60d405",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 405,
+  "wiki_file_count": 406,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7861,13 +7866,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "15cc301298c4667f8d2b55b1263bd88f8445a07f5d616f26ba693e673f8a37ae",
-      "size": 496262
+      "sha256": "4e0fd40db278b3008d4660f2742454d3974022261f6a966bc39ce46f312c3427",
+      "size": 496663
     },
     {
       "path": "log.md",
-      "sha256": "fd273e450bb1ced62d51d55b02b320daf4e5cbdf0702fe07856d359c7da08484",
-      "size": 936512
+      "sha256": "2cf54aff5f9abdc19e251bdfeee75cf334069a3030cf45b4a134571b85aab28d",
+      "size": 936925
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8930,6 +8935,11 @@
       "size": 4104
     },
     {
+      "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
+      "sha256": "6a625d87043416ccd3e6060f1cdb353ae953e51d6e759d711a23ff4ed1e3497e",
+      "size": 9244
+    },
+    {
       "path": "pages/projects/depin-application-season-one.md",
       "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
       "size": 1270
@@ -9881,5 +9891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "634dfcea262935639f6a48a6e8ae1a0b66ae5dadd2a34d44e262570ebad0bdc9"
+  "wiki_tree_hash": "c5f1eeb291f2433720fbad8a7f5d5fa196a917158c81860ca1ee90ebf1d23251"
 }
