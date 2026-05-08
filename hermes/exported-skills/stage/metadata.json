@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "75b0e8f31a2bb80b4ee86fd69be916e24cdab883b94c7b59c4eabfd6e720a37b",
-        "size": 508142
+        "sha256": "b0f6933f24cd228a364c93de12b11bc1d6f46f5b6c5991698c3a9bf8cde72e12",
+        "size": 508486
       },
       {
         "path": "log.md",
-        "sha256": "213126208d10900a7c38e25738fdadec9af6a8e55dd405e0de1c5475503d14a0",
-        "size": 953491
+        "sha256": "398714f646b759c31010932a0a9783fb84478cfb81cbe85d3260d3efb8547fba",
+        "size": 953847
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4950,6 +4950,11 @@
         "size": 4630
       },
       {
+        "path": "pages/systems/ipa-staking.md",
+        "sha256": "0c2d558cf1ecae1c83143e15a5ce204956adc5727ba8e60518a7ecc26d0ef076",
+        "size": 6199
+      },
+      {
         "path": "pages/systems/kms-coordinator.md",
         "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
         "size": 2649
@@ -5109,8 +5114,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T12:41:17Z",
-  "file_count": 1020,
+  "exported_at": "2026-05-08T12:57:26Z",
+  "file_count": 1021,
   "files": [
     {
       "path": ".curator_state",
@@ -8027,7 +8032,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "4d6c63e680bbcc725e3f1880280217f16c4a90ea564217a53cacefb694841171",
+  "previous_tree_hash": "e48eef954f2df010c1211ebce1fb19fdf33cfcd0c45af8baa87fc03d6e339841",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8040,14 +8045,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e48eef954f2df010c1211ebce1fb19fdf33cfcd0c45af8baa87fc03d6e339841",
+  "tree_hash": "3efa167e17f53153838870c3b32c196c509c1721df258f7b77a93e89d79c0368",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 438,
+  "wiki_file_count": 439,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8056,13 +8061,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "75b0e8f31a2bb80b4ee86fd69be916e24cdab883b94c7b59c4eabfd6e720a37b",
-      "size": 508142
+      "sha256": "b0f6933f24cd228a364c93de12b11bc1d6f46f5b6c5991698c3a9bf8cde72e12",
+      "size": 508486
     },
     {
       "path": "log.md",
-      "sha256": "213126208d10900a7c38e25738fdadec9af6a8e55dd405e0de1c5475503d14a0",
-      "size": 953491
+      "sha256": "398714f646b759c31010932a0a9783fb84478cfb81cbe85d3260d3efb8547fba",
+      "size": 953847
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10085,6 +10090,11 @@
       "size": 4630
     },
     {
+      "path": "pages/systems/ipa-staking.md",
+      "sha256": "0c2d558cf1ecae1c83143e15a5ce204956adc5727ba8e60518a7ecc26d0ef076",
+      "size": 6199
+    },
+    {
       "path": "pages/systems/kms-coordinator.md",
       "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
       "size": 2649
@@ -10241,5 +10251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0607437340edd2b67a1977f0f84c810974d1c3dc8882587c1d1369abe32ac301"
+  "wiki_tree_hash": "c8ee2bf9dfa629a14ba4025fa77fc282fc52830ffdb39b59e77c647293bca6f8"
 }

@@ -20077,3 +20077,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e3a60c943bf917af5ffdc30b928c78bc
 - summary: A pool mechanism built on protocol-core that aggregates TVL to protect multiple IPAs, featuring governance tokens, permissionless creation, and early staker incentives.
 
+## [2026-05-08T12:53:17Z] synthesis | IPA Staking
+
+- status: published
+- slug: systems/ipa-staking
+- wiki_revision_id: wikirev_95d88e8d6bd28fd7202c61db8c5124cc
+- summary: IPA Staking allows any user to stake an ERC20 Stake Token to any IP Asset, claim staking rewards (sIP), and withdraw with a cooldown. The protocol admin defines a global reward emi...
+
