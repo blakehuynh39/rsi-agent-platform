@@ -20049,3 +20049,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_052f8c94cea7ef2f6c2ff25955cdd551
 - summary: Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashi...
 
+## [2026-05-08T11:50:01Z] synthesis | 15+1 Devnet Halo Config Files
+
+- status: published
+- slug: runbooks/15-plus-1-devnet-halo-config-files
+- wiki_revision_id: wikirev_294eaac5acbcfd08fe89e73e2ba06f91
+- summary: Reference for the configuration files used in the 15+1 Devnet Halo setup, including Halo config, genesis, node keys, validator state, and Geth initialization.
+
+## [2026-05-08T11:53:07Z] synthesis | Devnet 4+1 Setup
+
+- status: published
+- slug: runbooks/devnet-4-plus-1-setup
+- wiki_revision_id: wikirev_bdb462a2d6c3ec5a4181489e5ca69a39
+- summary: Manual setup procedure for a 4-validator + 1 bootnode devnet, including folder structures, configuration files, and binaries.
+

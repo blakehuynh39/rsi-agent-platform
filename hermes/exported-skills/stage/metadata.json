@@ -2921,13 +2921,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7ee59eda63aef57a15981891a40b406cfe2bc868c6baeecd1d00b9d3020af0d5",
-        "size": 507193
+        "sha256": "450da85c7192f9584ab7b82b19f06ba3c85e4093818e3e3fc10374d9dd1aebd3",
+        "size": 507495
       },
       {
         "path": "log.md",
-        "sha256": "0912bff4d84469d2a226ad3da348e3e37a3adaa527d214b4d9b59655b8ac240d",
-        "size": 952133
+        "sha256": "04d6cbb57d4756bf4e60e5af30f078edcd88eca02f20f515a8b60abe8c4484f3",
+        "size": 952820
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4626,8 +4626,8 @@
       },
       {
         "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
-        "sha256": "9ffb4533873dcdc9ae2436ab9c9f5fd594bcaaa15d0c2ed3924bda0eb92fda1b",
-        "size": 2497
+        "sha256": "7a0dc7948a8b65f56fc04971eeaa853631efa751602553e8a3ebdea83d02a870",
+        "size": 3794
       },
       {
         "path": "pages/runbooks/aws-cli-setup.md",
@@ -4668,6 +4668,11 @@
         "path": "pages/runbooks/design-review-signup.md",
         "sha256": "00f90acb69bd5dc07e54854067e92ee5026ea9c82ed7647e8dc87b7f07cd2a8d",
         "size": 2504
+      },
+      {
+        "path": "pages/runbooks/devnet-4-plus-1-setup.md",
+        "sha256": "e9fcb27421684cd0995b7e5ccdf7e90dfe9b9b2eb9f2d6eccb5284bbbc9b28ef",
+        "size": 4956
       },
       {
         "path": "pages/runbooks/devnet-homework-jun-17-21.md",
@@ -5094,8 +5099,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T11:42:45Z",
-  "file_count": 1017,
+  "exported_at": "2026-05-08T11:53:50Z",
+  "file_count": 1018,
   "files": [
     {
       "path": ".curator_state",
@@ -8012,7 +8017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
-  "previous_tree_hash": "8fee78ff7aba6480a52a6f7207b018e65bc77f2770450bc2d4508de817ce78d9",
+  "previous_tree_hash": "ff3ea5cafdef2a96780cf189811533fa1d50b2b58d7f8d6c9b49ec9f013e37c7",
   "schema_version": 1,
   "skill_file_count": 582,
   "skill_manage_sessions": [
@@ -8025,14 +8030,14 @@
   ],
   "skill_tree_hash": "0358b589e172eabc042393a7d37827f231b2a4f93747c7a977a549061b9fa0bf",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ff3ea5cafdef2a96780cf189811533fa1d50b2b58d7f8d6c9b49ec9f013e37c7",
+  "tree_hash": "b4b6b85c2f5b5f2ce2757c80737668b10f267f5455f49d47b9b2ac6a56bead40",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 435,
+  "wiki_file_count": 436,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8041,13 +8046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7ee59eda63aef57a15981891a40b406cfe2bc868c6baeecd1d00b9d3020af0d5",
-      "size": 507193
+      "sha256": "450da85c7192f9584ab7b82b19f06ba3c85e4093818e3e3fc10374d9dd1aebd3",
+      "size": 507495
     },
     {
       "path": "log.md",
-      "sha256": "0912bff4d84469d2a226ad3da348e3e37a3adaa527d214b4d9b59655b8ac240d",
-      "size": 952133
+      "sha256": "04d6cbb57d4756bf4e60e5af30f078edcd88eca02f20f515a8b60abe8c4484f3",
+      "size": 952820
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9746,8 +9751,8 @@
     },
     {
       "path": "pages/runbooks/15-plus-1-devnet-halo-config-files.md",
-      "sha256": "9ffb4533873dcdc9ae2436ab9c9f5fd594bcaaa15d0c2ed3924bda0eb92fda1b",
-      "size": 2497
+      "sha256": "7a0dc7948a8b65f56fc04971eeaa853631efa751602553e8a3ebdea83d02a870",
+      "size": 3794
     },
     {
       "path": "pages/runbooks/aws-cli-setup.md",
@@ -9788,6 +9793,11 @@
       "path": "pages/runbooks/design-review-signup.md",
       "sha256": "00f90acb69bd5dc07e54854067e92ee5026ea9c82ed7647e8dc87b7f07cd2a8d",
       "size": 2504
+    },
+    {
+      "path": "pages/runbooks/devnet-4-plus-1-setup.md",
+      "sha256": "e9fcb27421684cd0995b7e5ccdf7e90dfe9b9b2eb9f2d6eccb5284bbbc9b28ef",
+      "size": 4956
     },
     {
       "path": "pages/runbooks/devnet-homework-jun-17-21.md",
@@ -10211,5 +10221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "277693ec10059415af3eae58f49f5bc604e2023478a50ab3a6bdb898bb99fd49"
+  "wiki_tree_hash": "e3e3aa7ee225e5fd7d5ac079da278c78238f9bd7349adfca3e7eeb52322aa830"
 }
