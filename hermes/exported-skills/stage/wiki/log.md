@@ -19795,3 +19795,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4b3d7341f9d952ce4ee64524915a439e
 - summary: A collection of blockchain dashboards and explorers used by the team, including Momoka and Uniswap.
 
+## [2026-05-08T02:47:08Z] synthesis | Infrastructure Revamp
+
+- status: published
+- slug: projects/infrastructure-revamp
+- wiki_revision_id: wikirev_a926c6328278d59898db75f58d608076
+- summary: Project to revamp Story Protocol's core infrastructure, migrating from a single AWS account with two single-ingress EKS clusters to a multi-account setup with improved IaC, CI/CD, ...
+

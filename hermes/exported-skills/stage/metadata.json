@@ -2916,8 +2916,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "530b7db4606ed10b974833ca107070effdf6ce6109306f183f5497c505bc2120",
-        "size": 938768
+        "sha256": "54967157fd169dc6a134e429d35867617dfbcb0293499e95a3a4e564f894b69a",
+        "size": 939145
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4130,6 +4130,11 @@
         "size": 1127
       },
       {
+        "path": "pages/projects/infrastructure-revamp.md",
+        "sha256": "345ca37ded29b6fe003b7a846d3cda55debec2e42fdb2c422a4499512e6bcf8f",
+        "size": 4937
+      },
+      {
         "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
         "sha256": "e5213030355f74f54b75786b10da2ad870f02f58ed85cbe7b2d01d554f11a111",
         "size": 1472
@@ -4949,8 +4954,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T02:40:37Z",
-  "file_count": 988,
+  "exported_at": "2026-05-08T02:50:57Z",
+  "file_count": 989,
   "files": [
     {
       "path": ".curator_state",
@@ -7856,8 +7861,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-fcbdd9dffqc",
-  "previous_tree_hash": "d97ed591e61aa60bf8524cf3ca5707034dd9be3ce2d1aab69a14b5b5b22b15bb",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-b44bdfmmn4n",
+  "previous_tree_hash": "4f57934d61780678d64b74ebe97fce7eeb87ebdced4277e9b99919d6f9aeaec9",
   "schema_version": 1,
   "skill_file_count": 580,
   "skill_manage_sessions": [
@@ -7870,14 +7875,14 @@
   ],
   "skill_tree_hash": "010082400ad2ef5f8d69897d7bff246a0d9f57d83b7fe4c577d3f4d106e622e3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4f57934d61780678d64b74ebe97fce7eeb87ebdced4277e9b99919d6f9aeaec9",
+  "tree_hash": "7e596fef034b2c8a0defe63bb3a1a82107f1e9a98787960d55092cbfe8988fb9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 408,
+  "wiki_file_count": 409,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7891,8 +7896,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "530b7db4606ed10b974833ca107070effdf6ce6109306f183f5497c505bc2120",
-      "size": 938768
+      "sha256": "54967157fd169dc6a134e429d35867617dfbcb0293499e95a3a4e564f894b69a",
+      "size": 939145
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9105,6 +9110,11 @@
       "size": 1127
     },
     {
+      "path": "pages/projects/infrastructure-revamp.md",
+      "sha256": "345ca37ded29b6fe003b7a846d3cda55debec2e42fdb2c422a4499512e6bcf8f",
+      "size": 4937
+    },
+    {
       "path": "pages/projects/integrate-fb-tracking-google-ads-admin-dashboard.md",
       "sha256": "e5213030355f74f54b75786b10da2ad870f02f58ed85cbe7b2d01d554f11a111",
       "size": 1472
@@ -9921,5 +9931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7b59d2ae1844736d8f24eed1356823fefb824b556d554b63aa0d229ca3fb27ae"
+  "wiki_tree_hash": "bf6559d72b3229456b4af36568791f525ba0ef28e979995ee1b660de5a396f5d"
 }
