@@ -20084,3 +20084,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_95d88e8d6bd28fd7202c61db8c5124cc
 - summary: IPA Staking allows any user to stake an ERC20 Stake Token to any IP Asset, claim staking rewards (sIP), and withdraw with a cooldown. The protocol admin defines a global reward emi...
 
+## [2026-05-08T13:09:30Z] synthesis | June devnet retro
+
+- status: published
+- slug: runbooks/june-devnet-retro
+- wiki_revision_id: wikirev_aafe2c81e4161572923bf9636dab3f44
+- summary: Retrospective on the June devnet execution, highlighting successes and areas for improvement.
+
