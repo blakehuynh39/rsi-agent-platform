@@ -19972,3 +19972,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8bb834c66e24cebd2dc628e94294faaf
 - summary: Decision finalized via voting bypass for PR #2 to adopt the Open Data Access system over the Module-based Data System for IPAccount storage. IPAccount will hold all relevant data i...
 
+## [2026-05-08T07:39:31Z] synthesis | License Registry and License NFT Contract Relationship
+
+- status: published
+- slug: decisions/license-registry-nft-contract-relationship
+- wiki_revision_id: wikirev_75f956cd8c03aa0401c5e56ed367d280
+- summary: Explores two design directions for the relationship between the License Registry and License NFT contracts: D.1 (tight coupling, all licenses on one address) and D.2 (decoupling, e...
+

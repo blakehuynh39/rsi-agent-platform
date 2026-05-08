@@ -2916,13 +2916,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e31392c17c84265d245e97bf695c41bd98bacbb5ee2723861ab79528fa29a558",
-        "size": 503448
+        "sha256": "d5a05255181f524deb7e9bca6ef0fce66e343e3c55dccd59608552a25a1d9641",
+        "size": 503868
       },
       {
         "path": "log.md",
-        "sha256": "61be32a78ff0eace4478f7779ab71d1c493ff6a7f82b680f620b68ff704cca42",
-        "size": 947873
+        "sha256": "d843b011e22e70cce1b21c97dd7694f1733f7bee7d11ceae4fa68db41eef7245",
+        "size": 948305
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3678,6 +3678,11 @@
         "path": "pages/decisions/l1-vs-l2-decision.md",
         "sha256": "10e75d19279b60b7a930d23985f90c0538133f19711c5a0843bbc1c1d96838a6",
         "size": 5721
+      },
+      {
+        "path": "pages/decisions/license-registry-nft-contract-relationship.md",
+        "sha256": "e5a087085a0273f5c9f501773b51dc29906f2e273efc0a250e508becad165e3e",
+        "size": 6525
       },
       {
         "path": "pages/decisions/license-simplification-alpha.md",
@@ -5039,8 +5044,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-08T07:25:48Z",
-  "file_count": 1006,
+  "exported_at": "2026-05-08T07:39:58Z",
+  "file_count": 1007,
   "files": [
     {
       "path": ".curator_state",
@@ -7951,8 +7956,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5444b78jhbn",
-  "previous_tree_hash": "70de932562d8ff946bda5ad93af6732beecbbfcec5edd2187621d7cd04f3666a",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c8484czkh7x",
+  "previous_tree_hash": "4f8ac10d077e427facbe2ad941249e744c25f35507b6a1b57f8cc40a319651b2",
   "schema_version": 1,
   "skill_file_count": 581,
   "skill_manage_sessions": [
@@ -7965,14 +7970,14 @@
   ],
   "skill_tree_hash": "7329b919ae6d5ddc5b51171fb713f0e7549a9e960623cd9c64ea3a9764dad8f0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4f8ac10d077e427facbe2ad941249e744c25f35507b6a1b57f8cc40a319651b2",
+  "tree_hash": "a2814a6bda542f0b2c2ce24ce4f9c09738572b876f41d4beaa688a012625b54a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 425,
+  "wiki_file_count": 426,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -7981,13 +7986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e31392c17c84265d245e97bf695c41bd98bacbb5ee2723861ab79528fa29a558",
-      "size": 503448
+      "sha256": "d5a05255181f524deb7e9bca6ef0fce66e343e3c55dccd59608552a25a1d9641",
+      "size": 503868
     },
     {
       "path": "log.md",
-      "sha256": "61be32a78ff0eace4478f7779ab71d1c493ff6a7f82b680f620b68ff704cca42",
-      "size": 947873
+      "sha256": "d843b011e22e70cce1b21c97dd7694f1733f7bee7d11ceae4fa68db41eef7245",
+      "size": 948305
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8743,6 +8748,11 @@
       "path": "pages/decisions/l1-vs-l2-decision.md",
       "sha256": "10e75d19279b60b7a930d23985f90c0538133f19711c5a0843bbc1c1d96838a6",
       "size": 5721
+    },
+    {
+      "path": "pages/decisions/license-registry-nft-contract-relationship.md",
+      "sha256": "e5a087085a0273f5c9f501773b51dc29906f2e273efc0a250e508becad165e3e",
+      "size": 6525
     },
     {
       "path": "pages/decisions/license-simplification-alpha.md",
@@ -10101,5 +10111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cddad31340743a52fdb41437c4634d90c3c3e77cedd0a280900e45cfc3a49f76"
+  "wiki_tree_hash": "25c4a249f4eedcffe24feedbc87996e552c2ff26f8e9707f7ff0d24d427948bf"
 }
