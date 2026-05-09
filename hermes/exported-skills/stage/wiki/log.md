@@ -20482,3 +20482,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9edd2953c3febe536f2c83aa78c8b404
 - summary: Discussion on testnet vs mainnet launch and L1 vs L2 deployment for the Story Protocol, including considerations for value accrual, data storage, and interoperability.
 
+## [2026-05-09T03:20:56Z] synthesis | Programmable IP Open Data Access Architecture
+
+- status: published
+- slug: concepts/programmable-ip-open-data-access-architecture
+- wiki_revision_id: wikirev_d77bcd5281c03dcfa0bf157e6bebe16f
+- summary: Defines the core principles and implementation structure for an open, equitable data access architecture in the Programmable IP ecosystem, centered around the IPAccount data model ...
+

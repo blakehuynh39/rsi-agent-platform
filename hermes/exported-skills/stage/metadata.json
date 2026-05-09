@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2184fd6fa75ffe051f0f33253205d1eb1f958cfa66b3da013005c1fddec7a612",
-        "size": 973958
+        "sha256": "adc6bbae2ddfe058d33ec0304b10bb370a7a16399c237ec674d4576d5850e2dc",
+        "size": 974383
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3408,6 +3408,11 @@
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
         "sha256": "02c0387e735960b18744138aa401dede7b765b9f37793542440a7ad56d8bf08c",
         "size": 4207
+      },
+      {
+        "path": "pages/concepts/programmable-ip-open-data-access-architecture.md",
+        "sha256": "2ba7703693d35b6a632cb03e9a667ae0519faa3279423bc94fea75d0caf550a8",
+        "size": 7264
       },
       {
         "path": "pages/concepts/projects-and-tasks-overview.md",
@@ -5284,8 +5289,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T03:03:18Z",
-  "file_count": 1055,
+  "exported_at": "2026-05-09T03:24:46Z",
+  "file_count": 1056,
   "files": [
     {
       "path": ".curator_state",
@@ -8207,7 +8212,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "c8b1a5f6562a9aecd5f98232e4cc0a93e0e0fdefbc2ff28fa9ab8a51d2d48bfb",
+  "previous_tree_hash": "9c7960f9a221c8cec410896441815cb42963728fa04ac53747cdfff8491da4a1",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8220,14 +8225,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9c7960f9a221c8cec410896441815cb42963728fa04ac53747cdfff8491da4a1",
+  "tree_hash": "ef5f662db9a6af82dbb86c943dc977c775fe22d48593a1927928f236f32025cb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 472,
+  "wiki_file_count": 473,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8241,8 +8246,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2184fd6fa75ffe051f0f33253205d1eb1f958cfa66b3da013005c1fddec7a612",
-      "size": 973958
+      "sha256": "adc6bbae2ddfe058d33ec0304b10bb370a7a16399c237ec674d4576d5850e2dc",
+      "size": 974383
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8718,6 +8723,11 @@
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
       "sha256": "02c0387e735960b18744138aa401dede7b765b9f37793542440a7ad56d8bf08c",
       "size": 4207
+    },
+    {
+      "path": "pages/concepts/programmable-ip-open-data-access-architecture.md",
+      "sha256": "2ba7703693d35b6a632cb03e9a667ae0519faa3279423bc94fea75d0caf550a8",
+      "size": 7264
     },
     {
       "path": "pages/concepts/projects-and-tasks-overview.md",
@@ -10591,5 +10601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "329e071cf359cb2896bfd27f397ed0f298d412e0274acd481ad91d78dfcfcad4"
+  "wiki_tree_hash": "eb88bba69ec2868c50693f4b79075bd8739eed7287dab4ffc1b332d70a06e553"
 }
