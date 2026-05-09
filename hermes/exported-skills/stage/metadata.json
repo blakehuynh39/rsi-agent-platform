@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "66c7e351ebd1fdfe69b59a40590b3b42d46b01ae016782d3284fbb6f1da49f9d",
-        "size": 522212
+        "sha256": "889c85fc07d14e1f198cdd5eb5112cf170c23a16a9a102736941fb7edd1c7894",
+        "size": 522581
       },
       {
         "path": "log.md",
-        "sha256": "30a7c3534f73fabe47196be447a22750caf22c80d9ccb770bb3d5871bd304e76",
-        "size": 974738
+        "sha256": "0deea28bdc62714689e4a1558f7eb6744dfc0a343235b1b1e59e128e5b9f6a4f",
+        "size": 975119
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4670,6 +4670,11 @@
         "size": 6073
       },
       {
+        "path": "pages/projects/todos-from-notion-2026-05-07.md",
+        "sha256": "ad84dadd8e1559fa269e172588b837a5bbabbc82c8a12707152e4660b344025d",
+        "size": 4768
+      },
+      {
         "path": "pages/projects/trident-v0-1-0.md",
         "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
         "size": 1063
@@ -5294,8 +5299,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T04:22:38Z",
-  "file_count": 1057,
+  "exported_at": "2026-05-09T04:38:56Z",
+  "file_count": 1058,
   "files": [
     {
       "path": ".curator_state",
@@ -8217,7 +8222,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "2fabce8494ee9934b60c79dce020f7260d5caf3db318bad20ac808dbe74ee53d",
+  "previous_tree_hash": "21401bdd505d2b4c351b387e62ce419b66460294d4d706d8ed6ec2427c362bc5",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8230,14 +8235,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "21401bdd505d2b4c351b387e62ce419b66460294d4d706d8ed6ec2427c362bc5",
+  "tree_hash": "d4d9515a9075ef9f2fe736f7f51a925f2c53e39274717b771f3e8265aaf460d8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 474,
+  "wiki_file_count": 475,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8246,13 +8251,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "66c7e351ebd1fdfe69b59a40590b3b42d46b01ae016782d3284fbb6f1da49f9d",
-      "size": 522212
+      "sha256": "889c85fc07d14e1f198cdd5eb5112cf170c23a16a9a102736941fb7edd1c7894",
+      "size": 522581
     },
     {
       "path": "log.md",
-      "sha256": "30a7c3534f73fabe47196be447a22750caf22c80d9ccb770bb3d5871bd304e76",
-      "size": 974738
+      "sha256": "0deea28bdc62714689e4a1558f7eb6744dfc0a343235b1b1e59e128e5b9f6a4f",
+      "size": 975119
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9990,6 +9995,11 @@
       "size": 6073
     },
     {
+      "path": "pages/projects/todos-from-notion-2026-05-07.md",
+      "sha256": "ad84dadd8e1559fa269e172588b837a5bbabbc82c8a12707152e4660b344025d",
+      "size": 4768
+    },
+    {
       "path": "pages/projects/trident-v0-1-0.md",
       "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
       "size": 1063
@@ -10611,5 +10621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cb2f35d87fbf6426941e7c37ad33c8ba80027f2eb2b11dfd733c43ab7a78b85f"
+  "wiki_tree_hash": "2fa6578b555d3b10cf34d5de4856d8a6075594ff8dfb4f7370d502f4f7a64a1a"
 }

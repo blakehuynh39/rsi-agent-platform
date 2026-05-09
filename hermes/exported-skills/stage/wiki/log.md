@@ -20496,3 +20496,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f816394a3342a064004f693870b74a1e
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-09T04:36:56Z] synthesis | Todos (2026-05-07)
+
+- status: published
+- slug: projects/todos-from-notion-2026-05-07
+- wiki_revision_id: wikirev_30a9d800f77a712df4bf208808ada36d
+- summary: A list of pending tasks captured from a Notion document, covering dynamic authentication, prescreen voice interview integration, profile page APIs, LinkedIn login, dynamic voice ag...
+
