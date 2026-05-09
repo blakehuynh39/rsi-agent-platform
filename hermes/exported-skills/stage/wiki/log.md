@@ -20811,3 +20811,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e7dd8a2e7b424ac98487f7de34cf3a0d
 - summary: Guidance on integrating Poseidon's S3 endpoint with popular AI frameworks like PyTorch, TensorFlow, Hugging Face Datasets, and Ray Datasets.
 
+## [2026-05-09T15:52:49Z] synthesis | Trident v0.1.0
+
+- status: published
+- slug: projects/trident-v0-1-0
+- wiki_revision_id: wikirev_976d1f2ba54057f995f64dd957f44f75
+- summary: Trident v0.1.0 release details including dependencies, devnet configuration, and platform APIs.
+
