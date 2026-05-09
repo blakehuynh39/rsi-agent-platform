@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "92f42c5281df41e74485731d54426823de78825ec09a4576bbf5c847c3155fb6",
-        "size": 981283
+        "sha256": "02a741164037c16e9aad9a331cf288709c21b293e93f92edec1d75a335884a71",
+        "size": 981669
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4770,6 +4770,11 @@
         "size": 4967
       },
       {
+        "path": "pages/runbooks/aa-wallet-infra-setup.md",
+        "sha256": "0e6644cb27912f09e1844a3a6dfc330d1bf14f24341e693ef41a5c9549955794",
+        "size": 5542
+      },
+      {
         "path": "pages/runbooks/aws-cli-setup.md",
         "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
         "size": 3333
@@ -5334,8 +5339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T08:39:55Z",
-  "file_count": 1065,
+  "exported_at": "2026-05-09T09:06:20Z",
+  "file_count": 1066,
   "files": [
     {
       "path": ".curator_state",
@@ -8257,7 +8262,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "cf7be10f9c60ab758d814f1c138197e1e39d7c10f6e4269889bcf9fb9a21e8dc",
+  "previous_tree_hash": "be40803c446b172440c595774ff2824d9bdd1a2f1e7df1f73283845d5e04bffd",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8270,14 +8275,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "be40803c446b172440c595774ff2824d9bdd1a2f1e7df1f73283845d5e04bffd",
+  "tree_hash": "78b94cb639d276187fa7a63c9cce2cc72f2fb7523b3b6d92fee21693cc14830c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 482,
+  "wiki_file_count": 483,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8291,8 +8296,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "92f42c5281df41e74485731d54426823de78825ec09a4576bbf5c847c3155fb6",
-      "size": 981283
+      "sha256": "02a741164037c16e9aad9a331cf288709c21b293e93f92edec1d75a335884a71",
+      "size": 981669
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10130,6 +10135,11 @@
       "size": 4967
     },
     {
+      "path": "pages/runbooks/aa-wallet-infra-setup.md",
+      "sha256": "0e6644cb27912f09e1844a3a6dfc330d1bf14f24341e693ef41a5c9549955794",
+      "size": 5542
+    },
+    {
       "path": "pages/runbooks/aws-cli-setup.md",
       "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
       "size": 3333
@@ -10691,5 +10701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "624dae4832155089c6aee8b7a09769a83cd9a245cee7664e12944705acb5d30d"
+  "wiki_tree_hash": "9cb3c0937d558a30a40aca3a2053c99f19cea2f1024c2bd5e4f9923888d288fe"
 }

@@ -20629,3 +20629,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d860a841e47c208c7106f7967ae8b549
 - summary: A collection of how-to guides covering SSH, GitHub commit signing, bastion hosts, and Cloudflare Zero Trust.
 
+## [2026-05-09T09:04:36Z] synthesis | AA Wallet Infrastructure Setup
+
+- status: published
+- slug: runbooks/aa-wallet-infra-setup
+- wiki_revision_id: wikirev_3eadb723c380bb2264378fb09ad95a55
+- summary: Guide for setting up an Account Abstraction (AA) wallet using ZeroDev SDK, Pimlico bundler/paymaster, and Viem on Sepolia testnet. Covers wallet initialization with master and regu...
+
