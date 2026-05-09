@@ -20832,3 +20832,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0131628071c95214f14bec6bc871c155
 - summary: A research initiative to analyze and compare emerging decentralized AI infrastructure and compute projects, extracting architectural and economic insights to inform Story's own AI ...
 
+## [2026-05-09T16:20:14Z] synthesis | G4 - AI Infra Research Proposal
+
+- status: published
+- slug: projects/ai-infra-research-proposal
+- wiki_revision_id: wikirev_00f3e30460c2553411c8e913115b3201
+- summary: A research initiative to evaluate and incubate an AI infrastructure project on top of Story Protocol, aiming to showcase IP value, increase transaction volume, and potentially intr...
+

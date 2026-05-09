@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b05daca0bd986fd350b60089750bc26a52b8ba33f5bcea187ce773ba5da0a849",
-        "size": 530539
+        "sha256": "2bc1746635635dd0baf57e741f8319b13eba559d4a406ff8ceb80349db441f15",
+        "size": 531328
       },
       {
         "path": "log.md",
-        "sha256": "fc92209b10725f7133c21634b202d8948ca93b480681e1a5d5cc0d41096d4bff",
-        "size": 991252
+        "sha256": "d2c78de7c7efc39957996eeaef675c4f1f722aff6a551c4284e265612786730b",
+        "size": 991644
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4128,6 +4128,11 @@
         "path": "pages/projects/ai-inference-deployment-research-process.md",
         "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
         "size": 5454
+      },
+      {
+        "path": "pages/projects/ai-infra-research-proposal.md",
+        "sha256": "7832c84cd09d5bf010d73f989079cc64859c689af9170e97b722166727f9b268",
+        "size": 4254
       },
       {
         "path": "pages/projects/airdrop-claim.md",
@@ -5419,8 +5424,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T16:18:24Z",
-  "file_count": 1082,
+  "exported_at": "2026-05-09T16:24:35Z",
+  "file_count": 1083,
   "files": [
     {
       "path": ".curator_state",
@@ -8342,7 +8347,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "3083517b40091468049f9d8ba23b495d601f592a0de4836ad1ed7f91a315db1a",
+  "previous_tree_hash": "37cf07ac6ce77ca7a885624796a06c47b810f6d8f04a4d740940f3f8fd6413db",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8355,14 +8360,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "37cf07ac6ce77ca7a885624796a06c47b810f6d8f04a4d740940f3f8fd6413db",
+  "tree_hash": "1597d8773d3e9e8889862d467b569cdee0e620439a78ebc728a21baf69151e1a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 499,
+  "wiki_file_count": 500,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8371,13 +8376,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b05daca0bd986fd350b60089750bc26a52b8ba33f5bcea187ce773ba5da0a849",
-      "size": 530539
+      "sha256": "2bc1746635635dd0baf57e741f8319b13eba559d4a406ff8ceb80349db441f15",
+      "size": 531328
     },
     {
       "path": "log.md",
-      "sha256": "fc92209b10725f7133c21634b202d8948ca93b480681e1a5d5cc0d41096d4bff",
-      "size": 991252
+      "sha256": "d2c78de7c7efc39957996eeaef675c4f1f722aff6a551c4284e265612786730b",
+      "size": 991644
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9573,6 +9578,11 @@
       "path": "pages/projects/ai-inference-deployment-research-process.md",
       "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
       "size": 5454
+    },
+    {
+      "path": "pages/projects/ai-infra-research-proposal.md",
+      "sha256": "7832c84cd09d5bf010d73f989079cc64859c689af9170e97b722166727f9b268",
+      "size": 4254
     },
     {
       "path": "pages/projects/airdrop-claim.md",
@@ -10861,5 +10871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3db27a2b94c5eaa6ab62670c40a3bf08e41d1380908b38d6232aacc7ef6daa61"
+  "wiki_tree_hash": "9559db7b3f8acd19fb2043e68751632812f25828a4360f9f2c8776a1b42d7098"
 }
