@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ba1cfb61c94a0693730c2d272f3c938821b86dbd905b1d7268611a2c370c250b",
-        "size": 523862
+        "sha256": "fe94b4dd608037316ea24b762d44b0def5cfe71de7fde4a6a016e6bd77a2368c",
+        "size": 524614
       },
       {
         "path": "log.md",
-        "sha256": "e2d302a01bbee4bd2fd7b4c5988a3dc1f1d9e19b28ceac08fc5c78551c2032ca",
-        "size": 978880
+        "sha256": "dfbe6c80c74dd7af808b2477c493a863f712e6e0762f8c17b4a887d94d487545",
+        "size": 979656
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3610,6 +3610,11 @@
         "size": 2000
       },
       {
+        "path": "pages/concepts/voice-verification-post-analysis.md",
+        "sha256": "d315eb576d17ab341f304db923e514b0388b61ced005542c50ab01a57a41a65f",
+        "size": 2889
+      },
+      {
         "path": "pages/concepts/web3-registrations-for-web2-integration-partners.md",
         "sha256": "01be1bd9fe9ef579077cd01ca5a64bc17282c8842e93a6f39d713662e42df3b5",
         "size": 4192
@@ -4163,6 +4168,11 @@
         "path": "pages/projects/depin-release-v1-0-0.md",
         "sha256": "e710a03276969c167e1166d9fb2a41fd7965b67cf999a0a8a71d7932d3216e82",
         "size": 1058
+      },
+      {
+        "path": "pages/projects/depin-season-1-numo-handoff.md",
+        "sha256": "73000f312e7452a2ec31f60117de860bb4896fba9a7e4bb7270a86b6a58e2624",
+        "size": 6716
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -5319,8 +5329,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T06:44:13Z",
-  "file_count": 1062,
+  "exported_at": "2026-05-09T07:05:33Z",
+  "file_count": 1064,
   "files": [
     {
       "path": ".curator_state",
@@ -8242,7 +8252,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "1b0f2ea7aa133f957dbc94ef758bb01b5918c555e2099a9d22aa27b7b7d772dd",
+  "previous_tree_hash": "a18981fe2a04fbeafdc419415013cd2bb46c807cdc92066b7553ce635d3ca32d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8255,14 +8265,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a18981fe2a04fbeafdc419415013cd2bb46c807cdc92066b7553ce635d3ca32d",
+  "tree_hash": "1c5821980e0d979ccce5d220a22a572e9375714f8123c276e99edcd7a997c81e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 479,
+  "wiki_file_count": 481,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8271,13 +8281,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ba1cfb61c94a0693730c2d272f3c938821b86dbd905b1d7268611a2c370c250b",
-      "size": 523862
+      "sha256": "fe94b4dd608037316ea24b762d44b0def5cfe71de7fde4a6a016e6bd77a2368c",
+      "size": 524614
     },
     {
       "path": "log.md",
-      "sha256": "e2d302a01bbee4bd2fd7b4c5988a3dc1f1d9e19b28ceac08fc5c78551c2032ca",
-      "size": 978880
+      "sha256": "dfbe6c80c74dd7af808b2477c493a863f712e6e0762f8c17b4a887d94d487545",
+      "size": 979656
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8955,6 +8965,11 @@
       "size": 2000
     },
     {
+      "path": "pages/concepts/voice-verification-post-analysis.md",
+      "sha256": "d315eb576d17ab341f304db923e514b0388b61ced005542c50ab01a57a41a65f",
+      "size": 2889
+    },
+    {
       "path": "pages/concepts/web3-registrations-for-web2-integration-partners.md",
       "sha256": "01be1bd9fe9ef579077cd01ca5a64bc17282c8842e93a6f39d713662e42df3b5",
       "size": 4192
@@ -9508,6 +9523,11 @@
       "path": "pages/projects/depin-release-v1-0-0.md",
       "sha256": "e710a03276969c167e1166d9fb2a41fd7965b67cf999a0a8a71d7932d3216e82",
       "size": 1058
+    },
+    {
+      "path": "pages/projects/depin-season-1-numo-handoff.md",
+      "sha256": "73000f312e7452a2ec31f60117de860bb4896fba9a7e4bb7270a86b6a58e2624",
+      "size": 6716
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -10661,5 +10681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1b3e76eb704a2f97e4d07736ad63c6946eec7f795dc6a2527aee9776d0a9c6fd"
+  "wiki_tree_hash": "36b7a5508aa16f20d5012e8c66d6a9d0b24fd935e89c821fce64fa97a60a0a26"
 }

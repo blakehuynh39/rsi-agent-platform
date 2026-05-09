@@ -20580,3 +20580,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_136c21a943632ee0a6545dcb26e47af3
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-09T07:02:00Z] synthesis | DePIN Season 1 (Numo) Hand-off
+
+- status: published
+- slug: projects/depin-season-1-numo-handoff
+- wiki_revision_id: wikirev_ee95c7d3ce56e4f29f504b954680782a
+- summary: Hand-off document for DePIN Season 1 (Numo) project, leveraging Poseidon SZN 1 architecture, targeting multiple languages, with dev complete on 4/13 and launch on 4/20.
+
+## [2026-05-09T07:02:28Z] synthesis | Voice Verification Post-Analysis
+
+- status: published
+- slug: concepts/voice-verification-post-analysis
+- wiki_revision_id: wikirev_048c8439817cdc92fc25ac2b4f4d297c
+- summary: Post-analysis notes from Yash regarding a voice verification system, highlighting unexpected issues such as speaking gibberish/spam, insufficient language model detection, and back...
+
