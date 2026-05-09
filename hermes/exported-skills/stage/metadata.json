@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "998fbe26e24bbbbfa7d5a73b380427d2a7df9d6e7e7b67856bbdb04925ff7123",
-        "size": 526359
+        "sha256": "e233c641c2816a50252218f6074a30b42278d7006ebc635c7df65fdc7e98bf3e",
+        "size": 527014
       },
       {
         "path": "log.md",
-        "sha256": "cf975cfb2da211f113389ca5154d5bef3e63e4c462cc68ebffd09023e3e99634",
-        "size": 984716
+        "sha256": "6eae6f9dba4cc870edd7ed81abfa1b196eea16b4c98e90e53549e85e7f456c0d",
+        "size": 985021
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3968,6 +3968,11 @@
         "path": "pages/people/hans.md",
         "sha256": "c3466a19ac098ab33c8b7152cee7e47565dbb2717ca57232c88c9323e18985bf",
         "size": 1026
+      },
+      {
+        "path": "pages/policies/crypto-security-best-practices.md",
+        "sha256": "3cabf1ff7e868f35efe9558b43650bf60e1f86699cc7044daa9b992b30e997ed",
+        "size": 8389
       },
       {
         "path": "pages/policies/database-table-naming-conventions.md",
@@ -5359,8 +5364,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T10:52:50Z",
-  "file_count": 1070,
+  "exported_at": "2026-05-09T10:59:01Z",
+  "file_count": 1071,
   "files": [
     {
       "path": ".curator_state",
@@ -8282,7 +8287,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "0f14d30813f8564e7cc5ed2a44470b3e22e19e46a3b05969cff49474361ce479",
+  "previous_tree_hash": "9b3a0e722ea415284614b868346b623dabc66cfcc43c9a080038ca93e294d962",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8295,14 +8300,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9b3a0e722ea415284614b868346b623dabc66cfcc43c9a080038ca93e294d962",
+  "tree_hash": "749634916eab321c9ffe23430645a29603a624f7466f1133dddaf9a7bdcc1fc0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 487,
+  "wiki_file_count": 488,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8311,13 +8316,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "998fbe26e24bbbbfa7d5a73b380427d2a7df9d6e7e7b67856bbdb04925ff7123",
-      "size": 526359
+      "sha256": "e233c641c2816a50252218f6074a30b42278d7006ebc635c7df65fdc7e98bf3e",
+      "size": 527014
     },
     {
       "path": "log.md",
-      "sha256": "cf975cfb2da211f113389ca5154d5bef3e63e4c462cc68ebffd09023e3e99634",
-      "size": 984716
+      "sha256": "6eae6f9dba4cc870edd7ed81abfa1b196eea16b4c98e90e53549e85e7f456c0d",
+      "size": 985021
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9353,6 +9358,11 @@
       "path": "pages/people/hans.md",
       "sha256": "c3466a19ac098ab33c8b7152cee7e47565dbb2717ca57232c88c9323e18985bf",
       "size": 1026
+    },
+    {
+      "path": "pages/policies/crypto-security-best-practices.md",
+      "sha256": "3cabf1ff7e868f35efe9558b43650bf60e1f86699cc7044daa9b992b30e997ed",
+      "size": 8389
     },
     {
       "path": "pages/policies/database-table-naming-conventions.md",
@@ -10741,5 +10751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0b6cc852007dee11cf991df88a1f18108679b7b099df702bb15016cb85e86122"
+  "wiki_tree_hash": "e50d0850d05ad3a38cf0fd9974b56a828a614be96c31713e24ed99d4e027b8e4"
 }

@@ -20699,3 +20699,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2458c90228d1c448c2a0bd6d60bf2625
 - summary: Project tracking mainnet deployment tasks and operational security setup, including Gnosis Safe configuration, Defender integration, and security monitoring runbooks.
 
+## [2026-05-09T10:55:56Z] synthesis | Crypto Security Best Practices
+
+- status: published
+- slug: policies/crypto-security-best-practices
+- wiki_revision_id: wikirev_fd845c76013716b797bb45e287190938
+- summary: Team-wide security policies for crypto wallets, 2FA, password management, and browser safety.
+
