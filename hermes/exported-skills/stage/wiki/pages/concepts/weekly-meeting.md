@@ -5,7 +5,7 @@ slug: "concepts/weekly-meeting"
 freshness: "2025-03-25T00:17:00Z"
 tags:
   - "infrastructure"
-  - "meetings"
+  - "meeting-notes"
   - "weekly"
 owners: []
 source_revision_ids:
@@ -40,6 +40,6 @@ Weekly infrastructure team meeting notes covering topics such as team metrics, i
 
 ## Sources
 
-- `source_document_id`: `srcdoc_010eca8719e180827e8cde237600f6af`
-- `source_revision_id`: `srcrev_f7248c9256985e36cc628b10dff483c2`
-- `source_url`: [Notion source](https://www.notion.so/Weekly-Meeting-190051299a54806cb3c4f78c8fdbe614)
+- `source_document_id`: `srcdoc_2b991e6fd36b511cefabe8011c3fb122`
+- `source_revision_id`: `srcrev_05fc410492f6eacc583f53880991dcbe`
+- `source_url`: [Notion source](https://www.notion.so/Meeting-Notes-288051299a54808c999fe56af75e3df0)

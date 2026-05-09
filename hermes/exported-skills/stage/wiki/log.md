@@ -20909,3 +20909,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_27ac354f56498dd2c707b8ebe82f9949
 - summary: Two-week crunch time (Aug 4-18, 2025) to release the Poseidon DePIN MVP on World Appstore, a batch data pipeline for rare voice data, and the first version of the Lite Paper.
 
+## [2026-05-09T18:16:37Z] synthesis | Meeting Notes Index
+
+- status: published
+- slug: concepts/meeting-notes-index
+- wiki_revision_id: wikirev_a0a2e2ea4f183252857d12b162cd34df
+- summary: A Notion page that serves as an index for meeting notes, linking to Crunch Time Daily Meetings and Weekly Meeting.
+
+## [2026-05-09T18:16:38Z] synthesis | Weekly Meeting
+
+- status: published
+- slug: concepts/weekly-meeting
+- wiki_revision_id: wikirev_dd2d7d64ef861083959849249137febd
+- summary: Weekly infrastructure team meeting notes covering topics such as team metrics, infra templates, release processes, cloud support, and oncall rotations.
+
+## [2026-05-09T18:16:38Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-eng-home
+- wiki_revision_id: wikirev_3d31cd2ae96caf445da1265529b8d27a
+- summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
+

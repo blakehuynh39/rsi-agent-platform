@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3d25d4b202ed720d3aa01418f6a3a1ac974123876957d39efb93d293d0443f44",
-        "size": 995017
+        "sha256": "2565079d2856ca3f30613966e6dd5a2c59183023adb330ff80cac0c9d71ed5a1",
+        "size": 996010
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3321,8 +3321,8 @@
       },
       {
         "path": "pages/concepts/meeting-notes-index.md",
-        "sha256": "2ff3877c56893a7e33184c527f1edd65aea8667f5430cc83db72f4daa35566d8",
-        "size": 1243
+        "sha256": "7682a79de885cfb04be1077adb6f3259bd5cb75e0ff5db4644aa78d291f17628",
+        "size": 1260
       },
       {
         "path": "pages/concepts/minio-erasure-coding.md",
@@ -3656,8 +3656,8 @@
       },
       {
         "path": "pages/concepts/weekly-meeting.md",
-        "sha256": "d594218d57f314462d7942db2e4df82822a094c7827e342edd16475ca54b0e31",
-        "size": 4364
+        "sha256": "070c6f06a876e8f01142a9c8fdb8ba123b8649e9107a05320f8a3d2c708a899b",
+        "size": 4368
       },
       {
         "path": "pages/concepts/zk-primitive.md",
@@ -4616,8 +4616,8 @@
       },
       {
         "path": "pages/projects/poseidon-eng-home.md",
-        "sha256": "9c0d9088acd7782a617081e2cdcfeb40a4569724865aac92ad813e3cc36dda20",
-        "size": 4382
+        "sha256": "4bdb51d60c18bd9b0f00673dcaffc9c4700e72f38989102a963254a766a741c7",
+        "size": 4453
       },
       {
         "path": "pages/projects/poseidon-internal-devnet-plan.md",
@@ -5464,7 +5464,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T18:08:35Z",
+  "exported_at": "2026-05-09T18:19:51Z",
   "file_count": 1091,
   "files": [
     {
@@ -8387,7 +8387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "6a169423c1700234caa1fe31662a446ba53afda79dae2a23d219bc7df45cebce",
+  "previous_tree_hash": "5debb87d93a276f5b33828e91cff338e059d943e528b1990362084cd481a7ed7",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8400,7 +8400,7 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5debb87d93a276f5b33828e91cff338e059d943e528b1990362084cd481a7ed7",
+  "tree_hash": "3aac230f2bd4108eb0b6d25dc57fdd8b762ae394d4bee4529526f1a95b3a8ef6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8421,8 +8421,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3d25d4b202ed720d3aa01418f6a3a1ac974123876957d39efb93d293d0443f44",
-      "size": 995017
+      "sha256": "2565079d2856ca3f30613966e6dd5a2c59183023adb330ff80cac0c9d71ed5a1",
+      "size": 996010
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8811,8 +8811,8 @@
     },
     {
       "path": "pages/concepts/meeting-notes-index.md",
-      "sha256": "2ff3877c56893a7e33184c527f1edd65aea8667f5430cc83db72f4daa35566d8",
-      "size": 1243
+      "sha256": "7682a79de885cfb04be1077adb6f3259bd5cb75e0ff5db4644aa78d291f17628",
+      "size": 1260
     },
     {
       "path": "pages/concepts/minio-erasure-coding.md",
@@ -9146,8 +9146,8 @@
     },
     {
       "path": "pages/concepts/weekly-meeting.md",
-      "sha256": "d594218d57f314462d7942db2e4df82822a094c7827e342edd16475ca54b0e31",
-      "size": 4364
+      "sha256": "070c6f06a876e8f01142a9c8fdb8ba123b8649e9107a05320f8a3d2c708a899b",
+      "size": 4368
     },
     {
       "path": "pages/concepts/zk-primitive.md",
@@ -10106,8 +10106,8 @@
     },
     {
       "path": "pages/projects/poseidon-eng-home.md",
-      "sha256": "9c0d9088acd7782a617081e2cdcfeb40a4569724865aac92ad813e3cc36dda20",
-      "size": 4382
+      "sha256": "4bdb51d60c18bd9b0f00673dcaffc9c4700e72f38989102a963254a766a741c7",
+      "size": 4453
     },
     {
       "path": "pages/projects/poseidon-internal-devnet-plan.md",
@@ -10951,5 +10951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "93fe7531ba941fe52465d5e63ee1b72dff59dc3915957ec6ab9cb1da94801a26"
+  "wiki_tree_hash": "914379dc6369204e9e911e22c468304fb68258e34270c6571e5f4c41d6fe47fa"
 }
