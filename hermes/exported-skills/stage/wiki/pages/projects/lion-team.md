@@ -3,9 +3,7 @@ title: "Lion Team"
 type: "project"
 slug: "projects/lion-team"
 freshness: "2026-05-07T05:49:00Z"
-tags:
-  - "project"
-  - "team"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_056dbb98cf2a774e436ae1af1bc1ac00"
@@ -31,10 +29,10 @@ The Lion Team is a group with members, initiatives tracked in a Milestones datab
 
 ## Related Pages
 
-- `internal-agentic-initiative`
+- `projects/internal-agentic-initiative`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_bedb4e134badf14d697d6af434d7903a`
-- `source_revision_id`: `srcrev_056dbb98cf2a774e436ae1af1bc1ac00`
-- `source_url`: [Notion source](https://www.notion.so/Lion-Team-359051299a54806da510c461d07c72a3)
+- `source_document_id`: `srcdoc_6e51ed65cd3d5fc9a6e910a8f70ad61c`
+- `source_revision_id`: `srcrev_10c6fa12c031de81f1dfbdb3441e31e2`
+- `source_url`: [Notion source](https://www.notion.so/Internal-Agentic-Initiative-359051299a54809986fdd6b48194f75e)
