@@ -20825,3 +20825,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_50c08dc13e1a81736470cba7a97167dd
 - summary: Research process and topics for the Story AI team focusing on inference and deployment, as outlined in a Notion document.
 
+## [2026-05-09T16:16:15Z] synthesis | Story AI Research - Analyzing Existing Infra
+
+- status: published
+- slug: projects/story-ai-research-analyzing-existing-infra
+- wiki_revision_id: wikirev_0131628071c95214f14bec6bc871c155
+- summary: A research initiative to analyze and compare emerging decentralized AI infrastructure and compute projects, extracting architectural and economic insights to inform Story's own AI ...
+
