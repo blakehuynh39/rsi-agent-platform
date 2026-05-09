@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "c59351d2b3f0133ea33eff596f77da9a26669f53278a1495fb395d41be9893d6",
-        "size": 988832
+        "sha256": "24c33d14d6686b3f0c1cc687efd6615c46ec8f992a97b7625da69fcb3bede47e",
+        "size": 990201
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2943,6 +2943,16 @@
         "path": "pages/concepts/ai-assisted-content-generation.md",
         "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
         "size": 3286
+      },
+      {
+        "path": "pages/concepts/ai-data-service.md",
+        "sha256": "5d327951006d13ca2b7d1ba859ccd749ce43ec872fa61e51640abc84ff902767",
+        "size": 1623
+      },
+      {
+        "path": "pages/concepts/ai-frameworks-integration.md",
+        "sha256": "6a1ffbbcec82dbb2b5ad6c63d45baefc3a2a03928a7f9ac8fe3d1831ec4ee2a1",
+        "size": 3197
       },
       {
         "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -5275,6 +5285,11 @@
         "size": 1383
       },
       {
+        "path": "pages/systems/poseidon-sdk.md",
+        "sha256": "751e7a2dad36b0e354c5b8a10a880dec255e86327000e6abebcfebbe961deb66",
+        "size": 3062
+      },
+      {
         "path": "pages/systems/poseidon-storage-network.md",
         "sha256": "d0541c29cbb157c582376975595faa09df8f21abdb5919e187b8f2cee5f9d893",
         "size": 8905
@@ -5283,6 +5298,11 @@
         "path": "pages/systems/poseidon-storage-node-responsibilities.md",
         "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
         "size": 5422
+      },
+      {
+        "path": "pages/systems/poseidon-subnet-api.md",
+        "sha256": "b632493e9d902167a341b2b198a673d7256723737eccbbfafb230b6e21c3bf36",
+        "size": 3433
       },
       {
         "path": "pages/systems/poseidon-subnet-rollup-layer2.md",
@@ -5389,8 +5409,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T14:41:40Z",
-  "file_count": 1076,
+  "exported_at": "2026-05-09T15:23:12Z",
+  "file_count": 1080,
   "files": [
     {
       "path": ".curator_state",
@@ -8312,7 +8332,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "98c0a27edf1bffc609ff10d5ccdb2d9126cf8f0d5cb8199bc27a508a9a7b7e90",
+  "previous_tree_hash": "f0eebcd9e790bc013d9769096293bee419d763d8d208e427a2895b44183b1607",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8325,14 +8345,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f0eebcd9e790bc013d9769096293bee419d763d8d208e427a2895b44183b1607",
+  "tree_hash": "7131f1d1d8691111fdf00e2310e12f6cd57a12aae709b6ac4f06e4488931e993",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 493,
+  "wiki_file_count": 497,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8346,8 +8366,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "c59351d2b3f0133ea33eff596f77da9a26669f53278a1495fb395d41be9893d6",
-      "size": 988832
+      "sha256": "24c33d14d6686b3f0c1cc687efd6615c46ec8f992a97b7625da69fcb3bede47e",
+      "size": 990201
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8358,6 +8378,16 @@
       "path": "pages/concepts/ai-assisted-content-generation.md",
       "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
       "size": 3286
+    },
+    {
+      "path": "pages/concepts/ai-data-service.md",
+      "sha256": "5d327951006d13ca2b7d1ba859ccd749ce43ec872fa61e51640abc84ff902767",
+      "size": 1623
+    },
+    {
+      "path": "pages/concepts/ai-frameworks-integration.md",
+      "sha256": "6a1ffbbcec82dbb2b5ad6c63d45baefc3a2a03928a7f9ac8fe3d1831ec4ee2a1",
+      "size": 3197
     },
     {
       "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -10690,6 +10720,11 @@
       "size": 1383
     },
     {
+      "path": "pages/systems/poseidon-sdk.md",
+      "sha256": "751e7a2dad36b0e354c5b8a10a880dec255e86327000e6abebcfebbe961deb66",
+      "size": 3062
+    },
+    {
       "path": "pages/systems/poseidon-storage-network.md",
       "sha256": "d0541c29cbb157c582376975595faa09df8f21abdb5919e187b8f2cee5f9d893",
       "size": 8905
@@ -10698,6 +10733,11 @@
       "path": "pages/systems/poseidon-storage-node-responsibilities.md",
       "sha256": "a16723eb358d4d34d88dba4451f05266f6d0ed1b4592d4b81c4fcecd9b1cd540",
       "size": 5422
+    },
+    {
+      "path": "pages/systems/poseidon-subnet-api.md",
+      "sha256": "b632493e9d902167a341b2b198a673d7256723737eccbbfafb230b6e21c3bf36",
+      "size": 3433
     },
     {
       "path": "pages/systems/poseidon-subnet-rollup-layer2.md",
@@ -10801,5 +10841,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "313db860c6c7f48ef4bf8457d23f9ed44d37a6f277d38aa0bfc08b4ca0313721"
+  "wiki_tree_hash": "45230b69c7adeb37d1b5e3ede98b577e0f004439c1a8a8eb7672d3b620b9a22f"
 }

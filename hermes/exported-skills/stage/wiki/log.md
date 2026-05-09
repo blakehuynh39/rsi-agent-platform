@@ -20783,3 +20783,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7097afc2892ba45214c96ba9abc6a286
 - summary: The Poseidon project roadmap outlines three phases: MVP Development (Alpha/Aug) focusing on core object storage and S3 API compatibility using MinIO and cloud providers; Differenti...
 
+## [2026-05-09T15:20:03Z] synthesis | Poseidon SDK
+
+- status: published
+- slug: systems/poseidon-sdk
+- wiki_revision_id: wikirev_e3ba634a67085ca7789cf5c5791f6240
+- summary: The Poseidon SDK provides a streamlined interface for data storage and retrieval on Poseidon, enabling clients to upload and query blobs by interfacing with decentralized S3-compat...
+
+## [2026-05-09T15:20:03Z] synthesis | Poseidon Subnet API
+
+- status: published
+- slug: systems/poseidon-subnet-api
+- wiki_revision_id: wikirev_87e95e88950037d29c4aaa55ad80277c
+- summary: The Poseidon Subnet API provides services for metadata access, blob access, and license management within a subnet.
+
+## [2026-05-09T15:20:03Z] synthesis | AI Data Service
+
+- status: published
+- slug: concepts/ai-data-service
+- wiki_revision_id: wikirev_9a3c68f003e986867419707e35754b2e
+- summary: A centralized data service that facilitates blob/data uploading and downloading, allows web2 users to sign up, provides wallet abstraction, fiat payments, and a community dataset l...
+
+## [2026-05-09T15:20:03Z] synthesis | AI Frameworks Integration
+
+- status: published
+- slug: concepts/ai-frameworks-integration
+- wiki_revision_id: wikirev_e7dd8a2e7b424ac98487f7de34cf3a0d
+- summary: Guidance on integrating Poseidon's S3 endpoint with popular AI frameworks like PyTorch, TensorFlow, Hugging Face Datasets, and Ray Datasets.
+
