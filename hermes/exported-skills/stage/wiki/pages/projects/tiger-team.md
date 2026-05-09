@@ -8,10 +8,13 @@ tags:
   - "data-ecosystem"
   - "depin"
   - "voice"
-owners: []
+owners:
+  - "App Team: Allen, Jacob, JDub, Sam"
+  - "Infra Team: two members (user IDs 6a2bb7e9-8b7a-4e57-bc79-0d4c779caa12 and 1fbd872b-594c-81a3-99b9-00022b038f3b)"
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
   - "srcrev_43dba63dc37ec8ab005c9753a5d88b68"
+  - "srcrev_7e2bdc03a6af9ec06e97282af76837d2"
 conflict_state: "none"
 ---
 
@@ -19,7 +22,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications, planning documents, and development resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents. As of May 2026, the team has split into an App Team and an Infra Team to rapidly ship human-to-agent apps while building foundational infrastructure.
 
 ## Claims
 
@@ -39,15 +42,27 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34) `source_document_id=srcdoc_914a6de252419d2b91b13f9535b64fb7` `source_revision_id=srcrev_43dba63dc37ec8ab005c9753a5d88b68` `chunk_id=srcchunk_3ccbfabe54f62c18b4e7be19ab65bfee` `native_locator=https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34` `source_timestamp=2026-05-07T00:23:00Z`
 - The team has hand-off and strategy documents for DePIN season 1 with Numo Engineering, Yash's Post Analysis notes, Numo App Strategy, Numo V1 (Webapp) Release Doc, AI Data Audit Portal, and Models for pre-verification. `claim:claim_1_8` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34) `source_document_id=srcdoc_914a6de252419d2b91b13f9535b64fb7` `source_revision_id=srcrev_43dba63dc37ec8ab005c9753a5d88b68` `chunk_id=srcchunk_3ccbfabe54f62c18b4e7be19ab65bfee` `native_locator=https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34` `source_timestamp=2026-05-07T00:23:00Z`
+- The team is prioritizing human-to-agent apps for speed and virality, while acknowledging human-to-human apps are the highest-conviction path to rare training data but are more complex. `claim:claim_2_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- Immediate priorities include a job search human-to-agent app, a personality app, a debate app, a dating human-to-agent app, and a small set of additional miscellaneous apps. `claim:claim_2_2` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- The one-month goal is to ship 2-3 apps live, focusing on speed, learning velocity, and market signal. `claim:claim_2_3` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- The team is split into an App Team (Allen, Jacob, JDub, Sam) and an Infra Team (two members). `claim:claim_2_4` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- The App Team is further split into US time zone (Allen + Jacob) and Asia time zone (JDub + Sam), each working on 2-3 apps in parallel. `claim:claim_2_5` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- The Infra Team focuses on backend support, building foundational systems, researching human-to-human interaction, and exploring ELO-based matchmaking systems. `claim:claim_2_6` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
+- Data collection should be value-first, consented, and passive, embedded in normal usage with clear disclosure and consent, following the principle 'Invisible in the UX is acceptable. Invisible in the policy is not.' `claim:claim_2_7` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_23e896ee0d884675ffc60d4f480c1283` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2` `source_timestamp=2026-03-18T17:39:00Z`
+- The operating principle for this phase is fast iteration, tight feedback loops, parallel experimentation, and shared infrastructure that compounds across apps. `claim:claim_2_8` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_23e896ee0d884675ffc60d4f480c1283` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2` `source_timestamp=2026-03-18T17:39:00Z`
 - DePIN Admin has a proof-of-concept web app at https://human-agent-poc-web.vercel.app/. `claim:claim_1_9` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a) `source_document_id=srcdoc_368feb26bfb0baebfb1c30d01ffccbe1` `source_revision_id=srcrev_044c3891ab0bcf24d56f2c2e37ce8361` `chunk_id=srcchunk_e413b17f694e24326db5616e0bfc83d1` `native_locator=https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a` `source_timestamp=2026-03-23T21:50:00Z`
 
-## Related Pages
-
-- `projects/list-of-potential-apps`
-
 ## Sources
 
-- `source_document_id`: `srcdoc_af1ff5c9adbe33bc4da78c8b0aaf0e20`
-- `source_revision_id`: `srcrev_b6d7e2be71d64caa4734c9c58fbd4547`
-- `source_url`: [Notion source](https://www.notion.so/List-of-Potential-Apps-327051299a548057b7e9cec4190dfed5)
+- `source_document_id`: `srcdoc_49714bb369c0e85d4eb3f4f9a902804c`
+- `source_revision_id`: `srcrev_7e2bdc03a6af9ec06e97282af76837d2`
+- `source_url`: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a)

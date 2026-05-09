@@ -20552,3 +20552,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8aba2dc32e760f167634f39fe82388a8
 - summary: A curated list of potential app ideas under consideration by the Tiger Team, including recruiting, dating, debate, MBTI, and dream analysis concepts.
 
+## [2026-05-09T05:46:52Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_7b4507952d3156111b16b24eeb371aa4
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-09T05:46:52Z] synthesis | Two-month plan
+
+- status: published
+- slug: projects/tiger-team/two-month-plan
+- wiki_revision_id: wikirev_2384430627b45e388caf5bb5a1c2fbbd
+- summary: The two-month plan for the Tiger Team outlines assignments and goals for building DePIN apps and ecosystem foundation. Month 1 aims to ship 3 usable first-party apps with shared in...
+
+## [2026-05-09T05:51:13Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_63947ec2cef9eb3d6913e2dc0980f076
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
