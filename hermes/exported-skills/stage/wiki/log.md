@@ -20937,3 +20937,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_51877bb0bcb81cfdc6f7639e33b460b0
 - summary: Runbook for deploying and upgrading Poseidon subnet contracts on L2 and the PSDN token on L1, including environment setup, deployment commands, verification, and upgrade scripting.
 
+## [2026-05-09T19:40:07Z] synthesis | Poseidon
+
+- status: published
+- slug: projects/poseidon-project
+- wiki_revision_id: wikirev_8cfd67936beeaee21f03e2d1671f4494
+- summary: Poseidon is the codename for an AI infrastructure project that includes blockchain, service, and protocol components. The project has a phased roadmap from research through public ...
+
+## [2026-05-09T19:40:07Z] synthesis | 2025 Major Milestones
+
+- status: published
+- slug: projects/2025-major-milestones
+- wiki_revision_id: wikirev_830a3a59af2df9f0014cefa3a9aef5c4
+- summary: Key company milestones and events for 2025, including L1 TGE, IP token listing, Portal launches, Poseidon development phases, engineering crunch times, leadership offsites, and maj...
+

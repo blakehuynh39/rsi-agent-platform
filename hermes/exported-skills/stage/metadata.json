@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cf517c986d214ac91705812e1dc016bfe4748af98c88706fd112f555c54ba9d9",
-        "size": 534459
+        "sha256": "7db1b63d39835e0cd1bd09a825cd6917f108401d94ee62a431cf0cec54cff9b5",
+        "size": 535171
       },
       {
         "path": "log.md",
-        "sha256": "a638be5c8a6d997b0475b0d5602fdebea5538fcb367de9ce60ad97de13884f49",
-        "size": 996430
+        "sha256": "c6c0b7ec942a514470762b039d8c75e32bd5041c02bd516a101f370824c556ee",
+        "size": 997166
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4110,6 +4110,11 @@
         "size": 7418
       },
       {
+        "path": "pages/projects/2025-major-milestones.md",
+        "sha256": "0ffc43931b1653539f8715b00b8718bdd4990e8980540260e764dfcf6351b60d",
+        "size": 9071
+      },
+      {
         "path": "pages/projects/adaptive-trust-screening-reputation.md",
         "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
         "size": 1333
@@ -4628,6 +4633,11 @@
         "path": "pages/projects/poseidon-partner-devnet.md",
         "sha256": "806b2f0988b93a9e74c7eb549103ae8dd552018813ee2deb589b3ed0d2e7d6b5",
         "size": 6975
+      },
+      {
+        "path": "pages/projects/poseidon-project.md",
+        "sha256": "86464043f75b89be70c7d9492bfbf9b85f9eb1f37724f68f491f9590bd9b8a45",
+        "size": 7244
       },
       {
         "path": "pages/projects/poseidon-roadmap.md",
@@ -5469,8 +5479,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T19:12:55Z",
-  "file_count": 1092,
+  "exported_at": "2026-05-09T19:44:27Z",
+  "file_count": 1094,
   "files": [
     {
       "path": ".curator_state",
@@ -8392,7 +8402,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "58be81d3a717f8850b6f01ce919c1f5ef55f50c4318fbeb7e021756c6fc551ed",
+  "previous_tree_hash": "8ab3b99440db09f4242818174f0fff2b57ad04c68c4e537b8642c1b4138436a9",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8405,14 +8415,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8ab3b99440db09f4242818174f0fff2b57ad04c68c4e537b8642c1b4138436a9",
+  "tree_hash": "269fe12141d6439d37e2b8aecabe19b620a5478f555bcae9763f08d8b9d68395",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 509,
+  "wiki_file_count": 511,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8421,13 +8431,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cf517c986d214ac91705812e1dc016bfe4748af98c88706fd112f555c54ba9d9",
-      "size": 534459
+      "sha256": "7db1b63d39835e0cd1bd09a825cd6917f108401d94ee62a431cf0cec54cff9b5",
+      "size": 535171
     },
     {
       "path": "log.md",
-      "sha256": "a638be5c8a6d997b0475b0d5602fdebea5538fcb367de9ce60ad97de13884f49",
-      "size": 996430
+      "sha256": "c6c0b7ec942a514470762b039d8c75e32bd5041c02bd516a101f370824c556ee",
+      "size": 997166
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9605,6 +9615,11 @@
       "size": 7418
     },
     {
+      "path": "pages/projects/2025-major-milestones.md",
+      "sha256": "0ffc43931b1653539f8715b00b8718bdd4990e8980540260e764dfcf6351b60d",
+      "size": 9071
+    },
+    {
       "path": "pages/projects/adaptive-trust-screening-reputation.md",
       "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
       "size": 1333
@@ -10123,6 +10138,11 @@
       "path": "pages/projects/poseidon-partner-devnet.md",
       "sha256": "806b2f0988b93a9e74c7eb549103ae8dd552018813ee2deb589b3ed0d2e7d6b5",
       "size": 6975
+    },
+    {
+      "path": "pages/projects/poseidon-project.md",
+      "sha256": "86464043f75b89be70c7d9492bfbf9b85f9eb1f37724f68f491f9590bd9b8a45",
+      "size": 7244
     },
     {
       "path": "pages/projects/poseidon-roadmap.md",
@@ -10961,5 +10981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a50010bb1afb5206a8fe39d80dc6677d30e6592e029e1ef9aa0b89fce8ca801d"
+  "wiki_tree_hash": "ca9a05fa17a7ae4f5adfa8e53f75a2dbcd7bb662538fd1e15af5f20173f1faa2"
 }
