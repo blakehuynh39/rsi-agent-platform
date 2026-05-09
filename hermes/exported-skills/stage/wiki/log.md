@@ -20720,3 +20720,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e7113c57b56a0934c1123a03206f8e72
 - summary: The Engineering Home Notion database mirrors its row pages and data sources as separate Notion documents.
 
+## [2026-05-09T11:19:54Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-eng-home
+- wiki_revision_id: wikirev_4c53fd91479380ab2c2e96e21a0ec7b8
+- summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
+
