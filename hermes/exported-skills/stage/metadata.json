@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "99bae30757c5273966e35dace3daa17ddfb02873b865f0423888b91951e9515f",
+        "sha256": "998fbe26e24bbbbfa7d5a73b380427d2a7df9d6e7e7b67856bbdb04925ff7123",
         "size": 526359
       },
       {
         "path": "log.md",
-        "sha256": "dbb2a8d94389a48802e7d03c6f9f8c905eb3c258cfd81f1327b4438be02d5c81",
-        "size": 983631
+        "sha256": "2b479c017b1d164cb2ec8e19eaf6cfc5b05e679c632c639dc4159ae4816ca2a2",
+        "size": 984342
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4481,8 +4481,8 @@
       },
       {
         "path": "pages/projects/open-source-development-plan.md",
-        "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
-        "size": 8717
+        "sha256": "063969082e87970fbd62556702bdf18814b58fe9209cc8e8068c3788fa137f11",
+        "size": 8614
       },
       {
         "path": "pages/projects/opengradient-ai.md",
@@ -5091,8 +5091,8 @@
       },
       {
         "path": "pages/systems/back-end-designs.md",
-        "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
-        "size": 1540
+        "sha256": "15a8bdf5be0f10879dbc20c5fcadf9c46a4bc2f95d68a55ef16592ce579e3252",
+        "size": 1621
       },
       {
         "path": "pages/systems/balancer-v2-access-control.md",
@@ -5354,7 +5354,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T10:15:07Z",
+  "exported_at": "2026-05-09T10:26:25Z",
   "file_count": 1069,
   "files": [
     {
@@ -8277,7 +8277,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "97ed279aa10a392ddf511eab22cd3c8a9430e026389c80ba176ffb9503692c5e",
+  "previous_tree_hash": "cb877a3d5ffc4bef6c0b913a23f1c2d6c6c8b362d0cf5dfb27ef82c85963e940",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8290,7 +8290,7 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cb877a3d5ffc4bef6c0b913a23f1c2d6c6c8b362d0cf5dfb27ef82c85963e940",
+  "tree_hash": "0f14d30813f8564e7cc5ed2a44470b3e22e19e46a3b05969cff49474361ce479",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8306,13 +8306,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "99bae30757c5273966e35dace3daa17ddfb02873b865f0423888b91951e9515f",
+      "sha256": "998fbe26e24bbbbfa7d5a73b380427d2a7df9d6e7e7b67856bbdb04925ff7123",
       "size": 526359
     },
     {
       "path": "log.md",
-      "sha256": "dbb2a8d94389a48802e7d03c6f9f8c905eb3c258cfd81f1327b4438be02d5c81",
-      "size": 983631
+      "sha256": "2b479c017b1d164cb2ec8e19eaf6cfc5b05e679c632c639dc4159ae4816ca2a2",
+      "size": 984342
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9861,8 +9861,8 @@
     },
     {
       "path": "pages/projects/open-source-development-plan.md",
-      "sha256": "9dba6fb42427cced81c0874a945fb15f7d9e02a0d2d6b86dfa6689145f81396f",
-      "size": 8717
+      "sha256": "063969082e87970fbd62556702bdf18814b58fe9209cc8e8068c3788fa137f11",
+      "size": 8614
     },
     {
       "path": "pages/projects/opengradient-ai.md",
@@ -10471,8 +10471,8 @@
     },
     {
       "path": "pages/systems/back-end-designs.md",
-      "sha256": "4ad07d9759632134395dd5fc88fabe110be6b66005a933655e77c557f0f69229",
-      "size": 1540
+      "sha256": "15a8bdf5be0f10879dbc20c5fcadf9c46a4bc2f95d68a55ef16592ce579e3252",
+      "size": 1621
     },
     {
       "path": "pages/systems/balancer-v2-access-control.md",
@@ -10731,5 +10731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "da41ae4c600baffcdf3fdec1afcfc9e177eab08e8d68fd796eb5c2139653d615"
+  "wiki_tree_hash": "bc03b21a6ceaedd021c36ed16550df98af98d7b474f61896ae9c01ea628c539c"
 }

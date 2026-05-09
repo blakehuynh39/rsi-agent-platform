@@ -5,8 +5,8 @@ slug: "projects/open-source-development-plan"
 freshness: "2023-07-03T21:08:00Z"
 tags:
   - "api"
+  - "developer-ecosystem"
   - "open-source"
-  - "planning"
   - "protocol"
 owners: []
 source_revision_ids:
@@ -49,14 +49,12 @@ Plan for open-sourcing components of the Story Protocol backend, including core 
 - APIs related to the protocol should be open-sourced as protocol explorer, franchise toolings kept separate, and admin APIs kept private. `claim:claim_1_13` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Open-Source-Development-WIP-ed7e70490e8d41a39f256d7576c567c0#chunk-2) `source_document_id=srcdoc_3717dcab16e1d0c3dcb1ea7272277c81` `source_revision_id=srcrev_ed2f86d9445e0c6e99af225738dc4bc9` `chunk_id=srcchunk_2b9ee3609fb00612fda58bcd323375e3` `native_locator=https://www.notion.so/Open-Source-Development-WIP-ed7e70490e8d41a39f256d7576c567c0#chunk-2` `source_timestamp=2023-07-03T21:08:00Z`
 
-## Open Questions
+## Related Pages
 
-- Should we use git submodule or subtree?
-- Should we use monorepo or polyrepo?
-- What exact APIs will be open sourced? (document is WIP)
+- `systems/back-end-designs`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_3717dcab16e1d0c3dcb1ea7272277c81`
-- `source_revision_id`: `srcrev_ed2f86d9445e0c6e99af225738dc4bc9`
-- `source_url`: [Notion source](https://www.notion.so/Open-Source-Development-WIP-ed7e70490e8d41a39f256d7576c567c0)
+- `source_document_id`: `srcdoc_bf66d0017aa23a636760fde4a5588dbb`
+- `source_revision_id`: `srcrev_36e732f25c3a33e47bdd466165ccd3c1`
+- `source_url`: [Notion source](https://www.notion.so/Open-Source-Development-37287546f188484796c160483a1dd9be)

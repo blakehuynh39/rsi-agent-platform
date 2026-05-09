@@ -20678,3 +20678,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f36c66555f2a3d7192decd4aff7f9728
 - summary: Unified IP Accounts provide a contract-based representation of IP, enabling unified handling of relationships between IP NFTs and SP Assets for both new collections and existing ex...
 
+## [2026-05-09T10:23:14Z] synthesis | Open Source Development Plan
+
+- status: published
+- slug: projects/open-source-development-plan
+- wiki_revision_id: wikirev_15bc17788fc0ed8776f0e29af2d99312
+- summary: Plan for open-sourcing components of the Story Protocol backend, including core protocol APIs, franchise toolings, and internal toolings, with steps for repo structure, licensing, ...
+
+## [2026-05-09T10:23:14Z] synthesis | Back End Designs
+
+- status: published
+- slug: systems/back-end-designs
+- wiki_revision_id: wikirev_f281b5fcde1019068d927edf8e13c573
+- summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
+
