@@ -20447,3 +20447,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e9391d70e4b66ca0cefcad80a5d3f78
 - summary: Deployment details for Protocol v1.2 on the Odyssey Devnet, including RPC endpoint, chain ID, explorer, SUSD token, and contract addresses for main and SPG modules.
 
+## [2026-05-09T01:22:16Z] synthesis | Runbook: Provision a Production Environment
+
+- status: published
+- slug: runbooks/provision-prod-environment
+- wiki_revision_id: wikirev_421357eac8858a9ff495257544bc18ad
+- summary: Step-by-step guide for provisioning a production environment in AWS us-east-1 using Terraform and EKS blueprints, including EKS cluster setup, add-on deployment, and ArgoCD configu...
+

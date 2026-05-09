@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9d62e11535363be4091981e060cfc591a68ee65272baf5c888c104d87b40d160",
-        "size": 520317
+        "sha256": "ec324beef52a5b12a7287e574a417a3d08cd8305d25e550fcdcbe58da8c4f966",
+        "size": 520709
       },
       {
         "path": "log.md",
-        "sha256": "08f1e9bb53fe1ff62e408703fe1d132c8640b5309a8f87f2acbe7e385c091188",
-        "size": 972073
+        "sha256": "920969e1f43abd240768d50c2111ad0e7ab5a675c5e633cef9da01f51ee14935",
+        "size": 972477
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4910,6 +4910,11 @@
         "size": 10032
       },
       {
+        "path": "pages/runbooks/provision-prod-environment.md",
+        "sha256": "51d67b91aca1e6f32793b7d9390640110bb1a70d84f2237f2543d612200fd655",
+        "size": 7188
+      },
+      {
         "path": "pages/runbooks/pytorch-practices-macos.md",
         "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
         "size": 2428
@@ -5269,8 +5274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T01:06:05Z",
-  "file_count": 1052,
+  "exported_at": "2026-05-09T01:22:25Z",
+  "file_count": 1053,
   "files": [
     {
       "path": ".curator_state",
@@ -8192,7 +8197,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "ad78ad33e2dafc704074a3015fd73a24f6cbd0bfc1749ccdd246002929f48cd8",
+  "previous_tree_hash": "0c6f458d893516a89703b7f3dc32a0342caf67c8f9a61eff26adf59941f4b487",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8205,14 +8210,14 @@
   ],
   "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0c6f458d893516a89703b7f3dc32a0342caf67c8f9a61eff26adf59941f4b487",
+  "tree_hash": "4d993d99ccbd6fc2c0c8cd7ca6225a61c2ee266b7dec096b0bed7209ba1fefd7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 469,
+  "wiki_file_count": 470,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8221,13 +8226,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9d62e11535363be4091981e060cfc591a68ee65272baf5c888c104d87b40d160",
-      "size": 520317
+      "sha256": "ec324beef52a5b12a7287e574a417a3d08cd8305d25e550fcdcbe58da8c4f966",
+      "size": 520709
     },
     {
       "path": "log.md",
-      "sha256": "08f1e9bb53fe1ff62e408703fe1d132c8640b5309a8f87f2acbe7e385c091188",
-      "size": 972073
+      "sha256": "920969e1f43abd240768d50c2111ad0e7ab5a675c5e633cef9da01f51ee14935",
+      "size": 972477
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10205,6 +10210,11 @@
       "size": 10032
     },
     {
+      "path": "pages/runbooks/provision-prod-environment.md",
+      "sha256": "51d67b91aca1e6f32793b7d9390640110bb1a70d84f2237f2543d612200fd655",
+      "size": 7188
+    },
+    {
       "path": "pages/runbooks/pytorch-practices-macos.md",
       "sha256": "f57a44298959a5c1662328d857d0089948379ebeec48127fc3dbcfbdcb47a065",
       "size": 2428
@@ -10561,5 +10571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b684385e4cde2b7a9672762320fc9f3bbb9bc030a3df72b62261f1ddb82f36ac"
+  "wiki_tree_hash": "4557d912207c9adda68e5c72aa5c1c025e43a671d733fb86cc55500b772ab9bd"
 }
