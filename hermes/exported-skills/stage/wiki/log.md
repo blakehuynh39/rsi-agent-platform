@@ -20503,3 +20503,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_30a9d800f77a712df4bf208808ada36d
 - summary: A list of pending tasks captured from a Notion document, covering dynamic authentication, prescreen voice interview integration, profile page APIs, LinkedIn login, dynamic voice ag...
 
+## [2026-05-09T04:46:57Z] synthesis | Mercor Reference Project
+
+- status: published
+- slug: projects/mercor-reference-project
+- wiki_revision_id: wikirev_8435b433707eb763903d9b04747fd3a5
+- summary: Task list for setting up the Mercor reference project, including frontend scaffold, PDF reader, Elevenlabs agents, and authentication.
+
+## [2026-05-09T04:50:22Z] synthesis | AI Prompt Library
+
+- status: published
+- slug: concepts/ai-prompt-library
+- wiki_revision_id: wikirev_c47d2233e9b278328179d949bc79da46
+- summary: A collection of AI prompts and resources, including a detailed frontend UI card prompt and links to vibe code tools.
+
+## [2026-05-09T04:50:22Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_775d5299f1879b9bdfa8cf243b4e63ba
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-09T04:50:23Z] synthesis | Aura
+
+- status: published
+- slug: projects/aura
+- wiki_revision_id: wikirev_7429c8298ea0fb6d2cc5354fc5ecfcb5
+- summary: Aura is an application owned by the Tiger Team, with a deployed frontend on Vercel and source code hosted on GitHub.
+

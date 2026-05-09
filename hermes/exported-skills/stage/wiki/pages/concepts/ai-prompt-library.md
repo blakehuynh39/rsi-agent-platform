@@ -7,7 +7,7 @@ tags:
   - "ai"
   - "frontend"
   - "prompts"
-  - "ui"
+  - "resources"
 owners: []
 source_revision_ids:
   - "srcrev_bf85c54e77071414bc2f54ae7a2b7d0f"
@@ -31,6 +31,6 @@ A collection of AI prompts and resources, including a detailed frontend UI card 
 
 ## Sources
 
-- `source_document_id`: `srcdoc_dd109443c810799101e2a072c5aca912`
-- `source_revision_id`: `srcrev_bf85c54e77071414bc2f54ae7a2b7d0f`
-- `source_url`: [Notion source](https://www.notion.so/AI-Prompt-Library-24a051299a54807e8a12cdf159a00fbd)
+- `source_document_id`: `srcdoc_087178aed8b390665c766581c01456fa`
+- `source_revision_id`: `srcrev_4b89cc7f1f640fdddf599081ed0de441`
+- `source_url`: [Notion source](https://www.notion.so/Aura-32c051299a54805f8adacf0d904c8e64)

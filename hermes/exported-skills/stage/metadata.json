@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0deea28bdc62714689e4a1558f7eb6744dfc0a343235b1b1e59e128e5b9f6a4f",
-        "size": 975119
+        "sha256": "875abb26164b197b61f53b1264748ef4c279f7cdadc3faf566fe78830f00a9f2",
+        "size": 975453
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4400,6 +4400,11 @@
         "size": 4023
       },
       {
+        "path": "pages/projects/mercor-reference-project.md",
+        "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
+        "size": 2789
+      },
+      {
         "path": "pages/projects/metadata-scaling.md",
         "sha256": "907ed2cbd0fbe3cf51af6287d22285630d0975c93b1647b913185869c45e7c1d",
         "size": 1684
@@ -5299,8 +5304,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T04:38:56Z",
-  "file_count": 1058,
+  "exported_at": "2026-05-09T04:50:10Z",
+  "file_count": 1059,
   "files": [
     {
       "path": ".curator_state",
@@ -8222,7 +8227,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "21401bdd505d2b4c351b387e62ce419b66460294d4d706d8ed6ec2427c362bc5",
+  "previous_tree_hash": "d4d9515a9075ef9f2fe736f7f51a925f2c53e39274717b771f3e8265aaf460d8",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8235,14 +8240,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d4d9515a9075ef9f2fe736f7f51a925f2c53e39274717b771f3e8265aaf460d8",
+  "tree_hash": "7ef2ab5574c404ccc7fb51da2f409d027dfbc74c75a39af86a701d70d566f66d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 475,
+  "wiki_file_count": 476,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8256,8 +8261,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0deea28bdc62714689e4a1558f7eb6744dfc0a343235b1b1e59e128e5b9f6a4f",
-      "size": 975119
+      "sha256": "875abb26164b197b61f53b1264748ef4c279f7cdadc3faf566fe78830f00a9f2",
+      "size": 975453
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9725,6 +9730,11 @@
       "size": 4023
     },
     {
+      "path": "pages/projects/mercor-reference-project.md",
+      "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
+      "size": 2789
+    },
+    {
       "path": "pages/projects/metadata-scaling.md",
       "sha256": "907ed2cbd0fbe3cf51af6287d22285630d0975c93b1647b913185869c45e7c1d",
       "size": 1684
@@ -10621,5 +10631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2fa6578b555d3b10cf34d5de4856d8a6075594ff8dfb4f7370d502f4f7a64a1a"
+  "wiki_tree_hash": "e053daec729807f378e51ec24bb23d1b266ba0de250d570cec233e8eb830c5ef"
 }
