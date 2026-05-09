@@ -20727,3 +20727,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c53fd91479380ab2c2e96e21a0ec7b8
 - summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
 
+## [2026-05-09T11:32:43Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_144e7e201aadec0afb076f6c3d5be500
+- summary: The Lion Team is a group with members, initiatives tracked in a Milestones database, and tasks managed via GitHub project #4. It includes the Internal Agentic Initiative.
+
+## [2026-05-09T11:32:44Z] synthesis | Internal Agentic Initiative
+
+- status: published
+- slug: projects/internal-agentic-initiative
+- wiki_revision_id: wikirev_e00b719b0003c4167fc345ff4b813077
+- summary: An initiative under the Lion Team, referenced on the Lion Team page.
+

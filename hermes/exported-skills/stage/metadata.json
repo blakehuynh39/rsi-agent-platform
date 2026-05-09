@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "919238677248a8dc441cdbc0de11baaaae89692374869093fd970226d38c713b",
-        "size": 985955
+        "sha256": "eec13236eba0c8a5d977a8bf1ef6f2f2a10194d0be8322fc2140ded378e1a129",
+        "size": 986569
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4355,6 +4355,11 @@
         "size": 1202
       },
       {
+        "path": "pages/projects/internal-agentic-initiative.md",
+        "sha256": "103bb564107f810e254b20ab1035c5c5ee74e83331f73f3f71c539baf13c4e46",
+        "size": 1172
+      },
+      {
         "path": "pages/projects/ip-auto-registration-script.md",
         "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
         "size": 1238
@@ -4433,6 +4438,11 @@
         "path": "pages/projects/link-user-socials.md",
         "sha256": "a24912b116fb164bcf5bb84b93367c1a0de7259fc8dee1cf588d06efdc7eb9aa",
         "size": 1168
+      },
+      {
+        "path": "pages/projects/lion-team.md",
+        "sha256": "e7fbd5df8d2ad4295d288aae76e61d607662f59e5d63f7cbacd232be5a01a7c8",
+        "size": 2657
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -5369,8 +5379,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T11:22:40Z",
-  "file_count": 1072,
+  "exported_at": "2026-05-09T11:33:57Z",
+  "file_count": 1074,
   "files": [
     {
       "path": ".curator_state",
@@ -8292,7 +8302,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "abfcd00930f97351d0d0d879df7fc20509d0226604391db4fd9601585b5737e0",
+  "previous_tree_hash": "a58a41bda81b84ea9d75d2c694b3dea268fded7bf49c5693e05e4475bf4b1712",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8305,14 +8315,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a58a41bda81b84ea9d75d2c694b3dea268fded7bf49c5693e05e4475bf4b1712",
+  "tree_hash": "d56403354688d0c68141047151363a524da7ee4d04cb283e4bd468b340ab7d5e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 489,
+  "wiki_file_count": 491,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8326,8 +8336,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "919238677248a8dc441cdbc0de11baaaae89692374869093fd970226d38c713b",
-      "size": 985955
+      "sha256": "eec13236eba0c8a5d977a8bf1ef6f2f2a10194d0be8322fc2140ded378e1a129",
+      "size": 986569
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9750,6 +9760,11 @@
       "size": 1202
     },
     {
+      "path": "pages/projects/internal-agentic-initiative.md",
+      "sha256": "103bb564107f810e254b20ab1035c5c5ee74e83331f73f3f71c539baf13c4e46",
+      "size": 1172
+    },
+    {
       "path": "pages/projects/ip-auto-registration-script.md",
       "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
       "size": 1238
@@ -9828,6 +9843,11 @@
       "path": "pages/projects/link-user-socials.md",
       "sha256": "a24912b116fb164bcf5bb84b93367c1a0de7259fc8dee1cf588d06efdc7eb9aa",
       "size": 1168
+    },
+    {
+      "path": "pages/projects/lion-team.md",
+      "sha256": "e7fbd5df8d2ad4295d288aae76e61d607662f59e5d63f7cbacd232be5a01a7c8",
+      "size": 2657
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -10761,5 +10781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "11c7a1fbe2288b331479a71b327ef81de0dc03acffea819ecf800a96bfe6c92c"
+  "wiki_tree_hash": "e209f2b16a8f1b01d856c10f1ecdaf463fe6dc0a88b6884e86125067417af328"
 }
