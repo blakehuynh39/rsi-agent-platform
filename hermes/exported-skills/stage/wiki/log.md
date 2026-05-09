@@ -20979,3 +20979,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dffbd3276fd6a5b0bb94f103f3c6b9c1
 - summary: Planning details for the January 2026 engineering onsite, covering CDR in Suzhou and Subnet in Palo Alto, with workstreams for Poseidon, Perp Dex, and China office opening.
 
+## [2026-05-09T21:05:07Z] synthesis | Back End Designs
+
+- status: published
+- slug: systems/back-end-designs
+- wiki_revision_id: wikirev_09dfb0a624edb31eb3b498941cbf769b
+- summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
+

@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6d41e6fc6ce79abb1d0dd87010149639963f698d83f3b0694ec6ed9b19b92565",
+        "sha256": "53e1759479fa5b936e9f564b042adc14634cd6d2b6b3602453d9d57c3a050948",
         "size": 536626
       },
       {
         "path": "log.md",
-        "sha256": "94ad815f0029f8cecc923493c78601be64e20f44ffe17d6f52223670f6609de8",
-        "size": 998669
+        "sha256": "6abe8baee0a5a82a6b6442b530a0ee4395ea726f179822182c3c5f84e3d71f5a",
+        "size": 998989
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5216,8 +5216,8 @@
       },
       {
         "path": "pages/systems/back-end-designs.md",
-        "sha256": "15a8bdf5be0f10879dbc20c5fcadf9c46a4bc2f95d68a55ef16592ce579e3252",
-        "size": 1621
+        "sha256": "c961c10227623fa3006a74c0ffb7a95e5a56b3d91d0420d2564ca8ba68ba4d42",
+        "size": 2037
       },
       {
         "path": "pages/systems/balancer-v2-access-control.md",
@@ -5499,7 +5499,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T20:35:57Z",
+  "exported_at": "2026-05-09T21:07:27Z",
   "file_count": 1098,
   "files": [
     {
@@ -8422,7 +8422,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "7bf344a62edf7bc37b162c7014bbf38214d808a41e47b8d4af5a9a9814df4ea8",
+  "previous_tree_hash": "c72c5a14204d9d2872d179a0e8bbf785762f29509082f1916999a1060b5ad5c5",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8435,7 +8435,7 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c72c5a14204d9d2872d179a0e8bbf785762f29509082f1916999a1060b5ad5c5",
+  "tree_hash": "e3fc78d7a9a69d55b41661d186abab81e1de8159e1d1590df7627ec518fa38b3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8451,13 +8451,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6d41e6fc6ce79abb1d0dd87010149639963f698d83f3b0694ec6ed9b19b92565",
+      "sha256": "53e1759479fa5b936e9f564b042adc14634cd6d2b6b3602453d9d57c3a050948",
       "size": 536626
     },
     {
       "path": "log.md",
-      "sha256": "94ad815f0029f8cecc923493c78601be64e20f44ffe17d6f52223670f6609de8",
-      "size": 998669
+      "sha256": "6abe8baee0a5a82a6b6442b530a0ee4395ea726f179822182c3c5f84e3d71f5a",
+      "size": 998989
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10741,8 +10741,8 @@
     },
     {
       "path": "pages/systems/back-end-designs.md",
-      "sha256": "15a8bdf5be0f10879dbc20c5fcadf9c46a4bc2f95d68a55ef16592ce579e3252",
-      "size": 1621
+      "sha256": "c961c10227623fa3006a74c0ffb7a95e5a56b3d91d0420d2564ca8ba68ba4d42",
+      "size": 2037
     },
     {
       "path": "pages/systems/balancer-v2-access-control.md",
@@ -11021,5 +11021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "24c312c068ced82fbb870349834558cba241ebaa81fd8cae90840ceca6c5abb6"
+  "wiki_tree_hash": "3526997d88af04a806bfb2d8c8cd5be2e44a403b3cca10ee025e72d0cbadae50"
 }

@@ -4,10 +4,9 @@ type: "system"
 slug: "systems/back-end-designs"
 freshness: "2023-11-21T19:56:00Z"
 tags:
-  - "api"
   - "backend"
   - "design"
-  - "infrastructure"
+  - "documentation"
 owners: []
 source_revision_ids:
   - "srcrev_7dc360856699d4513e413ecac28871ca"
@@ -27,10 +26,22 @@ A collection of design documents for the backend systems, including API specs, d
 
 ## Related Pages
 
-- `projects/open-source-development-plan`
+- `systems/admin-api-security-architecture`
+- `systems/admin-workflows`
+- `systems/api-service-overview-and-re-design`
+- `systems/aws-cloud-infra-requirements`
+- `systems/back-end-cloud-architecture`
+- `systems/data-model-design`
+- `systems/development-workflow`
+- `systems/eu-backend-design`
+- `systems/event-indexing-workflow`
+- `systems/graphql-backend`
+- `systems/open-source-development`
+- `systems/protocol-api-specs`
+- `systems/s3-content-folder-structure`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_bf66d0017aa23a636760fde4a5588dbb`
-- `source_revision_id`: `srcrev_36e732f25c3a33e47bdd466165ccd3c1`
-- `source_url`: [Notion source](https://www.notion.so/Open-Source-Development-37287546f188484796c160483a1dd9be)
+- `source_document_id`: `srcdoc_6371523a6a6f0d53148e9a314d982875`
+- `source_revision_id`: `srcrev_f69d7c3ddf8003ec50c02e7555e63f5f`
+- `source_url`: [Notion source](https://www.notion.so/AWS-cloud-infra-requirements-bbb5f04cb4104882a6120a7407a0faaa)
