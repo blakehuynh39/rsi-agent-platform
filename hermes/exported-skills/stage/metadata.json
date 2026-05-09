@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fe94b4dd608037316ea24b762d44b0def5cfe71de7fde4a6a016e6bd77a2368c",
-        "size": 524614
+        "sha256": "c6404a8f3ecd7420981e3e21d773b677e50346357bd48f9dbd6fa553b3543cd1",
+        "size": 524929
       },
       {
         "path": "log.md",
-        "sha256": "dfbe6c80c74dd7af808b2477c493a863f712e6e0762f8c17b4a887d94d487545",
-        "size": 979656
+        "sha256": "aa07224094fd80203fdc2c14b8aebf4a18ebd7e746907eb55dfd2bce9c8a52ed",
+        "size": 980642
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3301,7 +3301,7 @@
       },
       {
         "path": "pages/concepts/meeting-notes-index.md",
-        "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
+        "sha256": "2ff3877c56893a7e33184c527f1edd65aea8667f5430cc83db72f4daa35566d8",
         "size": 1243
       },
       {
@@ -4150,6 +4150,11 @@
         "size": 7585
       },
       {
+        "path": "pages/projects/crunch-time-daily-meetings.md",
+        "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
+        "size": 1476
+      },
+      {
         "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
         "sha256": "6a625d87043416ccd3e6060f1cdb353ae953e51d6e759d711a23ff4ed1e3497e",
         "size": 9244
@@ -4696,8 +4701,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "638649ff7d20c409d8953b831fbb4ef8cfaaee1782932457cb971cbfd174ea99",
-        "size": 11855
+        "sha256": "cd924b695fce9b8cd2e173545ec6aa5be3ee4e356390ffce41e7799b0e34e723",
+        "size": 11714
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -5329,8 +5334,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T07:05:33Z",
-  "file_count": 1064,
+  "exported_at": "2026-05-09T07:52:10Z",
+  "file_count": 1065,
   "files": [
     {
       "path": ".curator_state",
@@ -8252,7 +8257,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "a18981fe2a04fbeafdc419415013cd2bb46c807cdc92066b7553ce635d3ca32d",
+  "previous_tree_hash": "1c5821980e0d979ccce5d220a22a572e9375714f8123c276e99edcd7a997c81e",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8265,14 +8270,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1c5821980e0d979ccce5d220a22a572e9375714f8123c276e99edcd7a997c81e",
+  "tree_hash": "df229674170b5d9376ed6230acebdfc3f453f9fe5f66d1a411c44586d49eba00",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 481,
+  "wiki_file_count": 482,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8281,13 +8286,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fe94b4dd608037316ea24b762d44b0def5cfe71de7fde4a6a016e6bd77a2368c",
-      "size": 524614
+      "sha256": "c6404a8f3ecd7420981e3e21d773b677e50346357bd48f9dbd6fa553b3543cd1",
+      "size": 524929
     },
     {
       "path": "log.md",
-      "sha256": "dfbe6c80c74dd7af808b2477c493a863f712e6e0762f8c17b4a887d94d487545",
-      "size": 979656
+      "sha256": "aa07224094fd80203fdc2c14b8aebf4a18ebd7e746907eb55dfd2bce9c8a52ed",
+      "size": 980642
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8656,7 +8661,7 @@
     },
     {
       "path": "pages/concepts/meeting-notes-index.md",
-      "sha256": "bc57c4d4e27bd6090d31e237304f2dd0c7291bb015c0f3ae55937cbc72217244",
+      "sha256": "2ff3877c56893a7e33184c527f1edd65aea8667f5430cc83db72f4daa35566d8",
       "size": 1243
     },
     {
@@ -9505,6 +9510,11 @@
       "size": 7585
     },
     {
+      "path": "pages/projects/crunch-time-daily-meetings.md",
+      "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
+      "size": 1476
+    },
+    {
       "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
       "sha256": "6a625d87043416ccd3e6060f1cdb353ae953e51d6e759d711a23ff4ed1e3497e",
       "size": 9244
@@ -10051,8 +10061,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "638649ff7d20c409d8953b831fbb4ef8cfaaee1782932457cb971cbfd174ea99",
-      "size": 11855
+      "sha256": "cd924b695fce9b8cd2e173545ec6aa5be3ee4e356390ffce41e7799b0e34e723",
+      "size": 11714
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -10681,5 +10691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "36b7a5508aa16f20d5012e8c66d6a9d0b24fd935e89c821fce64fa97a60a0a26"
+  "wiki_tree_hash": "1c6789e7e9040201ebe5bd1f85d92782b25f4742262f597597405ee3dbf06616"
 }

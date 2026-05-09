@@ -20594,3 +20594,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_048c8439817cdc92fc25ac2b4f4d297c
 - summary: Post-analysis notes from Yash regarding a voice verification system, highlighting unexpected issues such as speaking gibberish/spam, insufficient language model detection, and back...
 
+## [2026-05-09T07:48:30Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_195a210d4807e3e8748add494ddc9bcd
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-09T07:50:26Z] synthesis | Meeting Notes Index
+
+- status: published
+- slug: concepts/meeting-notes-index
+- wiki_revision_id: wikirev_ac4737cea215b06e1c22d6e045d93106
+- summary: A Notion page that serves as an index for meeting notes, linking to Crunch Time Daily Meetings and Weekly Meeting.
+
+## [2026-05-09T07:50:26Z] synthesis | Crunch Time Daily Meetings
+
+- status: published
+- slug: projects/crunch-time-daily-meetings
+- wiki_revision_id: wikirev_4fe826cdd32b56bb23e08264d4ff91dc
+- summary: Daily standup meetings for the infrastructure team, covering GCP migration, testnet migration, monitoring, and other tasks.
+

@@ -5,10 +5,8 @@ slug: "projects/tiger-team"
 freshness: "2026-05-07T00:23:00Z"
 tags:
   - "apps"
-  - "data-ecosystem"
   - "depin"
-  - "product-ideation"
-  - "voice"
+  - "tiger-team"
 owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
@@ -22,7 +20,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps and a pipeline of potential future apps, with current emphasis on human-to-agent experiences for speed and virality.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
 ## Claims
 
@@ -65,6 +63,6 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 
 ## Sources
 
-- `source_document_id`: `srcdoc_7f33f1322a692f1be4fd76ec19079059`
-- `source_revision_id`: `srcrev_f41f7d5ec957ad5857d6d5431448b867`
-- `source_url`: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20)
+- `source_document_id`: `srcdoc_48fde66a8a1bc0d1e803964da01462a5`
+- `source_revision_id`: `srcrev_b97287e54852bbaf4360e2f1e7245db8`
+- `source_url`: [Notion source](https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)

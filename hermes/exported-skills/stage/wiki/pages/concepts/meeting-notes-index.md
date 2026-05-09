@@ -3,9 +3,7 @@ title: "Meeting Notes Index"
 type: "concept"
 slug: "concepts/meeting-notes-index"
 freshness: "2025-02-07T19:40:00Z"
-tags:
-  - "index"
-  - "meetings"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_27dfc6c812df1d4aacc6ea74cb770252"
@@ -25,10 +23,10 @@ A Notion page that serves as an index for meeting notes, linking to Crunch Time 
 
 ## Related Pages
 
-- `meetings/weekly-meeting`
+- `projects/crunch-time-daily-meetings`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_010eca8719e180827e8cde237600f6af`
-- `source_revision_id`: `srcrev_f7248c9256985e36cc628b10dff483c2`
-- `source_url`: [Notion source](https://www.notion.so/Weekly-Meeting-190051299a54806cb3c4f78c8fdbe614)
+- `source_document_id`: `srcdoc_dc30d08bfc97059f7d9d3661daf3474e`
+- `source_revision_id`: `srcrev_60e7e21a1dc75fb0bd31e6d8982544bb`
+- `source_url`: [Notion source](https://www.notion.so/Crunch-Time-Daily-Meetings-17e051299a5480b3a6fbe804d5dd27ea)
