@@ -20853,3 +20853,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d347b492db4c755499d3aa06f3e8d2ae
 - summary: Defines the on-chain control plane contracts for the Poseidon MVP, including terminology, architecture, key workflows (upload object, advance epoch), and the Solidity interface ICo...
 
+## [2026-05-09T17:40:39Z] synthesis | DePIN v1.0.0 Release
+
+- status: published
+- slug: projects/depin-release-v1-0-0
+- wiki_revision_id: wikirev_32e61cf3fca53984ae3695cdd55f9ade
+- summary: DePIN version 1.0.0 release details including dependency versions, production environment, monitoring, and API specifications.
+
+## [2026-05-09T17:40:39Z] synthesis | User 23c5af38
+
+- status: published
+- slug: people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001
+- wiki_revision_id: wikirev_029195bdcc9a745e035fa045d187074e
+- summary: Contact for DePIN Website.
+
+## [2026-05-09T17:40:39Z] synthesis | User 142d872b
+
+- status: published
+- slug: people/user-142d872b-594c-81c4-baa6-000236c53ad3
+- wiki_revision_id: wikirev_6f62424d275c054813cbe5972326c8a9
+- summary: Contact for DePIN APIs.
+
+## [2026-05-09T17:40:39Z] synthesis | User 203d872b
+
+- status: published
+- slug: people/user-203d872b-594c-819d-87fd-000213056b8a
+- wiki_revision_id: wikirev_49615f9b008e8a2d1ad949291c70c22a
+- summary: Contact for DePIN Data Pipeline.
+
