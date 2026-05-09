@@ -20706,3 +20706,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fd845c76013716b797bb45e287190938
 - summary: Team-wide security policies for crypto wallets, 2FA, password management, and browser safety.
 
+## [2026-05-09T11:02:57Z] synthesis | Engineering Home
+
+- status: published
+- slug: systems/engineering-home
+- wiki_revision_id: wikirev_73c9dc6c6f512a401f6ff9eb435df3c2
+- summary: The Engineering Home Notion database mirrors its row pages and data sources as separate Notion documents.
+
+## [2026-05-09T11:05:41Z] synthesis | Engineering Home
+
+- status: published
+- slug: systems/engineering-home
+- wiki_revision_id: wikirev_e7113c57b56a0934c1123a03206f8e72
+- summary: The Engineering Home Notion database mirrors its row pages and data sources as separate Notion documents.
+
