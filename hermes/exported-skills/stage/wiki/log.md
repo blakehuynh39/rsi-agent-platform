@@ -20958,3 +20958,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_17073b9a66c4025e1c156862ca4f8b24
 - summary: Design for a smart-contract-based audio processing workflow to migrate the Poseidon audio processing pipeline to the Proteus devnet.
 
+## [2026-05-09T20:02:28Z] synthesis | Subnet Workflow Indexer & Aggregator
+
+- status: published
+- slug: systems/subnet-workflow-indexer-aggregator
+- wiki_revision_id: wikirev_a96c2ceb7f2e032048708b1d9d842b9e
+- summary: A scalable indexing and aggregation framework for workflow management systems on subnets. It tracks workflow execution, task processing, and activity lifecycle events from workflow...
+
