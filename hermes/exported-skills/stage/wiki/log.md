@@ -20433,3 +20433,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_89392258e242c302a9a898ece43d0aac
 - summary: Runbook for setting up kubectl access to EKS clusters on macOS, troubleshooting common authentication issues, and configuring EBS CSI driver for persistent volumes.
 
+## [2026-05-09T00:35:49Z] synthesis | Forced Offline Deployment & Feature Flags
+
+- status: published
+- slug: runbooks/forced-offline-deployment-and-feature-flags
+- wiki_revision_id: wikirev_4343b7e6e2fc2ef94526096f9a9261b1
+- summary: Runbook for deploying the Forced Offline project, including environment overview, PR process, feature flag implementation, and rollback procedures.
+

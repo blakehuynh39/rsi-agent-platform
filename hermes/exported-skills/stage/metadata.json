@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "53e7909717e977b67ee3ae503c6cd361772634d1b437475118812603f3e8b1be",
-        "size": 971316
+        "sha256": "8a545eaab02fecdbb0dd3b13a3b217567d41437ebd302c3999a5ecfbc92b31d7",
+        "size": 971699
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4795,6 +4795,11 @@
         "size": 3599
       },
       {
+        "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
+        "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
+        "size": 4822
+      },
+      {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
         "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
         "size": 1296
@@ -5259,8 +5264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T00:11:55Z",
-  "file_count": 1050,
+  "exported_at": "2026-05-09T00:38:23Z",
+  "file_count": 1051,
   "files": [
     {
       "path": ".curator_state",
@@ -8182,7 +8187,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "e3b7abe12c6378eb0887076c9c425a16c989b22855e975272e5414e7c9b63bb2",
+  "previous_tree_hash": "fe5f5f160c1a126faec17b551b40e0c125b4764779d624f555ee1d08b138f0cf",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8195,14 +8200,14 @@
   ],
   "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fe5f5f160c1a126faec17b551b40e0c125b4764779d624f555ee1d08b138f0cf",
+  "tree_hash": "72b4cb5f84944536b88ba0c4e496a607bedd0f8cc561d799f0c7448b59ab5a62",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 467,
+  "wiki_file_count": 468,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8216,8 +8221,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "53e7909717e977b67ee3ae503c6cd361772634d1b437475118812603f3e8b1be",
-      "size": 971316
+      "sha256": "8a545eaab02fecdbb0dd3b13a3b217567d41437ebd302c3999a5ecfbc92b31d7",
+      "size": 971699
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10080,6 +10085,11 @@
       "size": 3599
     },
     {
+      "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
+      "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
+      "size": 4822
+    },
+    {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
       "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
       "size": 1296
@@ -10541,5 +10551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7049fafbf0461809b7bc9b093c1e7039c1fa0b1f7f222c80a8950757afdf97b5"
+  "wiki_tree_hash": "e4a4f3a8580ed01d1d8df38c0906737b07aaa674f63daf05f28ca5a126935ad8"
 }
