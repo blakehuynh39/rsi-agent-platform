@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7dca54a928016e92890ed6e221971d852f0b5a2a1e6cc0846fe3118bdfa00c13",
-        "size": 538732
+        "sha256": "3bc2079a506de46db38653707312f853f8b1a680b5ad3d72ec37a8626d34fbd5",
+        "size": 538983
       },
       {
         "path": "log.md",
-        "sha256": "1b48333bdb05ef2514f05ebf5b4c0ee19e24d3e6a5181c699ef07eefa7f416f5",
-        "size": 1001538
+        "sha256": "c004d755f7b641fd7b34c50bfc5544f8ebc89d5f41ca6c3505da46c697eef437",
+        "size": 1002123
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3071,8 +3071,8 @@
       },
       {
         "path": "pages/concepts/devex.md",
-        "sha256": "d7af02af9243e51e2b128e441f1af72dfb96e26567ed7852b2f3d80099292a45",
-        "size": 1382
+        "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
+        "size": 1244
       },
       {
         "path": "pages/concepts/dutch-auction-minting.md",
@@ -5375,6 +5375,11 @@
         "size": 1700
       },
       {
+        "path": "pages/systems/our-k8s-clusters.md",
+        "sha256": "1b5b4f790f7ab3b9450851998e41c2de39cff8794b72993be25c6632a8965921",
+        "size": 2831
+      },
+      {
         "path": "pages/systems/polygon-token-oracle-backend.md",
         "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
         "size": 2631
@@ -5529,8 +5534,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T23:05:56Z",
-  "file_count": 1104,
+  "exported_at": "2026-05-09T23:37:38Z",
+  "file_count": 1105,
   "files": [
     {
       "path": ".curator_state",
@@ -8452,7 +8457,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "c3aa9052c9398502cf93c502557cef126d873bb9a7fb07f6129eed64c8607f1a",
+  "previous_tree_hash": "8ed0b23ac07b768dff61cf6d5ae02001b690bdfb3d38b8d86c9fcea0e4246f01",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8465,14 +8470,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8ed0b23ac07b768dff61cf6d5ae02001b690bdfb3d38b8d86c9fcea0e4246f01",
+  "tree_hash": "d8e6ca836e9cb3ce5d311d22efe58c2b4c66c46247eade811ba90d7b3309405e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 521,
+  "wiki_file_count": 522,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8481,13 +8486,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7dca54a928016e92890ed6e221971d852f0b5a2a1e6cc0846fe3118bdfa00c13",
-      "size": 538732
+      "sha256": "3bc2079a506de46db38653707312f853f8b1a680b5ad3d72ec37a8626d34fbd5",
+      "size": 538983
     },
     {
       "path": "log.md",
-      "sha256": "1b48333bdb05ef2514f05ebf5b4c0ee19e24d3e6a5181c699ef07eefa7f416f5",
-      "size": 1001538
+      "sha256": "c004d755f7b641fd7b34c50bfc5544f8ebc89d5f41ca6c3505da46c697eef437",
+      "size": 1002123
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8626,8 +8631,8 @@
     },
     {
       "path": "pages/concepts/devex.md",
-      "sha256": "d7af02af9243e51e2b128e441f1af72dfb96e26567ed7852b2f3d80099292a45",
-      "size": 1382
+      "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
+      "size": 1244
     },
     {
       "path": "pages/concepts/dutch-auction-minting.md",
@@ -10930,6 +10935,11 @@
       "size": 1700
     },
     {
+      "path": "pages/systems/our-k8s-clusters.md",
+      "sha256": "1b5b4f790f7ab3b9450851998e41c2de39cff8794b72993be25c6632a8965921",
+      "size": 2831
+    },
+    {
       "path": "pages/systems/polygon-token-oracle-backend.md",
       "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
       "size": 2631
@@ -11081,5 +11091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6fe620fc5371687f28f3c6cd2703e111d6cc5f303901e5b07811df8b9558b0b5"
+  "wiki_tree_hash": "a1a5a22d45878636eae9bd7217e3b65b5e4ec00d896591017dab38b4444b2e37"
 }

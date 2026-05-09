@@ -3,10 +3,7 @@ title: "DevEx"
 type: "concept"
 slug: "concepts/devex"
 freshness: "2023-11-21T23:40:00Z"
-tags:
-  - "developer-experience"
-  - "documentation"
-  - "onboarding"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_9242ebb1c50385d07046290d5298d588"
@@ -26,14 +23,10 @@ The DevEx Notion page serves as a hub for developer experience documentation, li
 
 ## Related Pages
 
-- `systems/aws-accounts`
-- `systems/k8s-clusters`
-- `tools/aws-cli`
-- `tools/docker-cli`
-- `tools/k8s-cli`
+- `systems/our-k8s-clusters`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_0a6f33026e93ee16c22b54e091a0f453`
-- `source_revision_id`: `srcrev_526f7b9e109e0766572e421250cd7ec6`
-- `source_url`: [Notion source](https://www.notion.so/K8S-CLI-kubectl-848ef57add7647878823caf040aa535d)
+- `source_document_id`: `srcdoc_c107a922aec6f0290e3b46c3f50be5bd`
+- `source_revision_id`: `srcrev_264401d142978c01f62c06f79977e091`
+- `source_url`: [Notion source](https://www.notion.so/Our-K8S-Clusters-253810bc21c849d6a13265c4e7c02dd1)
