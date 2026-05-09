@@ -3,13 +3,10 @@ title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T00:23:00Z"
-tags:
-  - "apps"
-  - "data-ecosystem"
-  - "depin"
-  - "voice"
+tags: []
 owners: []
 source_revision_ids:
+  - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
   - "srcrev_43dba63dc37ec8ab005c9753a5d88b68"
 conflict_state: "none"
 ---
@@ -18,7 +15,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications, planning documents, and development resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps and planning documents.
 
 ## Claims
 
@@ -38,9 +35,11 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34) `source_document_id=srcdoc_914a6de252419d2b91b13f9535b64fb7` `source_revision_id=srcrev_43dba63dc37ec8ab005c9753a5d88b68` `chunk_id=srcchunk_3ccbfabe54f62c18b4e7be19ab65bfee` `native_locator=https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34` `source_timestamp=2026-05-07T00:23:00Z`
 - The team has hand-off and strategy documents for DePIN season 1 with Numo Engineering, Yash's Post Analysis notes, Numo App Strategy, Numo V1 (Webapp) Release Doc, AI Data Audit Portal, and Models for pre-verification. `claim:claim_1_8` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34) `source_document_id=srcdoc_914a6de252419d2b91b13f9535b64fb7` `source_revision_id=srcrev_43dba63dc37ec8ab005c9753a5d88b68` `chunk_id=srcchunk_3ccbfabe54f62c18b4e7be19ab65bfee` `native_locator=https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34` `source_timestamp=2026-05-07T00:23:00Z`
+- DePIN Admin has a proof-of-concept web app at https://human-agent-poc-web.vercel.app/. `claim:claim_1_9` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a) `source_document_id=srcdoc_368feb26bfb0baebfb1c30d01ffccbe1` `source_revision_id=srcrev_044c3891ab0bcf24d56f2c2e37ce8361` `chunk_id=srcchunk_e413b17f694e24326db5616e0bfc83d1` `native_locator=https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a` `source_timestamp=2026-03-23T21:50:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_087178aed8b390665c766581c01456fa`
-- `source_revision_id`: `srcrev_4b89cc7f1f640fdddf599081ed0de441`
-- `source_url`: [Notion source](https://www.notion.so/Aura-32c051299a54805f8adacf0d904c8e64)
+- `source_document_id`: `srcdoc_368feb26bfb0baebfb1c30d01ffccbe1`
+- `source_revision_id`: `srcrev_044c3891ab0bcf24d56f2c2e37ce8361`
+- `source_url`: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a)

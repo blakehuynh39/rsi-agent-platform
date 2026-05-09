@@ -20531,3 +20531,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7429c8298ea0fb6d2cc5354fc5ecfcb5
 - summary: Aura is an application owned by the Tiger Team, with a deployed frontend on Vercel and source code hosted on GitHub.
 
+## [2026-05-09T05:18:46Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_9006f7841a90bf7dfe619433f6547c4e
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
