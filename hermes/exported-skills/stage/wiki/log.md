@@ -20419,3 +20419,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_101d0205aa72ddd0954ea6ba1a2af7b5
 - summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
 
+## [2026-05-09T00:04:32Z] synthesis | Group IP Asset
+
+- status: published
+- slug: projects/group-ip-asset
+- wiki_revision_id: wikirev_8fe11d4ab485a557cc55caa293324805
+- summary: Design for a feature enabling creation and management of groups of IP Assets with a shared royalty pool, common interface, and license management.
+
