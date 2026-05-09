@@ -21007,3 +21007,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_90004078570fa713ff83f7bac2a5d33d
 - summary: A curated list of Ethereum Request for Comments (ERCs) related to Non-Fungible Tokens (NFTs), including draft proposals and links to research roundtable recordings.
 
+## [2026-05-09T23:04:35Z] synthesis | Emergence Universe
+
+- status: published
+- slug: projects/emergence-universe
+- wiki_revision_id: wikirev_84882c654dd38a176d8ee1c5bfed814f
+- summary: Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, ...
+
+## [2026-05-09T23:04:36Z] synthesis | EU: API/SDK integration notes
+
+- status: published
+- slug: projects/eu-api-sdk-integration-notes
+- wiki_revision_id: wikirev_f56117e6e1d97f51e4f9d752895e46e5
+- summary: Analysis of Emergence Universe features and data requirements, mapping which can be completed within the frontend, with the SDK, and which need additional API endpoints. Covers fea...
+
+## [2026-05-09T23:05:23Z] synthesis | EU Launch (Emergence Universe Website First Release)
+
+- status: published
+- slug: projects/eu-launch
+- wiki_revision_id: wikirev_44c3da6f8d954e00d267f3e0a7039815
+- summary: First release of the Emergence Universe Website, including landing page, world bible, initial 4 stories with read-only story/element/author pages, and reading experience.
+
+## [2026-05-09T23:05:24Z] synthesis | Task Naming Convention
+
+- status: published
+- slug: policies/task-naming-convention
+- wiki_revision_id: wikirev_bb2e72516b57c6fe7068d40a4d99e9f4
+- summary: Convention for naming tasks in the EU Launch project: prefix with role identifier, then story name, then task description.
+

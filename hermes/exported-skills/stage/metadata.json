@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e40e0d5672b67e072123ce9e806a97bf825c7823bff3601d861878a2b681cc94",
-        "size": 537675
+        "sha256": "7dca54a928016e92890ed6e221971d852f0b5a2a1e6cc0846fe3118bdfa00c13",
+        "size": 538732
       },
       {
         "path": "log.md",
-        "sha256": "e46a637817146f6a99d132dc9adebc4e4d7c7274dea50c7c65428b73dfbbe380",
-        "size": 1000074
+        "sha256": "1b48333bdb05ef2514f05ebf5b4c0ee19e24d3e6a5181c699ef07eefa7f416f5",
+        "size": 1001538
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4100,6 +4100,11 @@
         "size": 7333
       },
       {
+        "path": "pages/policies/task-naming-convention.md",
+        "sha256": "80c915bf0ab28f2b1c3769fda9cca98bb4c7d1aba82eff8a4029e85295946ca4",
+        "size": 2527
+      },
+      {
         "path": "pages/policies/technical-vendor-intake-process.md",
         "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
         "size": 6574
@@ -4301,8 +4306,8 @@
       },
       {
         "path": "pages/projects/emergence-universe.md",
-        "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
-        "size": 2353
+        "sha256": "23958e63927f705f3ebc63f74db52264142eeb90a9732ebcb91f39228228421b",
+        "size": 2471
       },
       {
         "path": "pages/projects/engineering-lightning-talks.md",
@@ -4330,9 +4335,19 @@
         "size": 5148
       },
       {
+        "path": "pages/projects/eu-api-sdk-integration-notes.md",
+        "sha256": "e661a837ee0d9113f9cf3040913e873a4e75c4595caba541e003c01d48cc8205",
+        "size": 10501
+      },
+      {
         "path": "pages/projects/eu-backend-design.md",
         "sha256": "fbc6cdecdc6e2dd012dfecfa057de6e3f864b24bec4769f9a6ca00b555e7a24f",
         "size": 1170
+      },
+      {
+        "path": "pages/projects/eu-launch.md",
+        "sha256": "650fd26bbda7fcffc0bbff438f081b0a249d84a30a3216836daab8a266714e34",
+        "size": 3356
       },
       {
         "path": "pages/projects/eu-pfp-nfts.md",
@@ -5514,8 +5529,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T22:39:24Z",
-  "file_count": 1101,
+  "exported_at": "2026-05-09T23:05:56Z",
+  "file_count": 1104,
   "files": [
     {
       "path": ".curator_state",
@@ -8437,7 +8452,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "25c7b771899102fbf97879aaead758a10472925560a1696d35eb46061f53e3c8",
+  "previous_tree_hash": "c3aa9052c9398502cf93c502557cef126d873bb9a7fb07f6129eed64c8607f1a",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8450,14 +8465,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c3aa9052c9398502cf93c502557cef126d873bb9a7fb07f6129eed64c8607f1a",
+  "tree_hash": "8ed0b23ac07b768dff61cf6d5ae02001b690bdfb3d38b8d86c9fcea0e4246f01",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 518,
+  "wiki_file_count": 521,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8466,13 +8481,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e40e0d5672b67e072123ce9e806a97bf825c7823bff3601d861878a2b681cc94",
-      "size": 537675
+      "sha256": "7dca54a928016e92890ed6e221971d852f0b5a2a1e6cc0846fe3118bdfa00c13",
+      "size": 538732
     },
     {
       "path": "log.md",
-      "sha256": "e46a637817146f6a99d132dc9adebc4e4d7c7274dea50c7c65428b73dfbbe380",
-      "size": 1000074
+      "sha256": "1b48333bdb05ef2514f05ebf5b4c0ee19e24d3e6a5181c699ef07eefa7f416f5",
+      "size": 1001538
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9640,6 +9655,11 @@
       "size": 7333
     },
     {
+      "path": "pages/policies/task-naming-convention.md",
+      "sha256": "80c915bf0ab28f2b1c3769fda9cca98bb4c7d1aba82eff8a4029e85295946ca4",
+      "size": 2527
+    },
+    {
       "path": "pages/policies/technical-vendor-intake-process.md",
       "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
       "size": 6574
@@ -9841,8 +9861,8 @@
     },
     {
       "path": "pages/projects/emergence-universe.md",
-      "sha256": "b15c12537ddb4d4e9d741c183cba6632de95d921dd699cb00112202c27b58745",
-      "size": 2353
+      "sha256": "23958e63927f705f3ebc63f74db52264142eeb90a9732ebcb91f39228228421b",
+      "size": 2471
     },
     {
       "path": "pages/projects/engineering-lightning-talks.md",
@@ -9870,9 +9890,19 @@
       "size": 5148
     },
     {
+      "path": "pages/projects/eu-api-sdk-integration-notes.md",
+      "sha256": "e661a837ee0d9113f9cf3040913e873a4e75c4595caba541e003c01d48cc8205",
+      "size": 10501
+    },
+    {
       "path": "pages/projects/eu-backend-design.md",
       "sha256": "fbc6cdecdc6e2dd012dfecfa057de6e3f864b24bec4769f9a6ca00b555e7a24f",
       "size": 1170
+    },
+    {
+      "path": "pages/projects/eu-launch.md",
+      "sha256": "650fd26bbda7fcffc0bbff438f081b0a249d84a30a3216836daab8a266714e34",
+      "size": 3356
     },
     {
       "path": "pages/projects/eu-pfp-nfts.md",
@@ -11051,5 +11081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a86a2f0c03f6f479bd2773362c37112b7c7b3b075285f9307e62b6e773b11170"
+  "wiki_tree_hash": "6fe620fc5371687f28f3c6cd2703e111d6cc5f303901e5b07811df8b9558b0b5"
 }
