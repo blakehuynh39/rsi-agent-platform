@@ -20440,3 +20440,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4343b7e6e2fc2ef94526096f9a9261b1
 - summary: Runbook for deploying the Forced Offline project, including environment overview, PR process, feature flag implementation, and rollback procedures.
 
+## [2026-05-09T01:01:59Z] synthesis | Protocol v1.2 on Odyssey Devnet
+
+- status: published
+- slug: systems/protocol-v1-2-odyssey-devnet
+- wiki_revision_id: wikirev_4e9391d70e4b66ca0cefcad80a5d3f78
+- summary: Deployment details for Protocol v1.2 on the Odyssey Devnet, including RPC endpoint, chain ID, explorer, SUSD token, and contract addresses for main and SPG modules.
+

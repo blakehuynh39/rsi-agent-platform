@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "de6794e45da5dd051ca453dee3169fbbca5a76042fedf52c0693c0987c0d8070",
-        "size": 519955
+        "sha256": "9d62e11535363be4091981e060cfc591a68ee65272baf5c888c104d87b40d160",
+        "size": 520317
       },
       {
         "path": "log.md",
-        "sha256": "8a545eaab02fecdbb0dd3b13a3b217567d41437ebd302c3999a5ecfbc92b31d7",
-        "size": 971699
+        "sha256": "08f1e9bb53fe1ff62e408703fe1d132c8640b5309a8f87f2acbe7e385c091188",
+        "size": 972073
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5190,6 +5190,11 @@
         "size": 5826
       },
       {
+        "path": "pages/systems/protocol-v1-2-odyssey-devnet.md",
+        "sha256": "d3fcfdaae92d7f46bf638062e611908669463eab994838e189bcad364ecbaaf1",
+        "size": 5934
+      },
+      {
         "path": "pages/systems/reward-backward-compatibility-patch.md",
         "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
         "size": 6925
@@ -5264,8 +5269,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T00:44:39Z",
-  "file_count": 1051,
+  "exported_at": "2026-05-09T01:06:05Z",
+  "file_count": 1052,
   "files": [
     {
       "path": ".curator_state",
@@ -8187,7 +8192,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "72b4cb5f84944536b88ba0c4e496a607bedd0f8cc561d799f0c7448b59ab5a62",
+  "previous_tree_hash": "ad78ad33e2dafc704074a3015fd73a24f6cbd0bfc1749ccdd246002929f48cd8",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8200,14 +8205,14 @@
   ],
   "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ad78ad33e2dafc704074a3015fd73a24f6cbd0bfc1749ccdd246002929f48cd8",
+  "tree_hash": "0c6f458d893516a89703b7f3dc32a0342caf67c8f9a61eff26adf59941f4b487",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 468,
+  "wiki_file_count": 469,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8216,13 +8221,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "de6794e45da5dd051ca453dee3169fbbca5a76042fedf52c0693c0987c0d8070",
-      "size": 519955
+      "sha256": "9d62e11535363be4091981e060cfc591a68ee65272baf5c888c104d87b40d160",
+      "size": 520317
     },
     {
       "path": "log.md",
-      "sha256": "8a545eaab02fecdbb0dd3b13a3b217567d41437ebd302c3999a5ecfbc92b31d7",
-      "size": 971699
+      "sha256": "08f1e9bb53fe1ff62e408703fe1d132c8640b5309a8f87f2acbe7e385c091188",
+      "size": 972073
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10480,6 +10485,11 @@
       "size": 5826
     },
     {
+      "path": "pages/systems/protocol-v1-2-odyssey-devnet.md",
+      "sha256": "d3fcfdaae92d7f46bf638062e611908669463eab994838e189bcad364ecbaaf1",
+      "size": 5934
+    },
+    {
       "path": "pages/systems/reward-backward-compatibility-patch.md",
       "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
       "size": 6925
@@ -10551,5 +10561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f16e6283658602451d44fcca03277d7a2fe4b360589e9f9e5605d445821663a0"
+  "wiki_tree_hash": "b684385e4cde2b7a9672762320fc9f3bbb9bc030a3df72b62261f1ddb82f36ac"
 }
