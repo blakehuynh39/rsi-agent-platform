@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "850c1e2744a7b86adc553a8d75aee5337c42db9c26a21809574560ac0e8503cc",
-        "size": 525638
+        "sha256": "c7f5bb64692f1bb628938339ac22f93cc1de8b3c186806d65a9d07260e0b3796",
+        "size": 526000
       },
       {
         "path": "log.md",
-        "sha256": "ab8f858343389b0d2171dad336d69ccebf4122461489757809250883e997d0b1",
-        "size": 982888
+        "sha256": "d83f340bd2264faa89b27aceec60747d017b23642c15b2286070a374d9baafbd",
+        "size": 983260
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3183,6 +3183,11 @@
         "path": "pages/concepts/image-resizing-solution.md",
         "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
         "size": 1950
+      },
+      {
+        "path": "pages/concepts/infrastructure-team-old.md",
+        "sha256": "b347f3914a6f94dfa790dc6b27c3a439238014635600206844d3dd843dcccae1",
+        "size": 1375
       },
       {
         "path": "pages/concepts/infrastructure-tradeoffs.md",
@@ -5344,8 +5349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T09:36:13Z",
-  "file_count": 1067,
+  "exported_at": "2026-05-09T09:42:26Z",
+  "file_count": 1068,
   "files": [
     {
       "path": ".curator_state",
@@ -8267,7 +8272,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "cd18b7195280aa7e1d4fa64007844c95c19045d583a5acfbf396361824cce6d9",
+  "previous_tree_hash": "46b89d7bb423a4aa15463688afec46943ad43940e69f2f593e0f5b63b3a56748",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8280,14 +8285,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "46b89d7bb423a4aa15463688afec46943ad43940e69f2f593e0f5b63b3a56748",
+  "tree_hash": "1adda99d87f23482903c44ab70e423ed3d6e19499aef8e9e8903413a6805d76d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 484,
+  "wiki_file_count": 485,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8296,13 +8301,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "850c1e2744a7b86adc553a8d75aee5337c42db9c26a21809574560ac0e8503cc",
-      "size": 525638
+      "sha256": "c7f5bb64692f1bb628938339ac22f93cc1de8b3c186806d65a9d07260e0b3796",
+      "size": 526000
     },
     {
       "path": "log.md",
-      "sha256": "ab8f858343389b0d2171dad336d69ccebf4122461489757809250883e997d0b1",
-      "size": 982888
+      "sha256": "d83f340bd2264faa89b27aceec60747d017b23642c15b2286070a374d9baafbd",
+      "size": 983260
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8553,6 +8558,11 @@
       "path": "pages/concepts/image-resizing-solution.md",
       "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
       "size": 1950
+    },
+    {
+      "path": "pages/concepts/infrastructure-team-old.md",
+      "sha256": "b347f3914a6f94dfa790dc6b27c3a439238014635600206844d3dd843dcccae1",
+      "size": 1375
     },
     {
       "path": "pages/concepts/infrastructure-tradeoffs.md",
@@ -10711,5 +10721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "707aa88ec7f3aeca943a6c05e289a32689024ddf4585ccf10d8433f7a14fa7ff"
+  "wiki_tree_hash": "10eafa9a7dc88ed1d96ab5052a5f96e9671e7d794e3e35261928da3209cdc515"
 }

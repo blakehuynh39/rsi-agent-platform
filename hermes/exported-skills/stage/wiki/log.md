@@ -20664,3 +20664,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_67bb22ec9ee8e9b24c3a97b58883504d
 - summary: A Notion database that mirrors data sources as separate Notion data source documents.
 
+## [2026-05-09T09:37:33Z] synthesis | [OLD] Infrastructure Team
+
+- status: published
+- slug: concepts/infrastructure-team-old
+- wiki_revision_id: wikirev_9d2682314692d0d0d616bf6e6d8d27e0
+- summary: Index page for the Infrastructure Team's documentation, containing links to various guides, knowledge base articles, and design documents. Marked as OLD, likely superseded.
+
