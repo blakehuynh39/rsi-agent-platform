@@ -20965,3 +20965,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a96c2ceb7f2e032048708b1d9d842b9e
 - summary: A scalable indexing and aggregation framework for workflow management systems on subnets. It tracks workflow execution, task processing, and activity lifecycle events from workflow...
 
+## [2026-05-09T20:20:14Z] synthesis | Proteus 2.0 Planning
+
+- status: published
+- slug: projects/proteus-2-0-planning
+- wiki_revision_id: wikirev_c44bafae560e4cefed2794ad5229325c
+- summary: Planning document for Proteus 2.0, covering high-level goals, issues found in Partner devnet, and next steps including optimistic validation, contract improvements, load testing, a...
+
