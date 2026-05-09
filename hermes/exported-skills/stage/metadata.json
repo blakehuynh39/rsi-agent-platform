@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "96902bfbddcc4921519ad7b92b34f72effb8bf1fe7429d416e2f23821ea71a40",
-        "size": 536254
+        "sha256": "6d41e6fc6ce79abb1d0dd87010149639963f698d83f3b0694ec6ed9b19b92565",
+        "size": 536626
       },
       {
         "path": "log.md",
-        "sha256": "15a41f507ff74107fc5be825352d2572bd3e84a8775cc98fd92025ed0d9034a7",
-        "size": 998285
+        "sha256": "94ad815f0029f8cecc923493c78601be64e20f44ffe17d6f52223670f6609de8",
+        "size": 998669
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4300,6 +4300,11 @@
         "size": 1175
       },
       {
+        "path": "pages/projects/engineering-onsite-jan-2026.md",
+        "sha256": "b8321c0903713cd8145d2aecc03f9ea269f6a5d97983546e309e52b7ec6b745e",
+        "size": 7251
+      },
+      {
         "path": "pages/projects/engineering-team-cost-optimization.md",
         "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
         "size": 2663
@@ -5494,8 +5499,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T20:29:44Z",
-  "file_count": 1097,
+  "exported_at": "2026-05-09T20:35:57Z",
+  "file_count": 1098,
   "files": [
     {
       "path": ".curator_state",
@@ -8417,7 +8422,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "f97eddf55477b5c1f4bf152071072fce53d3d46747a4339114f4e40d93429fda",
+  "previous_tree_hash": "7bf344a62edf7bc37b162c7014bbf38214d808a41e47b8d4af5a9a9814df4ea8",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8430,14 +8435,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7bf344a62edf7bc37b162c7014bbf38214d808a41e47b8d4af5a9a9814df4ea8",
+  "tree_hash": "c72c5a14204d9d2872d179a0e8bbf785762f29509082f1916999a1060b5ad5c5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 514,
+  "wiki_file_count": 515,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8446,13 +8451,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "96902bfbddcc4921519ad7b92b34f72effb8bf1fe7429d416e2f23821ea71a40",
-      "size": 536254
+      "sha256": "6d41e6fc6ce79abb1d0dd87010149639963f698d83f3b0694ec6ed9b19b92565",
+      "size": 536626
     },
     {
       "path": "log.md",
-      "sha256": "15a41f507ff74107fc5be825352d2572bd3e84a8775cc98fd92025ed0d9034a7",
-      "size": 998285
+      "sha256": "94ad815f0029f8cecc923493c78601be64e20f44ffe17d6f52223670f6609de8",
+      "size": 998669
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9820,6 +9825,11 @@
       "size": 1175
     },
     {
+      "path": "pages/projects/engineering-onsite-jan-2026.md",
+      "sha256": "b8321c0903713cd8145d2aecc03f9ea269f6a5d97983546e309e52b7ec6b745e",
+      "size": 7251
+    },
+    {
       "path": "pages/projects/engineering-team-cost-optimization.md",
       "sha256": "cc35b3d56c1dae933d448c8ac3c1d3cb4dbec6443cab886081d8d0edd45a499c",
       "size": 2663
@@ -11011,5 +11021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "393a8b8c785a16f2addd2277e5f4a47759bdfe4e95e82c7aed09d9435e64f94b"
+  "wiki_tree_hash": "24c312c068ced82fbb870349834558cba241ebaa81fd8cae90840ceca6c5abb6"
 }

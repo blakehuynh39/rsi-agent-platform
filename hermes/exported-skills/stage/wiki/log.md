@@ -20972,3 +20972,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c44bafae560e4cefed2794ad5229325c
 - summary: Planning document for Proteus 2.0, covering high-level goals, issues found in Partner devnet, and next steps including optimistic validation, contract improvements, load testing, a...
 
+## [2026-05-09T20:31:40Z] synthesis | Engineering Onsite (January 2026)
+
+- status: published
+- slug: projects/engineering-onsite-jan-2026
+- wiki_revision_id: wikirev_dffbd3276fd6a5b0bb94f103f3c6b9c1
+- summary: Planning details for the January 2026 engineering onsite, covering CDR in Suzhou and Subnet in Palo Alto, with workstreams for Poseidon, Perp Dex, and China office opening.
+
