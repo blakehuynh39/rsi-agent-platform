@@ -7,11 +7,12 @@ tags:
   - "attribution"
   - "data-preparation"
   - "depin"
-  - "research"
+  - "influence-functions"
   - "training"
 owners: []
 source_revision_ids:
   - "srcrev_4a705bb797b7d6eaedcfa2dc60b966af"
+  - "srcrev_fcc632b4aae22e4e5a764030d8074c11"
 conflict_state: "none"
 ---
 
@@ -33,9 +34,12 @@ A research hub covering data preparation, training methods, attribution/influenc
   - citation: [Notion source](https://www.notion.so/Data-Preparation-and-Training-Research-1c4051299a54803c8567fe4a73a682e3) `source_document_id=srcdoc_9b7f2ececc4c5c666e3414c0bae9a23d` `source_revision_id=srcrev_4a705bb797b7d6eaedcfa2dc60b966af` `chunk_id=srcchunk_8b598319290da6ff9fcf029d3d1a927a` `native_locator=https://www.notion.so/Data-Preparation-and-Training-Research-1c4051299a54803c8567fe4a73a682e3` `source_timestamp=2025-08-11T18:36:00Z`
 - DePin Research includes a proposed scope covering current web2/web3 players, main technical challenges, hands-on experience, and why blockchain? `claim:claim_1_5` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Data-Preparation-and-Training-Research-1c4051299a54803c8567fe4a73a682e3) `source_document_id=srcdoc_9b7f2ececc4c5c666e3414c0bae9a23d` `source_revision_id=srcrev_4a705bb797b7d6eaedcfa2dc60b966af` `chunk_id=srcchunk_8b598319290da6ff9fcf029d3d1a927a` `native_locator=https://www.notion.so/Data-Preparation-and-Training-Research-1c4051299a54803c8567fe4a73a682e3` `source_timestamp=2025-08-11T18:36:00Z`
+- The Training Plan (a subpage under Attribution/Influence Functions/Evaluations Research) outlines a research plan for Team 1 to explore model attribution using influence functions, with two complementary approaches: DMIN for fine-tuned diffusion models and kronfluence for language models. Research goals include understanding attribution methods, developing complete pipelines, comparing computational requirements, and having working demonstrations for both image and text attribution. `claim:claim_1_6` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-1) `source_document_id=srcdoc_0e22d68baafd7bdc39ebd5d5279bf37f` `source_revision_id=srcrev_fcc632b4aae22e4e5a764030d8074c11` `chunk_id=srcchunk_64634afcd602866ed76b54e42b2ce355` `native_locator=https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-1` `source_timestamp=2025-04-11T23:47:00Z`
+  - citation: [Notion source](https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-2) `source_document_id=srcdoc_0e22d68baafd7bdc39ebd5d5279bf37f` `source_revision_id=srcrev_fcc632b4aae22e4e5a764030d8074c11` `chunk_id=srcchunk_8a79d5595f47818a2fd2d9b2d96a9262` `native_locator=https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-2` `source_timestamp=2025-04-11T23:47:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_9b7f2ececc4c5c666e3414c0bae9a23d`
-- `source_revision_id`: `srcrev_4a705bb797b7d6eaedcfa2dc60b966af`
-- `source_url`: [Notion source](https://www.notion.so/Data-Preparation-and-Training-Research-1c4051299a54803c8567fe4a73a682e3)
+- `source_document_id`: `srcdoc_0e22d68baafd7bdc39ebd5d5279bf37f`
+- `source_revision_id`: `srcrev_fcc632b4aae22e4e5a764030d8074c11`
+- `source_url`: [Notion source](https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f)

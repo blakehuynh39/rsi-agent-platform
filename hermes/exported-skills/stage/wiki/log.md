@@ -20762,3 +20762,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bdfbc614ea5ba02f81cfe175d91e15bc
 - summary: Poseidon is a decentralized storage network composed of Subnets, each containing Storage Nodes. It uses a terminology mapping to Walrus concepts (Bucket/Shard, Chunk/Sliver, Data O...
 
+## [2026-05-09T13:08:55Z] synthesis | Data Preparation and Training Research
+
+- status: published
+- slug: concepts/data-preparation-and-training-research
+- wiki_revision_id: wikirev_c76600c20a27ef89e6bc1085f2e1dece
+- summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
+
