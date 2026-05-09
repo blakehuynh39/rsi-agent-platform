@@ -3,11 +3,7 @@ title: "Protocol Home"
 type: "concept"
 slug: "concepts/protocol-home"
 freshness: "2025-04-03T18:52:00Z"
-tags:
-  - "design"
-  - "ecosystem"
-  - "protocol"
-  - "roadmap"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_b030cac74edef93c3f0178177b9c347f"
@@ -35,24 +31,10 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `access-control`
-- `beta-1st-week-architectural-review`
-- `beta-protocol-interface`
-- `beta-protocol-tracker`
-- `early-thoughts-on-protocol-roadmap`
-- `ecosystem-thoughts`
-- `frontend-periphery-contracts`
-- `infrastructure-tradeoffs`
-- `ip-metadata`
-- `open-questions-for-protocol`
-- `protocol-and-ecosystem-scrum-notes`
-- `protocol-r-and-d-update`
-- `registration-module`
-- `smart-contract-data-model-and-modules`
-- `ways-of-describing-protocol`
+- `decisions/beta-1st-week-architectural-review`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_c488befa122d527eb94de9083733106f`
-- `source_revision_id`: `srcrev_b030cac74edef93c3f0178177b9c347f`
-- `source_url`: [Notion source](https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602)
+- `source_document_id`: `srcdoc_b2a3d7e7ee954d310f72d8ea09f6c6a5`
+- `source_revision_id`: `srcrev_ab7040e1dbc4a9f8c448ddd978a3d56d`
+- `source_url`: [Notion source](https://www.notion.so/Beta-1st-Week-Architectural-Review-325b40188cd649618c4ba4439d41151a)

@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "920969e1f43abd240768d50c2111ad0e7ab5a675c5e633cef9da01f51ee14935",
-        "size": 972477
+        "sha256": "0ed7907ba4ac7d8553d4326b0dec0e1e8c9c16f95bcf2d879ca9c564fc23a953",
+        "size": 973236
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3431,8 +3431,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "1607f2d594c31eedba519cfadc4620e061e2f2166a4ff29a9ef4dd5bf5d5ca1b",
-        "size": 4263
+        "sha256": "10a6db5d220479309e71e386bb92d33324d251d4c2e94ffe144c9e760b1efbad",
+        "size": 3815
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -3638,6 +3638,11 @@
         "path": "pages/decisions/api-based-cross-chain-solution-decision.md",
         "sha256": "2b29258527d5f1166707cb8e9e373e31a4f25d8b4fe95cdc982d5de3358ad8c1",
         "size": 2504
+      },
+      {
+        "path": "pages/decisions/beta-1st-week-architectural-review.md",
+        "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
+        "size": 7155
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -5274,8 +5279,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T01:22:25Z",
-  "file_count": 1053,
+  "exported_at": "2026-05-09T02:04:09Z",
+  "file_count": 1054,
   "files": [
     {
       "path": ".curator_state",
@@ -8197,7 +8202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "0c6f458d893516a89703b7f3dc32a0342caf67c8f9a61eff26adf59941f4b487",
+  "previous_tree_hash": "4d993d99ccbd6fc2c0c8cd7ca6225a61c2ee266b7dec096b0bed7209ba1fefd7",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8210,14 +8215,14 @@
   ],
   "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4d993d99ccbd6fc2c0c8cd7ca6225a61c2ee266b7dec096b0bed7209ba1fefd7",
+  "tree_hash": "d0c75b98a8ee74d233da8943c5c6db2df312b5d6cf66d1ad65832fdc1120c15b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 470,
+  "wiki_file_count": 471,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8231,8 +8236,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "920969e1f43abd240768d50c2111ad0e7ab5a675c5e633cef9da01f51ee14935",
-      "size": 972477
+      "sha256": "0ed7907ba4ac7d8553d4326b0dec0e1e8c9c16f95bcf2d879ca9c564fc23a953",
+      "size": 973236
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8731,8 +8736,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "1607f2d594c31eedba519cfadc4620e061e2f2166a4ff29a9ef4dd5bf5d5ca1b",
-      "size": 4263
+      "sha256": "10a6db5d220479309e71e386bb92d33324d251d4c2e94ffe144c9e760b1efbad",
+      "size": 3815
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -8938,6 +8943,11 @@
       "path": "pages/decisions/api-based-cross-chain-solution-decision.md",
       "sha256": "2b29258527d5f1166707cb8e9e373e31a4f25d8b4fe95cdc982d5de3358ad8c1",
       "size": 2504
+    },
+    {
+      "path": "pages/decisions/beta-1st-week-architectural-review.md",
+      "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
+      "size": 7155
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -10571,5 +10581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4557d912207c9adda68e5c72aa5c1c025e43a671d733fb86cc55500b772ab9bd"
+  "wiki_tree_hash": "f62caa932b3b2c107f661652187f5810e606e4c6d5bf35911f4bb04bbef7a1fa"
 }

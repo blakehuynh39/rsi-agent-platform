@@ -20454,3 +20454,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_421357eac8858a9ff495257544bc18ad
 - summary: Step-by-step guide for provisioning a production environment in AWS us-east-1 using Terraform and EKS blueprints, including EKS cluster setup, add-on deployment, and ArgoCD configu...
 
+## [2026-05-09T02:02:07Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_33f7e1f81792b06004bd8f128dee8d8f
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
+## [2026-05-09T02:02:08Z] synthesis | Beta 1st Week Architectural Review
+
+- status: published
+- slug: decisions/beta-1st-week-architectural-review
+- wiki_revision_id: wikirev_8aff9d152cfe35e5093d823bbbb2fa26
+- summary: Architectural review of the beta protocol covering alpha architecture recap, principles-first rearchitecting, and example use-cases. Key decisions include abandoning IPOrgs, restru...
+
