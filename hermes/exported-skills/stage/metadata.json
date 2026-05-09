@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4f858cba87c56c4c0a046f7787a1cc52d6f1fad933497ad35a41ca120e848753",
-        "size": 533297
+        "sha256": "257fc124d7e7c8c2f324f89848506f1a043f7e2fb726c317c42e820a51c6283c",
+        "size": 534051
       },
       {
         "path": "log.md",
-        "sha256": "e1555931adf36aa2c5ca2079a921efcfe8137ab49a8918f23834528723067802",
-        "size": 993905
+        "sha256": "3d25d4b202ed720d3aa01418f6a3a1ac974123876957d39efb93d293d0443f44",
+        "size": 995017
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3580,14 +3580,19 @@
         "size": 15654
       },
       {
+        "path": "pages/concepts/subnet-contract-spec-v1.md",
+        "sha256": "f87b81604092b63d68827ff24b2c8bec695c1001f21124799658973224beaafa",
+        "size": 3962
+      },
+      {
         "path": "pages/concepts/subnet-pipeline-attack-vectors.md",
         "sha256": "fe1b07ab1d2f53979e5caf4f6e931af4354d94c8bb6480c85d15143b92bcb7ed",
         "size": 3898
       },
       {
         "path": "pages/concepts/subnet-specifications.md",
-        "sha256": "2f6741d52cd10d0cb2dac2cfdcbaae315ece1f51f5989bd2baf56d4d74bb3068",
-        "size": 1469
+        "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
+        "size": 1412
       },
       {
         "path": "pages/concepts/superbridge-ui.md",
@@ -4605,6 +4610,11 @@
         "size": 4171
       },
       {
+        "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
+        "sha256": "6e4879983b87a4aa3c62621c550d3ca29e89019c7e8a072599208dce1ed1cd64",
+        "size": 5572
+      },
+      {
         "path": "pages/projects/poseidon-eng-home.md",
         "sha256": "9c0d9088acd7782a617081e2cdcfeb40a4569724865aac92ad813e3cc36dda20",
         "size": 4382
@@ -5454,8 +5464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T17:57:21Z",
-  "file_count": 1089,
+  "exported_at": "2026-05-09T18:08:35Z",
+  "file_count": 1091,
   "files": [
     {
       "path": ".curator_state",
@@ -8377,7 +8387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "94f592139d66076be6770186a031d76dd524692758605f6818cbfd7f8849685f",
+  "previous_tree_hash": "6a169423c1700234caa1fe31662a446ba53afda79dae2a23d219bc7df45cebce",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8390,14 +8400,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6a169423c1700234caa1fe31662a446ba53afda79dae2a23d219bc7df45cebce",
+  "tree_hash": "5debb87d93a276f5b33828e91cff338e059d943e528b1990362084cd481a7ed7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 506,
+  "wiki_file_count": 508,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8406,13 +8416,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4f858cba87c56c4c0a046f7787a1cc52d6f1fad933497ad35a41ca120e848753",
-      "size": 533297
+      "sha256": "257fc124d7e7c8c2f324f89848506f1a043f7e2fb726c317c42e820a51c6283c",
+      "size": 534051
     },
     {
       "path": "log.md",
-      "sha256": "e1555931adf36aa2c5ca2079a921efcfe8137ab49a8918f23834528723067802",
-      "size": 993905
+      "sha256": "3d25d4b202ed720d3aa01418f6a3a1ac974123876957d39efb93d293d0443f44",
+      "size": 995017
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9060,14 +9070,19 @@
       "size": 15654
     },
     {
+      "path": "pages/concepts/subnet-contract-spec-v1.md",
+      "sha256": "f87b81604092b63d68827ff24b2c8bec695c1001f21124799658973224beaafa",
+      "size": 3962
+    },
+    {
       "path": "pages/concepts/subnet-pipeline-attack-vectors.md",
       "sha256": "fe1b07ab1d2f53979e5caf4f6e931af4354d94c8bb6480c85d15143b92bcb7ed",
       "size": 3898
     },
     {
       "path": "pages/concepts/subnet-specifications.md",
-      "sha256": "2f6741d52cd10d0cb2dac2cfdcbaae315ece1f51f5989bd2baf56d4d74bb3068",
-      "size": 1469
+      "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
+      "size": 1412
     },
     {
       "path": "pages/concepts/superbridge-ui.md",
@@ -10085,6 +10100,11 @@
       "size": 4171
     },
     {
+      "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
+      "sha256": "6e4879983b87a4aa3c62621c550d3ca29e89019c7e8a072599208dce1ed1cd64",
+      "size": 5572
+    },
+    {
       "path": "pages/projects/poseidon-eng-home.md",
       "sha256": "9c0d9088acd7782a617081e2cdcfeb40a4569724865aac92ad813e3cc36dda20",
       "size": 4382
@@ -10931,5 +10951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be13fdb2085f84620702a29caf9e01a7bc077a97df4312251ddb043f26299e8f"
+  "wiki_tree_hash": "93fe7531ba941fe52465d5e63ee1b72dff59dc3915957ec6ab9cb1da94801a26"
 }

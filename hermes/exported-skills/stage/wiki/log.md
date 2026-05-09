@@ -20888,3 +20888,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_380d7cd1689cdd03bdab9b2a5759bc9a
 - summary: Step-by-step guide for user onboarding and voice profile creation in the DePIN app, covering welcome screen, terms acceptance, login, onboarding screens, microphone permission, rec...
 
+## [2026-05-09T18:03:33Z] synthesis | Subnet Specifications
+
+- status: published
+- slug: concepts/subnet-specifications
+- wiki_revision_id: wikirev_fccfc485ffa162b5744284117ce7a2df
+- summary: A collection of subnet-related specifications including API, contract, and worker specs, as linked from the main Subnet Specifications page.
+
+## [2026-05-09T18:03:33Z] synthesis | Subnet Contract Spec V1
+
+- status: published
+- slug: concepts/subnet-contract-spec-v1
+- wiki_revision_id: wikirev_a242a4a08a623f69a08b06595e05f215
+- summary: Detailed functional test cases for the Subnet Contract V1 covering worker registration, workflow management, activity execution, rewards, access control, upgrades, and configuratio...
+
+## [2026-05-09T18:06:56Z] synthesis | Poseidon DePIN Crunch Time, Aug 2025
+
+- status: published
+- slug: projects/poseidon-depin-crunch-time-aug-2025
+- wiki_revision_id: wikirev_27ac354f56498dd2c707b8ebe82f9949
+- summary: Two-week crunch time (Aug 4-18, 2025) to release the Poseidon DePIN MVP on World Appstore, a batch data pipeline for rare voice data, and the first version of the Lite Paper.
+

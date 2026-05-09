@@ -28,13 +28,10 @@ A collection of subnet-related specifications including API, contract, and worke
 
 ## Related Pages
 
-- `subnet-api`
-- `subnet-api-specifications`
-- `subnet-contract-spec-v1`
-- `subnet-worker-spec`
+- `concepts/subnet-contract-spec-v1`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_87b2303f57a0651d0e7429a498d037ac`
-- `source_revision_id`: `srcrev_0757efd1871e5ba169cb7f9ed73ac464`
-- `source_url`: [Notion source](https://www.notion.so/Subnet-Specifications-247051299a54807b927be53c68f8ff73)
+- `source_document_id`: `srcdoc_b8b6ab1c492ace2285e8f44b6ceb09b0`
+- `source_revision_id`: `srcrev_8f44f6d242c9b23843daf4673866d383`
+- `source_url`: [Notion source](https://www.notion.so/Subnet-Contract-Spec-V1-269051299a5480fbb12cd38434a55d7d)
