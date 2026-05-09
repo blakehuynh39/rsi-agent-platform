@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e233c641c2816a50252218f6074a30b42278d7006ebc635c7df65fdc7e98bf3e",
+        "sha256": "2eee0a13e5e8fe233ef15739d02573b25ec10cb16b75657926613fea559c440f",
         "size": 527014
       },
       {
         "path": "log.md",
-        "sha256": "8c3bb9d20af325f8fd87b7e59211398763906ebef9d2ea9f7e9c186cd590cffb",
-        "size": 985309
+        "sha256": "fdda042df0e609ea6e4d05bac731211f0b6d204f6f5af910103e6df6eb1b984e",
+        "size": 985597
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5146,8 +5146,8 @@
       },
       {
         "path": "pages/systems/engineering-home.md",
-        "sha256": "c5e7fec25ccd579449d7f1b73d2e45bedabcf5c1481ca7cd25c2d0ae6e408524",
-        "size": 2084
+        "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
+        "size": 1665
       },
       {
         "path": "pages/systems/event-indexing-workflow.md",
@@ -5364,7 +5364,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T11:05:13Z",
+  "exported_at": "2026-05-09T11:11:25Z",
   "file_count": 1071,
   "files": [
     {
@@ -8287,7 +8287,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "749634916eab321c9ffe23430645a29603a624f7466f1133dddaf9a7bdcc1fc0",
+  "previous_tree_hash": "daa5b7a1025e6e4b893e238ff88b4e253fe3c5196a4e3b01c89f2a4c20437fc7",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8300,7 +8300,7 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "daa5b7a1025e6e4b893e238ff88b4e253fe3c5196a4e3b01c89f2a4c20437fc7",
+  "tree_hash": "abfcd00930f97351d0d0d879df7fc20509d0226604391db4fd9601585b5737e0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8316,13 +8316,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e233c641c2816a50252218f6074a30b42278d7006ebc635c7df65fdc7e98bf3e",
+      "sha256": "2eee0a13e5e8fe233ef15739d02573b25ec10cb16b75657926613fea559c440f",
       "size": 527014
     },
     {
       "path": "log.md",
-      "sha256": "8c3bb9d20af325f8fd87b7e59211398763906ebef9d2ea9f7e9c186cd590cffb",
-      "size": 985309
+      "sha256": "fdda042df0e609ea6e4d05bac731211f0b6d204f6f5af910103e6df6eb1b984e",
+      "size": 985597
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10536,8 +10536,8 @@
     },
     {
       "path": "pages/systems/engineering-home.md",
-      "sha256": "c5e7fec25ccd579449d7f1b73d2e45bedabcf5c1481ca7cd25c2d0ae6e408524",
-      "size": 2084
+      "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
+      "size": 1665
     },
     {
       "path": "pages/systems/event-indexing-workflow.md",
@@ -10751,5 +10751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4ecfa2e2b82eb725b33fa7b9775712f54b49113b13469bca43e0f3157114377f"
+  "wiki_tree_hash": "8d0029471d2dce92e033d34fef9b7a0be95449a8c81a76db9cc1bbf5bd00a9e8"
 }
