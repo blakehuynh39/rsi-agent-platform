@@ -20622,3 +20622,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4978ccbb74343b4ade7d513945f2efb8
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-09T08:36:14Z] synthesis | HOW-TO Series
+
+- status: published
+- slug: concepts/how-to-series
+- wiki_revision_id: wikirev_d860a841e47c208c7106f7967ae8b549
+- summary: A collection of how-to guides covering SSH, GitHub commit signing, bastion hosts, and Cloudflare Zero Trust.
+
