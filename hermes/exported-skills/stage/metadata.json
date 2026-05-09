@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f68034a5653fe61bb993e2a69d1f6ac2cfdba4b519a67cd63a43d300f5bf91bb",
-        "size": 530196
+        "sha256": "b05daca0bd986fd350b60089750bc26a52b8ba33f5bcea187ce773ba5da0a849",
+        "size": 530539
       },
       {
         "path": "log.md",
-        "sha256": "19a0c38466294a7fed01ab46d98ba59339375d5bfd5835824a29107619b977f6",
-        "size": 990476
+        "sha256": "fdbaf1e2e7a2aca84cc032f0ab1f455929adb61ea247aab2e949e17b8199a060",
+        "size": 990831
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4123,6 +4123,11 @@
         "path": "pages/projects/address-p1-dogfooding-issues.md",
         "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
         "size": 1074
+      },
+      {
+        "path": "pages/projects/ai-inference-deployment-research-process.md",
+        "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
+        "size": 5454
       },
       {
         "path": "pages/projects/airdrop-claim.md",
@@ -5409,8 +5414,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T15:55:50Z",
-  "file_count": 1080,
+  "exported_at": "2026-05-09T16:07:08Z",
+  "file_count": 1081,
   "files": [
     {
       "path": ".curator_state",
@@ -8332,7 +8337,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "68a3ee7b2e91f7fc5cbfb20fc891d253ff6b5264fb8bea1946b213abbdedc984",
+  "previous_tree_hash": "56a0642de36ccdb350684b05a9a7ddb3b1ae573f4ee997f9e6151350a1bc2877",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8345,14 +8350,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "56a0642de36ccdb350684b05a9a7ddb3b1ae573f4ee997f9e6151350a1bc2877",
+  "tree_hash": "3083517b40091468049f9d8ba23b495d601f592a0de4836ad1ed7f91a315db1a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 497,
+  "wiki_file_count": 498,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8361,13 +8366,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f68034a5653fe61bb993e2a69d1f6ac2cfdba4b519a67cd63a43d300f5bf91bb",
-      "size": 530196
+      "sha256": "b05daca0bd986fd350b60089750bc26a52b8ba33f5bcea187ce773ba5da0a849",
+      "size": 530539
     },
     {
       "path": "log.md",
-      "sha256": "19a0c38466294a7fed01ab46d98ba59339375d5bfd5835824a29107619b977f6",
-      "size": 990476
+      "sha256": "fdbaf1e2e7a2aca84cc032f0ab1f455929adb61ea247aab2e949e17b8199a060",
+      "size": 990831
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9558,6 +9563,11 @@
       "path": "pages/projects/address-p1-dogfooding-issues.md",
       "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
       "size": 1074
+    },
+    {
+      "path": "pages/projects/ai-inference-deployment-research-process.md",
+      "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
+      "size": 5454
     },
     {
       "path": "pages/projects/airdrop-claim.md",
@@ -10841,5 +10851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cba7b31a967059fb3ecaa09b6a10bae42409a001d4faf80e27c609551b803c84"
+  "wiki_tree_hash": "cf53310c2dd1e41282223759a4267734cedf031af415d0e06934b0910c6eb056"
 }

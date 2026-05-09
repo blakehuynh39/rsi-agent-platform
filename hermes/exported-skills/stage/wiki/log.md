@@ -20818,3 +20818,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_976d1f2ba54057f995f64dd957f44f75
 - summary: Trident v0.1.0 release details including dependencies, devnet configuration, and platform APIs.
 
+## [2026-05-09T16:06:31Z] synthesis | AI Inference & Deployment Research Process
+
+- status: published
+- slug: projects/ai-inference-deployment-research-process
+- wiki_revision_id: wikirev_50c08dc13e1a81736470cba7a97167dd
+- summary: Research process and topics for the Story AI team focusing on inference and deployment, as outlined in a Notion document.
+
