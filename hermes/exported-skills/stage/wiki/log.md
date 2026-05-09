@@ -20755,3 +20755,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c299130e68e5ce0754af04098569cf0c
 - summary: The Lion Team is a group with members, initiatives tracked in a Milestones database, and tasks managed via GitHub project #4. It includes the Internal Agentic Initiative.
 
+## [2026-05-09T12:32:39Z] synthesis | Poseidon Storage Network
+
+- status: published
+- slug: systems/poseidon-storage-network
+- wiki_revision_id: wikirev_bdfbc614ea5ba02f81cfe175d91e15bc
+- summary: Poseidon is a decentralized storage network composed of Subnets, each containing Storage Nodes. It uses a terminology mapping to Walrus concepts (Bucket/Shard, Chunk/Sliver, Data O...
+

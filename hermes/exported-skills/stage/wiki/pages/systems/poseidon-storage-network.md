@@ -7,7 +7,7 @@ tags:
   - "decentralized"
   - "poseidon"
   - "storage"
-  - "subnet"
+  - "walrus"
 owners: []
 source_revision_ids:
   - "srcrev_893cdeb6d994e5e4fb67cb4bf90f0d02"
@@ -18,7 +18,7 @@ conflict_state: "none"
 
 ## Summary
 
-Poseidon is a decentralized storage network composed of Subnets, each containing Storage Nodes. It uses a terminology mapping to Walrus concepts (Bucket/Shard, Chunk/Sliver, Data Object/Blob). The system involves Subnet Owners, Storage Node Owners, and Poseidon Admin/Governance roles, with staking, rewards, and governance mechanisms.
+Poseidon is a decentralized storage network composed of Subnets, each containing Storage Nodes. It uses a terminology mapping to Walrus concepts (Bucket/Shard, Chunk/Sliver, Data Object/Blob). Subnet Owners stake $IP to register Subnets, while Storage Node Owners stake $POS to register nodes and earn rewards from storage fees and token emissions. Rewards are distributed at epoch end, claimable via the Poseidon staking dApp, and governance is handled on-chain by node operators and $POS holders.
 
 ## Claims
 
@@ -51,6 +51,6 @@ Poseidon is a decentralized storage network composed of Subnets, each containing
 
 ## Sources
 
-- `source_document_id`: `srcdoc_a1b0c815c404e6c66944c86a7fc49f8a`
-- `source_revision_id`: `srcrev_893cdeb6d994e5e4fb67cb4bf90f0d02`
-- `source_url`: [Notion source](https://www.notion.so/Poseidon-Storage-Network-User-Story-1e6051299a548038ace4ccb546cf51a4)
+- `source_document_id`: `srcdoc_683b26ff8e22a13fcfae6685e34b8738`
+- `source_revision_id`: `srcrev_240be06afc1f5df53ac995e75043bdb5`
+- `source_url`: [Notion source](https://www.notion.so/Walrus-1c4051299a5480578fb9eb7d01f795f8)
