@@ -21000,3 +21000,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c8e2d974e0f7df381dd8c1440c9f7dee
 - summary: Decision to adopt BSL 1.1 for core code, with legal review and business decision pending. Comparison of licenses used by similar projects (Uniswap, Lens, OpenZeppelin).
 
+## [2026-05-09T22:33:07Z] synthesis | ERC NFT Standards Index
+
+- status: published
+- slug: concepts/erc-nft-standards-index
+- wiki_revision_id: wikirev_90004078570fa713ff83f7bac2a5d33d
+- summary: A curated list of Ethereum Request for Comments (ERCs) related to Non-Fungible Tokens (NFTs), including draft proposals and links to research roundtable recordings.
+
