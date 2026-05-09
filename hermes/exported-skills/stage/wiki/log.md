@@ -20671,3 +20671,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9d2682314692d0d0d616bf6e6d8d27e0
 - summary: Index page for the Infrastructure Team's documentation, containing links to various guides, knowledge base articles, and design documents. Marked as OLD, likely superseded.
 
+## [2026-05-09T10:06:05Z] synthesis | Unified IP Account
+
+- status: published
+- slug: concepts/unified-ip-account
+- wiki_revision_id: wikirev_f36c66555f2a3d7192decd4aff7f9728
+- summary: Unified IP Accounts provide a contract-based representation of IP, enabling unified handling of relationships between IP NFTs and SP Assets for both new collections and existing ex...
+
