@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "02a741164037c16e9aad9a331cf288709c21b293e93f92edec1d75a335884a71",
-        "size": 981669
+        "sha256": "50e02a47f18b56da2416d901074e62310b6815df858381b60f347265f80074da",
+        "size": 982016
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3988,6 +3988,11 @@
         "path": "pages/policies/github-permissions-policy.md",
         "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
         "size": 11511
+      },
+      {
+        "path": "pages/policies/governance-actions-story-protocol.md",
+        "sha256": "864c83ca5c2dd320a5227080af066b8f0a674e08aebdf79863a306b21265bc48",
+        "size": 4318
       },
       {
         "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
@@ -5339,8 +5344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T09:12:31Z",
-  "file_count": 1066,
+  "exported_at": "2026-05-09T09:23:46Z",
+  "file_count": 1067,
   "files": [
     {
       "path": ".curator_state",
@@ -8262,7 +8267,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "78b94cb639d276187fa7a63c9cce2cc72f2fb7523b3b6d92fee21693cc14830c",
+  "previous_tree_hash": "d1b8727514a9e93df56d9bed9ffb7d5be6313bfb7a0e7228040fa10867d6ef62",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8275,14 +8280,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d1b8727514a9e93df56d9bed9ffb7d5be6313bfb7a0e7228040fa10867d6ef62",
+  "tree_hash": "188eec42ba7dea4f4e1caa108f01d73d2c29b400841c0d7b628558edd2795523",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 483,
+  "wiki_file_count": 484,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8296,8 +8301,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "02a741164037c16e9aad9a331cf288709c21b293e93f92edec1d75a335884a71",
-      "size": 981669
+      "sha256": "50e02a47f18b56da2416d901074e62310b6815df858381b60f347265f80074da",
+      "size": 982016
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9353,6 +9358,11 @@
       "path": "pages/policies/github-permissions-policy.md",
       "sha256": "8c961bc80712faf55e733a2ae23c86c5da0c1db1b3f5149550dd495bfff11320",
       "size": 11511
+    },
+    {
+      "path": "pages/policies/governance-actions-story-protocol.md",
+      "sha256": "864c83ca5c2dd320a5227080af066b8f0a674e08aebdf79863a306b21265bc48",
+      "size": 4318
     },
     {
       "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
@@ -10701,5 +10711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "977c9fa447c7d1da90a9a6ae92fb91f364eff10aeb19d740483da18c5c3bb13a"
+  "wiki_tree_hash": "32a2bd8731ed117d83346ac3cea80956e0afdfbb341a6a795a4819d26376164a"
 }

@@ -20636,3 +20636,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3eadb723c380bb2264378fb09ad95a55
 - summary: Guide for setting up an Account Abstraction (AA) wallet using ZeroDev SDK, Pimlico bundler/paymaster, and Viem on Sepolia testnet. Covers wallet initialization with master and regu...
 
+## [2026-05-09T09:21:04Z] synthesis | Governance Actions for Story Protocol
+
+- status: published
+- slug: policies/governance-actions-story-protocol
+- wiki_revision_id: wikirev_eef963a4d32bf3a56cac43e328273249
+- summary: List of admin actions requiring governance for Story Protocol smart contracts, with the goal of progressive decentralization.
+
