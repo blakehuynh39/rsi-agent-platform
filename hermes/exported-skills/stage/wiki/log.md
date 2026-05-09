@@ -20951,3 +20951,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_830a3a59af2df9f0014cefa3a9aef5c4
 - summary: Key company milestones and events for 2025, including L1 TGE, IP token listing, Portal launches, Poseidon development phases, engineering crunch times, leadership offsites, and maj...
 
+## [2026-05-09T19:51:10Z] synthesis | Decentralized Audio Workflow
+
+- status: published
+- slug: projects/decentralized-audio-workflow
+- wiki_revision_id: wikirev_17073b9a66c4025e1c156862ca4f8b24
+- summary: Design for a smart-contract-based audio processing workflow to migrate the Poseidon audio processing pipeline to the Proteus devnet.
+

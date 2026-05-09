@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7db1b63d39835e0cd1bd09a825cd6917f108401d94ee62a431cf0cec54cff9b5",
-        "size": 535171
+        "sha256": "0948c07d5c4929251927eb929ee0de1afb491da85683dd267afa2ea17f186ddc",
+        "size": 535499
       },
       {
         "path": "log.md",
-        "sha256": "c6c0b7ec942a514470762b039d8c75e32bd5041c02bd516a101f370824c556ee",
-        "size": 997166
+        "sha256": "1da22d6d26b877f43e88b484e76d78ca2a3f3b890b63e3aed2b5483292d77016",
+        "size": 997506
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4230,6 +4230,11 @@
         "size": 9244
       },
       {
+        "path": "pages/projects/decentralized-audio-workflow.md",
+        "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
+        "size": 8405
+      },
+      {
         "path": "pages/projects/depin-ai-data-research-initiative.md",
         "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
         "size": 4616
@@ -5479,8 +5484,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T19:44:27Z",
-  "file_count": 1094,
+  "exported_at": "2026-05-09T19:55:45Z",
+  "file_count": 1095,
   "files": [
     {
       "path": ".curator_state",
@@ -8402,7 +8407,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "8ab3b99440db09f4242818174f0fff2b57ad04c68c4e537b8642c1b4138436a9",
+  "previous_tree_hash": "269fe12141d6439d37e2b8aecabe19b620a5478f555bcae9763f08d8b9d68395",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8415,14 +8420,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "269fe12141d6439d37e2b8aecabe19b620a5478f555bcae9763f08d8b9d68395",
+  "tree_hash": "5c35c14b43174241412a3a02c66761a63abf467df1ea2b7beb70059b396b3c83",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 511,
+  "wiki_file_count": 512,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8431,13 +8436,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7db1b63d39835e0cd1bd09a825cd6917f108401d94ee62a431cf0cec54cff9b5",
-      "size": 535171
+      "sha256": "0948c07d5c4929251927eb929ee0de1afb491da85683dd267afa2ea17f186ddc",
+      "size": 535499
     },
     {
       "path": "log.md",
-      "sha256": "c6c0b7ec942a514470762b039d8c75e32bd5041c02bd516a101f370824c556ee",
-      "size": 997166
+      "sha256": "1da22d6d26b877f43e88b484e76d78ca2a3f3b890b63e3aed2b5483292d77016",
+      "size": 997506
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9735,6 +9740,11 @@
       "size": 9244
     },
     {
+      "path": "pages/projects/decentralized-audio-workflow.md",
+      "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
+      "size": 8405
+    },
+    {
       "path": "pages/projects/depin-ai-data-research-initiative.md",
       "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
       "size": 4616
@@ -10981,5 +10991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ca9a05fa17a7ae4f5adfa8e53f75a2dbcd7bb662538fd1e15af5f20173f1faa2"
+  "wiki_tree_hash": "dc3eb713f31d01e882d4d02c89722d6aa79ed1c681b7a0634448ffa5b1cba27d"
 }
