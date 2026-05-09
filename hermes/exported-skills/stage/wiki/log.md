@@ -20468,3 +20468,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8aff9d152cfe35e5093d823bbbb2fa26
 - summary: Architectural review of the beta protocol covering alpha architecture recap, principles-first rearchitecting, and example use-cases. Key decisions include abandoning IPOrgs, restru...
 
+## [2026-05-09T02:47:01Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_1fa0d2d0a01cc9cdb505dc8e526823c6
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
+## [2026-05-09T02:47:01Z] synthesis | Infrastructure Tradeoffs
+
+- status: published
+- slug: concepts/infrastructure-tradeoffs
+- wiki_revision_id: wikirev_9edd2953c3febe536f2c83aa78c8b404
+- summary: Discussion on testnet vs mainnet launch and L1 vs L2 deployment for the Story Protocol, including considerations for value accrual, data storage, and interoperability.
+

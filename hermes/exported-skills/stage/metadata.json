@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2aabf65d8dd53fba77c4832133f8fedb57949308237ad7bfd4488a4301777e36",
-        "size": 521101
+        "sha256": "c5e606e7b9caf44e9fd21e24193e1c7915de4c7199f19b2edac0bef89cbd196d",
+        "size": 521456
       },
       {
         "path": "log.md",
-        "sha256": "0ed7907ba4ac7d8553d4326b0dec0e1e8c9c16f95bcf2d879ca9c564fc23a953",
-        "size": 973236
+        "sha256": "2184fd6fa75ffe051f0f33253205d1eb1f958cfa66b3da013005c1fddec7a612",
+        "size": 973958
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3185,6 +3185,11 @@
         "size": 1950
       },
       {
+        "path": "pages/concepts/infrastructure-tradeoffs.md",
+        "sha256": "16650292f57ca7200c74fda837e603ae7cd8f63375c9c1246e7a39da2e338d03",
+        "size": 3610
+      },
+      {
         "path": "pages/concepts/interops-research-hub.md",
         "sha256": "a34aeb5c813e84a043d31e9b52ee226190d92a696d816460056313e7a966bbf6",
         "size": 4517
@@ -3431,8 +3436,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "10a6db5d220479309e71e386bb92d33324d251d4c2e94ffe144c9e760b1efbad",
-        "size": 3815
+        "sha256": "d75b63da1da4735f99d07204acc32d40f9fdd60f6bfc31b1ec305bd9438e562e",
+        "size": 3849
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -5279,8 +5284,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T02:10:27Z",
-  "file_count": 1054,
+  "exported_at": "2026-05-09T02:52:00Z",
+  "file_count": 1055,
   "files": [
     {
       "path": ".curator_state",
@@ -8202,7 +8207,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "d0c75b98a8ee74d233da8943c5c6db2df312b5d6cf66d1ad65832fdc1120c15b",
+  "previous_tree_hash": "445e4504073c19f63c2039c3c210001ddcdde8376f7e8108bdb19c79a675ae74",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8215,14 +8220,14 @@
   ],
   "skill_tree_hash": "7c59fb7ec52aa82b28e9bd616dc2f22179464721bc3aa09846b63ad54788ad96",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "445e4504073c19f63c2039c3c210001ddcdde8376f7e8108bdb19c79a675ae74",
+  "tree_hash": "c8b1a5f6562a9aecd5f98232e4cc0a93e0e0fdefbc2ff28fa9ab8a51d2d48bfb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 471,
+  "wiki_file_count": 472,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8231,13 +8236,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2aabf65d8dd53fba77c4832133f8fedb57949308237ad7bfd4488a4301777e36",
-      "size": 521101
+      "sha256": "c5e606e7b9caf44e9fd21e24193e1c7915de4c7199f19b2edac0bef89cbd196d",
+      "size": 521456
     },
     {
       "path": "log.md",
-      "sha256": "0ed7907ba4ac7d8553d4326b0dec0e1e8c9c16f95bcf2d879ca9c564fc23a953",
-      "size": 973236
+      "sha256": "2184fd6fa75ffe051f0f33253205d1eb1f958cfa66b3da013005c1fddec7a612",
+      "size": 973958
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8490,6 +8495,11 @@
       "size": 1950
     },
     {
+      "path": "pages/concepts/infrastructure-tradeoffs.md",
+      "sha256": "16650292f57ca7200c74fda837e603ae7cd8f63375c9c1246e7a39da2e338d03",
+      "size": 3610
+    },
+    {
       "path": "pages/concepts/interops-research-hub.md",
       "sha256": "a34aeb5c813e84a043d31e9b52ee226190d92a696d816460056313e7a966bbf6",
       "size": 4517
@@ -8736,8 +8746,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "10a6db5d220479309e71e386bb92d33324d251d4c2e94ffe144c9e760b1efbad",
-      "size": 3815
+      "sha256": "d75b63da1da4735f99d07204acc32d40f9fdd60f6bfc31b1ec305bd9438e562e",
+      "size": 3849
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -10581,5 +10591,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67ba619e0584ca51be6625e2bfbfbf77b1bb0a63474202c5f31df8c0eb69f09c"
+  "wiki_tree_hash": "329e071cf359cb2896bfd27f397ed0f298d412e0274acd481ad91d78dfcfcad4"
 }
