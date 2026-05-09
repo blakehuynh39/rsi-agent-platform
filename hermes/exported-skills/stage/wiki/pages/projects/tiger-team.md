@@ -3,7 +3,11 @@ title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T00:23:00Z"
-tags: []
+tags:
+  - "apps"
+  - "data-ecosystem"
+  - "depin"
+  - "voice"
 owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
@@ -15,7 +19,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps and planning documents.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications, planning documents, and development resources.
 
 ## Claims
 
@@ -38,8 +42,12 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 - DePIN Admin has a proof-of-concept web app at https://human-agent-poc-web.vercel.app/. `claim:claim_1_9` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a) `source_document_id=srcdoc_368feb26bfb0baebfb1c30d01ffccbe1` `source_revision_id=srcrev_044c3891ab0bcf24d56f2c2e37ce8361` `chunk_id=srcchunk_e413b17f694e24326db5616e0bfc83d1` `native_locator=https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a` `source_timestamp=2026-03-23T21:50:00Z`
 
+## Related Pages
+
+- `projects/list-of-potential-apps`
+
 ## Sources
 
-- `source_document_id`: `srcdoc_368feb26bfb0baebfb1c30d01ffccbe1`
-- `source_revision_id`: `srcrev_044c3891ab0bcf24d56f2c2e37ce8361`
-- `source_url`: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a)
+- `source_document_id`: `srcdoc_af1ff5c9adbe33bc4da78c8b0aaf0e20`
+- `source_revision_id`: `srcrev_b6d7e2be71d64caa4734c9c58fbd4547`
+- `source_url`: [Notion source](https://www.notion.so/List-of-Potential-Apps-327051299a548057b7e9cec4190dfed5)
