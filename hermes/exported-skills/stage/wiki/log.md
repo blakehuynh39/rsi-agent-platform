@@ -20839,3 +20839,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_00f3e30460c2553411c8e913115b3201
 - summary: A research initiative to evaluate and incubate an AI infrastructure project on top of Story Protocol, aiming to showcase IP value, increase transaction volume, and potentially intr...
 
+## [2026-05-09T16:38:28Z] synthesis | DePIN AI Data Research Initiative
+
+- status: published
+- slug: projects/depin-ai-data-research-initiative
+- wiki_revision_id: wikirev_9cfe7bd18ed3a1addecbf25679a4d4ca
+- summary: A research initiative to explore DePIN-based data collection for AI and robotics training, evaluate existing players, identify data consumers, and propose Story Protocol integratio...
+

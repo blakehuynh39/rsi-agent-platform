@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2bc1746635635dd0baf57e741f8319b13eba559d4a406ff8ceb80349db441f15",
-        "size": 531328
+        "sha256": "575cde34fa3ad4f0faef15a6a37c66076bb04794cb7adf04fb50c38f64ba4e3c",
+        "size": 531717
       },
       {
         "path": "log.md",
-        "sha256": "d2c78de7c7efc39957996eeaef675c4f1f722aff6a551c4284e265612786730b",
-        "size": 991644
+        "sha256": "9017ad9fb42506dcc77ed3e9aea5c7df135586f8a39996549df3e981d061ff7e",
+        "size": 992045
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4205,6 +4205,11 @@
         "size": 9244
       },
       {
+        "path": "pages/projects/depin-ai-data-research-initiative.md",
+        "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
+        "size": 4616
+      },
+      {
         "path": "pages/projects/depin-application-season-one.md",
         "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
         "size": 1270
@@ -5424,8 +5429,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T16:24:35Z",
-  "file_count": 1083,
+  "exported_at": "2026-05-09T16:40:54Z",
+  "file_count": 1084,
   "files": [
     {
       "path": ".curator_state",
@@ -8347,7 +8352,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "37cf07ac6ce77ca7a885624796a06c47b810f6d8f04a4d740940f3f8fd6413db",
+  "previous_tree_hash": "1597d8773d3e9e8889862d467b569cdee0e620439a78ebc728a21baf69151e1a",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8360,14 +8365,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1597d8773d3e9e8889862d467b569cdee0e620439a78ebc728a21baf69151e1a",
+  "tree_hash": "d65f85477e9620caaeb210a5eaffd68fb6974d3f4969e75ff1c34f25d95410b6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 500,
+  "wiki_file_count": 501,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8376,13 +8381,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2bc1746635635dd0baf57e741f8319b13eba559d4a406ff8ceb80349db441f15",
-      "size": 531328
+      "sha256": "575cde34fa3ad4f0faef15a6a37c66076bb04794cb7adf04fb50c38f64ba4e3c",
+      "size": 531717
     },
     {
       "path": "log.md",
-      "sha256": "d2c78de7c7efc39957996eeaef675c4f1f722aff6a551c4284e265612786730b",
-      "size": 991644
+      "sha256": "9017ad9fb42506dcc77ed3e9aea5c7df135586f8a39996549df3e981d061ff7e",
+      "size": 992045
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9655,6 +9660,11 @@
       "size": 9244
     },
     {
+      "path": "pages/projects/depin-ai-data-research-initiative.md",
+      "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
+      "size": 4616
+    },
+    {
       "path": "pages/projects/depin-application-season-one.md",
       "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
       "size": 1270
@@ -10871,5 +10881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9559db7b3f8acd19fb2043e68751632812f25828a4360f9f2c8776a1b42d7098"
+  "wiki_tree_hash": "d962748c117cca625ee70be627b342cef15c054e0345e6fa29e94b3e1850ccd9"
 }
