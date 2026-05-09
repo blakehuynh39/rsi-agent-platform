@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "53e1759479fa5b936e9f564b042adc14634cd6d2b6b3602453d9d57c3a050948",
-        "size": 536626
+        "sha256": "7df943f8397dd6e1904196be3df672cb2dcbf01f16d0cbbf0f2ea1a167934978",
+        "size": 536956
       },
       {
         "path": "log.md",
-        "sha256": "6abe8baee0a5a82a6b6442b530a0ee4395ea726f179822182c3c5f84e3d71f5a",
-        "size": 998989
+        "sha256": "5fbc9528cf973403a990e68269fd720960393e6116ce9411a07bdf33b3b8deb9",
+        "size": 999331
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5420,6 +5420,11 @@
         "size": 5934
       },
       {
+        "path": "pages/systems/rds-table-schema.md",
+        "sha256": "75919590cdb1a88b09ae4eab3ad86353c0e7c9a0b7b6a73c5699cc788a6d7c5d",
+        "size": 4972
+      },
+      {
         "path": "pages/systems/reward-backward-compatibility-patch.md",
         "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
         "size": 6925
@@ -5499,8 +5504,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T21:07:27Z",
-  "file_count": 1098,
+  "exported_at": "2026-05-09T21:23:56Z",
+  "file_count": 1099,
   "files": [
     {
       "path": ".curator_state",
@@ -8422,7 +8427,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "c72c5a14204d9d2872d179a0e8bbf785762f29509082f1916999a1060b5ad5c5",
+  "previous_tree_hash": "e3fc78d7a9a69d55b41661d186abab81e1de8159e1d1590df7627ec518fa38b3",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8435,14 +8440,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e3fc78d7a9a69d55b41661d186abab81e1de8159e1d1590df7627ec518fa38b3",
+  "tree_hash": "1140dc7e95ac52107728b78ed8e0f30f59692fdd215615fda1b760f41d4e54db",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 515,
+  "wiki_file_count": 516,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8451,13 +8456,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "53e1759479fa5b936e9f564b042adc14634cd6d2b6b3602453d9d57c3a050948",
-      "size": 536626
+      "sha256": "7df943f8397dd6e1904196be3df672cb2dcbf01f16d0cbbf0f2ea1a167934978",
+      "size": 536956
     },
     {
       "path": "log.md",
-      "sha256": "6abe8baee0a5a82a6b6442b530a0ee4395ea726f179822182c3c5f84e3d71f5a",
-      "size": 998989
+      "sha256": "5fbc9528cf973403a990e68269fd720960393e6116ce9411a07bdf33b3b8deb9",
+      "size": 999331
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10945,6 +10950,11 @@
       "size": 5934
     },
     {
+      "path": "pages/systems/rds-table-schema.md",
+      "sha256": "75919590cdb1a88b09ae4eab3ad86353c0e7c9a0b7b6a73c5699cc788a6d7c5d",
+      "size": 4972
+    },
+    {
       "path": "pages/systems/reward-backward-compatibility-patch.md",
       "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
       "size": 6925
@@ -11021,5 +11031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3526997d88af04a806bfb2d8c8cd5be2e44a403b3cca10ee025e72d0cbadae50"
+  "wiki_tree_hash": "2f2dcc1e98c2c0a422bee8fa18073758e4351ebd3304358234078378343433d4"
 }

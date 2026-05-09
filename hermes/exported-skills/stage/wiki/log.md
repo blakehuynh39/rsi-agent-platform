@@ -20986,3 +20986,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_09dfb0a624edb31eb3b498941cbf769b
 - summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
 
+## [2026-05-09T21:20:50Z] synthesis | RDS Table Schema (March 2023)
+
+- status: published
+- slug: systems/rds-table-schema
+- wiki_revision_id: wikirev_abf2ba9799cba9e71fb9125dcb2e0c5a
+- summary: Overview of the RDS table schema as of March 2023, covering story-related, NFT-related, and wallet-related tables, along with relationship tables.
+
