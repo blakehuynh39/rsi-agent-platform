@@ -20692,3 +20692,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f281b5fcde1019068d927edf8e13c573
 - summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
 
+## [2026-05-09T10:50:16Z] synthesis | Mainnet Deployment and OpSec
+
+- status: published
+- slug: projects/mainnet-deployment-and-opsec
+- wiki_revision_id: wikirev_2458c90228d1c448c2a0bd6d60bf2625
+- summary: Project tracking mainnet deployment tasks and operational security setup, including Gnosis Safe configuration, Defender integration, and security monitoring runbooks.
+
