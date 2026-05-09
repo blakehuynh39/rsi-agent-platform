@@ -53,6 +53,36 @@ ORDER BY unique_users DESC
 
 This returns the full distribution in a few rows (one per distinct unique_user count) and fits well within the 100-row cap.
 
+## Query 4: Per-Campaign Histogram (All Active Campaigns)
+
+Generalizes Query 3 to all active campaigns by adding `campaign_id` to the inner grouping and joining to `campaigns` in the outer query:
+
+```sql
+SELECT 
+    c.id AS campaign_id,
+    c.campaign_name,
+    c.campaign_type,
+    unique_users,
+    COUNT(*) AS script_count
+FROM (
+    SELECT 
+        s.campaign_id,
+        s.id AS script_id,
+        COUNT(DISTINCT sub.user_id) AS unique_users
+    FROM scripts s
+    LEFT JOIN script_assignments sa ON sa.script_id = s.id
+    LEFT JOIN submissions sub ON sub.script_assignment_id = sa.id
+    WHERE s.is_active = true
+    GROUP BY s.campaign_id, s.id
+) AS per_script
+JOIN campaigns c ON c.id = per_script.campaign_id
+WHERE c.is_active = true
+GROUP BY c.id, c.campaign_name, c.campaign_type, unique_users
+ORDER BY c.campaign_name, unique_users DESC
+```
+
+**Pitfall**: The campaigns table uses `campaign_name` and `campaign_type`, not `name` and `type`. Always verify with `information_schema.columns` before joining.
+
 ## Findings (2026-05-08)
 
 ### Stage (depin-stage)
@@ -88,3 +118,24 @@ Campaign: "Vietnamese Voice Data Collection" (`eed9e514`):
 ### Key Insight
 
 The per-script cap of 9 unique users, combined with ~1,000 scripts and 849 users, explains the submission volume almost exactly. Each user can submit to at most 9 different scripts (or each script accepts at most 9 users), producing 7,078 submissions from a theoretical max of ~7,641.
+
+### All-Campaign Distribution (2026-05-08 ~21:00 UTC, depin-prod)
+
+Query 4 returned 25 rows covering all 5 active campaigns — all `campaign_type = 'voice'`:
+
+| Campaign | Active Scripts | Scripts Used (≥1) | Utilization | Total User-Script Pairs |
+|---|---|---|---|---|
+| Vietnamese | 2,000 | 1,999 | 99.95% | 12,815 |
+| Hindi | 350,000 | 103,061 | 29.4% | 103,084 |
+| Bengali | 350,000 | 85,569 | 24.4% | 85,583 |
+| Telugu | 350,000 | 39,636 | 11.3% | 39,649 |
+| Tamil | 350,000 | 34,474 | 9.8% | 34,487 |
+
+**Vietnamese** (2,000 scripts): Rich distribution centered at 3–4 unique users (mode: 4, 27.5%), range 0–12. Nearly saturated — only 1 script with 0 users. 12,815 total user-script pairs.
+
+**Hindi / Bengali / Telugu / Tamil** (350,000 scripts each): Massively front-loaded. 70.6–90.2% of scripts have 0 unique users. Nearly all used scripts have exactly 1 unique user. Only 13–23 scripts per campaign have reached 2 users. These pools were bulk-loaded for future scale.
+
+Key takeaways:
+- Vietnamese is a mature, saturated campaign — users are cycling through the per-script cap
+- The other four campaigns have enormous headroom — their 350K script pools are barely touched
+- The `campaigns` table uses `campaign_name` and `campaign_type`, not `name`/`type` as documentation suggests

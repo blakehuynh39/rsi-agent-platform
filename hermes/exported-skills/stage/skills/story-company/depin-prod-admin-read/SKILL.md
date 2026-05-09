@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin stats through admin REST reads and native approved DB reads."
-version: 1.4.0
+version: 1.5.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, db-read]
@@ -29,7 +29,7 @@ There are two separate read paths. Pick one deliberately and do not mix their re
 
 For language-related counts, be precise about semantics. `/v1/admin/cohorts/languages` groups by `users.primary_language`; direct SQL against `scripts.language_code` counts transcript/script records. These are different questions and can return different numbers.
 
-For per-transcript distribution queries (e.g., "how many unique users submitted to each Vietnamese script"), see `references/vi-transcript-queries.md` for the full join pattern, histogram query, and cross-validation technique.
+For per-transcript distribution queries (e.g., "how many unique users submitted to each Vietnamese script"), see `references/vi-transcript-queries.md` for the full join pattern, histogram query, and cross-validation technique. For per-campaign multi-language transcript distribution queries, the same file now includes Query 4 (per-campaign histogram) which generalizes the pattern to all active campaigns.
 
 ## Native DB Read Rules
 
@@ -62,6 +62,8 @@ For per-transcript distribution queries (e.g., "how many unique users submitted 
 - **`cohorts/languages` uses `users.primary_language`, not campaign language.** For campaign-scoped language counts, find the campaign by `supported_languages` in `/v1/admin/campaigns`, then paginate `/v1/admin/submissions?campaign_id=X` or use native DB read when exact SQL is appropriate. Full enumeration technique and script: `references/campaign-language-filtering.md`.
 - **`range=1d` on cohorts/languages may return empty.** The `1d` range has been observed returning `items: []` (zero items for all languages) even when `7d`, `30d`, and `all` return populated results. This may be a UTC day boundary issue — the window may require a full calendar day to have elapsed. When `1d` returns empty, fall back to `7d` or `all` and note the gap in the response.
 - **Submission counts can fluctuate rapidly during active ingestion.** Per-language submission counts on cohorts/languages may shift significantly within hours — observed jumps of 3× to 10× for a single language in one session. When answering the same question across multiple traces, always re-query the live API rather than relying on the prior trace's numbers. Note any growth since prior runs so the user understands the metric is volatile.
+- **`campaigns` table uses `campaign_name` and `campaign_type`, not `name` and `type`.** The documentation in `docs/architecture/database.md` uses `name` in the table description, but the live production column is `campaign_name`. Always verify column names with `information_schema.columns` before joining campaigns to other tables — a `SELECT column_name FROM information_schema.columns WHERE table_name = 'campaigns'` is cheap and avoids a wasted approval cycle.
+- **Campaign scripts are bulk-loaded — expect large counts.** Active campaigns may have 350K+ scripts each. The histogram query (group by unique_user count after the DISTINCT subquery) compresses this into a handful of rows and fits easily within the 100-row cap. Direct per-script listing will hit the cap.
 
 ## Source Of Truth
 
@@ -89,7 +91,9 @@ For per-transcript distribution queries (e.g., "how many unique users submitted 
     - request blocked before reaching depin
     - stats key hitting a non-stats endpoint
 11. Prefer `https://depin.storyprotocol.net` for production Numo/depin stats. Do not switch to staging APIs unless the user explicitly asks for staging data.
-12. When REST endpoints are insufficient, use the native DB read path: inspect schema if needed, write one exact read-only SQL query, call `db_read.query`, wait for approval/resume, then answer from the sanitized tool result.
+12. When REST endpoints are insufficient, use the native DB read path:
+    a. **Verify column names first.** If your query joins to `campaigns`, query `SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'campaigns'` — the documentation may say `name` but the live column is `campaign_name`. This 1-row schema query avoids wasting an approval cycle on a typo.
+    b. Inspect schema if needed, write one exact read-only SQL query, call `db_read.query`, wait for approval/resume, then answer from the sanitized tool result.
 
 ## Response Standard
 
