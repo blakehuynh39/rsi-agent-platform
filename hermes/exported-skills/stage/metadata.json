@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bfccce704c703639c090cc6c057a4486228bdec8a0f04d9af67181af6275de9f",
-        "size": 521869
+        "sha256": "66c7e351ebd1fdfe69b59a40590b3b42d46b01ae016782d3284fbb6f1da49f9d",
+        "size": 522212
       },
       {
         "path": "log.md",
-        "sha256": "adc6bbae2ddfe058d33ec0304b10bb370a7a16399c237ec674d4576d5850e2dc",
-        "size": 974383
+        "sha256": "30a7c3534f73fabe47196be447a22750caf22c80d9ccb770bb3d5871bd304e76",
+        "size": 974738
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4665,6 +4665,11 @@
         "size": 2926
       },
       {
+        "path": "pages/projects/tiger-team.md",
+        "sha256": "2a36130396fb4b2d835926fdb93f15a671db5909dba02366e8080e06d5d760c7",
+        "size": 6073
+      },
+      {
         "path": "pages/projects/trident-v0-1-0.md",
         "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
         "size": 1063
@@ -5289,8 +5294,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T03:30:58Z",
-  "file_count": 1056,
+  "exported_at": "2026-05-09T04:22:38Z",
+  "file_count": 1057,
   "files": [
     {
       "path": ".curator_state",
@@ -8212,7 +8217,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "ef5f662db9a6af82dbb86c943dc977c775fe22d48593a1927928f236f32025cb",
+  "previous_tree_hash": "2fabce8494ee9934b60c79dce020f7260d5caf3db318bad20ac808dbe74ee53d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8225,14 +8230,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2fabce8494ee9934b60c79dce020f7260d5caf3db318bad20ac808dbe74ee53d",
+  "tree_hash": "21401bdd505d2b4c351b387e62ce419b66460294d4d706d8ed6ec2427c362bc5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 473,
+  "wiki_file_count": 474,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8241,13 +8246,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bfccce704c703639c090cc6c057a4486228bdec8a0f04d9af67181af6275de9f",
-      "size": 521869
+      "sha256": "66c7e351ebd1fdfe69b59a40590b3b42d46b01ae016782d3284fbb6f1da49f9d",
+      "size": 522212
     },
     {
       "path": "log.md",
-      "sha256": "adc6bbae2ddfe058d33ec0304b10bb370a7a16399c237ec674d4576d5850e2dc",
-      "size": 974383
+      "sha256": "30a7c3534f73fabe47196be447a22750caf22c80d9ccb770bb3d5871bd304e76",
+      "size": 974738
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9980,6 +9985,11 @@
       "size": 2926
     },
     {
+      "path": "pages/projects/tiger-team.md",
+      "sha256": "2a36130396fb4b2d835926fdb93f15a671db5909dba02366e8080e06d5d760c7",
+      "size": 6073
+    },
+    {
       "path": "pages/projects/trident-v0-1-0.md",
       "sha256": "850181491dcc93e43aee53d6ce1b7626a7ba38f406b0d709db576935e0d90f2c",
       "size": 1063
@@ -10601,5 +10611,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72cabfb41dd8cce13e8fade34b4dec3533f3ee42ddc867c8cb5d3086e2d5a37c"
+  "wiki_tree_hash": "cb2f35d87fbf6426941e7c37ad33c8ba80027f2eb2b11dfd733c43ab7a78b85f"
 }

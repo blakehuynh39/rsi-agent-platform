@@ -20489,3 +20489,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d77bcd5281c03dcfa0bf157e6bebe16f
 - summary: Defines the core principles and implementation structure for an open, equitable data access architecture in the Programmable IP ecosystem, centered around the IPAccount data model ...
 
+## [2026-05-09T04:21:12Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_f816394a3342a064004f693870b74a1e
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
