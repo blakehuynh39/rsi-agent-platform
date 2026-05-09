@@ -20426,3 +20426,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8fe11d4ab485a557cc55caa293324805
 - summary: Design for a feature enabling creation and management of groups of IP Assets with a shared royalty pool, common interface, and license management.
 
+## [2026-05-09T00:10:05Z] synthesis | Kubernetes Setup and Operations
+
+- status: published
+- slug: runbooks/kubernetes-setup-and-operations
+- wiki_revision_id: wikirev_89392258e242c302a9a898ece43d0aac
+- summary: Runbook for setting up kubectl access to EKS clusters on macOS, troubleshooting common authentication issues, and configuring EBS CSI driver for persistent volumes.
+
