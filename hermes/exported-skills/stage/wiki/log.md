@@ -20846,3 +20846,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9cfe7bd18ed3a1addecbf25679a4d4ca
 - summary: A research initiative to explore DePIN-based data collection for AI and robotics training, evaluate existing players, identify data consumers, and propose Story Protocol integratio...
 
+## [2026-05-09T17:18:51Z] synthesis | Poseidon MVP Control Plane Contracts Interface
+
+- status: published
+- slug: systems/poseidon-mvp-control-plane-contracts-interface
+- wiki_revision_id: wikirev_d347b492db4c755499d3aa06f3e8d2ae
+- summary: Defines the on-chain control plane contracts for the Poseidon MVP, including terminology, architecture, key workflows (upload object, advance epoch), and the Solidity interface ICo...
+
