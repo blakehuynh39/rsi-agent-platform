@@ -20769,3 +20769,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c76600c20a27ef89e6bc1085f2e1dece
 - summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
 
+## [2026-05-09T14:33:17Z] synthesis | IP Improvement Proposal (IPIP) Template
+
+- status: published
+- slug: concepts/ip-improvement-proposal-template
+- wiki_revision_id: wikirev_1b0b523609794df2246a8434fc776637
+- summary: A standardized template for drafting IP Improvement Proposals (IPIPs), outlining required sections such as Abstract, Motivation, Specification, and Security Considerations.
+

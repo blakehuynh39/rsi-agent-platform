@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b8a870e62ec0fd42aef047b025bcddeb5627ea522c1eeb9abc4a8ca86b7548bd",
-        "size": 988070
+        "sha256": "a6442498a071b008278093aa843a537ca1f1aea9f930e1857a024e8b39b2cb8c",
+        "size": 988465
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3213,6 +3213,11 @@
         "path": "pages/concepts/ip-graph-requirements.md",
         "sha256": "74126f3c910923959f682f6087cc8dd43c2109105e7a1d688431a91c84e07d6d",
         "size": 4116
+      },
+      {
+        "path": "pages/concepts/ip-improvement-proposal-template.md",
+        "sha256": "dc04f077658b857655fbe863d91f2ae457009677c3d57b553aec00d457c87ca9",
+        "size": 3157
       },
       {
         "path": "pages/concepts/ip-oracle.md",
@@ -5379,8 +5384,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T13:13:26Z",
-  "file_count": 1074,
+  "exported_at": "2026-05-09T14:35:29Z",
+  "file_count": 1075,
   "files": [
     {
       "path": ".curator_state",
@@ -8302,7 +8307,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "8e42e12aa2a1ac70f8a7d4bbbec82cc2156a4a54c9adfc52190ae3eaf64e22fa",
+  "previous_tree_hash": "10b7a17a05c1dfe624bf0d85e4b7965d686f8a2747b77bc05d24cf7e01898a94",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8315,14 +8320,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "10b7a17a05c1dfe624bf0d85e4b7965d686f8a2747b77bc05d24cf7e01898a94",
+  "tree_hash": "98c0a27edf1bffc609ff10d5ccdb2d9126cf8f0d5cb8199bc27a508a9a7b7e90",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 491,
+  "wiki_file_count": 492,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8336,8 +8341,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b8a870e62ec0fd42aef047b025bcddeb5627ea522c1eeb9abc4a8ca86b7548bd",
-      "size": 988070
+      "sha256": "a6442498a071b008278093aa843a537ca1f1aea9f930e1857a024e8b39b2cb8c",
+      "size": 988465
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8618,6 +8623,11 @@
       "path": "pages/concepts/ip-graph-requirements.md",
       "sha256": "74126f3c910923959f682f6087cc8dd43c2109105e7a1d688431a91c84e07d6d",
       "size": 4116
+    },
+    {
+      "path": "pages/concepts/ip-improvement-proposal-template.md",
+      "sha256": "dc04f077658b857655fbe863d91f2ae457009677c3d57b553aec00d457c87ca9",
+      "size": 3157
     },
     {
       "path": "pages/concepts/ip-oracle.md",
@@ -10781,5 +10791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cd92669ef7107773c72ea312045ff90a5a3c6396995422c9444dfcf61f85955e"
+  "wiki_tree_hash": "359ebaca03d6bca3fb4c38a92331bfdf808220e384918141f8377cf69521fc80"
 }
