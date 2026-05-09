@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "889c85fc07d14e1f198cdd5eb5112cf170c23a16a9a102736941fb7edd1c7894",
-        "size": 522581
+        "sha256": "a49334c4030421447a806bc149e6205e7d61107e76b8185f555956252203a3c1",
+        "size": 523167
       },
       {
         "path": "log.md",
-        "sha256": "875abb26164b197b61f53b1264748ef4c279f7cdadc3faf566fe78830f00a9f2",
-        "size": 975453
+        "sha256": "a7b97d83dd27978b92620a9240fa1b79a41ac379eea5c5b8e7318c99fa66fdb9",
+        "size": 976386
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2951,8 +2951,8 @@
       },
       {
         "path": "pages/concepts/ai-prompt-library.md",
-        "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
-        "size": 2320
+        "sha256": "21529ebc5dea1e00edb03485c269201c599e2887637dc8bf6f42902a5c6fbfdc",
+        "size": 2314
       },
       {
         "path": "pages/concepts/ai-x-crypto-ideas.md",
@@ -4095,6 +4095,11 @@
         "size": 1832
       },
       {
+        "path": "pages/projects/aura.md",
+        "sha256": "9e7221252f8c671515a02fb45226a6b98fe49710fbdd2b3e4071708bfc829680",
+        "size": 2201
+      },
+      {
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
         "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
         "size": 1318
@@ -4671,8 +4676,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "2a36130396fb4b2d835926fdb93f15a671db5909dba02366e8080e06d5d760c7",
-        "size": 6073
+        "sha256": "ad56594e6edddafa6e70efafde7e1dc3f9deaca3fc790b54e67d65547b8f18b2",
+        "size": 5150
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -5304,8 +5309,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T04:50:10Z",
-  "file_count": 1059,
+  "exported_at": "2026-05-09T04:56:22Z",
+  "file_count": 1060,
   "files": [
     {
       "path": ".curator_state",
@@ -8227,7 +8232,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "d4d9515a9075ef9f2fe736f7f51a925f2c53e39274717b771f3e8265aaf460d8",
+  "previous_tree_hash": "7ef2ab5574c404ccc7fb51da2f409d027dfbc74c75a39af86a701d70d566f66d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8240,14 +8245,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7ef2ab5574c404ccc7fb51da2f409d027dfbc74c75a39af86a701d70d566f66d",
+  "tree_hash": "2ff8a88c793df5cfbf71bfcb0462b287dfe8b55d8d8ef6aa62d89e6459617356",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 476,
+  "wiki_file_count": 477,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8256,13 +8261,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "889c85fc07d14e1f198cdd5eb5112cf170c23a16a9a102736941fb7edd1c7894",
-      "size": 522581
+      "sha256": "a49334c4030421447a806bc149e6205e7d61107e76b8185f555956252203a3c1",
+      "size": 523167
     },
     {
       "path": "log.md",
-      "sha256": "875abb26164b197b61f53b1264748ef4c279f7cdadc3faf566fe78830f00a9f2",
-      "size": 975453
+      "sha256": "a7b97d83dd27978b92620a9240fa1b79a41ac379eea5c5b8e7318c99fa66fdb9",
+      "size": 976386
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8281,8 +8286,8 @@
     },
     {
       "path": "pages/concepts/ai-prompt-library.md",
-      "sha256": "e071141f446943e9bbe94472c96e99d6444fe5eeabac7b14bc4a8dbbbd5d1a88",
-      "size": 2320
+      "sha256": "21529ebc5dea1e00edb03485c269201c599e2887637dc8bf6f42902a5c6fbfdc",
+      "size": 2314
     },
     {
       "path": "pages/concepts/ai-x-crypto-ideas.md",
@@ -9425,6 +9430,11 @@
       "size": 1832
     },
     {
+      "path": "pages/projects/aura.md",
+      "sha256": "9e7221252f8c671515a02fb45226a6b98fe49710fbdd2b3e4071708bfc829680",
+      "size": 2201
+    },
+    {
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
       "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
       "size": 1318
@@ -10001,8 +10011,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "2a36130396fb4b2d835926fdb93f15a671db5909dba02366e8080e06d5d760c7",
-      "size": 6073
+      "sha256": "ad56594e6edddafa6e70efafde7e1dc3f9deaca3fc790b54e67d65547b8f18b2",
+      "size": 5150
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -10631,5 +10641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e053daec729807f378e51ec24bb23d1b266ba0de250d570cec233e8eb830c5ef"
+  "wiki_tree_hash": "b77679727a115754b268bb4a0089c17357ef554b6613ddd9928d4e15fa8751d5"
 }
