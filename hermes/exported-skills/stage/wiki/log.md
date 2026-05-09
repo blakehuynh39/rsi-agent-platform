@@ -20881,3 +20881,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_49615f9b008e8a2d1ad949291c70c22a
 - summary: Contact for DePIN Data Pipeline.
 
+## [2026-05-09T17:49:06Z] synthesis | DePIN App Onboarding and Voice Profile Setup
+
+- status: published
+- slug: runbooks/depin-app-onboarding-and-voice-profile-setup
+- wiki_revision_id: wikirev_380d7cd1689cdd03bdab9b2a5759bc9a
+- summary: Step-by-step guide for user onboarding and voice profile creation in the DePIN app, covering welcome screen, terms acceptance, login, onboarding screens, microphone permission, rec...
+

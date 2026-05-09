@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "22556d6233f6ad981e1341a8425483a7c7e46c8ec00bb6e5c38f43b5e187296b",
-        "size": 993482
+        "sha256": "e1555931adf36aa2c5ca2079a921efcfe8137ab49a8918f23834528723067802",
+        "size": 993905
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4900,6 +4900,11 @@
         "size": 4910
       },
       {
+        "path": "pages/runbooks/depin-app-onboarding-and-voice-profile-setup.md",
+        "sha256": "5f1aeecda56e5630b14d92e0e31e2b463d2bff48a34d5efde9990d1fc5215265",
+        "size": 6763
+      },
+      {
         "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
         "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
         "size": 5781
@@ -5449,8 +5454,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T17:44:58Z",
-  "file_count": 1088,
+  "exported_at": "2026-05-09T17:51:09Z",
+  "file_count": 1089,
   "files": [
     {
       "path": ".curator_state",
@@ -8372,7 +8377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "e64489ab748c598b82b962d746614047b893b1cc947e2bd96cd73ce1e1072687",
+  "previous_tree_hash": "ddf18f3627952d2f3dfa4c56f9070b105d334afeca55ba13e7b720fe0e3f3987",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8385,14 +8390,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ddf18f3627952d2f3dfa4c56f9070b105d334afeca55ba13e7b720fe0e3f3987",
+  "tree_hash": "94f592139d66076be6770186a031d76dd524692758605f6818cbfd7f8849685f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 505,
+  "wiki_file_count": 506,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8406,8 +8411,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "22556d6233f6ad981e1341a8425483a7c7e46c8ec00bb6e5c38f43b5e187296b",
-      "size": 993482
+      "sha256": "e1555931adf36aa2c5ca2079a921efcfe8137ab49a8918f23834528723067802",
+      "size": 993905
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10375,6 +10380,11 @@
       "size": 4910
     },
     {
+      "path": "pages/runbooks/depin-app-onboarding-and-voice-profile-setup.md",
+      "sha256": "5f1aeecda56e5630b14d92e0e31e2b463d2bff48a34d5efde9990d1fc5215265",
+      "size": 6763
+    },
+    {
       "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
       "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
       "size": 5781
@@ -10921,5 +10931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "239ec23d5ce50a4f9f1064d07d737053ef8ac4a4bc963f92c442129c4aaec80f"
+  "wiki_tree_hash": "801c8bd8581baf39ab86163eb917e7132ab1a9fc42113a2fff5ae420f7fba864"
 }
