@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5fbc9528cf973403a990e68269fd720960393e6116ce9411a07bdf33b3b8deb9",
-        "size": 999331
+        "sha256": "96acad0907161362fc7c7cb638eb9a225f8b80872fb9cff7b9ec792b70c6deaa",
+        "size": 999712
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3818,6 +3818,11 @@
         "path": "pages/decisions/meta-transaction-architecture-decision.md",
         "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
         "size": 4651
+      },
+      {
+        "path": "pages/decisions/open-source-licensing-strategy.md",
+        "sha256": "a91511471a0600707049ca14b6969a0d96d5313981513e97addd8b7232c975c8",
+        "size": 4034
       },
       {
         "path": "pages/decisions/partner-testnet-phase-out.md",
@@ -5504,8 +5509,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T21:23:56Z",
-  "file_count": 1099,
+  "exported_at": "2026-05-09T22:20:42Z",
+  "file_count": 1100,
   "files": [
     {
       "path": ".curator_state",
@@ -8427,7 +8432,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "e3fc78d7a9a69d55b41661d186abab81e1de8159e1d1590df7627ec518fa38b3",
+  "previous_tree_hash": "1140dc7e95ac52107728b78ed8e0f30f59692fdd215615fda1b760f41d4e54db",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8440,14 +8445,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1140dc7e95ac52107728b78ed8e0f30f59692fdd215615fda1b760f41d4e54db",
+  "tree_hash": "c2cd0395bf49a5d41be20266a0eb0b4dd41bff18430c6ca7293d0ba4ad7c81eb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 516,
+  "wiki_file_count": 517,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8461,8 +8466,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5fbc9528cf973403a990e68269fd720960393e6116ce9411a07bdf33b3b8deb9",
-      "size": 999331
+      "sha256": "96acad0907161362fc7c7cb638eb9a225f8b80872fb9cff7b9ec792b70c6deaa",
+      "size": 999712
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9348,6 +9353,11 @@
       "path": "pages/decisions/meta-transaction-architecture-decision.md",
       "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
       "size": 4651
+    },
+    {
+      "path": "pages/decisions/open-source-licensing-strategy.md",
+      "sha256": "a91511471a0600707049ca14b6969a0d96d5313981513e97addd8b7232c975c8",
+      "size": 4034
     },
     {
       "path": "pages/decisions/partner-testnet-phase-out.md",
@@ -11031,5 +11041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2f2dcc1e98c2c0a422bee8fa18073758e4351ebd3304358234078378343433d4"
+  "wiki_tree_hash": "034d027edce74524fadd17ce423e4434cd0928d2d90b79ac747ecb4e5fd76282"
 }

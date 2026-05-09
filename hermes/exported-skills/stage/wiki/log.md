@@ -20993,3 +20993,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_abf2ba9799cba9e71fb9125dcb2e0c5a
 - summary: Overview of the RDS table schema as of March 2023, covering story-related, NFT-related, and wallet-related tables, along with relationship tables.
 
+## [2026-05-09T22:18:37Z] synthesis | Open Source Licensing Strategy
+
+- status: published
+- slug: decisions/open-source-licensing-strategy
+- wiki_revision_id: wikirev_c8e2d974e0f7df381dd8c1440c9f7dee
+- summary: Decision to adopt BSL 1.1 for core code, with legal review and business decision pending. Comparison of licenses used by similar projects (Uniswap, Lens, OpenZeppelin).
+
