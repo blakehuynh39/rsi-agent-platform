@@ -20930,3 +20930,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3d31cd2ae96caf445da1265529b8d27a
 - summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
 
+## [2026-05-09T19:09:25Z] synthesis | Poseidon Contracts Deployment / Upgrade Guide
+
+- status: published
+- slug: runbooks/poseidon-contracts-deployment-upgrade-guide
+- wiki_revision_id: wikirev_51877bb0bcb81cfdc6f7639e33b460b0
+- summary: Runbook for deploying and upgrading Poseidon subnet contracts on L2 and the PSDN token on L1, including environment setup, deployment commands, verification, and upgrade scripting.
+

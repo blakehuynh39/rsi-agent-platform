@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1ded4258eeec664259800bfb13055fef9a3a72c34fffb53ef7bfe77541876c67",
-        "size": 534051
+        "sha256": "cf517c986d214ac91705812e1dc016bfe4748af98c88706fd112f555c54ba9d9",
+        "size": 534459
       },
       {
         "path": "log.md",
-        "sha256": "2565079d2856ca3f30613966e6dd5a2c59183023adb330ff80cac0c9d71ed5a1",
-        "size": 996010
+        "sha256": "a638be5c8a6d997b0475b0d5602fdebea5538fcb367de9ce60ad97de13884f49",
+        "size": 996430
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5065,6 +5065,11 @@
         "size": 5434
       },
       {
+        "path": "pages/runbooks/poseidon-contracts-deployment-upgrade-guide.md",
+        "sha256": "36aa2b94fc007faefe1b1696e489bd25b452ecb89a57de362c23f082e6f50ac8",
+        "size": 4657
+      },
+      {
         "path": "pages/runbooks/poseidon-poc-crunch-time-may-2025.md",
         "sha256": "7f375920197e22e329dd143adcc97bae8a6b74f8d21f3a3703958dbd2373e1c2",
         "size": 8715
@@ -5464,8 +5469,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T18:26:04Z",
-  "file_count": 1091,
+  "exported_at": "2026-05-09T19:12:55Z",
+  "file_count": 1092,
   "files": [
     {
       "path": ".curator_state",
@@ -8387,7 +8392,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "3aac230f2bd4108eb0b6d25dc57fdd8b762ae394d4bee4529526f1a95b3a8ef6",
+  "previous_tree_hash": "58be81d3a717f8850b6f01ce919c1f5ef55f50c4318fbeb7e021756c6fc551ed",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8400,14 +8405,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "58be81d3a717f8850b6f01ce919c1f5ef55f50c4318fbeb7e021756c6fc551ed",
+  "tree_hash": "8ab3b99440db09f4242818174f0fff2b57ad04c68c4e537b8642c1b4138436a9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 508,
+  "wiki_file_count": 509,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8416,13 +8421,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1ded4258eeec664259800bfb13055fef9a3a72c34fffb53ef7bfe77541876c67",
-      "size": 534051
+      "sha256": "cf517c986d214ac91705812e1dc016bfe4748af98c88706fd112f555c54ba9d9",
+      "size": 534459
     },
     {
       "path": "log.md",
-      "sha256": "2565079d2856ca3f30613966e6dd5a2c59183023adb330ff80cac0c9d71ed5a1",
-      "size": 996010
+      "sha256": "a638be5c8a6d997b0475b0d5602fdebea5538fcb367de9ce60ad97de13884f49",
+      "size": 996430
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10555,6 +10560,11 @@
       "size": 5434
     },
     {
+      "path": "pages/runbooks/poseidon-contracts-deployment-upgrade-guide.md",
+      "sha256": "36aa2b94fc007faefe1b1696e489bd25b452ecb89a57de362c23f082e6f50ac8",
+      "size": 4657
+    },
+    {
       "path": "pages/runbooks/poseidon-poc-crunch-time-may-2025.md",
       "sha256": "7f375920197e22e329dd143adcc97bae8a6b74f8d21f3a3703958dbd2373e1c2",
       "size": 8715
@@ -10951,5 +10961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3a13579dbf139045bdcf34ae7e3d8c4b29625afc9f82091a739a2f75ee35c328"
+  "wiki_tree_hash": "a50010bb1afb5206a8fe39d80dc6677d30e6592e029e1ef9aa0b89fce8ca801d"
 }
