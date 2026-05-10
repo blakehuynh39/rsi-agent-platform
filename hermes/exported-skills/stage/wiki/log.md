@@ -21336,3 +21336,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_63f6c6ca3647de1ae07e6aefe7a851e3
 - summary: A requirement has been identified that the Video Task feature needs to have a user limit.
 
+## [2026-05-10T10:07:50Z] synthesis | L1 Runbook
+
+- status: published
+- slug: runbooks/l1-runbook
+- wiki_revision_id: wikirev_ef49de424ebfa0b9d2b17dd7e26e5dbe
+- summary: Collection of operational commands and procedures for managing Story Protocol L1 nodes, including peer checks, log tailing, validator queries, genesis hash retrieval, stake managem...
+

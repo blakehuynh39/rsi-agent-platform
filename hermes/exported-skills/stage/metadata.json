@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3eedb84d6b018356a5353ae4c7b118b063b099543e32de2cb14364f481ad57aa",
-        "size": 548244
+        "sha256": "3f510e52379d8900140ee6f00a72888e0a2588c9a41b9dec6327d45d3fc93c1a",
+        "size": 548587
       },
       {
         "path": "log.md",
-        "sha256": "65955612f4c6e464dfa713b19797ea9379839a26ec31bb39820f090624fe4626",
-        "size": 1015438
+        "sha256": "7d5cddea1e980933b4aed3db4816f0e262034153055ac6d6b200bb71490fdde2",
+        "size": 1015793
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5195,6 +5195,11 @@
         "size": 7100
       },
       {
+        "path": "pages/runbooks/l1-runbook.md",
+        "sha256": "72d777657d5fffe14fc2ae927c081f4a4c1915683bec29f6dde29f64cdb69400",
+        "size": 9391
+      },
+      {
         "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
         "sha256": "2f6c160744a7fb45f9d1f569e7f612b93478cb19485bbb2b2e68cc120e7e619c",
         "size": 5689
@@ -5679,8 +5684,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T09:36:44Z",
-  "file_count": 1134,
+  "exported_at": "2026-05-10T10:08:16Z",
+  "file_count": 1135,
   "files": [
     {
       "path": ".curator_state",
@@ -8602,7 +8607,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "35f681954ccf8d196b72fc75833afae22515633237468e22412b487f1cbb81c2",
+  "previous_tree_hash": "3d28db4d5a6b0d159623e431abfff08f6053519e783bdd6af8e8a753b3bdc20d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8615,14 +8620,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3d28db4d5a6b0d159623e431abfff08f6053519e783bdd6af8e8a753b3bdc20d",
+  "tree_hash": "7fa38d69525c1a998c211df956f228ddc261592a6e963994e6bcc88ef30ac7da",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 551,
+  "wiki_file_count": 552,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8631,13 +8636,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3eedb84d6b018356a5353ae4c7b118b063b099543e32de2cb14364f481ad57aa",
-      "size": 548244
+      "sha256": "3f510e52379d8900140ee6f00a72888e0a2588c9a41b9dec6327d45d3fc93c1a",
+      "size": 548587
     },
     {
       "path": "log.md",
-      "sha256": "65955612f4c6e464dfa713b19797ea9379839a26ec31bb39820f090624fe4626",
-      "size": 1015438
+      "sha256": "7d5cddea1e980933b4aed3db4816f0e262034153055ac6d6b200bb71490fdde2",
+      "size": 1015793
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10900,6 +10905,11 @@
       "size": 7100
     },
     {
+      "path": "pages/runbooks/l1-runbook.md",
+      "sha256": "72d777657d5fffe14fc2ae927c081f4a4c1915683bec29f6dde29f64cdb69400",
+      "size": 9391
+    },
+    {
       "path": "pages/runbooks/list-ip-asset-api-outage-postmortem-may-2024.md",
       "sha256": "2f6c160744a7fb45f9d1f569e7f612b93478cb19485bbb2b2e68cc120e7e619c",
       "size": 5689
@@ -11381,5 +11391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "003ebb7aa897bf111ff902e44425e64741252a9ddfc04f6ba101c47abdbd32bf"
+  "wiki_tree_hash": "15116ae118a2cbb15985dea24e20190417dc486148827ec54ea4af5c51db8795"
 }
