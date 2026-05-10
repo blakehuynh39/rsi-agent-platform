@@ -21343,3 +21343,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ef49de424ebfa0b9d2b17dd7e26e5dbe
 - summary: Collection of operational commands and procedures for managing Story Protocol L1 nodes, including peer checks, log tailing, validator queries, genesis hash retrieval, stake managem...
 
+## [2026-05-10T10:46:32Z] synthesis | New CI Process
+
+- status: published
+- slug: decisions/new-ci-process
+- wiki_revision_id: wikirev_8936fe7830e4a4963484242d4f4e48c8
+- summary: Proposal for a new CI/CD process to manage genesis state and network deployments for stable and unstable networks, ensuring a single source of truth and automated promotion.
+
