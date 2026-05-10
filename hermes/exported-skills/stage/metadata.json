@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5a0aa0c8141fb3ec19c1353741c19ccf3b31b4e0a4fbab5e70fbefe360b596ae",
-        "size": 1025626
+        "sha256": "9e886fd3090b455cb1f809a767c36419a87eda12a23259271e811eda119f9ced",
+        "size": 1026021
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4405,6 +4405,11 @@
         "size": 9244
       },
       {
+        "path": "pages/projects/data-layer-subnetwork-proposal.md",
+        "sha256": "79a84a67db21d150851109684fb01ca8ca86b00b01ceab73867a5cf10fc40ba3",
+        "size": 3923
+      },
+      {
         "path": "pages/projects/decentralized-audio-workflow.md",
         "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
         "size": 8405
@@ -5784,8 +5789,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T23:02:55Z",
-  "file_count": 1155,
+  "exported_at": "2026-05-10T23:34:33Z",
+  "file_count": 1156,
   "files": [
     {
       "path": ".curator_state",
@@ -8712,7 +8717,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b849f6x88b",
-  "previous_tree_hash": "6647d9829a62d7b857fa60e0a0f2a2702cfd7e48ecd69e3b472aaf4adbc79655",
+  "previous_tree_hash": "bee0c916bf8c00951b497a0fc144bde9ba92c79df85b03550a316dfa75cdc308",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8725,14 +8730,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bee0c916bf8c00951b497a0fc144bde9ba92c79df85b03550a316dfa75cdc308",
+  "tree_hash": "54d4a4ba7d3a4ecbe1e9a5c565885da7890de7c6cb6e9147506efc57ba9eafd7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 571,
+  "wiki_file_count": 572,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8746,8 +8751,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5a0aa0c8141fb3ec19c1353741c19ccf3b31b4e0a4fbab5e70fbefe360b596ae",
-      "size": 1025626
+      "sha256": "9e886fd3090b455cb1f809a767c36419a87eda12a23259271e811eda119f9ced",
+      "size": 1026021
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10215,6 +10220,11 @@
       "size": 9244
     },
     {
+      "path": "pages/projects/data-layer-subnetwork-proposal.md",
+      "sha256": "79a84a67db21d150851109684fb01ca8ca86b00b01ceab73867a5cf10fc40ba3",
+      "size": 3923
+    },
+    {
       "path": "pages/projects/decentralized-audio-workflow.md",
       "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
       "size": 8405
@@ -11591,5 +11601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9794e5e57a8d94acfa068f07bb430c15899f1ce59b3b6e3a3860022af159b41c"
+  "wiki_tree_hash": "1a4a849c33336e1349904477b8f047e105abf1e15f6a9a71c1cb9db4bbecb8f1"
 }

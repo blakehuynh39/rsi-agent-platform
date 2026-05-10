@@ -21534,3 +21534,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_cdcd9b0ac12ef213b145245ac2f67462
 - summary: *DB read `dbread_65b41d0b-a73e-4838-b1b9-45bb3b4eb9fd`*: succeeded; rows=1 truncated=false Target: `depin-prod` Requester: <@U0772SH7BRA> via Hermes Approved by: <@U0772SH7BRA> *Ex...
 
+## [2026-05-10T23:33:11Z] synthesis | Data Layer Subnetwork Proposal
+
+- status: published
+- slug: projects/data-layer-subnetwork-proposal
+- wiki_revision_id: wikirev_0cdcb71cf4e2a728bde649c6300762d6
+- summary: Proposal by Ramtin to build a data layer subnetwork starting with a centralized MVP and gradually decentralizing, with JZ suggesting a Bittensor-like model of data subnets each wit...
+
