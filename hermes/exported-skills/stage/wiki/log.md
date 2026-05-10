@@ -21371,3 +21371,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_843d0f5660555c8b24900c99aed1a29c
 - summary: A project to enhance the royalty module with new policies, automation, and UX improvements.
 
+## [2026-05-10T12:04:49Z] synthesis | Story L1 Single Node Setup on macOS
+
+- status: published
+- slug: runbooks/story-l1-single-node-setup-macos
+- wiki_revision_id: wikirev_526b61914c6f44364abe2b29c0e6cddf
+- summary: Step-by-step guide to set up a single-node private Story L1 network on macOS, including execution client (geth) and consensus client (iliad) configuration, genesis initialization, ...
+
