@@ -21133,3 +21133,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f6d034b87812d66be30416692ee0bce0
 - summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
 
+## [2026-05-10T02:02:19Z] synthesis | Module System
+
+- status: published
+- slug: systems/module-system
+- wiki_revision_id: wikirev_4ae07fa045f12866d6c59916913744f2
+- summary: Design of the module system including execution flow, interface, trust levels, and types.
+
+## [2026-05-10T02:02:19Z] synthesis | IPAccount Design
+
+- status: published
+- slug: systems/ipaccount-design
+- wiki_revision_id: wikirev_666f1f933a469b63af01dbe692b05535
+- summary: IPAccount is not a generic AA wallet; it is customized for Programmable IP use cases and does not support owner calls to arbitrary external contracts.
+

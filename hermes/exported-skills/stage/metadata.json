@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3fb23b362bcbdfbf4865f0126c3e06129e0ba5b5b599306e87ed76974ed9cf1a",
-        "size": 1005974
+        "sha256": "997cbfcc937ea5ab4c27639c3a818b21855bcb2121c8e1eb9adaeae08cb8680c",
+        "size": 1006573
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5360,6 +5360,11 @@
         "size": 6199
       },
       {
+        "path": "pages/systems/ipaccount-design.md",
+        "sha256": "6a68609c07a3b4fbfec0d09992bf87ec1bdd9611390c1e39e4513fe925aac6e1",
+        "size": 1377
+      },
+      {
         "path": "pages/systems/kms-coordinator.md",
         "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
         "size": 2649
@@ -5378,6 +5383,11 @@
         "path": "pages/systems/legal-database.md",
         "sha256": "cd31194f98f9828d711e5b6ba552adb2758003bfd302d9ca26532c651b14b058",
         "size": 1102
+      },
+      {
+        "path": "pages/systems/module-system.md",
+        "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
+        "size": 3760
       },
       {
         "path": "pages/systems/monitoring-and-dashboard.md",
@@ -5559,8 +5569,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T01:38:47Z",
-  "file_count": 1110,
+  "exported_at": "2026-05-10T02:05:12Z",
+  "file_count": 1112,
   "files": [
     {
       "path": ".curator_state",
@@ -8482,7 +8492,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "8fdabf17ca3a8cc6aab610c716263865927f6bf5efb4d73de317790542b8b76e",
+  "previous_tree_hash": "d0a293e8df8a268ae9b4f88c7fcccb1e469ddbdaeeba31e8e8b0ce281543c69d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8495,14 +8505,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d0a293e8df8a268ae9b4f88c7fcccb1e469ddbdaeeba31e8e8b0ce281543c69d",
+  "tree_hash": "eaf25187e0673fb87b33a4ed7c68e73d30e844d18a7acceff960d027285d1a85",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 527,
+  "wiki_file_count": 529,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8516,8 +8526,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3fb23b362bcbdfbf4865f0126c3e06129e0ba5b5b599306e87ed76974ed9cf1a",
-      "size": 1005974
+      "sha256": "997cbfcc937ea5ab4c27639c3a818b21855bcb2121c8e1eb9adaeae08cb8680c",
+      "size": 1006573
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10945,6 +10955,11 @@
       "size": 6199
     },
     {
+      "path": "pages/systems/ipaccount-design.md",
+      "sha256": "6a68609c07a3b4fbfec0d09992bf87ec1bdd9611390c1e39e4513fe925aac6e1",
+      "size": 1377
+    },
+    {
       "path": "pages/systems/kms-coordinator.md",
       "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
       "size": 2649
@@ -10963,6 +10978,11 @@
       "path": "pages/systems/legal-database.md",
       "sha256": "cd31194f98f9828d711e5b6ba552adb2758003bfd302d9ca26532c651b14b058",
       "size": 1102
+    },
+    {
+      "path": "pages/systems/module-system.md",
+      "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
+      "size": 3760
     },
     {
       "path": "pages/systems/monitoring-and-dashboard.md",
@@ -11141,5 +11161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "794170ff75766446ca903ebd9dfa2267b59a07e5b50c66657ac55ba10791d896"
+  "wiki_tree_hash": "14b4b796842c81a2774d44b0961de1e469fc1fc2a43a3eea13d8fa1ce80b7077"
 }
