@@ -21329,3 +21329,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_25121d7ecae0edba296e0d73d059ee5c
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-10T09:32:17Z] synthesis | Video Task User Limit Requirement
+
+- status: published
+- slug: decisions/video-task-user-limit-requirement
+- wiki_revision_id: wikirev_63f6c6ca3647de1ae07e6aefe7a851e3
+- summary: A requirement has been identified that the Video Task feature needs to have a user limit.
+
