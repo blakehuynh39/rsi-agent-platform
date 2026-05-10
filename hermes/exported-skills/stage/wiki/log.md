@@ -21175,3 +21175,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b69548f5a28390acbb2a8abbde4ecddd
 - summary: Project to implement and test a Stripe-based payment solution for P0 countries, including a proof of concept for global payouts and safeguards against spam and malicious withdrawal...
 
+## [2026-05-10T03:37:12Z] synthesis | Story Network
+
+- status: published
+- slug: concepts/story-network
+- wiki_revision_id: wikirev_451cf255a3f93920e5520cebb9bd9801
+- summary: Story Network is the world’s first IP and content focused developer ecosystem, serving as the programmable IP layer built for the age of AI. It natively hosts Story Protocol and us...
+

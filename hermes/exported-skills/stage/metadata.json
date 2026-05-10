@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c51d13217648b774c033c6e279d76de721796fe6aef1818df374f8a5d7c0bafc",
-        "size": 542523
+        "sha256": "48d8e88bb99ecec511d8a54789ae7661afb296a0c40f9fa0a1eac10f5484d182",
+        "size": 542874
       },
       {
         "path": "log.md",
-        "sha256": "fd1b809df74dacd4857c4cfa6b33556924bff67a3cfaefcf6de10c74d762bd10",
-        "size": 1008313
+        "sha256": "79a2c72bdfb3d51d90f6c30ba9853a1467846ecc333d626f9f1228384720bb0a",
+        "size": 1008676
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3553,6 +3553,11 @@
         "path": "pages/concepts/story-l1-peer-discovery-insights.md",
         "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
         "size": 4711
+      },
+      {
+        "path": "pages/concepts/story-network.md",
+        "sha256": "a6a72a1b92051506e5a4d576b59084bf1d672e75118c9921fd61f34176bcbab5",
+        "size": 6564
       },
       {
         "path": "pages/concepts/story-paragraph-building-blocks.md",
@@ -5584,8 +5589,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T03:28:22Z",
-  "file_count": 1115,
+  "exported_at": "2026-05-10T03:39:43Z",
+  "file_count": 1116,
   "files": [
     {
       "path": ".curator_state",
@@ -8507,7 +8512,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "fb92f48da9f9544b9bc4fd851da0df7ba0bed5dd34c8b7013947d7e6f6367aa7",
+  "previous_tree_hash": "6bb786d96fb133c04c98392f3ac71f24150b7af862b44dc444f8f6438b311ade",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8520,14 +8525,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6bb786d96fb133c04c98392f3ac71f24150b7af862b44dc444f8f6438b311ade",
+  "tree_hash": "093b53b915fb775bf9fbd634c32b0f7be8a5e7aed918642369f20dc31fab2d26",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 532,
+  "wiki_file_count": 533,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8536,13 +8541,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c51d13217648b774c033c6e279d76de721796fe6aef1818df374f8a5d7c0bafc",
-      "size": 542523
+      "sha256": "48d8e88bb99ecec511d8a54789ae7661afb296a0c40f9fa0a1eac10f5484d182",
+      "size": 542874
     },
     {
       "path": "log.md",
-      "sha256": "fd1b809df74dacd4857c4cfa6b33556924bff67a3cfaefcf6de10c74d762bd10",
-      "size": 1008313
+      "sha256": "79a2c72bdfb3d51d90f6c30ba9853a1467846ecc333d626f9f1228384720bb0a",
+      "size": 1008676
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9163,6 +9168,11 @@
       "path": "pages/concepts/story-l1-peer-discovery-insights.md",
       "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
       "size": 4711
+    },
+    {
+      "path": "pages/concepts/story-network.md",
+      "sha256": "a6a72a1b92051506e5a4d576b59084bf1d672e75118c9921fd61f34176bcbab5",
+      "size": 6564
     },
     {
       "path": "pages/concepts/story-paragraph-building-blocks.md",
@@ -11191,5 +11201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "896411d6284a176de8da21234cf283cad2c61be8eb01ba3b664331ab7df85faa"
+  "wiki_tree_hash": "c18cf28871267ddd77f940d5042aad808f853f6466f1122cdc68afa69098289d"
 }
