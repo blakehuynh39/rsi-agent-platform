@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "32adbcbb6e133a8e194778e2c22d5be8f8ee029179d80e13ec801f2d3259ea7b",
-        "size": 545040
+        "sha256": "e31bfa7a72460f0a8cce516f657c1db0c33e5c83a1b70235ed90572fca4c7272",
+        "size": 545425
       },
       {
         "path": "log.md",
-        "sha256": "b3bd1af2a992100f3b6841782fea479fd81d99f05b442b4b775e307ab5d1e4cd",
-        "size": 1010926
+        "sha256": "60093dcf052850af715367cc94475170c5fc2306fc998aa0792f504b94b6226e",
+        "size": 1011323
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3968,6 +3968,11 @@
         "path": "pages/open-questions/access-controller-suggestions.md",
         "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
         "size": 1551
+      },
+      {
+        "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
+        "sha256": "7980a6136b9082c15b718532d0bcbf536a7316ee44c3b78619a6f7fd5e37b565",
+        "size": 1645
       },
       {
         "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -5624,8 +5629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T06:39:10Z",
-  "file_count": 1123,
+  "exported_at": "2026-05-10T07:53:25Z",
+  "file_count": 1124,
   "files": [
     {
       "path": ".curator_state",
@@ -8546,8 +8551,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "766d087c595600a37eaba95d05d7ed16c6eef38947b081aa43eab60c24347b1b",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
+  "previous_tree_hash": "29adb7ba8985840f3d083a02079371f088820d9ea9cc0c21883a39f1ff1ae89d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8560,14 +8565,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "29adb7ba8985840f3d083a02079371f088820d9ea9cc0c21883a39f1ff1ae89d",
+  "tree_hash": "0dbafe46e682591b18039b5fe921f269b83cd509c81f72b0f99a48d9da4937d7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 540,
+  "wiki_file_count": 541,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8576,13 +8581,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "32adbcbb6e133a8e194778e2c22d5be8f8ee029179d80e13ec801f2d3259ea7b",
-      "size": 545040
+      "sha256": "e31bfa7a72460f0a8cce516f657c1db0c33e5c83a1b70235ed90572fca4c7272",
+      "size": 545425
     },
     {
       "path": "log.md",
-      "sha256": "b3bd1af2a992100f3b6841782fea479fd81d99f05b442b4b775e307ab5d1e4cd",
-      "size": 1010926
+      "sha256": "60093dcf052850af715367cc94475170c5fc2306fc998aa0792f504b94b6226e",
+      "size": 1011323
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9618,6 +9623,11 @@
       "path": "pages/open-questions/access-controller-suggestions.md",
       "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
       "size": 1551
+    },
+    {
+      "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
+      "sha256": "7980a6136b9082c15b718532d0bcbf536a7316ee44c3b78619a6f7fd5e37b565",
+      "size": 1645
     },
     {
       "path": "pages/open-questions/define-what-to-do-for-rejected-submissions.md",
@@ -11271,5 +11281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ac935b2eff439b772cdcb6aa0fdf83c65b5c66733d046844198b6ade5628348b"
+  "wiki_tree_hash": "ce83cc3a3ab5be2b6f746b3d692376fe91c605501761cc32ba55714dadff47e9"
 }

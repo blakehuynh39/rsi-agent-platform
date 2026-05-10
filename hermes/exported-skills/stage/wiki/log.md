@@ -21231,3 +21231,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b8f5a92ea813634aa1e5636a07734f61
 - summary: Rollkit is a modular framework for rollups, mentioned in the context of modular blockchain layers.
 
+## [2026-05-10T07:49:40Z] synthesis | Cosmos Upgrade Process Questions
+
+- status: published
+- slug: open-questions/cosmos-upgrade-process-questions
+- wiki_revision_id: wikirev_770dd3cbc3d2afb5f6a00e20a55e9180
+- summary: Open questions regarding the process for backward-compatible and non-backward-compatible Cosmos upgrades, including manual vs Cosmovisor processes and governance requirements.
+
