@@ -21189,3 +21189,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_da06966ead3523783dc0e1b32d60c83f
 - summary: Discussion and proposals for handling derivative IP assets that have multiple parents, including the introduction of composite IPAs (cIPA), reciprocal derivative flags, royalty wat...
 
+## [2026-05-10T05:54:08Z] synthesis | Story Protocol Devnet Contract Addresses
+
+- status: published
+- slug: systems/story-protocol-devnet-contract-addresses
+- wiki_revision_id: wikirev_826f5b559fac31923d1b0d8119c86eb0
+- summary: Lists the deployed contract addresses for the Story Protocol devnet environment.
+
