@@ -21504,3 +21504,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d5e7db47665073f989d89361a3834632
 - summary: A Notion document listing the members of the Lion Team.
 
+## [2026-05-10T22:19:58Z] synthesis | Akash
+
+- status: published
+- slug: projects/akash
+- wiki_revision_id: wikirev_35913c06a17576e14c1b06e8bfa304e7
+- summary: Akash is a decentralized compute marketplace that facilitates secure and efficient buying and selling of computing resources, built on Cosmos SDK and Tendermint Core.
+

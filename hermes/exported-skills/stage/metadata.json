@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4fbcbbc358f73d2c3c47b6125dad0af7cb993e0eff3c9ee6cb49ad9690c63a6e",
-        "size": 1024011
+        "sha256": "0a162c30fea4491e0005a786f7401c361e8d5da06e492281b5f6ab6409467f6b",
+        "size": 1024339
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4328,6 +4328,11 @@
         "path": "pages/projects/airdrop-initiative.md",
         "sha256": "475bbbdc9efed7822aca570714490a869052005e15ede00f9153ea3d7f13a344",
         "size": 1832
+      },
+      {
+        "path": "pages/projects/akash.md",
+        "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
+        "size": 4802
       },
       {
         "path": "pages/projects/aura.md",
@@ -5774,8 +5779,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T21:39:05Z",
-  "file_count": 1153,
+  "exported_at": "2026-05-10T22:20:38Z",
+  "file_count": 1154,
   "files": [
     {
       "path": ".curator_state",
@@ -8702,7 +8707,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "781c8779476ae6ea9d6efe6773e166aafb985c62d5e9af80557e06e0b9e4905d",
+  "previous_tree_hash": "cfa41703fb0bdb4d86b5b596660749c3dd4db81ab784b7830916a351555d1e01",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8715,14 +8720,14 @@
   ],
   "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cfa41703fb0bdb4d86b5b596660749c3dd4db81ab784b7830916a351555d1e01",
+  "tree_hash": "4bc2ec18725cd742910a50626e33521c9f8794a4c58553b54d0218f12ebcb665",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 569,
+  "wiki_file_count": 570,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8736,8 +8741,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4fbcbbc358f73d2c3c47b6125dad0af7cb993e0eff3c9ee6cb49ad9690c63a6e",
-      "size": 1024011
+      "sha256": "0a162c30fea4491e0005a786f7401c361e8d5da06e492281b5f6ab6409467f6b",
+      "size": 1024339
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10128,6 +10133,11 @@
       "path": "pages/projects/airdrop-initiative.md",
       "sha256": "475bbbdc9efed7822aca570714490a869052005e15ede00f9153ea3d7f13a344",
       "size": 1832
+    },
+    {
+      "path": "pages/projects/akash.md",
+      "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
+      "size": 4802
     },
     {
       "path": "pages/projects/aura.md",
@@ -11571,5 +11581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "494efdf04f229e668f8603a9197080ee0ce6cce74721a38cb730dadec13afd35"
+  "wiki_tree_hash": "f5a3603cda3992cb958abbb0c33262a093937ec2cac4ec45e11bae7eca1debb7"
 }
