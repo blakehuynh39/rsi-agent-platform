@@ -15,14 +15,14 @@
   "depin-prod-admin-read": {
     "archived_at": null,
     "created_at": "2026-05-05T03:17:34.256098+00:00",
-    "last_patched_at": "2026-05-09T03:00:38.238082+00:00",
-    "last_used_at": "2026-05-10T20:15:46.704129+00:00",
-    "last_viewed_at": "2026-05-10T20:15:46.673393+00:00",
-    "patch_count": 36,
+    "last_patched_at": "2026-05-10T20:18:45.393472+00:00",
+    "last_used_at": "2026-05-10T20:19:02.880187+00:00",
+    "last_viewed_at": "2026-05-10T20:19:02.851474+00:00",
+    "patch_count": 40,
     "pinned": false,
     "state": "active",
-    "use_count": 47,
-    "view_count": 46
+    "use_count": 48,
+    "view_count": 47
   },
   "numo-project-status": {
     "archived_at": null,

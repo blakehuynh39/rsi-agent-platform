@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin stats through admin REST reads and native approved DB reads."
-version: 1.5.0
+version: 1.6.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, db-read]
@@ -122,6 +122,9 @@ Full reference queries and case studies: `references/country-breakdown-queries.m
 - **Submission counts can fluctuate rapidly during active ingestion.** Per-language submission counts on cohorts/languages may shift significantly within hours — observed jumps of 3× to 10× for a single language in one session. When answering the same question across multiple traces, always re-query the live API rather than relying on the prior trace's numbers. Note any growth since prior runs so the user understands the metric is volatile.
 - **`campaigns` table uses `campaign_name` and `campaign_type`, not `name` and `type`.** The documentation in `docs/architecture/database.md` uses `name` in the table description, but the live production column is `campaign_name`. Always verify column names with `information_schema.columns` before joining campaigns to other tables — a `SELECT column_name FROM information_schema.columns WHERE table_name = 'campaigns'` is cheap and avoids a wasted approval cycle.
 - **Campaign scripts are bulk-loaded — expect large counts.** Active campaigns may have 350K+ scripts each. The histogram query (group by unique_user count after the DISTINCT subquery) compresses this into a handful of rows and fits easily within the 100-row cap. Direct per-script listing will hit the cap.
+- **`submission_quality_country_daily.castle_ip_country_code` is all UNKNOWN.** Do not use this table for IP-based country attribution. The only viable Castle IP source is `castle_risk_events.ip_country_code`, which covers ~9,400 users who triggered risk events. For users without Castle events, fall back to `users.nationality`.
+- **Submission count ≠ unique user count.** These are different dimensions that can diverge dramatically (e.g., Nigeria: 755 subs but #4 by unique users; Poland: 2,589 subs but only 25 unique users). When the user asks about "submissions from Country X," present both counts if they tell different stories. See `references/country-breakdown-queries.md` for patterns.
+- **Country-by-campaign queries easily exceed the 100-row cap.** With 9 campaigns and 60+ distinct nationalities, worst case is 540 rows. Use LIMIT/OFFSET pagination (LIMIT 100 OFFSET 0, then OFFSET 100) to stay within caps. If only top-N per campaign is needed, use ROW_NUMBER() window function: `ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY count(*) DESC) AS rn` then filter `WHERE rn <= 10`.
 
 ## Source Of Truth
 
