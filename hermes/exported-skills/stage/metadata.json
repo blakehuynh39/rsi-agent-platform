@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8d46262a7a76340e64014a6954ce4f7733d3c552a995823ca3f0f66e07e79b66",
-        "size": 1016574
+        "sha256": "1d34aa062f64b33d011c0a2be604061480812c36e8c8915489434bbea117499d",
+        "size": 1016969
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3073,6 +3073,11 @@
         "path": "pages/concepts/devex.md",
         "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
         "size": 1244
+      },
+      {
+        "path": "pages/concepts/documentation-portal-structure.md",
+        "sha256": "d0ec755ab62ad0618190f35034e9a0305b8fa75b1bd123565b8e6567ed25e2bb",
+        "size": 5996
       },
       {
         "path": "pages/concepts/dutch-auction-minting.md",
@@ -5694,8 +5699,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T11:12:32Z",
-  "file_count": 1137,
+  "exported_at": "2026-05-10T11:23:50Z",
+  "file_count": 1138,
   "files": [
     {
       "path": ".curator_state",
@@ -8617,7 +8622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "d71a20b33f6f47e8cf1893b37b7fb2bc5fe23bdfc4e437f6ac54b8cc6f7250b9",
+  "previous_tree_hash": "85c0c5a0d9244dac90371b48783d9c7bb3a8fb4c4fc13f7cdfd1cbdf413f8821",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8630,14 +8635,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "85c0c5a0d9244dac90371b48783d9c7bb3a8fb4c4fc13f7cdfd1cbdf413f8821",
+  "tree_hash": "ab276c96c62808c4c7fcc92ded92dd8166bb272a045a2e941eb7a3f1b2b1596d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 554,
+  "wiki_file_count": 555,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8651,8 +8656,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8d46262a7a76340e64014a6954ce4f7733d3c552a995823ca3f0f66e07e79b66",
-      "size": 1016574
+      "sha256": "1d34aa062f64b33d011c0a2be604061480812c36e8c8915489434bbea117499d",
+      "size": 1016969
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8793,6 +8798,11 @@
       "path": "pages/concepts/devex.md",
       "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
       "size": 1244
+    },
+    {
+      "path": "pages/concepts/documentation-portal-structure.md",
+      "sha256": "d0ec755ab62ad0618190f35034e9a0305b8fa75b1bd123565b8e6567ed25e2bb",
+      "size": 5996
     },
     {
       "path": "pages/concepts/dutch-auction-minting.md",
@@ -11411,5 +11421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0940e96f9c5d4996afcc44b2b3424b6ef1a98d1421dece34144daea487433872"
+  "wiki_tree_hash": "ce9f24f61633add9979f8a4daadb4fe533b2ceadb1f5f5363549228a9571fbd3"
 }
