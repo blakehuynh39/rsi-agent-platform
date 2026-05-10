@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9950af2835ae2a55e9d9440451ea1e727a65b8bd21e62a80444762564e8e04ed",
-        "size": 549727
+        "sha256": "66be1daad71f865810210d72f22ecbad8397d4d5b485e92c04f08e68a4be48b6",
+        "size": 550006
       },
       {
         "path": "log.md",
-        "sha256": "1d34aa062f64b33d011c0a2be604061480812c36e8c8915489434bbea117499d",
-        "size": 1016969
+        "sha256": "bd7fe3e43fe8d96bd618d44a3df2edd3f24ee245d7c9b759c00bcc7ee12ecede",
+        "size": 1017260
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4915,6 +4915,11 @@
         "size": 1217
       },
       {
+        "path": "pages/projects/royalty-enhancement-plan.md",
+        "sha256": "ddd01b346935421ff9ded60f6b7e3f37bf1123c2eb7122d4e5ed983ee420049f",
+        "size": 4121
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -5699,8 +5704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T11:30:05Z",
-  "file_count": 1138,
+  "exported_at": "2026-05-10T11:41:25Z",
+  "file_count": 1139,
   "files": [
     {
       "path": ".curator_state",
@@ -8622,7 +8627,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "ab276c96c62808c4c7fcc92ded92dd8166bb272a045a2e941eb7a3f1b2b1596d",
+  "previous_tree_hash": "4d55635635f1786edca6423e756b2dfb30b5fc2bf69d92f23ef2453949e17b8d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8635,14 +8640,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4d55635635f1786edca6423e756b2dfb30b5fc2bf69d92f23ef2453949e17b8d",
+  "tree_hash": "b10a9269dec07478a6c761406e13748b7c46308d6197b89d5f2d5b86eb560260",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 555,
+  "wiki_file_count": 556,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8651,13 +8656,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9950af2835ae2a55e9d9440451ea1e727a65b8bd21e62a80444762564e8e04ed",
-      "size": 549727
+      "sha256": "66be1daad71f865810210d72f22ecbad8397d4d5b485e92c04f08e68a4be48b6",
+      "size": 550006
     },
     {
       "path": "log.md",
-      "sha256": "1d34aa062f64b33d011c0a2be604061480812c36e8c8915489434bbea117499d",
-      "size": 1016969
+      "sha256": "bd7fe3e43fe8d96bd618d44a3df2edd3f24ee245d7c9b759c00bcc7ee12ecede",
+      "size": 1017260
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10640,6 +10645,11 @@
       "size": 1217
     },
     {
+      "path": "pages/projects/royalty-enhancement-plan.md",
+      "sha256": "ddd01b346935421ff9ded60f6b7e3f37bf1123c2eb7122d4e5ed983ee420049f",
+      "size": 4121
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -11421,5 +11431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6c064c19df7d0d7ac09e45f1df906ed1cdbbedd34d70d8054f64aad6e36255fa"
+  "wiki_tree_hash": "01b50069762de066a1f477861a36a028340f652e01f94adde3c0fdf8e6bc6be0"
 }

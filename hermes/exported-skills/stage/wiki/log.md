@@ -21364,3 +21364,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1fc9a0f76a793c4d39d2165a84dd9fea
 - summary: Defines the overall framework for the documentation portal, outlining the goals and minimum requirements for Tutorials, How-to Guides, Explanations, and Reference sections, with a ...
 
+## [2026-05-10T11:37:45Z] synthesis | Royalty Enhancement Plan
+
+- status: published
+- slug: projects/royalty-enhancement-plan
+- wiki_revision_id: wikirev_843d0f5660555c8b24900c99aed1a29c
+- summary: A project to enhance the royalty module with new policies, automation, and UX improvements.
+
