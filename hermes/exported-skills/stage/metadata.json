@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ba5f4a1a736474acdcbcf17c827a85c0c7713590d85c45b54f2e7b7d05479143",
-        "size": 1023770
+        "sha256": "4fbcbbc358f73d2c3c47b6125dad0af7cb993e0eff3c9ee6cb49ad9690c63a6e",
+        "size": 1024011
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3338,6 +3338,11 @@
         "path": "pages/concepts/licensing-use-cases.md",
         "sha256": "6b0b7369cc841da0e6f506121e67653140c5eeba5ca303f6148d8afb651acf5d",
         "size": 8878
+      },
+      {
+        "path": "pages/concepts/lion-team-members.md",
+        "sha256": "61a95fb3f7aa9ff1f10962823d460cceaccb6228a28302f89ca0f7c9b0004828",
+        "size": 1289
       },
       {
         "path": "pages/concepts/litepaper.md",
@@ -5769,8 +5774,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T20:56:14Z",
-  "file_count": 1152,
+  "exported_at": "2026-05-10T21:32:54Z",
+  "file_count": 1153,
   "files": [
     {
       "path": ".curator_state",
@@ -8697,7 +8702,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "b1528518e778d476602831f74b59b3ca751b3935da91ef97e769c007b106ed0e",
+  "previous_tree_hash": "8e2e641123774d6d2777741443896366ad84acec87f7bdbae521ff6dee02307a",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8710,14 +8715,14 @@
   ],
   "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8e2e641123774d6d2777741443896366ad84acec87f7bdbae521ff6dee02307a",
+  "tree_hash": "781c8779476ae6ea9d6efe6773e166aafb985c62d5e9af80557e06e0b9e4905d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 568,
+  "wiki_file_count": 569,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8731,8 +8736,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ba5f4a1a736474acdcbcf17c827a85c0c7713590d85c45b54f2e7b7d05479143",
-      "size": 1023770
+      "sha256": "4fbcbbc358f73d2c3c47b6125dad0af7cb993e0eff3c9ee6cb49ad9690c63a6e",
+      "size": 1024011
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9133,6 +9138,11 @@
       "path": "pages/concepts/licensing-use-cases.md",
       "sha256": "6b0b7369cc841da0e6f506121e67653140c5eeba5ca303f6148d8afb651acf5d",
       "size": 8878
+    },
+    {
+      "path": "pages/concepts/lion-team-members.md",
+      "sha256": "61a95fb3f7aa9ff1f10962823d460cceaccb6228a28302f89ca0f7c9b0004828",
+      "size": 1289
     },
     {
       "path": "pages/concepts/litepaper.md",
@@ -11561,5 +11571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7ccf1ba1b570422c3bb847a2fb788de1084b5484a1368aefc05cc7cf32087def"
+  "wiki_tree_hash": "d4cc6ae8da58978110d537c2ce5632a71b807a6463ead4bfec90e19c207077b8"
 }

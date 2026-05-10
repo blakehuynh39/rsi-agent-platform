@@ -21497,3 +21497,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3c0830a66fbf468d58f955b876323039
 - summary: A collection of past design documents for Story Protocol, listing various design topics and proposals.
 
+## [2026-05-10T21:31:39Z] synthesis | Lion Team Members
+
+- status: published
+- slug: concepts/lion-team-members
+- wiki_revision_id: wikirev_d5e7db47665073f989d89361a3834632
+- summary: A Notion document listing the members of the Lion Team.
+
