@@ -21511,3 +21511,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_35913c06a17576e14c1b06e8bfa304e7
 - summary: Akash is a decentralized compute marketplace that facilitates secure and efficient buying and selling of computing resources, built on Cosmos SDK and Tendermint Core.
 
+## [2026-05-10T22:53:05Z] synthesis | Vancouver Hotel Options
+
+- status: published
+- slug: decisions/vancouver-hotel-options
+- wiki_revision_id: wikirev_63438a4feaa74c504986f0548e4bd93c
+- summary: Comparison of three Vancouver hotels (Blue Horizon, Sheraton, EXchange Hotel) for an event, including pricing, location, and food/service costs.
+
+## [2026-05-10T22:54:41Z] synthesis | Data Preparation and Training Research
+
+- status: published
+- slug: concepts/data-preparation-and-training-research
+- wiki_revision_id: wikirev_1d81d5af39150c0f00dce37789dea56b
+- summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
+

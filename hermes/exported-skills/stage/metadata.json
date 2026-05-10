@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "be1dfe2acc7318b4e07736fdfc18b7b54f2837998038628ae1f1b304db184401",
+        "sha256": "9342263df0e563452e83dabd5f7034833577175ab1c25de5c28069a80832e86e",
         "size": 2435
       },
       {
@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "34c1a8bcd68fb29745cc99af89657e0c30d35b15fee87fd14977d89ec8852efa",
-        "size": 554692
+        "sha256": "c4a04eec5605889936633a3de6256d97b027c831fc38e60568dd036032d25654",
+        "size": 555023
       },
       {
         "path": "log.md",
-        "sha256": "0a162c30fea4491e0005a786f7401c361e8d5da06e492281b5f6ab6409467f6b",
-        "size": 1024339
+        "sha256": "8cd40136b0996a1dd7a14654a08d56e6031e944c9b6da4fca173845a0e481939",
+        "size": 1025072
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3061,8 +3061,8 @@
       },
       {
         "path": "pages/concepts/data-preparation-and-training-research.md",
-        "sha256": "07ffddc374da099e9d621b074dc20959d54d6eead7243a249fd9e040abbf37a9",
-        "size": 5525
+        "sha256": "551e4a0bd543cde2033dce268207e40154c68aaf42ec51f5a39605b9663718ee",
+        "size": 6103
       },
       {
         "path": "pages/concepts/debias-and-denoise-attribution-dda.md",
@@ -4028,6 +4028,11 @@
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
         "sha256": "0bd48363bcfd7ac6d30762725e4604ad145a7283cb7123e13679fff480b0c457",
         "size": 6568
+      },
+      {
+        "path": "pages/decisions/vancouver-hotel-options.md",
+        "sha256": "3904a6fb9bf9f0fe5541463881ea1fac9b1791b0d86e68c1e4c785128cba66c0",
+        "size": 9070
       },
       {
         "path": "pages/decisions/video-task-user-limit-requirement.md",
@@ -5779,8 +5784,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T22:26:58Z",
-  "file_count": 1154,
+  "exported_at": "2026-05-10T22:56:38Z",
+  "file_count": 1155,
   "files": [
     {
       "path": ".curator_state",
@@ -5789,7 +5794,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "be1dfe2acc7318b4e07736fdfc18b7b54f2837998038628ae1f1b304db184401",
+      "sha256": "9342263df0e563452e83dabd5f7034833577175ab1c25de5c28069a80832e86e",
       "size": 2435
     },
     {
@@ -8706,8 +8711,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "4bc2ec18725cd742910a50626e33521c9f8794a4c58553b54d0218f12ebcb665",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b849f6x88b",
+  "previous_tree_hash": "fc2a3b38e1bb70d18f9e9f4f8504bccfbb59995c72fcc979e0453e4882ebef10",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8718,16 +8723,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
+  "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fc2a3b38e1bb70d18f9e9f4f8504bccfbb59995c72fcc979e0453e4882ebef10",
+  "tree_hash": "6647d9829a62d7b857fa60e0a0f2a2702cfd7e48ecd69e3b472aaf4adbc79655",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 570,
+  "wiki_file_count": 571,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8736,13 +8741,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "34c1a8bcd68fb29745cc99af89657e0c30d35b15fee87fd14977d89ec8852efa",
-      "size": 554692
+      "sha256": "c4a04eec5605889936633a3de6256d97b027c831fc38e60568dd036032d25654",
+      "size": 555023
     },
     {
       "path": "log.md",
-      "sha256": "0a162c30fea4491e0005a786f7401c361e8d5da06e492281b5f6ab6409467f6b",
-      "size": 1024339
+      "sha256": "8cd40136b0996a1dd7a14654a08d56e6031e944c9b6da4fca173845a0e481939",
+      "size": 1025072
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8866,8 +8871,8 @@
     },
     {
       "path": "pages/concepts/data-preparation-and-training-research.md",
-      "sha256": "07ffddc374da099e9d621b074dc20959d54d6eead7243a249fd9e040abbf37a9",
-      "size": 5525
+      "sha256": "551e4a0bd543cde2033dce268207e40154c68aaf42ec51f5a39605b9663718ee",
+      "size": 6103
     },
     {
       "path": "pages/concepts/debias-and-denoise-attribution-dda.md",
@@ -9833,6 +9838,11 @@
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
       "sha256": "0bd48363bcfd7ac6d30762725e4604ad145a7283cb7123e13679fff480b0c457",
       "size": 6568
+    },
+    {
+      "path": "pages/decisions/vancouver-hotel-options.md",
+      "sha256": "3904a6fb9bf9f0fe5541463881ea1fac9b1791b0d86e68c1e4c785128cba66c0",
+      "size": 9070
     },
     {
       "path": "pages/decisions/video-task-user-limit-requirement.md",
@@ -11581,5 +11591,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "552add5f195ad0debbbf0b57b44cdf65877689a552e7902f262564abd998f676"
+  "wiki_tree_hash": "96bef19231e34d850ea1bcea94fbe4bf71be600d8fec172c064e8444ea07dc24"
 }
