@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3982170226a8bf8c31d9393045b53c6049e65e4cacf80529fe79d5127575c9f6",
-        "size": 552518
+        "sha256": "931859f67016c2c639296055057bbb3360dce6bac9cb564813c9d916f941e8c5",
+        "size": 552877
       },
       {
         "path": "log.md",
-        "sha256": "fc7081cab2b48100ef3a4ad6f1b1f8cc11deb20790932681374b7291f51f7ee8",
-        "size": 1022081
+        "sha256": "beb4e4badcacc03c70d38ed0bd91024844f33e824cc6519b57170623c9b6000c",
+        "size": 1022452
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3498,6 +3498,11 @@
         "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
         "sha256": "1dea3e4c12599cede5609e621f14ddb8407220375c72e7b23ce5f93265aace58",
         "size": 2952
+      },
+      {
+        "path": "pages/concepts/proof-of-liquidity.md",
+        "sha256": "45762e4431a94d6dc87dae85128049f8da19ae6c8fca9b632617917e24b06cbc",
+        "size": 6379
       },
       {
         "path": "pages/concepts/prophet-pfp-concept.md",
@@ -5739,8 +5744,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T19:52:27Z",
-  "file_count": 1146,
+  "exported_at": "2026-05-10T19:58:42Z",
+  "file_count": 1147,
   "files": [
     {
       "path": ".curator_state",
@@ -8662,7 +8667,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "34974e6db6a1de69ec56e9443db834f0d51086b491221a629973e2067343a784",
+  "previous_tree_hash": "8b3303f1cc44725a8d2d993c80d593cd292593da668b67cf10dc14859ad9d98a",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8675,14 +8680,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8b3303f1cc44725a8d2d993c80d593cd292593da668b67cf10dc14859ad9d98a",
+  "tree_hash": "d2922d165200570ef911a507d4d89362fd769f955acf4d5be55fb95af1e33f53",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 563,
+  "wiki_file_count": 564,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8691,13 +8696,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3982170226a8bf8c31d9393045b53c6049e65e4cacf80529fe79d5127575c9f6",
-      "size": 552518
+      "sha256": "931859f67016c2c639296055057bbb3360dce6bac9cb564813c9d916f941e8c5",
+      "size": 552877
     },
     {
       "path": "log.md",
-      "sha256": "fc7081cab2b48100ef3a4ad6f1b1f8cc11deb20790932681374b7291f51f7ee8",
-      "size": 1022081
+      "sha256": "beb4e4badcacc03c70d38ed0bd91024844f33e824cc6519b57170623c9b6000c",
+      "size": 1022452
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9263,6 +9268,11 @@
       "path": "pages/concepts/proof-of-creativity-incentive-alignment.md",
       "sha256": "1dea3e4c12599cede5609e621f14ddb8407220375c72e7b23ce5f93265aace58",
       "size": 2952
+    },
+    {
+      "path": "pages/concepts/proof-of-liquidity.md",
+      "sha256": "45762e4431a94d6dc87dae85128049f8da19ae6c8fca9b632617917e24b06cbc",
+      "size": 6379
     },
     {
       "path": "pages/concepts/prophet-pfp-concept.md",
@@ -11501,5 +11511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "47b04ce06fd02f2d9d37d7f6bdcd8a6cb72ce4eef62bcee3aa7d32a0f7ee8a8b"
+  "wiki_tree_hash": "9a3fe29d57891f30ccc6d389d8c9f403a1f6968f0d42c40af322d1261c571e0a"
 }

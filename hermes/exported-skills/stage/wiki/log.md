@@ -21462,3 +21462,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4ca159a412b3d8119bb2686b47150c69
 - summary: Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, ...
 
+## [2026-05-10T19:56:45Z] synthesis | Proof of Liquidity
+
+- status: published
+- slug: concepts/proof-of-liquidity
+- wiki_revision_id: wikirev_c413bc4d951f495d54801d907403de54
+- summary: Proof of Liquidity (PoL) is a consensus mechanism used by Berachain that rewards liquidity provision rather than staking. It presents centralization risks and exposes validators to...
+
