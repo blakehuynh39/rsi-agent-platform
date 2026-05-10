@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "79a2c72bdfb3d51d90f6c30ba9853a1467846ecc333d626f9f1228384720bb0a",
-        "size": 1008676
+        "sha256": "18ff2a89a0d2095b822800502cbb11a6cc60c033c747e317dcd1b79198b48081",
+        "size": 1009064
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3843,6 +3843,11 @@
         "path": "pages/decisions/meta-transaction-architecture-decision.md",
         "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
         "size": 4651
+      },
+      {
+        "path": "pages/decisions/multi-parent-ip-derivation.md",
+        "sha256": "e189ea716b83e986790abec2bd509da40a9c4e1b45428c3145ea671dca9dfd2f",
+        "size": 5617
       },
       {
         "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -5589,8 +5594,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T03:39:43Z",
-  "file_count": 1116,
+  "exported_at": "2026-05-10T05:07:06Z",
+  "file_count": 1117,
   "files": [
     {
       "path": ".curator_state",
@@ -8512,7 +8517,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "6bb786d96fb133c04c98392f3ac71f24150b7af862b44dc444f8f6438b311ade",
+  "previous_tree_hash": "093b53b915fb775bf9fbd634c32b0f7be8a5e7aed918642369f20dc31fab2d26",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8525,14 +8530,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "093b53b915fb775bf9fbd634c32b0f7be8a5e7aed918642369f20dc31fab2d26",
+  "tree_hash": "86923d8aa2d9668b29911c37134de91ae8f691c26819590103d6967f0cd29202",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 533,
+  "wiki_file_count": 534,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8546,8 +8551,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "79a2c72bdfb3d51d90f6c30ba9853a1467846ecc333d626f9f1228384720bb0a",
-      "size": 1008676
+      "sha256": "18ff2a89a0d2095b822800502cbb11a6cc60c033c747e317dcd1b79198b48081",
+      "size": 1009064
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9458,6 +9463,11 @@
       "path": "pages/decisions/meta-transaction-architecture-decision.md",
       "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
       "size": 4651
+    },
+    {
+      "path": "pages/decisions/multi-parent-ip-derivation.md",
+      "sha256": "e189ea716b83e986790abec2bd509da40a9c4e1b45428c3145ea671dca9dfd2f",
+      "size": 5617
     },
     {
       "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -11201,5 +11211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c18cf28871267ddd77f940d5042aad808f853f6466f1122cdc68afa69098289d"
+  "wiki_tree_hash": "26e49d59438d893a87889eae1d787428ab56a035a971654a92a8e106218b6d9e"
 }

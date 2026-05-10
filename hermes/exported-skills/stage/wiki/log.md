@@ -21182,3 +21182,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_451cf255a3f93920e5520cebb9bd9801
 - summary: Story Network is the world’s first IP and content focused developer ecosystem, serving as the programmable IP layer built for the age of AI. It natively hosts Story Protocol and us...
 
+## [2026-05-10T05:04:34Z] synthesis | Multi-parent IP Derivation
+
+- status: published
+- slug: decisions/multi-parent-ip-derivation
+- wiki_revision_id: wikirev_da06966ead3523783dc0e1b32d60c83f
+- summary: Discussion and proposals for handling derivative IP assets that have multiple parents, including the introduction of composite IPAs (cIPA), reciprocal derivative flags, royalty wat...
+
