@@ -21483,3 +21483,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_08ed831cf0375baf7970e996d0e2d5d0
 - summary: Evaluation of documentation platforms (GitBook, Nextra, Docusaurus, ReadMe) to make a decision by September 7, 2023.
 
+## [2026-05-10T20:41:40Z] synthesis | Engineering Onboarding
+
+- status: published
+- slug: policies/engineering-onboarding
+- wiki_revision_id: wikirev_adaa5cb979044fcb4a04d5bdd2351476
+- summary: Onboarding guide for new engineering team members at Story Protocol, covering team introductions, company goals, logistics, and communication tools.
+

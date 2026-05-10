@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3be2c7c1f4c18a96696bc7793ae0b8928bece3348f89c0515d1ba73ab3378dc0",
-        "size": 553529
+        "sha256": "7715773046f5c9ff0a1c3a39dbccbeffdce7014f70f2e76db8c88dcd5e896106",
+        "size": 553861
       },
       {
         "path": "log.md",
-        "sha256": "d491922095ed75b0728f20c8cc7a71f06d247a6ba4c8caf494015912dbfc8841",
-        "size": 1023128
+        "sha256": "bdd0395e1e68af57080f9774bb47df85e0ec751b92a7383e629cb168f5f58efc",
+        "size": 1023472
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4158,6 +4158,11 @@
         "path": "pages/policies/engineering-meeting-cadence.md",
         "sha256": "fbe8ad68b24db646e3f5485a668e340b88b54de0dca9c187cd36e518cf95054a",
         "size": 1454
+      },
+      {
+        "path": "pages/policies/engineering-onboarding.md",
+        "sha256": "f6f3e6cbec7268c0fda3bfb0baeeeef98ffcfdcfeccca9b21e7424f93cbf2feb",
+        "size": 8881
       },
       {
         "path": "pages/policies/frontend-repo-open-source-checklist.md",
@@ -5759,8 +5764,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T20:28:41Z",
-  "file_count": 1150,
+  "exported_at": "2026-05-10T20:44:59Z",
+  "file_count": 1151,
   "files": [
     {
       "path": ".curator_state",
@@ -8687,7 +8692,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "e635d290171f724cd941628a17b758ab6a31bd62f273aac3742ec3e638c86b29",
+  "previous_tree_hash": "00bfa5182838000d615dd6524f6548826760cae9ddb612cfdd8a7c1e7880f9be",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8700,14 +8705,14 @@
   ],
   "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "00bfa5182838000d615dd6524f6548826760cae9ddb612cfdd8a7c1e7880f9be",
+  "tree_hash": "b1528518e778d476602831f74b59b3ca751b3935da91ef97e769c007b106ed0e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 566,
+  "wiki_file_count": 567,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8716,13 +8721,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3be2c7c1f4c18a96696bc7793ae0b8928bece3348f89c0515d1ba73ab3378dc0",
-      "size": 553529
+      "sha256": "7715773046f5c9ff0a1c3a39dbccbeffdce7014f70f2e76db8c88dcd5e896106",
+      "size": 553861
     },
     {
       "path": "log.md",
-      "sha256": "d491922095ed75b0728f20c8cc7a71f06d247a6ba4c8caf494015912dbfc8841",
-      "size": 1023128
+      "sha256": "bdd0395e1e68af57080f9774bb47df85e0ec751b92a7383e629cb168f5f58efc",
+      "size": 1023472
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9943,6 +9948,11 @@
       "path": "pages/policies/engineering-meeting-cadence.md",
       "sha256": "fbe8ad68b24db646e3f5485a668e340b88b54de0dca9c187cd36e518cf95054a",
       "size": 1454
+    },
+    {
+      "path": "pages/policies/engineering-onboarding.md",
+      "sha256": "f6f3e6cbec7268c0fda3bfb0baeeeef98ffcfdcfeccca9b21e7424f93cbf2feb",
+      "size": 8881
     },
     {
       "path": "pages/policies/frontend-repo-open-source-checklist.md",
@@ -11541,5 +11551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4532a6938d76a02f5df15f0454f7f739e7268cf8208cb5b90d6c021d01a0a99e"
+  "wiki_tree_hash": "78efaff92a83df73981206d03b7177fc0cf6fbdc07540d05c0b7c2cf89426f04"
 }
