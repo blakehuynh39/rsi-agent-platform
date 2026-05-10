@@ -21434,3 +21434,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ab9a6117a26d96b0b6536c7f7cdb41d6
 - summary: Runbook for the deprecated Odyssey devnet, a pre-launch test network for the Odyssey network. Covers context, services, infrastructure details including node distribution and SSH a...
 
+## [2026-05-10T17:34:05Z] synthesis | IP Account Centric Model
+
+- status: published
+- slug: concepts/ip-account-centric-model
+- wiki_revision_id: wikirev_fee23d5943ecc8d89a60e37569c24071
+- summary: The IP Account Centric Model conceptualizes IPAccount as the core identity (noun) and Modules as actions (verbs). IP Accounts represent IP as real entities on Ethereum, with IP NFT...
+
