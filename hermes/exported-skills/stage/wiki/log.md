@@ -21490,3 +21490,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_adaa5cb979044fcb4a04d5bdd2351476
 - summary: Onboarding guide for new engineering team members at Story Protocol, covering team introductions, company goals, logistics, and communication tools.
 
+## [2026-05-10T20:52:28Z] synthesis | Past Design Docs Index
+
+- status: published
+- slug: concepts/past-design-docs-index
+- wiki_revision_id: wikirev_3c0830a66fbf468d58f955b876323039
+- summary: A collection of past design documents for Story Protocol, listing various design topics and proposals.
+

@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7715773046f5c9ff0a1c3a39dbccbeffdce7014f70f2e76db8c88dcd5e896106",
-        "size": 553861
+        "sha256": "6e8e83a1a7edb87284beb613552af58218d3ad3eb20d88f2c7ebb3f0a083d2b2",
+        "size": 554147
       },
       {
         "path": "log.md",
-        "sha256": "bdd0395e1e68af57080f9774bb47df85e0ec751b92a7383e629cb168f5f58efc",
-        "size": 1023472
+        "sha256": "ba5f4a1a736474acdcbcf17c827a85c0c7713590d85c45b54f2e7b7d05479143",
+        "size": 1023770
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3438,6 +3438,11 @@
         "path": "pages/concepts/partner-integration.md",
         "sha256": "cd2110b988243e70650c2766eed7039ee8f88a59b344ddaed5994f54fede0bd3",
         "size": 1179
+      },
+      {
+        "path": "pages/concepts/past-design-docs-index.md",
+        "sha256": "683e42e8f7369cfa915fef966787a0ad6dc31df9bcadbde63ab623e385c01237",
+        "size": 1303
       },
       {
         "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
@@ -5764,8 +5769,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T20:44:59Z",
-  "file_count": 1151,
+  "exported_at": "2026-05-10T20:56:14Z",
+  "file_count": 1152,
   "files": [
     {
       "path": ".curator_state",
@@ -8692,7 +8697,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "00bfa5182838000d615dd6524f6548826760cae9ddb612cfdd8a7c1e7880f9be",
+  "previous_tree_hash": "b1528518e778d476602831f74b59b3ca751b3935da91ef97e769c007b106ed0e",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8705,14 +8710,14 @@
   ],
   "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b1528518e778d476602831f74b59b3ca751b3935da91ef97e769c007b106ed0e",
+  "tree_hash": "8e2e641123774d6d2777741443896366ad84acec87f7bdbae521ff6dee02307a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 567,
+  "wiki_file_count": 568,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8721,13 +8726,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7715773046f5c9ff0a1c3a39dbccbeffdce7014f70f2e76db8c88dcd5e896106",
-      "size": 553861
+      "sha256": "6e8e83a1a7edb87284beb613552af58218d3ad3eb20d88f2c7ebb3f0a083d2b2",
+      "size": 554147
     },
     {
       "path": "log.md",
-      "sha256": "bdd0395e1e68af57080f9774bb47df85e0ec751b92a7383e629cb168f5f58efc",
-      "size": 1023472
+      "sha256": "ba5f4a1a736474acdcbcf17c827a85c0c7713590d85c45b54f2e7b7d05479143",
+      "size": 1023770
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9228,6 +9233,11 @@
       "path": "pages/concepts/partner-integration.md",
       "sha256": "cd2110b988243e70650c2766eed7039ee8f88a59b344ddaed5994f54fede0bd3",
       "size": 1179
+    },
+    {
+      "path": "pages/concepts/past-design-docs-index.md",
+      "sha256": "683e42e8f7369cfa915fef966787a0ad6dc31df9bcadbde63ab623e385c01237",
+      "size": 1303
     },
     {
       "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
@@ -11551,5 +11561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "78efaff92a83df73981206d03b7177fc0cf6fbdc07540d05c0b7c2cf89426f04"
+  "wiki_tree_hash": "7ccf1ba1b570422c3bb847a2fb788de1084b5484a1368aefc05cc7cf32087def"
 }
