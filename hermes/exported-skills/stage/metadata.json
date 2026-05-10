@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a50ec0639828f5615d3bbc00643e706c3e8fd3ebe07a5b64aaf04c5f84b47532",
-        "size": 541246
+        "sha256": "d45a34b7775a043a452bd74db4af4ab24e877b5d77d6e390f4abb8a6021179b1",
+        "size": 542148
       },
       {
         "path": "log.md",
-        "sha256": "3046e6fa75a438231d2a1d1e42dee74cd61f2db128cee6574e3e8fe9c0042869",
-        "size": 1007017
+        "sha256": "e1abacf00626dcba75108efb79d31ecbc7f4bd17a83c8885d217e68157c3fa54",
+        "size": 1007499
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3953,6 +3953,11 @@
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
         "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
         "size": 1497
+      },
+      {
+        "path": "pages/open-questions/ip-infringement-outside-protocol-question.md",
+        "sha256": "ddb0ab41559adfd1777dd1c75b862dceebd0a181e405acdafd52983d0fdd7d17",
+        "size": 6419
       },
       {
         "path": "pages/open-questions/license-term-flexibility-derivatives.md",
@@ -5574,8 +5579,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T02:17:42Z",
-  "file_count": 1113,
+  "exported_at": "2026-05-10T02:23:57Z",
+  "file_count": 1114,
   "files": [
     {
       "path": ".curator_state",
@@ -8497,7 +8502,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "bb36359fe6e06af531c2b0c2d8dd839917b4d1a65ecd026772d5ca190151f8f3",
+  "previous_tree_hash": "93c39fbb4f87e9f7c909876264013c80a2fbb7ce05c7d37e7c407efa0e54a094",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8510,14 +8515,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "93c39fbb4f87e9f7c909876264013c80a2fbb7ce05c7d37e7c407efa0e54a094",
+  "tree_hash": "e1fd471ad20a498154d87dd7e30cddbe607afcf815e71b741997f5a3ffdc5355",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 530,
+  "wiki_file_count": 531,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8526,13 +8531,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a50ec0639828f5615d3bbc00643e706c3e8fd3ebe07a5b64aaf04c5f84b47532",
-      "size": 541246
+      "sha256": "d45a34b7775a043a452bd74db4af4ab24e877b5d77d6e390f4abb8a6021179b1",
+      "size": 542148
     },
     {
       "path": "log.md",
-      "sha256": "3046e6fa75a438231d2a1d1e42dee74cd61f2db128cee6574e3e8fe9c0042869",
-      "size": 1007017
+      "sha256": "e1abacf00626dcba75108efb79d31ecbc7f4bd17a83c8885d217e68157c3fa54",
+      "size": 1007499
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9553,6 +9558,11 @@
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
       "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
       "size": 1497
+    },
+    {
+      "path": "pages/open-questions/ip-infringement-outside-protocol-question.md",
+      "sha256": "ddb0ab41559adfd1777dd1c75b862dceebd0a181e405acdafd52983d0fdd7d17",
+      "size": 6419
     },
     {
       "path": "pages/open-questions/license-term-flexibility-derivatives.md",
@@ -11171,5 +11181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "21d38e54cc3c0070237dd8fbf58750fc991dab5dfa658e84641a4fc5781e18ef"
+  "wiki_tree_hash": "5cad7a38cd7ea0937011c57075db212abca4813d5c16c4099154bf943c6a4470"
 }

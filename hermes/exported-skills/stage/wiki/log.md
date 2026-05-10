@@ -21154,3 +21154,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b39ed1537af597429407437c4180b89f
 - summary: Design decision between keeping IPAccount as a restricted module-based wallet (D.1) or making it a generic AA wallet (D.2) to improve composability with external protocols.
 
+## [2026-05-10T02:18:50Z] synthesis | How will Story Protocol deal with IP infringements outside the protocol or missing royalty payments?
+
+- status: published
+- slug: open-questions/ip-infringement-outside-protocol-question
+- wiki_revision_id: wikirev_180b02e8bd2a812735d24753a2a7ab25
+- summary: Recurring question about handling IP infringements and missing royalty payments outside the protocol. Story Protocol currently lacks a clear answer, and competitors could exploit t...
+
