@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7df4bdf70202ef65c5416ed093b85e738ae3f0bb2791a6e7a0f1d25d789776e1",
-        "size": 551745
+        "sha256": "2a1d19e5c419e0b95cf5d2a9d49ce7938364315ca2093a8bd2312e45ab7d6d08",
+        "size": 552112
       },
       {
         "path": "log.md",
-        "sha256": "24d51a839d3eacfe8d7f9e4fb5d97c39f92aa85bc6ebbc6afe63928725693904",
-        "size": 1020136
+        "sha256": "7d6c835a60ea055da5b62880f598dcf0e3b95037010bf19b9149570170db2c40",
+        "size": 1020515
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5265,6 +5265,11 @@
         "size": 6068
       },
       {
+        "path": "pages/runbooks/odyssey-devnet-runbook.md",
+        "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
+        "size": 6053
+      },
+      {
         "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
         "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
         "size": 2897
@@ -5729,8 +5734,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T16:12:50Z",
-  "file_count": 1144,
+  "exported_at": "2026-05-10T17:09:39Z",
+  "file_count": 1145,
   "files": [
     {
       "path": ".curator_state",
@@ -8652,7 +8657,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "e134612888c4b6aca2e40158a62eb8c94a8dce0e129222cb0c4cb41a26800fc2",
+  "previous_tree_hash": "a5863b41c9d32f69bab8bfb9f6a4076f49fec5a466fa197be954f4e4e1bd6094",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8665,14 +8670,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a5863b41c9d32f69bab8bfb9f6a4076f49fec5a466fa197be954f4e4e1bd6094",
+  "tree_hash": "c1719bdf2a52bb802ac991137a3c7e018e651325ba00b423f88c979d89029586",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 561,
+  "wiki_file_count": 562,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8681,13 +8686,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7df4bdf70202ef65c5416ed093b85e738ae3f0bb2791a6e7a0f1d25d789776e1",
-      "size": 551745
+      "sha256": "2a1d19e5c419e0b95cf5d2a9d49ce7938364315ca2093a8bd2312e45ab7d6d08",
+      "size": 552112
     },
     {
       "path": "log.md",
-      "sha256": "24d51a839d3eacfe8d7f9e4fb5d97c39f92aa85bc6ebbc6afe63928725693904",
-      "size": 1020136
+      "sha256": "7d6c835a60ea055da5b62880f598dcf0e3b95037010bf19b9149570170db2c40",
+      "size": 1020515
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11020,6 +11025,11 @@
       "size": 6068
     },
     {
+      "path": "pages/runbooks/odyssey-devnet-runbook.md",
+      "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
+      "size": 6053
+    },
+    {
       "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
       "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
       "size": 2897
@@ -11481,5 +11491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "63886c5ffa84fae4654a778f190f3cd0e340180c2eae4015fd8da4004982a95c"
+  "wiki_tree_hash": "c56f48df87a86e7260fafc321e7ba60ccc3f6f359821accb71bbaef267435bca"
 }

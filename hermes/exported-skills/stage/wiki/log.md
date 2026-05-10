@@ -21427,3 +21427,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_af1c0541f0a6cf806040e264bf28116f
 - summary: Criteria for selecting design partners for the protocol launch, including brand, use case diversity, execution speed, and other factors.
 
+## [2026-05-10T17:09:11Z] synthesis | Odyssey Devnet Runbook
+
+- status: published
+- slug: runbooks/odyssey-devnet-runbook
+- wiki_revision_id: wikirev_ab9a6117a26d96b0b6536c7f7cdb41d6
+- summary: Runbook for the deprecated Odyssey devnet, a pre-launch test network for the Odyssey network. Covers context, services, infrastructure details including node distribution and SSH a...
+
