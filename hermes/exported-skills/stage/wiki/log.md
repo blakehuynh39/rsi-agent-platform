@@ -21147,3 +21147,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_666f1f933a469b63af01dbe692b05535
 - summary: IPAccount is not a generic AA wallet; it is customized for Programmable IP use cases and does not support owner calls to arbitrary external contracts.
 
+## [2026-05-10T02:16:43Z] synthesis | IPAccount Design Decision: Generic AA Wallet vs Restricted Module-based Wallet
+
+- status: published
+- slug: decisions/ipaccount-generic-aa-vs-restricted-module
+- wiki_revision_id: wikirev_b39ed1537af597429407437c4180b89f
+- summary: Design decision between keeping IPAccount as a restricted module-based wallet (D.1) or making it a generic AA wallet (D.2) to improve composability with external protocols.
+
