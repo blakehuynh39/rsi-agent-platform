@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "69d0b8dd81027e22c0bc3ff70739514415078f22f7c2f2632a67e8c201d93570",
-        "size": 539969
+        "sha256": "0848559db0cc11580ca13b70962b99eff8515a22f8f87d96624f82d2f1f7d7af",
+        "size": 540671
       },
       {
         "path": "log.md",
-        "sha256": "44a2f953ad5333c14f42cc3df1aa35d027bf9381cb138d6cda5ea81c5404fd7f",
-        "size": 1005236
+        "sha256": "b18b1798d0bec7ffaa1e3c6cf2104f610d2c7b313eb3aa7804e5331d5f326fe1",
+        "size": 1005619
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4350,6 +4350,11 @@
         "size": 5148
       },
       {
+        "path": "pages/projects/ethdenver-magma-57blocks-integration.md",
+        "sha256": "5936efe406dde52b67b87c91ce13de9eec2cc9230161998e20e2c1dcae588d10",
+        "size": 6660
+      },
+      {
         "path": "pages/projects/eu-api-sdk-integration-notes.md",
         "sha256": "e661a837ee0d9113f9cf3040913e873a4e75c4595caba541e003c01d48cc8205",
         "size": 10501
@@ -5554,8 +5559,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T01:20:04Z",
-  "file_count": 1109,
+  "exported_at": "2026-05-10T01:26:18Z",
+  "file_count": 1110,
   "files": [
     {
       "path": ".curator_state",
@@ -8477,7 +8482,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "ce43d31b75719be0d5da03e1fda7d747213508102e75fe2b2cd5497bebb1c5c3",
+  "previous_tree_hash": "32de73dd109950a0af51c86f19d8075aa3858a6fdf30117bdaa492c41521da76",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8490,14 +8495,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "32de73dd109950a0af51c86f19d8075aa3858a6fdf30117bdaa492c41521da76",
+  "tree_hash": "2fb5460034db6f7673d71a358a2c5fcbed3ea7ca45fc6d98867f683faeb74455",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 526,
+  "wiki_file_count": 527,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8506,13 +8511,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "69d0b8dd81027e22c0bc3ff70739514415078f22f7c2f2632a67e8c201d93570",
-      "size": 539969
+      "sha256": "0848559db0cc11580ca13b70962b99eff8515a22f8f87d96624f82d2f1f7d7af",
+      "size": 540671
     },
     {
       "path": "log.md",
-      "sha256": "44a2f953ad5333c14f42cc3df1aa35d027bf9381cb138d6cda5ea81c5404fd7f",
-      "size": 1005236
+      "sha256": "b18b1798d0bec7ffaa1e3c6cf2104f610d2c7b313eb3aa7804e5331d5f326fe1",
+      "size": 1005619
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9930,6 +9935,11 @@
       "size": 5148
     },
     {
+      "path": "pages/projects/ethdenver-magma-57blocks-integration.md",
+      "sha256": "5936efe406dde52b67b87c91ce13de9eec2cc9230161998e20e2c1dcae588d10",
+      "size": 6660
+    },
+    {
       "path": "pages/projects/eu-api-sdk-integration-notes.md",
       "sha256": "e661a837ee0d9113f9cf3040913e873a4e75c4595caba541e003c01d48cc8205",
       "size": 10501
@@ -11131,5 +11141,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2f222df3f33578c50d59d6901501a5717614eb61b484efd7d39f29b36baf832c"
+  "wiki_tree_hash": "49f169790dbe40c449d3c52e8fe92c76076677788bee95e2652a50d4c2ef542e"
 }
