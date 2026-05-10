@@ -22,23 +22,25 @@ func TestReduceActionExecutionRejectsIllegalCombination(t *testing.T) {
 }
 
 func TestReduceActionExecutionQueueAdvancesFromEmptyState(t *testing.T) {
-	decision := ReduceActionExecution(ActionExecutionSnapshot{}, CommandEnvelope{
-		MachineKind: MachineAction,
-		CommandKind: string(CommandActionQueue),
-		CommandID:   "cmd-queue",
-		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"kind": string(action.KindToolRead),
-		},
-	})
-	if decision.DecisionKind != DecisionAdvance {
-		t.Fatalf("expected advance, got %+v", decision)
-	}
-	if decision.NextState != action.StatusQueued {
-		t.Fatalf("expected queued, got %s", decision.NextState)
-	}
-	if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectInvokeAction {
-		t.Fatalf("expected invoke_action effect, got %+v", decision.Effects)
+	for _, kind := range []action.Kind{action.KindToolRead, action.KindSlackPost, action.KindSlackReport} {
+		decision := ReduceActionExecution(ActionExecutionSnapshot{}, CommandEnvelope{
+			MachineKind: MachineAction,
+			CommandKind: string(CommandActionQueue),
+			CommandID:   "cmd-queue",
+			OccurredAt:  time.Now().UTC(),
+			Payload: map[string]any{
+				"kind": string(kind),
+			},
+		})
+		if decision.DecisionKind != DecisionAdvance {
+			t.Fatalf("kind %s: expected advance, got %+v", kind, decision)
+		}
+		if decision.NextState != action.StatusQueued {
+			t.Fatalf("kind %s: expected queued, got %s", kind, decision.NextState)
+		}
+		if len(decision.Effects) != 1 || decision.Effects[0].Kind != EffectInvokeAction {
+			t.Fatalf("kind %s: expected invoke_action effect, got %+v", kind, decision.Effects)
+		}
 	}
 }
 

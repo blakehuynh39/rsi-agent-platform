@@ -192,12 +192,15 @@ func (s *MemoryStore) reconcileProjectedActionTraceLocked(trace events.Trace, wo
 				Status:                string(intent.Status),
 				CreatedAt:             completedAt,
 			})
-		case action.KindSlackPost:
+		case action.KindSlackPost, action.KindSlackReport:
 			if traceHasSlackActionRecord(trace, intent.IdempotencyKey) {
 				continue
 			}
 			summary := firstNonEmpty(errorMessage, intent.PolicyVerdict, intent.Rationale, string(intent.Status))
-			eventStatus, eventType := actionTraceEventStatus(intent.Status, "slack.reply.posted", "slack.reply.blocked", "slack.reply.failed")
+			postedType := map[bool]string{true: "slack.report.posted", false: "slack.reply.posted"}[intent.Kind == action.KindSlackReport]
+			blockedType := map[bool]string{true: "slack.report.blocked", false: "slack.reply.blocked"}[intent.Kind == action.KindSlackReport]
+			failedType := map[bool]string{true: "slack.report.failed", false: "slack.reply.failed"}[intent.Kind == action.KindSlackReport]
+			eventStatus, eventType := actionTraceEventStatus(intent.Status, postedType, blockedType, failedType)
 			switch intent.Status {
 			case action.StatusSucceeded:
 				sendStatus = "posted"

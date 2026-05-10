@@ -74,7 +74,8 @@ func (s *MemoryStore) UpdateExternalToolActionResult(actionID string, update Ext
 	item.ErrorMessage = update.ErrorMessage
 	item.SourceRef = update.SourceRef
 	item.WikiAuditID = update.WikiAuditID
-	item.MirrorEffect = cloneAnyMap(update.MirrorEffect)
+	item.ResultPayload = CloneJSONMap(update.ResultPayload)
+	item.MirrorEffect = CloneJSONMap(update.MirrorEffect)
 	item.UpdatedAt = now
 	if item.State == ExternalToolActionStateSucceeded || item.State == ExternalToolActionStateFailed {
 		completed := now

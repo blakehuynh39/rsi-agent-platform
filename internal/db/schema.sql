@@ -2573,6 +2573,7 @@ create table if not exists external_tool_action (
   error_message text,
   source_ref text,
   wiki_audit_id text,
+  result_payload jsonb not null default '{}'::jsonb,
   mirror_effect jsonb not null default '{}'::jsonb,
   created_at timestamptz not null,
   updated_at timestamptz not null,

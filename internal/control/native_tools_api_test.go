@@ -2,6 +2,7 @@ package control
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -127,6 +128,133 @@ func TestNativeToolsIdempotentReplayConflictAndFailureAudit(t *testing.T) {
 	}
 	if len(store.ListExternalToolActions()) != 1 {
 		t.Fatalf("conflicting replay should not create a second action, got %d", len(store.ListExternalToolActions()))
+	}
+}
+
+func TestNativeToolReplayReturnsPersistedResultPayload(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	store := storepkg.NewMemoryStore()
+	claims := nativeToolsValidClaims(time.Now().UTC(), "slack")
+	input := nativeToolActionRequest{
+		Surface:        "slack",
+		Operation:      "message_post",
+		IdempotencyKey: "idem-result",
+		Reason:         "reply to user",
+		Arguments:      map[string]any{"channel_id": "C123", "text": "hello"},
+	}
+
+	first, _, _ := handleNativeToolAction(context.Background(), cfg, store, claims, input)
+	if first.Action.ID == "" {
+		t.Fatalf("expected first call to create action: %#v", first)
+	}
+	_, err := store.UpdateExternalToolActionResult(first.Action.ID, storepkg.ExternalToolActionResultUpdate{
+		State:           storepkg.ExternalToolActionStateSucceeded,
+		ResponseSummary: "posted Slack message",
+		SourceRef:       "slack:C123:123.456",
+		ResultPayload:   map[string]any{"channel_id": "C123", "ts": "123.456"},
+	}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("seed result payload: %v", err)
+	}
+
+	replay, status, err := handleNativeToolAction(context.Background(), cfg, store, claims, input)
+	if err != nil {
+		t.Fatalf("replay returned error: %v", err)
+	}
+	if status != http.StatusOK || !replay.OK || !replay.Replayed {
+		t.Fatalf("unexpected replay response status=%d payload=%#v", status, replay)
+	}
+	output := mapValue(replay.Output)
+	if output["ts"] != "123.456" {
+		t.Fatalf("expected persisted result payload on replay, got %#v", replay.Output)
+	}
+}
+
+func TestNativeToolSlackReportCanResumeSucceededPartialUpload(t *testing.T) {
+	action := storepkg.ExternalToolAction{
+		State: storepkg.ExternalToolActionStateSucceeded,
+		ResultPayload: map[string]any{
+			"render_manifest": map[string]any{
+				"main_message": map[string]any{
+					"status":     "posted",
+					"channel_id": "C123",
+					"ts":         "123.456",
+				},
+				"uploads": []any{
+					map[string]any{"id": "table-0", "status": "failed"},
+				},
+			},
+		},
+	}
+	input := nativeToolActionRequest{Surface: "slack", Operation: "report_post"}
+	if !nativeToolActionCanResume(input, action) {
+		t.Fatalf("expected succeeded Slack report with failed uploads to resume")
+	}
+}
+
+func TestNativeToolSlackReportResumeWithNilArgumentsDoesNotPanic(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	store := storepkg.NewMemoryStore()
+	claims := nativeToolsValidClaims(time.Now().UTC(), "slack")
+	input := nativeToolActionRequest{
+		Surface:        "slack",
+		Operation:      "report_post",
+		IdempotencyKey: "report-nil-args",
+		Reason:         "resume report",
+	}
+	requestHash, err := nativeToolRequestHash(input, false)
+	if err != nil {
+		t.Fatalf("hash request: %v", err)
+	}
+	now := time.Now().UTC()
+	actionRecord, _, err := store.UpsertExternalToolAction(storepkg.ExternalToolActionCreateInput{
+		Surface:        input.Surface,
+		Operation:      input.Operation,
+		IdempotencyKey: input.IdempotencyKey,
+		RequestHash:    requestHash,
+		Actor:          claims.Actor,
+		Reason:         input.Reason,
+		ExecutionID:    claims.ExecutionID,
+		OperationID:    claims.OperationID,
+		TraceID:        claims.TraceID,
+		WorkflowID:     claims.WorkflowID,
+		ConversationID: claims.ConversationID,
+	}, now)
+	if err != nil {
+		t.Fatalf("seed external action: %v", err)
+	}
+	_, err = store.UpdateExternalToolActionResult(actionRecord.ID, storepkg.ExternalToolActionResultUpdate{
+		State: storepkg.ExternalToolActionStateFailed,
+		ResultPayload: map[string]any{
+			"render_manifest": map[string]any{
+				"main_message": map[string]any{
+					"status":     "posted",
+					"channel_id": "C123",
+					"ts":         "123.456",
+				},
+				"uploads": []any{
+					map[string]any{"id": "table-0", "status": "failed"},
+				},
+			},
+		},
+	}, now)
+	if err != nil {
+		t.Fatalf("seed external action result: %v", err)
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, store, claims, input)
+	if err != nil {
+		t.Fatalf("resume returned unexpected transport error: %v", err)
+	}
+	if status == 0 {
+		t.Fatalf("expected HTTP status for nil-argument resume, got response=%#v", resp)
+	}
+	stored, ok := store.GetExternalToolAction(actionRecord.ID)
+	if !ok {
+		t.Fatalf("expected stored external action %s", actionRecord.ID)
+	}
+	if !slackReportResultHasPostedMain(stored.ResultPayload) {
+		t.Fatalf("expected failed resume to preserve posted main message manifest, got %#v", stored.ResultPayload)
 	}
 }
 

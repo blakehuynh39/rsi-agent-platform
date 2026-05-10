@@ -28,7 +28,7 @@ const nativeToolsAudience = "rsi-native-tools"
 
 var nativeToolWriteOps = map[string]map[string]bool{
 	"slack": {
-		"message_post": true, "message_update": true, "message_delete": true,
+		"message_post": true, "message_update": true, "message_delete": true, "report_post": true,
 		"reaction_add": true, "reaction_remove": true, "file_upload": true,
 		"channel_create": true, "channel_rename": true, "channel_archive": true, "channel_invite": true,
 	},
@@ -191,8 +191,18 @@ func handleNativeToolAction(ctx context.Context, cfg config.Config, repo storepk
 	if upsertStatus == storepkg.ExternalToolActionUpsertConflict {
 		return nativeToolActionResponse{OK: false, Replayed: true, Action: action, Error: "idempotency key already used with a different request hash"}, http.StatusConflict, nil
 	}
-	if upsertStatus == storepkg.ExternalToolActionUpsertReplay {
-		return nativeToolActionResponse{OK: action.State == storepkg.ExternalToolActionStateSucceeded, Replayed: true, Action: action, Error: action.ErrorMessage}, http.StatusOK, nil
+	replaying := upsertStatus == storepkg.ExternalToolActionUpsertReplay
+	resuming := replaying && nativeToolActionCanResume(input, action)
+	if replaying && !resuming {
+		return nativeToolActionResponse{OK: action.State == storepkg.ExternalToolActionStateSucceeded, Replayed: true, Action: action, Output: action.ResultPayload, Error: action.ErrorMessage}, http.StatusOK, nil
+	}
+	if resuming {
+		args := storepkg.CloneJSONMap(input.Arguments)
+		if args == nil {
+			args = map[string]any{}
+		}
+		args["__previous_result_payload"] = action.ResultPayload
+		input.Arguments = args
 	}
 	if validationErr, status := validateNativeToolActionPolicy(cfg, input, isWrite, isDestructive); validationErr != nil {
 		failed, updateErr := repo.UpdateExternalToolActionResult(action.ID, storepkg.ExternalToolActionResultUpdate{
@@ -212,23 +222,40 @@ func handleNativeToolAction(ctx context.Context, cfg config.Config, repo storepk
 		resultState = storepkg.ExternalToolActionStateFailed
 		errorMessage = execErr.Error()
 	}
+	resultPayload := mapValue(output)
+	if resultPayload == nil {
+		if resuming {
+			resultPayload = action.ResultPayload
+		} else {
+			resultPayload = map[string]any{}
+		}
+	}
 	action, err = repo.UpdateExternalToolActionResult(action.ID, storepkg.ExternalToolActionResultUpdate{
 		State:           resultState,
 		ResponseSummary: responseSummary,
 		ErrorMessage:    errorMessage,
 		SourceRef:       sourceRef,
 		WikiAuditID:     wikiAuditID,
+		ResultPayload:   resultPayload,
 		MirrorEffect:    mirrorEffect,
 	}, time.Now().UTC())
 	if err != nil {
 		return nativeToolActionResponse{}, http.StatusInternalServerError, err
 	}
 	return nativeToolActionResponse{
-		OK:     execErr == nil,
-		Action: action,
-		Output: output,
-		Error:  errorMessage,
+		OK:       execErr == nil,
+		Replayed: replaying,
+		Action:   action,
+		Output:   output,
+		Error:    errorMessage,
 	}, execStatus, execErr
+}
+
+func nativeToolActionCanResume(input nativeToolActionRequest, action storepkg.ExternalToolAction) bool {
+	return input.Surface == "slack" &&
+		input.Operation == "report_post" &&
+		slackReportResultHasPostedMain(action.ResultPayload) &&
+		(action.State == storepkg.ExternalToolActionStateFailed || slackReportResultHasUploadFailures(action.ResultPayload))
 }
 
 func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storepkg.Repository, claims nativeToolClaims, input nativeToolActionRequest) (any, string, string, string, map[string]any, int, error) {
@@ -801,7 +828,10 @@ func executeSlackNativeToolAction(ctx context.Context, cfg config.Config, repo s
 		return user, "loaded Slack user", "slack_user:" + userID, "", map[string]any{"status": "not_applicable"}, statusFromErr(err), err
 	case "message_post":
 		channelID := firstNonEmpty(stringArg(input.Arguments, "channel_id"), input.TargetRef)
-		options := slackMessageOptions(input.Arguments)
+		options, err := slackMessagePostOptions(input.Arguments)
+		if err != nil {
+			return nil, "", "", "", slackMirrorEffect("not_attempted", ""), http.StatusBadRequest, err
+		}
 		channel, ts, err := api.PostMessageContext(ctx, channelID, options...)
 		sourceRef := "slack:" + channel + ":" + ts
 		mirrorEffect := nativeSlackRefreshMirrorEffect(ctx, cfg, repo, api, channel, ts, firstNonEmpty(stringArg(input.Arguments, "thread_ts"), ts), err)
@@ -809,10 +839,16 @@ func executeSlackNativeToolAction(ctx context.Context, cfg config.Config, repo s
 	case "message_update":
 		channelID := firstNonEmpty(stringArg(input.Arguments, "channel_id"), input.TargetRef)
 		ts := stringArg(input.Arguments, "ts")
-		channel, updatedTS, text, err := api.UpdateMessageContext(ctx, channelID, ts, slackMessageOptions(input.Arguments)...)
+		options, err := slackMessageUpdateOptions(input.Arguments)
+		if err != nil {
+			return nil, "", "", "", slackMirrorEffect("not_attempted", ""), http.StatusBadRequest, err
+		}
+		channel, updatedTS, text, err := api.UpdateMessageContext(ctx, channelID, ts, options...)
 		sourceRef := "slack:" + channel + ":" + updatedTS
 		mirrorEffect := nativeSlackRefreshMirrorEffect(ctx, cfg, repo, api, channel, updatedTS, stringArg(input.Arguments, "thread_ts"), err)
 		return map[string]any{"channel_id": channel, "ts": updatedTS, "text": text}, "updated Slack message", sourceRef, "", mirrorEffect, statusFromErr(err), err
+	case "report_post":
+		return executeSlackReportNativeToolAction(ctx, cfg, repo, api, input)
 	case "message_delete":
 		channelID := firstNonEmpty(stringArg(input.Arguments, "channel_id"), input.TargetRef)
 		ts := stringArg(input.Arguments, "ts")
@@ -1335,10 +1371,42 @@ func statusFromErr(err error) int {
 	return http.StatusOK
 }
 
-func slackMessageOptions(args map[string]any) []slackapi.MsgOption {
+func slackMessagePostOptions(args map[string]any) ([]slackapi.MsgOption, error) {
 	options := []slackapi.MsgOption{slackapi.MsgOptionText(stringArg(args, "text"), false)}
-	if threadTS := stringArg(args, "thread_ts"); threadTS != "" {
-		options = append(options, slackapi.MsgOptionTS(threadTS))
+	options, err := appendSlackMessageDecorators(options, args, true)
+	if err != nil {
+		return nil, err
+	}
+	return options, nil
+}
+
+func slackMessageUpdateOptions(args map[string]any) ([]slackapi.MsgOption, error) {
+	options := []slackapi.MsgOption{}
+	if hasNativeArg(args, "text") {
+		options = append(options, slackapi.MsgOptionText(stringArg(args, "text"), false))
+	}
+	return appendSlackMessageDecorators(options, args, false)
+}
+
+func appendSlackMessageDecorators(options []slackapi.MsgOption, args map[string]any, includeThread bool) ([]slackapi.MsgOption, error) {
+	if includeThread {
+		if threadTS := stringArg(args, "thread_ts"); threadTS != "" {
+			options = append(options, slackapi.MsgOptionTS(threadTS))
+		}
+	}
+	if hasNativeArg(args, "blocks") {
+		blocks, err := slackBlocksArg(args, "blocks")
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, slackapi.MsgOptionBlocks(blocks.BlockSet...))
+	}
+	if hasNativeArg(args, "attachments") {
+		attachments, err := slackAttachmentsArg(args, "attachments")
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, slackapi.MsgOptionAttachments(attachments...))
 	}
 	if boolArg(args, "unfurl_links", false) {
 		options = append(options, slackapi.MsgOptionEnableLinkUnfurl())
@@ -1346,7 +1414,47 @@ func slackMessageOptions(args map[string]any) []slackapi.MsgOption {
 	if !boolArg(args, "unfurl_media", true) {
 		options = append(options, slackapi.MsgOptionDisableMediaUnfurl())
 	}
-	return options
+	return options, nil
+}
+
+func hasNativeArg(args map[string]any, key string) bool {
+	if args == nil {
+		return false
+	}
+	_, ok := args[key]
+	return ok
+}
+
+func slackBlocksArg(args map[string]any, key string) (slackapi.Blocks, error) {
+	raw, ok := args[key]
+	if !ok {
+		return slackapi.Blocks{}, nil
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return slackapi.Blocks{}, fmt.Errorf("marshal Slack blocks: %w", err)
+	}
+	var blocks slackapi.Blocks
+	if err := json.Unmarshal(data, &blocks); err != nil {
+		return slackapi.Blocks{}, fmt.Errorf("decode Slack blocks: %w", err)
+	}
+	return blocks, nil
+}
+
+func slackAttachmentsArg(args map[string]any, key string) ([]slackapi.Attachment, error) {
+	raw, ok := args[key]
+	if !ok {
+		return nil, nil
+	}
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return nil, fmt.Errorf("marshal Slack attachments: %w", err)
+	}
+	var attachments []slackapi.Attachment
+	if err := json.Unmarshal(data, &attachments); err != nil {
+		return nil, fmt.Errorf("decode Slack attachments: %w", err)
+	}
+	return attachments, nil
 }
 
 func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFileParameters, error) {
@@ -1359,7 +1467,7 @@ func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFi
 		Title:           stringArg(args, "title"),
 		Content:         stringArg(args, "content"),
 	}
-	path := firstNonEmpty(stringArg(args, "path"), stringArg(args, "artifact_ref"))
+	path := slackUploadLocalPath(firstNonEmpty(stringArg(args, "path"), stringArg(args, "artifact_ref")))
 	if path != "" {
 		info, err := os.Stat(path)
 		if err != nil {
@@ -1374,10 +1482,29 @@ func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFi
 			params.Filename = info.Name()
 		}
 	}
+	if params.File == "" && stringArg(args, "content_base64") != "" {
+		decoded, err := base64.StdEncoding.DecodeString(stringArg(args, "content_base64"))
+		if err != nil {
+			return slackapi.UploadFileParameters{}, fmt.Errorf("decode content_base64: %w", err)
+		}
+		params.Content = string(decoded)
+		params.FileSize = len(decoded)
+	}
+	if params.File == "" && params.Content != "" && params.FileSize == 0 {
+		params.FileSize = len([]byte(params.Content))
+	}
 	if params.File == "" && params.Content == "" {
-		return slackapi.UploadFileParameters{}, errors.New("slack file_upload requires path, artifact_ref, or content")
+		return slackapi.UploadFileParameters{}, errors.New("slack file_upload requires path, artifact_ref, content, or content_base64")
+	}
+	if params.File == "" && params.Filename == "" {
+		params.Filename = "upload.txt"
 	}
 	return params, nil
+}
+
+func slackUploadLocalPath(value string) string {
+	value = strings.TrimSpace(value)
+	return strings.TrimPrefix(value, "file://")
 }
 
 func nativeSlackRefreshMirrorEffect(ctx context.Context, cfg config.Config, repo storepkg.Repository, api *slackapi.Client, channelID string, ts string, threadTS string, sourceErr error) map[string]any {

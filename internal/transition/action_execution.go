@@ -105,7 +105,7 @@ func reduceActionStart(snapshot ActionExecutionSnapshot, _ CommandEnvelope) Acti
 func reduceActionQueue(snapshot ActionExecutionSnapshot, command CommandEnvelope) ActionExecutionDecision {
 	effects := []EffectRequest{}
 	switch action.Kind(strings.TrimSpace(asString(command.Payload["kind"]))) {
-	case action.KindToolRead, action.KindSlackPost:
+	case action.KindToolRead, action.KindSlackPost, action.KindSlackReport:
 		effects = append(effects, EffectRequest{
 			Kind:           EffectInvokeAction,
 			Status:         EffectQueued,

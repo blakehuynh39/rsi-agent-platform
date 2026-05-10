@@ -528,10 +528,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	artifactFailureReason := strings.TrimSpace(runnerOutput.ArtifactFailureReason)
 	artifactRequested := artifactProduced || artifactFailureReason != ""
 
-	proposedReplyAction := firstSlackPostAction(runnerOutput.ProposedActions)
+	proposedReplyAction := firstSlackReplyAction(runnerOutput.ProposedActions)
 	replyBody := firstNonEmpty(
 		strings.TrimSpace(runnerOutput.FinalAnswer),
 		strings.TrimSpace(runnerOutput.ReplyDraft),
+		strings.TrimSpace(slackReportSummaryFromPayload(proposedReplyAction.RequestPayload)),
 		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "body")),
 		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "final_body")),
 		strings.TrimSpace(stringValueFromMap(proposedReplyAction.RequestPayload, "draft_body")),
@@ -545,8 +546,14 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	allowed, policyVerdict := replyPolicy(store, ctx.workflow.Kind, replyThreadKey, replyChannelID)
 	replyDeliveryMode := clients.NormalizeRunnerReplyDeliveryMode(runnerTask.ReplyDeliveryMode)
+	if runnerRawReplyDeliveryMode := clients.NormalizeRunnerReplyDeliveryMode(stringValueFromMap(runnerResp.Raw, "reply_delivery_mode")); runnerRawReplyDeliveryMode == "direct" {
+		replyDeliveryMode = runnerRawReplyDeliveryMode
+	}
 	replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, replyChannelID, replyThreadTS, runnerCompleted)
 	replyDeliverySucceeded := hasReplyDelivery && events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
+	if replyDeliveryMode == "direct" && !replyDeliverySucceeded {
+		replyDeliveryMode = "mediated"
+	}
 	if hasReplyDelivery && strings.TrimSpace(replyBody) == "" {
 		replyBody = strings.TrimSpace(replyDelivery.FinalBody)
 	}
@@ -608,6 +615,28 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if artifactFailureReason != "" {
 		runnerDiagnostics["artifact_failure_reason"] = artifactFailureReason
 	}
+	runnerSlackActions := []events.SlackActionRecord{}
+	legacyDirectDeliveryRecorded := replyDeliveryMode == "direct" && replyDeliverySucceeded
+	if legacyDirectDeliveryRecorded {
+		replyDelivery.TraceID = ctx.trace.Summary.TraceID
+		replyDelivery.WorkflowID = ctx.workflow.ID
+		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+		replyDelivery.CaseID = ctx.trace.Summary.CaseID
+		replyDelivery.PolicyVerdict = firstNonEmpty(replyDelivery.PolicyVerdict, policyVerdict)
+		replyDelivery.ArtifactRefs = uniqueStrings(append(replyDelivery.ArtifactRefs, producedArtifactRefs(runnerOutput.ProducedArtifacts)...))
+		replyDelivery.CreatedAt = runnerCompleted
+		runnerSlackActions = append(runnerSlackActions, replyDelivery)
+		finalReasoning = append(finalReasoning, events.ReasoningStep{
+			ID:         fmt.Sprintf("reason-reply-delivery-%d", runnerCompleted.UnixNano()),
+			TraceID:    ctx.trace.Summary.TraceID,
+			WorkflowID: ctx.trace.Summary.WorkflowID,
+			StepType:   "reply_delivery",
+			Summary:    "Runner reported a successful direct Slack delivery from a legacy or in-flight task; preserving it as trace metadata without retrying delivery.",
+			Confidence: 1.0,
+			Decision:   "legacy_direct_delivery_recorded",
+			CreatedAt:  runnerCompleted,
+		})
+	}
 	runnerToolCalls := bindRunnerToolCallRecords(
 		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
 		ctx.trace,
@@ -642,7 +671,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		replyAction    action.Intent
 		draftEvents    []events.TraceEvent
 		draftReasoning []events.ReasoningStep
-		slackActions   []events.SlackActionRecord
 	)
 	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && replyDeliveryMode == "mediated" {
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
@@ -650,16 +678,16 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			TraceID:    ctx.trace.Summary.TraceID,
 			WorkflowID: ctx.trace.Summary.WorkflowID,
 			StepType:   "action_contract_blocked",
-			Summary:    "Runner produced a reply draft but omitted the required explicit slack_post action contract.",
+			Summary:    "Runner produced a reply draft but omitted the required explicit slack_post or slack_report action contract.",
 			Confidence: 0.95,
 			Decision:   "needs_human",
 			CreatedAt:  runnerCompleted,
 		})
-		runnerEvents[0].Description = "Runner returned visible reasoning and a reply draft but omitted the explicit slack_post action."
+		runnerEvents[0].Description = "Runner returned visible reasoning and a reply draft but omitted the explicit Slack reply action."
 		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, map[string]any{
-			"last_error":         "runner produced a reply without the required explicit slack_post action",
+			"last_error":         "runner produced a reply without the required explicit slack_post or slack_report action",
 			"failure_class":      "missing_explicit_action_contract",
-			"failure_summary":    "Runner produced a reply draft but omitted the required explicit slack_post action.",
+			"failure_summary":    "Runner produced a reply draft but omitted the required explicit Slack reply action.",
 			"runner_diagnostics": runnerDiagnostics,
 			"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
 			"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
@@ -681,88 +709,48 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
-	if replyDeliveryMode == "direct" && strings.TrimSpace(replyBody) != "" && !replyDeliverySucceeded && strings.TrimSpace(proposedReplyAction.Kind) == "" {
-		summary := "Runner produced a grounded reply but did not report a durable native Slack reply_delivery."
-		if !allowed {
-			summary = fmt.Sprintf("Runner produced a grounded reply but Slack posting is blocked by policy: %s.", policyVerdict)
-		} else if hasReplyDelivery {
-			summary = fmt.Sprintf("Runner produced a grounded reply but Slack delivery ended with status %q.", replyDelivery.SendStatus)
-		}
-		finalReasoning = append(finalReasoning, events.ReasoningStep{
-			ID:         fmt.Sprintf("reason-mcp-reply-missing-%d", runnerCompleted.UnixNano()),
-			TraceID:    ctx.trace.Summary.TraceID,
-			WorkflowID: ctx.trace.Summary.WorkflowID,
-			StepType:   "reply_delivery_missing",
-			Summary:    summary,
-			Confidence: 0.95,
-			Decision:   "needs_human",
-			CreatedAt:  runnerCompleted,
-		})
-		payload := map[string]any{
-			"last_error":         summary,
-			"failure_class":      map[bool]string{true: "reply_delivery_failed", false: "missing_reply_delivery"}[hasReplyDelivery],
-			"failure_summary":    summary,
-			"runner_diagnostics": runnerDiagnostics,
-			"trace_events":       runnerEvents,
-			"trace_artifacts":    traceArtifacts,
-			"reasoning_steps":    finalReasoning,
-			"tool_calls":         runnerToolCalls,
-		}
-		if hasReplyDelivery {
-			replyDelivery.TraceID = ctx.trace.Summary.TraceID
-			replyDelivery.WorkflowID = ctx.workflow.ID
-			replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
-			replyDelivery.CaseID = ctx.trace.Summary.CaseID
-			replyDelivery.PolicyVerdict = policyVerdict
-			replyDelivery.ArtifactRefs = uniqueStrings(append(replyDelivery.ArtifactRefs, producedArtifactRefs(runnerOutput.ProducedArtifacts)...))
-			replyDelivery.CreatedAt = runnerCompleted
-			payload["slack_actions"] = []events.SlackActionRecord{replyDelivery}
-		}
-		if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, payload); err != nil {
-			return runnerPostProcessingFailure("submit_workflow_execution_needs_human_missing_reply_delivery", err)
-		}
-		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
-			return err
-		}
-		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-mcp-needs-human", ctx.trace.Summary.TraceID))
-	}
-	if replyDeliverySucceeded {
-		replyDelivery.TraceID = ctx.trace.Summary.TraceID
-		replyDelivery.WorkflowID = ctx.workflow.ID
-		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
-		replyDelivery.CaseID = ctx.trace.Summary.CaseID
-		replyDelivery.PolicyVerdict = policyVerdict
-		replyDelivery.ArtifactRefs = uniqueStrings(append(replyDelivery.ArtifactRefs, producedArtifactRefs(runnerOutput.ProducedArtifacts)...))
-		replyDelivery.CreatedAt = runnerCompleted
-		slackActions = []events.SlackActionRecord{replyDelivery}
-		runnerEvents = append(runnerEvents, events.TraceEvent{
-			TraceID:     ctx.trace.Summary.TraceID,
-			IngestionID: ctx.trace.Summary.IngestionID,
-			WorkflowID:  ctx.trace.Summary.WorkflowID,
-			Plane:       "execution",
-			Service:     "runner",
-			Actor:       ctx.workflow.AssignedBot,
-			EventType:   "slack.reply.posted",
-			Status:      events.StatusCompleted,
-			StartedAt:   runnerStarted,
-			EndedAt:     &runnerCompleted,
-			Description: "Runner delivered the final Slack reply through Hermes native send_message.",
-		})
-		finalReasoning = append(finalReasoning, events.ReasoningStep{
-			ID:         fmt.Sprintf("reason-reply-delivered-%d", runnerCompleted.UnixNano()),
-			TraceID:    ctx.trace.Summary.TraceID,
-			WorkflowID: ctx.trace.Summary.WorkflowID,
-			StepType:   "reply_delivery",
-			Summary:    "Runner delivered the final Slack reply through Hermes native send_message.",
-			Confidence: 1.0,
-			Decision:   "reply_delivered",
-			CreatedAt:  runnerCompleted,
-		})
-	}
-	if !replyDeliverySucceeded && strings.TrimSpace(proposedReplyAction.Kind) != "" {
-		replyAction, draftEvents, draftReasoning, err = draftSlackPostAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
+	if strings.TrimSpace(proposedReplyAction.Kind) != "" && !legacyDirectDeliveryRecorded {
+		replyAction, draftEvents, draftReasoning, err = draftSlackReplyAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
 		if err != nil {
-			return runnerPostProcessingFailure("draft_slack_post_action", err)
+			var validationErrs slackReportValidationErrors
+			if errors.As(err, &validationErrs) {
+				finalReasoning = append(finalReasoning, events.ReasoningStep{
+					ID:         fmt.Sprintf("reason-action-contract-validation-%d", runnerCompleted.UnixNano()),
+					TraceID:    ctx.trace.Summary.TraceID,
+					WorkflowID: ctx.trace.Summary.WorkflowID,
+					StepType:   "action_contract_blocked",
+					Summary:    fmt.Sprintf("Runner produced a reply action with validation errors: %s.", err.Error()),
+					Confidence: 0.95,
+					Decision:   "needs_human",
+					CreatedAt:  runnerCompleted,
+				})
+				runnerEvents[0].Description = "Runner returned visible reasoning and a reply action with validation errors."
+				if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionNeedsHuman, cfg.ServiceName, runnerCompleted, map[string]any{
+					"last_error":         err.Error(),
+					"failure_class":      "action_contract_validation_failed",
+					"failure_summary":    fmt.Sprintf("Runner produced a reply action with validation errors: %s.", err.Error()),
+					"runner_diagnostics": runnerDiagnostics,
+					"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
+					"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
+					"trace_events":       runnerEvents,
+					"trace_artifacts":    traceArtifacts,
+					"reasoning_steps":    finalReasoning,
+					"tool_calls":         runnerToolCalls,
+				}); err != nil {
+					return runnerPostProcessingFailure("submit_workflow_execution_needs_human", err)
+				}
+				if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
+					return err
+				}
+				if ctx.workflow.Status != string(transition.WorkflowStateNeedsHuman) {
+					return &workflowFailureError{failure: workflowFailureFromRunnerStateInvariant(runnerResp, ctx.workflow.ID, transition.WorkflowStateNeedsHuman, ctx.workflow.Status)}
+				}
+				if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+					return err
+				}
+				return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
+			}
+			return runnerPostProcessingFailure("draft_slack_reply_action", err)
 		}
 	}
 	finalReasoning = append(finalReasoning, draftReasoning...)
@@ -771,8 +759,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerCommand := transition.WorkflowExecutionCompletionCommand(completionVerdict, hasReplyAction)
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
-	} else if replyDeliverySucceeded {
-		runnerDescription = "Runner returned visible reasoning and delivered a Slack reply through Hermes native send_message."
 	}
 	if completionVerdict == "partial" {
 		runnerDescription = partialCompletionRunnerDescription(terminationReason, hasReplyAction)
@@ -788,7 +774,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
-	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, runnerCommand, cfg.ServiceName, runnerCompleted, map[string]any{
+	completionPayload := map[string]any{
 		"resume_queue":       string(queueName),
 		"reply_action_id":    replyAction.ID,
 		"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
@@ -798,8 +784,11 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		"trace_artifacts":    traceArtifacts,
 		"reasoning_steps":    finalReasoning,
 		"tool_calls":         runnerToolCalls,
-		"slack_actions":      slackActions,
-	}); err != nil {
+	}
+	if len(runnerSlackActions) > 0 {
+		completionPayload["slack_actions"] = runnerSlackActions
+	}
+	if _, err := submitWorkflowCommand(store, ctx.workflow.ID, runnerCommand, cfg.ServiceName, runnerCompleted, completionPayload); err != nil {
 		return runnerPostProcessingFailure("submit_runner_completion", err)
 	}
 	if ctx, err = refreshWorkflowContextState(store, ctx); err != nil {
@@ -970,7 +959,7 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, effect 
 			_ = failClaimedEffect(store, effect, err.Error())
 			return err
 		}
-		if intent.Kind == action.KindSlackPost {
+		if intent.Kind == action.KindSlackPost || intent.Kind == action.KindSlackReport {
 			log.Printf("control-plane duplicate_reply_prevented trace=%s action=%s status=%s", ctx.trace.Summary.TraceID, intent.ID, ctx.trace.Summary.Status)
 		}
 		return completeClaimedEffect(store, effect, intent.ID)
@@ -989,29 +978,15 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, effect 
 	switch intent.Kind {
 	case action.KindToolRead:
 		if err := executeRemovedToolActionIntent(store, intent, "tool_read actions are not supported by the control plane; route this work through Hermes-native tools instead"); err != nil {
-			if isPostgresActionPersistenceError(err) {
-				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
-					_ = failClaimedEffect(store, effect, finalizeErr.Error())
-					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
-				}
-			} else if updatedIntent, ok := store.GetActionIntent(actionID); ok {
-				_ = maybeAdvanceWorkflowPhaseFromAction(cfg, store, updatedIntent)
-			}
-			_ = failClaimedEffect(store, effect, err.Error())
-			return err
+			return handleControlActionExecutionError(cfg, store, effect, ctx, intent, err)
 		}
 	case action.KindSlackPost:
 		if err := executeSlackPostActionIntent(cfg, store, ctx, intent); err != nil {
-			if isPostgresActionPersistenceError(err) {
-				if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
-					_ = failClaimedEffect(store, effect, finalizeErr.Error())
-					return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
-				}
-			} else if updatedIntent, ok := store.GetActionIntent(actionID); ok {
-				_ = maybeAdvanceWorkflowPhaseFromAction(cfg, store, updatedIntent)
-			}
-			_ = failClaimedEffect(store, effect, err.Error())
-			return err
+			return handleControlActionExecutionError(cfg, store, effect, ctx, intent, err)
+		}
+	case action.KindSlackReport:
+		if err := executeSlackReportActionIntent(cfg, store, ctx, intent); err != nil {
+			return handleControlActionExecutionError(cfg, store, effect, ctx, intent, err)
 		}
 	default:
 		err := fmt.Errorf("unsupported control action kind %s", intent.Kind)
@@ -1024,6 +999,22 @@ func processControlActionEffect(cfg config.Config, store storepkg.Store, effect 
 		return err
 	}
 	return completeClaimedEffect(store, effect, intent.ID)
+}
+
+func handleControlActionExecutionError(cfg config.Config, store storepkg.Store, effect transition.EffectExecution, ctx workflowContext, intent action.Intent, err error) error {
+	if err == nil {
+		return nil
+	}
+	if isPostgresActionPersistenceError(err) {
+		if finalizeErr := finalizeControlActionPersistenceFailure(cfg, store, effect, ctx, intent, err); finalizeErr != nil {
+			_ = failClaimedEffect(store, effect, finalizeErr.Error())
+			return fmt.Errorf("finalize control action persistence failure: %w (original error: %v)", finalizeErr, err)
+		}
+	} else if updatedIntent, ok := store.GetActionIntent(intent.ID); ok {
+		_ = maybeAdvanceWorkflowPhaseFromAction(cfg, store, updatedIntent)
+	}
+	_ = failClaimedEffect(store, effect, err.Error())
+	return err
 }
 
 func executeRemovedToolActionIntent(store storepkg.Store, intent action.Intent, message string) error {
@@ -1051,18 +1042,61 @@ func executeRemovedToolActionIntent(store storepkg.Store, intent action.Intent, 
 	return fmt.Errorf("%s", message)
 }
 
+type slackDeliveryActionOptions struct {
+	RecordIDPrefix string
+	DefaultSummary string
+	Timeout        time.Duration
+	Body           func(action.Intent) (draftBody string, finalBody string, deliveryBody string)
+	Execute        slackDeliveryNativeExecutor
+}
+
+type slackDeliveryNativeExecutor func(context.Context, config.Config, storepkg.Store, workflowContext, action.Intent, time.Time, string, string, string, string) (storepkg.ToolResult, map[string]interface{}, error)
+
 func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent) error {
+	return executeSlackDeliveryActionIntent(cfg, store, ctx, intent, slackDeliveryActionOptions{
+		RecordIDPrefix: "slack-action",
+		DefaultSummary: "Slack reply action completed.",
+		Timeout:        30 * time.Second,
+		Body: func(intent action.Intent) (string, string, string) {
+			draftBody := stringFromMap(intent.RequestPayload, "draft_body")
+			finalBody := stringFromMap(intent.RequestPayload, "final_body")
+			deliveryBody := firstNonEmpty(stringFromMap(intent.RequestPayload, "body"), finalBody, draftBody)
+			return firstNonEmpty(draftBody, deliveryBody), firstNonEmpty(finalBody, deliveryBody), deliveryBody
+		},
+		Execute: executeSlackPostNativeDelivery,
+	})
+}
+
+func executeSlackReportActionIntent(cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent) error {
+	return executeSlackDeliveryActionIntent(cfg, store, ctx, intent, slackDeliveryActionOptions{
+		RecordIDPrefix: "slack-report-action",
+		DefaultSummary: "Slack report action completed.",
+		Timeout:        45 * time.Second,
+		Body: func(intent action.Intent) (string, string, string) {
+			summaryBody := firstNonEmpty(
+				stringFromMap(intent.RequestPayload, "summary"),
+				stringFromMap(intent.RequestPayload, "final_body"),
+				stringFromMap(intent.RequestPayload, "body"),
+			)
+			return firstNonEmpty(stringFromMap(intent.RequestPayload, "draft_body"), summaryBody), firstNonEmpty(stringFromMap(intent.RequestPayload, "final_body"), summaryBody), summaryBody
+		},
+		Execute: executeSlackReportNativeDelivery,
+	})
+}
+
+func executeSlackDeliveryActionIntent(cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent, opts slackDeliveryActionOptions) error {
 	started := time.Now().UTC()
-	draftBody := stringFromMap(intent.RequestPayload, "draft_body")
-	finalBody := stringFromMap(intent.RequestPayload, "final_body")
-	body := firstNonEmpty(stringFromMap(intent.RequestPayload, "body"), finalBody, draftBody)
+	draftBody, finalBody, deliveryBody := opts.Body(intent)
 	channelID := stringFromMap(intent.RequestPayload, "channel_id")
 	threadTS := stringFromMap(intent.RequestPayload, "thread_ts")
 	blockedReason := firstNonEmpty(stringFromMap(intent.RequestPayload, "blocked_reason"), blockedReasonFromIntent(intent))
-	deliveryIdempotencyKey := slackPostDeliveryIdempotencyKey(ctx, intent, channelID, threadTS, body)
-
+	nativeDisabledReason := ""
+	if !cfg.NativeToolsEnabled && blockedReason == "" {
+		nativeDisabledReason = "native Slack delivery requires native tools to be enabled; legacy direct Hermes send_message delivery is disabled"
+	}
+	deliveryIdempotencyKey := slackPostDeliveryIdempotencyKey(ctx, intent, channelID, threadTS, deliveryBody)
 	baseRecord := events.SlackActionRecord{
-		ID:             fmt.Sprintf("slack-action-%d", started.UnixNano()),
+		ID:             fmt.Sprintf("%s-%d", opts.RecordIDPrefix, started.UnixNano()),
 		TraceID:        ctx.trace.Summary.TraceID,
 		WorkflowID:     ctx.trace.Summary.WorkflowID,
 		ConversationID: ctx.trace.Summary.ConversationID,
@@ -1070,8 +1104,8 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		ChannelID:      channelID,
 		ThreadTS:       threadTS,
 		IdempotencyKey: deliveryIdempotencyKey,
-		DraftBody:      firstNonEmpty(draftBody, body),
-		FinalBody:      firstNonEmpty(finalBody, body),
+		DraftBody:      draftBody,
+		FinalBody:      finalBody,
 		PolicyVerdict:  firstNonEmpty(intent.PolicyVerdict, blockedReason),
 		SendStatus:     "draft_only",
 		ArtifactRefs:   append([]string(nil), stringSliceFromMap(intent.RequestPayload, "artifact_refs")...),
@@ -1091,86 +1125,33 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 	}
 
 	var (
-		result       storepkg.ToolResult
-		execErr      error
-		actionStatus action.Status
-		summary      string
+		result         storepkg.ToolResult
+		execErr        error
+		actionStatus   action.Status
+		summary        string
+		renderManifest map[string]interface{}
 	)
 	if blockedReason != "" {
 		actionStatus = action.StatusBlocked
 		summary = blockedReason
-	} else if !cfg.NativeToolsEnabled {
-		execErr = errors.New("slack_post actions are not supported by the control plane; Hermes must reply directly through native send_message")
-		actionStatus = actionStatusFromToolResult(result, execErr)
-		summary = toolResultSummary(result, execErr)
-		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
-		baseRecord.SendStatus = slackSendStatus(actionStatus, result)
-	} else {
-		nativeCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		nativeResp, _, nativeErr := handleNativeToolAction(nativeCtx, cfg, store, nativeToolClaims{
-			Audience:       nativeToolsAudience,
-			IssuedAt:       started.Unix(),
-			ExpiresAt:      started.Add(cfg.ProdRunnerTaskTimeout + time.Minute).Unix(),
-			ExecutionID:    firstNonEmpty(ctx.trace.Summary.TraceID, ctx.workflow.ID),
-			OperationID:    firstNonEmpty(intent.OperationID, intent.ID),
-			TraceID:        ctx.trace.Summary.TraceID,
-			WorkflowID:     ctx.workflow.ID,
-			ConversationID: ctx.trace.Summary.ConversationID,
-			Actor:          cfg.ServiceName,
-			Surfaces:       []string{"slack"},
-		}, nativeToolActionRequest{
-			Surface:        "slack",
-			Operation:      "message_post",
-			TargetRef:      channelID,
-			IdempotencyKey: deliveryIdempotencyKey,
-			Reason:         firstNonEmpty(intent.Rationale, "workflow final reply"),
-			Arguments: map[string]any{
-				"channel_id": channelID,
-				"thread_ts":  threadTS,
-				"text":       body,
-			},
-		})
-		if nativeErr != nil {
-			execErr = nativeErr
-		} else if !nativeResp.OK {
-			execErr = errors.New(firstNonEmpty(nativeResp.Error, nativeResp.Action.ErrorMessage, "native Slack reply failed"))
-		}
-		result = storepkg.ToolResult{
-			Name:       "rsi_slack.message_post",
-			ToolCallID: nativeResp.Action.ID,
-			Approved:   true,
-			Status:     map[bool]string{true: "ok", false: "failed"}[nativeResp.OK],
-			Available:  nativeErr == nil,
-			Provider:   "rsi-native-tools",
-			ProviderRef: firstNonEmpty(
-				nativeResp.Action.SourceRef,
-				stringValueFromMap(mapValue(nativeResp.Output), "provider_ref"),
-				threadTS,
-			),
-			ExecutedAt: time.Now().UTC(),
-			Input: map[string]interface{}{
-				"channel_id": channelID,
-				"thread_ts":  threadTS,
-			},
-			Output: map[string]interface{}{
-				"posted":    nativeResp.OK,
-				"action_id": nativeResp.Action.ID,
-				"source":    nativeResp.Action.SourceRef,
-			},
-			Summary: firstNonEmpty(nativeResp.Action.ResponseSummary, nativeResp.Error),
-			Metadata: map[string]interface{}{
-				"external_tool_action_id": nativeResp.Action.ID,
-				"mirror_effect":           nativeResp.Action.MirrorEffect,
-			},
-		}
-		actionStatus = actionStatusFromToolResult(result, execErr)
-		summary = toolResultSummary(result, execErr)
-		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
-		baseRecord.SendStatus = slackSendStatus(actionStatus, result)
-	}
-	if blockedReason != "" {
 		baseRecord.SendStatus = blockedReason
+	} else if nativeDisabledReason != "" {
+		actionStatus = action.StatusFailed
+		summary = nativeDisabledReason
+		execErr = errors.New(nativeDisabledReason)
+		baseRecord.SendStatus = "native_tools_disabled"
+	} else {
+		timeout := opts.Timeout
+		if timeout <= 0 {
+			timeout = 30 * time.Second
+		}
+		nativeCtx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		result, renderManifest, execErr = opts.Execute(nativeCtx, cfg, store, ctx, intent, started, channelID, threadTS, deliveryIdempotencyKey, deliveryBody)
+		actionStatus = actionStatusFromToolResult(result, execErr)
+		summary = toolResultSummary(result, execErr)
+		baseRecord.ArtifactRefs = uniqueStrings(append(baseRecord.ArtifactRefs, result.RawArtifactRefs...))
+		baseRecord.SendStatus = slackSendStatus(actionStatus, result)
 	}
 
 	commandKind, err := actionCommandForStatus(actionStatus)
@@ -1178,7 +1159,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		return err
 	}
 	completedAt := time.Now().UTC()
-	if _, err := submitActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completedAt, map[string]any{
+	payload := map[string]any{
 		"operation_id":    intent.OperationID,
 		"approval_state":  firstNonEmpty(result.ApprovalState, intent.ApprovalState),
 		"policy_verdict":  firstNonEmpty(intent.PolicyVerdict, blockedReason),
@@ -1189,7 +1170,7 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		"error_message":   firstNonEmpty(actionErrorMessage(result, execErr), blockedReason),
 		"started_at":      started,
 		"completed_at":    completedAt,
-		"summary":         firstNonEmpty(summary, blockedReason, "Slack reply action completed."),
+		"summary":         firstNonEmpty(summary, blockedReason, opts.DefaultSummary),
 		"channel_id":      channelID,
 		"thread_ts":       threadTS,
 		"idempotency_key": deliveryIdempotencyKey,
@@ -1197,7 +1178,11 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 		"final_body":      baseRecord.FinalBody,
 		"send_status":     baseRecord.SendStatus,
 		"artifact_refs":   append([]string(nil), baseRecord.ArtifactRefs...),
-	}); err != nil {
+	}
+	if len(renderManifest) > 0 {
+		payload["render_manifest"] = renderManifest
+	}
+	if _, err := submitActionCommand(store, intent.ID, commandKind, cfg.ServiceName, completedAt, payload); err != nil {
 		_ = failClaimedEffect(store, replyEffect, err.Error())
 		return err
 	}
@@ -1211,12 +1196,149 @@ func executeSlackPostActionIntent(cfg config.Config, store storepkg.Store, ctx w
 			return err
 		}
 	}
-
 	if actionStatus == action.StatusSucceeded && strings.TrimSpace(baseRecord.SendStatus) == "" {
 		baseRecord.SendStatus = "posted"
 	}
 	if execErr != nil {
 		return execErr
+	}
+	return nil
+}
+
+func executeSlackPostNativeDelivery(nativeCtx context.Context, cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent, started time.Time, channelID string, threadTS string, deliveryIdempotencyKey string, deliveryBody string) (storepkg.ToolResult, map[string]interface{}, error) {
+	nativeResp, _, nativeErr := handleNativeToolAction(nativeCtx, cfg, store, workflowNativeToolClaims(cfg, ctx, intent, started), nativeToolActionRequest{
+		Surface:        "slack",
+		Operation:      "message_post",
+		TargetRef:      channelID,
+		IdempotencyKey: deliveryIdempotencyKey,
+		Reason:         firstNonEmpty(intent.Rationale, "workflow final reply"),
+		Arguments: map[string]any{
+			"channel_id": channelID,
+			"thread_ts":  threadTS,
+			"text":       deliveryBody,
+		},
+	})
+	execErr := nativeDeliveryError(nativeResp, nativeErr, "native Slack reply failed")
+	result := storepkg.ToolResult{
+		Name:       "rsi_slack.message_post",
+		ToolCallID: nativeResp.Action.ID,
+		Approved:   true,
+		Status:     nativeToolResultStatus(nativeResp.OK),
+		Available:  nativeErr == nil,
+		Provider:   "rsi-native-tools",
+		ProviderRef: firstNonEmpty(
+			nativeResp.Action.SourceRef,
+			stringValueFromMap(mapValue(nativeResp.Output), "provider_ref"),
+			threadTS,
+		),
+		ExecutedAt: time.Now().UTC(),
+		Input: map[string]interface{}{
+			"channel_id": channelID,
+			"thread_ts":  threadTS,
+		},
+		Output: map[string]interface{}{
+			"posted":    nativeResp.OK,
+			"action_id": nativeResp.Action.ID,
+			"source":    nativeResp.Action.SourceRef,
+		},
+		Summary: firstNonEmpty(nativeResp.Action.ResponseSummary, nativeResp.Error),
+		Metadata: map[string]interface{}{
+			"external_tool_action_id": nativeResp.Action.ID,
+			"mirror_effect":           nativeResp.Action.MirrorEffect,
+		},
+	}
+	return result, nil, execErr
+}
+
+func executeSlackReportNativeDelivery(nativeCtx context.Context, cfg config.Config, store storepkg.Store, ctx workflowContext, intent action.Intent, started time.Time, channelID string, threadTS string, deliveryIdempotencyKey string, _ string) (storepkg.ToolResult, map[string]interface{}, error) {
+	args := storepkg.CloneJSONMap(intent.RequestPayload)
+	if args == nil {
+		args = map[string]any{}
+	}
+	args["channel_id"] = channelID
+	args["thread_ts"] = threadTS
+	nativeResp, _, nativeErr := handleNativeToolAction(nativeCtx, cfg, store, workflowNativeToolClaims(cfg, ctx, intent, started), nativeToolActionRequest{
+		Surface:        "slack",
+		Operation:      "report_post",
+		TargetRef:      channelID,
+		IdempotencyKey: deliveryIdempotencyKey,
+		Reason:         firstNonEmpty(intent.Rationale, "workflow final report"),
+		Arguments:      args,
+	})
+	execErr := nativeDeliveryError(nativeResp, nativeErr, "native Slack report failed")
+	outputMap := mapValue(nativeResp.Output)
+	renderManifest := mapValue(outputMap["render_manifest"])
+	artifactRefs := append([]string(nil), stringSliceFromMap(intent.RequestPayload, "artifact_refs")...)
+	if nativeResp.Action.ID != "" {
+		artifactRefs = append(artifactRefs, "render_manifest:"+nativeResp.Action.ID)
+	}
+	for _, item := range arrayArg(outputMap, "uploaded_files") {
+		if ref := strings.TrimSpace(stringValueFromMap(mapValue(item), "source_ref")); ref != "" {
+			artifactRefs = append(artifactRefs, ref)
+		}
+	}
+	result := storepkg.ToolResult{
+		Name:       "rsi_slack.report_post",
+		ToolCallID: nativeResp.Action.ID,
+		Approved:   true,
+		Status:     nativeToolResultStatus(nativeResp.OK),
+		Available:  nativeErr == nil,
+		Provider:   "rsi-native-tools",
+		ProviderRef: firstNonEmpty(
+			nativeResp.Action.SourceRef,
+			stringValueFromMap(outputMap, "provider_ref"),
+			threadTS,
+		),
+		RawArtifactRefs: uniqueStrings(artifactRefs),
+		ExecutedAt:      time.Now().UTC(),
+		Input: map[string]interface{}{
+			"channel_id": channelID,
+			"thread_ts":  threadTS,
+		},
+		Output: map[string]interface{}{
+			"posted":          nativeResp.OK,
+			"action_id":       nativeResp.Action.ID,
+			"source":          nativeResp.Action.SourceRef,
+			"render_manifest": renderManifest,
+		},
+		Summary: firstNonEmpty(nativeResp.Action.ResponseSummary, nativeResp.Error),
+		Metadata: map[string]interface{}{
+			"external_tool_action_id": nativeResp.Action.ID,
+			"mirror_effect":           nativeResp.Action.MirrorEffect,
+			"render_manifest":         renderManifest,
+		},
+	}
+	return result, renderManifest, execErr
+}
+
+func workflowNativeToolClaims(cfg config.Config, ctx workflowContext, intent action.Intent, started time.Time) nativeToolClaims {
+	return nativeToolClaims{
+		Audience:       nativeToolsAudience,
+		IssuedAt:       started.Unix(),
+		ExpiresAt:      started.Add(cfg.ProdRunnerTaskTimeout + time.Minute).Unix(),
+		ExecutionID:    firstNonEmpty(ctx.trace.Summary.TraceID, ctx.workflow.ID),
+		OperationID:    firstNonEmpty(intent.OperationID, intent.ID),
+		TraceID:        ctx.trace.Summary.TraceID,
+		WorkflowID:     ctx.workflow.ID,
+		ConversationID: ctx.trace.Summary.ConversationID,
+		Actor:          cfg.ServiceName,
+		Surfaces:       []string{"slack"},
+	}
+}
+
+func nativeToolResultStatus(ok bool) string {
+	if ok {
+		return "ok"
+	}
+	return "failed"
+}
+
+func nativeDeliveryError(nativeResp nativeToolActionResponse, nativeErr error, fallback string) error {
+	if nativeErr != nil {
+		return nativeErr
+	}
+	if !nativeResp.OK {
+		return errors.New(firstNonEmpty(nativeResp.Error, nativeResp.Action.ErrorMessage, fallback))
 	}
 	return nil
 }
@@ -1328,7 +1450,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	combinedContextRefs := append(append([]clients.RunnerContextRef{}, contextRefs...), hintRefs...)
 	allowed, _ := replyPolicy(store, workflow.Kind, trace.Summary.ThreadKey, ingestion.ChannelID)
 	mcpServers := workflowMCPServers(cfg)
-	replyDeliveryMode := workflowReplyDeliveryMode(allowed, cfg.NativeToolsEnabled)
+	replyDeliveryMode := workflowReplyDeliveryMode(allowed)
 	userRequest := resolvedIntent.UserRequest
 	systemMessage := harness.ComposeSystemMessage(
 		workflowRunnerSystemMessage(cfg.NativeToolsEnabled, hasSlackMCPServer(mcpServers), hasNotionMCPServer(mcpServers), replyDeliveryMode),
@@ -1391,7 +1513,7 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 		},
 		DeliveryPolicy:  runnerDeliveryPolicy(ingestion.ChannelID, ingestion.ThreadTS, replyDeliveryMode, trace.Summary.TraceID),
 		WorkspacePolicy: runnerutil.WorkspacePolicyFromConfig(cfg),
-		ApprovalPolicy:  runnerApprovalPolicy(replyDeliveryMode == "direct"),
+		ApprovalPolicy:  runnerApprovalPolicy(false),
 	}
 }
 
@@ -1479,32 +1601,6 @@ func runnerApprovalPolicy(directSlackAllowed bool) *clients.RunnerApprovalPolicy
 }
 
 func workflowRunnerSystemMessage(useNativeTools bool, useSlackMCP bool, useNotionMCP bool, replyDeliveryMode string) string {
-	if replyDeliveryMode == "direct" {
-		parts := []string{
-			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
-			"Produce a JSON object with session_title, visible_reasoning, reply_draft, final_answer, confidence, context_summary, self_critique, proposed_actions, reply_delivery, knowledge_drafts, outcome_hypotheses, produced_artifacts, and artifact_failure_reason.",
-			"Set session_title to a concise 3-8 word rewrite of the user's Slack question; preserve intent, omit @mentions and filler, and do not summarize your answer.",
-			"Treat DeliveryPolicy, WorkspacePolicy, and ApprovalPolicy as execution metadata; infrastructure permissions come from the runner environment.",
-			"You may use Hermes-native skills when they materially help satisfy the request.",
-		}
-		if useNotionMCP {
-			if useNativeTools {
-				parts = append(parts, "Prefer rsi_notion.* for live Notion reads; use Notion MCP only as a legacy fallback when native tools cannot satisfy the request.")
-			} else {
-				parts = append(parts, "Use Notion MCP for Notion workspace search and page fetches when relevant.")
-			}
-		}
-		if useSlackMCP {
-			if useNativeTools {
-				parts = append(parts, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads; use Slack MCP only as a legacy fallback.")
-			} else {
-				parts = append(parts, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery, including mirrored Slack conversations and Notion documents when relevant.")
-			}
-		}
-		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools, include it in produced_artifacts, and attach local files in the final native send_message by adding MEDIA:/absolute/path entries to the message. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
-		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, use Hermes native send_message exactly once with target slack:<channel_id>:<thread_ts> for the bound delivery target. Do not use a DM fallback and do not post to any other channel or thread.", "Do not emit a slack_post action contract.", "Include reply_delivery describing the direct Slack delivery with status, channel_id, thread_ts when a thread exists, body, tool_call_id, tool_name, provider_ref, and message_link.")
-		return strings.Join(parts, " ")
-	}
 	if replyDeliveryMode == "mediated" {
 		parts := []string{
 			"Return explicit visible reasoning only. Do not include hidden chain-of-thought.",
@@ -1528,7 +1624,7 @@ func workflowRunnerSystemMessage(useNativeTools bool, useSlackMCP bool, useNotio
 			}
 		}
 		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
-		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, emit exactly one proposed action with kind=slack_post and request_payload containing channel_id, thread_ts, and body. The control plane will deliver that action through rsi_slack.message_post. Do not call Slack send tools yourself for the final reply.", "Leave reply_delivery empty unless the control plane reports delivery.")
+		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, emit exactly one proposed action. Use kind=slack_post with request_payload containing channel_id, thread_ts, and body for simple prose. Use kind=slack_report with request_payload containing channel_id, thread_ts, report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in slack_post; use slack_report tables instead. The control plane will deliver the action through RSI native Slack tools. Do not call Slack send tools yourself for the final reply.", "Leave reply_delivery empty unless the control plane reports delivery.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1557,12 +1653,10 @@ func workflowRunnerSystemMessage(useNativeTools bool, useSlackMCP bool, useNotio
 	return strings.Join(parts, " ")
 }
 
-func workflowReplyDeliveryMode(replyAllowed bool, useNativeTools bool) string {
+func workflowReplyDeliveryMode(replyAllowed bool) string {
 	switch {
-	case replyAllowed && useNativeTools:
-		return "mediated"
 	case replyAllowed:
-		return "direct"
+		return "mediated"
 	default:
 		return "none"
 	}
@@ -1588,6 +1682,18 @@ func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID 
 	return fmt.Sprintf("session:%s:%s", scopeKind, scopeID)
 }
 
+func draftSlackReplyAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, completionVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
+	proposed := firstSlackReplyAction(output.ProposedActions)
+	switch {
+	case strings.EqualFold(strings.TrimSpace(proposed.Kind), string(action.KindSlackReport)):
+		return draftSlackReportAction(cfg, store, resumeQueue, ctx, output, replyBody, allowed, policyVerdict, completionVerdict, createdAt)
+	case strings.EqualFold(strings.TrimSpace(proposed.Kind), string(action.KindSlackPost)):
+		return draftSlackPostAction(cfg, store, resumeQueue, ctx, output, replyBody, allowed, policyVerdict, completionVerdict, createdAt)
+	default:
+		return action.Intent{}, nil, nil, errors.New("explicit slack_post or slack_report action is required")
+	}
+}
+
 func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, completionVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
 	proposed := firstSlackPostAction(output.ProposedActions)
 	if strings.TrimSpace(proposed.Kind) == "" {
@@ -1597,6 +1703,9 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 	threadTS := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "thread_ts")), ctx.ingestion.ThreadTS)
 	draftBody := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "draft_body")), output.ReplyDraft, replyBody)
 	finalBody := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "final_body")), strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "body")), replyBody)
+	if containsMarkdownPipeTableOutsideFence(finalBody) {
+		return action.Intent{}, nil, nil, slackReportValidationErrors{{Code: "unsupported_markdown_table", Path: "proposed_actions[].request_payload.body", Message: "mediated slack_post does not support Markdown pipe tables; use a slack_report action with structured tables"}}
+	}
 	idempotencyKey := firstNonEmpty(proposed.IdempotencyKey, fmt.Sprintf("%s:%s:%s", ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, ctx.trace.Summary.TraceID))
 	requestPayload := map[string]any{
 		"channel_id":             channelID,
@@ -1678,6 +1787,124 @@ func draftSlackPostAction(cfg config.Config, store storepkg.Store, resumeQueue q
 			Status:      events.StatusQueued,
 			StartedAt:   createdAt,
 			Description: "Drafted explicit Slack reply action from runner-authored side-effect contract.",
+		},
+	}, reasoning, nil
+}
+
+func draftSlackReportAction(cfg config.Config, store storepkg.Store, resumeQueue queue.QueueName, ctx workflowContext, output runnerutil.StructuredOutput, replyBody string, allowed bool, policyVerdict string, completionVerdict string, createdAt time.Time) (action.Intent, []events.TraceEvent, []events.ReasoningStep, error) {
+	proposed := firstSlackReportAction(output.ProposedActions)
+	if strings.TrimSpace(proposed.Kind) == "" {
+		return action.Intent{}, nil, nil, errors.New("explicit slack_report action is required")
+	}
+	channelID := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "channel_id")), ctx.ingestion.ChannelID)
+	threadTS := firstNonEmpty(strings.TrimSpace(stringValueFromMap(proposed.RequestPayload, "thread_ts")), ctx.ingestion.ThreadTS)
+	requestPayload := storepkg.CloneJSONMap(proposed.RequestPayload)
+	if requestPayload == nil {
+		requestPayload = map[string]any{}
+	}
+	requestPayload["channel_id"] = channelID
+	requestPayload["thread_ts"] = threadTS
+	summary := firstNonEmpty(slackReportSummaryFromPayload(requestPayload), replyBody, output.FinalAnswer, output.ReplyDraft)
+	if strings.TrimSpace(summary) == "" {
+		return action.Intent{}, nil, nil, errors.New("slack_report summary is required")
+	}
+	requestPayload["body"] = summary
+	requestPayload["draft_body"] = firstNonEmpty(strings.TrimSpace(stringValueFromMap(requestPayload, "draft_body")), output.ReplyDraft, summary)
+	requestPayload["final_body"] = firstNonEmpty(strings.TrimSpace(stringValueFromMap(requestPayload, "final_body")), summary)
+	requestPayload["policy_verdict"] = policyVerdict
+	if reportMap, ok := requestPayload["report"].(map[string]interface{}); ok {
+		if _, ok := reportMap["report_schema_version"]; !ok {
+			reportMap["report_schema_version"] = slackReportSchemaVersion
+		}
+		if _, ok := reportMap["summary"]; !ok {
+			reportMap["summary"] = summary
+		}
+	} else {
+		if _, ok := requestPayload["report_schema_version"]; !ok {
+			requestPayload["report_schema_version"] = slackReportSchemaVersion
+		}
+		if _, ok := requestPayload["summary"]; !ok {
+			requestPayload["summary"] = summary
+		}
+	}
+	requestPayload["resume_queue"] = string(resumeQueue)
+	requestPayload["workflow_reply_command"] = string(transition.WorkflowReplyPostedCommand(completionVerdict))
+	if artifactRefs := producedArtifactRefs(output.ProducedArtifacts); len(artifactRefs) > 0 {
+		requestPayload["artifact_refs"] = uniqueStrings(append(stringSliceFromMap(requestPayload, "artifact_refs"), artifactRefs...))
+	}
+	manifest, err := buildSlackReportDraftManifest(requestPayload, channelID)
+	if err != nil {
+		return action.Intent{}, nil, nil, err
+	}
+	requestPayload["render_manifest"] = manifest
+
+	idempotencyKey := firstNonEmpty(proposed.IdempotencyKey, fmt.Sprintf("%s:%s:%s:report", ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, ctx.trace.Summary.TraceID))
+	approvalState := "approved"
+	resolvedPolicyVerdict := policyVerdict
+	reasoning := []events.ReasoningStep{}
+	if !allowed {
+		approvalState = "policy_blocked"
+		requestPayload["blocked_reason"] = policyVerdict
+		reasoning = append(reasoning, events.ReasoningStep{
+			ID:           fmt.Sprintf("reason-slack-report-policy-%d", createdAt.UnixNano()),
+			TraceID:      ctx.trace.Summary.TraceID,
+			WorkflowID:   ctx.trace.Summary.WorkflowID,
+			StepType:     "pre_action_decision",
+			Summary:      fmt.Sprintf("Slack report blocked by policy: %s.", policyVerdict),
+			EvidenceRefs: normalizeActionEvidenceRefs(proposed.EvidenceRefs, ctx.trace.Summary.TraceID),
+			Confidence:   output.Confidence,
+			Decision:     "blocked_by_policy",
+			CreatedAt:    createdAt,
+		})
+	} else {
+		reasoning = append(reasoning, events.ReasoningStep{
+			ID:           fmt.Sprintf("reason-slack-report-action-%d", createdAt.UnixNano()),
+			TraceID:      ctx.trace.Summary.TraceID,
+			WorkflowID:   ctx.trace.Summary.WorkflowID,
+			StepType:     "pre_action_decision",
+			Summary:      firstNonEmpty(proposed.Rationale, "Post the structured final report back into Slack."),
+			EvidenceRefs: normalizeActionEvidenceRefs(proposed.EvidenceRefs, ctx.trace.Summary.TraceID),
+			Confidence:   output.Confidence,
+			Decision:     "queued_for_report",
+			CreatedAt:    createdAt,
+		})
+	}
+
+	intent, _, err := ensureActionIntent(store, action.Intent{
+		OwnerPlane:     "control",
+		ConversationID: ctx.trace.Summary.ConversationID,
+		CaseID:         ctx.trace.Summary.CaseID,
+		TraceID:        ctx.trace.Summary.TraceID,
+		Kind:           action.KindSlackReport,
+		PhaseKey:       controlPhaseReplyPost,
+		TargetRef:      firstNonEmpty(proposed.TargetRef, channelID),
+		RequestPayload: requestPayload,
+		IdempotencyKey: idempotencyKey,
+		ApprovalMode:   ctx.workflow.ApprovalMode,
+		ApprovalState:  approvalState,
+		PolicyVerdict:  resolvedPolicyVerdict,
+		Status:         action.StatusQueued,
+		RequestedBy:    cfg.ServiceName,
+		Rationale:      firstNonEmpty(proposed.Rationale, "Post the runner-authored structured report into Slack."),
+		EvidenceRefs:   normalizeActionEvidenceRefs(proposed.EvidenceRefs, ctx.trace.Summary.TraceID),
+		CreatedAt:      createdAt,
+		UpdatedAt:      createdAt,
+	})
+	if err != nil {
+		return action.Intent{}, nil, nil, err
+	}
+	return intent, []events.TraceEvent{
+		{
+			TraceID:     ctx.trace.Summary.TraceID,
+			IngestionID: ctx.trace.Summary.IngestionID,
+			WorkflowID:  ctx.trace.Summary.WorkflowID,
+			Plane:       "control",
+			Service:     cfg.ServiceName,
+			Actor:       ctx.workflow.AssignedBot,
+			EventType:   "slack.report.drafted",
+			Status:      events.StatusQueued,
+			StartedAt:   createdAt,
+			Description: "Drafted structured Slack report action from runner-authored side-effect contract.",
 		},
 	}, reasoning, nil
 }
@@ -2420,6 +2647,22 @@ func firstSlackPostAction(items []runnerutil.ProposedAction) runnerutil.Proposed
 	return runnerutil.ProposedAction{}
 }
 
+func firstSlackReportAction(items []runnerutil.ProposedAction) runnerutil.ProposedAction {
+	for _, item := range items {
+		if strings.EqualFold(strings.TrimSpace(item.Kind), string(action.KindSlackReport)) {
+			return item
+		}
+	}
+	return runnerutil.ProposedAction{}
+}
+
+func firstSlackReplyAction(items []runnerutil.ProposedAction) runnerutil.ProposedAction {
+	if report := firstSlackReportAction(items); strings.TrimSpace(report.Kind) != "" {
+		return report
+	}
+	return firstSlackPostAction(items)
+}
+
 func normalizeActionEvidenceRefs(items []events.EvidenceRef, traceID string) []events.EvidenceRef {
 	if len(items) == 0 {
 		return []events.EvidenceRef{{Kind: "trace", Ref: traceID, Summary: traceID}}
@@ -3071,7 +3314,7 @@ func classifyActionPersistenceFailure(intent action.Intent, err error) actionPer
 		FailureMode: "action_result_persistence_failure",
 		Provider:    providerForToolName(intent.TargetRef),
 	}
-	if intent.Kind == action.KindSlackPost {
+	if intent.Kind == action.KindSlackPost || intent.Kind == action.KindSlackReport {
 		failure.Provider = "slack"
 	}
 	if details, ok := postgresFailureDetailsFromError(err); ok {
@@ -3168,14 +3411,11 @@ func firstNonEmptyMap(primary map[string]any, fallback map[string]any) map[strin
 }
 
 func cloneAnyMap(input map[string]any) map[string]any {
-	if input == nil {
+	cloned := storepkg.CloneJSONMap(input)
+	if cloned == nil {
 		return map[string]any{}
 	}
-	out := make(map[string]any, len(input))
-	for key, value := range input {
-		out[key] = value
-	}
-	return out
+	return cloned
 }
 
 func phaseActionsTerminal(store storepkg.Store, traceID string, phaseKey string) bool {

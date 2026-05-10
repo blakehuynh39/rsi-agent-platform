@@ -5,7 +5,6 @@ from dataclasses import dataclass, replace
 import base64
 import hashlib
 import hmac
-import html
 import json
 import logging
 import os
@@ -242,6 +241,7 @@ _BENIGN_MCP_TOOLSET_WARNING = re.compile(
     r"Warning: Unknown toolsets:\s*\n(?:mcp-[^\n]*(?:\n|$))+\n*",
     re.MULTILINE,
 )
+_MARKDOWN_TABLE_SEPARATOR_REGEX = re.compile(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$")
 _PROVIDER_RUNTIME_ERROR_MARKERS = (
     "api call failed",
     "permissiondeniederror",
@@ -1602,7 +1602,7 @@ class HermesRuntime:
             "hermes_config_parity_error": self._hermes_config_parity_error(),
             "observation_sink_configured": observation_sink_configured,
             "observation_sink_status": "configured" if observation_sink_configured else "not_configured",
-            "direct_delivery_phase_enabled": True,
+            "direct_delivery_phase_enabled": False,
             "execution_contract_version": EXECUTION_CONTRACT_VERSION,
             "execution_envelope_v1_enabled": self._config.execution_envelope_v1_enabled,
             "execution_ledger_first_projection_enabled": self._config.execution_ledger_first_projection_enabled,
@@ -4382,15 +4382,6 @@ class HermesRuntime:
                 payload=skill_diagnostics,
             )
 
-        direct_slack_env, direct_slack_error = self._direct_slack_delivery_env(task)
-        if direct_slack_error:
-            failure_class = "slack_bot_token_missing" if "slack_bot_token" in direct_slack_error.lower() else "slack_delivery_target_missing"
-            return self._native_strict_failure(
-                task,
-                failure_class="native_workflow_preflight_failed",
-                message=direct_slack_error,
-                diagnostics={"preflight_failure_class": failure_class},
-            )
         request_file = request_dir / "request.json"
         result_file = request_dir / "result.json"
         request_payload = self._native_executor_request_payload(
@@ -4412,7 +4403,6 @@ class HermesRuntime:
         if self._config.db_read_gateway_configured:
             env_copy.pop("RSI_DB_READ_CLIENT_TOKEN", None)
         env_copy.update(github_cli_env)
-        env_copy.update(direct_slack_env)
         env_copy.update(self._native_worker_session_env(task))
         env_copy.update(self._native_runtime_env(task, context_path=context_path, envelope_path=envelope_path))
         if self._config.native_tools_enabled:
@@ -4989,8 +4979,6 @@ class HermesRuntime:
                 f"parse_error={bool(parse_error)}, "
                 f"completed_returncode={completed_returncode}"
             )
-        if result.ok:
-            self._attach_unexecuted_native_send_directive_recovery(task, result)
         result.raw = self._attach_agentic_mcp_diagnostics(
             _json_object_or_empty(result.raw),
             agentic_mcp_registration,
@@ -6354,145 +6342,6 @@ class HermesRuntime:
     def _workflow_allows_fallback_reply_action(self, task: RunnerTaskRequest) -> bool:
         return task.task_type == "workflow" and self._workflow_reply_delivery_mode(task) != "none"
 
-    def _direct_slack_delivery_env(self, task: RunnerTaskRequest) -> tuple[JsonObject, str]:
-        if task.task_type != "workflow" or self._workflow_reply_delivery_mode(task) != "direct":
-            return {}, ""
-        if self._config.native_tools_enabled:
-            return {}, "direct native Slack delivery is disabled when RSI native tools are enabled; use mediated delivery"
-        channel_id = (task.channel_id or "").strip()
-        if not channel_id:
-            return {}, "direct native Slack delivery requires a bound channel_id"
-        slack_bot_token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), "")
-        if not slack_bot_token:
-            return {}, "SLACK_BOT_TOKEN is required for direct native Slack delivery"
-        env: JsonObject = {
-            "HERMES_SESSION_PLATFORM": "slack",
-            "HERMES_SESSION_CHAT_ID": channel_id,
-            "SLACK_BOT_TOKEN": slack_bot_token,
-        }
-        delivery_policy = _json_object_or_empty(task.delivery_policy)
-        idempotency_key = _string_or_json(delivery_policy.get("idempotency_key_base"))
-        if idempotency_key:
-            env["RSI_DELIVERY_IDEMPOTENCY_KEY"] = idempotency_key
-        thread_ts = (task.thread_ts or "").strip()
-        if thread_ts:
-            env["HERMES_SESSION_THREAD_ID"] = thread_ts
-        return env, ""
-
-    def _looks_like_slack_send_tool_name(self, tool_name_value: str) -> bool:
-        normalized = (tool_name_value or "").strip().lower()
-        return normalized == "send_message" or normalized.endswith(".send_message") or "slack_send_message" in normalized
-
-    def _parse_native_slack_target(self, target_value: Any) -> tuple[str, str]:
-        target = _string_or_json(target_value).strip()
-        match = re.match(r"^slack:([^:]+)(?::(.+))?$", target)
-        if not match:
-            return "", ""
-        return match.group(1).strip(), (match.group(2) or "").strip()
-
-    def _native_send_directive_parameter(self, message: str, name: str) -> str:
-        if not message or not name:
-            return ""
-        pattern = re.compile(
-            r"<[^>]*parameter\b(?=[^>]*\bname=[\"']"
-            + re.escape(name)
-            + r"[\"'])[^>]*>(.*?)</[^>]*parameter>",
-            re.IGNORECASE | re.DOTALL,
-        )
-        match = pattern.search(message)
-        if not match:
-            return ""
-        return html.unescape(match.group(1)).strip()
-
-    def _structured_output_from_unexecuted_native_send_directive(
-        self,
-        task: RunnerTaskRequest,
-        message: str,
-        termination_reason: str,
-    ) -> JsonObject:
-        if task.task_type != "workflow" or self._workflow_reply_delivery_mode(task) == "none":
-            return {}
-        if termination_reason not in PARTIAL_COMPLETION_TERMINATION_REASONS:
-            return {}
-        if not re.search(r"<[^>]*invoke\b(?=[^>]*\bname=[\"']send_message[\"'])", message or "", re.IGNORECASE):
-            return {}
-        body = self._native_send_directive_parameter(message, "body")
-        if not body:
-            body = self._native_send_directive_parameter(message, "message")
-        if not body:
-            return {}
-        target_channel_id, target_thread_ts = self._parse_native_slack_target(
-            self._native_send_directive_parameter(message, "target")
-        )
-        expected_channel_id = (task.channel_id or "").strip()
-        expected_thread_ts = (task.thread_ts or "").strip()
-        if expected_channel_id and target_channel_id and target_channel_id != expected_channel_id:
-            return {}
-        if expected_thread_ts and target_thread_ts and target_thread_ts != expected_thread_ts:
-            return {}
-        if expected_channel_id and not target_channel_id:
-            target_channel_id = expected_channel_id
-        if expected_thread_ts and not target_thread_ts:
-            target_thread_ts = expected_thread_ts
-        if not target_channel_id:
-            return {}
-        structured_output: JsonObject = {
-            "visible_reasoning": [
-                {
-                    "step_type": "delivery_recovery",
-                    "summary": "Recovered a final Slack reply body from an unexecuted native send_message directive after a bounded stop.",
-                    "alternatives": [],
-                    "confidence": 0.86,
-                    "decision": "post_partial_reply",
-                }
-            ],
-            "reply_draft": body,
-            "final_answer": body,
-            "confidence": 0.86,
-            "context_summary": "Recovered from the native executor final response after bounded execution stopped before durable delivery.",
-            "self_critique": "The native send_message directive was emitted as text, so delivery must be mediated by control-plane rather than treated as completed.",
-            "proposed_actions": [],
-            "reply_delivery": {},
-            "knowledge_drafts": [],
-            "outcome_hypotheses": [],
-            "produced_artifacts": [],
-            "artifact_failure_reason": "",
-            "change_plan": "",
-            "repo_patch": "",
-            "validation_plan": "",
-            "retry_assessment": {},
-            "hypothesis_delta": "",
-        }
-        structured_output, _ = self._synthesize_partial_slack_post_action(task, structured_output, termination_reason)
-        return structured_output
-
-    def _attach_unexecuted_native_send_directive_recovery(
-        self,
-        task: RunnerTaskRequest,
-        result: HermesExecutionResult,
-    ) -> bool:
-        raw = _json_object_or_empty(result.raw)
-        if _json_object_or_empty(raw.get("structured_output")):
-            return False
-        structured_output = self._structured_output_from_unexecuted_native_send_directive(
-            task,
-            result.message,
-            _string_or_json(raw.get("termination_reason")),
-        )
-        if not structured_output:
-            return False
-        raw["structured_output"] = structured_output
-        raw["model_output_contract"] = "unexecuted_native_send_directive"
-        raw["native_send_directive_recovered"] = True
-        raw["action_contract_repair_attempted"] = True
-        raw["action_contract_repair_succeeded"] = True
-        runner_diagnostics = _json_object_or_empty(raw.get("runner_diagnostics"))
-        runner_diagnostics["native_send_directive_recovered"] = True
-        runner_diagnostics["native_send_directive_delivery"] = "mediated_slack_post"
-        raw["runner_diagnostics"] = runner_diagnostics
-        result.raw = raw
-        return True
-
     def _parse_json_object_maybe(self, value: Any) -> JsonObject:
         if isinstance(value, dict):
             return value
@@ -6505,111 +6354,28 @@ class HermesRuntime:
             return {}
         return parsed if isinstance(parsed, dict) else {}
 
-    def _reply_delivery_from_session_delta(
-        self,
-        task: RunnerTaskRequest,
-        structured_output: JsonObject,
-        session_messages_delta: list[JsonObject],
-    ) -> JsonObject:
-        if self._workflow_reply_delivery_mode(task) != "direct":
-            return {}
-        tool_results: dict[str, JsonObject] = {}
-        for item in session_messages_delta:
-            if _string_or_json(item.get("role")) != "tool":
+    def _contains_markdown_pipe_table_outside_fence(self, text: str) -> bool:
+        """Detect markdown pipe tables outside code fences, matching Go validation logic."""
+        in_fence = False
+        previous_pipe = False
+        previous_separator = False
+        
+        for line in text.split("\n"):
+            trimmed = line.strip()
+            if trimmed.startswith("```") or trimmed.startswith("~~~"):
+                in_fence = not in_fence
+                previous_pipe = False
+                previous_separator = False
                 continue
-            tool_call_id = first_non_empty(
-                _string_or_json(item.get("tool_call_id")),
-                _string_or_json(item.get("call_id")),
-                _string_or_json(item.get("id")),
-            )
-            if not tool_call_id:
+            if in_fence:
                 continue
-            payload = self._parse_json_object_maybe(item.get("content"))
-            result_payload = self._parse_json_object_maybe(payload.get("result")) if payload else {}
-            merged = dict(payload)
-            if result_payload:
-                merged["result"] = result_payload
-            tool_results[tool_call_id] = merged
-        for item in reversed(session_messages_delta):
-            if _string_or_json(item.get("role")) != "assistant":
-                continue
-            for tool_call in reversed(_json_object_list(item.get("tool_calls"))):
-                function_payload = _json_object_or_empty(tool_call.get("function"))
-                tool_name_value = _string_or_json(function_payload.get("name"))
-                if not self._looks_like_slack_send_tool_name(tool_name_value):
-                    continue
-                request_payload = self._parse_json_object_maybe(function_payload.get("arguments"))
-                body = first_non_empty(
-                    _string_or_json(request_payload.get("message")),
-                    _string_or_json(request_payload.get("text")),
-                    _string_or_json(structured_output.get("final_answer")),
-                    _string_or_json(structured_output.get("reply_draft")),
-                )
-                target_channel_id, target_thread_ts = self._parse_native_slack_target(request_payload.get("target"))
-                tool_call_id = first_non_empty(
-                    _string_or_json(tool_call.get("call_id")),
-                    _string_or_json(tool_call.get("id")),
-                )
-                result_payload = tool_results.get(tool_call_id, {})
-                result_data = _json_object_or_empty(result_payload.get("result")) or result_payload
-                message_context = _json_object_or_empty(result_data.get("message_context"))
-                channel_id = first_non_empty(
-                    _string_or_json(result_data.get("chat_id")),
-                    _string_or_json(result_data.get("channel_id")),
-                    _string_or_json(request_payload.get("channel_id")),
-                    target_channel_id,
-                )
-                thread_ts = first_non_empty(
-                    _string_or_json(result_data.get("thread_id")),
-                    _string_or_json(result_data.get("thread_ts")),
-                    _string_or_json(request_payload.get("thread_ts")),
-                    target_thread_ts,
-                )
-                provider_ref = first_non_empty(
-                    _string_or_json(result_data.get("message_id")),
-                    _string_or_json(result_data.get("ts")),
-                    _string_or_json(message_context.get("message_ts")),
-                    _string_or_json(result_payload.get("provider_ref")),
-                )
-                message_link = _string_or_json(result_data.get("message_link"))
-                status = "posted"
-                send_status = _string_or_json(result_data.get("status"))
-                if result_data.get("success") is False:
-                    status = "failed"
-                    send_status = first_non_empty(send_status, _string_or_json(result_data.get("error")), "send_failed")
-                expected_channel_id = (task.channel_id or "").strip()
-                expected_thread_ts = (task.thread_ts or "").strip()
-                if not target_channel_id and not _string_or_json(request_payload.get("channel_id")):
-                    status = "failed"
-                    send_status = "missing_slack_target"
-                elif expected_channel_id and channel_id and channel_id != expected_channel_id:
-                    status = "failed"
-                    send_status = "wrong_channel"
-                elif expected_thread_ts and thread_ts and thread_ts != expected_thread_ts:
-                    status = "failed"
-                    send_status = "wrong_thread"
-                elif expected_thread_ts and not thread_ts:
-                    status = "failed"
-                    send_status = "missing_thread"
-                elif status == "posted" and not provider_ref and not message_link and result_data.get("success") is not True:
-                    continue
-                artifact_refs = _string_list_or_empty(result_payload.get("raw_artifact_refs"))
-                body_sha1 = hashlib.sha1(body.encode("utf-8")).hexdigest() if body else ""
-                return {
-                    "status": status,
-                    "send_status": send_status,
-                    "channel_id": first_non_empty(channel_id, task.channel_id or ""),
-                    "thread_ts": first_non_empty(thread_ts, task.thread_ts or ""),
-                    "body": body,
-                    "body_sha1": body_sha1,
-                    "body_excerpt": body[:280],
-                    "tool_call_id": tool_call_id,
-                    "tool_name": tool_name_value,
-                    "provider_ref": provider_ref,
-                    "message_link": message_link,
-                    "artifact_refs": artifact_refs,
-                }
-        return {}
+            has_pipe = trimmed.count("|") >= 2
+            is_separator = has_pipe and _MARKDOWN_TABLE_SEPARATOR_REGEX.match(trimmed)
+            if (is_separator and previous_pipe) or (previous_separator and has_pipe):
+                return True
+            previous_pipe = has_pipe and not is_separator
+            previous_separator = is_separator
+        return False
 
     def _synthesize_partial_slack_post_action(
         self,
@@ -6620,7 +6386,7 @@ class HermesRuntime:
         if not self._workflow_allows_fallback_reply_action(task):
             return structured_output, False
         for item in _normalize_proposed_actions(structured_output.get("proposed_actions")):
-            if _string_or_json(item.get("kind")) == "slack_post":
+            if _string_or_json(item.get("kind")) in {"slack_post", "slack_report"}:
                 return structured_output, False
         if _json_object_or_empty(structured_output.get("reply_delivery")):
             return structured_output, False
@@ -6630,12 +6396,24 @@ class HermesRuntime:
         )
         if not reply_body:
             return structured_output, False
+        if self._contains_markdown_pipe_table_outside_fence(reply_body):
+            normalized = dict(structured_output)
+            diagnostics = dict(_json_object_or_empty(normalized.get("runner_diagnostics")))
+            diagnostics["action_contract_synthesis_skipped"] = "markdown_pipe_table_requires_slack_report"
+            normalized["runner_diagnostics"] = diagnostics
+            normalized["action_contract_synthesis_error"] = {
+                "code": "markdown_pipe_table_requires_slack_report",
+                "path": "$.final_answer",
+                "message": "Fallback slack_post synthesis skipped because the partial reply contains a Markdown pipe table; use slack_report.tables for structured tabular output.",
+            }
+            return normalized, False
         actions = [
             dict(item)
             for item in _normalize_proposed_actions(structured_output.get("proposed_actions"))
-            if _string_or_json(item.get("kind")) != "slack_post"
+            if _string_or_json(item.get("kind")) not in {"slack_post", "slack_report"}
         ]
         request_payload: JsonObject = {"body": reply_body}
+        
         artifact_refs = []
         for item in _normalize_produced_artifacts(structured_output.get("produced_artifacts")):
             artifact_refs.extend(_string_list_or_empty(item.get("artifact_refs")))
@@ -7277,7 +7055,6 @@ class HermesRuntime:
         action_contract_repair_succeeded = False
         action_contract_repair_error = ""
         action_contract_repair_response = ""
-        native_send_directive_recovered = False
         partial_structured_output = _json_object_or_empty(result.raw.get("structured_output"))
         used_partial_structured_output = False
         if completion_verdict == "partial" and partial_structured_output:
@@ -7291,19 +7068,7 @@ class HermesRuntime:
                 result.raw.get("action_contract_repair_succeeded")
             ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_succeeded"))
         else:
-            if completion_verdict == "partial":
-                structured_output = self._structured_output_from_unexecuted_native_send_directive(
-                    task,
-                    result.message,
-                    initial_termination_reason,
-                )
-                if structured_output:
-                    native_send_directive_recovered = True
-                    used_partial_structured_output = True
-                    action_contract_repair_attempted = True
-                    action_contract_repair_succeeded = True
-                    result.raw["structured_output"] = structured_output
-            if not native_send_directive_recovered and (invalid_request := self._provider_invalid_request_diagnostics(result.message)):
+            if invalid_request := self._provider_invalid_request_diagnostics(result.message):
                 diagnostics = dict(invalid_request)
                 for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
                     diagnostics[key] = value
@@ -7320,7 +7085,7 @@ class HermesRuntime:
                         "repair_succeeded": False,
                     },
                     )
-            if not native_send_directive_recovered and (provider_runtime_error := self._provider_runtime_error_diagnostics(result.message)):
+            if provider_runtime_error := self._provider_runtime_error_diagnostics(result.message):
                 diagnostics = dict(provider_runtime_error)
                 for key, value in _json_object_or_empty(result.raw.get("runner_diagnostics")).items():
                     diagnostics[key] = value
@@ -7337,120 +7102,95 @@ class HermesRuntime:
                         "repair_succeeded": False,
                     },
                 )
-            if not native_send_directive_recovered:
-                try:
-                    structured_output = self._extract_structured_output(result.message)
-                except HermesStructuredOutputError as exc:
-                    if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
-                        repair_attempted = True
-                        logger.info(
-                            "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
-                            task.trace_id or "",
-                            task.workflow_id or "",
-                        )
-                        repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
-                        repair_result = self._execute_task_request(
-                            repair_task,
-                            observer=observer,
-                            render_prompt=False,
-                            expand_skills=False,
-                        )
-                        if repair_result.ok:
-                            if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
-                                diagnostics = dict(invalid_request)
-                                for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
-                                    diagnostics[key] = value
-                                diagnostics["repair_attempted"] = True
-                                diagnostics["repair_succeeded"] = False
-                                return HermesExecutionResult(
-                                    ok=False,
-                                    message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
-                                    provider=repair_result.provider,
-                                    raw={
-                                        **repair_result.raw,
-                                        "failure_class": "runner_invalid_request",
-                                        "runner_diagnostics": diagnostics,
-                                        "raw_response": repair_result.message,
-                                        "repair_attempted": True,
-                                        "repair_succeeded": False,
-                                        "repair_original_response": result.message,
-                                    },
-                                )
-                            if provider_runtime_error := self._provider_runtime_error_diagnostics(repair_result.message):
-                                diagnostics = dict(provider_runtime_error)
-                                for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
-                                    diagnostics[key] = value
-                                diagnostics["repair_attempted"] = True
-                                diagnostics["repair_succeeded"] = False
-                                return HermesExecutionResult(
-                                    ok=False,
-                                    message=string_from_map(diagnostics, "provider_error_message") or "Provider call failed.",
-                                    provider=repair_result.provider,
-                                    raw={
-                                        **repair_result.raw,
-                                        "failure_class": "runner_provider_error",
-                                        "runner_diagnostics": diagnostics,
-                                        "raw_response": repair_result.message,
-                                        "repair_attempted": True,
-                                        "repair_succeeded": False,
-                                        "repair_original_response": result.message,
-                                    },
-                                )
-                            try:
-                                structured_output = self._extract_structured_output(repair_result.message)
-                                result = repair_result
-                                repair_succeeded = True
-                                logger.info(
-                                    "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
-                                    task.trace_id or "",
-                                    task.workflow_id or "",
-                                )
-                            except HermesStructuredOutputError as repair_exc:
-                                logger.warning(
-                                    "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
-                                    task.trace_id or "",
-                                    task.workflow_id or "",
-                                    repair_exc,
-                                )
-                                return HermesExecutionResult(
-                                    ok=False,
-                                    message=str(repair_exc),
-                                    provider=repair_result.provider,
-                                    raw={
-                                        **repair_result.raw,
-                                        "failure_class": "runner_structured_output_parse_failure",
-                                        "runner_diagnostics": self._runner_diagnostics(
-                                            failure_kind="structured_output_parse_failure",
-                                            provider_error_message=str(repair_exc),
-                                            repair_attempted=True,
-                                            repair_succeeded=False,
-                                            observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                        ),
-                                        "structured_output_error": str(repair_exc),
-                                        "raw_response": repair_result.message,
-                                        "repair_attempted": True,
-                                        "repair_succeeded": False,
-                                        "repair_original_response": result.message,
-                                    },
-                                )
-                        else:
+            try:
+                structured_output = self._extract_structured_output(result.message)
+            except HermesStructuredOutputError as exc:
+                if task.task_type == "workflow" and self._config.workflow_runner_repair_attempts > 0 and self._structured_output_repairable(exc):
+                    repair_attempted = True
+                    logger.info(
+                        "workflow runner structured-output repair attempted trace_id=%s workflow_id=%s",
+                        task.trace_id or "",
+                        task.workflow_id or "",
+                    )
+                    repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
+                    repair_result = self._execute_task_request(
+                        repair_task,
+                        observer=observer,
+                        render_prompt=False,
+                        expand_skills=False,
+                    )
+                    if repair_result.ok:
+                        if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
+                            diagnostics = dict(invalid_request)
+                            for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                                diagnostics[key] = value
+                            diagnostics["repair_attempted"] = True
+                            diagnostics["repair_succeeded"] = False
+                            return HermesExecutionResult(
+                                ok=False,
+                                message=string_from_map(diagnostics, "provider_error_message") or "Provider rejected the runner request.",
+                                provider=repair_result.provider,
+                                raw={
+                                    **repair_result.raw,
+                                    "failure_class": "runner_invalid_request",
+                                    "runner_diagnostics": diagnostics,
+                                    "raw_response": repair_result.message,
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                    "repair_original_response": result.message,
+                                },
+                            )
+                        if provider_runtime_error := self._provider_runtime_error_diagnostics(repair_result.message):
+                            diagnostics = dict(provider_runtime_error)
+                            for key, value in _json_object_or_empty(repair_result.raw.get("runner_diagnostics")).items():
+                                diagnostics[key] = value
+                            diagnostics["repair_attempted"] = True
+                            diagnostics["repair_succeeded"] = False
+                            return HermesExecutionResult(
+                                ok=False,
+                                message=string_from_map(diagnostics, "provider_error_message") or "Provider call failed.",
+                                provider=repair_result.provider,
+                                raw={
+                                    **repair_result.raw,
+                                    "failure_class": "runner_provider_error",
+                                    "runner_diagnostics": diagnostics,
+                                    "raw_response": repair_result.message,
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                    "repair_original_response": result.message,
+                                },
+                            )
+                        try:
+                            structured_output = self._extract_structured_output(repair_result.message)
+                            result = repair_result
+                            repair_succeeded = True
+                            logger.info(
+                                "workflow runner structured-output repair succeeded trace_id=%s workflow_id=%s",
+                                task.trace_id or "",
+                                task.workflow_id or "",
+                            )
+                        except HermesStructuredOutputError as repair_exc:
                             logger.warning(
                                 "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
                                 task.trace_id or "",
                                 task.workflow_id or "",
-                                repair_result.message,
+                                repair_exc,
                             )
                             return HermesExecutionResult(
                                 ok=False,
-                                message=repair_result.message,
+                                message=str(repair_exc),
                                 provider=repair_result.provider,
                                 raw={
                                     **repair_result.raw,
-                                    "runner_diagnostics": {
-                                        **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
-                                        "repair_attempted": True,
-                                        "repair_succeeded": False,
-                                    } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
+                                    "failure_class": "runner_structured_output_parse_failure",
+                                    "runner_diagnostics": self._runner_diagnostics(
+                                        failure_kind="structured_output_parse_failure",
+                                        provider_error_message=str(repair_exc),
+                                        repair_attempted=True,
+                                        repair_succeeded=False,
+                                        observed=_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                    ),
+                                    "structured_output_error": str(repair_exc),
                                     "raw_response": repair_result.message,
                                     "repair_attempted": True,
                                     "repair_succeeded": False,
@@ -7458,46 +7198,63 @@ class HermesRuntime:
                                 },
                             )
                     else:
+                        logger.warning(
+                            "workflow runner structured-output repair failed trace_id=%s workflow_id=%s error=%s",
+                            task.trace_id or "",
+                            task.workflow_id or "",
+                            repair_result.message,
+                        )
                         return HermesExecutionResult(
                             ok=False,
-                            message=str(exc),
-                            provider=result.provider,
+                            message=repair_result.message,
+                            provider=repair_result.provider,
                             raw={
-                                **result.raw,
-                                "failure_class": "runner_structured_output_parse_failure",
-                                "runner_diagnostics": self._runner_diagnostics(
-                                    failure_kind="structured_output_parse_failure",
-                                    provider_error_message=str(exc),
-                                    repair_attempted=False,
-                                    repair_succeeded=False,
-                                    observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
-                                ),
-                                "structured_output_error": str(exc),
-                                "raw_response": result.message,
-                                "repair_attempted": False,
+                                **repair_result.raw,
+                                "runner_diagnostics": {
+                                    **_json_object_or_empty(repair_result.raw.get("runner_diagnostics")),
+                                    "repair_attempted": True,
+                                    "repair_succeeded": False,
+                                } if repair_result.raw.get("runner_diagnostics") is not None else repair_result.raw.get("runner_diagnostics"),
+                                "raw_response": repair_result.message,
+                                "repair_attempted": True,
                                 "repair_succeeded": False,
+                                "repair_original_response": result.message,
                             },
                         )
-            session_reply_delivery = self._reply_delivery_from_session_delta(
-                task,
-                structured_output,
-                _json_object_list(result.raw.get("session_messages_delta")),
-            )
-            if self._workflow_reply_delivery_mode(task) == "direct":
-                reply_delivery = session_reply_delivery
-            else:
-                reply_delivery = _json_object_or_empty(structured_output.get("reply_delivery")) or session_reply_delivery
+                else:
+                    return HermesExecutionResult(
+                        ok=False,
+                        message=str(exc),
+                        provider=result.provider,
+                        raw={
+                            **result.raw,
+                            "failure_class": "runner_structured_output_parse_failure",
+                            "runner_diagnostics": self._runner_diagnostics(
+                                failure_kind="structured_output_parse_failure",
+                                provider_error_message=str(exc),
+                                repair_attempted=False,
+                                repair_succeeded=False,
+                                observed=_json_object_or_empty(result.raw.get("runner_diagnostics")),
+                            ),
+                            "structured_output_error": str(exc),
+                            "raw_response": result.message,
+                            "repair_attempted": False,
+                            "repair_succeeded": False,
+                        },
+                    )
+            reply_delivery = _json_object_or_empty(structured_output.get("reply_delivery"))
             if reply_delivery:
                 structured_output["reply_delivery"] = reply_delivery
                 result.raw["reply_delivery"] = reply_delivery
-            if self._workflow_missing_explicit_reply_action(task, structured_output):
+            action_contract_errors = self._workflow_reply_action_contract_errors(task, structured_output)
+            if action_contract_errors:
                 action_contract_repair_attempted = True
                 logger.info(
                     "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s",
                     task.trace_id or "",
                     task.workflow_id or "",
                 )
-                repair_task = self._build_action_contract_repair_task(rendered_task, structured_output)
+                repair_task = self._build_action_contract_repair_task(rendered_task, structured_output, action_contract_errors)
                 repair_result = self._execute_task_request(
                     repair_task,
                     observer=observer,
@@ -7511,7 +7268,8 @@ class HermesRuntime:
                     except HermesStructuredOutputError as exc:
                         action_contract_repair_error = str(exc)
                     else:
-                        if not self._workflow_missing_explicit_reply_action(task, repaired_output):
+                        repaired_contract_errors = self._workflow_reply_action_contract_errors(task, repaired_output)
+                        if not repaired_contract_errors:
                             structured_output = repaired_output
                             result = repair_result
                             action_contract_repair_succeeded = True
@@ -7521,7 +7279,15 @@ class HermesRuntime:
                                 task.workflow_id or "",
                             )
                         else:
-                            action_contract_repair_error = "Hermes repair response still omitted the required slack_post action."
+                            action_contract_repair_error = json.dumps(
+                                {
+                                    "code": "final_action_contract_invalid",
+                                    "message": "Hermes repair response still failed the final Slack action contract.",
+                                    "errors": repaired_contract_errors,
+                                },
+                                ensure_ascii=True,
+                                sort_keys=True,
+                            )
                 else:
                     action_contract_repair_error = repair_result.message
         existing_repair_attempted = bool(result.raw.get("repair_attempted"))
@@ -7586,9 +7352,6 @@ class HermesRuntime:
             result.raw["max_iterations_reached"] = initial_max_iterations_reached or initial_termination_reason == "iteration_budget_exhausted"
             if used_partial_structured_output:
                 result.raw["model_output_contract"] = "partial_structured_output"
-            if native_send_directive_recovered:
-                result.raw["model_output_contract"] = "unexecuted_native_send_directive"
-                result.raw["native_send_directive_recovered"] = True
         if repair_attempted:
             result.raw["repair_original_response"] = initial_response
         runner_diagnostics = _json_object_or_empty(result.raw.get("runner_diagnostics"))
@@ -7601,9 +7364,6 @@ class HermesRuntime:
             runner_diagnostics["completion_verdict"] = "partial"
             runner_diagnostics["termination_reason"] = result.raw["termination_reason"]
             runner_diagnostics["max_iterations_reached"] = result.raw["max_iterations_reached"]
-        if native_send_directive_recovered:
-            runner_diagnostics["native_send_directive_recovered"] = True
-            runner_diagnostics["native_send_directive_delivery"] = "mediated_slack_post"
         if observer is not None:
             for key, value in observer.diagnostics().items():
                 runner_diagnostics[key] = value
@@ -7825,26 +7585,215 @@ class HermesRuntime:
         )
 
     def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
+        return bool(self._workflow_reply_action_contract_errors(task, structured_output))
+
+    def _workflow_reply_action_contract_errors(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
         if not self._workflow_requires_explicit_reply_action(task):
-            return False
+            return []
         final_answer = _string_or_json(structured_output.get("final_answer"))
         reply_draft = _string_or_json(structured_output.get("reply_draft"))
-        if not final_answer and not reply_draft:
-            return False
-        for item in _normalize_proposed_actions(structured_output.get("proposed_actions")):
-            if _string_or_json(item.get("kind")) == "slack_post":
-                return False
-        return True
+        proposed_actions = _normalize_proposed_actions(structured_output.get("proposed_actions"))
+        reply_actions = [
+            item
+            for item in proposed_actions
+            if _string_or_json(item.get("kind")) in {"slack_post", "slack_report"}
+        ]
+        if not final_answer and not reply_draft and not reply_actions:
+            return []
+        errors: list[JsonObject] = []
+        if (final_answer or reply_draft) and not reply_actions:
+            errors.append(
+                {
+                    "code": "missing_final_reply_action",
+                    "path": "proposed_actions",
+                    "message": "Workflow replies must include exactly one slack_post or slack_report proposed action.",
+                }
+            )
+            return errors
+        if len(reply_actions) > 1:
+            errors.append(
+                {
+                    "code": "multiple_final_reply_actions",
+                    "path": "proposed_actions",
+                    "limit": 1,
+                    "actual": len(reply_actions),
+                    "message": "Workflow replies must include exactly one final Slack action.",
+                }
+            )
+        for index, item in enumerate(reply_actions):
+            kind = _string_or_json(item.get("kind"))
+            payload = _json_object_or_empty(item.get("request_payload"))
+            if kind == "slack_post":
+                body = first_non_empty(
+                    _string_or_json(payload.get("final_body")),
+                    _string_or_json(payload.get("body")),
+                    final_answer,
+                    reply_draft,
+                    _string_or_json(payload.get("draft_body")),
+                )
+                if self._contains_markdown_pipe_table_outside_fence(body):
+                    errors.append(
+                        {
+                            "code": "unsupported_markdown_table",
+                            "path": f"proposed_actions[{index}].request_payload.body",
+                            "message": "slack_post is for simple prose; move tabular output into slack_report.tables.",
+                        }
+                    )
+            elif kind == "slack_report":
+                errors.extend(self._validate_slack_report_action_payload(payload, f"proposed_actions[{index}].request_payload"))
+        return errors
 
-    def _build_action_contract_repair_task(self, task: RunnerTaskRequest, structured_output: JsonObject) -> RunnerTaskRequest:
+    def _validate_slack_report_action_payload(self, payload: JsonObject, base_path: str) -> list[JsonObject]:
+        errors: list[JsonObject] = []
+        if "report" in payload and isinstance(payload["report"], dict):
+            payload = payload["report"]
+            base_path = f"{base_path}.report"
+        version = payload.get("report_schema_version")
+        if version != 1:
+            errors.append(
+                {
+                    "code": "unsupported_version",
+                    "path": f"{base_path}.report_schema_version",
+                    "limit": 1,
+                    "actual": version,
+                    "message": "report_schema_version must be 1.",
+                }
+            )
+        summary = _string_or_json(payload.get("summary"))
+        if not summary:
+            errors.append(
+                {
+                    "code": "required",
+                    "path": f"{base_path}.summary",
+                    "message": "slack_report summary is required.",
+                }
+            )
+        elif len(summary) > 2800:
+            errors.append(
+                {
+                    "code": "too_long",
+                    "path": f"{base_path}.summary",
+                    "limit": 2800,
+                    "actual": len(summary),
+                    "message": "summary is too long.",
+                }
+            )
+        if self._contains_markdown_pipe_table_outside_fence(summary):
+            errors.append(
+                {
+                    "code": "unsupported_markdown_table",
+                    "path": f"{base_path}.summary",
+                    "message": "Use slack_report.tables instead of raw pipe tables in summary.",
+                }
+            )
+        sections = payload.get("sections")
+        if sections is not None and not isinstance(sections, list):
+            errors.append({"code": "invalid_type", "path": f"{base_path}.sections", "message": "sections must be a list."})
+        elif isinstance(sections, list):
+            for section_index, section in enumerate(sections):
+                if not isinstance(section, dict):
+                    errors.append({"code": "invalid_type", "path": f"{base_path}.sections[{section_index}]", "message": "section must be an object."})
+                    continue
+                text = _string_or_json(section.get("text"))
+                if len(text) > 2800:
+                    errors.append(
+                        {
+                            "code": "too_long",
+                            "path": f"{base_path}.sections[{section_index}].text",
+                            "limit": 2800,
+                            "actual": len(text),
+                            "message": "section text is too long.",
+                        }
+                    )
+                if self._contains_markdown_pipe_table_outside_fence(text):
+                    errors.append(
+                        {
+                            "code": "unsupported_markdown_table",
+                            "path": f"{base_path}.sections[{section_index}].text",
+                            "message": "Use slack_report.tables instead of raw pipe tables in section text.",
+                        }
+                    )
+        tables = payload.get("tables")
+        if tables is not None and not isinstance(tables, list):
+            errors.append({"code": "invalid_type", "path": f"{base_path}.tables", "message": "tables must be a list."})
+        elif isinstance(tables, list):
+            for table_index, table in enumerate(tables):
+                errors.extend(self._validate_slack_report_table(table, f"{base_path}.tables[{table_index}]"))
+        for field_name in ("files", "images"):
+            items = payload.get(field_name)
+            if items is None:
+                continue
+            if not isinstance(items, list):
+                errors.append({"code": "invalid_type", "path": f"{base_path}.{field_name}", "message": f"{field_name} must be a list."})
+                continue
+            for item_index, item in enumerate(items):
+                if not isinstance(item, dict):
+                    errors.append({"code": "invalid_type", "path": f"{base_path}.{field_name}[{item_index}]", "message": "file/image entry must be an object."})
+                    continue
+                if _string_or_json(item.get("content")) or _string_or_json(item.get("content_base64")):
+                    errors.append(
+                        {
+                            "code": "inline_binary_rejected",
+                            "path": f"{base_path}.{field_name}[{item_index}]",
+                            "message": "files/images must reference existing RSI artifacts; inline content is rejected.",
+                        }
+                    )
+        return errors
+
+    def _validate_slack_report_table(self, table: Any, base_path: str) -> list[JsonObject]:
+        errors: list[JsonObject] = []
+        if not isinstance(table, dict):
+            return [{"code": "invalid_type", "path": base_path, "message": "table must be an object."}]
+        columns = table.get("columns")
+        if not isinstance(columns, list) or not columns:
+            errors.append({"code": "required", "path": f"{base_path}.columns", "message": "table columns are required."})
+            columns = []
+        if len(columns) > 20:
+            errors.append({"code": "too_many_columns", "path": f"{base_path}.columns", "limit": 20, "actual": len(columns), "message": "table has too many columns."})
+        seen: set[str] = set()
+        column_keys: list[str] = []
+        for column_index, column in enumerate(columns):
+            if not isinstance(column, dict):
+                errors.append({"code": "invalid_type", "path": f"{base_path}.columns[{column_index}]", "message": "column must be an object."})
+                continue
+            key = _string_or_json(column.get("key"))
+            if not key:
+                errors.append({"code": "required", "path": f"{base_path}.columns[{column_index}].key", "message": "column key is required."})
+                continue
+            if key in seen:
+                errors.append({"code": "duplicate", "path": f"{base_path}.columns[{column_index}].key", "actual": key, "message": "column keys must be unique."})
+            seen.add(key)
+            column_keys.append(key)
+        rows = table.get("rows")
+        if rows is not None and not isinstance(rows, list):
+            errors.append({"code": "invalid_type", "path": f"{base_path}.rows", "message": "rows must be a list."})
+            return errors
+        for row_index, row in enumerate(rows or []):
+            if not isinstance(row, dict):
+                errors.append({"code": "invalid_type", "path": f"{base_path}.rows[{row_index}]", "message": "row must be an object."})
+                continue
+            for key in column_keys:
+                value = row.get(key)
+                if not (value is None or isinstance(value, (str, bool, Number))):
+                    errors.append({"code": "invalid_cell_type", "path": f"{base_path}.rows[{row_index}].{key}", "message": "table cells must be string, number, bool, or null."})
+                    continue
+                rendered = _string_or_json(value)
+                if len(rendered) > 500:
+                    errors.append({"code": "cell_too_long", "path": f"{base_path}.rows[{row_index}].{key}", "limit": 500, "actual": len(rendered), "message": "table cell is too long."})
+        return errors
+
+    def _build_action_contract_repair_task(self, task: RunnerTaskRequest, structured_output: JsonObject, errors: list[JsonObject]) -> RunnerTaskRequest:
         repair_prompt = "\n".join(
             [
                 task.prompt,
                 "",
-                "Repair instruction: your previous structured output included a grounded reply but omitted the required explicit slack_post action.",
+                "Repair instruction: your previous structured output failed the final Slack action contract.",
                 "Re-emit the full JSON object.",
                 "Preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
-                "Include exactly one proposed action with kind=slack_post and a request_payload that carries the reply body.",
+                "Include exactly one proposed action: kind=slack_post for simple prose, or kind=slack_report for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",
+                "Do not put Markdown pipe tables in slack_post; convert tabular output into slack_report.tables with columns [{key,label,align?}] and rows [{column_key: scalar}].",
+                "Fix these machine-readable validation errors:",
+                json.dumps(errors, ensure_ascii=True, sort_keys=True),
                 "Return only valid JSON with no markdown or surrounding commentary.",
                 "Previous structured output:",
                 json.dumps(structured_output, ensure_ascii=True, sort_keys=True),

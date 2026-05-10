@@ -3700,101 +3700,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_requests[0]["phase_contract"]["history_policy"], "session")
         self.assertNotIn("rsi-governed-readonly", captured_requests[0]["phase_contract"]["required_toolsets"])
 
-    def test_native_executor_partial_send_message_text_becomes_mediated_slack_action(self) -> None:
-        final_body = "## Investigation Summary\n\nSet the Numo validation token hash in deployment values."
-        dsml_response = (
-            '<||DSML||tool_calls>\n'
-            '<||DSML||invoke name="send_message">\n'
-            f'<||DSML||parameter name="body" string="true">{final_body}</||DSML||parameter>\n'
-            '<||DSML||parameter name="target" string="true">slack:C123:171000001.000100</||DSML||parameter>\n'
-            '</||DSML||invoke>\n'
-            '</||DSML||tool_calls>'
-        )
-
-        class FakePopen:
-            def __init__(self, cmd, cwd, env, stdout, stderr, text):
-                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
-                self.returncode = 0
-                payload = {
-                    "ok": True,
-                    "mcp_cleanup_errors": [],
-                    "mcp_cleanup_status": "cleaned",
-                    "response": dsml_response,
-                    "result": {
-                        "final_response": dsml_response,
-                        "completed": False,
-                        "api_calls": 20,
-                        "partial": True,
-                        "interrupted": False,
-                    },
-                    "session_id": "rsi-prod-conversation-123",
-                }
-                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
-                write_native_test_envelope(request, final_response=dsml_response)
-                self.stdout = io.StringIO("")
-                self.stderr = io.StringIO("")
-
-            def poll(self):
-                return 0
-
-            def wait(self, timeout=None):
-                return self.returncode
-
-            def terminate(self):
-                self.returncode = -15
-
-            def kill(self):
-                self.returncode = -9
-
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "rsi-agent-platform",
-                    "prompt": "Investigate the latest trace.",
-                    "execution_id": "hexec-partial-native-send",
-                    "trace_id": "trace-partial-native-send",
-                    "workflow_id": "wf-partial-native-send",
-                    "operation_id": "op-partial-native-send",
-                    "reply_delivery_mode": "direct",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "session_scope_kind": "conversation",
-                    "session_scope_id": "conv-partial-native-send",
-                }
-            }
-        )
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.subprocess.Popen", FakePopen), mock.patch.dict(
-            os.environ,
-            {
-                **runner_env("prod"),
-                "RSI_HERMES_EXECUTOR_ENABLED": "true",
-                "RSI_HERMES_EXECUTOR_SERVICE_ONLY": "true",
-                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
-                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
-            },
-            clear=True,
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime.execute_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertEqual(result.raw["completion_verdict"], "partial")
-        self.assertEqual(result.raw["termination_reason"], "iteration_budget_exhausted")
-        self.assertEqual(result.raw["model_output_contract"], "unexecuted_native_send_directive")
-        self.assertNotIn("reply_delivery", result.raw)
-        structured_output = result.raw["structured_output"]
-        self.assertEqual(structured_output["final_answer"], final_body)
-        self.assertEqual(structured_output["reply_delivery"], {})
-        self.assertEqual(structured_output["proposed_actions"][0]["kind"], "slack_post")
-        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["body"], final_body)
-        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["channel_id"], "C123")
-        self.assertEqual(structured_output["proposed_actions"][0]["request_payload"]["thread_ts"], "171000001.000100")
-        self.assertTrue(result.raw["runner_diagnostics"]["native_send_directive_recovered"])
-
     def test_native_executor_extracts_trailing_json_fence_without_repair_mcp_registration(self) -> None:
         structured = {
             "visible_reasoning": [],
@@ -5575,7 +5480,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["hermes_config_parity_status"], "configured")
         self.assertFalse(runtime.metadata["observation_sink_configured"])
         self.assertEqual(runtime.metadata["observation_sink_status"], "not_configured")
-        self.assertTrue(runtime.metadata["direct_delivery_phase_enabled"])
+        self.assertFalse(runtime.metadata["direct_delivery_phase_enabled"])
 
     def test_runtime_metadata_exposes_direct_observation_sink(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -6788,82 +6693,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime._partial_completion_finalization_reserve_seconds(300), 180)
         self.assertEqual(runtime._partial_completion_attempt_budgets(180), [180])
 
-    def test_workflow_direct_reply_delivery_uses_session_delta_without_action_repair(self) -> None:
-        class DirectReplySessionManager(FakeSessionManager):
-            def finalize(self, context: types.SimpleNamespace, tracker: FakeTracker) -> dict[str, object]:
-                payload = super().finalize(context, tracker)
-                payload["session_messages_delta"] = [
-                    {
-                        "role": "assistant",
-                        "tool_calls": [
-                            {
-                                "id": "call_send_1",
-                                "call_id": "call_send_1",
-                                "function": {
-                                    "name": "send_message",
-                                    "arguments": json.dumps(
-                                        {
-                                            "target": "slack:C123:171000001.000100",
-                                            "message": "Final reply",
-                                        }
-                                    ),
-                                },
-                            }
-                        ],
-                    },
-                    {
-                        "role": "tool",
-                        "tool_call_id": "call_send_1",
-                        "content": json.dumps(
-                            {
-                                "result": json.dumps(
-                                    {
-                                        "success": True,
-                                        "platform": "slack",
-                                        "chat_id": "C123",
-                                        "thread_id": "171000001.000100",
-                                        "message_id": "171000001.000100",
-                                    }
-                                )
-                            }
-                        ),
-                    },
-                ]
-                return payload
-
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "rsi-agent-platform",
-                    "prompt": "Answer the thread and post directly.",
-                    "trace_id": "trace-123",
-                    "workflow_id": "wf-123",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "reply_delivery_mode": "direct",
-                    "session_scope_kind": "conversation",
-                    "session_scope_id": "conv-123",
-                }
-            }
-        )
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", DirectReplySessionManager
-        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            result = runtime.execute_task(task)
-
-        self.assertTrue(result.ok)
-        self.assertFalse(result.raw["action_contract_repair_attempted"])
-        self.assertFalse(result.raw["action_contract_repair_succeeded"])
-        self.assertEqual(result.raw["reply_delivery"]["status"], "posted")
-        self.assertEqual(result.raw["reply_delivery"]["channel_id"], "C123")
-        self.assertEqual(result.raw["reply_delivery"]["thread_ts"], "171000001.000100")
-        self.assertEqual(result.raw["reply_delivery"]["tool_call_id"], "call_send_1")
-        self.assertEqual(result.raw["reply_delivery"]["provider_ref"], "171000001.000100")
-        self.assertEqual(result.raw["structured_output"]["reply_delivery"]["status"], "posted")
-
     def test_execution_envelope_v1_legacy_capability_fields_are_ignored(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
@@ -7795,77 +7624,160 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(parsed["result"], {"tools": [{"name": "slack_read_thread"}]})
 
-    def test_direct_slack_delivery_env_uses_canonical_bot_token_name(self) -> None:
+    def test_workflow_final_action_contract_rejects_pipe_table_slack_post(self) -> None:
         task = RunnerTaskRequest.from_payload(
             {
                 "task": {
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
-                    "prompt": "Reply in Slack.",
-                    "reply_delivery_mode": "direct",
+                    "prompt": "Reply with a table.",
+                    "reply_delivery_mode": "mediated",
                     "channel_id": "C123",
                     "thread_ts": "171000001.000100",
-                    "delivery_policy": {
-                        "direct_send_allowed": True,
-                        "idempotency_key_base": "C123:171000001.000100:trace-direct-env",
-                    },
                 }
             }
         )
-        env = runner_env("prod")
-
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, env, clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            direct_env, error = runtime._direct_slack_delivery_env(task)
-
-        self.assertEqual(error, "")
-        self.assertEqual(direct_env["SLACK_BOT_TOKEN"], "xoxb-test")
-        self.assertEqual(direct_env["RSI_DELIVERY_IDEMPOTENCY_KEY"], "C123:171000001.000100:trace-direct-env")
-        self.assertEqual(
-            set(direct_env),
-            {
-                "HERMES_SESSION_PLATFORM",
-                "HERMES_SESSION_CHAT_ID",
-                "HERMES_SESSION_THREAD_ID",
-                "RSI_DELIVERY_IDEMPOTENCY_KEY",
-                "SLACK_BOT_TOKEN",
-            },
-        )
-
-    def test_direct_slack_delivery_env_disabled_for_native_tools(self) -> None:
-        task = RunnerTaskRequest.from_payload(
-            {
-                "task": {
-                    "task_type": "workflow",
-                    "repo": "rsi-agent-platform",
-                    "prompt": "Reply in Slack.",
-                    "reply_delivery_mode": "direct",
-                    "channel_id": "C123",
-                    "thread_ts": "171000001.000100",
-                    "delivery_policy": {
-                        "direct_send_allowed": True,
-                        "idempotency_key_base": "C123:171000001.000100:trace-direct-env",
+        structured_output = {
+            "reply_draft": "Here is a table.",
+            "final_answer": "Here is a table.",
+            "proposed_actions": [
+                {
+                    "kind": "slack_post",
+                    "request_payload": {
+                        "body": "| Campaign | Count |\n|---|---|\n| Hindi | 10 |",
                     },
                 }
-            }
-        )
-        env = {
-            **runner_env("prod"),
-            "RSI_NATIVE_TOOLS_ENABLED": "true",
-            "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
-            "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.internal:8080",
+            ],
         }
 
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, env, clear=True):
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            direct_env, error = runtime._direct_slack_delivery_env(task)
+            errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
 
-        self.assertEqual(direct_env, {})
-        self.assertIn("direct native Slack delivery is disabled", error)
+        self.assertEqual(errors[0]["code"], "unsupported_markdown_table")
+        self.assertIn("slack_report.tables", errors[0]["message"])
+
+    def test_partial_slack_post_synthesis_skips_pipe_table_with_diagnostic(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply with a table.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-table",
+                }
+            }
+        )
+        structured_output = {
+            "reply_draft": "| Campaign | Count |\n|---|---|\n| Hindi | 10 |",
+            "final_answer": "| Campaign | Count |\n|---|---|\n| Hindi | 10 |",
+            "proposed_actions": [],
+        }
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            normalized, synthesized = runtime._synthesize_partial_slack_post_action(
+                task,
+                structured_output,
+                "max_iterations",
+            )
+
+        self.assertFalse(synthesized)
+        self.assertEqual(normalized.get("proposed_actions"), [])
+        diagnostics = normalized["runner_diagnostics"]
+        self.assertEqual(
+            diagnostics["action_contract_synthesis_skipped"],
+            "markdown_pipe_table_requires_slack_report",
+        )
+        self.assertEqual(
+            normalized["action_contract_synthesis_error"]["code"],
+            "markdown_pipe_table_requires_slack_report",
+        )
+
+    def test_workflow_final_action_contract_matches_platform_body_precedence(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply with a table.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                }
+            }
+        )
+        structured_output = {
+            "reply_draft": "Clean draft.",
+            "final_answer": "Clean final answer.",
+            "proposed_actions": [
+                {
+                    "kind": "slack_post",
+                    "request_payload": {
+                        "body": "Clean prose body.",
+                        "final_body": "| Campaign | Count |\n|---|---|\n| Hindi | 10 |",
+                    },
+                }
+            ],
+        }
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
+
+        self.assertEqual(errors[0]["code"], "unsupported_markdown_table")
+
+    def test_workflow_final_action_contract_validates_slack_report_schema(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply with a report.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                }
+            }
+        )
+        structured_output = {
+            "reply_draft": "Report ready.",
+            "final_answer": "Report ready.",
+            "proposed_actions": [
+                {
+                    "kind": "slack_report",
+                    "request_payload": {
+                        "report_schema_version": 1,
+                        "summary": "",
+                        "tables": [
+                            {
+                                "columns": [{"key": "campaign", "label": "Campaign"}],
+                                "rows": [{"campaign": {"nested": "invalid"}}],
+                            }
+                        ],
+                    },
+                }
+            ],
+        }
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
+
+        codes = {error["code"] for error in errors}
+        self.assertIn("required", codes)
+        self.assertIn("invalid_cell_type", codes)
 
     def test_prod_task_timeout_defaults_to_1800_when_transport_is_extended(self) -> None:
         env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}

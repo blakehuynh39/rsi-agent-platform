@@ -10,6 +10,7 @@ type Kind string
 
 const (
 	KindSlackPost        Kind = "slack_post"
+	KindSlackReport      Kind = "slack_report"
 	KindToolRead         Kind = "tool_read"
 	KindToolMutation     Kind = "tool_mutation"
 	KindSandboxLaunch    Kind = "sandbox_launch"

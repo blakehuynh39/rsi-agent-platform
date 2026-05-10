@@ -2659,14 +2659,20 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 							"confidence":      1.0,
 							"context_summary": "Recovered from durable Hermes executor status.",
 							"self_critique":   "",
-							"reply_delivery": map[string]any{
-								"status":       "posted",
-								"channel_id":   "CENG",
-								"thread_ts":    "171000001.000100",
-								"body":         "Recovered reply",
-								"provider_ref": "171000001.000200",
+							"reply_delivery":  map[string]any{},
+							"proposed_actions": []any{
+								map[string]any{
+									"kind":       "slack_post",
+									"target_ref": "CENG",
+									"request_payload": map[string]any{
+										"channel_id": "CENG",
+										"thread_ts":  "171000001.000100",
+										"body":       "Recovered reply",
+									},
+									"idempotency_key": "recovered-reply",
+									"rationale":       "Post the recovered reply.",
+								},
 							},
-							"proposed_actions":       []any{},
 							"knowledge_drafts":       []any{},
 							"outcome_hypotheses":     []any{},
 							"produced_artifacts":     []any{},
@@ -2724,12 +2730,16 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 		t.Fatalf("expected no duplicate executor launches, got %d", executeCalls)
 	}
 	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
-	trace, ok := store.GetTrace(workflowItem.traceID)
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
 	if !ok {
-		t.Fatal("expected trace")
+		t.Fatal("expected workflow")
 	}
-	if len(trace.SlackActions) != 1 || trace.SlackActions[0].FinalBody != "Recovered reply" {
-		t.Fatalf("expected recovered Slack action projection, got %#v", trace.SlackActions)
+	if workflow.Status != string(transition.WorkflowStateReplyPending) {
+		t.Fatalf("expected reply_pending workflow, got %s", workflow.Status)
+	}
+	intents := store.ListActionIntents()
+	if len(intents) != 1 || intents[0].Kind != action.KindSlackPost || stringFromMap(intents[0].RequestPayload, "body") != "Recovered reply" {
+		t.Fatalf("expected recovered slack_post action intent, got %#v", intents)
 	}
 }
 
@@ -3184,8 +3194,11 @@ func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *te
 }
 
 func TestWorkflowRunnerNativeToolsUseMediatedReplyGuidance(t *testing.T) {
-	if got := workflowReplyDeliveryMode(true, true); got != "mediated" {
-		t.Fatalf("native tools reply delivery mode = %q, want mediated", got)
+	if got := workflowReplyDeliveryMode(true); got != "mediated" {
+		t.Fatalf("reply delivery mode = %q, want mediated", got)
+	}
+	if got := workflowReplyDeliveryMode(false); got != "none" {
+		t.Fatalf("blocked reply delivery mode = %q, want none", got)
 	}
 	message := workflowRunnerSystemMessage(true, true, true, "mediated")
 	if !strings.Contains(message, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads") {
@@ -3194,7 +3207,7 @@ func TestWorkflowRunnerNativeToolsUseMediatedReplyGuidance(t *testing.T) {
 	if !strings.Contains(message, "Prefer rsi_notion.* for live Notion reads") {
 		t.Fatalf("expected native Notion guidance, got %q", message)
 	}
-	if !strings.Contains(message, "emit exactly one proposed action with kind=slack_post") {
+	if !strings.Contains(message, "emit exactly one proposed action") || !strings.Contains(message, "kind=slack_report") {
 		t.Fatalf("expected exactly-once mediated Slack action guidance, got %q", message)
 	}
 	if strings.Contains(message, "use Hermes native send_message exactly once") {
@@ -3456,8 +3469,8 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	if len(mcpServers) != 0 {
 		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
 	}
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
-		t.Fatalf("expected direct reply delivery mode, got %q", got)
+	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
+		t.Fatalf("expected mediated reply delivery mode, got %q", got)
 	}
 	if len(toolGatewayCalls) != 0 {
 		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
@@ -3473,10 +3486,109 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	if !ok {
 		t.Fatal("expected workflow to exist")
 	}
+	if workflow.Status != "needs_human" {
+		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
+	}
+	if workflow.FailureClass != "missing_explicit_action_contract" {
+		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusNeedsHuman {
+		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 0 {
+		t.Fatalf("expected native send_message reply_delivery to be ignored, got %#v", trace.SlackActions)
+	}
+}
+
+func TestWorkflowLegacyDirectReplyDeliveryCompletesAndPersistsSlackAction(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply already posted.","final_answer":"Final reply already posted.","confidence":0.88,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[{"kind":"slack_post","target_ref":"D123","idempotency_key":"legacy-direct-duplicate-guard","rationale":"Legacy runner still emitted a mediated action after direct delivery."}],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[{"kind":"plot","artifact_refs":["artifact://legacy-direct-plot"]}]}`,
+			"raw": map[string]any{
+				"reply_delivery_mode": "direct",
+				"reply_delivery": map[string]any{
+					"channel_id":   "D123",
+					"thread_ts":    "171000001.000100",
+					"body":         "Final reply already posted.",
+					"body_sha1":    "delivery-sha1",
+					"body_excerpt": "Final reply already posted.",
+					"tool_call_id": "legacy-send-1",
+					"tool_name":    "send_message",
+					"provider_ref": "171000001.000100",
+					"send_status":  "posted",
+				},
+				"structured_output": map[string]any{
+					"visible_reasoning": []any{},
+					"reply_draft":       "Final reply already posted.",
+					"final_answer":      "Final reply already posted.",
+					"confidence":        0.88,
+					"context_summary":   "Grounded answer.",
+					"self_critique":     "",
+					"proposed_actions": []any{
+						map[string]any{
+							"kind":            "slack_post",
+							"target_ref":      "D123",
+							"idempotency_key": "legacy-direct-duplicate-guard",
+							"rationale":       "Legacy runner still emitted a mediated action after direct delivery.",
+						},
+					},
+					"produced_artifacts": []any{
+						map[string]any{
+							"kind":          "plot",
+							"artifact_refs": []any{"artifact://legacy-direct-plot"},
+						},
+					},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no action intents, got %#v", intents)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
 	if workflow.Status != "completed" {
 		t.Fatalf("expected completed workflow, got %s", workflow.Status)
 	}
-
 	trace, ok := store.GetTrace(workflowItem.traceID)
 	if !ok {
 		t.Fatal("expected trace to exist")
@@ -3485,22 +3597,19 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
 	}
 	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one Slack action record, got %d", len(trace.SlackActions))
+		t.Fatalf("expected one persisted direct Slack action, got %#v", trace.SlackActions)
 	}
-	if trace.SlackActions[0].ID != "mcp-send-1" {
-		t.Fatalf("expected reply_delivery tool call id to persist as action id, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].IdempotencyKey != "delivery-sha1" {
-		t.Fatalf("expected reply body digest to persist as idempotency key, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].FinalBody != "Final reply from Slack MCP." {
-		t.Fatalf("expected final body to persist, got %#v", trace.SlackActions[0])
+	if trace.SlackActions[0].ID != "legacy-send-1" {
+		t.Fatalf("expected legacy direct action id, got %#v", trace.SlackActions[0])
 	}
 	if trace.SlackActions[0].SendStatus != "posted" {
 		t.Fatalf("expected posted send status, got %#v", trace.SlackActions[0])
 	}
-	if !reflect.DeepEqual(trace.SlackActions[0].ArtifactRefs, []string{"artifact://delivery-proof", "artifact://structured-diagram"}) {
-		t.Fatalf("expected merged delivery and structured artifact refs, got %#v", trace.SlackActions[0].ArtifactRefs)
+	if trace.SlackActions[0].PolicyVerdict != "thread_allowed" {
+		t.Fatalf("expected persisted policy verdict, got %#v", trace.SlackActions[0])
+	}
+	if got := trace.SlackActions[0].ArtifactRefs; !reflect.DeepEqual(got, []string{"artifact://legacy-direct-plot"}) {
+		t.Fatalf("expected produced artifact ref on direct delivery, got %#v", got)
 	}
 }
 
@@ -3588,8 +3697,8 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	if len(mcpServers) != 0 {
 		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
 	}
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
-		t.Fatalf("expected direct reply delivery mode, got %q", got)
+	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
+		t.Fatalf("expected mediated reply delivery mode, got %q", got)
 	}
 	if len(toolGatewayCalls) != 0 {
 		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
@@ -3605,8 +3714,8 @@ func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	if workflow.Status != "needs_human" {
 		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
 	}
-	if workflow.FailureClass != "missing_reply_delivery" {
-		t.Fatalf("expected missing_reply_delivery failure class, got %#v", workflow)
+	if workflow.FailureClass != "missing_explicit_action_contract" {
+		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
 	}
 
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -3674,8 +3783,8 @@ func TestWorkflowEmptyReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	}
 
 	taskPayload := mapValue(runnerRequest["task"])
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "direct" {
-		t.Fatalf("expected direct reply delivery mode, got %q", got)
+	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
+		t.Fatalf("expected mediated reply delivery mode, got %q", got)
 	}
 
 	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
@@ -3685,8 +3794,8 @@ func TestWorkflowEmptyReplyDeliveryMovesNeedsHuman(t *testing.T) {
 	if workflow.Status != "needs_human" {
 		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
 	}
-	if workflow.FailureClass != "missing_reply_delivery" {
-		t.Fatalf("expected missing_reply_delivery failure class, got %#v", workflow)
+	if workflow.FailureClass != "missing_explicit_action_contract" {
+		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
 	}
 
 	trace, ok := store.GetTrace(workflowItem.traceID)
@@ -3746,15 +3855,15 @@ func TestWorkflowFailedReplyDeliveryPersistsSlackAction(t *testing.T) {
 	if !ok {
 		t.Fatal("expected workflow to exist")
 	}
-	if workflow.Status != "needs_human" || workflow.FailureClass != "reply_delivery_failed" {
-		t.Fatalf("expected reply delivery failure needs_human workflow, got %#v", workflow)
+	if workflow.Status != "needs_human" || workflow.FailureClass != "missing_explicit_action_contract" {
+		t.Fatalf("expected missing explicit action needs_human workflow, got %#v", workflow)
 	}
 	trace, ok := store.GetTrace(workflowItem.traceID)
 	if !ok {
 		t.Fatal("expected trace to exist")
 	}
-	if len(trace.SlackActions) != 1 || trace.SlackActions[0].SendStatus != "channel_not_found" {
-		t.Fatalf("expected failed delivery Slack action to persist, got %#v", trace.SlackActions)
+	if len(trace.SlackActions) != 0 {
+		t.Fatalf("expected native send_message reply_delivery to be ignored, got %#v", trace.SlackActions)
 	}
 }
 
@@ -5161,8 +5270,8 @@ func TestBuildRunnerTaskUsesConfiguredTimeoutAndSlackBinding(t *testing.T) {
 	if task.ContractVersion != clients.RunnerExecutionContractVersion {
 		t.Fatalf("contract_version = %q, want %q", task.ContractVersion, clients.RunnerExecutionContractVersion)
 	}
-	if task.DeliveryPolicy == nil || !task.DeliveryPolicy.DirectSendAllowed || !task.DeliveryPolicy.UploadAllowed {
-		t.Fatalf("expected direct delivery policy, got %#v", task.DeliveryPolicy)
+	if task.DeliveryPolicy == nil || task.DeliveryPolicy.DirectSendAllowed || task.DeliveryPolicy.UploadAllowed {
+		t.Fatalf("expected mediated delivery policy without direct send/upload, got %#v", task.DeliveryPolicy)
 	}
 	if task.WorkspacePolicy == nil || task.WorkspacePolicy.ComputerRoot != "/workspace/company" {
 		t.Fatalf("expected company workspace policy, got %#v", task.WorkspacePolicy)

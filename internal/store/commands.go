@@ -3253,17 +3253,17 @@ func (s *MemoryStore) projectActionTraceLocked(intent action.Intent, command tra
 				CreatedAt:             completedAt,
 			}}
 		}
-	case action.KindSlackPost:
+	case action.KindSlackPost, action.KindSlackReport:
 		if status != action.StatusExecuting && status != action.StatusQueued && status != action.StatusCanceled {
 			eventStatus := events.StatusCompleted
-			eventType := "slack.reply.posted"
+			eventType := map[bool]string{true: "slack.report.posted", false: "slack.reply.posted"}[intent.Kind == action.KindSlackReport]
 			switch status {
 			case action.StatusBlocked:
 				eventStatus = events.StatusNeedsHuman
-				eventType = "slack.reply.blocked"
+				eventType = map[bool]string{true: "slack.report.blocked", false: "slack.reply.blocked"}[intent.Kind == action.KindSlackReport]
 			case action.StatusFailed:
 				eventStatus = events.StatusNeedsHuman
-				eventType = "slack.reply.failed"
+				eventType = map[bool]string{true: "slack.report.failed", false: "slack.reply.failed"}[intent.Kind == action.KindSlackReport]
 			}
 			sendStatus := stringFromCommand(command, "send_status")
 			if status == action.StatusSucceeded && strings.TrimSpace(sendStatus) == "" {

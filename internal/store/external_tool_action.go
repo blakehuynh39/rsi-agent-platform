@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	deep "github.com/brunoga/deep/v5"
 	"github.com/google/uuid"
 )
 
@@ -45,6 +46,7 @@ type ExternalToolAction struct {
 	ErrorMessage    string                  `json:"error,omitempty"`
 	SourceRef       string                  `json:"source_ref,omitempty"`
 	WikiAuditID     string                  `json:"wiki_audit_id,omitempty"`
+	ResultPayload   map[string]any          `json:"result_payload,omitempty"`
 	MirrorEffect    map[string]any          `json:"mirror_effect,omitempty"`
 	CreatedAt       time.Time               `json:"created_at"`
 	UpdatedAt       time.Time               `json:"updated_at"`
@@ -73,6 +75,7 @@ type ExternalToolActionResultUpdate struct {
 	ErrorMessage    string
 	SourceRef       string
 	WikiAuditID     string
+	ResultPayload   map[string]any
 	MirrorEffect    map[string]any
 }
 
@@ -124,6 +127,7 @@ func NewExternalToolAction(input ExternalToolActionCreateInput, now time.Time) (
 		TraceID:        strings.TrimSpace(input.TraceID),
 		WorkflowID:     strings.TrimSpace(input.WorkflowID),
 		ConversationID: strings.TrimSpace(input.ConversationID),
+		ResultPayload:  map[string]any{},
 		MirrorEffect:   map[string]any{},
 		CreatedAt:      now,
 		UpdatedAt:      now,
@@ -150,10 +154,18 @@ func SortExternalToolActions(items []ExternalToolAction) {
 }
 
 func cloneExternalToolAction(item ExternalToolAction) ExternalToolAction {
-	item.MirrorEffect = cloneAnyMap(item.MirrorEffect)
+	item.ResultPayload = CloneJSONMap(item.ResultPayload)
+	item.MirrorEffect = CloneJSONMap(item.MirrorEffect)
 	if item.CompletedAt != nil {
 		completed := *item.CompletedAt
 		item.CompletedAt = &completed
 	}
 	return item
+}
+
+func CloneJSONMap(input map[string]any) map[string]any {
+	if input == nil {
+		return nil
+	}
+	return deep.Clone(input)
 }
