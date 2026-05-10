@@ -21406,3 +21406,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2247114f999bbcc359327e1d985ae815
 - summary: Design decisions and interface specifications for the Beta Protocol, including core components (IP Account, Registries) and modules (Licensing, Tagging, Dispute, Royalty).
 
+## [2026-05-10T16:08:30Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_92cdf1f4c59f1d06cd208ab20905ae2a
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
+## [2026-05-10T16:08:30Z] synthesis | Alpha and Beta Program Goals
+
+- status: published
+- slug: concepts/alpha-beta-goals
+- wiki_revision_id: wikirev_c48c37776f7f0a472ea68a9c9b4b46e4
+- summary: Defines the business goals, target users, and ideal outcomes for the Alpha and Beta phases of the protocol launch.
+
+## [2026-05-10T16:08:30Z] synthesis | Design Partner Criteria
+
+- status: published
+- slug: concepts/design-partner-criteria
+- wiki_revision_id: wikirev_af1c0541f0a6cf806040e264bf28116f
+- summary: Criteria for selecting design partners for the protocol launch, including brand, use case diversity, execution speed, and other factors.
+

@@ -35,10 +35,11 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `concepts/beta-protocol-interface`
+- `concepts/alpha-beta-goals`
+- `concepts/design-partner-criteria`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_1cc17f76c970edc6d1cdec37f0398209`
-- `source_revision_id`: `srcrev_2c61660abca955e5170ea57b4dab00eb`
-- `source_url`: [Notion source](https://www.notion.so/Beta-Protocol-Interface-9b9088c760334da5bd30828ddd13d6ae)
+- `source_document_id`: `srcdoc_4202e441079d84cc48912052fb8d10a3`
+- `source_revision_id`: `srcrev_5d057340d333385b3565d37958a87d3e`
+- `source_url`: [Notion source](https://www.notion.so/Protocol-and-Ecosystem-Scrum-Notes-3da36f9b01724832afdaf19742b96f3b)

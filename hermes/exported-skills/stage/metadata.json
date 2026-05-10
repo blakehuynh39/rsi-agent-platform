@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5c00acdcb3ddb13b81e84ee39f20d8bb400928f36e61304e050fd18ac460f29a",
-        "size": 551125
+        "sha256": "7df4bdf70202ef65c5416ed093b85e738ae3f0bb2791a6e7a0f1d25d789776e1",
+        "size": 551745
       },
       {
         "path": "log.md",
-        "sha256": "39b782933aafda4c73a4a618926c7fcd06d5861ce01c59d2e19580a2a95d6fe2",
-        "size": 1019137
+        "sha256": "24d51a839d3eacfe8d7f9e4fb5d97c39f92aa85bc6ebbc6afe63928725693904",
+        "size": 1020136
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2968,6 +2968,11 @@
         "path": "pages/concepts/ai-x-crypto-ideas.md",
         "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
         "size": 1133
+      },
+      {
+        "path": "pages/concepts/alpha-beta-goals.md",
+        "sha256": "91f1c6965ef35959621d735f982e137f2aeaee4b8e9f479c3d1f2e5ea1e4ca12",
+        "size": 4496
       },
       {
         "path": "pages/concepts/beta-protocol-interface.md",
@@ -3068,6 +3073,11 @@
         "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
         "sha256": "855223b4cb0780e224f7989848c69e4d831267780a5a848a7bb701123f0a1504",
         "size": 3805
+      },
+      {
+        "path": "pages/concepts/design-partner-criteria.md",
+        "sha256": "9c68e173aa43227520ca06668095f53a5842ae9e5ca119d6bff98b4b219d9e82",
+        "size": 3411
       },
       {
         "path": "pages/concepts/dev-resources.md",
@@ -3506,8 +3516,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "804e9d1dc397f5682fc3c6f5bba111d44d8da8f3a93bce956409da98d6e6b90b",
-        "size": 3847
+        "sha256": "f7a21f8b06bdbe5f896dcd9842b28ceeec8f45408b93fd1fe68e2b6d109dcca8",
+        "size": 3888
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -5719,8 +5729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T15:36:14Z",
-  "file_count": 1142,
+  "exported_at": "2026-05-10T16:12:50Z",
+  "file_count": 1144,
   "files": [
     {
       "path": ".curator_state",
@@ -8642,7 +8652,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "2db990c8a3d2db04e7183f182d4667e7d62a4e8a21a0381178e08d1e62bf4b68",
+  "previous_tree_hash": "e134612888c4b6aca2e40158a62eb8c94a8dce0e129222cb0c4cb41a26800fc2",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8655,14 +8665,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e134612888c4b6aca2e40158a62eb8c94a8dce0e129222cb0c4cb41a26800fc2",
+  "tree_hash": "a5863b41c9d32f69bab8bfb9f6a4076f49fec5a466fa197be954f4e4e1bd6094",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 559,
+  "wiki_file_count": 561,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8671,13 +8681,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5c00acdcb3ddb13b81e84ee39f20d8bb400928f36e61304e050fd18ac460f29a",
-      "size": 551125
+      "sha256": "7df4bdf70202ef65c5416ed093b85e738ae3f0bb2791a6e7a0f1d25d789776e1",
+      "size": 551745
     },
     {
       "path": "log.md",
-      "sha256": "39b782933aafda4c73a4a618926c7fcd06d5861ce01c59d2e19580a2a95d6fe2",
-      "size": 1019137
+      "sha256": "24d51a839d3eacfe8d7f9e4fb5d97c39f92aa85bc6ebbc6afe63928725693904",
+      "size": 1020136
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8713,6 +8723,11 @@
       "path": "pages/concepts/ai-x-crypto-ideas.md",
       "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
       "size": 1133
+    },
+    {
+      "path": "pages/concepts/alpha-beta-goals.md",
+      "sha256": "91f1c6965ef35959621d735f982e137f2aeaee4b8e9f479c3d1f2e5ea1e4ca12",
+      "size": 4496
     },
     {
       "path": "pages/concepts/beta-protocol-interface.md",
@@ -8813,6 +8828,11 @@
       "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
       "sha256": "855223b4cb0780e224f7989848c69e4d831267780a5a848a7bb701123f0a1504",
       "size": 3805
+    },
+    {
+      "path": "pages/concepts/design-partner-criteria.md",
+      "sha256": "9c68e173aa43227520ca06668095f53a5842ae9e5ca119d6bff98b4b219d9e82",
+      "size": 3411
     },
     {
       "path": "pages/concepts/dev-resources.md",
@@ -9251,8 +9271,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "804e9d1dc397f5682fc3c6f5bba111d44d8da8f3a93bce956409da98d6e6b90b",
-      "size": 3847
+      "sha256": "f7a21f8b06bdbe5f896dcd9842b28ceeec8f45408b93fd1fe68e2b6d109dcca8",
+      "size": 3888
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -11461,5 +11481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cced51faea204cb219f0c920a945c7a391e315b3c38a0b0982fa9a9f3927e855"
+  "wiki_tree_hash": "63886c5ffa84fae4654a778f190f3cd0e340180c2eae4015fd8da4004982a95c"
 }
