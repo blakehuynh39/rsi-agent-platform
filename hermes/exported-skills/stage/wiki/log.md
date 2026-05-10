@@ -21063,3 +21063,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_528a22f6990dbb2f86a24714358bbad6
 - summary: A planning document listing external engineering contractor needs for various projects as of late January 2024.
 
+## [2026-05-10T00:46:15Z] synthesis | Platform Beta Plan
+
+- status: published
+- slug: projects/platform-beta-plan
+- wiki_revision_id: wikirev_221d7e933aff3f604bfda4c3cc4e68e1
+- summary: Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), and related sub-pages and tasks.
+
+## [2026-05-10T00:46:15Z] synthesis | SDK Use Cases and User Journeys
+
+- status: published
+- slug: projects/sdk-use-cases-and-user-journeys
+- wiki_revision_id: wikirev_60f3b29d6586ddaa160d1f79e62ca984
+- summary: Document outlining creator and admin use cases for the SDK, covering IPA registration, licenses, royalties, disputes, tags, and permissions.
+

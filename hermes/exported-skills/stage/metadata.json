@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "96f0d2a600e7b6b5fd61a7bbc7c0831710299bb52cdff8dee7e30c75c5ca0d2a",
-        "size": 1002791
+        "sha256": "470ac44dd8cbba19b6f9ecdeb05f69dd9180e3d746a00c43ec090466f98ed1fe",
+        "size": 1003445
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4651,8 +4651,8 @@
       },
       {
         "path": "pages/projects/platform-beta-plan.md",
-        "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
-        "size": 3847
+        "sha256": "1472ee0b911fbcac05c86eb3bd3ff64a0522afef4a6aaf1f565ae34f43aeab60",
+        "size": 3904
       },
       {
         "path": "pages/projects/poc-1-3-odyssey-testnet-deployment.md",
@@ -4788,6 +4788,11 @@
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
+      },
+      {
+        "path": "pages/projects/sdk-use-cases-and-user-journeys.md",
+        "sha256": "e2d603a0d9c6492da30d2b527a6b3f8916698dfeb9ab341f1e979ef940352c8d",
+        "size": 5593
       },
       {
         "path": "pages/projects/sp-tokenomics-blast.md",
@@ -5544,8 +5549,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T00:40:50Z",
-  "file_count": 1107,
+  "exported_at": "2026-05-10T00:47:06Z",
+  "file_count": 1108,
   "files": [
     {
       "path": ".curator_state",
@@ -8467,7 +8472,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "e12f9edebf192f01ab4cafe678020e669c5d2462e11b6f9c2c69b295c513760d",
+  "previous_tree_hash": "608b8e9801d31a886197e4bc6c3aabd82ac56ad0af21997e47fbdae1dde3dad7",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8480,14 +8485,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "608b8e9801d31a886197e4bc6c3aabd82ac56ad0af21997e47fbdae1dde3dad7",
+  "tree_hash": "c4444ed8b81fb3b5a88fbe1cade4bfe8a19ebac2571e62d8a63669161cf20e88",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 524,
+  "wiki_file_count": 525,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8501,8 +8506,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "96f0d2a600e7b6b5fd61a7bbc7c0831710299bb52cdff8dee7e30c75c5ca0d2a",
-      "size": 1002791
+      "sha256": "470ac44dd8cbba19b6f9ecdeb05f69dd9180e3d746a00c43ec090466f98ed1fe",
+      "size": 1003445
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10221,8 +10226,8 @@
     },
     {
       "path": "pages/projects/platform-beta-plan.md",
-      "sha256": "fb0abc5459a582e4d72ad302a31eaddc7d2b9294d588bd2d5ff5a36bfebc9f17",
-      "size": 3847
+      "sha256": "1472ee0b911fbcac05c86eb3bd3ff64a0522afef4a6aaf1f565ae34f43aeab60",
+      "size": 3904
     },
     {
       "path": "pages/projects/poc-1-3-odyssey-testnet-deployment.md",
@@ -10358,6 +10363,11 @@
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
+    },
+    {
+      "path": "pages/projects/sdk-use-cases-and-user-journeys.md",
+      "sha256": "e2d603a0d9c6492da30d2b527a6b3f8916698dfeb9ab341f1e979ef940352c8d",
+      "size": 5593
     },
     {
       "path": "pages/projects/sp-tokenomics-blast.md",
@@ -11111,5 +11121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fa976392548a2c62d9e1fce014a7adf82324f008984c713540c01372d59d564f"
+  "wiki_tree_hash": "1703c5169bf10e7f3fac10b33580ba9ece2657ce75439e5ad562b47ab5019f10"
 }
