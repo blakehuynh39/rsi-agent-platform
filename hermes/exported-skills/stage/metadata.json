@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "906ad025d29c9dd6bb9215bd6c32845ef01ce6b0ce18ae8b8b7d10b129c106cd",
-        "size": 545425
+        "sha256": "3e3969e293ca737e8e49e202e7e68fe73f7a772924af244feb60b52e04ed1b84",
+        "size": 545796
       },
       {
         "path": "log.md",
-        "sha256": "8d524f3e0252102c50258025fb3d22879ca6a686ed49f372235187ba5779910e",
-        "size": 1011911
+        "sha256": "b5fcfcd5b5db88ae1a5adf05a79dc33f2dbdcd91394764f5fccf2a42c813cce3",
+        "size": 1012294
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3768,6 +3768,11 @@
         "path": "pages/decisions/eip-7212-precompile.md",
         "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
         "size": 5011
+      },
+      {
+        "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
+        "sha256": "fb443dda03a0d080512c04dba22a9136684d3f9d13c9158fd8d28ac05111f4a3",
+        "size": 1575
       },
       {
         "path": "pages/decisions/hook-registry-design.md",
@@ -5629,8 +5634,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T08:31:14Z",
-  "file_count": 1124,
+  "exported_at": "2026-05-10T08:37:31Z",
+  "file_count": 1125,
   "files": [
     {
       "path": ".curator_state",
@@ -8552,7 +8557,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "3a3c0682e7b2b1bf0f3d2cd22d13a8ed53acfcde77653d182a65790ef2f67978",
+  "previous_tree_hash": "5c0251db8515dec41a6af1595fd8d47b20a82164f605504859be73951d60ee79",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8565,14 +8570,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5c0251db8515dec41a6af1595fd8d47b20a82164f605504859be73951d60ee79",
+  "tree_hash": "debb9d91a07454a8f3fcd344286daeb817f34ee8ac82d15ce4bd9c9a45c72689",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 541,
+  "wiki_file_count": 542,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8581,13 +8586,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "906ad025d29c9dd6bb9215bd6c32845ef01ce6b0ce18ae8b8b7d10b129c106cd",
-      "size": 545425
+      "sha256": "3e3969e293ca737e8e49e202e7e68fe73f7a772924af244feb60b52e04ed1b84",
+      "size": 545796
     },
     {
       "path": "log.md",
-      "sha256": "8d524f3e0252102c50258025fb3d22879ca6a686ed49f372235187ba5779910e",
-      "size": 1011911
+      "sha256": "b5fcfcd5b5db88ae1a5adf05a79dc33f2dbdcd91394764f5fccf2a42c813cce3",
+      "size": 1012294
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9423,6 +9428,11 @@
       "path": "pages/decisions/eip-7212-precompile.md",
       "sha256": "785752278b55f9062a2b4f3cf5c1de2e1659232cb1f7005277862bb171dc9d47",
       "size": 5011
+    },
+    {
+      "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
+      "sha256": "fb443dda03a0d080512c04dba22a9136684d3f9d13c9158fd8d28ac05111f4a3",
+      "size": 1575
     },
     {
       "path": "pages/decisions/hook-registry-design.md",
@@ -11281,5 +11291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6777e49ba8e48de1fd4f416060c3af0f8d726774ab4c2da4e07540eaebd4f9d0"
+  "wiki_tree_hash": "85ccbd16a247b3af74e2b5d90bb03602f1d04fb76d1a614d8198544874a62405"
 }
