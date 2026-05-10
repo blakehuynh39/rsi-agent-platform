@@ -3811,6 +3811,139 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("structured_output", result.raw)
         register_mock.assert_not_called()
 
+    def test_native_strict_mediated_workflow_projects_slack_report_action(self) -> None:
+        structured = {
+            "visible_reasoning": [],
+            "reply_draft": "Campaign report is ready.",
+            "final_answer": "Campaign report is ready.",
+            "confidence": 0.92,
+            "context_summary": "DB read result summarized.",
+            "self_critique": "",
+            "knowledge_drafts": [],
+            "outcome_hypotheses": [],
+            "produced_artifacts": [],
+            "artifact_failure_reason": "",
+            "proposed_actions": [
+                {
+                    "kind": "slack_report",
+                    "target_ref": "slack:thread",
+                    "request_payload": {
+                        "report_schema_version": 1,
+                        "summary": "Campaign report is ready.",
+                        "tables": [
+                            {
+                                "columns": [
+                                    {"key": "campaign", "label": "Campaign"},
+                                    {"key": "submissions", "label": "Submissions"},
+                                ],
+                                "rows": [{"campaign": "Vietnamese", "submissions": 12815}],
+                            }
+                        ],
+                    },
+                    "approval_mode": "deterministic",
+                    "idempotency_key": "report-1",
+                    "rationale": "Deliver the requested report in Slack.",
+                    "evidence_refs": [],
+                }
+            ],
+        }
+        native_response = "\n".join(["Done.", f"```json\n{json.dumps(structured, sort_keys=True)}\n```"])
+        native_result = HermesExecutionResult(
+            ok=True,
+            message=native_response,
+            provider="hermes-native-executor",
+            raw={
+                "native_strict": True,
+                "completion_verdict": "complete",
+                "termination_reason": "normal_completion",
+                "execution_envelope": {
+                    "completion": {"completion_verdict": "complete", "termination_reason": "normal_completion"},
+                    "deliveries": [],
+                    "final_response": native_response,
+                },
+            },
+        )
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize campaign submissions.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-native-report",
+                    "workflow_id": "wf-native-report",
+                    "operation_id": "op-native-report",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-report",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_HERMES_EXECUTOR_ENABLED": "true"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_execute_native_workflow_task_request", return_value=native_result):
+                result = runtime._execute_task_internal(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["native_strict"])
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_report")
+        self.assertFalse(result.raw["action_contract_repair_attempted"])
+
+    def test_native_strict_external_tool_pending_is_not_projected(self) -> None:
+        native_result = HermesExecutionResult(
+            ok=True,
+            message="",
+            provider="hermes-native-executor",
+            raw={
+                "native_strict": True,
+                "completion_verdict": "paused",
+                "termination_reason": "external_tool_pending",
+                "external_tool_pause_id": "pause-123",
+                "suppress_delivery": True,
+            },
+        )
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Run an approved DB read.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-native-pending",
+                    "workflow_id": "wf-native-pending",
+                    "operation_id": "op-native-pending",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-pending",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_HERMES_EXECUTOR_ENABLED": "true"},
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            with mock.patch.object(runtime, "_execute_native_workflow_task_request", return_value=native_result):
+                result = runtime._execute_task_internal(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["native_strict"])
+        self.assertEqual(result.raw["termination_reason"], "external_tool_pending")
+        self.assertNotIn("structured_output", result.raw)
+
     def test_native_render_request_payload_uses_local_artifact_dir_and_strips_governed_toolsets(self) -> None:
         structured = json.dumps(
             {

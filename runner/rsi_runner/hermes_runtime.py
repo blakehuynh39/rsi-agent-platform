@@ -3139,6 +3139,34 @@ class HermesRuntime:
     def _result_is_native_strict(self, result: HermesExecutionResult) -> bool:
         return result.provider == "hermes-native-executor" and _bool_or_false(_json_object_or_empty(result.raw).get("native_strict"))
 
+    def _native_strict_has_successful_slack_delivery(self, result: HermesExecutionResult) -> bool:
+        raw = _json_object_or_empty(result.raw)
+        if self._rsi_native_slack_reply_delivery_succeeded(_json_object_or_empty(raw.get("reply_delivery"))):
+            return True
+        envelope = _json_object_or_empty(raw.get("execution_envelope"))
+        for delivery in _json_object_list(envelope.get("deliveries")):
+            if self._rsi_native_slack_reply_delivery_succeeded(delivery):
+                return True
+        return False
+
+    def _native_strict_should_project_workflow_output(self, task: RunnerTaskRequest, result: HermesExecutionResult) -> bool:
+        if not self._result_is_native_strict(result) or not result.ok:
+            return False
+        if not self._workflow_requires_explicit_reply_action(task):
+            return False
+        raw = _json_object_or_empty(result.raw)
+        if _json_object_or_empty(raw.get("structured_output")):
+            return False
+        termination_reason = string_from_map(raw, "termination_reason")
+        if termination_reason == "external_tool_pending":
+            return False
+        completion_verdict = string_from_map(raw, "completion_verdict")
+        if completion_verdict and completion_verdict not in {"complete", "completed"}:
+            return False
+        if _bool_or_false(raw.get("suppress_delivery")) or _bool_or_false(raw.get("non_deliverable")):
+            return False
+        return not self._native_strict_has_successful_slack_delivery(result)
+
     def _native_runtime_context_path(self, execution_id: str) -> Path:
         return (
             Path(self._config.hermes_home).expanduser()
@@ -7078,7 +7106,7 @@ class HermesRuntime:
                 observer=observer,
                 max_iterations_override=self._phase_max_iterations_override(task),
             )
-        if self._result_is_native_strict(result):
+        if self._result_is_native_strict(result) and not self._native_strict_should_project_workflow_output(task, result):
             return result
         if not result.ok:
             return result
