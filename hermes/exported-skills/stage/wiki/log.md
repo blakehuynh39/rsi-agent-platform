@@ -21385,3 +21385,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c940614535700c4155a90b68adb0c756
 - summary: How to migrate from geth v0.9.2 with manual configuration to v0.9.3 using the baked-in --iliad network flag, and how to define custom network flags.
 
+## [2026-05-10T12:36:17Z] synthesis | Story NFT Contract Design
+
+- status: published
+- slug: systems/story-nft-contract-design
+- wiki_revision_id: wikirev_fb9ad29828e6548cbfb688354410bd5b
+- summary: Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, ...
+
