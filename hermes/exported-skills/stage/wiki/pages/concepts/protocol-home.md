@@ -35,10 +35,10 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `concepts/smart-contract-data-model-and-modules`
+- `concepts/beta-protocol-interface`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_170cb99a7332268f2db0b04c9b3f10d7`
-- `source_revision_id`: `srcrev_a55b9a3c5887a839f59af29f52b5bed6`
-- `source_url`: [Notion source](https://www.notion.so/Smart-Contract-Data-Model-and-Modules-24cd251e4db241d8840e5c9e2e53465e)
+- `source_document_id`: `srcdoc_1cc17f76c970edc6d1cdec37f0398209`
+- `source_revision_id`: `srcrev_2c61660abca955e5170ea57b4dab00eb`
+- `source_url`: [Notion source](https://www.notion.so/Beta-Protocol-Interface-9b9088c760334da5bd30828ddd13d6ae)

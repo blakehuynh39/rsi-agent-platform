@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c99fda082baa6fae4ef304b204a29f7e5d5dbae167bf78dc3a7ce22cecda6aed",
-        "size": 550768
+        "sha256": "5c00acdcb3ddb13b81e84ee39f20d8bb400928f36e61304e050fd18ac460f29a",
+        "size": 551125
       },
       {
         "path": "log.md",
-        "sha256": "272bde11e019bb9d9cd6c01e2288ced8025f7b4995870b83a602a3e9eebceb08",
-        "size": 1018413
+        "sha256": "39b782933aafda4c73a4a618926c7fcd06d5861ce01c59d2e19580a2a95d6fe2",
+        "size": 1019137
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2968,6 +2968,11 @@
         "path": "pages/concepts/ai-x-crypto-ideas.md",
         "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
         "size": 1133
+      },
+      {
+        "path": "pages/concepts/beta-protocol-interface.md",
+        "sha256": "b5afdeb5b4d50f44776aa1272dae9ad737771a9f19f0eefd3eeb51845263d527",
+        "size": 5960
       },
       {
         "path": "pages/concepts/branching-tree-technique.md",
@@ -3501,8 +3506,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "c9fd313ac360014f86cd9d05e0d04970408e39cbc97cf4ed7018310710f15b54",
-        "size": 3875
+        "sha256": "804e9d1dc397f5682fc3c6f5bba111d44d8da8f3a93bce956409da98d6e6b90b",
+        "size": 3847
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -5714,8 +5719,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T12:43:05Z",
-  "file_count": 1141,
+  "exported_at": "2026-05-10T15:36:14Z",
+  "file_count": 1142,
   "files": [
     {
       "path": ".curator_state",
@@ -8637,7 +8642,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "4a137b77e761db2e40d94f24a9b0e6a840b54a16b18a0de6dddc1fdf3c4babb2",
+  "previous_tree_hash": "2db990c8a3d2db04e7183f182d4667e7d62a4e8a21a0381178e08d1e62bf4b68",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8650,14 +8655,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2db990c8a3d2db04e7183f182d4667e7d62a4e8a21a0381178e08d1e62bf4b68",
+  "tree_hash": "e134612888c4b6aca2e40158a62eb8c94a8dce0e129222cb0c4cb41a26800fc2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 558,
+  "wiki_file_count": 559,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8666,13 +8671,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c99fda082baa6fae4ef304b204a29f7e5d5dbae167bf78dc3a7ce22cecda6aed",
-      "size": 550768
+      "sha256": "5c00acdcb3ddb13b81e84ee39f20d8bb400928f36e61304e050fd18ac460f29a",
+      "size": 551125
     },
     {
       "path": "log.md",
-      "sha256": "272bde11e019bb9d9cd6c01e2288ced8025f7b4995870b83a602a3e9eebceb08",
-      "size": 1018413
+      "sha256": "39b782933aafda4c73a4a618926c7fcd06d5861ce01c59d2e19580a2a95d6fe2",
+      "size": 1019137
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8708,6 +8713,11 @@
       "path": "pages/concepts/ai-x-crypto-ideas.md",
       "sha256": "c5c820ede9fa2a3a1c22f2808d68f0ec425acf064f1f630581b569d8bcdd57ea",
       "size": 1133
+    },
+    {
+      "path": "pages/concepts/beta-protocol-interface.md",
+      "sha256": "b5afdeb5b4d50f44776aa1272dae9ad737771a9f19f0eefd3eeb51845263d527",
+      "size": 5960
     },
     {
       "path": "pages/concepts/branching-tree-technique.md",
@@ -9241,8 +9251,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "c9fd313ac360014f86cd9d05e0d04970408e39cbc97cf4ed7018310710f15b54",
-      "size": 3875
+      "sha256": "804e9d1dc397f5682fc3c6f5bba111d44d8da8f3a93bce956409da98d6e6b90b",
+      "size": 3847
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -11451,5 +11461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aed2161a101107ceeae6d56da9c6d859ed6d769bbd71c785aeb4f049d8e31b06"
+  "wiki_tree_hash": "cced51faea204cb219f0c920a945c7a391e315b3c38a0b0982fa9a9f3927e855"
 }

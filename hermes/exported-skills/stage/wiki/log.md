@@ -21392,3 +21392,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fb9ad29828e6548cbfb688354410bd5b
 - summary: Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, ...
 
+## [2026-05-10T15:35:50Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_156b93f4f22a9a2498379c89fcc38981
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
+## [2026-05-10T15:35:51Z] synthesis | Beta Protocol Interface
+
+- status: published
+- slug: concepts/beta-protocol-interface
+- wiki_revision_id: wikirev_2247114f999bbcc359327e1d985ae815
+- summary: Design decisions and interface specifications for the Beta Protocol, including core components (IP Account, Registries) and modules (Licensing, Tagging, Dispute, Royalty).
+
