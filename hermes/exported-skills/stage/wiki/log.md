@@ -21315,3 +21315,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_75c00366dc7db24c2d6040a586521349
 - summary: Action item to fix bugs on the staking/slash contract restart.
 
+## [2026-05-10T09:17:00Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_756970440c1efe4e4462450ea6931304
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
+## [2026-05-10T09:17:15Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_25121d7ecae0edba296e0d73d059ee5c
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
