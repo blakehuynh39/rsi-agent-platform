@@ -69,6 +69,16 @@ func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
 	}
 }
 
+func TestLoadDefaultsWorkflowRunnerRepairAttemptsToTwo(t *testing.T) {
+	t.Setenv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", "")
+
+	cfg := Load("control-plane")
+
+	if cfg.WorkflowRunnerRepairAttempts != 2 {
+		t.Fatalf("WorkflowRunnerRepairAttempts = %d, want 2", cfg.WorkflowRunnerRepairAttempts)
+	}
+}
+
 func TestLoadUsesModernNotionMirrorDefaults(t *testing.T) {
 	t.Setenv("RSI_NOTION_API_VERSION", "")
 	t.Setenv("RSI_NOTION_MIRROR_DELTA_ENABLED", "")

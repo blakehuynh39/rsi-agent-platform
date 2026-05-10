@@ -508,6 +508,17 @@ def _float_or_zero(value: JsonValue | None) -> float:
         return 0.0
 
 
+def _int_or_zero(value: JsonValue | None) -> int:
+    if isinstance(value, bool):
+        return 0
+    if isinstance(value, Number):
+        return int(value)
+    try:
+        return int(str(value).strip())
+    except (AttributeError, TypeError, ValueError):
+        return 0
+
+
 def _bool_or_false(value: JsonValue | None) -> bool:
     if isinstance(value, bool):
         return value
@@ -5186,16 +5197,24 @@ class HermesRuntime:
                     observed.get("selected_context_surfaces"),
                     lifecycle_observed.get("selected_context_surfaces"),
                 )
+            if lifecycle_observed.get("reply_delivery"):
+                observed["reply_delivery"] = lifecycle_observed.get("reply_delivery")
         return observed
 
     def _lifecycle_observability_metadata(self, task: RunnerTaskRequest, lifecycle_events: list[JsonObject]) -> JsonObject:
         tool_calls: list[JsonObject] = []
         evidence_items: list[JsonObject] = []
         selected_context_surfaces: list[JsonObject] = []
+        reply_delivery: JsonObject = {}
         started_by_id: dict[str, JsonObject] = {}
         started_by_name: dict[str, list[JsonObject]] = {}
         for index, item in enumerate(lifecycle_events):
             event_name = self._lifecycle_event_name(item)
+            if event_name == "reply_delivery":
+                candidate = self._lifecycle_reply_delivery(item)
+                if candidate:
+                    reply_delivery = candidate
+                continue
             if event_name not in {"tool_call_started", "tool_call_completed"}:
                 continue
             tool_name = self._lifecycle_tool_name(item)
@@ -5268,7 +5287,31 @@ class HermesRuntime:
             "tool_calls": tool_calls,
             "evidence_items": evidence_items,
             "selected_context_surfaces": selected_context_surfaces,
+            "reply_delivery": reply_delivery,
         }
+
+    def _lifecycle_reply_delivery(self, item: JsonObject) -> JsonObject:
+        delivery = _json_object_or_empty(item.get("reply_delivery"))
+        if not delivery:
+            delivery = {
+                key: value
+                for key, value in item.items()
+                if key not in {"event", "event_type", "recorded_at", "recorded_at_unix", "payload"}
+            }
+        payload = _json_object_or_empty(item.get("payload"))
+        for key, value in payload.items():
+            delivery.setdefault(key, value)
+        tool_name = _string_or_json(delivery.get("tool_name"))
+        if not tool_name:
+            tool_name = self._lifecycle_tool_name(item)
+        if tool_name:
+            try:
+                delivery["tool_name"] = canonical_tool_name(tool_name)
+            except ValueError:
+                delivery["tool_name"] = tool_name
+        if not delivery.get("send_status"):
+            delivery["send_status"] = first_non_empty(_string_or_json(item.get("status")), _string_or_json(delivery.get("status")))
+        return delivery if delivery else {}
 
     def _native_lifecycle_evidence_items(
         self,
@@ -7053,8 +7096,11 @@ class HermesRuntime:
         repair_succeeded = False
         action_contract_repair_attempted = False
         action_contract_repair_succeeded = False
+        action_contract_repair_attempts = 0
         action_contract_repair_error = ""
+        action_contract_repair_errors: list[JsonObject] = []
         action_contract_repair_response = ""
+        action_contract_repair_responses: list[str] = []
         partial_structured_output = _json_object_or_empty(result.raw.get("structured_output"))
         used_partial_structured_output = False
         if completion_verdict == "partial" and partial_structured_output:
@@ -7067,6 +7113,10 @@ class HermesRuntime:
             action_contract_repair_succeeded = _bool_or_false(
                 result.raw.get("action_contract_repair_succeeded")
             ) or _bool_or_false(partial_runner_diagnostics.get("action_contract_repair_succeeded"))
+            action_contract_repair_attempts = self._action_contract_repair_attempt_count(
+                result.raw,
+                partial_runner_diagnostics,
+            )
         else:
             if invalid_request := self._provider_invalid_request_diagnostics(result.message):
                 diagnostics = dict(invalid_request)
@@ -7246,50 +7296,103 @@ class HermesRuntime:
             if reply_delivery:
                 structured_output["reply_delivery"] = reply_delivery
                 result.raw["reply_delivery"] = reply_delivery
-            action_contract_errors = self._workflow_reply_action_contract_errors(task, structured_output)
-            if action_contract_errors:
+            action_contract_errors = self._workflow_reply_action_contract_errors(task, structured_output, result.raw)
+            if action_contract_errors and self._action_contract_repair_attempt_limit() > 0:
                 action_contract_repair_attempted = True
-                logger.info(
-                    "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s",
-                    task.trace_id or "",
-                    task.workflow_id or "",
-                )
-                repair_task = self._build_action_contract_repair_task(rendered_task, structured_output, action_contract_errors)
-                repair_result = self._execute_task_request(
-                    repair_task,
-                    observer=observer,
-                    render_prompt=False,
-                    expand_skills=False,
-                )
-                action_contract_repair_response = repair_result.message
-                if repair_result.ok:
-                    try:
-                        repaired_output = self._extract_structured_output(repair_result.message)
-                    except HermesStructuredOutputError as exc:
-                        action_contract_repair_error = str(exc)
-                    else:
-                        repaired_contract_errors = self._workflow_reply_action_contract_errors(task, repaired_output)
+                max_action_contract_repair_attempts = self._action_contract_repair_attempt_limit()
+                while action_contract_errors and action_contract_repair_attempts < max_action_contract_repair_attempts:
+                    action_contract_repair_attempts += 1
+                    logger.info(
+                        "workflow runner action-contract repair attempted trace_id=%s workflow_id=%s attempt=%s/%s",
+                        task.trace_id or "",
+                        task.workflow_id or "",
+                        action_contract_repair_attempts,
+                        max_action_contract_repair_attempts,
+                    )
+                    repair_task = self._build_action_contract_repair_task(
+                        rendered_task,
+                        structured_output,
+                        action_contract_errors,
+                        attempt=action_contract_repair_attempts,
+                        max_attempts=max_action_contract_repair_attempts,
+                    )
+                    repair_result = self._execute_task_request(
+                        repair_task,
+                        observer=observer,
+                        render_prompt=False,
+                        expand_skills=False,
+                    )
+                    action_contract_repair_response = repair_result.message
+                    if repair_result.message:
+                        action_contract_repair_responses.append(repair_result.message)
+                    if repair_result.ok:
+                        try:
+                            repaired_output = self._extract_structured_output(repair_result.message)
+                        except HermesStructuredOutputError as exc:
+                            action_contract_repair_error = str(exc)
+                            action_contract_repair_errors.append(
+                                {
+                                    "attempt": action_contract_repair_attempts,
+                                    "code": "structured_output_invalid",
+                                    "message": str(exc),
+                                }
+                            )
+                            action_contract_errors = [
+                                {
+                                    "code": "structured_output_invalid",
+                                    "path": "$",
+                                    "message": str(exc),
+                                }
+                            ]
+                            continue
+                        structured_output = repaired_output
+                        repaired_contract_errors = self._workflow_reply_action_contract_errors(task, repaired_output, repair_result.raw)
                         if not repaired_contract_errors:
-                            structured_output = repaired_output
                             result = repair_result
                             action_contract_repair_succeeded = True
+                            action_contract_errors = []
                             logger.info(
-                                "workflow runner action-contract repair succeeded trace_id=%s workflow_id=%s",
+                                "workflow runner action-contract repair succeeded trace_id=%s workflow_id=%s attempt=%s",
                                 task.trace_id or "",
                                 task.workflow_id or "",
+                                action_contract_repair_attempts,
                             )
-                        else:
-                            action_contract_repair_error = json.dumps(
-                                {
-                                    "code": "final_action_contract_invalid",
-                                    "message": "Hermes repair response still failed the final Slack action contract.",
-                                    "errors": repaired_contract_errors,
-                                },
-                                ensure_ascii=True,
-                                sort_keys=True,
-                            )
-                else:
-                    action_contract_repair_error = repair_result.message
+                            break
+                        action_contract_errors = repaired_contract_errors
+                        action_contract_repair_error = json.dumps(
+                            {
+                                "code": "final_action_contract_invalid",
+                                "message": "Hermes repair response still failed the final Slack action contract.",
+                                "attempt": action_contract_repair_attempts,
+                                "errors": repaired_contract_errors,
+                            },
+                            ensure_ascii=True,
+                            sort_keys=True,
+                        )
+                        action_contract_repair_errors.append(
+                            {
+                                "attempt": action_contract_repair_attempts,
+                                "code": "final_action_contract_invalid",
+                                "errors": repaired_contract_errors,
+                            }
+                        )
+                    else:
+                        action_contract_repair_error = repair_result.message
+                        action_contract_repair_errors.append(
+                            {
+                                "attempt": action_contract_repair_attempts,
+                                "code": "repair_request_failed",
+                                "message": repair_result.message,
+                            }
+                        )
+                        action_contract_errors = [
+                            {
+                                "code": "repair_request_failed",
+                                "path": "$",
+                                "message": repair_result.message,
+                            }
+                        ]
+                        break
         existing_repair_attempted = bool(result.raw.get("repair_attempted"))
         existing_repair_succeeded = bool(result.raw.get("repair_succeeded"))
         result.raw = {
@@ -7344,6 +7447,7 @@ class HermesRuntime:
             "repair_succeeded": repair_succeeded or existing_repair_succeeded,
             "action_contract_repair_attempted": action_contract_repair_attempted,
             "action_contract_repair_succeeded": action_contract_repair_succeeded,
+            "action_contract_repair_attempts": action_contract_repair_attempts,
             "structured_output": structured_output,
         }
         if initial_completion_verdict == "partial":
@@ -7360,6 +7464,7 @@ class HermesRuntime:
         runner_diagnostics["memory_warnings"] = result.raw.get("memory_warnings", [])
         runner_diagnostics["action_contract_repair_attempted"] = action_contract_repair_attempted
         runner_diagnostics["action_contract_repair_succeeded"] = action_contract_repair_succeeded
+        runner_diagnostics["action_contract_repair_attempts"] = action_contract_repair_attempts
         if initial_completion_verdict == "partial":
             runner_diagnostics["completion_verdict"] = "partial"
             runner_diagnostics["termination_reason"] = result.raw["termination_reason"]
@@ -7370,9 +7475,15 @@ class HermesRuntime:
         if action_contract_repair_error:
             result.raw["action_contract_repair_error"] = action_contract_repair_error
             runner_diagnostics["action_contract_repair_error"] = action_contract_repair_error
+        if action_contract_repair_errors:
+            result.raw["action_contract_repair_errors"] = action_contract_repair_errors
+            runner_diagnostics["action_contract_repair_errors"] = action_contract_repair_errors
         if action_contract_repair_response:
             result.raw["action_contract_repair_response"] = action_contract_repair_response
             runner_diagnostics["action_contract_repair_response"] = action_contract_repair_response
+        if action_contract_repair_responses:
+            result.raw["action_contract_repair_responses"] = action_contract_repair_responses
+            runner_diagnostics["action_contract_repair_responses"] = action_contract_repair_responses
         result.raw["runner_diagnostics"] = runner_diagnostics
         return result
 
@@ -7587,8 +7698,12 @@ class HermesRuntime:
     def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
         return bool(self._workflow_reply_action_contract_errors(task, structured_output))
 
-    def _workflow_reply_action_contract_errors(self, task: RunnerTaskRequest, structured_output: JsonObject) -> list[JsonObject]:
+    def _workflow_reply_action_contract_errors(self, task: RunnerTaskRequest, structured_output: JsonObject, raw: JsonObject | None = None) -> list[JsonObject]:
         if not self._workflow_requires_explicit_reply_action(task):
+            return []
+        if self._rsi_native_slack_reply_delivery_succeeded(_json_object_or_empty((raw or {}).get("reply_delivery"))):
+            return []
+        if self._rsi_native_slack_reply_delivery_succeeded(_json_object_or_empty(structured_output.get("reply_delivery"))):
             return []
         final_answer = _string_or_json(structured_output.get("final_answer"))
         reply_draft = _string_or_json(structured_output.get("reply_draft"))
@@ -7642,6 +7757,36 @@ class HermesRuntime:
             elif kind == "slack_report":
                 errors.extend(self._validate_slack_report_action_payload(payload, f"proposed_actions[{index}].request_payload"))
         return errors
+
+    def _rsi_native_slack_reply_delivery_succeeded(self, delivery: JsonObject) -> bool:
+        if not delivery:
+            return False
+        tool_name = _string_or_json(delivery.get("tool_name"))
+        try:
+            tool_name = canonical_tool_name(tool_name)
+        except ValueError:
+            pass
+        if tool_name not in {"rsi_slack.message_post", "rsi_slack.report_post"}:
+            return False
+        status = first_non_empty(
+            _string_or_json(delivery.get("send_status")),
+            _string_or_json(delivery.get("status")),
+        ).lower()
+        return status in {"posted", "sent", "succeeded", "success", "completed", "ok"}
+
+    def _action_contract_repair_attempt_limit(self) -> int:
+        configured = max(0, int(self._config.workflow_runner_repair_attempts))
+        # Delivery contract repair is intentionally bounded: it should only wrap
+        # existing output into a valid Slack action, not become another research loop.
+        return min(configured, 2)
+
+    def _action_contract_repair_attempt_count(self, raw: JsonObject, diagnostics: JsonObject) -> int:
+        return _int_or_zero(
+            _first_non_none(
+                raw.get("action_contract_repair_attempts"),
+                diagnostics.get("action_contract_repair_attempts"),
+            )
+        )
 
     def _validate_slack_report_action_payload(self, payload: JsonObject, base_path: str) -> list[JsonObject]:
         errors: list[JsonObject] = []
@@ -7782,12 +7927,21 @@ class HermesRuntime:
                     errors.append({"code": "cell_too_long", "path": f"{base_path}.rows[{row_index}].{key}", "limit": 500, "actual": len(rendered), "message": "table cell is too long."})
         return errors
 
-    def _build_action_contract_repair_task(self, task: RunnerTaskRequest, structured_output: JsonObject, errors: list[JsonObject]) -> RunnerTaskRequest:
+    def _build_action_contract_repair_task(
+        self,
+        task: RunnerTaskRequest,
+        structured_output: JsonObject,
+        errors: list[JsonObject],
+        *,
+        attempt: int,
+        max_attempts: int,
+    ) -> RunnerTaskRequest:
         repair_prompt = "\n".join(
             [
                 task.prompt,
                 "",
                 "Repair instruction: your previous structured output failed the final Slack action contract.",
+                f"Repair attempt: {attempt} of {max_attempts}.",
                 "Re-emit the full JSON object.",
                 "Preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
                 "Include exactly one proposed action: kind=slack_post for simple prose, or kind=slack_report for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",

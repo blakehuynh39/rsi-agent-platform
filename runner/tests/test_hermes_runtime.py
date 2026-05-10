@@ -5657,8 +5657,171 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertTrue(result.raw["action_contract_repair_attempted"])
         self.assertTrue(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(result.raw["action_contract_repair_attempts"], 1)
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("Runner role:"), 1)
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
+
+    def test_action_contract_repair_default_budget_is_two(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(runtime._config.workflow_runner_repair_attempts, 2)
+        self.assertEqual(runtime._action_contract_repair_attempt_limit(), 2)
+
+    def test_action_contract_repair_preserves_zero_attempt_count_over_stale_diagnostics(self) -> None:
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        self.assertEqual(
+            runtime._action_contract_repair_attempt_count(
+                {"action_contract_repair_attempts": 0},
+                {"action_contract_repair_attempts": 2},
+            ),
+            0,
+        )
+        self.assertEqual(
+            runtime._action_contract_repair_attempt_count(
+                {},
+                {"action_contract_repair_attempts": 2},
+            ),
+            2,
+        )
+
+    def test_action_contract_repair_retries_once_after_invalid_repair(self) -> None:
+        class RetryingActionRepairAIAgent(FakeAIAgent):
+            calls = 0
+            prompts: list[str] = []
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).calls += 1
+                type(self).prompts.append(prompt)
+                payload = {
+                    "visible_reasoning": [],
+                    "reply_draft": "Draft reply",
+                    "final_answer": "Final reply",
+                    "confidence": 0.91,
+                    "context_summary": "Repo and KB context collected.",
+                    "self_critique": "",
+                    "knowledge_drafts": [],
+                    "outcome_hypotheses": [],
+                    "produced_artifacts": [],
+                    "artifact_failure_reason": "",
+                    "proposed_actions": [],
+                }
+                if type(self).calls == 3:
+                    payload["proposed_actions"] = [
+                        {
+                            "kind": "slack_post",
+                            "target_ref": "slack:thread",
+                            "request_payload": {"body": "Final reply"},
+                            "approval_mode": "deterministic",
+                            "idempotency_key": "reply-1",
+                            "rationale": "Reply in thread",
+                            "evidence_refs": [],
+                        }
+                    ]
+                return {"final_response": json.dumps(payload)}
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "reply_delivery_mode": "mediated",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", RetryingActionRepairAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertTrue(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(result.raw["action_contract_repair_attempts"], 2)
+        self.assertEqual(RetryingActionRepairAIAgent.calls, 3)
+        self.assertIn("Repair attempt: 1 of 2", RetryingActionRepairAIAgent.prompts[1])
+        self.assertIn("Repair attempt: 2 of 2", RetryingActionRepairAIAgent.prompts[2])
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+
+    def test_action_contract_repair_fails_closed_after_two_attempts(self) -> None:
+        class FailingActionRepairAIAgent(FakeAIAgent):
+            calls = 0
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).calls += 1
+                return {
+                    "final_response": json.dumps(
+                        {
+                            "visible_reasoning": [],
+                            "reply_draft": "Draft reply",
+                            "final_answer": "Final reply",
+                            "confidence": 0.91,
+                            "context_summary": "Repo and KB context collected.",
+                            "self_critique": "",
+                            "knowledge_drafts": [],
+                            "outcome_hypotheses": [],
+                            "produced_artifacts": [],
+                            "artifact_failure_reason": "",
+                            "proposed_actions": [],
+                        }
+                    )
+                }
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize the workflow.",
+                    "reply_delivery_mode": "mediated",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-123",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                    "user_peer_id": "user:alice",
+                }
+            }
+        )
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FailingActionRepairAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertFalse(result.raw["action_contract_repair_succeeded"])
+        self.assertEqual(result.raw["action_contract_repair_attempts"], 2)
+        self.assertEqual(FailingActionRepairAIAgent.calls, 3)
+        self.assertIn("final_action_contract_invalid", result.raw["action_contract_repair_error"])
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"], [])
 
     def test_missing_prompt_skill_is_recorded_without_failing_workflow(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -6216,6 +6379,13 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(db_read_query["parameters"]["required"], ["target", "sql", "purpose"])
         self.assertEqual(db_read_query["parameters"]["properties"]["target"]["type"], "string")
         self.assertEqual(db_read_query["parameters"]["properties"]["sql"]["type"], "string")
+
+        slack_report_post = transport_tool_schema("rsi_slack.report_post")
+        self.assertEqual(slack_report_post["name"], "rsi_slack_report_post")
+        self.assertIn("summary", slack_report_post["parameters"]["properties"])
+        self.assertIn("tables", slack_report_post["parameters"]["properties"])
+        self.assertIn("reason", slack_report_post["parameters"]["required"])
+        self.assertIn("idempotency_key", slack_report_post["parameters"]["required"])
 
         invalid: dict[str, list[str]] = {}
         from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions
@@ -7292,6 +7462,46 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("replicaCount: 2", ledger["evidence_items"][0]["snippet"])
         self.assertEqual(ledger["evidence_items"][1]["path"], "story/depin-ip-registration/use1-stage.yaml")
         self.assertNotIn("No grounded evidence", " ".join(ledger["open_questions"]))
+
+    def test_native_lifecycle_reply_delivery_records_rsi_slack_delivery(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply with a report.",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "trace_id": "trace-rsi-slack-report",
+                    "workflow_id": "wf-rsi-slack-report",
+                }
+            }
+        )
+        lifecycle_events = [
+            {
+                "event": "reply_delivery",
+                "recorded_at_unix": 1710000003.0,
+                "tool_name": "rsi_slack_report_post",
+                "transport_tool_name": "rsi_slack_report_post",
+                "tool_call_id": "call-report-1",
+                "channel_id": "C123",
+                "thread_ts": "171000001.000100",
+                "body": "Structured report posted.",
+                "send_status": "posted",
+                "provider_ref": "slack:C123:171000002.000200",
+                "artifact_refs": ["external_tool_action:extact-1"],
+            },
+        ]
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+
+        observed = runtime._observability_metadata(None, task, lifecycle_events=lifecycle_events)
+
+        self.assertEqual(observed["reply_delivery"]["tool_name"], "rsi_slack.report_post")
+        self.assertEqual(observed["reply_delivery"]["send_status"], "posted")
+        self.assertEqual(observed["reply_delivery"]["artifact_refs"], ["external_tool_action:extact-1"])
 
     def test_workflow_evidence_ledger_preserves_late_sot_evidence_after_long_run(self) -> None:
         task = RunnerTaskRequest.from_payload(

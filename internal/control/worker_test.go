@@ -3207,11 +3207,13 @@ func TestWorkflowRunnerNativeToolsUseMediatedReplyGuidance(t *testing.T) {
 	if !strings.Contains(message, "Prefer rsi_notion.* for live Notion reads") {
 		t.Fatalf("expected native Notion guidance, got %q", message)
 	}
-	if !strings.Contains(message, "emit exactly one proposed action") || !strings.Contains(message, "kind=slack_report") {
-		t.Fatalf("expected exactly-once mediated Slack action guidance, got %q", message)
+	if !strings.Contains(message, "call exactly one RSI native Slack delivery tool") ||
+		!strings.Contains(message, "rsi_slack.message_post") ||
+		!strings.Contains(message, "rsi_slack.report_post") {
+		t.Fatalf("expected exactly-once RSI native Slack delivery guidance, got %q", message)
 	}
-	if strings.Contains(message, "use Hermes native send_message exactly once") {
-		t.Fatalf("expected native-tools mediated mode to avoid direct send_message guidance, got %q", message)
+	if strings.Contains(message, "generic Hermes send_message") && !strings.Contains(message, "Do not call generic Hermes send_message") {
+		t.Fatalf("expected native-tools mediated mode to forbid generic send_message guidance, got %q", message)
 	}
 }
 
@@ -3350,7 +3352,7 @@ func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
 	}
 }
 
-func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testing.T) {
+func TestWorkflowGenericNativeMCPReplyDeliveryIgnoredWithoutQueuedSlackReply(t *testing.T) {
 	var runnerRequest map[string]any
 	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
@@ -3502,6 +3504,110 @@ func TestWorkflowNativeMCPReplyDeliveryCompletesWithoutQueuedSlackReply(t *testi
 	}
 	if len(trace.SlackActions) != 0 {
 		t.Fatalf("expected native send_message reply_delivery to be ignored, got %#v", trace.SlackActions)
+	}
+}
+
+func TestWorkflowRSINativeSlackReplyDeliveryCompletesWithoutQueuedSlackReply(t *testing.T) {
+	var runnerRequest map[string]any
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
+			t.Fatalf("decode runner request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final report posted.","final_answer":"Final report posted.","confidence":0.88,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"reply_delivery": map[string]any{
+					"channel_id":       "D123",
+					"thread_ts":        "171000001.000100",
+					"body":             "Final report posted.",
+					"body_sha1":        "delivery-sha1",
+					"tool_call_id":     "call-rsi-report-1",
+					"tool_name":        "rsi_slack.report_post",
+					"provider_ref":     "slack:D123:171000002.000200",
+					"send_status":      "posted",
+					"artifact_refs":    []any{"external_tool_action:extact-1"},
+					"renderer_version": 1,
+				},
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Final report posted.",
+					"final_answer":       "Final report posted.",
+					"confidence":         0.88,
+					"context_summary":    "Grounded answer.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		NativeToolsEnabled:        true,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	taskPayload := mapValue(runnerRequest["task"])
+	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
+		t.Fatalf("expected mediated reply delivery mode, got %q", got)
+	}
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no action intents, got %#v", intents)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "completed" {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one RSI native Slack action, got %#v", trace.SlackActions)
+	}
+	action := trace.SlackActions[0]
+	if action.ToolName != "rsi_slack.report_post" {
+		t.Fatalf("expected RSI native report tool name, got %#v", action)
+	}
+	if action.SendStatus != "posted" || action.FinalBody != "Final report posted." {
+		t.Fatalf("unexpected Slack action record: %#v", action)
+	}
+	if len(action.ArtifactRefs) != 1 || action.ArtifactRefs[0] != "external_tool_action:extact-1" {
+		t.Fatalf("expected report artifact ref, got %#v", action.ArtifactRefs)
 	}
 }
 

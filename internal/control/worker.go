@@ -617,7 +617,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	}
 	runnerSlackActions := []events.SlackActionRecord{}
 	legacyDirectDeliveryRecorded := replyDeliveryMode == "direct" && replyDeliverySucceeded
-	if legacyDirectDeliveryRecorded {
+	nativeSlackDeliveryRecorded := replyDeliverySucceeded && isRSINativeSlackDelivery(replyDelivery)
+	runnerDeliveryRecorded := legacyDirectDeliveryRecorded || nativeSlackDeliveryRecorded
+	if runnerDeliveryRecorded {
 		replyDelivery.TraceID = ctx.trace.Summary.TraceID
 		replyDelivery.WorkflowID = ctx.workflow.ID
 		replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
@@ -631,9 +633,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			TraceID:    ctx.trace.Summary.TraceID,
 			WorkflowID: ctx.trace.Summary.WorkflowID,
 			StepType:   "reply_delivery",
-			Summary:    "Runner reported a successful direct Slack delivery from a legacy or in-flight task; preserving it as trace metadata without retrying delivery.",
+			Summary:    runnerReplyDeliveryReasoningSummary(legacyDirectDeliveryRecorded, nativeSlackDeliveryRecorded),
 			Confidence: 1.0,
-			Decision:   "legacy_direct_delivery_recorded",
+			Decision:   map[bool]string{true: "native_slack_delivery_recorded", false: "legacy_direct_delivery_recorded"}[nativeSlackDeliveryRecorded],
 			CreatedAt:  runnerCompleted,
 		})
 	}
@@ -672,7 +674,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		draftEvents    []events.TraceEvent
 		draftReasoning []events.ReasoningStep
 	)
-	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && replyDeliveryMode == "mediated" {
+	if strings.TrimSpace(replyBody) != "" && strings.TrimSpace(proposedReplyAction.Kind) == "" && replyDeliveryMode == "mediated" && !nativeSlackDeliveryRecorded {
 		finalReasoning = append(finalReasoning, events.ReasoningStep{
 			ID:         fmt.Sprintf("reason-action-contract-%d", runnerCompleted.UnixNano()),
 			TraceID:    ctx.trace.Summary.TraceID,
@@ -709,7 +711,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		}
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
-	if strings.TrimSpace(proposedReplyAction.Kind) != "" && !legacyDirectDeliveryRecorded {
+	if strings.TrimSpace(proposedReplyAction.Kind) != "" && !runnerDeliveryRecorded {
 		replyAction, draftEvents, draftReasoning, err = draftSlackReplyAction(cfg, store, queueName, ctx, runnerOutput, replyBody, allowed, policyVerdict, completionVerdict, runnerCompleted)
 		if err != nil {
 			var validationErrs slackReportValidationErrors
@@ -759,6 +761,8 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	runnerCommand := transition.WorkflowExecutionCompletionCommand(completionVerdict, hasReplyAction)
 	if hasReplyAction {
 		runnerDescription = "Runner returned visible reasoning and an explicit Slack reply action."
+	} else if nativeSlackDeliveryRecorded {
+		runnerDescription = "Runner returned visible reasoning and delivered the Slack reply through an RSI native Slack tool."
 	}
 	if completionVerdict == "partial" {
 		runnerDescription = partialCompletionRunnerDescription(terminationReason, hasReplyAction)
@@ -1624,7 +1628,13 @@ func workflowRunnerSystemMessage(useNativeTools bool, useSlackMCP bool, useNotio
 			}
 		}
 		parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
-		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.", "For the final Slack reply, emit exactly one proposed action. Use kind=slack_post with request_payload containing channel_id, thread_ts, and body for simple prose. Use kind=slack_report with request_payload containing channel_id, thread_ts, report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in slack_post; use slack_report tables instead. The control plane will deliver the action through RSI native Slack tools. Do not call Slack send tools yourself for the final reply.", "Leave reply_delivery empty unless the control plane reports delivery.")
+		parts = append(parts, "Use Hermes-native tools, configured MCP servers, and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.")
+		if useNativeTools {
+			parts = append(parts, "For the final Slack reply, call exactly one RSI native Slack delivery tool in the bound thread. Use rsi_slack.message_post for simple prose. Use rsi_slack.report_post with report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in message_post; use report_post tables instead. Do not call generic Hermes send_message for RSI workflow delivery. Leave proposed_actions empty unless a native Slack delivery tool is unavailable.")
+		} else {
+			parts = append(parts, "For the final Slack reply, emit exactly one proposed action. Use kind=slack_post with request_payload containing channel_id, thread_ts, and body for simple prose. Use kind=slack_report with request_payload containing channel_id, thread_ts, report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in slack_post; use slack_report tables instead. The control plane will deliver the action through RSI native Slack tools.")
+		}
+		parts = append(parts, "Leave reply_delivery empty unless the control plane reports delivery.")
 		return strings.Join(parts, " ")
 	}
 	parts := []string{
@@ -1994,6 +2004,29 @@ func workflowReplyDelivery(raw map[string]any, fallbackChannelID string, fallbac
 	return record, true
 }
 
+func isRSINativeSlackDelivery(record events.SlackActionRecord) bool {
+	return isRSINativeSlackToolName(record.ToolName) && events.SlackDeliveryStatusSucceeded(record.SendStatus)
+}
+
+func isRSINativeSlackToolName(name string) bool {
+	switch strings.TrimSpace(name) {
+	case "rsi_slack.message_post", "rsi_slack_message_post", "rsi_slack.report_post", "rsi_slack_report_post":
+		return true
+	default:
+		return false
+	}
+}
+
+func runnerReplyDeliveryReasoningSummary(legacyDirect bool, nativeSlack bool) string {
+	if nativeSlack {
+		return "Runner delivered the final Slack reply through an RSI native Slack delivery tool; preserving it as trace metadata without retrying delivery."
+	}
+	if legacyDirect {
+		return "Runner reported a successful direct Slack delivery from a legacy or in-flight task; preserving it as trace metadata without retrying delivery."
+	}
+	return "Runner reported Slack delivery; preserving it as trace metadata without retrying delivery."
+}
+
 func nativeStrictEnvelopeFailure(raw map[string]any) bool {
 	if !boolValue(raw["native_strict"]) {
 		return false
@@ -2111,10 +2144,11 @@ func slackActionRecordFromDeliveryMap(item map[string]any, fallbackChannelID str
 		strings.TrimSpace(stringValueFromMap(item, "status")),
 	)
 	return events.SlackActionRecord{
-		ID:             strings.TrimSpace(stringValueFromMap(item, "tool_call_id")),
+		ID:             firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), strings.TrimSpace(stringValueFromMap(item, "id")), strings.TrimSpace(stringValueFromMap(item, "delivery_id"))),
+		ToolName:       firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "tool_name")), strings.TrimSpace(stringValueFromMap(item, "name"))),
 		ChannelID:      firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "channel_id")), fallbackChannelID),
 		ThreadTS:       firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "thread_ts")), fallbackThreadTS),
-		IdempotencyKey: firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "body_sha1")), strings.TrimSpace(stringValueFromMap(item, "tool_call_id"))),
+		IdempotencyKey: firstNonEmpty(strings.TrimSpace(stringValueFromMap(item, "idempotency_key")), strings.TrimSpace(stringValueFromMap(item, "body_sha1")), strings.TrimSpace(stringValueFromMap(item, "tool_call_id")), strings.TrimSpace(stringValueFromMap(item, "id"))),
 		DraftBody:      body,
 		FinalBody:      body,
 		SendStatus:     status,
@@ -3551,8 +3585,11 @@ func mergeWorkflowRunnerDiagnostics(base map[string]any, raw map[string]any) map
 		"memory_warnings",
 		"action_contract_repair_attempted",
 		"action_contract_repair_succeeded",
+		"action_contract_repair_attempts",
 		"action_contract_repair_error",
+		"action_contract_repair_errors",
 		"action_contract_repair_response",
+		"action_contract_repair_responses",
 	} {
 		if value, ok := raw[key]; ok && value != nil {
 			diagnostics[key] = value

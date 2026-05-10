@@ -95,6 +95,7 @@ type SlackActionRecord struct {
 	WorkflowID     string    `json:"workflow_id,omitempty"`
 	ConversationID string    `json:"conversation_id,omitempty"`
 	CaseID         string    `json:"case_id,omitempty"`
+	ToolName       string    `json:"tool_name,omitempty"`
 	ChannelID      string    `json:"channel_id,omitempty"`
 	ThreadTS       string    `json:"thread_ts,omitempty"`
 	IdempotencyKey string    `json:"idempotency_key"`

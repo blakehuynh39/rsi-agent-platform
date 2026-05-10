@@ -320,7 +320,7 @@ func Load(serviceName string) Config {
 		ProposalPromoterInterval:             durationEnv("RSI_PROPOSAL_PROMOTER_INTERVAL", 0),
 		VerboseTraceLogging:                  boolEnv("RSI_VERBOSE_TRACE_LOGGING", false),
 		VerboseTraceLogLimit:                 intEnv("RSI_VERBOSE_TRACE_LOG_LIMIT", 100000),
-		WorkflowRunnerRepairAttempts:         intEnv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", 1),
+		WorkflowRunnerRepairAttempts:         intEnv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", 2),
 		WorkflowAutoRetryEnabled:             boolEnv("RSI_WORKFLOW_AUTO_RETRY_ENABLED", false),
 		WorkflowAutoRetryMaxAttempts:         intEnv("RSI_WORKFLOW_AUTO_RETRY_MAX_ATTEMPTS", 3),
 		WorkflowAutoRetryBackoffSeconds:      intListEnv("RSI_WORKFLOW_AUTO_RETRY_BACKOFF_SECONDS", []int{15, 60}),

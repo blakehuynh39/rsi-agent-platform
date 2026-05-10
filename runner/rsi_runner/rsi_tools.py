@@ -16,6 +16,35 @@ HERMES_RSI_OBSERVABILITY_TOOLSET = "rsi-observability"
 _JSON_OBJECT_SCHEMA: JsonObject = {"type": "object"}
 _JSON_ARRAY_SCHEMA: JsonObject = {"type": "array"}
 _STRING_ARRAY_SCHEMA: JsonObject = {"type": "array", "items": {"type": "string"}}
+_SLACK_REPORT_COLUMN_SCHEMA: JsonObject = {
+    "type": "object",
+    "properties": {
+        "key": {"type": "string"},
+        "label": {"type": "string"},
+        "align": {"type": "string", "enum": ["left", "center", "right"]},
+    },
+    "required": ["key", "label"],
+}
+_SLACK_REPORT_TABLE_SCHEMA: JsonObject = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "caption": {"type": "string"},
+        "columns": {"type": "array", "items": _SLACK_REPORT_COLUMN_SCHEMA},
+        "rows": {"type": "array", "items": {"type": "object"}},
+    },
+    "required": ["columns", "rows"],
+}
+_SLACK_REPORT_FILE_SCHEMA: JsonObject = {
+    "type": "object",
+    "properties": {
+        "artifact_ref": {"type": "string"},
+        "path": {"type": "string"},
+        "filename": {"type": "string"},
+        "title": {"type": "string"},
+        "mime_type": {"type": "string"},
+    },
+}
 
 
 def _schema(name: str, description: str, properties: JsonObject, required: list[str] | None = None) -> JsonToolFunctionSchema:
@@ -126,6 +155,30 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             "unfurl_media": {"type": "boolean"},
         },
         required=["channel_id", "text"],
+    ),
+    "rsi_slack.report_post": _write_schema(
+        "rsi_slack.report_post",
+        "Post a structured Slack report through the RSI native Slack gateway. Use this for rich final answers, tables, and artifact-backed report output.",
+        {
+            "channel_id": {"type": "string"},
+            "thread_ts": {"type": "string"},
+            "report_schema_version": {"type": "integer", "enum": [1]},
+            "summary": {"type": "string"},
+            "sections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "text": {"type": "string"},
+                    },
+                },
+            },
+            "tables": {"type": "array", "items": _SLACK_REPORT_TABLE_SCHEMA},
+            "files": {"type": "array", "items": _SLACK_REPORT_FILE_SCHEMA},
+            "images": {"type": "array", "items": _SLACK_REPORT_FILE_SCHEMA},
+        },
+        required=["channel_id", "report_schema_version", "summary"],
     ),
     "rsi_slack.message_update": _write_schema(
         "rsi_slack.message_update",

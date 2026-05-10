@@ -943,8 +943,88 @@ def _native_action_request(payload: JsonObject) -> tuple[int, JsonObject]:
         return int(exc.code), parsed
 
 
+def _native_action_response_map(response: JsonObject, key: str) -> JsonObject:
+    value = response.get(key)
+    return value if isinstance(value, dict) else {}
+
+
+def _native_slack_reply_delivery(
+    canonical_name: str,
+    transport_name: str,
+    args: JsonObject,
+    response: JsonObject,
+    *,
+    ok: bool,
+    status_code: int,
+    tool_call_id: str,
+) -> JsonObject:
+    if canonical_name not in {"rsi_slack.message_post", "rsi_slack.report_post"}:
+        return {}
+    output = _native_action_response_map(response, "output")
+    action = _native_action_response_map(response, "action")
+    manifest = output.get("render_manifest") if isinstance(output.get("render_manifest"), dict) else {}
+    main_message = manifest.get("main_message") if isinstance(manifest.get("main_message"), dict) else {}
+    action_id = _string_value(action.get("id"))
+    body = _first_non_empty(
+        args.get("text"),
+        args.get("summary"),
+        action.get("response_summary"),
+        response.get("error"),
+    )
+    source_ref = _first_non_empty(
+        action.get("source_ref"),
+        main_message.get("source_ref"),
+        output.get("source_ref"),
+    )
+    channel_id = _first_non_empty(
+        output.get("channel_id"),
+        main_message.get("channel_id"),
+        args.get("channel_id"),
+    )
+    thread_ts = _first_non_empty(
+        args.get("thread_ts"),
+        output.get("thread_ts"),
+        main_message.get("thread_ts"),
+        output.get("ts"),
+        main_message.get("ts"),
+    )
+    artifact_refs: list[str] = []
+    if action_id:
+        artifact_refs.append("external_tool_action:" + action_id)
+    uploaded_files = output.get("uploaded_files")
+    if isinstance(uploaded_files, list):
+        for item in uploaded_files:
+            if isinstance(item, dict):
+                source = _string_value(item.get("source_ref"))
+                if source:
+                    artifact_refs.append(source)
+    delivery_id = _first_non_empty(tool_call_id, action_id, args.get("idempotency_key"))
+    delivery: JsonObject = {
+        "tool_name": canonical_name,
+        "transport_tool_name": transport_name,
+        "tool_call_id": delivery_id,
+        "channel_id": channel_id,
+        "thread_ts": thread_ts,
+        "body": body,
+        "body_excerpt": body[:600],
+        "body_sha1": hashlib.sha1(body.encode("utf-8")).hexdigest() if body else "",
+        "send_status": "posted" if ok else "failed",
+        "status_code": status_code,
+        "provider_ref": source_ref,
+        "artifact_refs": artifact_refs,
+    }
+    if action_id:
+        delivery["native_action_id"] = action_id
+    if output.get("renderer_version") is not None:
+        delivery["renderer_version"] = output.get("renderer_version")
+    if response.get("replayed"):
+        delivery["replayed"] = True
+    return delivery
+
+
 def _native_action_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
     session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
+    tool_call_id = str(kwargs.get("tool_call_id", "") or kwargs.get("call_id", "") or "").strip()
     safe_args = args if isinstance(args, dict) else {}
     request_payload = _native_action_payload(canonical_name, safe_args)
     try:
@@ -967,6 +1047,25 @@ def _native_action_handler(canonical_name: str, transport_name: str, args: JsonO
                     "payload": event_payload,
                 },
             )
+            reply_delivery = _native_slack_reply_delivery(
+                canonical_name,
+                transport_name,
+                safe_args,
+                response,
+                ok=ok,
+                status_code=status_code,
+                tool_call_id=tool_call_id,
+            )
+            if reply_delivery:
+                _append_event(
+                    session_id,
+                    "reply_delivery",
+                    {
+                        "event_type": "reply_delivery",
+                        "status": reply_delivery.get("send_status", "posted" if ok else "failed"),
+                        **reply_delivery,
+                    },
+                )
         return json.dumps(
             {
                 "tool_name": canonical_name,

@@ -127,7 +127,7 @@ class RunnerConfig:
             inactivity_timeout_seconds,
             transport_timeout_seconds,
         )
-        workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "1", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
+        workflow_runner_repair_attempts = parse_non_negative_int(optional_env("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS") or "2", "RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS")
         hermes_executor_enabled = parse_bool(optional_env("RSI_HERMES_EXECUTOR_ENABLED") or "false", "RSI_HERMES_EXECUTOR_ENABLED")
         hermes_executor_service_only = parse_bool(optional_env("RSI_HERMES_EXECUTOR_SERVICE_ONLY") or "false", "RSI_HERMES_EXECUTOR_SERVICE_ONLY")
         hermes_executor_workspace_root = optional_env("RSI_HERMES_EXECUTOR_WORKSPACE_ROOT") or "/workspace"
