@@ -21476,3 +21476,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1884757dffa7743eba647ccea74fca66
 - summary: Runbook for extending and deploying the airdrop claim backend system, including GCP instance creation, configuration, and Ansible deployment steps.
 
+## [2026-05-10T20:23:37Z] synthesis | Documentation Platform Evaluation
+
+- status: published
+- slug: decisions/documentation-platform-evaluation
+- wiki_revision_id: wikirev_08ed831cf0375baf7970e996d0e2d5d0
+- summary: Evaluation of documentation platforms (GitBook, Nextra, Docusaurus, ReadMe) to make a decision by September 7, 2023.
+

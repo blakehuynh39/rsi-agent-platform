@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0ca6be5b4c3ec10f5fc92172828f65e3599b3e8d29a27f37e23d030cfd3df30f",
-        "size": 553206
+        "sha256": "3be2c7c1f4c18a96696bc7793ae0b8928bece3348f89c0515d1ba73ab3378dc0",
+        "size": 553529
       },
       {
         "path": "log.md",
-        "sha256": "2ad87196cf15e0a4b3ba72f06feaf42446a338944a554552d073691c30c6696d",
-        "size": 1022793
+        "sha256": "d491922095ed75b0728f20c8cc7a71f06d247a6ba4c8caf494015912dbfc8841",
+        "size": 1023128
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3798,6 +3798,11 @@
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
         "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
         "size": 1433
+      },
+      {
+        "path": "pages/decisions/documentation-platform-evaluation.md",
+        "sha256": "95ae874e626fd0276e02b3018d3a4434ca2dbdb7bbedae1ae8ca0846e6b9d6a3",
+        "size": 4504
       },
       {
         "path": "pages/decisions/eip-7212-precompile.md",
@@ -5754,8 +5759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T20:22:29Z",
-  "file_count": 1149,
+  "exported_at": "2026-05-10T20:28:41Z",
+  "file_count": 1150,
   "files": [
     {
       "path": ".curator_state",
@@ -8682,7 +8687,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "3fb1227bec7ddfed3cc0fe7076539295ab6d968caacf734bf40be9c78a8fb50e",
+  "previous_tree_hash": "e635d290171f724cd941628a17b758ab6a31bd62f273aac3742ec3e638c86b29",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8695,14 +8700,14 @@
   ],
   "skill_tree_hash": "e459a7397e5b2493c8cf6e63af24ad4ec09105951332875da7c2384f725235b5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e635d290171f724cd941628a17b758ab6a31bd62f273aac3742ec3e638c86b29",
+  "tree_hash": "00bfa5182838000d615dd6524f6548826760cae9ddb612cfdd8a7c1e7880f9be",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 565,
+  "wiki_file_count": 566,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8711,13 +8716,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0ca6be5b4c3ec10f5fc92172828f65e3599b3e8d29a27f37e23d030cfd3df30f",
-      "size": 553206
+      "sha256": "3be2c7c1f4c18a96696bc7793ae0b8928bece3348f89c0515d1ba73ab3378dc0",
+      "size": 553529
     },
     {
       "path": "log.md",
-      "sha256": "2ad87196cf15e0a4b3ba72f06feaf42446a338944a554552d073691c30c6696d",
-      "size": 1022793
+      "sha256": "d491922095ed75b0728f20c8cc7a71f06d247a6ba4c8caf494015912dbfc8841",
+      "size": 1023128
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9578,6 +9583,11 @@
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
       "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
       "size": 1433
+    },
+    {
+      "path": "pages/decisions/documentation-platform-evaluation.md",
+      "sha256": "95ae874e626fd0276e02b3018d3a4434ca2dbdb7bbedae1ae8ca0846e6b9d6a3",
+      "size": 4504
     },
     {
       "path": "pages/decisions/eip-7212-precompile.md",
@@ -11531,5 +11541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "567ba75db0374cb7c6915d939d03f47a586323b5bf10a8baf684e4639700514d"
+  "wiki_tree_hash": "4532a6938d76a02f5df15f0454f7f739e7268cf8208cb5b90d6c021d01a0a99e"
 }
