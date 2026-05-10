@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d45a34b7775a043a452bd74db4af4ab24e877b5d77d6e390f4abb8a6021179b1",
-        "size": 542148
+        "sha256": "d61e7ebf6ef65fa899d138be83da6f0a15f2a19be2a125f51c81d1fd41c16355",
+        "size": 542523
       },
       {
         "path": "log.md",
-        "sha256": "e1abacf00626dcba75108efb79d31ecbc7f4bd17a83c8885d217e68157c3fa54",
-        "size": 1007499
+        "sha256": "86dcc9d9f28af6d96bf3b777b3d4575c42e7c7588736faa744ad5734d6de9ff4",
+        "size": 1007886
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4098,6 +4098,11 @@
         "path": "pages/policies/off-chain-terms.md",
         "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
+      },
+      {
+        "path": "pages/policies/pil-licensing-terms-coverage.md",
+        "sha256": "f645fdee935712e3dc50f4e49f3e323568392bd746140935741e58eec8ed9c2a",
+        "size": 8606
       },
       {
         "path": "pages/policies/platform-team-secrets-access.md",
@@ -5579,8 +5584,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T02:23:57Z",
-  "file_count": 1114,
+  "exported_at": "2026-05-10T03:10:45Z",
+  "file_count": 1115,
   "files": [
     {
       "path": ".curator_state",
@@ -8502,7 +8507,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "93c39fbb4f87e9f7c909876264013c80a2fbb7ce05c7d37e7c407efa0e54a094",
+  "previous_tree_hash": "e1fd471ad20a498154d87dd7e30cddbe607afcf815e71b741997f5a3ffdc5355",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8515,14 +8520,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e1fd471ad20a498154d87dd7e30cddbe607afcf815e71b741997f5a3ffdc5355",
+  "tree_hash": "6268a8c83b77e65a0d54b8a4f86599c1595ac5621046b5061e75335788d36d4b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 531,
+  "wiki_file_count": 532,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8531,13 +8536,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d45a34b7775a043a452bd74db4af4ab24e877b5d77d6e390f4abb8a6021179b1",
-      "size": 542148
+      "sha256": "d61e7ebf6ef65fa899d138be83da6f0a15f2a19be2a125f51c81d1fd41c16355",
+      "size": 542523
     },
     {
       "path": "log.md",
-      "sha256": "e1abacf00626dcba75108efb79d31ecbc7f4bd17a83c8885d217e68157c3fa54",
-      "size": 1007499
+      "sha256": "86dcc9d9f28af6d96bf3b777b3d4575c42e7c7588736faa744ad5734d6de9ff4",
+      "size": 1007886
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9703,6 +9708,11 @@
       "path": "pages/policies/off-chain-terms.md",
       "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
+    },
+    {
+      "path": "pages/policies/pil-licensing-terms-coverage.md",
+      "sha256": "f645fdee935712e3dc50f4e49f3e323568392bd746140935741e58eec8ed9c2a",
+      "size": 8606
     },
     {
       "path": "pages/policies/platform-team-secrets-access.md",
@@ -11181,5 +11191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5cad7a38cd7ea0937011c57075db212abca4813d5c16c4099154bf943c6a4470"
+  "wiki_tree_hash": "66c5e0cad2403a46de7724f83737b85040ee79b4bfd04dc91e88c488818a05f4"
 }

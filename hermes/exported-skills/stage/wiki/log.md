@@ -21161,3 +21161,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_180b02e8bd2a812735d24753a2a7ab25
 - summary: Recurring question about handling IP infringements and missing royalty payments outside the protocol. Story Protocol currently lacks a clear answer, and competitors could exploit t...
 
+## [2026-05-10T03:08:38Z] synthesis | PIL Licensing Terms Coverage
+
+- status: published
+- slug: policies/pil-licensing-terms-coverage
+- wiki_revision_id: wikirev_1314f6304068ed1a854da050a79b418c
+- summary: Current coverage status of parameters in the beta PIL Policy Framework, indicating which terms are covered on-chain, off-chain, or not covered, and which are enforced via dispute.
+
