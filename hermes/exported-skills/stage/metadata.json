@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "37e08b78e61918976654247d1ef73affca605816c85f7d1df02743b24f1cdaa3",
-        "size": 548929
+        "sha256": "09054ee92db660ea9fa5035ade8dc05b720cc8e69f724f89a80ec05293d61a7e",
+        "size": 549344
       },
       {
         "path": "log.md",
-        "sha256": "003b85394e24a53329bdcb47d6991999a9deeae242e82087deb58129ac7dec13",
-        "size": 1016147
+        "sha256": "8d46262a7a76340e64014a6954ce4f7733d3c552a995823ca3f0f66e07e79b66",
+        "size": 1016574
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3428,6 +3428,11 @@
         "path": "pages/concepts/poseidon-user-multiplier.md",
         "sha256": "3631ac641af57580bb9bedc8a5cda978aa4b7c4b9423daca419903cb9dac51f4",
         "size": 1186
+      },
+      {
+        "path": "pages/concepts/post-mortem-rpc-issues-first-iliad-upgrade.md",
+        "sha256": "2de55c0b12615258b913ac60e0db684b5b6c66a355f547e36f8ecba542b1cca3",
+        "size": 10618
       },
       {
         "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -5689,8 +5694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T10:56:11Z",
-  "file_count": 1136,
+  "exported_at": "2026-05-10T11:12:32Z",
+  "file_count": 1137,
   "files": [
     {
       "path": ".curator_state",
@@ -8612,7 +8617,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "6d2b0c9a796bc69cb2b0d899b7bd1d2ed6de3e847085acf9554d11998ba99586",
+  "previous_tree_hash": "d71a20b33f6f47e8cf1893b37b7fb2bc5fe23bdfc4e437f6ac54b8cc6f7250b9",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8625,14 +8630,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d71a20b33f6f47e8cf1893b37b7fb2bc5fe23bdfc4e437f6ac54b8cc6f7250b9",
+  "tree_hash": "85c0c5a0d9244dac90371b48783d9c7bb3a8fb4c4fc13f7cdfd1cbdf413f8821",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 553,
+  "wiki_file_count": 554,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8641,13 +8646,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "37e08b78e61918976654247d1ef73affca605816c85f7d1df02743b24f1cdaa3",
-      "size": 548929
+      "sha256": "09054ee92db660ea9fa5035ade8dc05b720cc8e69f724f89a80ec05293d61a7e",
+      "size": 549344
     },
     {
       "path": "log.md",
-      "sha256": "003b85394e24a53329bdcb47d6991999a9deeae242e82087deb58129ac7dec13",
-      "size": 1016147
+      "sha256": "8d46262a7a76340e64014a6954ce4f7733d3c552a995823ca3f0f66e07e79b66",
+      "size": 1016574
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9143,6 +9148,11 @@
       "path": "pages/concepts/poseidon-user-multiplier.md",
       "sha256": "3631ac641af57580bb9bedc8a5cda978aa4b7c4b9423daca419903cb9dac51f4",
       "size": 1186
+    },
+    {
+      "path": "pages/concepts/post-mortem-rpc-issues-first-iliad-upgrade.md",
+      "sha256": "2de55c0b12615258b913ac60e0db684b5b6c66a355f547e36f8ecba542b1cca3",
+      "size": 10618
     },
     {
       "path": "pages/concepts/post-submission-payout-clarity-dopamine-hit.md",
@@ -11401,5 +11411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "27d4e96b1a6dfcf6e7d45a3947e6dded5d5ef72fe4c2332ccedda66def60ba8c"
+  "wiki_tree_hash": "0940e96f9c5d4996afcc44b2b3424b6ef1a98d1421dece34144daea487433872"
 }

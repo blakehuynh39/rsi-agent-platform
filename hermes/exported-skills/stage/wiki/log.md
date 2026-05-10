@@ -21350,3 +21350,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8936fe7830e4a4963484242d4f4e48c8
 - summary: Proposal for a new CI/CD process to manage genesis state and network deployments for stable and unstable networks, ensuring a single source of truth and automated promotion.
 
+## [2026-05-10T11:07:43Z] synthesis | Post-Mortem: RPC issues in the first iliad upgrade
+
+- status: published
+- slug: concepts/post-mortem-rpc-issues-first-iliad-upgrade
+- wiki_revision_id: wikirev_9bf4b1677f35bf17b923732504750465
+- summary: Post-mortem analysis of RPC issues encountered during the first soft fork upgrade on the Iliad testnet on 9/9/2024. The upgrade aimed to reduce block time by removing unnecessary l...
+
