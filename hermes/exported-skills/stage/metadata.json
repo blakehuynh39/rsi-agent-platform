@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "770e4a6f50e2675656b6ce1dc8ee25129bebc766e397ad6bde5b1ce6da349b31",
-        "size": 1004893
+        "sha256": "44a2f953ad5333c14f42cc3df1aa35d027bf9381cb138d6cda5ea81c5404fd7f",
+        "size": 1005236
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3183,6 +3183,11 @@
         "path": "pages/concepts/graphql-vs-rest-api.md",
         "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
         "size": 1190
+      },
+      {
+        "path": "pages/concepts/hooks-in-beta.md",
+        "sha256": "d0442ffdcf9f8017a785173679abd586ee0adbf5f812fd76477f9a774c327b59",
+        "size": 4091
       },
       {
         "path": "pages/concepts/how-to-series.md",
@@ -5549,8 +5554,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T00:53:25Z",
-  "file_count": 1108,
+  "exported_at": "2026-05-10T01:20:04Z",
+  "file_count": 1109,
   "files": [
     {
       "path": ".curator_state",
@@ -8472,7 +8477,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "c4444ed8b81fb3b5a88fbe1cade4bfe8a19ebac2571e62d8a63669161cf20e88",
+  "previous_tree_hash": "ce43d31b75719be0d5da03e1fda7d747213508102e75fe2b2cd5497bebb1c5c3",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8485,14 +8490,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ce43d31b75719be0d5da03e1fda7d747213508102e75fe2b2cd5497bebb1c5c3",
+  "tree_hash": "32de73dd109950a0af51c86f19d8075aa3858a6fdf30117bdaa492c41521da76",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 525,
+  "wiki_file_count": 526,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8506,8 +8511,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "770e4a6f50e2675656b6ce1dc8ee25129bebc766e397ad6bde5b1ce6da349b31",
-      "size": 1004893
+      "sha256": "44a2f953ad5333c14f42cc3df1aa35d027bf9381cb138d6cda5ea81c5404fd7f",
+      "size": 1005236
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8758,6 +8763,11 @@
       "path": "pages/concepts/graphql-vs-rest-api.md",
       "sha256": "75b3fdd0d8b4f1ef717fcb9fe12d5d0f8d11aa7c9f30bb618883d845f06f0aad",
       "size": 1190
+    },
+    {
+      "path": "pages/concepts/hooks-in-beta.md",
+      "sha256": "d0442ffdcf9f8017a785173679abd586ee0adbf5f812fd76477f9a774c327b59",
+      "size": 4091
     },
     {
       "path": "pages/concepts/how-to-series.md",
@@ -11121,5 +11131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "31a6f3d05b73485866760236dbf4a756d6f96880ef8d9529b402b51d6be19a5f"
+  "wiki_tree_hash": "2f222df3f33578c50d59d6901501a5717614eb61b484efd7d39f29b36baf832c"
 }

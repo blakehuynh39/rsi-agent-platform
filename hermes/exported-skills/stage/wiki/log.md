@@ -21112,3 +21112,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_85cf5abf479331606e591effa1b93608
 - summary: Plan for the platform beta, including timeline, key concepts (Nouns and Verbs), and related sub-pages and tasks.
 
+## [2026-05-10T01:16:29Z] synthesis | Hooks in Beta
+
+- status: published
+- slug: concepts/hooks-in-beta
+- wiki_revision_id: wikirev_cceaa58d3f3dffbeea97576858dac2f8
+- summary: Design notes on hooks for the Beta version, including differences from Alpha, interface, ACL considerations, and proposed integration points in the policy framework.
+
+## [2026-05-10T01:20:17Z] synthesis | EthDenver Magma Integration with 57Blocks
+
+- status: published
+- slug: projects/ethdenver-magma-57blocks-integration
+- wiki_revision_id: wikirev_58a0bd8cda96aa20e891ab4d6010fc6d
+- summary: Project to integrate Story Protocol with Magma for ETHDenver 2024, involving API integration, Arweave metadata fetching, Polygon migration, and licensing.
+
