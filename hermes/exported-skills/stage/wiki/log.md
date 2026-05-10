@@ -21196,3 +21196,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_826f5b559fac31923d1b0d8119c86eb0
 - summary: Lists the deployed contract addresses for the Story Protocol devnet environment.
 
+## [2026-05-10T06:17:35Z] synthesis | L1 Research Bootcamp
+
+- status: published
+- slug: projects/l1-research-bootcamp
+- wiki_revision_id: wikirev_2dcec67f76580866c093201c7587d63c
+- summary: A two-week research bootcamp focused on understanding the L1 blockchain tech stack, brainstorming product features, and setting an initial roadmap.
+
