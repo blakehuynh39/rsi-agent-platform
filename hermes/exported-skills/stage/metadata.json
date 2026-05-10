@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7771526993ea92bf337441c867ae260df244448524892ee17a6ad86f0ecf40f4",
-        "size": 555821
+        "sha256": "96259ce4e469832c768445a6200e889eddb0722ec5d9004ed5cfb35e1231e20d",
+        "size": 556175
       },
       {
         "path": "log.md",
-        "sha256": "9e886fd3090b455cb1f809a767c36419a87eda12a23259271e811eda119f9ced",
-        "size": 1026021
+        "sha256": "e2ad0f38244b4b14887fbeeaab256da7991fc10874b094ee9bacb8be7eac2957",
+        "size": 1026823
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4461,8 +4461,8 @@
       },
       {
         "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
-        "sha256": "fe1c15e4108d2166d663beb4551bff2a0d47dbdbdc1371e4a2b6589e75739356",
-        "size": 5616
+        "sha256": "2b21d26427ee3f1a5d75f6bce4750eb2a8301c423a6c430d710f53c199881ff3",
+        "size": 5530
       },
       {
         "path": "pages/projects/egress-pricing.md",
@@ -5620,6 +5620,11 @@
         "size": 1700
       },
       {
+        "path": "pages/systems/ollama-practices-macos.md",
+        "sha256": "ec5460627c5a26ba43b8298cbb738fd60f8523d4306fcc216723fc650a220ee3",
+        "size": 2644
+      },
+      {
         "path": "pages/systems/our-k8s-clusters.md",
         "sha256": "1b5b4f790f7ab3b9450851998e41c2de39cff8794b72993be25c6632a8965921",
         "size": 2831
@@ -5789,8 +5794,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T23:41:05Z",
-  "file_count": 1156,
+  "exported_at": "2026-05-10T23:52:34Z",
+  "file_count": 1157,
   "files": [
     {
       "path": ".curator_state",
@@ -8717,7 +8722,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b849f6x88b",
-  "previous_tree_hash": "54d4a4ba7d3a4ecbe1e9a5c565885da7890de7c6cb6e9147506efc57ba9eafd7",
+  "previous_tree_hash": "3525bbcd338317dc83f8f88f97efa17e3f43058802e5abd0010a274d38f3dcee",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8730,14 +8735,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3525bbcd338317dc83f8f88f97efa17e3f43058802e5abd0010a274d38f3dcee",
+  "tree_hash": "538e4f28ff57b4e4cca8f6a986bc0b27c3b7ecffc0584e87e26bb9065162aa08",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 572,
+  "wiki_file_count": 573,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8746,13 +8751,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7771526993ea92bf337441c867ae260df244448524892ee17a6ad86f0ecf40f4",
-      "size": 555821
+      "sha256": "96259ce4e469832c768445a6200e889eddb0722ec5d9004ed5cfb35e1231e20d",
+      "size": 556175
     },
     {
       "path": "log.md",
-      "sha256": "9e886fd3090b455cb1f809a767c36419a87eda12a23259271e811eda119f9ced",
-      "size": 1026021
+      "sha256": "e2ad0f38244b4b14887fbeeaab256da7991fc10874b094ee9bacb8be7eac2957",
+      "size": 1026823
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10276,8 +10281,8 @@
     },
     {
       "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
-      "sha256": "fe1c15e4108d2166d663beb4551bff2a0d47dbdbdc1371e4a2b6589e75739356",
-      "size": 5616
+      "sha256": "2b21d26427ee3f1a5d75f6bce4750eb2a8301c423a6c430d710f53c199881ff3",
+      "size": 5530
     },
     {
       "path": "pages/projects/egress-pricing.md",
@@ -11435,6 +11440,11 @@
       "size": 1700
     },
     {
+      "path": "pages/systems/ollama-practices-macos.md",
+      "sha256": "ec5460627c5a26ba43b8298cbb738fd60f8523d4306fcc216723fc650a220ee3",
+      "size": 2644
+    },
+    {
       "path": "pages/systems/our-k8s-clusters.md",
       "sha256": "1b5b4f790f7ab3b9450851998e41c2de39cff8794b72993be25c6632a8965921",
       "size": 2831
@@ -11601,5 +11611,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f4f817a4b301de59d1173a28c282b92ad72ef7edea6bdde393ad80f54deae5b0"
+  "wiki_tree_hash": "7868249589a9d260d079d88ff4c6656b1b9cd4dc99ee72cbbcf7c221142ce521"
 }

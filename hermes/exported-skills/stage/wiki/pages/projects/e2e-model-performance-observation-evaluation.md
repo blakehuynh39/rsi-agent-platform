@@ -6,7 +6,7 @@ freshness: "2025-04-11T15:23:00Z"
 tags:
   - "evaluation"
   - "inference"
-  - "llm"
+  - "llm-ops"
   - "model-training"
 owners: []
 source_revision_ids:
@@ -18,7 +18,7 @@ conflict_state: "none"
 
 ## Summary
 
-Proposed approach to train a model using Group1's codebase on Prime Intellect, implement inference with Ollama/Llama.cpp for experiments and vllm/sglang for production, and validate using Confident AI and LangSmith. A known issue exists with gguf conversion causing auto-populated tokens in llama.cpp.
+Proposed approach to train a model using Group1's codebase on Prime Intellect, implement inference with Ollama/Llama.cpp for experiments and vllm/sglang for production, and validate using Confident AI and LangSmith. Known issue: gguf conversion causes auto-populated tokens in llama.cpp.
 
 ## Claims
 
@@ -37,12 +37,12 @@ Proposed approach to train a model using Group1's codebase on Prime Intellect, i
 - Training models are available at https://huggingface.co/linkanjou/story-llm-influence-experiment/tree/main. `claim:claim_1_7` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/E2E-flow-for-model-performance-observation-and-evaluation-1d0051299a5480869973c3615c17ccac) `source_document_id=srcdoc_f69650e90ba0b6fad4625ef9dd884653` `source_revision_id=srcrev_551a4588e7258b1d76a7b316e3f4553e` `chunk_id=srcchunk_f67c042cd2acab3482bc1d785a716860` `native_locator=https://www.notion.so/E2E-flow-for-model-performance-observation-and-evaluation-1d0051299a5480869973c3615c17ccac` `source_timestamp=2025-04-11T15:23:00Z`
 
-## Open Questions
+## Related Pages
 
-- How to resolve the gguf/llama.cpp auto-population issue?
+- `systems/ollama-practices-macos`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_f69650e90ba0b6fad4625ef9dd884653`
-- `source_revision_id`: `srcrev_551a4588e7258b1d76a7b316e3f4553e`
-- `source_url`: [Notion source](https://www.notion.so/E2E-flow-for-model-performance-observation-and-evaluation-1d0051299a5480869973c3615c17ccac)
+- `source_document_id`: `srcdoc_1e2aafc5cdf5f285bef6c779ec7831e8`
+- `source_revision_id`: `srcrev_ba9f0bb93d314162e37dde75028ec9b0`
+- `source_url`: [Notion source](https://www.notion.so/ollama-1ca051299a54808a8cbcf271ed801d8f)

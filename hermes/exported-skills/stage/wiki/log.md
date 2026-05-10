@@ -21541,3 +21541,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0cdcb71cf4e2a728bde649c6300762d6
 - summary: Proposal by Ramtin to build a data layer subnetwork starting with a centralized MVP and gradually decentralizing, with JZ suggesting a Bittensor-like model of data subnets each wit...
 
+## [2026-05-10T23:49:37Z] synthesis | E2E flow for model performance observation and evaluation
+
+- status: published
+- slug: projects/e2e-model-performance-observation-evaluation
+- wiki_revision_id: wikirev_2a64ac6f13052888340cf011412fb092
+- summary: Proposed approach to train a model using Group1's codebase on Prime Intellect, implement inference with Ollama/Llama.cpp for experiments and vllm/sglang for production, and validat...
+
+## [2026-05-10T23:49:37Z] synthesis | Ollama Practices on MacOS
+
+- status: published
+- slug: systems/ollama-practices-macos
+- wiki_revision_id: wikirev_d6f4534831c2bd53fdef1b055afe6cf3
+- summary: Practices for customizing and benchmarking Ollama models on MacOS, including Modelfile examples for llama3.2 and gemma3:4b, and benchmark results on Macbook Pro M4 Max.
+
