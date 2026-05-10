@@ -3,10 +3,7 @@ title: "Numo Product Backlog"
 type: "system"
 slug: "systems/numo-product-backlog"
 freshness: "2026-05-06T00:55:39Z"
-tags:
-  - "database"
-  - "notion"
-  - "product-backlog"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_3b5cc42e941dbdfdb893a4dfa0f6e89a"
@@ -29,6 +26,6 @@ The Numo Product Backlog is a Notion database where each row is mirrored as a se
 
 ## Sources
 
-- `source_document_id`: `srcdoc_43bd0953755e8e9f4722bd66185bcbc7`
-- `source_revision_id`: `srcrev_56c9cae811f42e2b40cda8f070ce6a0c`
+- `source_document_id`: `srcdoc_aaf7c292a4521a755ec260ecaa9d5203`
+- `source_revision_id`: `srcrev_b4b2ebd37c7e8ff38245400b7af89fd6`
 - `source_url`: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)

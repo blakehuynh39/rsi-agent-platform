@@ -21238,3 +21238,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_770dd3cbc3d2afb5f6a00e20a55e9180
 - summary: Open questions regarding the process for backward-compatible and non-backward-compatible Cosmos upgrades, including manual vs Cosmovisor processes and governance requirements.
 
+## [2026-05-10T08:19:59Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_59126ea66712b1173a3b60e0f3bf751a
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
