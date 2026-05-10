@@ -21441,3 +21441,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fee23d5943ecc8d89a60e37569c24071
 - summary: The IP Account Centric Model conceptualizes IPAccount as the core identity (noun) and Modules as actions (verbs). IP Accounts represent IP as real entities on Ethereum, with IP NFT...
 
+## [2026-05-10T17:50:44Z] synthesis | Todos (2026-05-07)
+
+- status: published
+- slug: projects/todos-from-notion-2026-05-07
+- wiki_revision_id: wikirev_c65cec3200be656c5e557cdd532d6176
+- summary: A list of pending tasks captured from a Notion document, covering dynamic authentication, prescreen voice interview integration, profile page APIs, LinkedIn login, dynamic voice ag...
+
