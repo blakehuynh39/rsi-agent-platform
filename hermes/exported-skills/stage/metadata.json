@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e711b554a176bd1c34eaeb48c9ff97ec03597f6ca93a37e965924cc6ac9995d4",
-        "size": 539344
+        "sha256": "eb00e960974ff39c8eb14793e447d9d610e04379bb2d41150d1a60f3bdfdb740",
+        "size": 539627
       },
       {
         "path": "log.md",
-        "sha256": "17e78b0e1a7c577048aba18f73eca13518d019bcfba919a4026865a20c97e7d7",
-        "size": 1002496
+        "sha256": "96f0d2a600e7b6b5fd61a7bbc7c0831710299bb52cdff8dee7e30c75c5ca0d2a",
+        "size": 1002791
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4233,6 +4233,11 @@
         "path": "pages/projects/conference-plan-2024.md",
         "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
         "size": 4104
+      },
+      {
+        "path": "pages/projects/contractor-needs.md",
+        "sha256": "f6d73ab9d8dda9884e4c6f3d1c47744e45d87b6524ea74434d69a93db1210f3e",
+        "size": 5948
       },
       {
         "path": "pages/projects/cross-chain-api-v0.md",
@@ -5539,8 +5544,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T00:09:19Z",
-  "file_count": 1106,
+  "exported_at": "2026-05-10T00:40:50Z",
+  "file_count": 1107,
   "files": [
     {
       "path": ".curator_state",
@@ -8462,7 +8467,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "d8e6ca836e9cb3ce5d311d22efe58c2b4c66c46247eade811ba90d7b3309405e",
+  "previous_tree_hash": "e12f9edebf192f01ab4cafe678020e669c5d2462e11b6f9c2c69b295c513760d",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8475,14 +8480,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e12f9edebf192f01ab4cafe678020e669c5d2462e11b6f9c2c69b295c513760d",
+  "tree_hash": "608b8e9801d31a886197e4bc6c3aabd82ac56ad0af21997e47fbdae1dde3dad7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 523,
+  "wiki_file_count": 524,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8491,13 +8496,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e711b554a176bd1c34eaeb48c9ff97ec03597f6ca93a37e965924cc6ac9995d4",
-      "size": 539344
+      "sha256": "eb00e960974ff39c8eb14793e447d9d610e04379bb2d41150d1a60f3bdfdb740",
+      "size": 539627
     },
     {
       "path": "log.md",
-      "sha256": "17e78b0e1a7c577048aba18f73eca13518d019bcfba919a4026865a20c97e7d7",
-      "size": 1002496
+      "sha256": "96f0d2a600e7b6b5fd61a7bbc7c0831710299bb52cdff8dee7e30c75c5ca0d2a",
+      "size": 1002791
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9798,6 +9803,11 @@
       "path": "pages/projects/conference-plan-2024.md",
       "sha256": "e51ed5f42bb98e6eca93f842f1eb5a4156ced694bb8cf290061ad3f2a2542799",
       "size": 4104
+    },
+    {
+      "path": "pages/projects/contractor-needs.md",
+      "sha256": "f6d73ab9d8dda9884e4c6f3d1c47744e45d87b6524ea74434d69a93db1210f3e",
+      "size": 5948
     },
     {
       "path": "pages/projects/cross-chain-api-v0.md",
@@ -11101,5 +11111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5622a5ae2243c1d40ac605bcbb76e3582c3831fe6642b39b66f6aa796ad31dea"
+  "wiki_tree_hash": "fa976392548a2c62d9e1fce014a7adf82324f008984c713540c01372d59d564f"
 }

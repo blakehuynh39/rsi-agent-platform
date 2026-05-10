@@ -21056,3 +21056,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_68ae4cb8e6719070215698307f0210bf
 - summary: Overview of licensing use cases for the protocol, including licensing frameworks, UDL v1.0, license NFT metadata, IPOrg configuration, derivative IPA creation, and license activati...
 
+## [2026-05-10T00:38:08Z] synthesis | Contractor Needs
+
+- status: published
+- slug: projects/contractor-needs
+- wiki_revision_id: wikirev_528a22f6990dbb2f86a24714358bbad6
+- summary: A planning document listing external engineering contractor needs for various projects as of late January 2024.
+
