@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0973d304b955dd2b6053bcfccb22da05f7896788fd63bcbf92690e60da708cd2",
-        "size": 543876
+        "sha256": "32adbcbb6e133a8e194778e2c22d5be8f8ee029179d80e13ec801f2d3259ea7b",
+        "size": 545040
       },
       {
         "path": "log.md",
-        "sha256": "bc20908a70d5d570ad37c8644a960f76bf4c2e92d38958864b86a94457832553",
-        "size": 1009714
+        "sha256": "b3bd1af2a992100f3b6841782fea479fd81d99f05b442b4b775e307ab5d1e4cd",
+        "size": 1010926
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3108,6 +3108,11 @@
         "path": "pages/concepts/ethereum-improvement-proposal-process.md",
         "sha256": "3ebc633025f5d131082b0e0f3939879d15cd6762dd1538112cf9195d8a52bc20",
         "size": 3140
+      },
+      {
+        "path": "pages/concepts/ethereum-rollups.md",
+        "sha256": "6fea53d0c533ffe7e429e04deec6d12748287946ddf49a944a3bcd5dfd494bfd",
+        "size": 4484
       },
       {
         "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
@@ -3345,6 +3350,11 @@
         "size": 2410
       },
       {
+        "path": "pages/concepts/modular-blockchain-layers.md",
+        "sha256": "e81aa7c47206bbd7fd02d30a940dbe6ead2796e91f7ec4aa607c91a12d779d59",
+        "size": 2873
+      },
+      {
         "path": "pages/concepts/multi-parent-licensing.md",
         "sha256": "a8c7e199fffa736c0d2aeff1a9130c56299177a5e6ffcbbbf782d76aa0dd7a62",
         "size": 4612
@@ -3383,6 +3393,11 @@
         "path": "pages/concepts/opensea-conduit-delegation.md",
         "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
         "size": 1243
+      },
+      {
+        "path": "pages/concepts/optimism-deposit-flow.md",
+        "sha256": "13ab334da57718f4f5852b1c90e926512568b8190e0df5da62073c31735591d0",
+        "size": 1239
       },
       {
         "path": "pages/concepts/optimistic-workflow-design.md",
@@ -4825,6 +4840,11 @@
         "size": 6299
       },
       {
+        "path": "pages/projects/rollkit.md",
+        "sha256": "a9468c476ad298383ef25abcb18173db35e76a1b21b2f79fd8f1dbe7b1705c6b",
+        "size": 1217
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -5604,8 +5624,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T06:27:52Z",
-  "file_count": 1119,
+  "exported_at": "2026-05-10T06:39:10Z",
+  "file_count": 1123,
   "files": [
     {
       "path": ".curator_state",
@@ -8527,7 +8547,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "6d793056f170272291d67a99de88fa9a486633e1c36eccbe9c2053d2b18ee12d",
+  "previous_tree_hash": "766d087c595600a37eaba95d05d7ed16c6eef38947b081aa43eab60c24347b1b",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8540,14 +8560,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "766d087c595600a37eaba95d05d7ed16c6eef38947b081aa43eab60c24347b1b",
+  "tree_hash": "29adb7ba8985840f3d083a02079371f088820d9ea9cc0c21883a39f1ff1ae89d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 536,
+  "wiki_file_count": 540,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8556,13 +8576,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0973d304b955dd2b6053bcfccb22da05f7896788fd63bcbf92690e60da708cd2",
-      "size": 543876
+      "sha256": "32adbcbb6e133a8e194778e2c22d5be8f8ee029179d80e13ec801f2d3259ea7b",
+      "size": 545040
     },
     {
       "path": "log.md",
-      "sha256": "bc20908a70d5d570ad37c8644a960f76bf4c2e92d38958864b86a94457832553",
-      "size": 1009714
+      "sha256": "b3bd1af2a992100f3b6841782fea479fd81d99f05b442b4b775e307ab5d1e4cd",
+      "size": 1010926
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8738,6 +8758,11 @@
       "path": "pages/concepts/ethereum-improvement-proposal-process.md",
       "sha256": "3ebc633025f5d131082b0e0f3939879d15cd6762dd1538112cf9195d8a52bc20",
       "size": 3140
+    },
+    {
+      "path": "pages/concepts/ethereum-rollups.md",
+      "sha256": "6fea53d0c533ffe7e429e04deec6d12748287946ddf49a944a3bcd5dfd494bfd",
+      "size": 4484
     },
     {
       "path": "pages/concepts/etherscan-custom-error-handling-limitation.md",
@@ -8975,6 +9000,11 @@
       "size": 2410
     },
     {
+      "path": "pages/concepts/modular-blockchain-layers.md",
+      "sha256": "e81aa7c47206bbd7fd02d30a940dbe6ead2796e91f7ec4aa607c91a12d779d59",
+      "size": 2873
+    },
+    {
       "path": "pages/concepts/multi-parent-licensing.md",
       "sha256": "a8c7e199fffa736c0d2aeff1a9130c56299177a5e6ffcbbbf782d76aa0dd7a62",
       "size": 4612
@@ -9013,6 +9043,11 @@
       "path": "pages/concepts/opensea-conduit-delegation.md",
       "sha256": "55e9e5cebdcae636afab5c6ca14296330487273dbe17e8b2f382e0e99f590b34",
       "size": 1243
+    },
+    {
+      "path": "pages/concepts/optimism-deposit-flow.md",
+      "sha256": "13ab334da57718f4f5852b1c90e926512568b8190e0df5da62073c31735591d0",
+      "size": 1239
     },
     {
       "path": "pages/concepts/optimistic-workflow-design.md",
@@ -10455,6 +10490,11 @@
       "size": 6299
     },
     {
+      "path": "pages/projects/rollkit.md",
+      "sha256": "a9468c476ad298383ef25abcb18173db35e76a1b21b2f79fd8f1dbe7b1705c6b",
+      "size": 1217
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -11231,5 +11271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be7682027680c7aa42bae3339604369977763e5aca8e6abeba5f426739ad62f9"
+  "wiki_tree_hash": "ac935b2eff439b772cdcb6aa0fdf83c65b5c66733d046844198b6ade5628348b"
 }

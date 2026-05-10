@@ -21203,3 +21203,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2dcec67f76580866c093201c7587d63c
 - summary: A two-week research bootcamp focused on understanding the L1 blockchain tech stack, brainstorming product features, and setting an initial roadmap.
 
+## [2026-05-10T06:37:47Z] synthesis | Ethereum Rollups
+
+- status: published
+- slug: concepts/ethereum-rollups
+- wiki_revision_id: wikirev_144bcec79c7a0884e15efa48e00ea5cc
+- summary: Ethereum rollups are a Layer 2 scaling solution that batches transactions off-chain and submits them to the Ethereum L1, reducing fees and increasing throughput.
+
+## [2026-05-10T06:37:48Z] synthesis | Optimism Deposit Flow
+
+- status: published
+- slug: concepts/optimism-deposit-flow
+- wiki_revision_id: wikirev_6bd1acc37596b8fb6f0884e637996f77
+- summary: The deposit flow for Optimism is similar to a bridge operation, moving assets from L1 to the L2.
+
+## [2026-05-10T06:37:48Z] synthesis | Modular Blockchain Layers
+
+- status: published
+- slug: concepts/modular-blockchain-layers
+- wiki_revision_id: wikirev_819f501717d0a816434b3884014473dc
+- summary: Modular blockchains separate core functions into distinct layers: Settlement, Consensus, and Data Availability.
+
+## [2026-05-10T06:37:48Z] synthesis | Rollkit
+
+- status: published
+- slug: projects/rollkit
+- wiki_revision_id: wikirev_b8f5a92ea813634aa1e5636a07734f61
+- summary: Rollkit is a modular framework for rollups, mentioned in the context of modular blockchain layers.
+
