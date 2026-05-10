@@ -21049,3 +21049,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9522d98690a333c46e10d737e8ffe0a7
 - summary: Details of our EKS (K8S) clusters including staging and production environments.
 
+## [2026-05-10T00:04:31Z] synthesis | Licensing Use Cases
+
+- status: published
+- slug: concepts/licensing-use-cases
+- wiki_revision_id: wikirev_68ae4cb8e6719070215698307f0210bf
+- summary: Overview of licensing use cases for the protocol, including licensing frameworks, UDL v1.0, license NFT metadata, IPOrg configuration, derivative IPA creation, and license activati...
+

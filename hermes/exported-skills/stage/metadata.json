@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3bc2079a506de46db38653707312f853f8b1a680b5ad3d72ec37a8626d34fbd5",
-        "size": 538983
+        "sha256": "e711b554a176bd1c34eaeb48c9ff97ec03597f6ca93a37e965924cc6ac9995d4",
+        "size": 539344
       },
       {
         "path": "log.md",
-        "sha256": "c004d755f7b641fd7b34c50bfc5544f8ebc89d5f41ca6c3505da46c697eef437",
-        "size": 1002123
+        "sha256": "17e78b0e1a7c577048aba18f73eca13518d019bcfba919a4026865a20c97e7d7",
+        "size": 1002496
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3298,6 +3298,11 @@
         "path": "pages/concepts/licensing-module-design-considerations.md",
         "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
         "size": 7170
+      },
+      {
+        "path": "pages/concepts/licensing-use-cases.md",
+        "sha256": "6b0b7369cc841da0e6f506121e67653140c5eeba5ca303f6148d8afb651acf5d",
+        "size": 8878
       },
       {
         "path": "pages/concepts/litepaper.md",
@@ -5534,8 +5539,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-09T23:37:38Z",
-  "file_count": 1105,
+  "exported_at": "2026-05-10T00:09:19Z",
+  "file_count": 1106,
   "files": [
     {
       "path": ".curator_state",
@@ -8457,7 +8462,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "8ed0b23ac07b768dff61cf6d5ae02001b690bdfb3d38b8d86c9fcea0e4246f01",
+  "previous_tree_hash": "d8e6ca836e9cb3ce5d311d22efe58c2b4c66c46247eade811ba90d7b3309405e",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8470,14 +8475,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d8e6ca836e9cb3ce5d311d22efe58c2b4c66c46247eade811ba90d7b3309405e",
+  "tree_hash": "e12f9edebf192f01ab4cafe678020e669c5d2462e11b6f9c2c69b295c513760d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 522,
+  "wiki_file_count": 523,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8486,13 +8491,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3bc2079a506de46db38653707312f853f8b1a680b5ad3d72ec37a8626d34fbd5",
-      "size": 538983
+      "sha256": "e711b554a176bd1c34eaeb48c9ff97ec03597f6ca93a37e965924cc6ac9995d4",
+      "size": 539344
     },
     {
       "path": "log.md",
-      "sha256": "c004d755f7b641fd7b34c50bfc5544f8ebc89d5f41ca6c3505da46c697eef437",
-      "size": 1002123
+      "sha256": "17e78b0e1a7c577048aba18f73eca13518d019bcfba919a4026865a20c97e7d7",
+      "size": 1002496
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8858,6 +8863,11 @@
       "path": "pages/concepts/licensing-module-design-considerations.md",
       "sha256": "e7509da2eec2799702e55a6d1dba6d1a0909b939660b6521eabff7ce346a301a",
       "size": 7170
+    },
+    {
+      "path": "pages/concepts/licensing-use-cases.md",
+      "sha256": "6b0b7369cc841da0e6f506121e67653140c5eeba5ca303f6148d8afb651acf5d",
+      "size": 8878
     },
     {
       "path": "pages/concepts/litepaper.md",
@@ -11091,5 +11101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a1a5a22d45878636eae9bd7217e3b65b5e4ec00d896591017dab38b4444b2e37"
+  "wiki_tree_hash": "5622a5ae2243c1d40ac605bcbb76e3582c3831fe6642b39b66f6aa796ad31dea"
 }
