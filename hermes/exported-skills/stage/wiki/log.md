@@ -21378,3 +21378,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_526b61914c6f44364abe2b29c0e6cddf
 - summary: Step-by-step guide to set up a single-node private Story L1 network on macOS, including execution client (geth) and consensus client (iliad) configuration, genesis initialization, ...
 
+## [2026-05-10T12:19:51Z] synthesis | Upgrade Tutorial: Geth (0.9.2 → 0.9.3)
+
+- status: published
+- slug: runbooks/upgrade-geth-0-9-2-to-0-9-3
+- wiki_revision_id: wikirev_c940614535700c4155a90b68adb0c756
+- summary: How to migrate from geth v0.9.2 with manual configuration to v0.9.3 using the baked-in --iliad network flag, and how to define custom network flags.
+
