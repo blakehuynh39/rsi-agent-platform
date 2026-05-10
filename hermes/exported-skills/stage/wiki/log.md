@@ -21455,3 +21455,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_18a6ade94253ed450d8f8b9a00acdbb1
 - summary: A three-phase strategy to accelerate product velocity and build toward a larger platform outcome: Phase 1 launches first-party apps for validation, Phase 2 productizes shared infra...
 
+## [2026-05-10T19:49:16Z] synthesis | Story NFT Contract Design
+
+- status: published
+- slug: systems/story-nft-contract-design
+- wiki_revision_id: wikirev_4ca159a412b3d8119bb2686b47150c69
+- summary: Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, ...
+

@@ -4,14 +4,12 @@ type: "system"
 slug: "systems/story-nft-contract-design"
 freshness: "2024-10-01T23:19:00Z"
 tags:
-  - "badge"
-  - "contract"
-  - "factory"
-  - "ipa"
+  - "badge-ipa"
+  - "factory-pattern"
   - "nft"
-  - "template"
-owners:
-  - "Story Protocol Admin"
+  - "soulbound"
+  - "template-pattern"
+owners: []
 source_revision_ids:
   - "srcrev_ca51d169fee004c433e3a050489ca555"
 conflict_state: "none"
@@ -21,7 +19,7 @@ conflict_state: "none"
 
 ## Summary
 
-Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, Organization, and Badge levels, and outlines use cases for admins, partners, and end users.
+Design for the Story NFT Contract system, which uses Factory and Template patterns to allow ecosystem partners to deploy NFT contracts. It defines a Badge IPA structure with Root, Organization, and Badge levels, and includes governance controls for whitelisting partners and templates.
 
 ## Claims
 
@@ -42,6 +40,6 @@ Design for the Story NFT Contract system, which uses Factory and Template patter
 
 ## Sources
 
-- `source_document_id`: `srcdoc_e43861b48ace4141a4925884f1da5b1f`
-- `source_revision_id`: `srcrev_ca51d169fee004c433e3a050489ca555`
-- `source_url`: [Notion source](https://www.notion.so/Story-NFT-Contract-Design-112051299a5480bda8dcc696867619ce)
+- `source_document_id`: `srcdoc_2761be1cf08e0b9eb7f5f8ef64a61321`
+- `source_revision_id`: `srcrev_38efc984c2234e69b32a2285af744858`
+- `source_url`: [Notion source](https://www.notion.so/NFT-Contract-Design-e0f0a7796614448aaf3971a87068c316)
