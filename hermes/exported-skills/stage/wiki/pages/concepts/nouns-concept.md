@@ -3,9 +3,7 @@ title: "Nouns (Concept)"
 type: "concept"
 slug: "concepts/nouns-concept"
 freshness: "2024-02-06T20:13:00Z"
-tags:
-  - "data-model"
-  - "protocol"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_481d0cf7269b9e4f61d036f65d522e63"
@@ -25,11 +23,11 @@ Nouns are data models to index from the protocol.
 
 ## Related Pages
 
-- `platform-beta-plan`
-- `verbs-concept`
+- `concepts/verbs-concept`
+- `projects/platform-beta-plan`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_1e6ff663e5a656e2c6921bda9b4522b2`
-- `source_revision_id`: `srcrev_481d0cf7269b9e4f61d036f65d522e63`
-- `source_url`: [Notion source](https://www.notion.so/Platform-Beta-Plan-6793c22e84154b109a4546863f8da497)
+- `source_document_id`: `srcdoc_72d2072a4882f244a7a1ef8722d816b2`
+- `source_revision_id`: `srcrev_d833c6237da2dcbc8d96aef71de78d31`
+- `source_url`: [Notion source](https://www.notion.so/Nouns-f81f591ef165417783cd25de52e62fdb)

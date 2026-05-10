@@ -3,11 +3,7 @@ title: "NFT Standard Design"
 type: "project"
 slug: "projects/nft-standard-design"
 freshness: "2022-11-02T18:31:00Z"
-tags:
-  - "community"
-  - "erc"
-  - "nft"
-  - "standard"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_d39484ced34506a3b659b13b0e209e13"
@@ -23,6 +19,8 @@ Designing a community NFT standard with features like dynamic on-chain images, s
 ## Claims
 
 - Write a Token Standard Proposal, based on the Interface defined in the membership pass `claim:claim_1_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
+- If you mint a membership pass as an SBT, the mint price is X% of the original price. `claim:claim_1_10` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
 - Submit the proposal to Ethereum Forum for discussion `claim:claim_1_2` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
@@ -40,11 +38,9 @@ Designing a community NFT standard with features like dynamic on-chain images, s
   - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
 - Support for staggered or scheduled minting (like Nouns) `claim:claim_1_9` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
-- If you mint a membership pass as an SBT, the mint price is X% of the original price. `claim:claim_1_10` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c) `source_document_id=srcdoc_cdbaa8c53d3e9347b18a39fc8b389806` `source_revision_id=srcrev_d39484ced34506a3b659b13b0e209e13` `chunk_id=srcchunk_a8a1ae0d158357666c8c9872ffe3bbf0` `native_locator=https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c` `source_timestamp=2022-11-02T18:31:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_cdbaa8c53d3e9347b18a39fc8b389806`
-- `source_revision_id`: `srcrev_d39484ced34506a3b659b13b0e209e13`
-- `source_url`: [Notion source](https://www.notion.so/NFT-Standard-Design-f385d9ca4da64bcd91c05d221698dd3c)
+- `source_document_id`: `srcdoc_72d2072a4882f244a7a1ef8722d816b2`
+- `source_revision_id`: `srcrev_d833c6237da2dcbc8d96aef71de78d31`
+- `source_url`: [Notion source](https://www.notion.so/Nouns-f81f591ef165417783cd25de52e62fdb)

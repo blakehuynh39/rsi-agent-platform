@@ -3,11 +3,7 @@ title: "Nouns (Policy \u0026 Licensing)"
 type: "concept"
 slug: "concepts/nouns-policy-licensing"
 freshness: "2024-02-05T22:07:00Z"
-tags:
-  - "licensing"
-  - "nouns"
-  - "policy"
-  - "sdk"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_843f360d27e19ae4ee33d433050373ef"
@@ -35,10 +31,11 @@ Details on Nouns (Policy & Licensing) including License, Policy, and Policy Fram
 
 ## Related Pages
 
+- `concepts/nouns-concept`
 - `projects/platform-beta-plan`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_83d830443ef449e244d5ad2033ad4b6e`
-- `source_revision_id`: `srcrev_843f360d27e19ae4ee33d433050373ef`
-- `source_url`: [Notion source](https://www.notion.so/Nouns-Policy-Licensing-86acbd303d254ecb902197e8e04d4db4)
+- `source_document_id`: `srcdoc_72d2072a4882f244a7a1ef8722d816b2`
+- `source_revision_id`: `srcrev_d833c6237da2dcbc8d96aef71de78d31`
+- `source_url`: [Notion source](https://www.notion.so/Nouns-f81f591ef165417783cd25de52e62fdb)
