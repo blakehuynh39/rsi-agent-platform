@@ -21126,3 +21126,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_58a0bd8cda96aa20e891ab4d6010fc6d
 - summary: Project to integrate Story Protocol with Magma for ETHDenver 2024, involving API integration, Arweave metadata fetching, Polygon migration, and licensing.
 
+## [2026-05-10T01:31:30Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_f6d034b87812d66be30416692ee0bce0
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+

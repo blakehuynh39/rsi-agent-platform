@@ -24,7 +24,7 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 - The Protocol home space focuses on story protocol design discussion, roadmap update, and project progress. `claim:claim_1_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602) `source_document_id=srcdoc_c488befa122d527eb94de9083733106f` `source_revision_id=srcrev_b030cac74edef93c3f0178177b9c347f` `chunk_id=srcchunk_6578c66db445838cc7447b48d80206a7` `native_locator=https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602` `source_timestamp=2025-04-03T18:52:00Z`
-- The Protocol home page includes sections for Design/Roadmap and Resources. `claim:claim_1_2` `confidence:1.00`
+- The Protocol Home page includes sections for Design/Roadmap and Resources. `claim:claim_1_2` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602) `source_document_id=srcdoc_c488befa122d527eb94de9083733106f` `source_revision_id=srcrev_b030cac74edef93c3f0178177b9c347f` `chunk_id=srcchunk_6578c66db445838cc7447b48d80206a7` `native_locator=https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602` `source_timestamp=2025-04-03T18:52:00Z`
 - Design/Roadmap section links to pages including Ways of Describing Protocol, Infrastructure Tradeoffs, Early Thoughts on Protocol Roadmap, Open Questions for Protocol, Ecosystem Thoughts, Protocol R&D Update, Protocol and Ecosystem Scrum Notes, Beta Protocol Tracker, Beta 1st Week Architectural Review, IP Metadata, Frontend / Periphery Contracts, Registration Module, Beta Protocol Interface, and Access Control. `claim:claim_1_3` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602) `source_document_id=srcdoc_c488befa122d527eb94de9083733106f` `source_revision_id=srcrev_b030cac74edef93c3f0178177b9c347f` `chunk_id=srcchunk_6578c66db445838cc7447b48d80206a7` `native_locator=https://www.notion.so/Protocol-To-be-moved-to-Eng-1f09c96d6b9d4b7d8bc75e2562acf602` `source_timestamp=2025-04-03T18:52:00Z`
@@ -35,10 +35,10 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `concepts/infrastructure-tradeoffs`
+- `concepts/smart-contract-data-model-and-modules`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_564f2c346b555e518859caee696b1a1f`
-- `source_revision_id`: `srcrev_bdb692eea0bee39414df2dcad969548c`
-- `source_url`: [Notion source](https://www.notion.so/Infrastructure-Tradeoffs-87f1d103c2c6489f9710b48df847c3ab)
+- `source_document_id`: `srcdoc_170cb99a7332268f2db0b04c9b3f10d7`
+- `source_revision_id`: `srcrev_a55b9a3c5887a839f59af29f52b5bed6`
+- `source_url`: [Notion source](https://www.notion.so/Smart-Contract-Data-Model-and-Modules-24cd251e4db241d8840e5c9e2e53465e)

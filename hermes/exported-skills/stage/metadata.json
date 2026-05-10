@@ -2931,8 +2931,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b18b1798d0bec7ffaa1e3c6cf2104f610d2c7b313eb3aa7804e5331d5f326fe1",
-        "size": 1005619
+        "sha256": "3fb23b362bcbdfbf4865f0126c3e06129e0ba5b5b599306e87ed76974ed9cf1a",
+        "size": 1005974
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3476,8 +3476,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "d75b63da1da4735f99d07204acc32d40f9fdd60f6bfc31b1ec305bd9438e562e",
-        "size": 3849
+        "sha256": "c9fd313ac360014f86cd9d05e0d04970408e39cbc97cf4ed7018310710f15b54",
+        "size": 3875
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -5559,7 +5559,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T01:26:18Z",
+  "exported_at": "2026-05-10T01:32:34Z",
   "file_count": 1110,
   "files": [
     {
@@ -8482,7 +8482,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-f466b9vv8l6",
-  "previous_tree_hash": "32de73dd109950a0af51c86f19d8075aa3858a6fdf30117bdaa492c41521da76",
+  "previous_tree_hash": "2fb5460034db6f7673d71a358a2c5fcbed3ea7ca45fc6d98867f683faeb74455",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8495,7 +8495,7 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2fb5460034db6f7673d71a358a2c5fcbed3ea7ca45fc6d98867f683faeb74455",
+  "tree_hash": "8fdabf17ca3a8cc6aab610c716263865927f6bf5efb4d73de317790542b8b76e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8516,8 +8516,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b18b1798d0bec7ffaa1e3c6cf2104f610d2c7b313eb3aa7804e5331d5f326fe1",
-      "size": 1005619
+      "sha256": "3fb23b362bcbdfbf4865f0126c3e06129e0ba5b5b599306e87ed76974ed9cf1a",
+      "size": 1005974
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9061,8 +9061,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "d75b63da1da4735f99d07204acc32d40f9fdd60f6bfc31b1ec305bd9438e562e",
-      "size": 3849
+      "sha256": "c9fd313ac360014f86cd9d05e0d04970408e39cbc97cf4ed7018310710f15b54",
+      "size": 3875
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -11141,5 +11141,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "49f169790dbe40c449d3c52e8fe92c76076677788bee95e2652a50d4c2ef542e"
+  "wiki_tree_hash": "39563a886ee48869c703fbf2dfbeebb48e4356b21b2edff300c0a89f0f8c4e67"
 }
