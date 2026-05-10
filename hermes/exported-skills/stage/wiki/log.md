@@ -21469,3 +21469,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c413bc4d951f495d54801d907403de54
 - summary: Proof of Liquidity (PoL) is a consensus mechanism used by Berachain that rewards liquidity provision rather than staking. It presents centralization risks and exposes validators to...
 
+## [2026-05-10T20:05:05Z] synthesis | Claim Backend Runbook
+
+- status: published
+- slug: runbooks/claim-backend-runbook
+- wiki_revision_id: wikirev_1884757dffa7743eba647ccea74fca66
+- summary: Runbook for extending and deploying the airdrop claim backend system, including GCP instance creation, configuration, and Ansible deployment steps.
+
