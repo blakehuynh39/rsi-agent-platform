@@ -31,6 +31,64 @@ For language-related counts, be precise about semantics. `/v1/admin/cohorts/lang
 
 For per-transcript distribution queries (e.g., "how many unique users submitted to each Vietnamese script"), see `references/vi-transcript-queries.md` for the full join pattern, histogram query, and cross-validation technique. For per-campaign multi-language transcript distribution queries, the same file now includes Query 4 (per-campaign histogram) which generalizes the pattern to all active campaigns.
 
+## Country Attribution
+
+When the user asks for breakdowns by country (nationality, geographic distribution), there are two data sources with different trust models:
+
+### Self-Reported (`users.nationality`)
+
+The `users.nationality` column stores whatever the user declared at signup. It is available for all users (0 NULLs observed), but **can be tricked** — users may claim a different country via VPN, proxy, or outright false declaration. Use this for broad-stroke analysis where coverage matters more than precision.
+
+### Castle IP Country (`castle_risk_events.ip_country_code`)
+
+Castle's risk events capture the user's IP-based country at event time. This is harder to spoof and should be **preferred** when the user asks for country data that can't be gamed. However, Castle data only exists for users who triggered a risk event — coverage is ~9,400 users (vs 298K total submissions). For users without Castle events, fall back to self-reported nationality.
+
+**Preferred query pattern** (Castle IP first, self-reported fallback):
+
+```sql
+WITH user_castle_country AS (
+  SELECT DISTINCT ON (user_id) user_id, ip_country_code AS castle_country
+  FROM castle_risk_events
+  WHERE ip_country_code IS NOT NULL AND ip_country_code != ''
+  ORDER BY user_id, created_at DESC
+),
+submission_country AS (
+  SELECT s.id, s.campaign_id, s.user_id,
+    COALESCE(uc.castle_country, u.nationality, 'UNKNOWN') AS effective_country,
+    CASE WHEN uc.castle_country IS NOT NULL THEN 'castle'
+         WHEN u.nationality IS NOT NULL THEN 'self_reported'
+         ELSE 'unknown' END AS country_source
+  FROM submissions s
+  JOIN users u ON s.user_id = u.id
+  LEFT JOIN user_castle_country uc ON u.id = uc.user_id
+)
+SELECT campaign_id, effective_country AS country,
+       count(*) AS submission_count,
+       count(DISTINCT user_id) AS unique_users
+FROM submission_country
+GROUP BY campaign_id, effective_country
+ORDER BY campaign_id, submission_count DESC;
+```
+
+**Key findings (2026-05-08)**:
+- Castle coverage: 9,424 users; 90.2% match self-reported, 5.8% mismatch, 3.9% had NULL self-reported
+- Top mismatch patterns: VN IPs claiming UK (50 users), US IPs claiming VN (47), NL IPs claiming NG (14)
+- Biggest impact: Tamil campaign — US goes from 1.8% (self-reported) to 11.2% (Castle IP), revealing ~3,600 submissions from US IPs that claimed other nationalities
+- Nigeria: 819 unique Castle IP users vs only 219 self-reported — ~600 users with Nigerian IPs hiding their origin
+- New countries emerge through Castle: Japan, Saudi Arabia, Kyrgyzstan, Lithuania, Serbia
+
+**`submission_quality_country_daily.castle_ip_country_code` is UNUSABLE.** All values in production are `'UNKNOWN'` — this field is not populated. The only viable Castle IP source is `castle_risk_events`.
+
+### Two Dimensions: Submission Count ≠ Unique Users
+
+When the user asks about "submissions from Country X," always consider both dimensions:
+- **Submission count**: raw volume (sensitive to farming — one user submitting 100+ times)
+- **Unique user count**: distinct participants (better signal for genuine adoption)
+
+These can diverge dramatically. Nigeria has only 755 submissions (rank ~#16) but 219 unique self-reported users (rank #4 globally). Conversely, Poland has 2,589 submissions (rank #6) but only 25 unique users (103.6 subs/user — farming pattern). Present both when they diverge significantly.
+
+Full reference queries and case studies: `references/country-breakdown-queries.md`.
+
 ## Native DB Read Rules
 
 - Use `db_read.sources` to list available DB targets.
