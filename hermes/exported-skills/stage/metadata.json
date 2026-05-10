@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3e3969e293ca737e8e49e202e7e68fe73f7a772924af244feb60b52e04ed1b84",
-        "size": 545796
+        "sha256": "7326ec484a94302329f58576cc5126be0613bcdb07bb868e21bad5768f6c829e",
+        "size": 547948
       },
       {
         "path": "log.md",
-        "sha256": "b5fcfcd5b5db88ae1a5adf05a79dc33f2dbdcd91394764f5fccf2a42c813cce3",
-        "size": 1012294
+        "sha256": "3d93faae780b6bc044a2140113f2a126e96d6ca3c65a10aef6507b1ac5819ae0",
+        "size": 1014542
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3825,6 +3825,21 @@
         "size": 5521
       },
       {
+        "path": "pages/decisions/l1-network-reset-aug-25.md",
+        "sha256": "a4336509ea22983943f2f43c5b462fd6aa8034a0344848642b1136004661ece7",
+        "size": 1819
+      },
+      {
+        "path": "pages/decisions/l1-precompile-acl-change-aug-25.md",
+        "sha256": "5a01d3b7a9507533d6b4fc6884a5bac456b90a17b0f94dc6a43a2d4606dcc84e",
+        "size": 1173
+      },
+      {
+        "path": "pages/decisions/l1-rpc-archive-mode-aug-25.md",
+        "sha256": "8200c86c09afa1c29983f9eddda2b28c73db34b608de139ce4537f259fc42677",
+        "size": 1181
+      },
+      {
         "path": "pages/decisions/l1-tech-framework-evaluation.md",
         "sha256": "5e64be37b478907637d16d7e833c86691928bc0db04a30b5b96ef0fe406f681c",
         "size": 8188
@@ -4555,14 +4570,39 @@
         "size": 5029
       },
       {
+        "path": "pages/projects/l1-operation-review-aug-25.md",
+        "sha256": "3a3d37e8d9fa4c79a41867c3fda8c22647178d9f545786a34ccf094db358e480",
+        "size": 1124
+      },
+      {
         "path": "pages/projects/l1-research-bootcamp.md",
         "sha256": "453fafd8766ba93313e005fb5ac1493ae8eb569f496fede9e875d3cd9df667fd",
         "size": 4717
       },
       {
+        "path": "pages/projects/l1-staking-api-aug-25.md",
+        "sha256": "ebb354fb186725f5fd36ce7170d43a117392249c11a9a52eb79f516ebf3b4e7b",
+        "size": 2753
+      },
+      {
+        "path": "pages/projects/l1-staking-slash-contract-bugs-aug-25.md",
+        "sha256": "6829777617830acdab22864e961ba95eeae812f74ec76e8cf0374bae2854449b",
+        "size": 1225
+      },
+      {
         "path": "pages/projects/l1-test-plan.md",
         "sha256": "02a22fa6e4961c696870b5d152e5adbc307929e2c883719ef592155976933cde",
         "size": 6324
+      },
+      {
+        "path": "pages/projects/l1-unjail-issue-check-aug-25.md",
+        "sha256": "5ec34adca166579441177b7900fec43ad630c6d79d1ce40981c6f1fc91f06325",
+        "size": 1130
+      },
+      {
+        "path": "pages/projects/l1-wss-problem-testing-aug-25.md",
+        "sha256": "b608bf359166adf3182a38dc7b106352fb6cd8eb30f16d57479958b188b552f0",
+        "size": 1157
       },
       {
         "path": "pages/projects/l2-analytics-tool-research.md",
@@ -5634,8 +5674,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T08:37:31Z",
-  "file_count": 1125,
+  "exported_at": "2026-05-10T09:09:00Z",
+  "file_count": 1133,
   "files": [
     {
       "path": ".curator_state",
@@ -8557,7 +8597,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "5c0251db8515dec41a6af1595fd8d47b20a82164f605504859be73951d60ee79",
+  "previous_tree_hash": "debb9d91a07454a8f3fcd344286daeb817f34ee8ac82d15ce4bd9c9a45c72689",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8570,14 +8610,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "debb9d91a07454a8f3fcd344286daeb817f34ee8ac82d15ce4bd9c9a45c72689",
+  "tree_hash": "b229809cde2cee1e938f6d1542b0388c498028e4cf270660132f7e15b66f1202",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 542,
+  "wiki_file_count": 550,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8586,13 +8626,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3e3969e293ca737e8e49e202e7e68fe73f7a772924af244feb60b52e04ed1b84",
-      "size": 545796
+      "sha256": "7326ec484a94302329f58576cc5126be0613bcdb07bb868e21bad5768f6c829e",
+      "size": 547948
     },
     {
       "path": "log.md",
-      "sha256": "b5fcfcd5b5db88ae1a5adf05a79dc33f2dbdcd91394764f5fccf2a42c813cce3",
-      "size": 1012294
+      "sha256": "3d93faae780b6bc044a2140113f2a126e96d6ca3c65a10aef6507b1ac5819ae0",
+      "size": 1014542
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9485,6 +9525,21 @@
       "size": 5521
     },
     {
+      "path": "pages/decisions/l1-network-reset-aug-25.md",
+      "sha256": "a4336509ea22983943f2f43c5b462fd6aa8034a0344848642b1136004661ece7",
+      "size": 1819
+    },
+    {
+      "path": "pages/decisions/l1-precompile-acl-change-aug-25.md",
+      "sha256": "5a01d3b7a9507533d6b4fc6884a5bac456b90a17b0f94dc6a43a2d4606dcc84e",
+      "size": 1173
+    },
+    {
+      "path": "pages/decisions/l1-rpc-archive-mode-aug-25.md",
+      "sha256": "8200c86c09afa1c29983f9eddda2b28c73db34b608de139ce4537f259fc42677",
+      "size": 1181
+    },
+    {
       "path": "pages/decisions/l1-tech-framework-evaluation.md",
       "sha256": "5e64be37b478907637d16d7e833c86691928bc0db04a30b5b96ef0fe406f681c",
       "size": 8188
@@ -10215,14 +10270,39 @@
       "size": 5029
     },
     {
+      "path": "pages/projects/l1-operation-review-aug-25.md",
+      "sha256": "3a3d37e8d9fa4c79a41867c3fda8c22647178d9f545786a34ccf094db358e480",
+      "size": 1124
+    },
+    {
       "path": "pages/projects/l1-research-bootcamp.md",
       "sha256": "453fafd8766ba93313e005fb5ac1493ae8eb569f496fede9e875d3cd9df667fd",
       "size": 4717
     },
     {
+      "path": "pages/projects/l1-staking-api-aug-25.md",
+      "sha256": "ebb354fb186725f5fd36ce7170d43a117392249c11a9a52eb79f516ebf3b4e7b",
+      "size": 2753
+    },
+    {
+      "path": "pages/projects/l1-staking-slash-contract-bugs-aug-25.md",
+      "sha256": "6829777617830acdab22864e961ba95eeae812f74ec76e8cf0374bae2854449b",
+      "size": 1225
+    },
+    {
       "path": "pages/projects/l1-test-plan.md",
       "sha256": "02a22fa6e4961c696870b5d152e5adbc307929e2c883719ef592155976933cde",
       "size": 6324
+    },
+    {
+      "path": "pages/projects/l1-unjail-issue-check-aug-25.md",
+      "sha256": "5ec34adca166579441177b7900fec43ad630c6d79d1ce40981c6f1fc91f06325",
+      "size": 1130
+    },
+    {
+      "path": "pages/projects/l1-wss-problem-testing-aug-25.md",
+      "sha256": "b608bf359166adf3182a38dc7b106352fb6cd8eb30f16d57479958b188b552f0",
+      "size": 1157
     },
     {
       "path": "pages/projects/l2-analytics-tool-research.md",
@@ -11291,5 +11371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "85ccbd16a247b3af74e2b5d90bb03602f1d04fb76d1a614d8198544874a62405"
+  "wiki_tree_hash": "5bfcc8f7274ea98bffd1b13f55991fbc184a43f2d952291ed63bd36a1a3e1f0e"
 }

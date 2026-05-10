@@ -21259,3 +21259,59 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ab817f544d7e6260b8626b6e6bc373b2
 - summary: The team is in the process of finalizing the rollout and timeline for non-audio tasks. Details are not yet specified in the available source.
 
+## [2026-05-10T09:04:15Z] synthesis | L1 Network Reset (Aug 25)
+
+- status: published
+- slug: decisions/l1-network-reset-aug-25
+- wiki_revision_id: wikirev_ef7f6203141e50a6ea21b477ce01c665
+- summary: Decision to reset the L1 network with a new bootnode IP and DNS, requiring validator configuration changes.
+
+## [2026-05-10T09:04:15Z] synthesis | L1 Staking API Tasks (Aug 25)
+
+- status: published
+- slug: projects/l1-staking-api-aug-25
+- wiki_revision_id: wikirev_dc14e9106a9a75c69c39239f694bfc6c
+- summary: Action items for the staking API, including raising the reader count, setting up monitoring, and configuring SSH and node exporter.
+
+## [2026-05-10T09:04:15Z] synthesis | L1 RPC Archive Mode PR Merge (Aug 25)
+
+- status: published
+- slug: decisions/l1-rpc-archive-mode-aug-25
+- wiki_revision_id: wikirev_b44b9284288960d1129e0427b4114a18
+- summary: Decision to merge the RPC archive mode pull request.
+
+## [2026-05-10T09:04:16Z] synthesis | L1 WSS Problem Testing (Aug 25)
+
+- status: published
+- slug: projects/l1-wss-problem-testing-aug-25
+- wiki_revision_id: wikirev_9dc271245dab3f2ca855a47c2f2a2a7d
+- summary: Action item to test the WSS (WebSocket Secure) problem.
+
+## [2026-05-10T09:04:16Z] synthesis | L1 Precompile ACL Change (Aug 25)
+
+- status: published
+- slug: decisions/l1-precompile-acl-change-aug-25
+- wiki_revision_id: wikirev_0f915593c46528b60373a6c9818bf738
+- summary: Action item to change the precompile Access Control List (ACL).
+
+## [2026-05-10T09:04:16Z] synthesis | L1 Operation Review (Aug 25)
+
+- status: published
+- slug: projects/l1-operation-review-aug-25
+- wiki_revision_id: wikirev_f107ebb3f165bf457f877548772d69f8
+- summary: Action item to conduct an operation review.
+
+## [2026-05-10T09:04:16Z] synthesis | L1 Unjail Issue Check (Aug 25)
+
+- status: published
+- slug: projects/l1-unjail-issue-check-aug-25
+- wiki_revision_id: wikirev_0ef2ce57a97ae8958723c6766c54f0e7
+- summary: Action item to check the unjail issue.
+
+## [2026-05-10T09:04:16Z] synthesis | L1 Staking/Slash Contract Bug Fixes (Aug 25)
+
+- status: published
+- slug: projects/l1-staking-slash-contract-bugs-aug-25
+- wiki_revision_id: wikirev_75c00366dc7db24c2d6040a586521349
+- summary: Action item to fix bugs on the staking/slash contract restart.
+
