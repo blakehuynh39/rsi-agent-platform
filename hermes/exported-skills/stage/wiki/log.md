@@ -21245,3 +21245,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_59126ea66712b1173a3b60e0f3bf751a
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
 
+## [2026-05-10T08:30:59Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_2592921e8f011e8e9a538083292a2f39
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+
+## [2026-05-10T08:31:25Z] synthesis | Finalize on non-audio tasks rollout and timeline
+
+- status: published
+- slug: decisions/finalize-non-audio-tasks-rollout-timeline
+- wiki_revision_id: wikirev_ab817f544d7e6260b8626b6e6bc373b2
+- summary: The team is in the process of finalizing the rollout and timeline for non-audio tasks. Details are not yet specified in the available source.
+
