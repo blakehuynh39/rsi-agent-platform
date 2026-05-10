@@ -2926,13 +2926,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "92ef650b04e1a1978bf8afbce0606d1e62c14efc641c673df64fc8d1726eba73",
-        "size": 552112
+        "sha256": "3982170226a8bf8c31d9393045b53c6049e65e4cacf80529fe79d5127575c9f6",
+        "size": 552518
       },
       {
         "path": "log.md",
-        "sha256": "c78d264e56b9b12e51f82df3383f9d37796d66a5a2e4726b4595b4eb5d859fc0",
-        "size": 1021279
+        "sha256": "6c36321cde141e3acf42a7df885078831837bd8abdbe7845bc02e1342a1aabb4",
+        "size": 1021697
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3953,6 +3953,11 @@
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
+      },
+      {
+        "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
+        "sha256": "4a04e67d043e686c3eeaec14410e9b0666e9526f5d1aa5394d49cefeb9157526",
+        "size": 8964
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -5734,8 +5739,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T17:53:49Z",
-  "file_count": 1145,
+  "exported_at": "2026-05-10T18:25:16Z",
+  "file_count": 1146,
   "files": [
     {
       "path": ".curator_state",
@@ -8657,7 +8662,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-59d958lwgxb",
-  "previous_tree_hash": "9a84b741cd0809d4ca2553ca66dc2a121d9af9b165b90825d31d8dcd107729d5",
+  "previous_tree_hash": "6d23dca8894f64a3a77865e103c4d73a2edd0f6b2d47759692ef0a9cd5afb9ed",
   "schema_version": 1,
   "skill_file_count": 583,
   "skill_manage_sessions": [
@@ -8670,14 +8675,14 @@
   ],
   "skill_tree_hash": "d76f0e87cc2139a5e807eeedba1110ee58da8daa2b38fe8e7b71cc3d155bae77",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6d23dca8894f64a3a77865e103c4d73a2edd0f6b2d47759692ef0a9cd5afb9ed",
+  "tree_hash": "34974e6db6a1de69ec56e9443db834f0d51086b491221a629973e2067343a784",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 562,
+  "wiki_file_count": 563,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8686,13 +8691,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "92ef650b04e1a1978bf8afbce0606d1e62c14efc641c673df64fc8d1726eba73",
-      "size": 552112
+      "sha256": "3982170226a8bf8c31d9393045b53c6049e65e4cacf80529fe79d5127575c9f6",
+      "size": 552518
     },
     {
       "path": "log.md",
-      "sha256": "c78d264e56b9b12e51f82df3383f9d37796d66a5a2e4726b4595b4eb5d859fc0",
-      "size": 1021279
+      "sha256": "6c36321cde141e3acf42a7df885078831837bd8abdbe7845bc02e1342a1aabb4",
+      "size": 1021697
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9713,6 +9718,11 @@
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
+    },
+    {
+      "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
+      "sha256": "4a04e67d043e686c3eeaec14410e9b0666e9526f5d1aa5394d49cefeb9157526",
+      "size": 8964
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -11491,5 +11501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "288bffe0b30fa427173cadcda144e64318f8e34ceb01c79b01a7c6f747dcffe8"
+  "wiki_tree_hash": "1e5bf31a463f5a0d6307b4ca871ad658748463be6c10ce397617d8e2ee5fc44e"
 }
