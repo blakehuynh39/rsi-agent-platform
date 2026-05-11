@@ -21963,3 +21963,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_78132987ed5c3ab4e5776d2f13fa3070
 - summary: Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashi...
 
+## [2026-05-11T21:35:53Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_10ddd7d2f0c8926ba9fa174f29f5105a
+- summary: The Lion Team is a group with members, initiatives tracked in a Milestones database, and tasks managed via GitHub project #4. It includes the Internal Agentic Initiative.
+
+## [2026-05-11T21:35:53Z] synthesis | Internal Agentic Initiative
+
+- status: published
+- slug: projects/internal-agentic-initiative
+- wiki_revision_id: wikirev_7fa1c2e675823e229e205d61a1ab113e
+- summary: An initiative under the Lion Team, focused on AI-native company proposals and current agentic efforts including AI Agent Factory, Security Bot, Web3 AI Auditor, Pentesting Tool, an...
+

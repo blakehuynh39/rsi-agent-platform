@@ -34,5 +34,5 @@ The Lion Team is a group with members, initiatives tracked in a Milestones datab
 ## Sources
 
 - `source_document_id`: `srcdoc_6e51ed65cd3d5fc9a6e910a8f70ad61c`
-- `source_revision_id`: `srcrev_10c6fa12c031de81f1dfbdb3441e31e2`
+- `source_revision_id`: `srcrev_9c5e09b5acd3c87b0439ad3da5ad49b7`
 - `source_url`: [Notion source](https://www.notion.so/Internal-Agentic-Initiative-359051299a54809986fdd6b48194f75e)
