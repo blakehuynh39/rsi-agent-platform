@@ -22012,3 +22012,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7ac36f021971661663a71678aa46c79b
 - summary: Sahara AI provides two core product suites: AI Studio for compute, models, data, and vaults, and a Data Service Platform (DSP) for data labeling and task management.
 
+## [2026-05-11T22:15:21Z] ingest | Slack thread C0AKH5SNGKH 1778537121.468239
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778537121-468239-64244c4f
+- wiki_revision_id: wikirev_1bfe485cb5a72fec306d082f39085964
+- source_document_id: srcdoc_246cbbee55daab3507b98d4364244c4f
+- source_revision_id: srcrev_c30d4ba17bb495ab77d6bf9a29b7925c
+- summary: <@U067QP5PD6J> for the validation results ingestion endpoint `POST internal/numo-data-validation/validation-results`:
+
