@@ -21618,3 +21618,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c231e3fdd6859292333590f305181538
 - summary: Release page for Subnet v0.1.0, including dependency versions, devnet configuration, testing instructions, and specifications.
 
+## [2026-05-11T02:37:25Z] synthesis | Poseidon Subnet Management API
+
+- status: published
+- slug: projects/poseidon-subnet-management-api
+- wiki_revision_id: wikirev_b0cc1ce9c0c210030be23756e7481b67
+- summary: Design and implementation considerations for the Poseidon subnet management API, covering environment configuration, secrets management, database setup, and developer experience en...
+
