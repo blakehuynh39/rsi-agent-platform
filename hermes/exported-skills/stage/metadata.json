@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "52e4727f53feb5e28d924ee9b01a8468f1165871b381889e754c6a7d787c251c",
-        "size": 562431
+        "sha256": "90f19ee1b83e86af622339ec36e7c44c3ac698fcff952a862e673970a934a261",
+        "size": 562729
       },
       {
         "path": "log.md",
-        "sha256": "3ab15ed485af65b1e21fa39a8e0b6deb3768f421fb8022539635017d8e9bb860",
-        "size": 1034433
+        "sha256": "78987860263cad8d2e3aaf060c35ee1b5aac0200068fb3bbef216042bb8678d2",
+        "size": 1034743
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5775,6 +5775,11 @@
         "size": 8518
       },
       {
+        "path": "pages/systems/protocol-v1-0-0-rc-2-indexing.md",
+        "sha256": "c60cd2d0ea75bdfeb802e5375fa10986ac3c80b984ddd15ad988a09d3290d5b1",
+        "size": 3799
+      },
+      {
         "path": "pages/systems/protocol-v1-1-contract-addresses.md",
         "sha256": "25d901a94d50f7679a812a1087ca57a6a7960addbab5e0c7182ad979bc52ae8b",
         "size": 5857
@@ -5889,8 +5894,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T07:56:53Z",
-  "file_count": 1176,
+  "exported_at": "2026-05-11T08:08:19Z",
+  "file_count": 1177,
   "files": [
     {
       "path": ".curator_state",
@@ -8817,7 +8822,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "28d363e4d3131cdc1753e74aa2b8aea435935a7e0a39191481cafd2f4cb51f6f",
+  "previous_tree_hash": "68cad12638524a48ccb8ee36ed0a1b0a141b84b5afff6d0476f1d608fa00c6ef",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8830,14 +8835,14 @@
   ],
   "skill_tree_hash": "36e6d6b6c0711c66861f7debf4717024bbbb78cb328c40e99e2dad3265570787",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "68cad12638524a48ccb8ee36ed0a1b0a141b84b5afff6d0476f1d608fa00c6ef",
+  "tree_hash": "bbc0309c76bd7926ddf9e647096e7dbb2ad12f770f7e751511d755b72aad3111",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 592,
+  "wiki_file_count": 593,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8846,13 +8851,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "52e4727f53feb5e28d924ee9b01a8468f1165871b381889e754c6a7d787c251c",
-      "size": 562431
+      "sha256": "90f19ee1b83e86af622339ec36e7c44c3ac698fcff952a862e673970a934a261",
+      "size": 562729
     },
     {
       "path": "log.md",
-      "sha256": "3ab15ed485af65b1e21fa39a8e0b6deb3768f421fb8022539635017d8e9bb860",
-      "size": 1034433
+      "sha256": "78987860263cad8d2e3aaf060c35ee1b5aac0200068fb3bbef216042bb8678d2",
+      "size": 1034743
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11690,6 +11695,11 @@
       "size": 8518
     },
     {
+      "path": "pages/systems/protocol-v1-0-0-rc-2-indexing.md",
+      "sha256": "c60cd2d0ea75bdfeb802e5375fa10986ac3c80b984ddd15ad988a09d3290d5b1",
+      "size": 3799
+    },
+    {
       "path": "pages/systems/protocol-v1-1-contract-addresses.md",
       "sha256": "25d901a94d50f7679a812a1087ca57a6a7960addbab5e0c7182ad979bc52ae8b",
       "size": 5857
@@ -11801,5 +11811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be7da521beec01f33efcfefbd5f9f0ff7d5a50859e0b4a7398d5a6aabe2a69f9"
+  "wiki_tree_hash": "2180455b48287e17104aa4a96e8dd87ae65f73f092d5e9db3567741948189dbb"
 }

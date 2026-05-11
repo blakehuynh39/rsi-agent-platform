@@ -21716,3 +21716,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8c02efcfd86e8e1aff5f3d8878b52dd2
 - summary: A tracking document for pending and completed protocol design decisions for the RSI mainnet, organized by downstream effect and status.
 
+## [2026-05-11T08:08:00Z] synthesis | Protocol v1.0.0-rc.2 Indexing
+
+- status: published
+- slug: systems/protocol-v1-0-0-rc-2-indexing
+- wiki_revision_id: wikirev_9c6c4931bd27ca196bace3c2f2aedaff
+- summary: Contract addresses and entity schema changes for the Protocol v1.0.0-rc.2 release candidate indexing.
+
