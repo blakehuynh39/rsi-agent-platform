@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a68e3975823935ed014d571bb952bee77faf1f250bafaddc41f59dfed7feb3e6",
-        "size": 1029441
+        "sha256": "c98a63099b0cc64972b5a05acbd884bba06e3e0a5564e87179ddec43a05b3c2c",
+        "size": 1029969
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5071,13 +5071,18 @@
       },
       {
         "path": "pages/projects/subnet-releases.md",
-        "sha256": "75f9f5ea8f45e0b05574a43a2b08ec3ea39c9e6f395709aa6121934dd48835c5",
-        "size": 1551
+        "sha256": "ce401c253280b62a26f9e3411b01a7438066fdd655f6750ec96387ee58c64144",
+        "size": 1617
       },
       {
         "path": "pages/projects/subnet-reliability-and-performance-improvement.md",
         "sha256": "5e205775d26b1a95619386b90a34babbc7720222cdfd9c2fa5675bc2289a74ab",
         "size": 4602
+      },
+      {
+        "path": "pages/projects/subnet-v0-1-0.md",
+        "sha256": "4cdbcaf184646c621479bafe3c20c6b21707cea4af34a9ba0306ee0fb201b43c",
+        "size": 3226
       },
       {
         "path": "pages/projects/testnet-launch-checklist.md",
@@ -5824,8 +5829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T02:25:19Z",
-  "file_count": 1163,
+  "exported_at": "2026-05-11T02:32:46Z",
+  "file_count": 1164,
   "files": [
     {
       "path": ".curator_state",
@@ -8751,8 +8756,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5d7bdczn8pl",
-  "previous_tree_hash": "5cbb937ea0530f8a44f465ffe94d1d8821a0319a8abc3446fe93e110e018e8c2",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fcd92h7wg",
+  "previous_tree_hash": "49974dba3ec01e74f2ee9a9501f46b00aa54248794788f2082691777edb61414",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8765,14 +8770,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "49974dba3ec01e74f2ee9a9501f46b00aa54248794788f2082691777edb61414",
+  "tree_hash": "4744db6ec5d67672a3ac70c5b85238fa38a065744bb63ba58a08396e345eef05",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 579,
+  "wiki_file_count": 580,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8786,8 +8791,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a68e3975823935ed014d571bb952bee77faf1f250bafaddc41f59dfed7feb3e6",
-      "size": 1029441
+      "sha256": "c98a63099b0cc64972b5a05acbd884bba06e3e0a5564e87179ddec43a05b3c2c",
+      "size": 1029969
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10921,13 +10926,18 @@
     },
     {
       "path": "pages/projects/subnet-releases.md",
-      "sha256": "75f9f5ea8f45e0b05574a43a2b08ec3ea39c9e6f395709aa6121934dd48835c5",
-      "size": 1551
+      "sha256": "ce401c253280b62a26f9e3411b01a7438066fdd655f6750ec96387ee58c64144",
+      "size": 1617
     },
     {
       "path": "pages/projects/subnet-reliability-and-performance-improvement.md",
       "sha256": "5e205775d26b1a95619386b90a34babbc7720222cdfd9c2fa5675bc2289a74ab",
       "size": 4602
+    },
+    {
+      "path": "pages/projects/subnet-v0-1-0.md",
+      "sha256": "4cdbcaf184646c621479bafe3c20c6b21707cea4af34a9ba0306ee0fb201b43c",
+      "size": 3226
     },
     {
       "path": "pages/projects/testnet-launch-checklist.md",
@@ -11671,5 +11681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c4fcd02b5c9717a10b23dfb193aabb443c890ffbb0d77734dae7ee6c96f56e71"
+  "wiki_tree_hash": "a687ec1001b85089684ebda8a5d78bfdeb84fa6ee4b0f18dc9baa999a0443cd5"
 }

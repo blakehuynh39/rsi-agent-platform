@@ -21604,3 +21604,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c99e87c9f0f9240b2f912e226ff9dc1e
 - summary: A runbook for testing the Poseidon Subnet Management API, covering quick start, endpoints, and example curl commands.
 
+## [2026-05-11T02:32:16Z] synthesis | Subnet Releases
+
+- status: published
+- slug: projects/subnet-releases
+- wiki_revision_id: wikirev_58952c5d7a25e44e078d1ba78193f602
+- summary: Tracking page for Subnet version releases.
+
+## [2026-05-11T02:32:16Z] synthesis | Subnet v0.1.0
+
+- status: published
+- slug: projects/subnet-v0-1-0
+- wiki_revision_id: wikirev_c231e3fdd6859292333590f305181538
+- summary: Release page for Subnet v0.1.0, including dependency versions, devnet configuration, testing instructions, and specifications.
+
