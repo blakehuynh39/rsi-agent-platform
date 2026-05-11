@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "93cf996e818343220c92669424721316098f0fa49b63be6931d4e17071c038f5",
-        "size": 568071
+        "sha256": "9dd4f3b1670c06371f1b95181de7c6369cd5b80a470a670d3c34e3387ae304ea",
+        "size": 568478
       },
       {
         "path": "log.md",
-        "sha256": "f779e18c0dc8e21d34aad83dfe324a66a597eb9349ef50b29d0dc5fc07e40b30",
-        "size": 1042785
+        "sha256": "926e56c41c770c1ee9b2283d8fea01e6f2b50a961d730c73a3fb780017642e5e",
+        "size": 1043204
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3123,6 +3123,11 @@
         "path": "pages/concepts/eigen-token.md",
         "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
         "size": 3908
+      },
+      {
+        "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
+        "sha256": "2c4ec75a571a1a39b4856a0573bfcb64107fb3f7b6912e4981dfb5ae1b15a809",
+        "size": 11608
       },
       {
         "path": "pages/concepts/enshrined-protocol.md",
@@ -5979,8 +5984,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T18:02:02Z",
-  "file_count": 1194,
+  "exported_at": "2026-05-11T19:40:00Z",
+  "file_count": 1195,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8917,7 +8922,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "ee642960e5992d776baf812600db61ad953a9a1330d7667732a33ad5a91ef223",
+  "previous_tree_hash": "394616d140db47ff0daa3ecd95e46bb9eb4c5da171da8822941ec2fcac992527",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8930,14 +8935,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "394616d140db47ff0daa3ecd95e46bb9eb4c5da171da8822941ec2fcac992527",
+  "tree_hash": "0c4f58dde85943f9e163931a079af643bd7b68dbaf43ed1a60d73cda05863e13",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 608,
+  "wiki_file_count": 609,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8946,13 +8951,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "93cf996e818343220c92669424721316098f0fa49b63be6931d4e17071c038f5",
-      "size": 568071
+      "sha256": "9dd4f3b1670c06371f1b95181de7c6369cd5b80a470a670d3c34e3387ae304ea",
+      "size": 568478
     },
     {
       "path": "log.md",
-      "sha256": "f779e18c0dc8e21d34aad83dfe324a66a597eb9349ef50b29d0dc5fc07e40b30",
-      "size": 1042785
+      "sha256": "926e56c41c770c1ee9b2283d8fea01e6f2b50a961d730c73a3fb780017642e5e",
+      "size": 1043204
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9128,6 +9133,11 @@
       "path": "pages/concepts/eigen-token.md",
       "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
       "size": 3908
+    },
+    {
+      "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
+      "sha256": "2c4ec75a571a1a39b4856a0573bfcb64107fb3f7b6912e4981dfb5ae1b15a809",
+      "size": 11608
     },
     {
       "path": "pages/concepts/enshrined-protocol.md",
@@ -11981,5 +11991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4d67807de41cc80ae96c5f3f510b54d81e0b9588b430a6a727c43bed5cd055e2"
+  "wiki_tree_hash": "fef41b02cee2dc7baa0522a909e615c518774b4be669ccf027b66ff41858df60"
 }

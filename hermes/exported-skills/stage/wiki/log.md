@@ -21879,3 +21879,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f5345b1ec199ff4ab01893681220fc4b
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-11T19:36:59Z] synthesis | ElevenLabs Voice Agent Orchestration Paths
+
+- status: published
+- slug: concepts/elevenlabs-voice-agent-orchestration-paths
+- wiki_revision_id: wikirev_3ef189ff6789d23babaf406c3d6392ea
+- summary: There are three ways to build a voice agent on ElevenLabs infrastructure: Fully Managed, Managed + Custom LLM Server, and DIY (API + Framework). Each makes a different bet on the s...
+
