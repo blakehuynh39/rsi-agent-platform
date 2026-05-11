@@ -28,13 +28,13 @@
     "archived_at": null,
     "created_at": "2026-05-05T03:19:32.359340+00:00",
     "last_patched_at": "2026-05-08T06:09:36.185516+00:00",
-    "last_used_at": "2026-05-08T07:50:49.344572+00:00",
-    "last_viewed_at": "2026-05-08T07:50:49.308824+00:00",
+    "last_used_at": "2026-05-11T22:06:10.662020+00:00",
+    "last_viewed_at": "2026-05-11T22:06:10.606410+00:00",
     "patch_count": 44,
     "pinned": false,
     "state": "active",
-    "use_count": 41,
-    "view_count": 41
+    "use_count": 42,
+    "view_count": 42
   },
   "rsi-platform-investigation": {
     "archived_at": null,
