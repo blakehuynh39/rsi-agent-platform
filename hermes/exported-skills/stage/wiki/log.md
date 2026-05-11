@@ -21632,3 +21632,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7a7560e560fdd8f5155022c50e65240a
 - summary: Tracking page for Subnet version releases, including v0.1.0 and v0.2.0 with their dependency versions and known issues.
 
+## [2026-05-11T03:21:18Z] synthesis | Poseidon Partner Devnet Crunch (Oct–Nov 2025)
+
+- status: published
+- slug: projects/poseidon-partner-devnet-crunch-oct-nov-2025
+- wiki_revision_id: wikirev_27b20ca2cecd5d1d52337d7ad0eaf207
+- summary: Two-week crunch (27 Oct – 10 Nov 2025) at Palo Alto HQ to ship the first Partner Devnet of Poseidon, targeting external operator/miner/validator/DePIN partner feedback, complete su...
+

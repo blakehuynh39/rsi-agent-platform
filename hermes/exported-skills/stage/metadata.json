@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "015750434e0ef522861ae0adc13293109465213a6828ac09ec55147f9d731097",
-        "size": 559115
+        "sha256": "421250684aa907193185afdab8e2134eb6ab066873d02a648de1349f8bda656c",
+        "size": 559530
       },
       {
         "path": "log.md",
-        "sha256": "889cb9547be4fe96070096547ec1749cbf37f52f1606b771e2220d478b35b209",
-        "size": 1030665
+        "sha256": "8ea8519bc7b65b4915b9ae430e29a9940c1512b47bf4b6ce678c7f44131a93a2",
+        "size": 1031092
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4880,6 +4880,11 @@
         "size": 8324
       },
       {
+        "path": "pages/projects/poseidon-partner-devnet-crunch-oct-nov-2025.md",
+        "sha256": "d24e0f6738ad080a70211e4d05a3c9a57ff0b1cfb5e988b9d7f05a700284ce49",
+        "size": 9564
+      },
+      {
         "path": "pages/projects/poseidon-partner-devnet.md",
         "sha256": "806b2f0988b93a9e74c7eb549103ae8dd552018813ee2deb589b3ed0d2e7d6b5",
         "size": 6975
@@ -5834,8 +5839,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T03:07:01Z",
-  "file_count": 1165,
+  "exported_at": "2026-05-11T03:23:29Z",
+  "file_count": 1166,
   "files": [
     {
       "path": ".curator_state",
@@ -8762,7 +8767,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fcd92h7wg",
-  "previous_tree_hash": "dd18ce092f1d699f4e110f44a964e093be12f8592acd96ab83b979305a766e58",
+  "previous_tree_hash": "99a88689d41b3f898c2b510d925bc8c0e04999a97e01eca13556394750abc4b8",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8775,14 +8780,14 @@
   ],
   "skill_tree_hash": "2e6925e4d95ba4f0d38ce916c430393610b28840d03d878346b011408f81bd94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "99a88689d41b3f898c2b510d925bc8c0e04999a97e01eca13556394750abc4b8",
+  "tree_hash": "7cdb29b75fcfdaa88a52ea8ec21edf80e5ece112b8b87d522992a168c4df0133",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 581,
+  "wiki_file_count": 582,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8791,13 +8796,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "015750434e0ef522861ae0adc13293109465213a6828ac09ec55147f9d731097",
-      "size": 559115
+      "sha256": "421250684aa907193185afdab8e2134eb6ab066873d02a648de1349f8bda656c",
+      "size": 559530
     },
     {
       "path": "log.md",
-      "sha256": "889cb9547be4fe96070096547ec1749cbf37f52f1606b771e2220d478b35b209",
-      "size": 1030665
+      "sha256": "8ea8519bc7b65b4915b9ae430e29a9940c1512b47bf4b6ce678c7f44131a93a2",
+      "size": 1031092
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10740,6 +10745,11 @@
       "size": 8324
     },
     {
+      "path": "pages/projects/poseidon-partner-devnet-crunch-oct-nov-2025.md",
+      "sha256": "d24e0f6738ad080a70211e4d05a3c9a57ff0b1cfb5e988b9d7f05a700284ce49",
+      "size": 9564
+    },
+    {
       "path": "pages/projects/poseidon-partner-devnet.md",
       "sha256": "806b2f0988b93a9e74c7eb549103ae8dd552018813ee2deb589b3ed0d2e7d6b5",
       "size": 6975
@@ -11691,5 +11701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "91eda009cdc42d947fa23f9be038e0d8f96535900bbd844c5d4369265990a50c"
+  "wiki_tree_hash": "5080f9dab1bb4a2d283076fbabd41ef453d8783bba233462b8cc2be6ddfa17a8"
 }
