@@ -239,7 +239,7 @@ the traversal `truncated` and refuses to report a clean root success.
 
 ## Read Contract
 
-The local Slack MCP server exposes compiled-corpus reads:
+RSI native knowledge tools expose compiled-corpus reads:
 
 - `conversation_get(channel_id, thread_ts, limit, page)`
 - `messages_read(channel_id, thread_ts, oldest_ts, latest_ts, limit, page)`
@@ -253,7 +253,7 @@ policy: in `joined` mode, mirrored Slack channels are available unless denied;
 in `explicit` mode, channels must be present in
 `RSI_SLACK_MIRROR_CHANNEL_ALLOWLIST`.
 
-Company wiki tools expose compiled Markdown pages from the Platform ledger:
+RSI native company wiki tools expose compiled Markdown pages from the Platform ledger:
 
 - `wiki_index_get()`
 - `wiki_search(query, limit)`

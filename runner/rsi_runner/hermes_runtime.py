@@ -11,7 +11,6 @@ import os
 from pathlib import Path
 import re
 import shlex
-import socket
 import subprocess
 import sys
 import threading
@@ -107,7 +106,6 @@ NATIVE_WORKER_SOURCE_CREDENTIAL_DENYLIST = frozenset(
         "RSI_SLACK_BOT_TOKEN",
         "NOTION_TOKEN",
         "NOTION_API_KEY",
-        "RSI_NOTION_MCP_AUTHORIZATION",
         "RSI_NATIVE_TOOLS_CLIENT_TOKEN",
         "RSI_DB_READ_CLIENT_TOKEN",
         "RSI_DB_READ_RELAY_TOKEN",
@@ -1167,16 +1165,7 @@ class HermesRuntime:
         self._default_inactivity_timeout_seconds = config.inactivity_timeout_seconds
         self._transport_timeout_seconds = config.transport_timeout_seconds
         self._native_max_output_tokens = config.native_max_output_tokens
-        self._slack_mcp_discovery_error = ""
-        self._slack_mcp_tool_cache: list[JsonObject] | None = None
-        self._slack_mcp_send_tool_name = ""
-        self._mcp_adapter = HermesTaskScopedMCPAdapter(
-            default_slack_server_url=self._config.slack_mcp_server_url,
-            slack_read_tool_names_resolver=self._slack_mcp_read_tool_names,
-            slack_send_tool_name_resolver=self._slack_mcp_send_tool_name_or_error,
-        )
-        self._slack_mcp_session_id = ""
-        self._slack_mcp_protocol_version = ""
+        self._mcp_adapter = HermesTaskScopedMCPAdapter()
         self._started_at_unix = time.time()
         self._executor_recent_results: dict[str, JsonObject] = {}
         self._executor_processes: dict[str, subprocess.Popen[str]] = {}
@@ -1216,9 +1205,14 @@ class HermesRuntime:
             toolsets.append(HERMES_DB_READ_TOOLSET)
         if self._grafana_observability_configured():
             toolsets.append(HERMES_RSI_OBSERVABILITY_TOOLSET)
-        if self._config.native_tools_enabled:
-            toolsets.extend(RSI_NATIVE_TOOLSETS)
         return normalize_tool_names(toolsets)
+
+    def _rsi_native_toolsets_for_task(self, task: RunnerTaskRequest) -> list[str]:
+        if self._execution_phase(task) in {"render", "deliver"}:
+            return []
+        if task.task_type in {"workflow", "prod", "proactive"}:
+            return list(RSI_NATIVE_TOOLSETS)
+        return []
 
     def _grafana_observability_configured(self) -> bool:
         return self._config.grafana_observability_configured
@@ -1574,12 +1568,6 @@ class HermesRuntime:
     def metadata(self) -> JsonObject:
         adapter_meta = self._adapter.metadata
         observation_sink_configured = bool(self._config.runtime_observation_sink_url)
-        slack_mcp_tools = self._slack_mcp_tools()
-        slack_mcp_available = (
-            self._config.slack_mcp_enabled
-            and self._config.slack_bot_token_configured
-            and len(slack_mcp_tools) > 0
-        )
         return {
             "status": "ok" if self.available and self._session_manager.skills_healthy else "degraded",
             "role": self._role,
@@ -1595,12 +1583,6 @@ class HermesRuntime:
             "available": self.available,
             "hermes_available": AIAgent is not None,
             "openrouter_configured": self._openrouter_configured,
-            "slack_mcp_enabled": self._config.slack_mcp_enabled,
-            "slack_mcp_configured": self._config.slack_mcp_enabled and self._config.slack_bot_token_configured,
-            "slack_mcp_available": slack_mcp_available,
-            "slack_mcp_server_url": self._config.slack_mcp_server_url,
-            "slack_mcp_tool_count": len(slack_mcp_tools),
-            "slack_mcp_discovery_error": self._slack_mcp_discovery_error,
             "persistence_enabled": self._session_manager.available,
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
             "hermes_home": self._session_manager.hermes_home,
@@ -2306,6 +2288,7 @@ class HermesRuntime:
         if execution_phase not in {"render", "deliver"} and task.task_type in {"workflow", "proposal"}:
             toolsets.extend(["todo", "session_search"])
         toolsets.extend(self._hermes_native_toolsets())
+        toolsets.extend(self._rsi_native_toolsets_for_task(task))
         if execution_phase == "render" or task.task_type in {"workflow", "prod", "proactive"} or execution_mode == "artifact_render":
             toolsets.append(HERMES_ARTIFACT_TOOLSET)
         if extra_toolsets:
@@ -3232,11 +3215,9 @@ class HermesRuntime:
         return env
 
     def _native_tools_execution_token(self, task: RunnerTaskRequest) -> str:
-        if not self._config.native_tools_enabled:
-            return ""
         secret = os.getenv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", "").strip()
         if not secret:
-            return ""
+            raise RuntimeError("RSI_NATIVE_TOOLS_CLIENT_TOKEN is required; RSI native tools are the canonical tool path")
         now = int(time.time())
         lifetime = min(max(1, self._effective_task_timeout(task) + 60), 2 * 60 * 60)
         payload: JsonObject = {
@@ -3252,6 +3233,18 @@ class HermesRuntime:
             "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge"]),
         }
         return _sign_native_tools_execution_token(secret, payload)
+
+    def _legacy_mcp_server_errors(self, task: RunnerTaskRequest) -> list[str]:
+        errors: list[str] = []
+        for index, server in enumerate(task.mcp_servers or []):
+            label = _string_or_json(server.get("server_label")).strip().lower()
+            profile = _string_or_json(server.get("profile")).strip().lower()
+            profile_tokens = {token for token in re.split(r"[^a-z0-9]+", profile) if token}
+            is_reserved_profile = "mcp" in profile_tokens and bool(profile_tokens & {"slack", "notion"})
+            if is_reserved_profile or label in {"slack", "notion"}:
+                name = profile or label or f"server[{index}]"
+                errors.append(f"{name} must use RSI native tools instead")
+        return errors
 
     def _native_worker_session_env(self, task: RunnerTaskRequest) -> dict[str, str]:
         env = {"HERMES_SESSION_KEY": canonical_gateway_session_key(task, self._role)}
@@ -3324,6 +3317,7 @@ class HermesRuntime:
         if execution_phase == "render":
             required_toolsets.append(HERMES_ARTIFACT_TOOLSET)
         required_toolsets.extend(self._hermes_native_toolsets())
+        required_toolsets.extend(self._rsi_native_toolsets_for_task(task))
         return {
             "execution_phase": execution_phase,
             "history_policy": "empty" if execution_phase in {"render", "deliver"} else "session",
@@ -4327,6 +4321,22 @@ class HermesRuntime:
         self._stage_task_context(context.session_id, task, context_path=context_path, envelope_path=envelope_path)
 
         agentic_mcp_registration = TaskScopedMCPRegistration()
+        legacy_mcp_errors = self._legacy_mcp_server_errors(task)
+        if legacy_mcp_errors:
+            message = "Legacy Slack/Notion MCP servers are disabled for RSI workflows: " + "; ".join(legacy_mcp_errors)
+            if observer is not None:
+                observer.emit(
+                    phase=execution_phase,
+                    event_type="mcp.registration",
+                    status="failed",
+                    payload={"error": message},
+                )
+            return self._native_strict_failure(
+                task,
+                failure_class="native_workflow_preflight_failed",
+                message=message,
+                diagnostics={"preflight_failure_class": "legacy_mcp_disabled", "legacy_mcp_errors": legacy_mcp_errors},
+            )
         try:
             agentic_mcp_registration = self._mcp_adapter.plan_task_servers(task)
         except RuntimeError as exc:
@@ -4444,8 +4454,7 @@ class HermesRuntime:
         env_copy.update(github_cli_env)
         env_copy.update(self._native_worker_session_env(task))
         env_copy.update(self._native_runtime_env(task, context_path=context_path, envelope_path=envelope_path))
-        if self._config.native_tools_enabled:
-            self._strip_native_worker_source_credentials(env_copy)
+        self._strip_native_worker_source_credentials(env_copy)
         secret_values = _sensitive_env_values(env_copy)
         if observer is not None:
             observer.emit(
@@ -6075,169 +6084,6 @@ class HermesRuntime:
             parts.append(f"Target reply channel/thread: {task.channel_id} / {task.thread_ts}")
         parts.append("Return JSON only.")
         return "\n\n".join(part for part in parts if part)
-
-    def _slack_mcp_request(self, method: str, params: JsonObject | None = None, *, notification: bool = False) -> JsonObject:
-        if not self._config.slack_mcp_enabled:
-            raise RuntimeError("Slack MCP is disabled.")
-        token = first_non_empty(os.getenv("SLACK_BOT_TOKEN"), "")
-        if not token:
-            raise RuntimeError("Slack bot token is not configured.")
-        request_id = None if notification else method.replace("/", "_")
-        payload: JsonObject = {
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params or {},
-        }
-        if request_id is not None:
-            payload["id"] = request_id
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/json, text/event-stream",
-            "Content-Type": "application/json",
-        }
-        if self._slack_mcp_session_id:
-            headers["mcp-session-id"] = self._slack_mcp_session_id
-        if self._slack_mcp_protocol_version and method != "initialize":
-            headers["mcp-protocol-version"] = self._slack_mcp_protocol_version
-        req = urlrequest.Request(
-            self._config.slack_mcp_server_url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers=headers,
-            method="POST",
-        )
-        try:
-            with urlrequest.urlopen(req, timeout=15) as resp:
-                response_headers = getattr(resp, "headers", {}) or {}
-                if session_id := str(response_headers.get("mcp-session-id", "") or "").strip():
-                    self._slack_mcp_session_id = session_id
-                content_type = str(response_headers.get("Content-Type", "") or response_headers.get("content-type", "") or "")
-                body = resp.read().decode("utf-8")
-        except urlerror.HTTPError as exc:
-            detail = exc.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"Slack MCP {method} returned {exc.code}: {detail[:2000]}") from exc
-        except (TimeoutError, socket.timeout, urlerror.URLError, ConnectionError, OSError) as exc:
-            raise RuntimeError(f"Slack MCP {method} request failed: {exc}") from exc
-        if notification:
-            return {}
-        parsed = self._parse_slack_mcp_response(body, content_type=content_type)
-        if not isinstance(parsed, dict):
-            raise RuntimeError("Slack MCP returned a non-object JSON payload.")
-        error_payload = _json_object_or_empty(parsed.get("error"))
-        if error_payload:
-            raise RuntimeError(first_non_empty(_string_or_json(error_payload.get("message")), "Slack MCP returned an error."))
-        result = _json_object_or_empty(parsed.get("result"))
-        if method == "initialize":
-            protocol_version = _string_or_json(result.get("protocolVersion")).strip()
-            if protocol_version:
-                self._slack_mcp_protocol_version = protocol_version
-        return result
-
-    def _parse_slack_mcp_response(self, body: str, *, content_type: str = "") -> JsonObject:
-        if "text/event-stream" in content_type.lower():
-            return self._parse_slack_mcp_sse_response(body)
-        try:
-            parsed = json.loads(body)
-        except json.JSONDecodeError:
-            if "data:" in body:
-                return self._parse_slack_mcp_sse_response(body)
-            raise RuntimeError("Slack MCP returned invalid JSON.") from None
-        if not isinstance(parsed, dict):
-            raise RuntimeError("Slack MCP returned a non-object JSON payload.")
-        return parsed
-
-    def _parse_slack_mcp_sse_response(self, body: str) -> JsonObject:
-        for raw_event in re.split(r"\r?\n\r?\n", body.strip()):
-            data_lines: list[str] = []
-            for line in raw_event.splitlines():
-                if line.startswith("data:"):
-                    data_lines.append(line[5:].lstrip(" "))
-            if not data_lines:
-                continue
-            data = "\n".join(data_lines)
-            try:
-                parsed = json.loads(data)
-            except json.JSONDecodeError as exc:
-                raise RuntimeError("Slack MCP returned invalid SSE JSON.") from exc
-            if not isinstance(parsed, dict):
-                raise RuntimeError("Slack MCP returned a non-object SSE JSON payload.")
-            return parsed
-        raise RuntimeError("Slack MCP returned an SSE response without a JSON-RPC message.")
-
-    def _slack_mcp_tools(self) -> list[JsonObject]:
-        if self._slack_mcp_tool_cache is not None:
-            return list(self._slack_mcp_tool_cache)
-        if not self._config.slack_mcp_enabled:
-            self._slack_mcp_tool_cache = []
-            return []
-        try:
-            _ = self._slack_mcp_request(
-                "initialize",
-                {
-                    "protocolVersion": "2025-03-26",
-                    "capabilities": {},
-                    "clientInfo": {"name": "rsi-agent-platform", "version": "0.1.0"},
-                },
-            )
-            try:
-                self._slack_mcp_request("notifications/initialized", {}, notification=True)
-            except RuntimeError:
-                pass
-            result = self._slack_mcp_request("tools/list", {})
-            tools = _json_object_list(result.get("tools"))
-            self._slack_mcp_tool_cache = tools
-            self._slack_mcp_discovery_error = ""
-            return list(tools)
-        except RuntimeError as exc:
-            self._slack_mcp_tool_cache = None
-            self._slack_mcp_send_tool_name = ""
-            self._slack_mcp_discovery_error = str(exc)
-            return []
-
-    def _slack_mcp_available(self) -> bool:
-        if not self._config.slack_mcp_enabled or not self._config.slack_bot_token_configured:
-            return False
-        return len(self._slack_mcp_tools()) > 0
-
-    def _slack_mcp_send_tool_name_or_error(self) -> str:
-        if self._slack_mcp_send_tool_name:
-            return self._slack_mcp_send_tool_name
-        candidates: list[str] = []
-        exact_order = [
-            "send_message",
-            "slack_send_message",
-            "conversations_add_message",
-            "add_message",
-            "post_message",
-        ]
-        exact_hits = [name for name in exact_order if any(_string_or_json(tool.get("name")) == name for tool in self._slack_mcp_tools())]
-        if len(exact_hits) == 1:
-            self._slack_mcp_send_tool_name = exact_hits[0]
-            return self._slack_mcp_send_tool_name
-        for tool in self._slack_mcp_tools():
-            name = _string_or_json(tool.get("name"))
-            description = _string_or_json(tool.get("description")).lower()
-            annotations = _json_object_or_empty(tool.get("annotations"))
-            read_only = _bool_or_false(annotations.get("readOnlyHint"))
-            lowered = name.lower()
-            if read_only:
-                continue
-            if "canvas" in lowered or "canvas" in description or "draft" in lowered or "draft" in description:
-                continue
-            if ("send" in lowered or "post" in lowered or "message" in lowered) and ("message" in description or "send" in description or "post" in description):
-                candidates.append(name)
-        candidates = normalize_tool_names(candidates)
-        if len(candidates) != 1:
-            raise RuntimeError(f"Slack MCP send-message tool discovery expected exactly one candidate, got {candidates or ['none']}.")
-        self._slack_mcp_send_tool_name = candidates[0]
-        return self._slack_mcp_send_tool_name
-
-    def _slack_mcp_read_tool_names(self) -> list[str]:
-        read_tool_names: list[str] = []
-        for tool in self._slack_mcp_tools():
-            annotations = _json_object_or_empty(tool.get("annotations"))
-            if _bool_or_false(annotations.get("readOnlyHint")):
-                read_tool_names.append(_string_or_json(tool.get("name")))
-        return normalize_tool_names(read_tool_names)
 
     def _json_object_input_prompt(self, prompt: str) -> str:
         text = str(prompt or "").strip()

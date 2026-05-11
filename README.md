@@ -67,18 +67,9 @@ For `openai/*` models, the runner uses Hermes directly and forwards the configur
 
 `control-plane --mode slack-surface` uses the Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `SLACK_BOT_TOKEN`.
-Hermes executor pods also use `SLACK_BOT_TOKEN` for native `send_message` delivery; Slack user tokens are not part of the runtime contract.
-For Notion MCP reads in workflow and Slack Q&A gather tasks, configure
-`RSI_NOTION_MCP_ENABLED=true`, optionally override `RSI_NOTION_MCP_SERVER_URL`,
-and set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to the env var name that runner
-pods should use for Notion MCP auth (defaults to `RSI_NOTION_MCP_AUTHORIZATION`).
-For a self-hosted `notion-mcp-server`, point `RSI_NOTION_MCP_SERVER_URL` at the
-internal `/mcp` endpoint (for example `http://notion-mcp:3000/mcp`). The
-self-hosted server uses `NOTION_TOKEN` for upstream Notion API access; if you
-enable its HTTP bearer auth via `AUTH_TOKEN`, set
-`RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to a runner env that contains that same
-bearer token. If the internal service is intentionally unauthenticated behind
-network controls, set `RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR` to an empty string.
+Hermes executor pods use RSI native tools for Slack/Notion/knowledge access and
+delivery. Configure `RSI_NATIVE_TOOLS_CLIENT_TOKEN`; do not route RSI workflow
+delivery through generic Hermes `send_message` or Slack/Notion MCP profiles.
 
 ## CI/CD
 

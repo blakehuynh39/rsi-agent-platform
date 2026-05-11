@@ -72,8 +72,6 @@ type Config struct {
 	CompanyWikiCompilerShutdownGrace     time.Duration
 	CompanyWikiCompilerOpenRouterBaseURL string
 	CompanyWikiCompilerOpenRouterAPIKey  string
-	SlackMCPEnabled                      bool
-	SlackMCPServerURL                    string
 	NativeToolsEnabled                   bool
 	NativeToolsClientToken               string
 	NativeToolsSurfaces                  []string
@@ -82,11 +80,6 @@ type Config struct {
 	DBReadClientToken                    string
 	DBReadApproverSlackUserIDs           []string
 	DBReadWorkerTargets                  []string
-	NotionMCPEnabled                     bool
-	NotionMCPServerURL                   string
-	NotionMCPHeaders                     map[string]string
-	NotionMCPHeaderEnvVars               map[string]string
-	NotionMCPAuthorizationEnvVar         string
 	NotionToken                          string
 	NotionMirrorEnabled                  bool
 	NotionMirrorAllowlist                []string
@@ -256,9 +249,7 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerShutdownGrace:     durationEnv("RSI_COMPANY_WIKI_COMPILER_SHUTDOWN_GRACE", 30*time.Second),
 		CompanyWikiCompilerOpenRouterBaseURL: stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", stringEnv("RSI_OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")),
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
-		SlackMCPEnabled:                      boolEnv("RSI_SLACK_MCP_ENABLED", false),
-		SlackMCPServerURL:                    stringEnv("RSI_SLACK_MCP_SERVER_URL", "http://127.0.0.1:8092/mcp"),
-		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", false),
+		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", true),
 		NativeToolsClientToken:               stringEnv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", ""),
 		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge"}),
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
@@ -266,11 +257,6 @@ func Load(serviceName string) Config {
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
 		DBReadApproverSlackUserIDs:           dbReadApprovers,
 		DBReadWorkerTargets:                  listEnv("RSI_DB_READ_WORKER_TARGETS"),
-		NotionMCPEnabled:                     boolEnv("RSI_NOTION_MCP_ENABLED", false),
-		NotionMCPServerURL:                   stringEnv("RSI_NOTION_MCP_SERVER_URL", "https://mcp.notion.com/mcp"),
-		NotionMCPHeaders:                     mapEnv("RSI_NOTION_MCP_HEADERS"),
-		NotionMCPHeaderEnvVars:               mapEnv("RSI_NOTION_MCP_HEADER_ENV_VARS"),
-		NotionMCPAuthorizationEnvVar:         stringEnv("RSI_NOTION_MCP_AUTHORIZATION_ENV_VAR", "RSI_NOTION_MCP_AUTHORIZATION"),
 		NotionToken:                          stringEnv("NOTION_TOKEN", ""),
 		NotionMirrorEnabled:                  boolEnv("RSI_NOTION_MIRROR_ENABLED", false),
 		NotionMirrorAllowlist:                listEnv("RSI_NOTION_MIRROR_ALLOWLIST"),

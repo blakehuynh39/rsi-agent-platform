@@ -1986,7 +1986,7 @@ func TestEvaluateTraceRoutesDeliveryFailureSeparately(t *testing.T) {
 		"workflow_status": "needs-human",
 		"workflow_error":  "Slack delivery ended with channel_not_found",
 		"slack_actions": []events.SlackActionRecord{{
-			ID:             "mcp-send-1",
+			ID:             "call-rsi-message-1",
 			TraceID:        trace.Summary.TraceID,
 			WorkflowID:     trace.Summary.WorkflowID,
 			ConversationID: trace.Summary.ConversationID,

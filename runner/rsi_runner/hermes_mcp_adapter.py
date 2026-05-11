@@ -4,17 +4,10 @@ from dataclasses import dataclass, field
 import hashlib
 import os
 import re
-from typing import Any, Callable
+from typing import Any
 
 from .json_types import JsonObject, JsonValue
 from .rsi_tools import normalize_tool_names
-
-
-NOTION_MCP_READ_TOOL_NAMES = [
-    "API-post-search",
-    "API-retrieve-a-page",
-    "API-get-block-children",
-]
 
 
 def _json_object_or_empty(value: JsonValue | None) -> JsonObject:
@@ -105,17 +98,6 @@ class TaskScopedMCPRegistration:
 
 
 class HermesTaskScopedMCPAdapter:
-    def __init__(
-        self,
-        *,
-        default_slack_server_url: str = "",
-        slack_read_tool_names_resolver: Callable[[], list[str]] | None = None,
-        slack_send_tool_name_resolver: Callable[[], str] | None = None,
-    ) -> None:
-        self._default_slack_server_url = default_slack_server_url
-        self._slack_read_tool_names_resolver = slack_read_tool_names_resolver
-        self._slack_send_tool_name_resolver = slack_send_tool_name_resolver
-
     def plan_task_servers(self, task: Any) -> TaskScopedMCPRegistration:
         return TaskScopedMCPRegistration(servers=self._translate_task_servers(task))
 
@@ -226,8 +208,7 @@ class HermesTaskScopedMCPAdapter:
     def _translate_single_server(self, task: Any, server: JsonObject, *, index: int) -> TaskScopedMCPServer:
         label = _first_non_empty(_string_or_empty(server.get("server_label")), "mcp")
         profile = _string_or_empty(server.get("profile"))
-        default_server_url = self._default_slack_server_url if profile in {"slack_mcp_read", "slack_mcp_reply"} else ""
-        server_url = _first_non_empty(_string_or_empty(server.get("server_url")), default_server_url)
+        server_url = _string_or_empty(server.get("server_url"))
         if not server_url:
             raise RuntimeError(f"MCP server URL is required for server '{label}'.")
 
@@ -247,10 +228,6 @@ class HermesTaskScopedMCPAdapter:
             authorization = os.getenv(authorization_env_var, "").strip()
             if not authorization:
                 raise RuntimeError(f"MCP authorization env var {authorization_env_var} is not configured.")
-        if not authorization and profile in {"slack_mcp_read", "slack_mcp_reply"}:
-            authorization = os.getenv("SLACK_BOT_TOKEN", "").strip()
-            if not authorization:
-                raise RuntimeError("Slack bot token is not configured.")
         if authorization:
             if not authorization.lower().startswith("bearer "):
                 authorization = f"Bearer {authorization}"
@@ -278,18 +255,6 @@ class HermesTaskScopedMCPAdapter:
         explicit_tool_names = normalize_tool_names(_string_list(allowed_tools.get("tool_names")))
         if explicit_tool_names:
             return explicit_tool_names
-        if profile == "slack_mcp_read":
-            tool_names = normalize_tool_names(self._resolve_slack_read_tool_names())
-            if not tool_names:
-                raise RuntimeError("Slack MCP read-tool discovery returned no tools.")
-            return tool_names
-        if profile == "slack_mcp_reply":
-            tool_names = normalize_tool_names([*self._resolve_slack_read_tool_names(), self._resolve_slack_send_tool_name()])
-            if not tool_names:
-                raise RuntimeError("Slack MCP reply-tool discovery returned no tools.")
-            return tool_names
-        if profile == "notion_mcp_read":
-            return list(NOTION_MCP_READ_TOOL_NAMES)
         if _bool_or_false(allowed_tools.get("read_only")):
             raise RuntimeError(
                 f"MCP server '{label}' requested read_only access without explicit tool_names; refusing to expose the full server."
@@ -298,9 +263,6 @@ class HermesTaskScopedMCPAdapter:
 
     def _tools_config_for_profile(self, profile: str, included_tool_names: list[str]) -> JsonObject:
         tools_config: JsonObject = {"include": included_tool_names}
-        if profile == "notion_mcp_read":
-            tools_config["resources"] = False
-            tools_config["prompts"] = False
         return tools_config
 
     def _included_tool_validation_errors(self, mcp_tool: Any, servers: list[TaskScopedMCPServer]) -> list[str]:
@@ -329,19 +291,6 @@ class HermesTaskScopedMCPAdapter:
                     f"Discovered tools: {discovered_preview}."
                 )
         return errors
-
-    def _resolve_slack_read_tool_names(self) -> list[str]:
-        if self._slack_read_tool_names_resolver is None:
-            raise RuntimeError("Slack MCP read-tool discovery is unavailable in this runner.")
-        return normalize_tool_names(self._slack_read_tool_names_resolver())
-
-    def _resolve_slack_send_tool_name(self) -> str:
-        if self._slack_send_tool_name_resolver is None:
-            raise RuntimeError("Slack MCP send-tool discovery is unavailable in this runner.")
-        tool_name = _string_or_empty(self._slack_send_tool_name_resolver())
-        if not tool_name:
-            raise RuntimeError("Slack MCP send-tool discovery returned an empty tool name.")
-        return tool_name
 
     def _task_scoped_server_name(self, task: Any, *, label: str, server_url: str, index: int) -> str:
         scope = _first_non_empty(

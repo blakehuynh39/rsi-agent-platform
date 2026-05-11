@@ -43,74 +43,6 @@ class FakeMCPToolModule:
 
 
 class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
-    def test_slack_reply_profile_translation_builds_hermes_headers_and_tool_include(self) -> None:
-        task = types.SimpleNamespace(
-            trace_id="trace-123",
-            workflow_id="wf-123",
-            conversation_id="",
-            session_scope_id="",
-            task_type="workflow",
-            mcp_servers=[
-                {
-                    "server_label": "slack",
-                    "profile": "slack_mcp_reply",
-                    "headers": {"X-Test": "static"},
-                }
-            ],
-        )
-        adapter = HermesTaskScopedMCPAdapter(
-            default_slack_server_url="https://mcp.slack.com/mcp",
-            slack_read_tool_names_resolver=lambda: ["get_thread", "search_messages"],
-            slack_send_tool_name_resolver=lambda: "send_message",
-        )
-
-        with mock.patch.dict(os.environ, {"SLACK_BOT_TOKEN": "slack-token"}, clear=True):
-            translated = adapter._translate_task_servers(task)
-
-        self.assertEqual(len(translated), 1)
-        server = translated[0]
-        self.assertEqual(server.hermes_config["url"], "https://mcp.slack.com/mcp")
-        self.assertEqual(
-            server.hermes_config["headers"],
-            {
-                "X-Test": "static",
-                "Authorization": "Bearer slack-token",
-            },
-        )
-        self.assertEqual(
-            server.hermes_config["tools"]["include"],
-            ["get_thread", "search_messages", "send_message"],
-        )
-        self.assertTrue(server.toolset_alias.startswith("mcp-rsi-task-trace-123-0-slack-"))
-
-    def test_notion_read_profile_defaults_to_notion_api_read_tools(self) -> None:
-        task = types.SimpleNamespace(
-            trace_id="trace-456",
-            workflow_id="wf-456",
-            conversation_id="",
-            session_scope_id="",
-            task_type="workflow",
-            mcp_servers=[
-                {
-                    "server_label": "notion",
-                    "profile": "notion_mcp_read",
-                    "server_url": "https://mcp.notion.com/mcp",
-                }
-            ],
-        )
-        adapter = HermesTaskScopedMCPAdapter()
-
-        translated = adapter._translate_task_servers(task)
-
-        self.assertEqual(
-            translated[0].hermes_config["tools"],
-            {
-                "include": ["API-post-search", "API-retrieve-a-page", "API-get-block-children"],
-                "resources": False,
-                "prompts": False,
-            },
-        )
-
     def test_custom_server_authorization_env_var_populates_bearer_header(self) -> None:
         task = types.SimpleNamespace(
             trace_id="trace-auth",
@@ -122,19 +54,19 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
                 {
                     "server_label": "notion",
                     "server_url": "https://mcp.notion.com/mcp",
-                    "authorization_env_var": "RSI_NOTION_MCP_AUTHORIZATION",
+                    "authorization_env_var": "CUSTOM_MCP_AUTHORIZATION",
                     "allowed_tools": {"tool_names": ["search", "fetch"]},
                 }
             ],
         )
         adapter = HermesTaskScopedMCPAdapter()
 
-        with mock.patch.dict(os.environ, {"RSI_NOTION_MCP_AUTHORIZATION": "notion-oauth-token"}, clear=True):
+        with mock.patch.dict(os.environ, {"CUSTOM_MCP_AUTHORIZATION": "custom-oauth-token"}, clear=True):
             translated = adapter._translate_task_servers(task)
 
         self.assertEqual(
             translated[0].hermes_config["headers"],
-            {"Authorization": "Bearer notion-oauth-token"},
+            {"Authorization": "Bearer custom-oauth-token"},
         )
         self.assertEqual(translated[0].hermes_config["tools"]["include"], ["search", "fetch"])
 
@@ -150,8 +82,8 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
                     "server_label": "notion",
                     "server_url": "https://mcp.notion.com/mcp",
                     "header_env_vars": {
-                        "CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID",
-                        "CF-Access-Client-Secret": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET",
+                        "CF-Access-Client-Id": "CUSTOM_MCP_CF_ACCESS_CLIENT_ID",
+                        "CF-Access-Client-Secret": "CUSTOM_MCP_CF_ACCESS_CLIENT_SECRET",
                     },
                     "headers": {"X-Test": "static"},
                     "allowed_tools": {"tool_names": ["search"]},
@@ -163,8 +95,8 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
         with mock.patch.dict(
             os.environ,
             {
-                "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID": "client-id",
-                "RSI_NOTION_MCP_CF_ACCESS_CLIENT_SECRET": "client-secret",
+                "CUSTOM_MCP_CF_ACCESS_CLIENT_ID": "client-id",
+                "CUSTOM_MCP_CF_ACCESS_CLIENT_SECRET": "client-secret",
             },
             clear=True,
         ):
@@ -190,14 +122,14 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
                 {
                     "server_label": "notion",
                     "server_url": "https://mcp.notion.com/mcp",
-                    "authorization_env_var": "RSI_NOTION_MCP_AUTHORIZATION",
+                    "authorization_env_var": "CUSTOM_MCP_AUTHORIZATION",
                 }
             ],
         )
         adapter = HermesTaskScopedMCPAdapter()
 
         with mock.patch.dict(os.environ, {}, clear=True):
-            with self.assertRaisesRegex(RuntimeError, "RSI_NOTION_MCP_AUTHORIZATION"):
+            with self.assertRaisesRegex(RuntimeError, "CUSTOM_MCP_AUTHORIZATION"):
                 adapter._translate_task_servers(task)
 
     def test_custom_server_missing_header_env_var_fails(self) -> None:
@@ -212,7 +144,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
                     "server_label": "notion",
                     "server_url": "https://mcp.notion.com/mcp",
                     "header_env_vars": {
-                        "CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID",
+                        "CF-Access-Client-Id": "CUSTOM_MCP_CF_ACCESS_CLIENT_ID",
                     },
                     "allowed_tools": {"tool_names": ["search"]},
                 }
@@ -221,7 +153,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
         adapter = HermesTaskScopedMCPAdapter()
 
         with mock.patch.dict(os.environ, {}, clear=True):
-            with self.assertRaisesRegex(RuntimeError, "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"):
+            with self.assertRaisesRegex(RuntimeError, "CUSTOM_MCP_CF_ACCESS_CLIENT_ID"):
                 adapter._translate_task_servers(task)
 
     def test_custom_read_only_server_without_explicit_tools_fails_closed(self) -> None:
@@ -253,9 +185,9 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             task_type="workflow",
             mcp_servers=[
                 {
-                    "server_label": "notion",
-                    "profile": "notion_mcp_read",
-                    "server_url": "https://mcp.notion.com/mcp",
+                    "server_label": "docs",
+                    "server_url": "https://docs.example.com/mcp",
+                    "allowed_tools": {"tool_names": ["search", "fetch"]},
                 }
             ],
         )
@@ -282,9 +214,9 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             task_type="workflow",
             mcp_servers=[
                 {
-                    "server_label": "notion",
-                    "profile": "notion_mcp_read",
-                    "server_url": "https://mcp.notion.com/mcp",
+                    "server_label": "docs",
+                    "server_url": "https://docs.example.com/mcp",
+                    "allowed_tools": {"tool_names": ["search"]},
                 }
             ],
         )
@@ -304,9 +236,9 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             task_type="workflow",
             mcp_servers=[
                 {
-                    "server_label": "notion",
-                    "profile": "notion_mcp_read",
-                    "server_url": "https://mcp.notion.com/mcp",
+                    "server_label": "docs",
+                    "server_url": "https://docs.example.com/mcp",
+                    "allowed_tools": {"tool_names": ["search", "fetch"]},
                 }
             ],
         )
@@ -322,7 +254,7 @@ class HermesTaskScopedMCPAdapterTests(unittest.TestCase):
             servers=[
                 types.SimpleNamespace(
                     source_label="notion",
-                    profile="notion_mcp_read",
+                    profile="custom_read_only",
                     server_name="rsi-task-missing",
                     toolset_alias="mcp-rsi-task-missing",
                     included_tool_names=["search"],

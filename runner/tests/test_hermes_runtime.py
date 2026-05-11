@@ -14,7 +14,6 @@ import time
 import types
 import unittest
 from unittest import mock
-from urllib import error as urlerror
 
 from rsi_runner.config import RunnerConfig, RunnerConfigError
 from rsi_runner.execution_contract import HermesCompanyComputer
@@ -81,6 +80,8 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_EVAL_TIMEOUT": "330s",
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
+        "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
+        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENROUTER_API_KEY": "openrouter-test-key",
         "SLACK_BOT_TOKEN": "xoxb-test",
@@ -1479,31 +1480,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(_json_object_from_string("```json\n" + json.dumps(payload) + "\n```"), payload)
         self.assertEqual(_json_object_from_string("draft:\n```JSON\n" + json.dumps(payload) + "\n```"), payload)
 
-    def test_hermes_agent_adapter_final_delivery_body_extracts_fenced_contract(self) -> None:
-        adapter = HermesAgentAdapter({"session_id": "session-1"})
-        response = "```json\n" + json.dumps({"final_answer": "Clean answer"}) + "\n```"
-
-        self.assertEqual(adapter._final_delivery_body(response, {"final_response": response}), "Clean answer")
-
-    def test_hermes_agent_adapter_final_delivery_body_uses_nested_reply_delivery_body(self) -> None:
-        adapter = HermesAgentAdapter({"session_id": "session-1"})
-        response = "```json\n" + json.dumps({"reply_delivery": {"body": "Slack body"}}) + "\n```"
-
-        self.assertEqual(adapter._final_delivery_body(response, {"final_response": response}), "Slack body")
-
-    def test_hermes_agent_adapter_final_delivery_body_drops_malformed_json_contract_fallback(self) -> None:
-        adapter = HermesAgentAdapter({"session_id": "session-1"})
-        malformed_response = '```json\n{"visible_reasoning": "done", "final_answer": "Raw contract"\n```'
-
-        self.assertEqual(
-            adapter._final_delivery_body(
-                malformed_response,
-                {"final_response": malformed_response, "structured_output": {"reply_draft": "Recovered draft"}},
-            ),
-            "Recovered draft",
-        )
-        self.assertEqual(adapter._final_delivery_body(malformed_response, {"final_response": malformed_response}), "")
-
     def test_hermes_agent_adapter_writes_self_review_candidate_with_runner_execution_id(self) -> None:
         captured_payload: dict[str, object] = {}
 
@@ -1553,79 +1529,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIsInstance(observation, dict)
         self.assertEqual(observation["execution_id"], "hexec-runner-123")
         self.assertEqual(candidate["execution_id"], "hexec-runner-123")
-
-    def test_hermes_agent_adapter_commits_direct_delivery_from_final_response(self) -> None:
-        calls: list[tuple[dict[str, object], dict[str, object]]] = []
-        send_module = types.ModuleType("tools.send_message_tool")
-
-        def fake_send_message(args, **kwargs):
-            calls.append((dict(args), dict(kwargs)))
-            return json.dumps(
-                {
-                    "success": True,
-                    "platform": "slack",
-                    "chat_id": "C123",
-                    "thread_id": "171000001.000100",
-                    "message_id": "171000001.000200",
-                    "message_link": "https://slack.example/archives/C123/p171000001000200",
-                    "idempotency_key": args["idempotency_key"],
-                }
-            )
-
-        send_module.send_message_tool = fake_send_message
-        tools_module = types.ModuleType("tools")
-        tools_module.__path__ = []
-
-        with tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
-            sys.modules,
-            {
-                "tools": tools_module,
-                "tools.send_message_tool": send_module,
-            },
-        ), mock.patch.dict(os.environ, {"HERMES_HOME": tempdir}, clear=True):
-            envelope_path = Path(tempdir, "envelope.json")
-            write_native_test_envelope(
-                {
-                    "runtime_envelope_path": str(envelope_path),
-                    "execution_id": "hexec-direct",
-                    "operation_id": "op-direct",
-                    "trace_id": "trace-direct",
-                    "workflow_id": "wf-direct",
-                },
-                final_response="😺",
-            )
-            adapter = HermesAgentAdapter(
-                {
-                    "session_id": "session-direct",
-                    "execution_id": "hexec-direct",
-                    "trace_id": "trace-direct",
-                    "runtime_envelope_path": str(envelope_path),
-                    "delivery_policy": {
-                        "bound_channel_id": "C123",
-                        "bound_thread_ts": "171000001.000100",
-                        "direct_send_allowed": True,
-                        "idempotency_key_base": "C123:171000001.000100:trace-direct",
-                    },
-                }
-            )
-
-            delivery = adapter._commit_final_delivery_if_required("😺", {"final_response": "😺"})
-            envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
-
-        self.assertEqual(len(calls), 1)
-        args, kwargs = calls[0]
-        self.assertEqual(args["target"], "slack:C123:171000001.000100")
-        self.assertEqual(args["message"], "😺")
-        self.assertEqual(args["idempotency_key"], "C123:171000001.000100:trace-direct")
-        self.assertEqual(kwargs["idempotency_key"], "C123:171000001.000100:trace-direct")
-        self.assertEqual(delivery["send_status"], "posted")
-        self.assertEqual(delivery["body"], "😺")
-        self.assertEqual(envelope["deliveries"][0]["body"], "😺")
-        self.assertEqual(envelope["deliveries"][0]["send_status"], "posted")
-        self.assertIn("rsi_runner.hermes_agent_adapter.delivery_commit", envelope["facts_source"])
-        self.assertIn("slack.message.sent", [item["kind"] for item in envelope["ledger_events"]])
-        self.assertEqual(envelope["phase_runs"][-1]["phase_id"], "deliver")
-        self.assertEqual(envelope["phase_runs"][-1]["status"], "completed")
 
     def test_gateway_session_key_slack_thread_root_and_fallback(self) -> None:
         threaded = RunnerTaskRequest.from_payload(
@@ -3381,18 +3284,6 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         request_paths: list[Path] = []
         run_dir_exists_before_temp_cleanup = False
-        mcp_registration = TaskScopedMCPRegistration(
-            servers=[
-                TaskScopedMCPServer(
-                    source_label="slack",
-                    profile="slack_mcp_reply",
-                    server_name="rsi-task-trace-123-0-slack-abc",
-                    toolset_alias="mcp-rsi-task-trace-123-0-slack-abc",
-                    included_tool_names=["slack_send_message"],
-                    hermes_config={"url": "https://mcp.slack.com/mcp"},
-                )
-            ]
-        )
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
@@ -3439,20 +3330,8 @@ class HermesRuntimeTests(unittest.TestCase):
             self.assertNotIn("requested_skills", process._request)
             self.assertIn("todo", process._request["toolsets"])
             self.assertNotIn("rsi-governed-readonly", process._request["toolsets"])
-            self.assertIn("mcp-rsi-task-trace-123-0-slack-abc", process._request["toolsets"])
-            self.assertEqual(
-                process._request["task_scoped_mcp_servers"],
-                [
-                    {
-                        "source_label": "slack",
-                        "profile": "slack_mcp_reply",
-                        "server_name": "rsi-task-trace-123-0-slack-abc",
-                        "toolset_alias": "mcp-rsi-task-trace-123-0-slack-abc",
-                        "included_tool_names": ["slack_send_message"],
-                        "hermes_config": {"url": "https://mcp.slack.com/mcp"},
-                    }
-                ],
-            )
+            self.assertIn("rsi-slack", process._request["toolsets"])
+            self.assertEqual(process._request["task_scoped_mcp_servers"], [])
             self.assertTrue(process._request["result_path"])
             self.assertNotIn("api_key", process._request["runtime"])
             self.assertEqual(cwd, str((Path(tempdir) / "company").resolve()))
@@ -3480,28 +3359,26 @@ class HermesRuntimeTests(unittest.TestCase):
             clear=True,
         ):
             runtime = HermesRuntime(RunnerConfig.from_env())
-            with mock.patch.object(runtime._mcp_adapter, "plan_task_servers", return_value=mcp_registration):
-                task = RunnerTaskRequest.from_payload(
-                    {
-                        "task": {
-                            "task_type": "workflow",
-                            "repo": "depin-backend",
-                            "prompt": "User prompt",
-                            "system_message": "System directive",
-                            "execution_id": "hexec-123",
-                            "trace_id": "trace-123",
-                            "workflow_id": "wf-123",
-                            "operation_id": "op-123",
-                            "session_scope_kind": "conversation",
-                            "session_scope_id": "conv-123",
-                            "memory_backend": "honcho",
-                            "assistant_peer_id": "rsi:stage:prod",
-                            "requested_skills": ["architecture-diagram"],
-                            "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
-                        }
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "depin-backend",
+                        "prompt": "User prompt",
+                        "system_message": "System directive",
+                        "execution_id": "hexec-123",
+                        "trace_id": "trace-123",
+                        "workflow_id": "wf-123",
+                        "operation_id": "op-123",
+                        "session_scope_kind": "conversation",
+                        "session_scope_id": "conv-123",
+                        "memory_backend": "honcho",
+                        "assistant_peer_id": "rsi:stage:prod",
+                        "requested_skills": ["architecture-diagram"],
                     }
-                )
-                result = runtime.execute_task(task)
+                }
+            )
+            result = runtime.execute_task(task)
             run_dir_exists_before_temp_cleanup = bool(
                 request_paths and request_paths[0].parent.exists() and request_paths[0].exists()
             )
@@ -3775,7 +3652,6 @@ class HermesRuntimeTests(unittest.TestCase):
                     "workflow_id": "wf-native-fenced-json",
                     "operation_id": "op-native-fenced-json",
                     "reply_delivery_mode": "none",
-                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_read"}],
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-native-fenced-json",
                 }
@@ -6309,7 +6185,6 @@ class HermesRuntimeTests(unittest.TestCase):
                 "SLACK_BOT_TOKEN": "xoxb-test",
                 "NOTION_TOKEN": "ntn_test",
                 "NOTION_API_KEY": "secret_test",
-                "RSI_NOTION_MCP_AUTHORIZATION": "Bearer notion",
                 "RSI_DB_READ_CLIENT_TOKEN": "db-read-static",
             },
             clear=True,
@@ -6326,7 +6201,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("SLACK_BOT_TOKEN", env)
         self.assertNotIn("NOTION_TOKEN", env)
         self.assertNotIn("NOTION_API_KEY", env)
-        self.assertNotIn("RSI_NOTION_MCP_AUTHORIZATION", env)
         self.assertNotIn("RSI_NATIVE_TOOLS_CLIENT_TOKEN", env)
         self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
         self.assertIn("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", native_env)
@@ -6543,18 +6417,18 @@ class HermesRuntimeTests(unittest.TestCase):
                     "channel_id": "C123",
                     "thread_ts": "171000001.000100",
                     "trace_id": "trace-workflow-123",
-                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
+                    "mcp_servers": [{"server_label": "context", "profile": "custom_read_only"}],
                 }
             }
         )
         registration = TaskScopedMCPRegistration(
             servers=[
                 TaskScopedMCPServer(
-                    source_label="slack",
-                    profile="slack_mcp_reply",
-                    server_name="rsi-task-trace-workflow-123-0-slack-abc",
-                    toolset_alias="mcp-rsi-task-trace-workflow-123-0-slack-abc",
-                    included_tool_names=["get_thread", "search_messages", "send_message"],
+                    source_label="context",
+                    profile="custom_read_only",
+                    server_name="rsi-task-trace-workflow-123-0-context-abc",
+                    toolset_alias="mcp-rsi-task-trace-workflow-123-0-context-abc",
+                    included_tool_names=["fetch_context"],
                     hermes_config={},
                 )
             ]
@@ -6587,15 +6461,18 @@ class HermesRuntimeTests(unittest.TestCase):
             [
                 "todo",
                 "session_search",
+                "rsi-slack",
+                "rsi-notion",
+                "rsi-knowledge",
                 "rsi-artifacts",
-                "mcp-rsi-task-trace-workflow-123-0-slack-abc",
+                "mcp-rsi-task-trace-workflow-123-0-context-abc",
             ],
         )
         self.assertTrue(result.raw["agentic_mcp_enabled"])
-        self.assertEqual(result.raw["agentic_mcp_server_names"], ["rsi-task-trace-workflow-123-0-slack-abc"])
+        self.assertEqual(result.raw["agentic_mcp_server_names"], ["rsi-task-trace-workflow-123-0-context-abc"])
         self.assertEqual(
             result.raw["runner_diagnostics"]["agentic_mcp_toolsets"],
-            ["mcp-rsi-task-trace-workflow-123-0-slack-abc"],
+            ["mcp-rsi-task-trace-workflow-123-0-context-abc"],
         )
         self.assertEqual(result.raw["runner_diagnostics"]["agentic_mcp_cleanup_status"], "cleaned")
         self.assertNotIn("native_execution_mode", result.raw["runner_diagnostics"])
@@ -6607,7 +6484,7 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Reply in Slack.",
-                    "mcp_servers": [{"server_label": "slack", "profile": "slack_mcp_reply"}],
+                    "mcp_servers": [{"server_label": "context", "profile": "custom_read_only"}],
                 }
             }
         )
@@ -6640,22 +6517,18 @@ class HermesRuntimeTests(unittest.TestCase):
                     "task_type": "workflow",
                     "repo": "rsi-agent-platform",
                     "prompt": "Summarize the latest Slack thread and reply in-thread.",
-                    "mcp_servers": [{"server_label": "notion", "profile": "notion_mcp_read"}],
+                    "mcp_servers": [{"server_label": "docs", "profile": "custom_read_only"}],
                 }
             }
         )
         registration = TaskScopedMCPRegistration(
             servers=[
                 TaskScopedMCPServer(
-                    source_label="notion",
-                    profile="notion_mcp_read",
-                    server_name="rsi-task-trace-workflow-456-0-notion-abc",
-                    toolset_alias="mcp-rsi-task-trace-workflow-456-0-notion-abc",
-                    included_tool_names=[
-                        "API-post-search",
-                        "API-retrieve-a-page",
-                        "API-get-block-children",
-                    ],
+                    source_label="docs",
+                    profile="custom_read_only",
+                    server_name="rsi-task-trace-workflow-456-0-docs-abc",
+                    toolset_alias="mcp-rsi-task-trace-workflow-456-0-docs-abc",
+                    included_tool_names=["search_docs"],
                     hermes_config={},
                 )
             ]
@@ -7833,139 +7706,6 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.metadata["inactivity_timeout_seconds"], 1800)
         self.assertEqual(runtime.metadata["transport_timeout_seconds"], 1830)
         self.assertEqual(runtime.metadata["native_max_output_tokens"], 15000)
-
-    def test_runtime_metadata_probes_slack_mcp(self) -> None:
-        class FakeResponse:
-            def __init__(self, payload: dict[str, object]) -> None:
-                self._payload = payload
-                self.headers = {"Content-Type": "application/json"}
-
-            def __enter__(self) -> "FakeResponse":
-                return self
-
-            def __exit__(self, *_args: object) -> None:
-                return None
-
-            def read(self) -> bytes:
-                return json.dumps(self._payload).encode("utf-8")
-
-        observed_methods: list[str] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            self.assertEqual(req.get_header("Accept"), "application/json, text/event-stream")
-            payload = json.loads(req.data.decode("utf-8"))
-            method = str(payload["method"])
-            observed_methods.append(method)
-            if method == "tools/list":
-                return FakeResponse(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": payload.get("id"),
-                        "result": {"tools": [{"name": "search_messages", "description": "Search Slack"}]},
-                    }
-                )
-            return FakeResponse({"jsonrpc": "2.0", "id": payload.get("id"), "result": {}})
-
-        env = {
-            **runner_env("prod"),
-            "RSI_SLACK_MCP_ENABLED": "true",
-            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
-        }
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
-            os.environ, env, clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            metadata = runtime.metadata
-
-        self.assertTrue(metadata["slack_mcp_available"])
-        self.assertEqual(metadata["slack_mcp_tool_count"], 1)
-        self.assertEqual(metadata["slack_mcp_discovery_error"], "")
-        self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
-
-    def test_runtime_metadata_retries_slack_mcp_after_discovery_failure(self) -> None:
-        class FakeResponse:
-            def __init__(self, payload: dict[str, object]) -> None:
-                self._payload = payload
-                self.headers = {"Content-Type": "application/json"}
-
-            def __enter__(self) -> "FakeResponse":
-                return self
-
-            def __exit__(self, *_args: object) -> None:
-                return None
-
-            def read(self) -> bytes:
-                return json.dumps(self._payload).encode("utf-8")
-
-        calls = 0
-        observed_methods: list[str] = []
-
-        def fake_urlopen(req, timeout: int = 0):
-            nonlocal calls
-            calls += 1
-            if calls == 1:
-                raise urlerror.HTTPError(
-                    req.full_url,
-                    406,
-                    "Not Acceptable",
-                    {},
-                    io.BytesIO(b'{"error":{"message":"Not Acceptable: Client must accept application/json"}}'),
-                )
-            payload = json.loads(req.data.decode("utf-8"))
-            method = str(payload["method"])
-            observed_methods.append(method)
-            if method == "tools/list":
-                return FakeResponse(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": payload.get("id"),
-                        "result": {"tools": [{"name": "slack_read_thread", "description": "Read Slack", "annotations": {"readOnlyHint": True}}]},
-                    }
-                )
-            return FakeResponse({"jsonrpc": "2.0", "id": payload.get("id"), "result": {}})
-
-        env = {
-            **runner_env("prod"),
-            "RSI_SLACK_MCP_ENABLED": "true",
-            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
-        }
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch("rsi_runner.hermes_runtime.urlrequest.urlopen", side_effect=fake_urlopen), mock.patch.dict(
-            os.environ, env, clear=True
-        ):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-            first_metadata = runtime.metadata
-            second_metadata = runtime.metadata
-
-        self.assertFalse(first_metadata["slack_mcp_available"])
-        self.assertEqual(first_metadata["slack_mcp_tool_count"], 0)
-        self.assertIn("Slack MCP initialize returned 406", first_metadata["slack_mcp_discovery_error"])
-        self.assertTrue(second_metadata["slack_mcp_available"])
-        self.assertEqual(second_metadata["slack_mcp_tool_count"], 1)
-        self.assertEqual(second_metadata["slack_mcp_discovery_error"], "")
-        self.assertEqual(observed_methods, ["initialize", "notifications/initialized", "tools/list"])
-
-    def test_slack_mcp_response_parser_accepts_sse_json_rpc_message(self) -> None:
-        env = {
-            **runner_env("prod"),
-            "RSI_SLACK_MCP_ENABLED": "true",
-            "RSI_SLACK_MCP_SERVER_URL": "https://slack-mcp.test/mcp",
-        }
-        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
-            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
-        ), mock.patch.dict(os.environ, env, clear=True):
-            runtime = HermesRuntime(RunnerConfig.from_env())
-
-        parsed = runtime._parse_slack_mcp_response(
-            'event: message\n'
-            'data: {"jsonrpc":"2.0","id":"tools_list","result":{"tools":[{"name":"slack_read_thread"}]}}\n\n',
-            content_type="text/event-stream",
-        )
-
-        self.assertEqual(parsed["result"], {"tools": [{"name": "slack_read_thread"}]})
 
     def test_workflow_final_action_contract_rejects_pipe_table_slack_post(self) -> None:
         task = RunnerTaskRequest.from_payload(

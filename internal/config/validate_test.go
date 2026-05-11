@@ -553,6 +553,9 @@ func validControlPlaneConfig() Config {
 		DefaultKnowledgeBaseURL:   "https://staging-depin.storyprotocol.net/openapi.json",
 		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
 		DefaultReasoningVerbosity: "verbose",
+		NativeToolsEnabled:        true,
+		NativeToolsClientToken:    "native-test-token",
+		NativeToolsSurfaces:       []string{"slack", "notion", "knowledge"},
 		ProposalPromoterInterval:  15 * time.Minute,
 	}
 }

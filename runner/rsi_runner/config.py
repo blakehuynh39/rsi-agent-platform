@@ -82,9 +82,6 @@ class RunnerConfig:
     execution_envelope_v1_enabled: bool
     execution_ledger_first_projection_enabled: bool
     runner_planner_mode: str
-    slack_mcp_enabled: bool
-    slack_mcp_server_url: str
-    slack_bot_token_configured: bool
     verbose_trace_logging: bool
     verbose_trace_log_limit: int
     drain_timeout_seconds: int
@@ -166,15 +163,17 @@ class RunnerConfig:
             and optional_env("RSI_CONTROL_PLANE_BASE_URL")
             and optional_env("RSI_DB_READ_CLIENT_TOKEN")
         )
-        native_tools_enabled = parse_bool(optional_env("RSI_NATIVE_TOOLS_ENABLED") or "false", "RSI_NATIVE_TOOLS_ENABLED")
+        native_tools_enabled_env = optional_env("RSI_NATIVE_TOOLS_ENABLED")
+        native_tools_enabled = True
+        if native_tools_enabled_env and not parse_bool(native_tools_enabled_env, "RSI_NATIVE_TOOLS_ENABLED"):
+            raise RunnerConfigError("RSI_NATIVE_TOOLS_ENABLED cannot be false; RSI native tools are required")
         native_tools_client_token = optional_env("RSI_NATIVE_TOOLS_CLIENT_TOKEN")
+        if not native_tools_client_token:
+            raise RunnerConfigError("RSI_NATIVE_TOOLS_CLIENT_TOKEN is required; RSI native tools are the canonical tool path")
         native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge")
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
-        slack_mcp_enabled = parse_bool(optional_env("RSI_SLACK_MCP_ENABLED") or "false", "RSI_SLACK_MCP_ENABLED")
-        slack_mcp_server_url = optional_url_env("RSI_SLACK_MCP_SERVER_URL") or "https://mcp.slack.com/mcp"
-        slack_bot_token = optional_env("SLACK_BOT_TOKEN")
         verbose_trace_logging = parse_bool(optional_env("RSI_VERBOSE_TRACE_LOGGING") or "false", "RSI_VERBOSE_TRACE_LOGGING")
         verbose_trace_log_limit = parse_non_negative_int(optional_env("RSI_VERBOSE_TRACE_LOG_LIMIT") or "100000", "RSI_VERBOSE_TRACE_LOG_LIMIT")
         drain_timeout_seconds = parse_positive_int(optional_env("RSI_RUNNER_DRAIN_TIMEOUT_SECONDS") or "900", "RSI_RUNNER_DRAIN_TIMEOUT_SECONDS")
@@ -255,9 +254,6 @@ class RunnerConfig:
             execution_envelope_v1_enabled=execution_envelope_v1_enabled,
             execution_ledger_first_projection_enabled=execution_ledger_first_projection_enabled,
             runner_planner_mode=runner_planner_mode,
-            slack_mcp_enabled=slack_mcp_enabled,
-            slack_mcp_server_url=slack_mcp_server_url,
-            slack_bot_token_configured=bool(slack_bot_token),
             verbose_trace_logging=verbose_trace_logging,
             verbose_trace_log_limit=max(1024, verbose_trace_log_limit),
             drain_timeout_seconds=drain_timeout_seconds,

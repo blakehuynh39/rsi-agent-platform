@@ -17,7 +17,6 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
-	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -2645,6 +2644,17 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 					"provider": "fake-executor",
 					"message":  "Recovered reply",
 					"raw": map[string]any{
+						"reply_delivery": map[string]any{
+							"channel_id":      "CENG",
+							"thread_ts":       "171000001.000100",
+							"body":            "Recovered reply",
+							"body_sha1":       "delivery-sha1",
+							"tool_call_id":    "call-rsi-message-recovered",
+							"tool_name":       "rsi_slack.message_post",
+							"provider_ref":    "slack:CENG:171000001.000200",
+							"send_status":     "posted",
+							"idempotency_key": "recovered-reply",
+						},
 						"structured_output": map[string]any{
 							"visible_reasoning": []any{
 								map[string]any{
@@ -2659,20 +2669,18 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 							"confidence":      1.0,
 							"context_summary": "Recovered from durable Hermes executor status.",
 							"self_critique":   "",
-							"reply_delivery":  map[string]any{},
-							"proposed_actions": []any{
-								map[string]any{
-									"kind":       "slack_post",
-									"target_ref": "CENG",
-									"request_payload": map[string]any{
-										"channel_id": "CENG",
-										"thread_ts":  "171000001.000100",
-										"body":       "Recovered reply",
-									},
-									"idempotency_key": "recovered-reply",
-									"rationale":       "Post the recovered reply.",
-								},
+							"reply_delivery": map[string]any{
+								"channel_id":      "CENG",
+								"thread_ts":       "171000001.000100",
+								"body":            "Recovered reply",
+								"body_sha1":       "delivery-sha1",
+								"tool_call_id":    "call-rsi-message-recovered",
+								"tool_name":       "rsi_slack.message_post",
+								"provider_ref":    "slack:CENG:171000001.000200",
+								"send_status":     "posted",
+								"idempotency_key": "recovered-reply",
 							},
+							"proposed_actions":       []any{},
 							"knowledge_drafts":       []any{},
 							"outcome_hypotheses":     []any{},
 							"produced_artifacts":     []any{},
@@ -2734,12 +2742,18 @@ func TestWorkflowRunnerRecoversCompletedHermesExecutorResult(t *testing.T) {
 	if !ok {
 		t.Fatal("expected workflow")
 	}
-	if workflow.Status != string(transition.WorkflowStateReplyPending) {
-		t.Fatalf("expected reply_pending workflow, got %s", workflow.Status)
+	if workflow.Status != string(transition.WorkflowStateCompleted) {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
 	}
-	intents := store.ListActionIntents()
-	if len(intents) != 1 || intents[0].Kind != action.KindSlackPost || stringFromMap(intents[0].RequestPayload, "body") != "Recovered reply" {
-		t.Fatalf("expected recovered slack_post action intent, got %#v", intents)
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no queued action intents, got %#v", intents)
+	}
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if len(trace.SlackActions) != 1 || trace.SlackActions[0].ToolName != "rsi_slack.message_post" || trace.SlackActions[0].FinalBody != "Recovered reply" {
+		t.Fatalf("expected recovered RSI native Slack delivery, got %#v", trace.SlackActions)
 	}
 }
 
@@ -3183,11 +3197,8 @@ func TestWorkflowRunnerUsesRunnerExecuteWhenHermesExecutorIsUnset(t *testing.T) 
 	}
 }
 
-func TestWorkflowRunnerSystemMessageOmitsSlackMCPWhenUnavailableInNoneMode(t *testing.T) {
-	message := workflowRunnerSystemMessage(false, false, false, "none")
-	if strings.Contains(message, "Use Slack MCP for Slack investigation.") {
-		t.Fatalf("expected none-mode system message without Slack MCP to omit Slack MCP guidance, got %q", message)
-	}
+func TestWorkflowRunnerSystemMessageUsesBlockedPostingGuidanceInNoneMode(t *testing.T) {
+	message := workflowRunnerSystemMessage("none")
 	if !strings.Contains(message, "Slack posting is blocked by policy for this workflow, so do not send any Slack messages.") {
 		t.Fatalf("expected blocked-posting guidance in none-mode message, got %q", message)
 	}
@@ -3200,310 +3211,11 @@ func TestWorkflowRunnerNativeToolsUseMediatedReplyGuidance(t *testing.T) {
 	if got := workflowReplyDeliveryMode(false); got != "none" {
 		t.Fatalf("blocked reply delivery mode = %q, want none", got)
 	}
-	message := workflowRunnerSystemMessage(true, true, true, "mediated")
-	if !strings.Contains(message, "Prefer rsi_knowledge.* for corpus/wiki reads and rsi_slack.* for live Slack reads") {
-		t.Fatalf("expected native Slack/knowledge guidance, got %q", message)
-	}
-	if !strings.Contains(message, "Prefer rsi_notion.* for live Notion reads") {
-		t.Fatalf("expected native Notion guidance, got %q", message)
-	}
+	message := workflowRunnerSystemMessage("mediated")
 	if !strings.Contains(message, "call exactly one RSI native Slack delivery tool") ||
 		!strings.Contains(message, "rsi_slack.message_post") ||
 		!strings.Contains(message, "rsi_slack.report_post") {
 		t.Fatalf("expected exactly-once RSI native Slack delivery guidance, got %q", message)
-	}
-	if strings.Contains(message, "generic Hermes send_message") && !strings.Contains(message, "Do not call generic Hermes send_message") {
-		t.Fatalf("expected native-tools mediated mode to forbid generic send_message guidance, got %q", message)
-	}
-}
-
-func TestWorkflowPartialCompletionBlockedByPolicyMovesNeedsHuman(t *testing.T) {
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "fake",
-			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Recovered a partial answer.","confidence":0.72,"decision":"post_partial_reply"}],"reply_draft":"Grounded summary so far.","final_answer":"Grounded summary so far.","confidence":0.72,"context_summary":"Recovered from persisted session evidence.","self_critique":"More reads would improve coverage.","proposed_actions":[{"kind":"slack_post","target_ref":"C999","request_payload":{"channel_id":"C999","thread_ts":"171000001.000100","body":"Grounded summary so far."},"idempotency_key":"reply-action-partial-blocked","rationale":"Post the grounded partial answer."}],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"completion_verdict":     "partial",
-				"termination_reason":     "iteration_budget_exhausted",
-				"max_iterations_reached": true,
-				"runner_diagnostics": map[string]any{
-					"completion_verdict":     "partial",
-					"termination_reason":     "iteration_budget_exhausted",
-					"max_iterations_reached": true,
-					"budget_used":            20,
-					"budget_max":             20,
-				},
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{
-						map[string]any{
-							"step_type":  "analysis",
-							"summary":    "Recovered a partial answer.",
-							"confidence": 0.72,
-							"decision":   "post_partial_reply",
-						},
-					},
-					"reply_draft":     "Grounded summary so far.",
-					"final_answer":    "Grounded summary so far.",
-					"confidence":      0.72,
-					"context_summary": "Recovered from persisted session evidence.",
-					"self_critique":   "More reads would improve coverage.",
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":       "slack_post",
-							"target_ref": "C999",
-							"request_payload": map[string]any{
-								"channel_id": "C999",
-								"thread_ts":  "171000001.000100",
-								"body":       "Grounded summary so far.",
-							},
-							"idempotency_key": "reply-action-partial-blocked",
-							"rationale":       "Post the grounded partial answer.",
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	slackPosts := 0
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		if name == "slack.history" {
-			_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-				Name:          name,
-				ToolCallID:    "slack-history-prefetch-blocked-partial",
-				Approved:      true,
-				ApprovalState: "not_required",
-				Status:        "completed",
-				Available:     true,
-				Provider:      "slack",
-				ProviderRef:   "171000001.000100",
-				Summary:       "Slack thread history loaded.",
-				Input:         map[string]any{},
-				Output:        map[string]any{"messages": []any{}},
-			})
-			return
-		}
-		if name == "slack.reply" {
-			slackPosts++
-		}
-		t.Fatalf("unexpected tool invocation %s", name)
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	replyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-	if err := processControlActionEffect(cfg, store, replyAction); err != nil {
-		t.Fatalf("processControlActionEffect(reply) error = %v", err)
-	}
-
-	if slackPosts != 0 {
-		t.Fatalf("expected no live slack post for blocked partial completion, got %d", slackPosts)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" {
-		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusNeedsHuman {
-		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one slack action record, got %d", len(trace.SlackActions))
-	}
-	if trace.SlackActions[0].SendStatus != "channel_policy_missing" {
-		t.Fatalf("expected channel_policy_missing send status, got %q", trace.SlackActions[0].SendStatus)
-	}
-}
-
-func TestWorkflowGenericNativeMCPReplyDeliveryIgnoredWithoutQueuedSlackReply(t *testing.T) {
-	var runnerRequest map[string]any
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
-			t.Fatalf("decode runner request: %v", err)
-		}
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.88,"context_summary":"Grounded in Slack MCP evidence.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[{"kind":"diagram","artifact_refs":["artifact://structured-diagram"]}]}`,
-			"raw": map[string]any{
-				"native_mcp_enabled": true,
-				"reply_delivery": map[string]any{
-					"channel_id":   "D123",
-					"thread_ts":    "171000001.000100",
-					"body":         "Final reply from Slack MCP.",
-					"body_sha1":    "delivery-sha1",
-					"body_excerpt": "Final reply from Slack MCP.",
-					"tool_call_id": "mcp-send-1",
-					"tool_name":    "slack.mcp.send_message",
-					"provider_ref": "171000001.000100",
-					"send_status":  "posted",
-					"artifact_refs": []any{
-						"artifact://delivery-proof",
-					},
-				},
-				"tool_calls": []any{
-					map[string]any{
-						"id":             "runner-tool-record-mcp-send-1",
-						"tool_name":      "slack.mcp.send_message",
-						"tool_call_id":   "mcp-send-1",
-						"request":        map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
-						"summary":        "Posted Slack reply through MCP.",
-						"status":         "completed",
-						"created_at":     "2026-04-18T20:00:00Z",
-						"approval_state": "not_required",
-					},
-				},
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{},
-					"reply_draft":       "Final reply from Slack MCP.",
-					"final_answer":      "Final reply from Slack MCP.",
-					"confidence":        0.88,
-					"context_summary":   "Grounded in Slack MCP evidence.",
-					"self_critique":     "",
-					"produced_artifacts": []any{
-						map[string]any{
-							"kind": "diagram",
-							"artifact_refs": []any{
-								"artifact://structured-diagram",
-							},
-						},
-					},
-					"proposed_actions":   []any{},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-				"runner_diagnostics": map[string]any{
-					"native_execution_mode":    "openai_responses_mcp",
-					"native_mcp_enabled":       true,
-					"reply_delivery_attempted": true,
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	toolGatewayCalls := []string{}
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		toolGatewayCalls = append(toolGatewayCalls, name)
-		if name != "slack.history" {
-			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
-		}
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-history-prefetch-direct",
-			Approved:      true,
-			ApprovalState: "not_required",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack thread history loaded.",
-			Input:         map[string]any{},
-			Output:        map[string]any{"messages": []any{}},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	taskPayload := mapValue(runnerRequest["task"])
-	mcpServers, _ := taskPayload["mcp_servers"].([]any)
-	if len(mcpServers) != 0 {
-		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
-	}
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
-		t.Fatalf("expected mediated reply delivery mode, got %q", got)
-	}
-	if len(toolGatewayCalls) != 0 {
-		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
-	}
-	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
-		t.Fatalf("expected no queued control actions, got %#v", queued)
-	}
-	if intents := store.ListActionIntents(); len(intents) != 0 {
-		t.Fatalf("expected no action intents, got %#v", intents)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" {
-		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
-	}
-	if workflow.FailureClass != "missing_explicit_action_contract" {
-		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusNeedsHuman {
-		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
-	}
-	if len(trace.SlackActions) != 0 {
-		t.Fatalf("expected native send_message reply_delivery to be ignored, got %#v", trace.SlackActions)
 	}
 }
 
@@ -3611,498 +3323,6 @@ func TestWorkflowRSINativeSlackReplyDeliveryCompletesWithoutQueuedSlackReply(t *
 	}
 }
 
-func TestWorkflowLegacyDirectReplyDeliveryCompletesAndPersistsSlackAction(t *testing.T) {
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply already posted.","final_answer":"Final reply already posted.","confidence":0.88,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[{"kind":"slack_post","target_ref":"D123","idempotency_key":"legacy-direct-duplicate-guard","rationale":"Legacy runner still emitted a mediated action after direct delivery."}],"knowledge_drafts":[],"outcome_hypotheses":[],"produced_artifacts":[{"kind":"plot","artifact_refs":["artifact://legacy-direct-plot"]}]}`,
-			"raw": map[string]any{
-				"reply_delivery_mode": "direct",
-				"reply_delivery": map[string]any{
-					"channel_id":   "D123",
-					"thread_ts":    "171000001.000100",
-					"body":         "Final reply already posted.",
-					"body_sha1":    "delivery-sha1",
-					"body_excerpt": "Final reply already posted.",
-					"tool_call_id": "legacy-send-1",
-					"tool_name":    "send_message",
-					"provider_ref": "171000001.000100",
-					"send_status":  "posted",
-				},
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{},
-					"reply_draft":       "Final reply already posted.",
-					"final_answer":      "Final reply already posted.",
-					"confidence":        0.88,
-					"context_summary":   "Grounded answer.",
-					"self_critique":     "",
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":            "slack_post",
-							"target_ref":      "D123",
-							"idempotency_key": "legacy-direct-duplicate-guard",
-							"rationale":       "Legacy runner still emitted a mediated action after direct delivery.",
-						},
-					},
-					"produced_artifacts": []any{
-						map[string]any{
-							"kind":          "plot",
-							"artifact_refs": []any{"artifact://legacy-direct-plot"},
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
-		t.Fatalf("expected no queued control actions, got %#v", queued)
-	}
-	if intents := store.ListActionIntents(); len(intents) != 0 {
-		t.Fatalf("expected no action intents, got %#v", intents)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "completed" {
-		t.Fatalf("expected completed workflow, got %s", workflow.Status)
-	}
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusCompleted {
-		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one persisted direct Slack action, got %#v", trace.SlackActions)
-	}
-	if trace.SlackActions[0].ID != "legacy-send-1" {
-		t.Fatalf("expected legacy direct action id, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].SendStatus != "posted" {
-		t.Fatalf("expected posted send status, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].PolicyVerdict != "thread_allowed" {
-		t.Fatalf("expected persisted policy verdict, got %#v", trace.SlackActions[0])
-	}
-	if got := trace.SlackActions[0].ArtifactRefs; !reflect.DeepEqual(got, []string{"artifact://legacy-direct-plot"}) {
-		t.Fatalf("expected produced artifact ref on direct delivery, got %#v", got)
-	}
-}
-
-func TestWorkflowNativeMCPMissingReplyDeliveryMovesNeedsHuman(t *testing.T) {
-	var runnerRequest map[string]any
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
-			t.Fatalf("decode runner request: %v", err)
-		}
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.71,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"native_mcp_enabled": true,
-				"structured_output": map[string]any{
-					"visible_reasoning":  []any{},
-					"reply_draft":        "Final reply from Slack MCP.",
-					"final_answer":       "Final reply from Slack MCP.",
-					"confidence":         0.71,
-					"context_summary":    "Grounded answer.",
-					"self_critique":      "",
-					"proposed_actions":   []any{},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-				"runner_diagnostics": map[string]any{
-					"native_execution_mode": "openai_responses_mcp",
-					"native_mcp_enabled":    true,
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	toolGatewayCalls := []string{}
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		toolGatewayCalls = append(toolGatewayCalls, name)
-		if name != "slack.history" {
-			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
-		}
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-history-prefetch-missing-reply-delivery",
-			Approved:      true,
-			ApprovalState: "not_required",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack thread history loaded.",
-			Input:         map[string]any{},
-			Output:        map[string]any{"messages": []any{}},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	taskPayload := mapValue(runnerRequest["task"])
-	mcpServers, _ := taskPayload["mcp_servers"].([]any)
-	if len(mcpServers) != 0 {
-		t.Fatalf("expected no Slack MCP servers in runner request, got %#v", mcpServers)
-	}
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
-		t.Fatalf("expected mediated reply delivery mode, got %q", got)
-	}
-	if len(toolGatewayCalls) != 0 {
-		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
-	}
-	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
-		t.Fatalf("expected no queued control actions, got %#v", queued)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" {
-		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
-	}
-	if workflow.FailureClass != "missing_explicit_action_contract" {
-		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusNeedsHuman {
-		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
-	}
-	if len(trace.SlackActions) != 0 {
-		t.Fatalf("expected no Slack actions when reply_delivery is missing, got %#v", trace.SlackActions)
-	}
-}
-
-func TestWorkflowEmptyReplyDeliveryMovesNeedsHuman(t *testing.T) {
-	var runnerRequest map[string]any
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
-			t.Fatalf("decode runner request: %v", err)
-		}
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply from Slack MCP.","final_answer":"Final reply from Slack MCP.","confidence":0.71,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"reply_delivery":{},"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"structured_output": map[string]any{
-					"visible_reasoning":  []any{},
-					"reply_draft":        "Final reply from Slack MCP.",
-					"final_answer":       "Final reply from Slack MCP.",
-					"confidence":         0.71,
-					"context_summary":    "Grounded answer.",
-					"self_critique":      "",
-					"proposed_actions":   []any{},
-					"reply_delivery":     map[string]any{},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-				"runner_diagnostics": map[string]any{},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	taskPayload := mapValue(runnerRequest["task"])
-	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
-		t.Fatalf("expected mediated reply delivery mode, got %q", got)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" {
-		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
-	}
-	if workflow.FailureClass != "missing_explicit_action_contract" {
-		t.Fatalf("expected missing_explicit_action_contract failure class, got %#v", workflow)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if len(trace.SlackActions) != 0 {
-		t.Fatalf("expected no Slack actions for empty reply_delivery, got %#v", trace.SlackActions)
-	}
-}
-
-func TestWorkflowFailedReplyDeliveryPersistsSlackAction(t *testing.T) {
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "openai",
-			"message":  `{"visible_reasoning":[],"reply_draft":"Final reply.","final_answer":"Final reply.","confidence":0.71,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"reply_delivery":{"channel_id":"D123","thread_ts":"171000002.000100","body":"Final reply.","body_sha1":"delivery-sha1","tool_call_id":"mcp-send-1","send_status":"channel_not_found"},"knowledge_drafts":[],"outcome_hypotheses":[]}`,
-			"raw": map[string]any{
-				"structured_output": map[string]any{
-					"visible_reasoning":  []any{},
-					"reply_draft":        "Final reply.",
-					"final_answer":       "Final reply.",
-					"confidence":         0.71,
-					"context_summary":    "Grounded answer.",
-					"self_critique":      "",
-					"proposed_actions":   []any{},
-					"reply_delivery":     map[string]any{"channel_id": "D123", "thread_ts": "171000002.000100", "body": "Final reply.", "body_sha1": "delivery-sha1", "tool_call_id": "mcp-send-1", "send_status": "channel_not_found"},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{"prod": clients.NewRunnerClient(cfg.RunnerBaseURL)}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" || workflow.FailureClass != "missing_explicit_action_contract" {
-		t.Fatalf("expected missing explicit action needs_human workflow, got %#v", workflow)
-	}
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if len(trace.SlackActions) != 0 {
-		t.Fatalf("expected native send_message reply_delivery to be ignored, got %#v", trace.SlackActions)
-	}
-}
-
-func TestWorkflowNativeMCPReplyDeliveryUncertainMovesNeedsHuman(t *testing.T) {
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       false,
-			"provider": "openai",
-			"message":  "reply delivery is uncertain after a Slack MCP write attempt",
-			"raw": map[string]any{
-				"failure_class":      "runner_reply_delivery_uncertain",
-				"native_mcp_enabled": true,
-				"completion_verdict": "complete",
-				"termination_reason": "normal_completion",
-				"reply_delivery": map[string]any{
-					"channel_id":   "D123",
-					"thread_ts":    "171000001.000100",
-					"body":         "Final reply from Slack MCP.",
-					"body_sha1":    "delivery-sha1",
-					"body_excerpt": "Final reply from Slack MCP.",
-					"tool_call_id": "mcp-send-1",
-					"tool_name":    "slack.mcp.send_message",
-					"provider_ref": "171000001.000100",
-					"send_status":  "posted",
-				},
-				"tool_calls": []any{
-					map[string]any{
-						"id":             "runner-tool-record-mcp-send-1",
-						"tool_name":      "slack.mcp.send_message",
-						"tool_call_id":   "mcp-send-1",
-						"request":        map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100"},
-						"summary":        "Posted Slack reply through MCP.",
-						"status":         "completed",
-						"created_at":     "2026-04-18T20:00:00Z",
-						"approval_state": "not_required",
-					},
-				},
-				"runner_diagnostics": map[string]any{
-					"native_execution_mode":    "openai_responses_mcp",
-					"native_mcp_enabled":       true,
-					"reply_delivery_attempted": true,
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	toolGatewayCalls := []string{}
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		toolGatewayCalls = append(toolGatewayCalls, name)
-		if name != "slack.history" {
-			t.Fatalf("unexpected tool gateway invocation %s", r.URL.Path)
-		}
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    "slack-history-prefetch-uncertain-delivery",
-			Approved:      true,
-			ApprovalState: "not_required",
-			Status:        "completed",
-			Available:     true,
-			Provider:      "slack",
-			ProviderRef:   "171000001.000100",
-			Summary:       "Slack thread history loaded.",
-			Input:         map[string]any{},
-			Output:        map[string]any{"messages": []any{}},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-
-	if len(toolGatewayCalls) != 0 {
-		t.Fatalf("expected no platform Slack prefetch calls, got %#v", toolGatewayCalls)
-	}
-	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
-		t.Fatalf("expected no queued control actions, got %#v", queued)
-	}
-
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatal("expected workflow to exist")
-	}
-	if workflow.Status != "needs_human" {
-		t.Fatalf("expected needs_human workflow, got %s", workflow.Status)
-	}
-	if workflow.FailureClass != "runner_reply_delivery_uncertain" {
-		t.Fatalf("expected runner_reply_delivery_uncertain failure class, got %#v", workflow)
-	}
-
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatal("expected trace to exist")
-	}
-	if trace.Summary.Status != events.StatusNeedsHuman {
-		t.Fatalf("expected needs_human trace, got %s", trace.Summary.Status)
-	}
-	if len(trace.SlackActions) != 1 {
-		t.Fatalf("expected one persisted uncertain Slack action, got %#v", trace.SlackActions)
-	}
-	if trace.SlackActions[0].ID != "mcp-send-1" {
-		t.Fatalf("expected uncertain reply_delivery action id, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].IdempotencyKey != "delivery-sha1" {
-		t.Fatalf("expected uncertain reply body digest idempotency key, got %#v", trace.SlackActions[0])
-	}
-	if trace.SlackActions[0].SendStatus != "posted" {
-		t.Fatalf("expected persisted send status on uncertain delivery, got %#v", trace.SlackActions[0])
-	}
-}
-
 func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) {
 	if got := partialCompletionNoticeForTerminationReason("output_token_budget_exhausted"); got != partialCompletionNoticeOutputBudget {
 		t.Fatalf("unexpected output-budget notice: %q", got)
@@ -4112,128 +3332,6 @@ func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) 
 	}
 	if got := partialCompletionRunnerDescription("output_token_budget_exhausted", true); !strings.Contains(got, "response output budget") {
 		t.Fatalf("unexpected output-budget runner description: %q", got)
-	}
-}
-
-func TestSupersededTraceDoesNotPostLateSlackReply(t *testing.T) {
-	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"ok":       true,
-			"provider": "fake",
-			"message":  `{"visible_reasoning":[{"step_type":"analysis","summary":"Collected context and prepared a reply.","confidence":0.91,"decision":"reply_in_thread"}],"reply_draft":"Draft reply","final_answer":"Final reply","confidence":0.91,"proposed_actions":[{"kind":"slack_post","target_ref":"CENG","idempotency_key":"reply-action-2","rationale":"Post the answer back into Slack."}]}`,
-			"raw": map[string]any{
-				"structured_output": map[string]any{
-					"visible_reasoning": []any{
-						map[string]any{
-							"step_type":  "analysis",
-							"summary":    "Collected context and prepared a reply.",
-							"confidence": 0.91,
-							"decision":   "reply_in_thread",
-						},
-					},
-					"reply_draft":  "Draft reply",
-					"final_answer": "Final reply",
-					"confidence":   0.91,
-					"proposed_actions": []any{
-						map[string]any{
-							"kind":            "slack_post",
-							"target_ref":      "CENG",
-							"idempotency_key": "reply-action-2",
-							"rationale":       "Post the answer back into Slack.",
-						},
-					},
-					"knowledge_drafts":   []any{},
-					"outcome_hypotheses": []any{},
-				},
-			},
-		})
-	}))
-	defer runner.Close()
-
-	slackPosts := 0
-	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")
-		name = strings.TrimSuffix(name, "/execute")
-		name = strings.TrimSuffix(name, "/internal/hermes-executions")
-		if name == "slack.reply" {
-			slackPosts++
-		}
-		_ = json.NewEncoder(w).Encode(storepkg.ToolResult{
-			Name:          name,
-			ToolCallID:    name + "-call",
-			Approved:      true,
-			ApprovalState: "approved",
-			Status:        "completed",
-			Available:     true,
-			Summary:       "ok",
-			Input:         map[string]any{},
-			Output:        map[string]any{"posted": true},
-		})
-	}))
-	defer toolGateway.Close()
-
-	store := storepkg.NewMemoryStore()
-	cfg := config.Config{
-		ServiceName:               "control-plane",
-		DefaultRepo:               "rsi-agent-platform",
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		AllowedTargetRepos:        []string{"rsi-agent-platform"},
-		RunnerBaseURL:             runner.URL,
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-	}
-
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
-		t.Fatalf("startWorkflowViaCommand() error = %v", err)
-	}
-	for _, item := range queuedActionEffectsForPlane(store, "control") {
-		if err := processControlActionEffect(cfg, store, item); err != nil {
-			t.Fatalf("processControlActionEffect(context) error = %v", err)
-		}
-	}
-	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
-	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
-		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
-	}, runnerEffect); err != nil {
-		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
-	}
-	oldReplyAction := firstQueuedActionEffectByKind(t, store, "control", action.KindSlackPost)
-
-	_, err := store.SubmitCommand(transition.CommandEnvelope{
-		MachineKind: transition.MachineIngress,
-		AggregateID: "slack:slack:CENG:171000099.000100",
-		CommandKind: string(transition.CommandIngressRecordEvent),
-		CommandID:   "cmd-test-ingress-newer-evidence",
-		Actor:       "tester",
-		OccurredAt:  time.Now().UTC(),
-		Payload: map[string]any{
-			"source":                       string(ingestion.SourceSlack),
-			"source_event_id":              "slack-171000099.000100",
-			"thread_key":                   "slack:CENG:171000001.000100",
-			"dedupe_key":                   "slack:CENG:171000099.000100",
-			"severity":                     string(ingestion.SeverityWarning),
-			"normalized_problem_statement": "Investigate why staging homepage is failing and propose a fix with newer evidence.",
-			"ownership_hint":               "platform",
-			"raw_payload_ref":              "memory://slack/CENG/171000099-000100.json",
-			"workflow_hint":                "incident",
-			"metadata": map[string]any{
-				"channel_id": "CENG",
-				"user_id":    "U123",
-				"thread_ts":  "171000001.000100",
-			},
-			"created_at": time.Now().UTC(),
-		},
-	})
-	if err != nil {
-		t.Fatalf("SubmitCommand(ingress_record_event) error = %v", err)
-	}
-
-	if err := processControlActionEffect(cfg, store, oldReplyAction); err != nil {
-		t.Fatalf("processControlActionEffect(old reply) error = %v", err)
-	}
-	if slackPosts != 0 {
-		t.Fatalf("expected superseded reply to not post to Slack, got %d calls", slackPosts)
 	}
 }
 
@@ -4623,6 +3721,17 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 			"provider": "fake",
 			"message":  "Final reply",
 			"raw": map[string]any{
+				"reply_delivery": map[string]any{
+					"channel_id":      "D123",
+					"thread_ts":       "171000001.000100",
+					"body":            "Final reply",
+					"body_sha1":       "delivery-sha1",
+					"tool_call_id":    "call-rsi-message-persist",
+					"tool_name":       "rsi_slack.message_post",
+					"provider_ref":    "slack:D123:171000001.000200",
+					"send_status":     "posted",
+					"idempotency_key": "runner-completion-persistence",
+				},
 				"structured_output": map[string]any{
 					"visible_reasoning": []any{
 						map[string]any{
@@ -4638,7 +3747,8 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 					"confidence":         0.9,
 					"context_summary":    "Context collected.",
 					"self_critique":      "",
-					"proposed_actions":   []any{map[string]any{"kind": "slack_post", "rationale": "Reply in thread.", "target_ref": "D123"}},
+					"reply_delivery":     map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100", "body": "Final reply", "body_sha1": "delivery-sha1", "tool_call_id": "call-rsi-message-persist", "tool_name": "rsi_slack.message_post", "provider_ref": "slack:D123:171000001.000200", "send_status": "posted", "idempotency_key": "runner-completion-persistence"},
+					"proposed_actions":   []any{},
 					"knowledge_drafts":   []any{},
 					"outcome_hypotheses": []any{},
 				},
@@ -4690,7 +3800,7 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 	store := &failingWorkflowCommandStore{
 		Store:           baseStore,
 		FailWorkflowID:  workflowItem.workflowID,
-		FailCommandKind: transition.CommandWorkflowExecutionCompleted,
+		FailCommandKind: transition.CommandWorkflowExecutionCompletedNoReply,
 		Err:             errors.New("workflow command persistence failed"),
 	}
 
@@ -4725,6 +3835,17 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 			"provider": "fake",
 			"message":  "Final reply",
 			"raw": map[string]any{
+				"reply_delivery": map[string]any{
+					"channel_id":      "D123",
+					"thread_ts":       "171000001.000100",
+					"body":            "Final reply",
+					"body_sha1":       "delivery-sha1",
+					"tool_call_id":    "call-rsi-message-invariant",
+					"tool_name":       "rsi_slack.message_post",
+					"provider_ref":    "slack:D123:171000001.000200",
+					"send_status":     "posted",
+					"idempotency_key": "runner-completion-invariant",
+				},
 				"structured_output": map[string]any{
 					"visible_reasoning": []any{
 						map[string]any{
@@ -4740,7 +3861,8 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 					"confidence":         0.9,
 					"context_summary":    "Context collected.",
 					"self_critique":      "",
-					"proposed_actions":   []any{map[string]any{"kind": "slack_post", "rationale": "Reply in thread.", "target_ref": "D123"}},
+					"reply_delivery":     map[string]any{"channel_id": "D123", "thread_ts": "171000001.000100", "body": "Final reply", "body_sha1": "delivery-sha1", "tool_call_id": "call-rsi-message-invariant", "tool_name": "rsi_slack.message_post", "provider_ref": "slack:D123:171000001.000200", "send_status": "posted", "idempotency_key": "runner-completion-invariant"},
+					"proposed_actions":   []any{},
 					"knowledge_drafts":   []any{},
 					"outcome_hypotheses": []any{},
 				},
@@ -4792,7 +3914,7 @@ func TestHandleClaimedWorkflowRunnerEffectRunnerCompletionInvariantFailureFailsW
 	store := &noopWorkflowCommandStore{
 		Store:           baseStore,
 		NoopWorkflowID:  workflowItem.workflowID,
-		NoopCommandKind: transition.CommandWorkflowExecutionCompleted,
+		NoopCommandKind: transition.CommandWorkflowExecutionCompletedNoReply,
 	}
 
 	handleClaimedWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
@@ -5446,9 +4568,6 @@ func TestBuildRunnerTaskLetsNativeRunnerChooseToolSurface(t *testing.T) {
 		DefaultReasoningVerbosity: "verbose",
 	}, store, "prod", trace, workflow, ingestion, "context", nil)
 
-	if len(task.MCPServers) != 0 {
-		t.Fatalf("expected no Slack MCP servers for native delivery, got %#v", task.MCPServers)
-	}
 	assertContextRefKind(t, task.ContextRefs, "candidate_read_surface")
 	assertNoContextRefKind(t, task.ContextRefs, "repo_target")
 	assertNoContextRefKind(t, task.ContextRefs, "repo_activity_window")
@@ -6173,98 +5292,6 @@ func TestNativeStrictEnvelopeFailureClassifier(t *testing.T) {
 		"failure_class": "runner_transport_timeout",
 	}) {
 		t.Fatal("non-envelope native failures should keep normal failure projection behavior")
-	}
-}
-
-func TestBuildRunnerTaskIncludesNotionMCPWhenEnabled(t *testing.T) {
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatalf("expected trace %s", workflowItem.traceID)
-	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatalf("expected workflow %s", workflowItem.workflowID)
-	}
-	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
-	if !ok {
-		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
-	}
-	task := buildRunnerTask(config.Config{
-		Environment:                  "stage",
-		DefaultRepo:                  "rsi-agent-platform",
-		AllowedTargetRepos:           []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:      "https://example.test/kb",
-		SandboxNamespace:             "rsi-platform",
-		DefaultReasoningVerbosity:    "verbose",
-		NotionMCPEnabled:             true,
-		NotionMCPServerURL:           "https://mcp.notion.com/mcp",
-		NotionMCPHeaderEnvVars:       map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"},
-		NotionMCPAuthorizationEnvVar: "RSI_NOTION_MCP_AUTHORIZATION",
-	}, store, "prod", trace, workflow, ingestion, "context", nil)
-
-	if len(task.MCPServers) != 1 {
-		t.Fatalf("expected only Notion MCP server, got %#v", task.MCPServers)
-	}
-	if task.MCPServers[0].ServerLabel != "notion" {
-		t.Fatalf("expected notion MCP server, got %#v", task.MCPServers[0])
-	}
-	if task.MCPServers[0].AuthorizationEnvVar != "RSI_NOTION_MCP_AUTHORIZATION" {
-		t.Fatalf("unexpected notion auth env var %#v", task.MCPServers[0])
-	}
-	if !reflect.DeepEqual(task.MCPServers[0].HeaderEnvVars, map[string]string{"CF-Access-Client-Id": "RSI_NOTION_MCP_CF_ACCESS_CLIENT_ID"}) {
-		t.Fatalf("unexpected notion header env vars %#v", task.MCPServers[0].HeaderEnvVars)
-	}
-	if !reflect.DeepEqual(task.MCPServers[0].AllowedTools, map[string]any{"read_only": true}) {
-		t.Fatalf("expected read-only notion tool surface, got %#v", task.MCPServers[0].AllowedTools)
-	}
-	if !strings.Contains(task.SystemMessage, "Use Notion MCP for Notion workspace search and page fetches when relevant.") {
-		t.Fatalf("expected notion MCP instruction in system prompt, got %q", task.SystemMessage)
-	}
-}
-
-func TestBuildRunnerTaskIncludesSlackMCPWhenEnabled(t *testing.T) {
-	store := storepkg.NewMemoryStore()
-	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
-	trace, ok := store.GetTrace(workflowItem.traceID)
-	if !ok {
-		t.Fatalf("expected trace %s", workflowItem.traceID)
-	}
-	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
-	if !ok {
-		t.Fatalf("expected workflow %s", workflowItem.workflowID)
-	}
-	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
-	if !ok {
-		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
-	}
-	task := buildRunnerTask(config.Config{
-		Environment:               "stage",
-		DefaultRepo:               "rsi-agent-platform",
-		AllowedTargetRepos:        []string{"depin-backend", "rsi-agent-platform"},
-		DefaultKnowledgeBaseURL:   "https://example.test/kb",
-		SandboxNamespace:          "rsi-platform",
-		DefaultReasoningVerbosity: "verbose",
-		SlackMCPEnabled:           true,
-		SlackMCPServerURL:         "http://127.0.0.1:8092/mcp",
-	}, store, "prod", trace, workflow, ingestion, "context", nil)
-
-	if len(task.MCPServers) != 1 {
-		t.Fatalf("expected only Slack MCP server, got %#v", task.MCPServers)
-	}
-	server := task.MCPServers[0]
-	if server.ServerLabel != "slack" || server.Profile != "slack_mcp_read" {
-		t.Fatalf("expected slack read MCP server, got %#v", server)
-	}
-	if server.AuthorizationEnvVar != "SLACK_BOT_TOKEN" {
-		t.Fatalf("unexpected Slack MCP auth env var %#v", server)
-	}
-	if !reflect.DeepEqual(server.AllowedTools, map[string]any{"read_only": true}) {
-		t.Fatalf("expected read-only Slack tool surface, got %#v", server.AllowedTools)
-	}
-	if !strings.Contains(task.SystemMessage, "Use Slack MCP for Slack permalink/thread reads and Honcho-backed company corpus discovery") {
-		t.Fatalf("expected Slack MCP instruction in system prompt, got %q", task.SystemMessage)
 	}
 }
 
