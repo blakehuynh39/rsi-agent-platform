@@ -53,6 +53,15 @@ ORDER BY unique_users DESC
 
 This returns the full distribution in a few rows (one per distinct unique_user count) and fits well within the 100-row cap.
 
+### ⚠️ Pitfall: 3-Table JOINs Time Out on depin-prod
+
+Query 3 (scripts→script_assignments→submissions) may exceed the 20s timeout on `depin-prod` because it forces a triple-table hash join. When it times out, use the **two-path strategy**:
+
+- **Path A (assignment-level)**: Query 5 — skips `submissions`, joins only `scripts`→`script_assignments`. Counts `COUNT(DISTINCT sa.user_id)`. Always fast (2-table join). Answers "how many unique users were assigned to each script?"
+- **Path B (submission-level)**: Query 6 — joins `script_assignments`→`submissions` directly (no `scripts` table in the join, filter by `s.language_code` via `scripts` in WHERE subquery or use `sa.script_id` + `scripts` as separate filter). Answers "how many unique users actually submitted to each script?"
+
+The two distributions tell different stories. The assignment distribution reveals the provisioning strategy (bimodal at 7 and 14-15); the submission distribution reveals actual user behavior (bell-shaped centered at 7-8). The gap between them — e.g., 3,629 assigned vs 1,890 submitted (52% conversion) — is a key diagnostic for campaign health.
+
 ## Query 4: Per-Campaign Histogram (All Active Campaigns)
 
 Generalizes Query 3 to all active campaigns by adding `campaign_id` to the inner grouping and joining to `campaigns` in the outer query:
@@ -82,6 +91,86 @@ ORDER BY c.campaign_name, unique_users DESC
 ```
 
 **Pitfall**: The campaigns table uses `campaign_name` and `campaign_type`, not `name` and `type`. Always verify with `information_schema.columns` before joining.
+
+## Query 5: Assignment-Only Histogram (No Submissions Table)
+
+```sql
+SELECT unique_users, COUNT(*) AS script_count
+FROM (
+  SELECT s.id, COUNT(DISTINCT sa.user_id) AS unique_users
+  FROM scripts s
+  LEFT JOIN script_assignments sa ON sa.script_id = s.id
+  WHERE s.language_code = 'vi' AND s.is_active = true
+  GROUP BY s.id
+) dist
+GROUP BY unique_users
+ORDER BY unique_users
+```
+
+**Use when**: Query 3 times out. This joins only 2 tables (`scripts`→`script_assignments`) and counts unique assigned users per script. Returns the assignment-level distribution — consistently fast even on depin-prod at 2,000+ scripts.
+
+## Query 6: Submission-Only Histogram (Filter by Script Language)
+
+```sql
+SELECT unique_users, COUNT(*) AS script_count
+FROM (
+  SELECT sa.script_id, COUNT(DISTINCT sub.user_id) AS unique_users
+  FROM scripts s
+  JOIN script_assignments sa ON sa.script_id = s.id
+  JOIN submissions sub ON sub.script_assignment_id = sa.id
+  WHERE s.language_code = 'vi' AND s.is_active = true AND sub.mock = false
+  GROUP BY sa.script_id
+) dist
+GROUP BY unique_users
+ORDER BY unique_users
+```
+
+**Alternative (no scripts in inner join)**: Join `script_assignments`→`submissions` directly and filter by script ID from a subquery on `scripts`:
+
+```sql
+SELECT unique_users, COUNT(*) AS script_count
+FROM (
+  SELECT sa.script_id, COUNT(DISTINCT sub.user_id) AS unique_users
+  FROM script_assignments sa
+  JOIN submissions sub ON sub.script_assignment_id = sa.id
+  WHERE sa.script_id IN (SELECT id FROM scripts WHERE language_code = 'vi' AND is_active = true)
+    AND sub.mock = false
+  GROUP BY sa.script_id
+) dist
+GROUP BY unique_users
+ORDER BY unique_users
+```
+
+**Use when**: You need submission-level data but Query 3 times out. This still uses 3 tables but the inner subquery on `scripts` may execute as a separate index scan. If this also times out, use Query 5 and separately query total submission counts.
+
+## Gap Analysis Query
+
+To check how many assigned users actually submitted (per-script gap):
+
+```sql
+SELECT 
+  COUNT(DISTINCT sa.user_id) AS assigned_users,
+  COUNT(DISTINCT sub.user_id) AS submitting_users,
+  COUNT(DISTINCT sa.user_id) - COUNT(DISTINCT sub.user_id) AS gap
+FROM scripts s
+JOIN script_assignments sa ON sa.script_id = s.id
+LEFT JOIN submissions sub ON sub.script_assignment_id = sa.id AND sub.mock = false
+WHERE s.language_code = 'vi' AND s.is_active = true
+GROUP BY s.id
+LIMIT 20
+```
+
+For the aggregate conversion rate:
+
+```sql
+SELECT 
+  COUNT(DISTINCT sa.user_id) AS total_assigned,
+  COUNT(DISTINCT sub.user_id) AS total_submitted
+FROM scripts s
+JOIN script_assignments sa ON sa.script_id = s.id
+LEFT JOIN submissions sub ON sub.script_assignment_id = sa.id AND sub.mock = false
+WHERE s.language_code = 'vi' AND s.is_active = true
+```
 
 ## Findings (2026-05-08)
 
@@ -139,3 +228,32 @@ Key takeaways:
 - Vietnamese is a mature, saturated campaign — users are cycling through the per-script cap
 - The other four campaigns have enormous headroom — their 350K script pools are barely touched
 - The `campaigns` table uses `campaign_name` and `campaign_type`, not `name`/`type` as documentation suggests
+
+### Prod (depin-prod — 2026-05-10 08:28 UTC)
+
+**Assignment-level distribution** (Query 5 — `script_assignments` only):
+- 2,000 active Vietnamese scripts (1 campaign: "Vietnamese Voice Data Collection")
+- 21,525 total script assignments, 3,629 unique assigned users
+- Avg 10.76 unique users assigned per script
+- **Bimodal**: clusters at 7 users (990 scripts, 49.5%) and 14-15 users (980 scripts, 49.0%)
+- Range: 6–16 assigned users
+
+**Submission-level distribution** (Query 6 — through `submissions`):
+- 2,000 scripts with submissions
+- 21,817 total submissions, 1,890 unique submitters
+- **Bell-shaped**: centered at 7-8 users, range 3–17
+- States: 20,580 `pending_review` (94.3%), 1,243 `created` (5.7%)
+
+**Assignment→Submission gap**:
+- 3,629 assigned → 1,890 submitted = **52.1% conversion**
+- Scripts at 14-15 assigned tier have only 10-13 actual submitters (~20% drop-off)
+- The bimodal assignment pattern collapses into a single bell curve at submission level
+
+**vs May 8**:
+- Scripts: 2,000 (unchanged)
+- User→script pairs: 12,815 → 21,525 (+68%)
+- Range: 0-12 → 6-16 (floor raised, cap raised)
+- Dominant cluster: 3-4 users → 7 users (right-shifted)
+- High-usage: 10-12 (26%) → 14-15 (49%) — doubled
+
+**Key insight**: The 3-table JOIN (Query 3) timed out on depin-prod. All findings use the two-path strategy (Query 5 for assignments, Query 6 for submissions). The assignment bimodal pattern suggests two assignment waves; the submission bell curve reflects natural user behavior. The gap between them (48% non-submission) is a campaign health signal.
