@@ -21977,3 +21977,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7fa1c2e675823e229e205d61a1ab113e
 - summary: An initiative under the Lion Team, focused on AI-native company proposals and current agentic efforts including AI Agent Factory, Security Bot, Web3 AI Auditor, Pentesting Tool, an...
 
+## [2026-05-11T21:46:10Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_90af098ff0ba49ee07eeb471b93393d0
+- summary: The Lion Team is a group with members, initiatives tracked in a Milestones database, and tasks managed via GitHub project #4. It includes the Internal Agentic Initiative.
+
+## [2026-05-11T21:46:10Z] synthesis | Lion Team Members
+
+- status: published
+- slug: concepts/lion-team-members
+- wiki_revision_id: wikirev_ba1c09d05f2d067f94d9f5177c6ab69f
+- summary: A Notion document listing the members of the Lion Team.
+
+## [2026-05-11T21:46:11Z] synthesis | Internal Agentic Initiative
+
+- status: published
+- slug: projects/internal-agentic-initiative
+- wiki_revision_id: wikirev_362925a84aed39d42cd19257d1ee9b68
+- summary: An initiative under the Lion Team, focused on AI-native company proposals and current agentic efforts including AI Agent Factory, Security Bot, Web3 AI Auditor, Pentesting Tool, an...
+
