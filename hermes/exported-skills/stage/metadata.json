@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b92c3fc718a55149415d8a5f6744b8060ed93ca596421eedba08d963960dfc96",
-        "size": 568478
+        "sha256": "b8f6bbd64a5f5e3a854e1e6e1c9144f012490f73095b2bdf3b7698950a01b2a3",
+        "size": 569203
       },
       {
         "path": "log.md",
-        "sha256": "e79c4a68c4f21f51aa5c0ece8104151f9cba538616d2c34163ef53a7d97009a1",
-        "size": 1043559
+        "sha256": "8853cd4d38cdf220204fe10a0be8ab891178105252ddcf281decacef97bcd4fe",
+        "size": 1045407
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4321,8 +4321,8 @@
       },
       {
         "path": "pages/projects/adaptive-trust-screening-reputation.md",
-        "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
-        "size": 1333
+        "sha256": "c42df57cfd52e7c85df92b13cac94d86273b0595fb53008c4dea65c405293204",
+        "size": 1448
       },
       {
         "path": "pages/projects/add-back-en-kr-vn-ph.md",
@@ -4870,6 +4870,11 @@
         "size": 5835
       },
       {
+        "path": "pages/projects/numo-app-strategy.md",
+        "sha256": "33e3f184f9e9d428919c007402d91b8322aebc0da7fe236c408bf4fe6047a6a4",
+        "size": 4735
+      },
+      {
         "path": "pages/projects/odyssey-testnet.md",
         "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
         "size": 10782
@@ -5211,8 +5216,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "7de7befb881a7094b9cd9081a0ac63dd08e73cc232a4e6f0d5febd6b10c6f33d",
-        "size": 12297
+        "sha256": "08b233a4d31232870417cc6939705a50573714a66708392632f6ab155feeb895",
+        "size": 12289
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -5620,6 +5625,11 @@
         "size": 3701
       },
       {
+        "path": "pages/systems/adaptive-trust-sampling.md",
+        "sha256": "55f7f812bb7134e348470a2bec329e6cd6c8d4695c4ce3a34ab209aa03aa9053",
+        "size": 6252
+      },
+      {
         "path": "pages/systems/admin-api-security-architecture.md",
         "sha256": "e2137a1ea7a5e6a7706e226bfb7e669436c73fc83cc9222f46c1a52cda109818",
         "size": 4492
@@ -5984,8 +5994,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T19:51:36Z",
-  "file_count": 1195,
+  "exported_at": "2026-05-11T20:03:18Z",
+  "file_count": 1197,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8922,7 +8932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "0c4f58dde85943f9e163931a079af643bd7b68dbaf43ed1a60d73cda05863e13",
+  "previous_tree_hash": "a1e15889e232e7889bf52767589471cea7b5dce5477bfff1484f002294a8e627",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8935,14 +8945,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a1e15889e232e7889bf52767589471cea7b5dce5477bfff1484f002294a8e627",
+  "tree_hash": "5b6227094c748347d4602fa050094e56186679450c677bf81710ef2726d264f9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 609,
+  "wiki_file_count": 611,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8951,13 +8961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b92c3fc718a55149415d8a5f6744b8060ed93ca596421eedba08d963960dfc96",
-      "size": 568478
+      "sha256": "b8f6bbd64a5f5e3a854e1e6e1c9144f012490f73095b2bdf3b7698950a01b2a3",
+      "size": 569203
     },
     {
       "path": "log.md",
-      "sha256": "e79c4a68c4f21f51aa5c0ece8104151f9cba538616d2c34163ef53a7d97009a1",
-      "size": 1043559
+      "sha256": "8853cd4d38cdf220204fe10a0be8ab891178105252ddcf281decacef97bcd4fe",
+      "size": 1045407
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10331,8 +10341,8 @@
     },
     {
       "path": "pages/projects/adaptive-trust-screening-reputation.md",
-      "sha256": "8c79490c01adb6827a47dfcb34f2d5fb4f33b5e29333599fa93705a65771202a",
-      "size": 1333
+      "sha256": "c42df57cfd52e7c85df92b13cac94d86273b0595fb53008c4dea65c405293204",
+      "size": 1448
     },
     {
       "path": "pages/projects/add-back-en-kr-vn-ph.md",
@@ -10880,6 +10890,11 @@
       "size": 5835
     },
     {
+      "path": "pages/projects/numo-app-strategy.md",
+      "sha256": "33e3f184f9e9d428919c007402d91b8322aebc0da7fe236c408bf4fe6047a6a4",
+      "size": 4735
+    },
+    {
       "path": "pages/projects/odyssey-testnet.md",
       "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
       "size": 10782
@@ -11221,8 +11236,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "7de7befb881a7094b9cd9081a0ac63dd08e73cc232a4e6f0d5febd6b10c6f33d",
-      "size": 12297
+      "sha256": "08b233a4d31232870417cc6939705a50573714a66708392632f6ab155feeb895",
+      "size": 12289
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -11630,6 +11645,11 @@
       "size": 3701
     },
     {
+      "path": "pages/systems/adaptive-trust-sampling.md",
+      "sha256": "55f7f812bb7134e348470a2bec329e6cd6c8d4695c4ce3a34ab209aa03aa9053",
+      "size": 6252
+    },
+    {
       "path": "pages/systems/admin-api-security-architecture.md",
       "sha256": "e2137a1ea7a5e6a7706e226bfb7e669436c73fc83cc9222f46c1a52cda109818",
       "size": 4492
@@ -11991,5 +12011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d33ea4ed88580cf41d42572770066f483a9a91e404fb38f5c79f0d2e4ec10fdb"
+  "wiki_tree_hash": "90b865b827d173b8ae64e9d456dfa306db01ee7648d651a3e9a7a2bd0c112293"
 }

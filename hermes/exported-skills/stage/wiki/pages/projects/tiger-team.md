@@ -3,11 +3,7 @@ title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T01:08:00Z"
-tags:
-  - "apps"
-  - "data-ecosystem"
-  - "depin"
-  - "voice"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
@@ -22,7 +18,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents, and is currently prioritizing human-to-agent apps for speed and virality.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, planning documents, and development resources.
 
 ## Claims
 
@@ -64,8 +60,13 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 - Product ideas discussed in the Sandeep chat include targeting niche languages, toxicity datasets, social sentiment, debate, A/B testing, RLHF, coding challenges, finance predictions, voice, Indic languages, data annotation, and hard negatives mining. `claim:claim_3_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_f41f7d5ec957ad5857d6d5431448b867` `chunk_id=srcchunk_e1aec63642cce1d2c84f347be23ecc58` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-03-23T21:38:00Z`
 
+## Related Pages
+
+- `projects/adaptive-trust-screening-reputation`
+- `projects/numo-app-strategy`
+
 ## Sources
 
-- `source_document_id`: `srcdoc_406ad3672ed538d69269ee481de484fc`
-- `source_revision_id`: `srcrev_aa710914002810612e3ced60c2ab8ec9`
-- `source_url`: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)
+- `source_document_id`: `srcdoc_23ea56dd8e1ad8665e6c69083639f4e7`
+- `source_revision_id`: `srcrev_b60200373b9e5cc6e10a3f12d76855ce`
+- `source_url`: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)

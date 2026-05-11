@@ -21893,3 +21893,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_467ec7e3b7f7892707d02c7e5ab8b71a
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-11T20:02:05Z] synthesis | Adaptive Trust Screening (Reputation)
+
+- status: published
+- slug: projects/adaptive-trust-screening-reputation
+- wiki_revision_id: wikirev_00357ce2449c5bc1d468bcfbd8442919
+- summary: A P2 project for adaptive trust screening based on reputation, owned by Allen Chuang and Ramtin Seraj, with a documentation task for Numo App Strategy.
+
+## [2026-05-11T20:02:05Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_aa32fb0cbb0679af14587b1d17a7f8c8
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-11T20:02:06Z] synthesis | Numo App Strategy
+
+- status: published
+- slug: projects/numo-app-strategy
+- wiki_revision_id: wikirev_b4e3ffae5787ed210a4da4c9372ff892
+- summary: Numo is a two-sided marketplace that rewards users for data and sells packaged data to AI labs. The strategy focuses on phased launches: first casting a wide net for user volume, t...
+
+## [2026-05-11T20:02:57Z] synthesis | Numo App Strategy
+
+- status: published
+- slug: projects/numo-app-strategy
+- wiki_revision_id: wikirev_9da004318368ac84b668803ac7b142ef
+- summary: Numo is a two-sided marketplace that rewards users for data and sells packaged data to AI labs. The strategy focuses on phased launches: first casting a wide net for user volume, t...
+
+## [2026-05-11T20:02:57Z] synthesis | Adaptive Trust Sampling
+
+- status: published
+- slug: systems/adaptive-trust-sampling
+- wiki_revision_id: wikirev_bc305cb5d2965d574bc59d643c320a79
+- summary: Adaptive Trust Sampling (ATS) is a contributor-quality evaluation system that uses Bayesian updating to dynamically adjust review levels per user, minimizing review cost while iden...
+
