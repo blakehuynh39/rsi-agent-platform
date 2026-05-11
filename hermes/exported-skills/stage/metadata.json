@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3cd152655d34e3bba27e4e120a50e783ca909b194cf87f224db4351ff06d07f2",
-        "size": 562086
+        "sha256": "52e4727f53feb5e28d924ee9b01a8468f1165871b381889e754c6a7d787c251c",
+        "size": 562431
       },
       {
         "path": "log.md",
-        "sha256": "080e9795dbe0b36ce9eaf6dbb49eee15e3528cfc01f63f77d553fe74942f0c5e",
-        "size": 1034076
+        "sha256": "3ab15ed485af65b1e21fa39a8e0b6deb3768f421fb8022539635017d8e9bb860",
+        "size": 1034433
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4780,6 +4780,11 @@
         "size": 5235
       },
       {
+        "path": "pages/projects/mainnet-protocol-design-discussions.md",
+        "sha256": "ebff4b583f7a676bb9a360b70255b8b04fb56d3b674242ce7e8638f7be88c613",
+        "size": 8952
+      },
+      {
         "path": "pages/projects/mercor-reference-project.md",
         "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
         "size": 2789
@@ -5884,8 +5889,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T07:40:23Z",
-  "file_count": 1175,
+  "exported_at": "2026-05-11T07:56:53Z",
+  "file_count": 1176,
   "files": [
     {
       "path": ".curator_state",
@@ -8812,7 +8817,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "1c6846bbf45d6c8c698d842d6fc281841044669611fb826d6513107b1d3c6713",
+  "previous_tree_hash": "28d363e4d3131cdc1753e74aa2b8aea435935a7e0a39191481cafd2f4cb51f6f",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8825,14 +8830,14 @@
   ],
   "skill_tree_hash": "36e6d6b6c0711c66861f7debf4717024bbbb78cb328c40e99e2dad3265570787",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "28d363e4d3131cdc1753e74aa2b8aea435935a7e0a39191481cafd2f4cb51f6f",
+  "tree_hash": "68cad12638524a48ccb8ee36ed0a1b0a141b84b5afff6d0476f1d608fa00c6ef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 591,
+  "wiki_file_count": 592,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8841,13 +8846,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3cd152655d34e3bba27e4e120a50e783ca909b194cf87f224db4351ff06d07f2",
-      "size": 562086
+      "sha256": "52e4727f53feb5e28d924ee9b01a8468f1165871b381889e754c6a7d787c251c",
+      "size": 562431
     },
     {
       "path": "log.md",
-      "sha256": "080e9795dbe0b36ce9eaf6dbb49eee15e3528cfc01f63f77d553fe74942f0c5e",
-      "size": 1034076
+      "sha256": "3ab15ed485af65b1e21fa39a8e0b6deb3768f421fb8022539635017d8e9bb860",
+      "size": 1034433
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10690,6 +10695,11 @@
       "size": 5235
     },
     {
+      "path": "pages/projects/mainnet-protocol-design-discussions.md",
+      "sha256": "ebff4b583f7a676bb9a360b70255b8b04fb56d3b674242ce7e8638f7be88c613",
+      "size": 8952
+    },
+    {
       "path": "pages/projects/mercor-reference-project.md",
       "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
       "size": 2789
@@ -11791,5 +11801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cc1adffb0def0888c964448be9399b5f7f43ae0d35ef97c3bffbb81b7e8a7476"
+  "wiki_tree_hash": "be7da521beec01f33efcfefbd5f9f0ff7d5a50859e0b4a7398d5a6aabe2a69f9"
 }

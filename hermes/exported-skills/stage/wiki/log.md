@@ -21709,3 +21709,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_05bcf5e88337dae616331820b0c405c3
 - summary: Contract addresses for Safe and ZeroDev/Kernel account abstraction on the Renaissance testnet, as used by Permissionless.
 
+## [2026-05-11T07:53:33Z] synthesis | Mainnet Protocol Design Discussions
+
+- status: published
+- slug: projects/mainnet-protocol-design-discussions
+- wiki_revision_id: wikirev_8c02efcfd86e8e1aff5f3d8878b52dd2
+- summary: A tracking document for pending and completed protocol design decisions for the RSI mainnet, organized by downstream effect and status.
+
