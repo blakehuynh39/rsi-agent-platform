@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "05b74a95af25fb9ea0c0e9631ff61d6f4a3ec208a5b8929bee28748f41c73db9",
-        "size": 556915
+        "sha256": "4835a9d71b31b61921927c04ff869f37654570c582e7b88df1627d308d647618",
+        "size": 557294
       },
       {
         "path": "log.md",
-        "sha256": "7318b3c5ab3b617c2d4be4208de081fa67d8878801fbbfdfa5139df10ea0ef75",
-        "size": 1027587
+        "sha256": "7ea263c5dd79d82e4913a8bb3069129c26b4521562e38cb939b4325c921bccab",
+        "size": 1027978
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4485,6 +4485,11 @@
         "size": 2471
       },
       {
+        "path": "pages/projects/eng-leads-offsite-april-2025.md",
+        "sha256": "f1ec179e40fcc8516a82c7a2ca14c82f891edd29d9e39dfaeb829e1efca2fba8",
+        "size": 6418
+      },
+      {
         "path": "pages/projects/engineering-lightning-talks.md",
         "sha256": "0c791403bd87643be30861a0f84871adf1658c8665670af76b097ddc98449897",
         "size": 1175
@@ -5804,8 +5809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T00:10:22Z",
-  "file_count": 1159,
+  "exported_at": "2026-05-11T00:37:22Z",
+  "file_count": 1160,
   "files": [
     {
       "path": ".curator_state",
@@ -8731,8 +8736,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b849f6x88b",
-  "previous_tree_hash": "0518607fdc8583255b1c99872d8106c2676fd28846f55cb4d46bef170e4bda07",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5d7bdczn8pl",
+  "previous_tree_hash": "6c1460660d4cbd0f798164c16bd693a80cf652ad13ed7ce5b8e6c7e116f10891",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8745,14 +8750,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6c1460660d4cbd0f798164c16bd693a80cf652ad13ed7ce5b8e6c7e116f10891",
+  "tree_hash": "64d90178ab5d7d594e1fef1f04339432de80648a20c6e719f55cfe598840a5e9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 575,
+  "wiki_file_count": 576,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8761,13 +8766,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "05b74a95af25fb9ea0c0e9631ff61d6f4a3ec208a5b8929bee28748f41c73db9",
-      "size": 556915
+      "sha256": "4835a9d71b31b61921927c04ff869f37654570c582e7b88df1627d308d647618",
+      "size": 557294
     },
     {
       "path": "log.md",
-      "sha256": "7318b3c5ab3b617c2d4be4208de081fa67d8878801fbbfdfa5139df10ea0ef75",
-      "size": 1027587
+      "sha256": "7ea263c5dd79d82e4913a8bb3069129c26b4521562e38cb939b4325c921bccab",
+      "size": 1027978
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10315,6 +10320,11 @@
       "size": 2471
     },
     {
+      "path": "pages/projects/eng-leads-offsite-april-2025.md",
+      "sha256": "f1ec179e40fcc8516a82c7a2ca14c82f891edd29d9e39dfaeb829e1efca2fba8",
+      "size": 6418
+    },
+    {
       "path": "pages/projects/engineering-lightning-talks.md",
       "sha256": "0c791403bd87643be30861a0f84871adf1658c8665670af76b097ddc98449897",
       "size": 1175
@@ -11631,5 +11641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7ea0624e92e2c56c57d45f4871588cfc2854cd132907f89c18ae9cbd2f3a94a0"
+  "wiki_tree_hash": "00749613db499892bc5a1aba68680f64ca5380346780f5b2982d97cf0fdd1087"
 }

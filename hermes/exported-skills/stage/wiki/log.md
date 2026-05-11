@@ -21569,3 +21569,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4cd43ab5a78dc4a6b199d24842d36605
 - summary: A compilation of NFT-related research topics including standards, arts, marketplace smart contracts, launch frameworks, protocols, tooling, web3 integration, and smart contract sec...
 
+## [2026-05-11T00:36:53Z] synthesis | Eng Leads Offsite April 2025
+
+- status: published
+- slug: projects/eng-leads-offsite-april-2025
+- wiki_revision_id: wikirev_594b32c810c959ea8c979b49da5200c3
+- summary: Engineering leads offsite held in Vancouver from April 23-26, 2025, focused on defining the architecture of Poseidon, discussing TGE scope, PoC deliverables, resource allocation, a...
+
