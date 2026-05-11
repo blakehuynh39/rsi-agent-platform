@@ -21702,3 +21702,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_25ba4110723b94322f8eeecaf2a18234
 - summary: Cost estimate for EmergenceAI feature in EU v2.
 
+## [2026-05-11T07:36:28Z] synthesis | Renaissance Testnet Account Abstraction Contracts
+
+- status: published
+- slug: systems/renaissance-testnet-aa-contracts
+- wiki_revision_id: wikirev_05bcf5e88337dae616331820b0c405c3
+- summary: Contract addresses for Safe and ZeroDev/Kernel account abstraction on the Renaissance testnet, as used by Permissionless.
+

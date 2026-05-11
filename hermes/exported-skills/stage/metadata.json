@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "208db01dd00bcb2429661461eb1e4cadb66e32b5cde0de802e3fd920890ea9e2",
-        "size": 561745
+        "sha256": "3cd152655d34e3bba27e4e120a50e783ca909b194cf87f224db4351ff06d07f2",
+        "size": 562086
       },
       {
         "path": "log.md",
-        "sha256": "c10dc05811e41c1771ff09e2bc14cc647213d75798156e3c88c0c5ac0f30b730",
-        "size": 1033723
+        "sha256": "080e9795dbe0b36ce9eaf6dbb49eee15e3528cfc01f63f77d553fe74942f0c5e",
+        "size": 1034076
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5790,6 +5790,11 @@
         "size": 4972
       },
       {
+        "path": "pages/systems/renaissance-testnet-aa-contracts.md",
+        "sha256": "4323069a66abd8a8955f9fe6294292d416878572ca83e22930d4c8fde9471e17",
+        "size": 7912
+      },
+      {
         "path": "pages/systems/reward-backward-compatibility-patch.md",
         "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
         "size": 6925
@@ -5879,8 +5884,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T06:27:11Z",
-  "file_count": 1174,
+  "exported_at": "2026-05-11T07:40:23Z",
+  "file_count": 1175,
   "files": [
     {
       "path": ".curator_state",
@@ -8806,8 +8811,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-768775ppvsc",
-  "previous_tree_hash": "7cb3db945286f513b750186520553b42eedc4f4cde139e1376e37a706fdbe6b7",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
+  "previous_tree_hash": "1c6846bbf45d6c8c698d842d6fc281841044669611fb826d6513107b1d3c6713",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8820,14 +8825,14 @@
   ],
   "skill_tree_hash": "36e6d6b6c0711c66861f7debf4717024bbbb78cb328c40e99e2dad3265570787",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1c6846bbf45d6c8c698d842d6fc281841044669611fb826d6513107b1d3c6713",
+  "tree_hash": "28d363e4d3131cdc1753e74aa2b8aea435935a7e0a39191481cafd2f4cb51f6f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 590,
+  "wiki_file_count": 591,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8836,13 +8841,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "208db01dd00bcb2429661461eb1e4cadb66e32b5cde0de802e3fd920890ea9e2",
-      "size": 561745
+      "sha256": "3cd152655d34e3bba27e4e120a50e783ca909b194cf87f224db4351ff06d07f2",
+      "size": 562086
     },
     {
       "path": "log.md",
-      "sha256": "c10dc05811e41c1771ff09e2bc14cc647213d75798156e3c88c0c5ac0f30b730",
-      "size": 1033723
+      "sha256": "080e9795dbe0b36ce9eaf6dbb49eee15e3528cfc01f63f77d553fe74942f0c5e",
+      "size": 1034076
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11695,6 +11700,11 @@
       "size": 4972
     },
     {
+      "path": "pages/systems/renaissance-testnet-aa-contracts.md",
+      "sha256": "4323069a66abd8a8955f9fe6294292d416878572ca83e22930d4c8fde9471e17",
+      "size": 7912
+    },
+    {
       "path": "pages/systems/reward-backward-compatibility-patch.md",
       "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
       "size": 6925
@@ -11781,5 +11791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f70d3fe8777c2b975c2220b14939e3b633de38e55f1895d3dd133e7fae5800df"
+  "wiki_tree_hash": "cc1adffb0def0888c964448be9399b5f7f43ae0d35ef97c3bffbb81b7e8a7476"
 }
