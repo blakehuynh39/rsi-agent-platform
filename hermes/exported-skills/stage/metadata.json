@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "90f19ee1b83e86af622339ec36e7c44c3ac698fcff952a862e673970a934a261",
-        "size": 562729
+        "sha256": "cf3142064714a3f295891bba98215b5b8c1ca51abb298e4e9596ac990b2c7ed8",
+        "size": 563098
       },
       {
         "path": "log.md",
-        "sha256": "78987860263cad8d2e3aaf060c35ee1b5aac0200068fb3bbef216042bb8678d2",
-        "size": 1034743
+        "sha256": "404195720c5c38489302c2103acb8d956a2804197e9f2ed22d2c73ff8ec16bb9",
+        "size": 1035124
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5015,6 +5015,11 @@
         "size": 1220
       },
       {
+        "path": "pages/projects/renaissance-infrastructure-planning.md",
+        "sha256": "d5e81cbcc8be57303345ef6493cabebcb1e16a85a8bf7ae5e55637d501dbf4ca",
+        "size": 5937
+      },
+      {
         "path": "pages/projects/renaissance-public-testnet.md",
         "sha256": "dc72b34a2eee29c56dfe72aac4e03e397ae34db0df6e7bbb3987ffa0d65f6a68",
         "size": 3525
@@ -5894,8 +5899,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T08:08:19Z",
-  "file_count": 1177,
+  "exported_at": "2026-05-11T08:24:50Z",
+  "file_count": 1178,
   "files": [
     {
       "path": ".curator_state",
@@ -8822,7 +8827,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "68cad12638524a48ccb8ee36ed0a1b0a141b84b5afff6d0476f1d608fa00c6ef",
+  "previous_tree_hash": "bbc0309c76bd7926ddf9e647096e7dbb2ad12f770f7e751511d755b72aad3111",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8835,14 +8840,14 @@
   ],
   "skill_tree_hash": "36e6d6b6c0711c66861f7debf4717024bbbb78cb328c40e99e2dad3265570787",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bbc0309c76bd7926ddf9e647096e7dbb2ad12f770f7e751511d755b72aad3111",
+  "tree_hash": "5f744bdc06e2908179ce8cd3b4fcdae1c6587c758683743be8274656aaee6407",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 593,
+  "wiki_file_count": 594,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8851,13 +8856,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "90f19ee1b83e86af622339ec36e7c44c3ac698fcff952a862e673970a934a261",
-      "size": 562729
+      "sha256": "cf3142064714a3f295891bba98215b5b8c1ca51abb298e4e9596ac990b2c7ed8",
+      "size": 563098
     },
     {
       "path": "log.md",
-      "sha256": "78987860263cad8d2e3aaf060c35ee1b5aac0200068fb3bbef216042bb8678d2",
-      "size": 1034743
+      "sha256": "404195720c5c38489302c2103acb8d956a2804197e9f2ed22d2c73ff8ec16bb9",
+      "size": 1035124
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10935,6 +10940,11 @@
       "size": 1220
     },
     {
+      "path": "pages/projects/renaissance-infrastructure-planning.md",
+      "sha256": "d5e81cbcc8be57303345ef6493cabebcb1e16a85a8bf7ae5e55637d501dbf4ca",
+      "size": 5937
+    },
+    {
       "path": "pages/projects/renaissance-public-testnet.md",
       "sha256": "dc72b34a2eee29c56dfe72aac4e03e397ae34db0df6e7bbb3987ffa0d65f6a68",
       "size": 3525
@@ -11811,5 +11821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2180455b48287e17104aa4a96e8dd87ae65f73f092d5e9db3567741948189dbb"
+  "wiki_tree_hash": "d99a04ac93a4f7f294cdf3c3cd7b59a5ff44469a38bb5356da568f0354500104"
 }

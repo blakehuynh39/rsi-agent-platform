@@ -21723,3 +21723,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9c6c4931bd27ca196bace3c2f2aedaff
 - summary: Contract addresses and entity schema changes for the Protocol v1.0.0-rc.2 release candidate indexing.
 
+## [2026-05-11T08:21:32Z] synthesis | Renaissance Infrastructure Planning
+
+- status: published
+- slug: projects/renaissance-infrastructure-planning
+- wiki_revision_id: wikirev_6a3b510dc13e940f4ea7811eab9a1a47
+- summary: Infrastructure planning for the Renaissance project, including provider evaluation, milestones, and required components for devnet and public testnet launches.
+
