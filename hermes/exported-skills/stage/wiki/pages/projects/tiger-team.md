@@ -22,7 +22,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications, planning documents, and strategic resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents, and is currently prioritizing human-to-agent apps for speed and virality.
 
 ## Claims
 
@@ -66,6 +66,6 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 
 ## Sources
 
-- `source_document_id`: `srcdoc_48fde66a8a1bc0d1e803964da01462a5`
-- `source_revision_id`: `srcrev_29fb37287dd828609727dbf3aa4e89a8`
-- `source_url`: [Notion source](https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)
+- `source_document_id`: `srcdoc_406ad3672ed538d69269ee481de484fc`
+- `source_revision_id`: `srcrev_aa710914002810612e3ced60c2ab8ec9`
+- `source_url`: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)

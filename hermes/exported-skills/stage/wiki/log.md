@@ -21886,3 +21886,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3ef189ff6789d23babaf406c3d6392ea
 - summary: There are three ways to build a voice agent on ElevenLabs infrastructure: Fully Managed, Managed + Custom LLM Server, and DIY (API + Framework). Each makes a different bet on the s...
 
+## [2026-05-11T19:46:32Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_467ec7e3b7f7892707d02c7e5ab8b71a
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
