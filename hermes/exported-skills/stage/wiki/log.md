@@ -21928,3 +21928,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bc305cb5d2965d574bc59d643c320a79
 - summary: Adaptive Trust Sampling (ATS) is a contributor-quality evaluation system that uses Bayesian updating to dynamically adjust review levels per user, minimizing review cost while iden...
 
+## [2026-05-11T20:40:51Z] synthesis | Prophet PFP Metadata to Reflect On-Chain Protocol Stats
+
+- status: published
+- slug: concepts/prophet-pfp-metadata-onchain-stats
+- wiki_revision_id: wikirev_d46a736d670f347271883431c08e7cd7
+- summary: The concept involves NFT metadata dynamically reflecting on-chain statistics such as number of collects, relationships, license type. It aims to provide a fun and convenient showca...
+

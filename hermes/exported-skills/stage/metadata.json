@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b8f6bbd64a5f5e3a854e1e6e1c9144f012490f73095b2bdf3b7698950a01b2a3",
+        "sha256": "8ca38816c667f675f9cf4b9e21e82109a64b1533525536d6f20adfe4853fb5ad",
         "size": 569203
       },
       {
         "path": "log.md",
-        "sha256": "8853cd4d38cdf220204fe10a0be8ab891178105252ddcf281decacef97bcd4fe",
-        "size": 1045407
+        "sha256": "bf160d0c06440f0f5bdbc6524b903848ae8b47b1fd20db3a9b79c142b0b00d77",
+        "size": 1045831
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3556,8 +3556,8 @@
       },
       {
         "path": "pages/concepts/prophet-pfp-metadata-onchain-stats.md",
-        "sha256": "4b9b5bf54e6cc8eb506038d0f1c5bff8595a83375300f9947d9ef779e8a660fc",
-        "size": 3902
+        "sha256": "e6f80a0d2e82855f66affb084cd4374cbc4d7c0cea8e4ecb09397d8d2dc16a0d",
+        "size": 3784
       },
       {
         "path": "pages/concepts/protocol-data-model-design-principles.md",
@@ -5994,7 +5994,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T20:37:52Z",
+  "exported_at": "2026-05-11T20:44:18Z",
   "file_count": 1197,
   "files": [
     {
@@ -8932,7 +8932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "2e7c6c6e0a4185e4affe2b6f2d48edd188ebfcd66ee11f45d9e3fcd21dbfd190",
+  "previous_tree_hash": "53a10676c9989c58d7d8b9908bad80f55284fdae513e5c43563bee6ec16aaaf6",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8945,7 +8945,7 @@
   ],
   "skill_tree_hash": "139a60ec71215ea4aae1e4b5a92b367a428634465eed020322eb19ba43c1eea5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "53a10676c9989c58d7d8b9908bad80f55284fdae513e5c43563bee6ec16aaaf6",
+  "tree_hash": "960848bdd56cfc8a93aa25133e76a839d9d2ba9e87257ac21600a4b05f00aacd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8961,13 +8961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b8f6bbd64a5f5e3a854e1e6e1c9144f012490f73095b2bdf3b7698950a01b2a3",
+      "sha256": "8ca38816c667f675f9cf4b9e21e82109a64b1533525536d6f20adfe4853fb5ad",
       "size": 569203
     },
     {
       "path": "log.md",
-      "sha256": "8853cd4d38cdf220204fe10a0be8ab891178105252ddcf281decacef97bcd4fe",
-      "size": 1045407
+      "sha256": "bf160d0c06440f0f5bdbc6524b903848ae8b47b1fd20db3a9b79c142b0b00d77",
+      "size": 1045831
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9576,8 +9576,8 @@
     },
     {
       "path": "pages/concepts/prophet-pfp-metadata-onchain-stats.md",
-      "sha256": "4b9b5bf54e6cc8eb506038d0f1c5bff8595a83375300f9947d9ef779e8a660fc",
-      "size": 3902
+      "sha256": "e6f80a0d2e82855f66affb084cd4374cbc4d7c0cea8e4ecb09397d8d2dc16a0d",
+      "size": 3784
     },
     {
       "path": "pages/concepts/protocol-data-model-design-principles.md",
@@ -12011,5 +12011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "90b865b827d173b8ae64e9d456dfa306db01ee7648d651a3e9a7a2bd0c112293"
+  "wiki_tree_hash": "8865cd9bc71a221f6a6a072ea784dd7f25a2532f51f94034137af2b4a3e5b2c4"
 }
