@@ -21935,3 +21935,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d46a736d670f347271883431c08e7cd7
 - summary: The concept involves NFT metadata dynamically reflecting on-chain statistics such as number of collects, relationships, license type. It aims to provide a fun and convenient showca...
 
+## [2026-05-11T21:09:04Z] synthesis | IPA Metadata Standard (v0)
+
+- status: published
+- slug: concepts/ipa-metadata-standard-v0
+- wiki_revision_id: wikirev_db440b9651e4e68039ee02ee30923df3
+- summary: Off-chain and on-chain metadata standard for IP Assets (IPA) in the RSI protocol, defining JSON structure, required fields, and immutability process.
+

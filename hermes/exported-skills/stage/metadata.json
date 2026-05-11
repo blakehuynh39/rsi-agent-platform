@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8ca38816c667f675f9cf4b9e21e82109a64b1533525536d6f20adfe4853fb5ad",
-        "size": 569203
+        "sha256": "45c753069942b650692533860c585b018739c69d713f80820587afc8d5053711",
+        "size": 569542
       },
       {
         "path": "log.md",
-        "sha256": "bf160d0c06440f0f5bdbc6524b903848ae8b47b1fd20db3a9b79c142b0b00d77",
-        "size": 1045831
+        "sha256": "ad3e28bb330cc2a01259139e2f30f95589d8a69bd77781485e09202371502361",
+        "size": 1046182
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3308,6 +3308,11 @@
         "path": "pages/concepts/ipa-expiration-design.md",
         "sha256": "909783935a93819d2f0149ebcab7b28da830125a11055a56b66d9ba0ae25fa85",
         "size": 4049
+      },
+      {
+        "path": "pages/concepts/ipa-metadata-standard-v0.md",
+        "sha256": "a01cb58c94bbc3990c8be668a9c4d29e60c7f86d1cb578ae4a45433c8dbd318f",
+        "size": 4838
       },
       {
         "path": "pages/concepts/ipa-pool-concept.md",
@@ -5994,8 +5999,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T20:44:18Z",
-  "file_count": 1197,
+  "exported_at": "2026-05-11T21:13:07Z",
+  "file_count": 1198,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8931,8 +8936,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "53a10676c9989c58d7d8b9908bad80f55284fdae513e5c43563bee6ec16aaaf6",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68479d4bz4h",
+  "previous_tree_hash": "960848bdd56cfc8a93aa25133e76a839d9d2ba9e87257ac21600a4b05f00aacd",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8945,14 +8950,14 @@
   ],
   "skill_tree_hash": "139a60ec71215ea4aae1e4b5a92b367a428634465eed020322eb19ba43c1eea5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "960848bdd56cfc8a93aa25133e76a839d9d2ba9e87257ac21600a4b05f00aacd",
+  "tree_hash": "463aa4ec3d7081a7bf4b0875e2bbad2b5bb1c7e5f69fb85f0a70d69102b24e3d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 611,
+  "wiki_file_count": 612,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8961,13 +8966,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8ca38816c667f675f9cf4b9e21e82109a64b1533525536d6f20adfe4853fb5ad",
-      "size": 569203
+      "sha256": "45c753069942b650692533860c585b018739c69d713f80820587afc8d5053711",
+      "size": 569542
     },
     {
       "path": "log.md",
-      "sha256": "bf160d0c06440f0f5bdbc6524b903848ae8b47b1fd20db3a9b79c142b0b00d77",
-      "size": 1045831
+      "sha256": "ad3e28bb330cc2a01259139e2f30f95589d8a69bd77781485e09202371502361",
+      "size": 1046182
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9328,6 +9333,11 @@
       "path": "pages/concepts/ipa-expiration-design.md",
       "sha256": "909783935a93819d2f0149ebcab7b28da830125a11055a56b66d9ba0ae25fa85",
       "size": 4049
+    },
+    {
+      "path": "pages/concepts/ipa-metadata-standard-v0.md",
+      "sha256": "a01cb58c94bbc3990c8be668a9c4d29e60c7f86d1cb578ae4a45433c8dbd318f",
+      "size": 4838
     },
     {
       "path": "pages/concepts/ipa-pool-concept.md",
@@ -12011,5 +12021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8865cd9bc71a221f6a6a072ea784dd7f25a2532f51f94034137af2b4a3e5b2c4"
+  "wiki_tree_hash": "b901d7f32bf80c24f37db6500ae0b84d934d11e15d3008dab7d262819eb103d3"
 }
