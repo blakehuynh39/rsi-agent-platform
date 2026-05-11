@@ -21800,3 +21800,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aff5029863562132318145c471ff3401
 - summary: On August 10, partners reported crashes with the iliad binary. The root cause was a client software bug where the networkId changed to 1723217281, but the client assumed chainId eq...
 
+## [2026-05-11T12:03:12Z] synthesis | Iliad Testnet Launch Plan
+
+- status: published
+- slug: projects/iliad-testnet-launch-plan
+- wiki_revision_id: wikirev_308c6d155c07219e3e15151d04877351
+- summary: Launch plan for the Iliad and Iliad-2 testnets, including code freeze, infrastructure setup, partner enablement, and feature milestones.
+
