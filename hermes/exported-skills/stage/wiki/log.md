@@ -21583,3 +21583,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d0496e5f8364b40402b025c6bfd981d
 - summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
 
+## [2026-05-11T01:18:49Z] synthesis | Poseidon Security Proposals
+
+- status: published
+- slug: projects/poseidon-security-proposals
+- wiki_revision_id: wikirev_3c18f4aa258716e084595e1594663deb
+- summary: A collection of security proposals and threat models for the Poseidon project, covering storage, key management, compliance, MCP oracles, and IP protection.
+
