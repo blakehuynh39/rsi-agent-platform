@@ -229,6 +229,35 @@ Key takeaways:
 - The other four campaigns have enormous headroom — their 350K script pools are barely touched
 - The `campaigns` table uses `campaign_name` and `campaign_type`, not `name`/`type` as documentation suggests
 
+### Prod (depin-prod — 2026-05-10 08:19 UTC)
+
+- 2,000 active VI scripts, distribution range 3–17 unique submitters
+- Bell-shaped distribution centered at 7–8 (mode: 8, ~390 scripts; median ~9)
+- 1,890 unique users who submitted, 21,817 total submissions
+- 3,629 unique users assigned → 48% drop-off (1,739 assigned users never submitted)
+- Submission states: 20,580 `pending_review`, 1,243 `created` — 94% awaiting review
+
+### Prod (depin-prod — 2026-05-11 03:07 UTC)
+
+- 2,000 active VI scripts, distribution range **4–17** unique submitters (14 histogram buckets)
+- **Bimodal distribution** — major structural shift from prior sessions:
+  - Primary mode: **8** (390 scripts, 19.5%)
+  - Heavy secondary cluster: **13–17** (812 scripts, 40.6%)
+  - The "floor" rose to 4 — no scripts below 4 submitters, pool is fully utilized
+- median: 9, mean: 10.77, total user-script pairs: 21,544
+- REST API cross-validation: 1,239 VI-language users, 22,271 submissions, avg 17.97/user
+- DB read request: `dbread_ab06e84e`, 14 rows, truncated=false, approved and executed synchronously
+
+**3-day evolution (May 8 → May 10 → May 11):**
+
+| Date | Range | Mode | Shape | Key Change |
+|------|-------|------|-------|-------------|
+| May 8 | 0–12 | 3–4 | Unimodal, tight | 903 scripts (45%) at 3–4 |
+| May 10 | 3–17 | 7–8 | Bell-shaped | Broader, moved right |
+| May 11 | 4–17 | 8 + 13–15 cluster | **Bimodal** | 40.6% scripts at 13+; floor at 4 |
+
+Interpretation: The bimodal pattern suggests two distinct script cohorts — one cycling at the ~8-user equilibrium from May 10, and a newer batch aggressively filled to 13–17 users close to the apparent ceiling. 40.6% of scripts in the Very High segment (13–17) indicates either a cap raise or campaign batch expansion. The disappearance of 0–3 user buckets means zero idle capacity — every active VI script has at least 4 submitters.
+
 ### Prod (depin-prod — 2026-05-10 08:28 UTC)
 
 **Assignment-level distribution** (Query 5 — `script_assignments` only):

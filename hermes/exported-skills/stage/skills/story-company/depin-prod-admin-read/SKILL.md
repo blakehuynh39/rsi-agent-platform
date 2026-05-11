@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin stats through admin REST reads and native approved DB reads."
-version: 1.6.0
+version: 1.7.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, db-read]
@@ -126,6 +126,7 @@ Full reference queries and case studies: `references/country-breakdown-queries.m
 - **Submission count ≠ unique user count.** These are different dimensions that can diverge dramatically (e.g., Nigeria: 755 subs but #4 by unique users; Poland: 2,589 subs but only 25 unique users). When the user asks about "submissions from Country X," present both counts if they tell different stories. See `references/country-breakdown-queries.md` for patterns.
 - **Country-by-campaign queries easily exceed the 100-row cap.** With 9 campaigns and 60+ distinct nationalities, worst case is 540 rows. Use LIMIT/OFFSET pagination (LIMIT 100 OFFSET 0, then OFFSET 100) to stay within caps. If only top-N per campaign is needed, use ROW_NUMBER() window function: `ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY count(*) DESC) AS rn` then filter `WHERE rn <= 10`.
 - **Triple-table JOINs (scripts→script_assignments→submissions) may exceed the 20s timeout on depin-prod.** When the 3-table histogram query (Query 3 in `references/vi-transcript-queries.md`) times out, use the two-path strategy: Query 5 (assignment-only, `scripts`→`script_assignments`) + Query 6 (submission-only, `scripts`→`script_assignments`→`submissions`). The two distributions tell different stories — assignment is bimodal (provisioning strategy), submission is bell-shaped (actual user behavior). The gap between them (e.g., 52% conversion) is itself a diagnostic signal. See `references/vi-transcript-queries.md` for the full query patterns and May 10 case study.
+- **RSI Slack delivery tools may be blocked by channel scope.** `rsi_slack.message_post`, `rsi_slack.report_post`, and `rsi_slack.file_upload` can all return `403: "outside allowed channel scope"` for every channel — including channels that `rsi_slack.channel_info` confirms exist and `rsi_slack.channels_list` returns. This is a workspace-level DeliveryPolicy restriction where the channel allowlist for posting is empty or misconfigured. When this happens: (a) try all three delivery tools with different channels to confirm it's a policy issue, not a single-channel restriction; (b) check `rsi_slack.channels_list` — if it returns channels but none are postable, the delivery scope is empty; (c) fall back to providing the complete answer via the structured JSON response (`final_answer`, `visible_reasoning`, `produced_artifacts`) — the control plane may still deliver it; (d) note the delivery blockage in `self_critique` so the user knows the answer exists but couldn't reach Slack. Do not loop-retry delivery tools — the 403 is deterministic for the session.
 
 ## Source Of Truth
 
