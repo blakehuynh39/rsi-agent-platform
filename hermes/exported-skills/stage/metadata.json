@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6c56832c8b7a2f08cb149e4104f44ea1fd20d6d3bad36d6c96fade29b7b6214b",
-        "size": 570220
+        "sha256": "8858c9cb840bd350a8ec3ed0fc8cfe81dcb0ce30585ff10524938ad649f05b3f",
+        "size": 570943
       },
       {
         "path": "log.md",
-        "sha256": "e6823238cea8306dfb9275c920b755b3793c07da42e0a13082dada4eeb7f4233",
-        "size": 1051353
+        "sha256": "0478ea9a4bcf573ec961d19cb2a169305982171229c18745e0e6a6302676070b",
+        "size": 1051725
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5465,6 +5465,11 @@
         "size": 5689
       },
       {
+        "path": "pages/runbooks/llama-cpp-macos-setup-and-benchmarks.md",
+        "sha256": "35b6e98c5804f222a3f7ad3614acb6a7f5db5d04c2da23349cadd94181454b3e",
+        "size": 3999
+      },
+      {
         "path": "pages/runbooks/llm-cluster-build-pre-checks.md",
         "sha256": "d1808b4cc91ccd0d218e62eb368c2198081d22d1b770ac8cb7bdace07208125f",
         "size": 1920
@@ -6004,8 +6009,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T23:08:09Z",
-  "file_count": 1199,
+  "exported_at": "2026-05-11T23:14:49Z",
+  "file_count": 1200,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8942,7 +8947,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858797bxltd",
-  "previous_tree_hash": "2c47c4520c719c9fc5707c870e31c5cc41ba660fad026ca0149a1851db9160ec",
+  "previous_tree_hash": "320db133418ecdf14bfebf4daababe156e737782a37040ae8fb1811aaad57a9e",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8955,14 +8960,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "320db133418ecdf14bfebf4daababe156e737782a37040ae8fb1811aaad57a9e",
+  "tree_hash": "2973e23bbb4c2761452573cbcdbc5d1c4fd38dc74086f076032362505d317099",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 613,
+  "wiki_file_count": 614,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8971,13 +8976,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6c56832c8b7a2f08cb149e4104f44ea1fd20d6d3bad36d6c96fade29b7b6214b",
-      "size": 570220
+      "sha256": "8858c9cb840bd350a8ec3ed0fc8cfe81dcb0ce30585ff10524938ad649f05b3f",
+      "size": 570943
     },
     {
       "path": "log.md",
-      "sha256": "e6823238cea8306dfb9275c920b755b3793c07da42e0a13082dada4eeb7f4233",
-      "size": 1051353
+      "sha256": "0478ea9a4bcf573ec961d19cb2a169305982171229c18745e0e6a6302676070b",
+      "size": 1051725
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11495,6 +11500,11 @@
       "size": 5689
     },
     {
+      "path": "pages/runbooks/llama-cpp-macos-setup-and-benchmarks.md",
+      "sha256": "35b6e98c5804f222a3f7ad3614acb6a7f5db5d04c2da23349cadd94181454b3e",
+      "size": 3999
+    },
+    {
       "path": "pages/runbooks/llm-cluster-build-pre-checks.md",
       "sha256": "d1808b4cc91ccd0d218e62eb368c2198081d22d1b770ac8cb7bdace07208125f",
       "size": 1920
@@ -12031,5 +12041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5f68fd407d1e75dcf4e38e5df1d5f2cad44c060445ef4aa76236b27e732fd32d"
+  "wiki_tree_hash": "544bd92455138f7647fe72318267f98222fdda9c46533d72ccc252d7e435020b"
 }

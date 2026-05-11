@@ -22044,3 +22044,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b8d0d6e6e0235e7ca2961bb1e22bc41d
 - summary: A compilation of research directions and resources for Decentralized Physical Infrastructure Networks (DePIN), focusing on L1 platforms, device identity, tokenomics, and data quali...
 
+## [2026-05-11T23:11:03Z] synthesis | llama.cpp on macOS: Setup and Benchmarks
+
+- status: published
+- slug: runbooks/llama-cpp-macos-setup-and-benchmarks
+- wiki_revision_id: wikirev_1145fcfdee9691542a983032785ba702
+- summary: A runbook for installing llama.cpp on macOS and running benchmarks with the Gemma 3 4B Q4_0 model on MacBook Pro M4 Max and Mac Studio M3 Ultra.
+
