@@ -21590,3 +21590,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3c18f4aa258716e084595e1594663deb
 - summary: A collection of security proposals and threat models for the Poseidon project, covering storage, key management, compliance, MCP oracles, and IP protection.
 
+## [2026-05-11T01:37:33Z] synthesis | Data Read/Write Flow, Abstracted
+
+- status: published
+- slug: systems/data-read-write-flow
+- wiki_revision_id: wikirev_7f87f6c37b355f236b69f66546557530
+- summary: Describes two data upload flows: the native Walrus flow using Sui storage units and blob registration, and an S3-compatible flow for Data Publishers that leverages Story Poseidon c...
+
