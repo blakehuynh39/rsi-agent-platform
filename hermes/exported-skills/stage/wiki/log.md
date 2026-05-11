@@ -21998,3 +21998,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_362925a84aed39d42cd19257d1ee9b68
 - summary: An initiative under the Lion Team, focused on AI-native company proposals and current agentic efforts including AI Agent Factory, Security Bot, Web3 AI Auditor, Pentesting Tool, an...
 
+## [2026-05-11T22:03:20Z] synthesis | Sahara AI Datasets
+
+- status: published
+- slug: concepts/sahara-ai-datasets
+- wiki_revision_id: wikirev_c53f93f6aef61cca82b8cacf18521a1f
+- summary: Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-chain/off-chain approach. Datasets can be registered and tokenized as ERC-721 Ownership NFTs on the ...
+
+## [2026-05-11T22:03:21Z] synthesis | Sahara AI Platform
+
+- status: published
+- slug: systems/sahara-ai-platform
+- wiki_revision_id: wikirev_7ac36f021971661663a71678aa46c79b
+- summary: Sahara AI provides two core product suites: AI Studio for compute, models, data, and vaults, and a Data Service Platform (DSP) for data labeling and task management.
+

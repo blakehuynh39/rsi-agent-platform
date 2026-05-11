@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1a3fc31f881b46888171ebecabb07b481ef54c67ad1576bf156f0e81e2f17620",
-        "size": 1048909
+        "sha256": "53ae53537f3eaa62dbbc56eb54abffbb23190ff47fb49b9f3696d250d05956fc",
+        "size": 1049632
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3611,8 +3611,8 @@
       },
       {
         "path": "pages/concepts/sahara-ai-datasets.md",
-        "sha256": "b2e63054ae44057fed4b1420a5c8e72fd8764ab8dbccca98ab8f1bd32699f8ed",
-        "size": 5121
+        "sha256": "30313dee7169792c7074f317a4ba95f3277b8ba0fae466c9e9ba4f015f7bdfd8",
+        "size": 5022
       },
       {
         "path": "pages/concepts/sdks.md",
@@ -5916,8 +5916,8 @@
       },
       {
         "path": "pages/systems/sahara-ai-platform.md",
-        "sha256": "8427e309e739e3c0d45edaa835a330a5eb16b7375b6cce232989a39848465b08",
-        "size": 5806
+        "sha256": "fe2282cebdac001c59b684cf75a67692d3856e04d4e699244fd8bdc1f5cb18e5",
+        "size": 5898
       },
       {
         "path": "pages/systems/sdk-v1-3-contract-structure.md",
@@ -5999,7 +5999,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T21:53:58Z",
+  "exported_at": "2026-05-11T22:05:28Z",
   "file_count": 1198,
   "files": [
     {
@@ -8937,7 +8937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68479d4bz4h",
-  "previous_tree_hash": "bd17f738a0313ec9ad2d7c67511ca9bdeeea3a62bb5d087ac3f1428b37fd9908",
+  "previous_tree_hash": "160529ba10ce8dd956d7dc50111f4ee33d21761985120777ed8ece38143481d0",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8950,7 +8950,7 @@
   ],
   "skill_tree_hash": "139a60ec71215ea4aae1e4b5a92b367a428634465eed020322eb19ba43c1eea5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "160529ba10ce8dd956d7dc50111f4ee33d21761985120777ed8ece38143481d0",
+  "tree_hash": "2b83156dac59336b665be51bd872a10df04ca123592d2bab76f98257bd2bbb72",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -8971,8 +8971,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1a3fc31f881b46888171ebecabb07b481ef54c67ad1576bf156f0e81e2f17620",
-      "size": 1048909
+      "sha256": "53ae53537f3eaa62dbbc56eb54abffbb23190ff47fb49b9f3696d250d05956fc",
+      "size": 1049632
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9636,8 +9636,8 @@
     },
     {
       "path": "pages/concepts/sahara-ai-datasets.md",
-      "sha256": "b2e63054ae44057fed4b1420a5c8e72fd8764ab8dbccca98ab8f1bd32699f8ed",
-      "size": 5121
+      "sha256": "30313dee7169792c7074f317a4ba95f3277b8ba0fae466c9e9ba4f015f7bdfd8",
+      "size": 5022
     },
     {
       "path": "pages/concepts/sdks.md",
@@ -11941,8 +11941,8 @@
     },
     {
       "path": "pages/systems/sahara-ai-platform.md",
-      "sha256": "8427e309e739e3c0d45edaa835a330a5eb16b7375b6cce232989a39848465b08",
-      "size": 5806
+      "sha256": "fe2282cebdac001c59b684cf75a67692d3856e04d4e699244fd8bdc1f5cb18e5",
+      "size": 5898
     },
     {
       "path": "pages/systems/sdk-v1-3-contract-structure.md",
@@ -12021,5 +12021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "41681569017a03cadcaeaa68139d46e61715311b2343faa795d3a005d4b54eca"
+  "wiki_tree_hash": "c1043b8ade75fb81d72053f67d4eadaf4c7c1dc4e4083e0e9d6de25bac2c3545"
 }

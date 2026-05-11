@@ -4,12 +4,11 @@ type: "concept"
 slug: "concepts/sahara-ai-datasets"
 freshness: "2025-05-20T22:19:00Z"
 tags:
-  - "attribution"
   - "data-layer"
   - "datasets"
   - "marketplace"
   - "nft"
-  - "on-chain"
+  - "provenance"
 owners: []
 source_revision_ids:
   - "srcrev_a8bba81636161f55fe1f942384eb2b5c"
@@ -20,7 +19,7 @@ conflict_state: "none"
 
 ## Summary
 
-Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-chain/off-chain approach. Datasets can be registered and tokenized as ERC-721 Ownership NFTs on the Sahara Blockchain, creating verifiable records in the Sahara Global Registry. Attribution tags like "Trained On" and "Derived From" enable transparent chain of custody. Datasets are integrated into the AI Developer Platform and AI Marketplace, where owners can publish them with flexible licensing and revenue sharing terms.
+Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-chain/off-chain approach. Datasets can be registered and tokenized as ERC-721 Ownership NFTs on the Sahara Blockchain, with attribution tags linking them to models and derived datasets. They are integrated into the AI Developer Platform and AI Marketplace for access, licensing, and revenue sharing.
 
 ## Claims
 
@@ -37,8 +36,12 @@ Datasets within Sahara AI are managed by the Data Layer, which uses a hybrid on-
 - The protocol roadmap includes on-chain dataset licensing, revenue distribution via royalty vaults, pipeline registration with provenance tracking, and proof-of-contribution for automated revenue sharing based on usage and lineage. `claim:claim_1_6` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Datasets-Overview-1f9051299a5480c2a34fdf2e12595e3b) `source_document_id=srcdoc_e32b7ded9044b71141a1f45a15a6804b` `source_revision_id=srcrev_a8bba81636161f55fe1f942384eb2b5c` `chunk_id=srcchunk_a0b1b44995e1eea2a22c6598ca5a6147` `native_locator=https://www.notion.so/Datasets-Overview-1f9051299a5480c2a34fdf2e12595e3b` `source_timestamp=2025-05-20T22:19:00Z`
 
+## Related Pages
+
+- `systems/sahara-ai-platform`
+
 ## Sources
 
-- `source_document_id`: `srcdoc_e32b7ded9044b71141a1f45a15a6804b`
-- `source_revision_id`: `srcrev_a8bba81636161f55fe1f942384eb2b5c`
-- `source_url`: [Notion source](https://www.notion.so/Datasets-Overview-1f9051299a5480c2a34fdf2e12595e3b)
+- `source_document_id`: `srcdoc_06cbeac1b3def2b12d40c2dbb54fc2ca`
+- `source_revision_id`: `srcrev_63a22d413ff81005218db0a42416874e`
+- `source_url`: [Notion source](https://www.notion.so/Sahara-AI-1c1051299a5480eb971bfc697e135fb0)
