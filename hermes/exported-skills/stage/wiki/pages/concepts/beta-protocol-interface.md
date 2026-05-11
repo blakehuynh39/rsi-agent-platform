@@ -5,10 +5,8 @@ slug: "concepts/beta-protocol-interface"
 freshness: "2024-12-03T05:20:00Z"
 tags:
   - "beta"
-  - "design"
   - "interface"
   - "protocol"
-  - "smart-contracts"
 owners: []
 source_revision_ids:
   - "srcrev_2c61660abca955e5170ea57b4dab00eb"
@@ -48,6 +46,6 @@ Design decisions and interface specifications for the Beta Protocol, including c
 
 ## Sources
 
-- `source_document_id`: `srcdoc_1cc17f76c970edc6d1cdec37f0398209`
-- `source_revision_id`: `srcrev_2c61660abca955e5170ea57b4dab00eb`
-- `source_url`: [Notion source](https://www.notion.so/Beta-Protocol-Interface-9b9088c760334da5bd30828ddd13d6ae)
+- `source_document_id`: `srcdoc_aeb45af31362098b908ed27d9e2ce76a`
+- `source_revision_id`: `srcrev_f8ab25602df939e8c386929f90fc3476`
+- `source_url`: [Notion source](https://www.notion.so/Registration-Module-76974164cd8447bb92cb55c67e70f96e)

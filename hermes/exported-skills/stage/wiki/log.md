@@ -21842,3 +21842,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e6dd5e6bc3a46512b8232e592abf351
 - summary: Project to provision and manage infrastructure using Terraform and AWS EKS Blueprints, covering EKS, ECR, and RDS services.
 
+## [2026-05-11T17:07:39Z] synthesis | Odyssey Testnet Runbook
+
+- status: published
+- slug: runbooks/odyssey-testnet-runbook
+- wiki_revision_id: wikirev_6c5e5fb9406fa8b6bb16559488202bd4
+- summary: Runbook for the Odyssey testnet, including service endpoints, infrastructure details, and validator/RPC node configurations.
+
+## [2026-05-11T17:09:39Z] synthesis | Beta Protocol Interface
+
+- status: published
+- slug: concepts/beta-protocol-interface
+- wiki_revision_id: wikirev_7989d00ee7b51c9c889b032d010446a9
+- summary: Design decisions and interface specifications for the Beta Protocol, including core components (IP Account, Registries) and modules (Licensing, Tagging, Dispute, Royalty).
+
+## [2026-05-11T17:09:39Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_1741caa52bd0d69605ada8a34dc3a19a
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+

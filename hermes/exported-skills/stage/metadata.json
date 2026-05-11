@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f4b3588ce719abfb73afc0ab33936b46b63c2d2c18e0eb17c714e672feb15cbc",
-        "size": 567761
+        "sha256": "807d87e67f29aa017684e605c91bb685a87dd18cf7ceccc31620a91fc88bcf10",
+        "size": 568071
       },
       {
         "path": "log.md",
-        "sha256": "3c75646f3cc3430627af8a1787bf8fc13a50f14a4974f680e79b49cf77af61d0",
-        "size": 1040939
+        "sha256": "982dd8b59811156470d5eceeeafce5a7231059071e0b93ab3b375d7d9eb2a851",
+        "size": 1041985
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2991,8 +2991,8 @@
       },
       {
         "path": "pages/concepts/beta-protocol-interface.md",
-        "sha256": "b5afdeb5b4d50f44776aa1272dae9ad737771a9f19f0eefd3eeb51845263d527",
-        "size": 5960
+        "sha256": "2286ced8c21ae9821c21e3aa15f453b3cd13195c6564d1ea80b70ef233afce98",
+        "size": 5921
       },
       {
         "path": "pages/concepts/branching-tree-technique.md",
@@ -3561,8 +3561,8 @@
       },
       {
         "path": "pages/concepts/protocol-home.md",
-        "sha256": "f7a21f8b06bdbe5f896dcd9842b28ceeec8f45408b93fd1fe68e2b6d109dcca8",
-        "size": 3888
+        "sha256": "3987f1b2e583ac2b290b37af98b5fac45e7c40dc761350ace2d4471bbbad624d",
+        "size": 3825
       },
       {
         "path": "pages/concepts/protocol-metadata.md",
@@ -5475,6 +5475,11 @@
         "size": 6053
       },
       {
+        "path": "pages/runbooks/odyssey-testnet-runbook.md",
+        "sha256": "8454a7fb490e544e8a52da1bb724119879b63f194e5e64dc192b54e217bd747b",
+        "size": 12967
+      },
+      {
         "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
         "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
         "size": 2897
@@ -5974,8 +5979,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T16:55:38Z",
-  "file_count": 1193,
+  "exported_at": "2026-05-11T17:12:33Z",
+  "file_count": 1194,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8912,7 +8917,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "6d777f300dd34e50303de2c18406b7d664028f4be5d2f3c735f10cc6297188bd",
+  "previous_tree_hash": "41c0b152a3bcd7496028cc9c683383969e98e16ca590822dcec3181e8a0174af",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8925,14 +8930,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "41c0b152a3bcd7496028cc9c683383969e98e16ca590822dcec3181e8a0174af",
+  "tree_hash": "1362be6f08c18df8c5615f2ddef0093aaa4b7f0e9f8af6000f90349bcd47e744",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 607,
+  "wiki_file_count": 608,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8941,13 +8946,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f4b3588ce719abfb73afc0ab33936b46b63c2d2c18e0eb17c714e672feb15cbc",
-      "size": 567761
+      "sha256": "807d87e67f29aa017684e605c91bb685a87dd18cf7ceccc31620a91fc88bcf10",
+      "size": 568071
     },
     {
       "path": "log.md",
-      "sha256": "3c75646f3cc3430627af8a1787bf8fc13a50f14a4974f680e79b49cf77af61d0",
-      "size": 1040939
+      "sha256": "982dd8b59811156470d5eceeeafce5a7231059071e0b93ab3b375d7d9eb2a851",
+      "size": 1041985
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -8991,8 +8996,8 @@
     },
     {
       "path": "pages/concepts/beta-protocol-interface.md",
-      "sha256": "b5afdeb5b4d50f44776aa1272dae9ad737771a9f19f0eefd3eeb51845263d527",
-      "size": 5960
+      "sha256": "2286ced8c21ae9821c21e3aa15f453b3cd13195c6564d1ea80b70ef233afce98",
+      "size": 5921
     },
     {
       "path": "pages/concepts/branching-tree-technique.md",
@@ -9561,8 +9566,8 @@
     },
     {
       "path": "pages/concepts/protocol-home.md",
-      "sha256": "f7a21f8b06bdbe5f896dcd9842b28ceeec8f45408b93fd1fe68e2b6d109dcca8",
-      "size": 3888
+      "sha256": "3987f1b2e583ac2b290b37af98b5fac45e7c40dc761350ace2d4471bbbad624d",
+      "size": 3825
     },
     {
       "path": "pages/concepts/protocol-metadata.md",
@@ -11475,6 +11480,11 @@
       "size": 6053
     },
     {
+      "path": "pages/runbooks/odyssey-testnet-runbook.md",
+      "sha256": "8454a7fb490e544e8a52da1bb724119879b63f194e5e64dc192b54e217bd747b",
+      "size": 12967
+    },
+    {
       "path": "pages/runbooks/odyssey-testnet-ssh-access.md",
       "sha256": "4702f5bc17d88ec7d94183b5e1ed8e443ad1492d44c07a77e055e18d16108499",
       "size": 2897
@@ -11971,5 +11981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4bb600e14f15808b1366217f08c1bfea0cfa98f691807698897ba47022672cae"
+  "wiki_tree_hash": "65964e23e972aa07fd2b7b3e127451970ba56939caa7d3fa7c9e4415fdad0fc8"
 }

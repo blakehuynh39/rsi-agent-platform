@@ -4,9 +4,8 @@ type: "concept"
 slug: "concepts/protocol-home"
 freshness: "2025-04-03T18:52:00Z"
 tags:
-  - "design"
+  - "home"
   - "protocol"
-  - "resources"
   - "roadmap"
 owners: []
 source_revision_ids:
@@ -35,11 +34,10 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `concepts/alpha-beta-goals`
-- `concepts/design-partner-criteria`
+- `concepts/beta-protocol-interface`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_4202e441079d84cc48912052fb8d10a3`
-- `source_revision_id`: `srcrev_5d057340d333385b3565d37958a87d3e`
-- `source_url`: [Notion source](https://www.notion.so/Protocol-and-Ecosystem-Scrum-Notes-3da36f9b01724832afdaf19742b96f3b)
+- `source_document_id`: `srcdoc_aeb45af31362098b908ed27d9e2ce76a`
+- `source_revision_id`: `srcrev_f8ab25602df939e8c386929f90fc3476`
+- `source_url`: [Notion source](https://www.notion.so/Registration-Module-76974164cd8447bb92cb55c67e70f96e)
