@@ -21730,3 +21730,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6a3b510dc13e940f4ea7811eab9a1a47
 - summary: Infrastructure planning for the Renaissance project, including provider evaluation, milestones, and required components for devnet and public testnet launches.
 
+## [2026-05-11T08:49:10Z] synthesis | Protocol v1.1 Milestone
+
+- status: published
+- slug: projects/protocol-v1-1-milestone
+- wiki_revision_id: wikirev_78d2a43eb48953296299459fa148c7ef
+- summary: Tasks and considerations for the v1.1 protocol milestone, covering core repo changes and periphery repo guidelines.
+
+## [2026-05-11T08:49:46Z] synthesis | Enshrined Protocol
+
+- status: published
+- slug: concepts/enshrined-protocol
+- wiki_revision_id: wikirev_bff116af49001fd48e70968a9c2e67dc
+- summary: Discussion and resources on enshrined protocol, covering precompiles, examples from other L1s (Dydx, Berachain, Frame), and SP-specific candidates.
+
+## [2026-05-11T08:49:46Z] synthesis | Dydx v4
+
+- status: published
+- slug: projects/dydx-v4
+- wiki_revision_id: wikirev_2774a05947a60ff1c117b0ae35224787
+- summary: Dydx v4 is a decentralized derivatives exchange built as a standalone L1 blockchain using CometBFT and CosmosSDK. It uses an off-chain in-memory orderbook for matching, with trades...
+

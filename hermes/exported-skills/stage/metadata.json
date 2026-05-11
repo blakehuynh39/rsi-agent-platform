@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cf3142064714a3f295891bba98215b5b8c1ca51abb298e4e9596ac990b2c7ed8",
-        "size": 563098
+        "sha256": "88d9247f42648229624a0b7d3a6cb46da2761ca8d5039576c320e6e15a6ac9ae",
+        "size": 563736
       },
       {
         "path": "log.md",
-        "sha256": "404195720c5c38489302c2103acb8d956a2804197e9f2ed22d2c73ff8ec16bb9",
-        "size": 1035124
+        "sha256": "83a3cdf52ae3cd73342bc3d9409c83dabc41f38283cecc9a6ceb93fa4ff21359",
+        "size": 1036121
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3116,8 +3116,8 @@
       },
       {
         "path": "pages/concepts/enshrined-protocol.md",
-        "sha256": "b1712c658ba83150c6b1cb1fe4c0c76dc56f418541cfcc00e461389381cdea46",
-        "size": 1520
+        "sha256": "8deeb7049f6bb5f52d931cea47c56072c1c0ad9c7a07b1b5dee5fd45e8bea3a6",
+        "size": 1248
       },
       {
         "path": "pages/concepts/epoched-staking.md",
@@ -4475,6 +4475,11 @@
         "size": 1259
       },
       {
+        "path": "pages/projects/dydx-v4.md",
+        "sha256": "3e149fc0035f638646743abe4506f24c0e320befb6f89c7fb324232014411d6a",
+        "size": 4870
+      },
+      {
         "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
         "sha256": "2b21d26427ee3f1a5d75f6bce4750eb2a8301c423a6c430d710f53c199881ff3",
         "size": 5530
@@ -4993,6 +4998,11 @@
         "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
         "sha256": "5ccb12f87766dfc9ba82eca5b79ca06876ca7e3c27b581663b9276c8cda1ab58",
         "size": 9097
+      },
+      {
+        "path": "pages/projects/protocol-v1-1-milestone.md",
+        "sha256": "b8a0a8d1e249d37d3100c54365850f212bedaf5b12470e8f9b3196aeffc8cd93",
+        "size": 8437
       },
       {
         "path": "pages/projects/protocol-visualizer.md",
@@ -5899,8 +5909,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T08:24:50Z",
-  "file_count": 1178,
+  "exported_at": "2026-05-11T08:51:28Z",
+  "file_count": 1180,
   "files": [
     {
       "path": ".curator_state",
@@ -8827,7 +8837,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "bbc0309c76bd7926ddf9e647096e7dbb2ad12f770f7e751511d755b72aad3111",
+  "previous_tree_hash": "5f744bdc06e2908179ce8cd3b4fcdae1c6587c758683743be8274656aaee6407",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8840,14 +8850,14 @@
   ],
   "skill_tree_hash": "36e6d6b6c0711c66861f7debf4717024bbbb78cb328c40e99e2dad3265570787",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5f744bdc06e2908179ce8cd3b4fcdae1c6587c758683743be8274656aaee6407",
+  "tree_hash": "f40debb9b789e9e759a3143e456a0528f0b11f03ff824b43c22dda950c9fcd72",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 594,
+  "wiki_file_count": 596,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8856,13 +8866,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cf3142064714a3f295891bba98215b5b8c1ca51abb298e4e9596ac990b2c7ed8",
-      "size": 563098
+      "sha256": "88d9247f42648229624a0b7d3a6cb46da2761ca8d5039576c320e6e15a6ac9ae",
+      "size": 563736
     },
     {
       "path": "log.md",
-      "sha256": "404195720c5c38489302c2103acb8d956a2804197e9f2ed22d2c73ff8ec16bb9",
-      "size": 1035124
+      "sha256": "83a3cdf52ae3cd73342bc3d9409c83dabc41f38283cecc9a6ceb93fa4ff21359",
+      "size": 1036121
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9041,8 +9051,8 @@
     },
     {
       "path": "pages/concepts/enshrined-protocol.md",
-      "sha256": "b1712c658ba83150c6b1cb1fe4c0c76dc56f418541cfcc00e461389381cdea46",
-      "size": 1520
+      "sha256": "8deeb7049f6bb5f52d931cea47c56072c1c0ad9c7a07b1b5dee5fd45e8bea3a6",
+      "size": 1248
     },
     {
       "path": "pages/concepts/epoched-staking.md",
@@ -10400,6 +10410,11 @@
       "size": 1259
     },
     {
+      "path": "pages/projects/dydx-v4.md",
+      "sha256": "3e149fc0035f638646743abe4506f24c0e320befb6f89c7fb324232014411d6a",
+      "size": 4870
+    },
+    {
       "path": "pages/projects/e2e-model-performance-observation-evaluation.md",
       "sha256": "2b21d26427ee3f1a5d75f6bce4750eb2a8301c423a6c430d710f53c199881ff3",
       "size": 5530
@@ -10918,6 +10933,11 @@
       "path": "pages/projects/protocol-rd-update-may-jul-2023.md",
       "sha256": "5ccb12f87766dfc9ba82eca5b79ca06876ca7e3c27b581663b9276c8cda1ab58",
       "size": 9097
+    },
+    {
+      "path": "pages/projects/protocol-v1-1-milestone.md",
+      "sha256": "b8a0a8d1e249d37d3100c54365850f212bedaf5b12470e8f9b3196aeffc8cd93",
+      "size": 8437
     },
     {
       "path": "pages/projects/protocol-visualizer.md",
@@ -11821,5 +11841,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d99a04ac93a4f7f294cdf3c3cd7b59a5ff44469a38bb5356da568f0354500104"
+  "wiki_tree_hash": "4f09083b41f9b6864137fb4f3e7ad716ac1fee53e89e977fd5aeef91c5c4977e"
 }
