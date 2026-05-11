@@ -1,206 +1,101 @@
 ---
 name: notion
-description: "Notion API via curl: pages, databases, blocks, search."
-version: 1.0.0
-author: community
+description: "Story RSI Notion access through native RSI Notion tools."
+version: 2.0.0
+author: RSI
 license: MIT
 metadata:
   hermes:
-    tags: [Notion, Productivity, Notes, Database, API]
+    tags: [Notion, Productivity, Notes, Database, API, RSI]
     homepage: https://developers.notion.com
 prerequisites:
-  env_vars: [NOTION_API_KEY]
+  native_tools: [rsi_notion]
 ---
 
-# Notion API
+# Notion
 
-Use the Notion API via curl to create, read, update pages, databases (data sources), and blocks. No extra tools needed — just curl and a Notion API key.
+Use RSI native Notion tools for all Notion reads and writes. Do not call the
+Notion HTTP API directly from the shell.
 
-## Prerequisites
+## Canonical Access Path
 
-1. Create an integration at https://notion.so/my-integrations
-2. Copy the API key (starts with `ntn_` or `secret_`)
-3. Store it in `~/.hermes/.env`:
-   ```
-   NOTION_API_KEY=ntn_your_key_here
-   ```
-4. **Important:** Share target pages/databases with your integration in Notion (click "..." → "Connect to" → your integration name)
+The canonical path is the RSI platform native Notion gateway:
 
-## API Basics
+- `rsi_notion.search` / transport name `rsi_notion_search`
+- `rsi_notion.page_get`
+- `rsi_notion.blocks_children`
+- `rsi_notion.database_get`
+- `rsi_notion.data_source_get`
+- `rsi_notion.data_source_query`
+- `rsi_notion.page_create`
+- `rsi_notion.page_update`
+- `rsi_notion.page_archive`
+- `rsi_notion.blocks_append`
+- `rsi_notion.block_update`
+- `rsi_notion.block_delete`
+- `rsi_notion.comment_create`
 
-All requests use this pattern:
+The Notion token is held server-side by the RSI control plane. Hermes should not
+expect `NOTION_API_KEY`, `NOTION_TOKEN`, or any Notion secret in the shell
+environment.
 
-```bash
-curl -s -X GET "https://api.notion.com/v1/..." \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json"
-```
+## Hard Rules
 
-The `Notion-Version` header is required. This skill uses `2025-09-03` (latest). In this version, databases are called "data sources" in the API.
+- Do not use `curl https://api.notion.com/...`.
+- Do not ask the user to put `NOTION_API_KEY` in `~/.hermes/.env`.
+- Do not print, inspect, or request Notion tokens.
+- Do not conclude that Notion writes are unavailable just because
+  `NOTION_API_KEY` is missing from the executor shell.
+- If a native Notion tool returns a setup error such as `NOTION_TOKEN is
+  required`, report it as RSI control-plane configuration drift.
+- Pages and databases still must be shared with the RSI Notion integration in
+  Notion, or Notion may return not found/forbidden through the native tool.
 
-## Common Operations
+## Choosing Tools
 
-### Search
+Use `rsi_knowledge_search` for compiled company knowledge when the task is only
+asking for background context from mirrored Notion/wiki content.
 
-```bash
-curl -s -X POST "https://api.notion.com/v1/search" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "page title"}'
-```
+Use `rsi_notion.*` when the task needs live Notion objects, exact page/block
+content, database/data-source queries, comments, or any Notion write/update.
 
-### Get Page
+## Read Workflow
 
-```bash
-curl -s "https://api.notion.com/v1/pages/{page_id}" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03"
-```
+1. Search by title or keywords with `rsi_notion.search`.
+2. Retrieve pages with `rsi_notion.page_get`.
+3. Retrieve page content with `rsi_notion.blocks_children`.
+4. For databases, use `rsi_notion.database_get` to inspect metadata and
+   `rsi_notion.data_source_get` / `rsi_notion.data_source_query` for rows.
 
-### Get Page Content (blocks)
+## Write Workflow
 
-```bash
-curl -s "https://api.notion.com/v1/blocks/{page_id}/children" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03"
-```
+1. Resolve the target page, database, or data source with native reads first.
+2. Confirm the intended parent, block, or property names from live metadata.
+3. Use the appropriate native write tool:
+   - `rsi_notion.page_create` for new pages.
+   - `rsi_notion.page_update` for property or page metadata changes.
+   - `rsi_notion.blocks_append` for adding page content.
+   - `rsi_notion.block_update` for editing one block.
+   - `rsi_notion.block_delete` for deleting one block.
+   - `rsi_notion.comment_create` for page/block comments.
+4. Include a concise reason and a stable idempotency key when the tool schema
+   asks for action metadata.
 
-### Create Page in a Database
+Prefer small, targeted writes. For larger documents, create or update a page in
+sections so failures are easy to diagnose and retries are idempotent.
 
-```bash
-curl -s -X POST "https://api.notion.com/v1/pages" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "parent": {"database_id": "xxx"},
-    "properties": {
-      "Name": {"title": [{"text": {"content": "New Item"}}]},
-      "Status": {"select": {"name": "Todo"}}
-    }
-  }'
-```
+## Common Diagnostics
 
-### Query a Database
+- `object_not_found`, `not_found`, or `forbidden`: the page/database may not be
+  shared with the RSI Notion integration.
+- `NOTION_TOKEN is required for native Notion tools`: the control-plane pod is
+  missing its server-side token configuration; this is an operator issue, not a
+  Hermes executor issue.
+- Rate limits or transient 5xx responses: retry later with the same idempotency
+  key for writes when available.
 
-```bash
-curl -s -X POST "https://api.notion.com/v1/data_sources/{data_source_id}/query" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "filter": {"property": "Status", "select": {"equals": "Active"}},
-    "sorts": [{"property": "Date", "direction": "descending"}]
-  }'
-```
+## Deprecated Paths
 
-### Create a Database
-
-```bash
-curl -s -X POST "https://api.notion.com/v1/data_sources" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "parent": {"page_id": "xxx"},
-    "title": [{"text": {"content": "My Database"}}],
-    "properties": {
-      "Name": {"title": {}},
-      "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Done"}]}},
-      "Date": {"date": {}}
-    }
-  }'
-```
-
-### Update Page Properties
-
-```bash
-curl -s -X PATCH "https://api.notion.com/v1/pages/{page_id}" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{"properties": {"Status": {"select": {"name": "Done"}}}}'
-```
-
-### Add Content to a Page
-
-```bash
-curl -s -X PATCH "https://api.notion.com/v1/blocks/{page_id}/children" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "children": [
-      {"object": "block", "type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": "Hello from Hermes!"}}]}}
-    ]
-  }'
-```
-
-## Property Types
-
-Common property formats for database items:
-
-- **Title:** `{"title": [{"text": {"content": "..."}}]}`
-- **Rich text:** `{"rich_text": [{"text": {"content": "..."}}]}`
-- **Select:** `{"select": {"name": "Option"}}`
-- **Multi-select:** `{"multi_select": [{"name": "A"}, {"name": "B"}]}`
-- **Date:** `{"date": {"start": "2026-01-15", "end": "2026-01-16"}}`
-- **Checkbox:** `{"checkbox": true}`
-- **Number:** `{"number": 42}`
-- **URL:** `{"url": "https://..."}`
-- **Email:** `{"email": "user@example.com"}`
-- **Relation:** `{"relation": [{"id": "page_id"}]}`
-
-## Key Differences in API Version 2025-09-03
-
-- **Databases → Data Sources:** Use `/data_sources/` endpoints for queries and retrieval
-- **Two IDs:** Each database has both a `database_id` and a `data_source_id`
-  - Use `database_id` when creating pages (`parent: {"database_id": "..."}`)
-  - Use `data_source_id` when querying (`POST /v1/data_sources/{id}/query`)
-- **Search results:** Databases return as `"object": "data_source"` with their `data_source_id`
-
-## Pitfalls & Diagnostics
-
-### Verify your key works
-
-A quick smoke test — search with a minimal page size:
-
-```bash
-curl -s -X POST "https://api.notion.com/v1/search" \
-  -H "Authorization: Bearer $NOTION_API_KEY" \
-  -H "Notion-Version: 2025-09-03" \
-  -H "Content-Type: application/json" \
-  -d '{"page_size": 1}' | jq '{object, first_id: .results[0].id}'
-```
-
-If the key is invalid or empty you'll get:
-```json
-{"object":"error","status":401,"code":"unauthorized","message":"API token is invalid."}
-```
-
-### MCP Notion tools are independent
-
-If a Notion MCP server is configured, its tools (search, retrieve page, get block children) use the MCP server's own credential — they work **independently** of the shell `$NOTION_API_KEY`. This means MCP reads can succeed even when curl calls fail with 401. However, MCP tools are typically **read-only**; creating or editing pages still requires a valid `NOTION_API_KEY` in the shell environment for curl-based operations.
-
-### Key is set but empty
-
-`[ -n "$NOTION_API_KEY" ]` returns true even when the variable is set to empty string. Check the actual value:
-```bash
-echo "Length: ${#NOTION_API_KEY}"
-```
-If length is 0, the key is present but empty — add a valid token.
-
-### Pages must be shared with your integration
-
-Even with a valid key, 404 errors on specific pages/databases usually mean the integration hasn't been granted access. In Notion, open the page → "..." → "Connect to" → select your integration.
-
-## Notes
-
-- Page/database IDs are UUIDs (with or without dashes)
-- Rate limit: ~3 requests/second average
-- The API cannot set database view filters — that's UI-only
-- Use `is_inline: true` when creating data sources to embed them in pages
-- Add `-s` flag to curl to suppress progress bars (cleaner output for Hermes)
-- Pipe output through `jq` for readable JSON: `... | jq '.results[0].properties'`
+Legacy Notion shell/curl instructions are retired in RSI. The Hermes executor is
+not supposed to have a direct Notion token, and direct Notion API calls bypass
+RSI policy, audit, idempotency, and redaction.

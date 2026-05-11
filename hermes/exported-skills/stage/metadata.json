@@ -2044,6 +2044,11 @@
       },
       {
         "path": "productivity/notion/SKILL.md",
+        "sha256": "b8bb6fd6f1294bc367402caed7872b2264a054a6e62b3ca44a1a1867517bb4ca",
+        "size": 3822
+      },
+      {
+        "path": "productivity/notion/SKILL.md.legacy-curl-20260511.bak",
         "sha256": "7de09b6ad8e1a6a4d14c963dcc4448cf9cf4b84fc4263e3d38cc62366bfb83f4",
         "size": 6678
       },
@@ -5994,8 +5999,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T20:03:18Z",
-  "file_count": 1197,
+  "exported_at": "2026-05-11T20:20:01Z",
+  "file_count": 1198,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8039,6 +8044,11 @@
     },
     {
       "path": "productivity/notion/SKILL.md",
+      "sha256": "b8bb6fd6f1294bc367402caed7872b2264a054a6e62b3ca44a1a1867517bb4ca",
+      "size": 3822
+    },
+    {
+      "path": "productivity/notion/SKILL.md.legacy-curl-20260511.bak",
       "sha256": "7de09b6ad8e1a6a4d14c963dcc4448cf9cf4b84fc4263e3d38cc62366bfb83f4",
       "size": 6678
     },
@@ -8932,9 +8942,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "a1e15889e232e7889bf52767589471cea7b5dce5477bfff1484f002294a8e627",
+  "previous_tree_hash": "5b6227094c748347d4602fa050094e56186679450c677bf81710ef2726d264f9",
   "schema_version": 1,
-  "skill_file_count": 586,
+  "skill_file_count": 587,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -8943,9 +8953,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
+  "skill_tree_hash": "8fb5190aee5190d997d98626b97cb04a2d4b4dba2d7eeeee94d66b70e99f86b0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5b6227094c748347d4602fa050094e56186679450c677bf81710ef2726d264f9",
+  "tree_hash": "6ada1963e3794fc92296a1e9036a160e3bfd1d66a1428c65fbe338619cdb184e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
