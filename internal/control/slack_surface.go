@@ -82,15 +82,15 @@ func newSlackSurfaceRouter(cfg config.Config) http.Handler {
 	r := app.NewBaseRouter(cfg)
 	r.Get("/api/slack-surface", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]any{
-			"service":                   cfg.ServiceName,
-			"mode":                      "slack-surface",
-			"slack_app_identity":        cfg.SlackAppIdentity,
-			"socket_mode_enabled":       cfg.SlackSocketModeEnabled,
-			"allowed_slack_channel_ids": cfg.AllowedSlackChannelIDs,
+			"service":                           cfg.ServiceName,
+			"mode":                              "slack-surface",
+			"slack_app_identity":                cfg.SlackAppIdentity,
+			"socket_mode_enabled":               cfg.SlackSocketModeEnabled,
+			"slack_ingress_allowed_channel_ids": cfg.SlackIngressAllowedChannelIDs,
 		})
 	})
 	r.Get("/api/slack-surface/channels", func(w http.ResponseWriter, r *http.Request) {
-		app.WriteJSON(w, http.StatusOK, map[string]any{"allowed_channel_ids": cfg.AllowedSlackChannelIDs})
+		app.WriteJSON(w, http.StatusOK, map[string]any{"ingress_allowed_channel_ids": cfg.SlackIngressAllowedChannelIDs})
 	})
 	return r
 }
@@ -107,8 +107,8 @@ type slackSurfaceRuntime struct {
 
 func newSlackSurfaceRuntime(cfg config.Config, store storepkg.Store) *slackSurfaceRuntime {
 	api := slack.New(cfg.SlackBotToken, slack.OptionAppLevelToken(cfg.SlackAppToken))
-	allowed := make(map[string]struct{}, len(cfg.AllowedSlackChannelIDs))
-	for _, channelID := range cfg.AllowedSlackChannelIDs {
+	allowed := make(map[string]struct{}, len(cfg.SlackIngressAllowedChannelIDs))
+	for _, channelID := range cfg.SlackIngressAllowedChannelIDs {
 		channelID = strings.TrimSpace(channelID)
 		if channelID != "" {
 			allowed[channelID] = struct{}{}
@@ -783,7 +783,7 @@ func (s *slackSurfaceRuntime) buildMentionEnvelope(teamID string, event *slackev
 		return slackpkg.SlackEnvelope{}, false
 	}
 	if !s.mentionChannelAllowed(event.Channel) {
-		log.Printf("slack-surface identity=%s ignored mention channel=%s allowed=%v", s.cfg.SlackAppIdentity, event.Channel, s.cfg.AllowedSlackChannelIDs)
+		log.Printf("slack-surface identity=%s ignored mention channel=%s allowed=%v", s.cfg.SlackAppIdentity, event.Channel, s.cfg.SlackIngressAllowedChannelIDs)
 		return slackpkg.SlackEnvelope{}, false
 	}
 	threadTS := strings.TrimSpace(event.ThreadTimeStamp)

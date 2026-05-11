@@ -1308,6 +1308,12 @@ func executeSlackReportNativeDelivery(nativeCtx context.Context, cfg config.Conf
 }
 
 func workflowNativeToolClaims(cfg config.Config, ctx workflowContext, intent action.Intent, started time.Time) nativeToolClaims {
+	slackChannelID := strings.TrimSpace(ctx.ingestion.ChannelID)
+	slackThreadTS := strings.TrimSpace(ctx.ingestion.ThreadTS)
+	slackScope := ""
+	if slackChannelID != "" {
+		slackScope = "bound_thread"
+	}
 	return nativeToolClaims{
 		Audience:       nativeToolsAudience,
 		IssuedAt:       started.Unix(),
@@ -1319,6 +1325,9 @@ func workflowNativeToolClaims(cfg config.Config, ctx workflowContext, intent act
 		ConversationID: ctx.trace.Summary.ConversationID,
 		Actor:          cfg.ServiceName,
 		Surfaces:       []string{"slack"},
+		SlackChannelID: slackChannelID,
+		SlackThreadTS:  slackThreadTS,
+		SlackScope:     slackScope,
 	}
 }
 

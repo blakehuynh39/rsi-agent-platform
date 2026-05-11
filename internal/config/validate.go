@@ -132,7 +132,7 @@ func (c Config) validateControlPlane(issues *[]string) {
 		}
 		addRequiredString(issues, "RSI_SLACK_APP_TOKEN", c.SlackAppToken)
 		addRequiredString(issues, "SLACK_BOT_TOKEN", c.SlackBotToken)
-		addRequiredList(issues, "RSI_ALLOWED_SLACK_CHANNEL_IDS", c.AllowedSlackChannelIDs)
+		addRequiredList(issues, "RSI_SLACK_INGRESS_ALLOWED_CHANNEL_IDS", c.SlackIngressAllowedChannelIDs)
 		if c.SlackMirrorEnabled {
 			c.validateSlackMirror(issues)
 		}

@@ -65,8 +65,8 @@ func (f *fakeSlackPoster) UpdateMessageContext(_ context.Context, channelID, tim
 
 func TestSlackSurfaceBuildMentionEnvelopeFiltersAndMapsIdentity(t *testing.T) {
 	runtime := newSlackSurfaceRuntime(config.Config{
-		SlackAppIdentity:       "oncall",
-		AllowedSlackChannelIDs: []string{"C123"},
+		SlackAppIdentity:              "oncall",
+		SlackIngressAllowedChannelIDs: []string{"C123"},
 	}, storepkg.NewMemoryStore())
 
 	envelope, ok := runtime.buildMentionEnvelope("T123", &slackevents.AppMentionEvent{
@@ -176,10 +176,10 @@ func TestSlackSurfaceOperatorTraceACKIsIdempotent(t *testing.T) {
 func TestSlackSurfacePostsOperatorACKAfterDurableIngress(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	runtime := newSlackSurfaceRuntime(config.Config{
-		ServiceName:            "rsi-slack-surface",
-		SlackAppIdentity:       "rsi",
-		PublicBaseURL:          "https://staging-rsi-platform.storyprotocol.net",
-		AllowedSlackChannelIDs: []string{"C123"},
+		ServiceName:                   "rsi-slack-surface",
+		SlackAppIdentity:              "rsi",
+		PublicBaseURL:                 "https://staging-rsi-platform.storyprotocol.net",
+		SlackIngressAllowedChannelIDs: []string{"C123"},
 	}, store)
 	poster := &fakeSlackPoster{}
 	runtime.slackAPI = poster
@@ -269,8 +269,8 @@ func TestSlackSurfaceDBReadDenyDoesNotSetApprovalFields(t *testing.T) {
 
 func TestSlackSurfaceBuildMentionEnvelopeAllowsMentionOnlySentinel(t *testing.T) {
 	runtime := newSlackSurfaceRuntime(config.Config{
-		SlackAppIdentity:       "rsi",
-		AllowedSlackChannelIDs: []string{slackMentionsOnlySentinel},
+		SlackAppIdentity:              "rsi",
+		SlackIngressAllowedChannelIDs: []string{slackMentionsOnlySentinel},
 	}, storepkg.NewMemoryStore())
 
 	envelope, ok := runtime.buildMentionEnvelope("T123", &slackevents.AppMentionEvent{
@@ -290,8 +290,8 @@ func TestSlackSurfaceBuildMentionEnvelopeAllowsMentionOnlySentinel(t *testing.T)
 func TestSlackSurfaceIgnoresAmbientMessageEvents(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	runtime := newSlackSurfaceRuntime(config.Config{
-		SlackAppIdentity:       "rsi",
-		AllowedSlackChannelIDs: []string{"C123"},
+		SlackAppIdentity:              "rsi",
+		SlackIngressAllowedChannelIDs: []string{"C123"},
 	}, store)
 	before := len(store.ListIngestions())
 
@@ -371,8 +371,8 @@ func TestSlackSurfaceMirrorsAmbientAllowlistedMessagesWithoutIngress(t *testing.
 func TestSlackSurfaceAcceptsDirectMessages(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	runtime := newSlackSurfaceRuntime(config.Config{
-		SlackAppIdentity:       "rsi",
-		AllowedSlackChannelIDs: []string{"C123"},
+		SlackAppIdentity:              "rsi",
+		SlackIngressAllowedChannelIDs: []string{"C123"},
 	}, store)
 	before := len(store.ListIngestions())
 

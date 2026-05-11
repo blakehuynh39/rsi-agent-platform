@@ -869,6 +869,50 @@ def _resolve_slack_upload_payload(payload: JsonObject) -> JsonObject:
     return prepare_local_slack_upload_payload(payload, resolved_path)
 
 
+def _payload_with_upload_context(args: JsonObject, context: JsonObject) -> JsonObject:
+    payload = dict(args or {})
+    for key in ("artifact_output_dir", "hermes_computer_root", "hermes_artifact_root", "workspace_policy"):
+        if key not in payload and key in context:
+            payload[key] = context[key]
+    return payload
+
+
+def _strip_upload_context(payload: JsonObject) -> JsonObject:
+    cleaned = dict(payload or {})
+    for key in ("artifact_output_dir", "hermes_computer_root", "hermes_artifact_root", "workspace_policy"):
+        cleaned.pop(key, None)
+    return cleaned
+
+
+def _resolve_slack_report_attachment_payload(item: object, context: JsonObject) -> object:
+    if not isinstance(item, dict):
+        return item
+    payload = _payload_with_upload_context(dict(item), context)
+    resolved = _resolve_slack_upload_payload(payload)
+    return _strip_upload_context(resolved)
+
+
+def _resolve_native_action_args(canonical_name: str, args: JsonObject, context: JsonObject) -> JsonObject:
+    if canonical_name == "rsi_slack.file_upload":
+        return _strip_upload_context(_resolve_slack_upload_payload(_payload_with_upload_context(args, context)))
+    if canonical_name == "rsi_slack.report_post":
+        resolved = dict(args or {})
+        for key in ("files", "images"):
+            value = resolved.get(key)
+            if isinstance(value, list):
+                resolved[key] = [_resolve_slack_report_attachment_payload(item, context) for item in value]
+        report = resolved.get("report")
+        if isinstance(report, dict):
+            report_payload = dict(report)
+            for key in ("files", "images"):
+                value = report_payload.get(key)
+                if isinstance(value, list):
+                    report_payload[key] = [_resolve_slack_report_attachment_payload(item, context) for item in value]
+            resolved["report"] = report_payload
+        return resolved
+    return args
+
+
 def _native_target_ref(args: JsonObject) -> str:
     for key in (
         "target_ref",
@@ -1025,9 +1069,11 @@ def _native_slack_reply_delivery(
 def _native_action_handler(canonical_name: str, transport_name: str, args: JsonObject, task_id: str = "", **kwargs):
     session_id = str(task_id or kwargs.get("task_id", "") or kwargs.get("session_id", "")).strip()
     tool_call_id = str(kwargs.get("tool_call_id", "") or kwargs.get("call_id", "") or "").strip()
+    context = _active_context(task_id=task_id, **kwargs)
     safe_args = args if isinstance(args, dict) else {}
-    request_payload = _native_action_payload(canonical_name, safe_args)
     try:
+        safe_args = _resolve_native_action_args(canonical_name, safe_args, context)
+        request_payload = _native_action_payload(canonical_name, safe_args)
         status_code, response = _native_action_request(request_payload)
         ok = 200 <= status_code < 300 and bool(response.get("ok", False))
         event_payload = {

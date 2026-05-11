@@ -76,6 +76,9 @@ type nativeToolClaims struct {
 	ConversationID string   `json:"conversation_id"`
 	Actor          string   `json:"actor"`
 	Surfaces       []string `json:"surfaces"`
+	SlackChannelID string   `json:"slack_channel_id,omitempty"`
+	SlackThreadTS  string   `json:"slack_thread_ts,omitempty"`
+	SlackScope     string   `json:"slack_delivery_scope,omitempty"`
 }
 
 type nativeToolActionRequest struct {
@@ -204,7 +207,7 @@ func handleNativeToolAction(ctx context.Context, cfg config.Config, repo storepk
 		args["__previous_result_payload"] = action.ResultPayload
 		input.Arguments = args
 	}
-	if validationErr, status := validateNativeToolActionPolicy(cfg, input, isWrite, isDestructive); validationErr != nil {
+	if validationErr, status := validateNativeToolActionPolicy(cfg, claims, input, isWrite, isDestructive); validationErr != nil {
 		failed, updateErr := repo.UpdateExternalToolActionResult(action.ID, storepkg.ExternalToolActionResultUpdate{
 			State:        storepkg.ExternalToolActionStateFailed,
 			ErrorMessage: validationErr.Error(),
@@ -989,7 +992,7 @@ func executeNotionNativeToolAction(ctx context.Context, cfg config.Config, repo 
 	}
 }
 
-func validateNativeToolActionPolicy(cfg config.Config, input nativeToolActionRequest, isWrite bool, isDestructive bool) (error, int) {
+func validateNativeToolActionPolicy(cfg config.Config, claims nativeToolClaims, input nativeToolActionRequest, isWrite bool, isDestructive bool) (error, int) {
 	if isDestructive && !input.ConfirmDestroy {
 		return errors.New("destructive native tool operation requires confirm_destroy=true"), http.StatusBadRequest
 	}
@@ -1001,17 +1004,10 @@ func validateNativeToolActionPolicy(cfg config.Config, input nativeToolActionReq
 					return fmt.Errorf("slack channel %s is denied by policy", channelID), http.StatusForbidden
 				}
 			}
-			if isWrite && len(cfg.AllowedSlackChannelIDs) > 0 {
-				allowed := false
-				for _, candidate := range cfg.AllowedSlackChannelIDs {
-					if strings.TrimSpace(candidate) == channelID {
-						allowed = true
-						break
-					}
-				}
-				if !allowed {
-					return fmt.Errorf("slack channel %s is outside allowed channel scope", channelID), http.StatusForbidden
-				}
+		}
+		if isWrite {
+			if err := validateNativeSlackWriteScope(claims, input); err != nil {
+				return err, http.StatusForbidden
 			}
 		}
 	}
@@ -1022,6 +1018,47 @@ func validateNativeToolActionPolicy(cfg config.Config, input nativeToolActionReq
 		return errors.New("notion write requires mirror_root_id or successful mirror root resolution"), http.StatusBadRequest
 	}
 	return nil, http.StatusOK
+}
+
+func validateNativeSlackWriteScope(claims nativeToolClaims, input nativeToolActionRequest) error {
+	if !nativeSlackBoundDeliveryOperation(input.Operation) {
+		return fmt.Errorf("native Slack write operation %s is not available to workflow execution tokens", input.Operation)
+	}
+	if strings.TrimSpace(claims.SlackScope) != "bound_thread" {
+		return errors.New("native Slack write requires slack_delivery_scope=bound_thread")
+	}
+	boundChannelID := strings.TrimSpace(claims.SlackChannelID)
+	if boundChannelID == "" {
+		return errors.New("native Slack write requires a bound slack_channel_id claim")
+	}
+	channelID := firstNonEmpty(stringArg(input.Arguments, "channel_id"), input.TargetRef)
+	if channelID == "" {
+		return errors.New("native Slack write requires channel_id")
+	}
+	if channelID != boundChannelID {
+		return fmt.Errorf("slack channel %s is outside bound Slack delivery scope", channelID)
+	}
+	boundThreadTS := strings.TrimSpace(claims.SlackThreadTS)
+	if boundThreadTS == "" {
+		return nil
+	}
+	threadTS := strings.TrimSpace(stringArg(input.Arguments, "thread_ts"))
+	if threadTS == "" {
+		return errors.New("native Slack write requires thread_ts for bound-thread delivery")
+	}
+	if threadTS != boundThreadTS {
+		return fmt.Errorf("slack thread %s is outside bound Slack delivery scope", threadTS)
+	}
+	return nil
+}
+
+func nativeSlackBoundDeliveryOperation(operation string) bool {
+	switch strings.TrimSpace(operation) {
+	case "message_post", "report_post", "file_upload":
+		return true
+	default:
+		return false
+	}
 }
 
 func authorizeNativeToolAction(cfg config.Config, r *http.Request, surface string) (nativeToolClaims, error) {
@@ -1459,6 +1496,7 @@ func slackAttachmentsArg(args map[string]any, key string) ([]slackapi.Attachment
 
 func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFileParameters, error) {
 	channelID := firstNonEmpty(stringArg(args, "channel_id"), targetRef)
+	contentBase64 := stringArg(args, "content_base64")
 	params := slackapi.UploadFileParameters{
 		Channel:         channelID,
 		InitialComment:  stringArg(args, "initial_comment"),
@@ -1467,7 +1505,18 @@ func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFi
 		Title:           stringArg(args, "title"),
 		Content:         stringArg(args, "content"),
 	}
-	path := slackUploadLocalPath(firstNonEmpty(stringArg(args, "path"), stringArg(args, "artifact_ref")))
+	if contentBase64 != "" {
+		decoded, err := base64.StdEncoding.DecodeString(contentBase64)
+		if err != nil {
+			return slackapi.UploadFileParameters{}, fmt.Errorf("decode content_base64: %w", err)
+		}
+		params.Content = string(decoded)
+		params.FileSize = len(decoded)
+	}
+	path := ""
+	if params.Content == "" {
+		path = slackUploadLocalPath(firstNonEmpty(stringArg(args, "path"), stringArg(args, "artifact_ref")))
+	}
 	if path != "" {
 		info, err := os.Stat(path)
 		if err != nil {
@@ -1481,14 +1530,6 @@ func slackUploadParams(args map[string]any, targetRef string) (slackapi.UploadFi
 		if params.Filename == "" {
 			params.Filename = info.Name()
 		}
-	}
-	if params.File == "" && stringArg(args, "content_base64") != "" {
-		decoded, err := base64.StdEncoding.DecodeString(stringArg(args, "content_base64"))
-		if err != nil {
-			return slackapi.UploadFileParameters{}, fmt.Errorf("decode content_base64: %w", err)
-		}
-		params.Content = string(decoded)
-		params.FileSize = len(decoded)
 	}
 	if params.File == "" && params.Content != "" && params.FileSize == 0 {
 		params.FileSize = len([]byte(params.Content))

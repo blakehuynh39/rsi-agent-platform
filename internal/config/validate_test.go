@@ -92,7 +92,7 @@ func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 		"RSI_SLACK_SOCKET_MODE_ENABLED must be true",
 		"RSI_SLACK_APP_TOKEN is required",
 		"SLACK_BOT_TOKEN is required",
-		"RSI_ALLOWED_SLACK_CHANNEL_IDS is required",
+		"RSI_SLACK_INGRESS_ALLOWED_CHANNEL_IDS is required",
 	} {
 		if !strings.Contains(message, required) {
 			t.Fatalf("expected %q in validation message, got %s", required, message)
@@ -106,7 +106,7 @@ func TestSlackSurfaceDBReadClientTokenValidationIsNotDuplicated(t *testing.T) {
 	cfg.SlackSocketModeEnabled = true
 	cfg.SlackAppToken = "xapp-test"
 	cfg.SlackBotToken = "xoxb-test"
-	cfg.AllowedSlackChannelIDs = []string{"DM_ONLY"}
+	cfg.SlackIngressAllowedChannelIDs = []string{"DM_ONLY"}
 	cfg.DBReadEnabled = true
 	cfg.DBReadApproverSlackUserIDs = []string{"UADMIN"}
 

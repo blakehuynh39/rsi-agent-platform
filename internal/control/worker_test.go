@@ -3335,6 +3335,32 @@ func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) 
 	}
 }
 
+func TestWorkflowNativeToolClaimsBindOriginalSlackThread(t *testing.T) {
+	started := time.Now().UTC()
+	claims := workflowNativeToolClaims(config.Config{
+		ServiceName:           "control-plane",
+		ProdRunnerTaskTimeout: time.Minute,
+	}, workflowContext{
+		trace: events.Trace{Summary: events.TraceSummary{
+			TraceID:        "trace-1",
+			WorkflowID:     "wf-1",
+			ConversationID: "conv-1",
+		}},
+		workflow: storepkg.Workflow{ID: "wf-1"},
+		ingestion: slackpkg.Ingestion{
+			ChannelID: "C123",
+			ThreadTS:  "171000001.000100",
+		},
+	}, action.Intent{ID: "act-1", OperationID: "op-1"}, started)
+
+	if claims.SlackScope != "bound_thread" {
+		t.Fatalf("slack scope = %q, want bound_thread", claims.SlackScope)
+	}
+	if claims.SlackChannelID != "C123" || claims.SlackThreadTS != "171000001.000100" {
+		t.Fatalf("unexpected Slack claims: %#v", claims)
+	}
+}
+
 func TestControlActionPersistenceFailureFinalizesTraceAndQueuesEval(t *testing.T) {
 	toolGateway := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/api/tools/")

@@ -54,6 +54,24 @@ func TestSlackUploadParamsSupportsContentBase64AndFileSize(t *testing.T) {
 	}
 }
 
+func TestSlackUploadParamsContentBase64DoesNotRequireLocalPath(t *testing.T) {
+	params, err := slackUploadParams(map[string]any{
+		"channel_id":     "C123",
+		"path":           "/path/only/executor/can/read.png",
+		"content_base64": base64.StdEncoding.EncodeToString([]byte("image")),
+		"filename":       "chart.png",
+	}, "")
+	if err != nil {
+		t.Fatalf("slackUploadParams should use inline content before local path stat: %v", err)
+	}
+	if params.File != "" {
+		t.Fatalf("expected inline upload, got file path %q", params.File)
+	}
+	if params.Content != "image" || params.FileSize != 5 {
+		t.Fatalf("unexpected inline upload params: %#v", params)
+	}
+}
+
 func TestSlackUploadParamsNormalizesFileURLArtifactRefs(t *testing.T) {
 	if got := slackUploadLocalPath("file:///tmp/report.csv"); got != "/tmp/report.csv" {
 		t.Fatalf("normalized path = %q", got)
@@ -136,6 +154,64 @@ func TestBuildSlackReportDraftManifestDoesNotStatArtifactPaths(t *testing.T) {
 	}
 	if manifest["planned_uploads"] != 1 {
 		t.Fatalf("planned uploads = %#v, want 1", manifest["planned_uploads"])
+	}
+}
+
+func TestBuildSlackReportPlanAllowsInlineAttachmentContent(t *testing.T) {
+	plan, err := buildSlackReportPlan(map[string]any{
+		"channel_id":            "C123",
+		"thread_ts":             "171000001.000100",
+		"report_schema_version": 1,
+		"summary":               "Report with chart",
+		"images": []any{
+			map[string]any{
+				"content_base64": base64.StdEncoding.EncodeToString([]byte("chart")),
+				"filename":       "chart.png",
+			},
+		},
+	}, "")
+	if err != nil {
+		t.Fatalf("buildSlackReportPlan: %v", err)
+	}
+	if len(plan.Uploads) != 1 {
+		t.Fatalf("expected one inline upload, got %d", len(plan.Uploads))
+	}
+	if plan.Uploads[0].Kind != "inline_content" {
+		t.Fatalf("upload kind = %q, want inline_content", plan.Uploads[0].Kind)
+	}
+	if plan.Uploads[0].Params.Content != "chart" {
+		t.Fatalf("upload content = %q", plan.Uploads[0].Params.Content)
+	}
+}
+
+func TestBuildSlackReportPlanInlineAttachmentWithoutFilenameUsesReadableFallback(t *testing.T) {
+	plan, err := buildSlackReportPlan(map[string]any{
+		"channel_id":            "C123",
+		"thread_ts":             "171000001.000100",
+		"report_schema_version": 1,
+		"summary":               "Report with chart",
+		"images": []any{
+			map[string]any{"content_base64": base64.StdEncoding.EncodeToString([]byte("chart"))},
+		},
+	}, "")
+	if err != nil {
+		t.Fatalf("buildSlackReportPlan: %v", err)
+	}
+	if got := plan.Uploads[0].Params.Filename; got != "report-attachment" {
+		t.Fatalf("inline attachment filename = %q, want report-attachment", got)
+	}
+	if got := plan.Uploads[0].Params.Title; got != "report-attachment" {
+		t.Fatalf("inline attachment title = %q, want report-attachment", got)
+	}
+	uploads, ok := plan.Manifest["uploads"].([]map[string]interface{})
+	if !ok {
+		t.Fatalf("manifest uploads type = %T", plan.Manifest["uploads"])
+	}
+	if len(uploads) != 1 {
+		t.Fatalf("manifest uploads = %#v", uploads)
+	}
+	if got := stringValueFromMap(uploads[0], "filename"); got != "report-attachment" {
+		t.Fatalf("manifest filename = %q, want report-attachment", got)
 	}
 }
 

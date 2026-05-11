@@ -119,7 +119,7 @@ type Config struct {
 	SandboxServiceAccount                string
 	SandboxJobTTLSeconds                 int
 	SandboxDeadlineSeconds               int
-	AllowedSlackChannelIDs               []string
+	SlackIngressAllowedChannelIDs        []string
 	AllowedTargetRepos                   []string
 	DefaultOperatorDomain                string
 	DefaultRepo                          string
@@ -296,7 +296,7 @@ func Load(serviceName string) Config {
 		SandboxServiceAccount:                stringEnv("RSI_SANDBOX_SERVICE_ACCOUNT_NAME", ""),
 		SandboxJobTTLSeconds:                 intEnv("RSI_SANDBOX_JOB_TTL_SECONDS", 0),
 		SandboxDeadlineSeconds:               intEnv("RSI_SANDBOX_ACTIVE_DEADLINE_SECONDS", 0),
-		AllowedSlackChannelIDs:               listEnv("RSI_ALLOWED_SLACK_CHANNEL_IDS"),
+		SlackIngressAllowedChannelIDs:        listEnv("RSI_SLACK_INGRESS_ALLOWED_CHANNEL_IDS"),
 		AllowedTargetRepos:                   listEnv("RSI_ALLOWED_TARGET_REPOS"),
 		DefaultOperatorDomain:                stringEnv("RSI_OPERATOR_EMAIL_DOMAIN", ""),
 		DefaultRepo:                          stringEnv("RSI_DEFAULT_REPO", ""),

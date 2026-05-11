@@ -4375,6 +4375,92 @@ class HermesRuntimeTests(unittest.TestCase):
             with self.assertRaises(KeyError):
                 namespace["_tool_handler"]("slack_upload_file")
 
+    def test_rsi_native_slack_uploads_bridge_local_files_to_content_payloads(self) -> None:
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return json.dumps({"ok": True, "action": {"id": "extact-1", "response_summary": "uploaded"}, "output": {}}).encode(
+                    "utf-8"
+                )
+
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_NATIVE_TOOLS_EXECUTION_TOKEN": "execution-token",
+            },
+            clear=True,
+        ):
+            artifact_path = Path(artifact_dir, "chart.png")
+            artifact_path.write_bytes(b"png-bytes")
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            session_id = "sess-native-upload"
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "execution_id": "exec-1",
+                        "operation_id": "op-1",
+                        "trace_id": "trace-1",
+                        "workflow_id": "wf-1",
+                        "artifact_output_dir": artifact_dir,
+                        "hermes_computer_root": artifact_dir,
+                        "hermes_artifact_root": artifact_dir,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            requests: list[dict[str, object]] = []
+
+            def fake_urlopen(req, timeout):
+                requests.append(json.loads(req.data.decode("utf-8")))
+                return Response()
+
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                file_handler = namespace["_tool_handler"]("rsi_slack_file_upload")
+                json.loads(
+                    file_handler(
+                        {
+                            "channel_id": "C123",
+                            "thread_ts": "171000001.000100",
+                            "path": str(artifact_path),
+                            "reason": "upload chart",
+                            "idempotency_key": "upload-chart",
+                        },
+                        task_id=session_id,
+                    )
+                )
+                report_handler = namespace["_tool_handler"]("rsi_slack_report_post")
+                json.loads(
+                    report_handler(
+                        {
+                            "channel_id": "C123",
+                            "thread_ts": "171000001.000100",
+                            "report_schema_version": 1,
+                            "summary": "Chart report",
+                            "images": [{"path": str(artifact_path), "filename": "chart.png"}],
+                            "reason": "post report",
+                            "idempotency_key": "report-chart",
+                        },
+                        task_id=session_id,
+                    )
+                )
+
+        upload_args = requests[0]["arguments"]
+        self.assertEqual(base64.b64decode(upload_args["content_base64"]), b"png-bytes")
+        report_args = requests[1]["arguments"]
+        self.assertEqual(base64.b64decode(report_args["images"][0]["content_base64"]), b"png-bytes")
+
     def test_native_worker_uses_aiagent_adapter_not_hermes_cli(self) -> None:
         source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_executor_worker.py").read_text(encoding="utf-8")
 
@@ -6165,6 +6251,8 @@ class HermesRuntimeTests(unittest.TestCase):
                     "trace_id": "trace-native",
                     "workflow_id": "wf-native",
                     "conversation_id": "conv-native",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
                     "session_scope_kind": "conversation",
                     "session_scope_id": "conv-native",
                     "memory_backend": "honcho",
@@ -6205,6 +6293,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
         self.assertIn("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", native_env)
         self.assertNotEqual(native_env["RSI_NATIVE_TOOLS_EXECUTION_TOKEN"], "native-secret")
+        token_parts = native_env["RSI_NATIVE_TOOLS_EXECUTION_TOKEN"].split(".")
+        self.assertEqual(len(token_parts), 3)
+        claims = json.loads(base64.urlsafe_b64decode(token_parts[1] + "==").decode("utf-8"))
+        self.assertEqual(claims["slack_channel_id"], "C123")
+        self.assertEqual(claims["slack_thread_ts"], "171000001.000100")
+        self.assertEqual(claims["slack_delivery_scope"], "bound_thread")
 
     def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
         definitions = rsi_plugin_toolset_definitions()

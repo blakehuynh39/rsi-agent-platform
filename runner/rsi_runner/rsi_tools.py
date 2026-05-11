@@ -43,6 +43,8 @@ _SLACK_REPORT_FILE_SCHEMA: JsonObject = {
         "filename": {"type": "string"},
         "title": {"type": "string"},
         "mime_type": {"type": "string"},
+        "content": {"type": "string"},
+        "content_base64": {"type": "string"},
     },
 }
 

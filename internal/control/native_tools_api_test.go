@@ -258,6 +258,53 @@ func TestNativeToolSlackReportResumeWithNilArgumentsDoesNotPanic(t *testing.T) {
 	}
 }
 
+func TestNativeSlackWritesAreBoundToExecutionThreadScope(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	router := NewRouter(cfg, storepkg.NewMemoryStore())
+	now := time.Now().UTC()
+	claims := nativeToolsValidClaims(now, "slack")
+	claims.SlackThreadTS = "171000001.000100"
+	token := nativeToolsTestToken(t, cfg, claims)
+
+	allowed := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"message_post","idempotency_key":"bound-ok","reason":"reply","arguments":{"channel_id":"C123","thread_ts":"171000001.000100","text":"hello"}}`))
+	if allowed.Code != http.StatusFailedDependency {
+		t.Fatalf("allowed status = %d, want missing Slack token dependency after policy pass; body=%s", allowed.Code, allowed.Body.String())
+	}
+
+	wrongChannel := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"message_post","idempotency_key":"bound-channel","reason":"reply","arguments":{"channel_id":"C999","thread_ts":"171000001.000100","text":"hello"}}`))
+	if wrongChannel.Code != http.StatusForbidden || !strings.Contains(wrongChannel.Body.String(), "outside bound Slack delivery scope") {
+		t.Fatalf("wrong channel response = %d %s", wrongChannel.Code, wrongChannel.Body.String())
+	}
+
+	wrongThread := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"file_upload","idempotency_key":"bound-thread","reason":"upload","arguments":{"channel_id":"C123","thread_ts":"171000002.000200","content":"hello","filename":"hello.txt"}}`))
+	if wrongThread.Code != http.StatusForbidden || !strings.Contains(wrongThread.Body.String(), "outside bound Slack delivery scope") {
+		t.Fatalf("wrong thread response = %d %s", wrongThread.Code, wrongThread.Body.String())
+	}
+
+	noThread := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"report_post","idempotency_key":"bound-no-thread","reason":"report","arguments":{"channel_id":"C123","report_schema_version":1,"summary":"hello"}}`))
+	if noThread.Code != http.StatusForbidden || !strings.Contains(noThread.Body.String(), "requires thread_ts") {
+		t.Fatalf("missing thread response = %d %s", noThread.Code, noThread.Body.String())
+	}
+
+	unsupportedWrite := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"channel_create","idempotency_key":"bound-channel-create","reason":"create","arguments":{"name":"nope"}}`))
+	if unsupportedWrite.Code != http.StatusForbidden || !strings.Contains(unsupportedWrite.Body.String(), "not available to workflow execution tokens") {
+		t.Fatalf("unsupported write response = %d %s", unsupportedWrite.Code, unsupportedWrite.Body.String())
+	}
+}
+
+func TestNativeSlackWritesStillHonorEmergencyDenylist(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	router := NewRouter(cfg, storepkg.NewMemoryStore())
+	claims := nativeToolsValidClaims(time.Now().UTC(), "slack")
+	claims.SlackChannelID = "CDENY"
+	token := nativeToolsTestToken(t, cfg, claims)
+
+	rec := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"message_post","idempotency_key":"deny","reason":"reply","arguments":{"channel_id":"CDENY","text":"hello"}}`))
+	if rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "denied by policy") {
+		t.Fatalf("denylist response = %d %s", rec.Code, rec.Body.String())
+	}
+}
+
 func TestNativeNotionWriteResolvesMirrorRootFromSourceMirror(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	cfg.NotionMirrorEnabled = true
@@ -315,11 +362,12 @@ func TestNativeKnowledgeMessagesReadRefusesUnboundedChannelRead(t *testing.T) {
 
 func nativeToolsTestConfig() config.Config {
 	return config.Config{
-		ServiceName:            "control-plane",
-		Environment:            "stage",
-		NativeToolsEnabled:     true,
-		NativeToolsClientToken: "native-secret",
-		AllowedSlackChannelIDs: []string{"C123"},
+		ServiceName:                   "control-plane",
+		Environment:                   "stage",
+		NativeToolsEnabled:            true,
+		NativeToolsClientToken:        "native-secret",
+		SlackIngressAllowedChannelIDs: []string{"C123"},
+		SlackMirrorChannelDenylist:    []string{"CDENY"},
 	}
 }
 
@@ -335,6 +383,8 @@ func nativeToolsValidClaims(now time.Time, surfaces ...string) nativeToolClaims 
 		ConversationID: "conv-1",
 		Actor:          "user-1",
 		Surfaces:       surfaces,
+		SlackChannelID: "C123",
+		SlackScope:     "bound_thread",
 	}
 }
 

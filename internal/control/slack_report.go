@@ -322,24 +322,34 @@ func buildSlackReportPlan(args map[string]interface{}, targetRef string) (slackR
 	}
 	for idx, item := range append(append([]slackReportFile{}, payload.Files...), payload.Images...) {
 		path := firstNonEmpty(item.ArtifactRef, item.Path)
-		if path == "" {
+		content := strings.TrimSpace(item.Content)
+		contentBase64 := strings.TrimSpace(item.Base64)
+		if path == "" && content == "" && contentBase64 == "" {
 			fieldPath, fieldIdx := slackReportFileFieldPath(idx, len(payload.Files))
-			return slackReportPlan{}, slackReportValidationErrors{{Code: "required", Path: fmt.Sprintf("%s[%d].artifact_ref", fieldPath, fieldIdx), Message: "files and images must reference an existing artifact"}}
+			return slackReportPlan{}, slackReportValidationErrors{{Code: "required", Path: fmt.Sprintf("%s[%d].artifact_ref", fieldPath, fieldIdx), Message: "files and images must provide artifact_ref, path, content, or content_base64"}}
 		}
-		params, err := slackUploadParams(map[string]interface{}{
+		attachmentFilename := slackReportAttachmentFilename(item, path)
+		uploadArgs := map[string]interface{}{
 			"channel_id":      channelID,
 			"thread_ts":       stringArg(args, "thread_ts"),
 			"artifact_ref":    path,
-			"filename":        item.Filename,
-			"title":           firstNonEmpty(item.Title, item.Filename, filepath.Base(path)),
+			"content":         item.Content,
+			"content_base64":  item.Base64,
+			"filename":        attachmentFilename,
+			"title":           firstNonEmpty(item.Title, attachmentFilename),
 			"initial_comment": "",
-		}, channelID)
+		}
+		params, err := slackUploadParams(uploadArgs, channelID)
 		if err != nil {
 			return slackReportPlan{}, err
 		}
 		uploadID := fmt.Sprintf("artifact-%d", idx)
-		manifestUploads = append(manifestUploads, slackReportManifestUpload{ID: uploadID, Kind: "artifact_ref", Filename: firstNonEmpty(item.Filename, filepath.Base(path))})
-		uploads = append(uploads, slackReportUploadPlan{ID: uploadID, Kind: "artifact_ref", Params: params})
+		kind := "artifact_ref"
+		if content != "" || contentBase64 != "" {
+			kind = "inline_content"
+		}
+		manifestUploads = append(manifestUploads, slackReportManifestUpload{ID: uploadID, Kind: kind, Filename: attachmentFilename})
+		uploads = append(uploads, slackReportUploadPlan{ID: uploadID, Kind: kind, Params: params})
 	}
 	manifest := buildSlackReportManifest(payload, args, channelID, inlineTable, manifestUploads)
 	return slackReportPlan{
@@ -374,11 +384,15 @@ func buildSlackReportDraftManifest(args map[string]interface{}, targetRef string
 	}
 	for idx, item := range append(append([]slackReportFile{}, payload.Files...), payload.Images...) {
 		path := firstNonEmpty(item.ArtifactRef, item.Path)
-		if path == "" {
+		if path == "" && strings.TrimSpace(item.Content) == "" && strings.TrimSpace(item.Base64) == "" {
 			fieldPath, fieldIdx := slackReportFileFieldPath(idx, len(payload.Files))
-			return nil, slackReportValidationErrors{{Code: "required", Path: fmt.Sprintf("%s[%d].artifact_ref", fieldPath, fieldIdx), Message: "files and images must reference an existing artifact"}}
+			return nil, slackReportValidationErrors{{Code: "required", Path: fmt.Sprintf("%s[%d].artifact_ref", fieldPath, fieldIdx), Message: "files and images must provide artifact_ref, path, content, or content_base64"}}
 		}
-		plannedUploads = append(plannedUploads, slackReportManifestUpload{ID: fmt.Sprintf("artifact-%d", idx), Kind: "artifact_ref", Filename: firstNonEmpty(item.Filename, filepath.Base(path))})
+		kind := "artifact_ref"
+		if strings.TrimSpace(item.Content) != "" || strings.TrimSpace(item.Base64) != "" {
+			kind = "inline_content"
+		}
+		plannedUploads = append(plannedUploads, slackReportManifestUpload{ID: fmt.Sprintf("artifact-%d", idx), Kind: kind, Filename: slackReportAttachmentFilename(item, path)})
 	}
 	return buildSlackReportManifest(payload, args, channelID, inlineTable, plannedUploads), nil
 }
@@ -401,6 +415,18 @@ func slackReportFileFieldPath(idx int, fileCount int) (string, int) {
 		return "images", idx - fileCount
 	}
 	return "files", idx
+}
+
+func slackReportAttachmentFilename(item slackReportFile, path string) string {
+	if filename := strings.TrimSpace(item.Filename); filename != "" {
+		return filename
+	}
+	if path = strings.TrimSpace(path); path != "" {
+		if base := strings.TrimSpace(filepath.Base(path)); base != "" && base != "." {
+			return base
+		}
+	}
+	return "report-attachment"
 }
 
 func buildSlackReportManifest(payload slackReportPayload, args map[string]interface{}, channelID string, inlineTable bool, uploads []slackReportManifestUpload) map[string]interface{} {
@@ -500,17 +526,6 @@ func validateSlackReportPayload(payload slackReportPayload) slackReportValidatio
 					errs = append(errs, slackReportValidationError{Code: "cell_too_long", Path: fmt.Sprintf("tables[%d].rows[%d].%s", i, rowIdx, col.Key), Limit: slackReportMaxCellLength, Actual: len(rendered), Message: "table cell is too long"})
 				}
 			}
-		}
-	}
-	for i, item := range append(append([]slackReportFile{}, payload.Files...), payload.Images...) {
-		if strings.TrimSpace(item.Content) != "" || strings.TrimSpace(item.Base64) != "" {
-			fieldPath := "files"
-			fieldIdx := i
-			if i >= len(payload.Files) {
-				fieldPath = "images"
-				fieldIdx = i - len(payload.Files)
-			}
-			errs = append(errs, slackReportValidationError{Code: "inline_binary_rejected", Path: fmt.Sprintf("%s[%d]", fieldPath, fieldIdx), Message: "files/images must reference existing RSI artifacts; inline content is rejected"})
 		}
 	}
 	return errs

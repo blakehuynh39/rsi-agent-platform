@@ -3231,6 +3231,9 @@ class HermesRuntime:
             "conversation_id": first_non_empty(task.conversation_id, task.session_scope_id, task.channel_id, "conversation"),
             "actor": first_non_empty(task.user_peer_id, task.assistant_peer_id, "hermes"),
             "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge"]),
+            "slack_channel_id": task.channel_id or "",
+            "slack_thread_ts": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
+            "slack_delivery_scope": "bound_thread" if task.channel_id else "",
         }
         return _sign_native_tools_execution_token(secret, payload)
 
