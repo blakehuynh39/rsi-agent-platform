@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "95be8a1d5e1e4cfac23d7f0c4f7467657876a3e603f0bbe1bf3b171dd49d4e73",
-        "size": 1036485
+        "sha256": "a4ce35d24a209fc33e3c51c0324df2e6fb14519dc2288867f9c1179a96d07a30",
+        "size": 1038422
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3263,6 +3263,11 @@
         "path": "pages/concepts/ip-account-centric-model.md",
         "sha256": "eb43c5f4d7ae385a90eb2a911f432480e94b5d4dc80a67359c2d62ce063bb24d",
         "size": 9316
+      },
+      {
+        "path": "pages/concepts/ip-chain-vision.md",
+        "sha256": "5e1b7d931b9f110108b2aaff3ff994f1c626e2508c2d50baa57b9c2bfda0a4bb",
+        "size": 2070
       },
       {
         "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -4690,9 +4695,19 @@
         "size": 9775
       },
       {
+        "path": "pages/projects/l1-feature-research-list.md",
+        "sha256": "660762f9d0daa3c3b21c7e0c997b2708ecc943b91e6c1b10633097cb0aa94589",
+        "size": 2203
+      },
+      {
         "path": "pages/projects/l1-infra-roadmap-sep-30.md",
         "sha256": "6a657ee9c632ef31fb658846441acb11eb03afd6ee3aae9562749d45d40345e6",
         "size": 5029
+      },
+      {
+        "path": "pages/projects/l1-innovation-strategy.md",
+        "sha256": "01c6d87a23707295a38b0b76bb544216251bcf879ec8fb0ef512d9a16a57c1aa",
+        "size": 2706
       },
       {
         "path": "pages/projects/l1-operation-review-aug-25.md",
@@ -4823,6 +4838,11 @@
         "path": "pages/projects/network-rolling-upgrade-workflow.md",
         "sha256": "dd2259b38c3f6e59fd9dd4c51505584f817b79cf57fa42f52e57403b9a1395a8",
         "size": 4338
+      },
+      {
+        "path": "pages/projects/new-blockchain-framework-development.md",
+        "sha256": "0938af0812bd0c3dcaa04add7d1cc6f5d8235c04fe0bda5814df8db8205fd83e",
+        "size": 3258
       },
       {
         "path": "pages/projects/nft-standard-design.md",
@@ -5203,6 +5223,11 @@
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
         "size": 1547
+      },
+      {
+        "path": "pages/projects/validator-network-scalability.md",
+        "sha256": "94a7f7e15647c957b92bc073e66ce1ebcb38b9cc8d3a48f3e1842ab3832d2478",
+        "size": 2730
       },
       {
         "path": "pages/projects/vana.md",
@@ -5924,8 +5949,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T10:25:36Z",
-  "file_count": 1183,
+  "exported_at": "2026-05-11T10:37:20Z",
+  "file_count": 1188,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8862,7 +8887,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "c71f4081a884d4918e0477e3ea8afdd8c727a97a6ccd5b3b91748af6c511e5ce",
+  "previous_tree_hash": "b102b8ec9a8a8ec5806212679f0396e02d1435c916d294b419cf2ffc525b1085",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8875,14 +8900,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b102b8ec9a8a8ec5806212679f0396e02d1435c916d294b419cf2ffc525b1085",
+  "tree_hash": "c80329fc50a34614035f79aa0ab3bbf4628a3bce3b9a5c2b357627c7a76f12e1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 597,
+  "wiki_file_count": 602,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8896,8 +8921,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "95be8a1d5e1e4cfac23d7f0c4f7467657876a3e603f0bbe1bf3b171dd49d4e73",
-      "size": 1036485
+      "sha256": "a4ce35d24a209fc33e3c51c0324df2e6fb14519dc2288867f9c1179a96d07a30",
+      "size": 1038422
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9213,6 +9238,11 @@
       "path": "pages/concepts/ip-account-centric-model.md",
       "sha256": "eb43c5f4d7ae385a90eb2a911f432480e94b5d4dc80a67359c2d62ce063bb24d",
       "size": 9316
+    },
+    {
+      "path": "pages/concepts/ip-chain-vision.md",
+      "sha256": "5e1b7d931b9f110108b2aaff3ff994f1c626e2508c2d50baa57b9c2bfda0a4bb",
+      "size": 2070
     },
     {
       "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -10640,9 +10670,19 @@
       "size": 9775
     },
     {
+      "path": "pages/projects/l1-feature-research-list.md",
+      "sha256": "660762f9d0daa3c3b21c7e0c997b2708ecc943b91e6c1b10633097cb0aa94589",
+      "size": 2203
+    },
+    {
       "path": "pages/projects/l1-infra-roadmap-sep-30.md",
       "sha256": "6a657ee9c632ef31fb658846441acb11eb03afd6ee3aae9562749d45d40345e6",
       "size": 5029
+    },
+    {
+      "path": "pages/projects/l1-innovation-strategy.md",
+      "sha256": "01c6d87a23707295a38b0b76bb544216251bcf879ec8fb0ef512d9a16a57c1aa",
+      "size": 2706
     },
     {
       "path": "pages/projects/l1-operation-review-aug-25.md",
@@ -10773,6 +10813,11 @@
       "path": "pages/projects/network-rolling-upgrade-workflow.md",
       "sha256": "dd2259b38c3f6e59fd9dd4c51505584f817b79cf57fa42f52e57403b9a1395a8",
       "size": 4338
+    },
+    {
+      "path": "pages/projects/new-blockchain-framework-development.md",
+      "sha256": "0938af0812bd0c3dcaa04add7d1cc6f5d8235c04fe0bda5814df8db8205fd83e",
+      "size": 3258
     },
     {
       "path": "pages/projects/nft-standard-design.md",
@@ -11153,6 +11198,11 @@
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
       "size": 1547
+    },
+    {
+      "path": "pages/projects/validator-network-scalability.md",
+      "sha256": "94a7f7e15647c957b92bc073e66ce1ebcb38b9cc8d3a48f3e1842ab3832d2478",
+      "size": 2730
     },
     {
       "path": "pages/projects/vana.md",
@@ -11871,5 +11921,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "88842c74289799020be9a09ee20427ce8e3f20cf0798237f9f20364ff3451ab6"
+  "wiki_tree_hash": "88a89142aa215b8015e7923ebc31bffd14195f55e3e40bf384169310bcd8f165"
 }

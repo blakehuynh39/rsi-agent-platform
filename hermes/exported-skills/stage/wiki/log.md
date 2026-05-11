@@ -21758,3 +21758,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6bfb104229170a93fca376d61f60cdcd
 - summary: A 9-week plan starting August 2023 to deliver a stable public testnet (Odyssey) with essential features, infrastructure, and partner integrations.
 
+## [2026-05-11T10:33:49Z] synthesis | IP Chain Long-Term Vision
+
+- status: published
+- slug: concepts/ip-chain-vision
+- wiki_revision_id: wikirev_a78217169a09aee4b076541dae8aa7b3
+- summary: The ultimate goal is to establish a blockchain infrastructure dedicated to managing intellectual property (IP), defined as valuable data plus associated rights, engineered to suppo...
+
+## [2026-05-11T10:33:49Z] synthesis | L1 Innovation Strategy
+
+- status: published
+- slug: projects/l1-innovation-strategy
+- wiki_revision_id: wikirev_f7e4c3862c277acb4b344f614273347b
+- summary: Over the next five years, the plan is to drive innovation across every layer of the L1 blockchain stack, focusing on technologies that align with strategic narrative and business n...
+
+## [2026-05-11T10:33:49Z] synthesis | Validator Network Scalability
+
+- status: published
+- slug: projects/validator-network-scalability
+- wiki_revision_id: wikirev_ada246fa4345695c5c8b6f0fbc19a34f
+- summary: The network is envisioned to support over 10,000 validator nodes, each potentially offering additional services like gateways to permanent storage, light clients, and specialized d...
+
+## [2026-05-11T10:33:49Z] synthesis | New Blockchain Framework Development
+
+- status: published
+- slug: projects/new-blockchain-framework-development
+- wiki_revision_id: wikirev_ed0d1b2117abbebf2893fb73b8ebfbcb
+- summary: Development of a new blockchain framework incorporating HotStuff 2 consensus, full EVM backward compatibility, additional VM features or domain-specific languages, and a staking me...
+
+## [2026-05-11T10:33:49Z] synthesis | L1 Feature Research List
+
+- status: published
+- slug: projects/l1-feature-research-list
+- wiki_revision_id: wikirev_b05cb91a7432352f4cb74db2bbd4fc5e
+- summary: A rough list of features that could be researched or developed on the L1 blockchain, including networking improvements (libp2p, erasure encoding, HTTP/3, gossipsub) and consensus e...
+
