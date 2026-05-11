@@ -21653,3 +21653,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d80754b3cce7821dd53e332c1028a14
 - summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
 
+## [2026-05-11T04:17:12Z] synthesis | Back End Designs
+
+- status: published
+- slug: systems/back-end-designs
+- wiki_revision_id: wikirev_c0bdae1325b2e17fae1b003a2b62e95c
+- summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
+
