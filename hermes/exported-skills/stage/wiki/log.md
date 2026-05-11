@@ -21555,3 +21555,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d6f4534831c2bd53fdef1b055afe6cf3
 - summary: Practices for customizing and benchmarking Ollama models on MacOS, including Modelfile examples for llama3.2 and gemma3:4b, and benchmark results on Macbook Pro M4 Max.
 
+## [2026-05-11T00:03:07Z] synthesis | Build in Public Initiative
+
+- status: published
+- slug: policies/build-in-public-initiative
+- wiki_revision_id: wikirev_7b6fc58310d97d607c7e0f0d091e6ef3
+- summary: A structured approach to building in public, covering objective setting, platform selection, documentation, community engagement, contribution incentives, transparent development, ...
+

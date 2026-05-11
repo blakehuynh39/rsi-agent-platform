@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e2ad0f38244b4b14887fbeeaab256da7991fc10874b094ee9bacb8be7eac2957",
-        "size": 1026823
+        "sha256": "cacf916e5830c27c5976083a83b0e7adc321a7ab7b4fe0852c5db4aa82f629ab",
+        "size": 1027210
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4153,6 +4153,11 @@
         "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
         "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
         "size": 1054
+      },
+      {
+        "path": "pages/policies/build-in-public-initiative.md",
+        "sha256": "481192ac02ac632f492f938524cf8d466114cf48d612ba7263a0c3f020424e55",
+        "size": 5676
       },
       {
         "path": "pages/policies/crypto-security-best-practices.md",
@@ -5794,8 +5799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-10T23:52:34Z",
-  "file_count": 1157,
+  "exported_at": "2026-05-11T00:03:58Z",
+  "file_count": 1158,
   "files": [
     {
       "path": ".curator_state",
@@ -8722,7 +8727,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b849f6x88b",
-  "previous_tree_hash": "3525bbcd338317dc83f8f88f97efa17e3f43058802e5abd0010a274d38f3dcee",
+  "previous_tree_hash": "538e4f28ff57b4e4cca8f6a986bc0b27c3b7ecffc0584e87e26bb9065162aa08",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8735,14 +8740,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "538e4f28ff57b4e4cca8f6a986bc0b27c3b7ecffc0584e87e26bb9065162aa08",
+  "tree_hash": "0518607fdc8583255b1c99872d8106c2676fd28846f55cb4d46bef170e4bda07",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 573,
+  "wiki_file_count": 574,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8756,8 +8761,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e2ad0f38244b4b14887fbeeaab256da7991fc10874b094ee9bacb8be7eac2957",
-      "size": 1026823
+      "sha256": "cacf916e5830c27c5976083a83b0e7adc321a7ab7b4fe0852c5db4aa82f629ab",
+      "size": 1027210
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9973,6 +9978,11 @@
       "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
       "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
       "size": 1054
+    },
+    {
+      "path": "pages/policies/build-in-public-initiative.md",
+      "sha256": "481192ac02ac632f492f938524cf8d466114cf48d612ba7263a0c3f020424e55",
+      "size": 5676
     },
     {
       "path": "pages/policies/crypto-security-best-practices.md",
@@ -11611,5 +11621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7868249589a9d260d079d88ff4c6656b1b9cd4dc99ee72cbbcf7c221142ce521"
+  "wiki_tree_hash": "b9a3ce7f8e338703ea27b201eac2f2f1ad8802e5433c34a084ac87b5499e24b2"
 }
