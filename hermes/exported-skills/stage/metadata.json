@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "88d9247f42648229624a0b7d3a6cb46da2761ca8d5039576c320e6e15a6ac9ae",
-        "size": 563736
+        "sha256": "af240b4f001ac52cbcbbe4fa1b5aea9312acbc0ea35c1b38d121813b3b232c7b",
+        "size": 564088
       },
       {
         "path": "log.md",
-        "sha256": "83a3cdf52ae3cd73342bc3d9409c83dabc41f38283cecc9a6ceb93fa4ff21359",
-        "size": 1036121
+        "sha256": "95be8a1d5e1e4cfac23d7f0c4f7467657876a3e603f0bbe1bf3b171dd49d4e73",
+        "size": 1036485
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5020,6 +5020,11 @@
         "size": 2429
       },
       {
+        "path": "pages/projects/public-testnet-odyssey-milestones.md",
+        "sha256": "b093d54598c30bacb36cc0f4977cb4d312e6dd8cccb4d78ed21b79fd1d177ca7",
+        "size": 5766
+      },
+      {
         "path": "pages/projects/q3-key-results-l1-api-sdk.md",
         "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
         "size": 4577
@@ -5919,8 +5924,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T09:02:54Z",
-  "file_count": 1182,
+  "exported_at": "2026-05-11T10:25:36Z",
+  "file_count": 1183,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8857,7 +8862,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "f40debb9b789e9e759a3143e456a0528f0b11f03ff824b43c22dda950c9fcd72",
+  "previous_tree_hash": "c71f4081a884d4918e0477e3ea8afdd8c727a97a6ccd5b3b91748af6c511e5ce",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8870,14 +8875,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c71f4081a884d4918e0477e3ea8afdd8c727a97a6ccd5b3b91748af6c511e5ce",
+  "tree_hash": "b102b8ec9a8a8ec5806212679f0396e02d1435c916d294b419cf2ffc525b1085",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 596,
+  "wiki_file_count": 597,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8886,13 +8891,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "88d9247f42648229624a0b7d3a6cb46da2761ca8d5039576c320e6e15a6ac9ae",
-      "size": 563736
+      "sha256": "af240b4f001ac52cbcbbe4fa1b5aea9312acbc0ea35c1b38d121813b3b232c7b",
+      "size": 564088
     },
     {
       "path": "log.md",
-      "sha256": "83a3cdf52ae3cd73342bc3d9409c83dabc41f38283cecc9a6ceb93fa4ff21359",
-      "size": 1036121
+      "sha256": "95be8a1d5e1e4cfac23d7f0c4f7467657876a3e603f0bbe1bf3b171dd49d4e73",
+      "size": 1036485
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10965,6 +10970,11 @@
       "size": 2429
     },
     {
+      "path": "pages/projects/public-testnet-odyssey-milestones.md",
+      "sha256": "b093d54598c30bacb36cc0f4977cb4d312e6dd8cccb4d78ed21b79fd1d177ca7",
+      "size": 5766
+    },
+    {
       "path": "pages/projects/q3-key-results-l1-api-sdk.md",
       "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
       "size": 4577
@@ -11861,5 +11871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4f09083b41f9b6864137fb4f3e7ad716ac1fee53e89e977fd5aeef91c5c4977e"
+  "wiki_tree_hash": "88842c74289799020be9a09ee20427ce8e3f20cf0798237f9f20364ff3451ab6"
 }

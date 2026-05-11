@@ -21751,3 +21751,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2774a05947a60ff1c117b0ae35224787
 - summary: Dydx v4 is a decentralized derivatives exchange built as a standalone L1 blockchain using CometBFT and CosmosSDK. It uses an off-chain in-memory orderbook for matching, with trades...
 
+## [2026-05-11T10:21:40Z] synthesis | Public Testnet Odyssey Milestones
+
+- status: published
+- slug: projects/public-testnet-odyssey-milestones
+- wiki_revision_id: wikirev_6bfb104229170a93fca376d61f60cdcd
+- summary: A 9-week plan starting August 2023 to deliver a stable public testnet (Odyssey) with essential features, infrastructure, and partner integrations.
+
