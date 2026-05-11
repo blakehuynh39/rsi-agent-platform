@@ -21870,3 +21870,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_50c95dacf0e081203249049b58882523
 - summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
 
+## [2026-05-11T18:00:19Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_e2669539f80011441fb019c323654907
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_f5345b1ec199ff4ab01893681220fc4b
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
