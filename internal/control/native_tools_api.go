@@ -54,6 +54,10 @@ var nativeToolReadOps = map[string]map[string]bool{
 		"wiki_search": true, "wiki_page_get": true, "wiki_index_get": true, "wiki_log_get": true,
 		"source_status": true,
 	},
+	"sentry": {
+		"orgs_list": true, "projects_list": true, "issues_list": true, "issue_view": true,
+		"issue_events": true, "issue_explain": true, "issue_plan": true, "releases_list": true,
+	},
 }
 
 var nativeToolDestructiveOps = map[string]map[string]bool{
@@ -267,6 +271,9 @@ func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storep
 	}
 	if input.Surface == "notion" {
 		return executeNotionNativeToolAction(ctx, cfg, repo, input)
+	}
+	if input.Surface == "sentry" {
+		return executeSentryNativeToolAction(ctx, cfg, input)
 	}
 	if input.Surface == "knowledge" {
 		switch input.Operation {
@@ -1206,7 +1213,24 @@ func nativeToolReadIdempotencyKey(claims nativeToolClaims, input nativeToolActio
 }
 
 func nativeToolTargetRef(args map[string]any) string {
-	for _, key := range []string{"target_ref", "channel_id", "page_id", "database_id", "data_source_id", "block_id", "source_ref", "page_ref", "slug"} {
+	for _, key := range []string{
+		"target_ref",
+		"channel_id",
+		"page_id",
+		"database_id",
+		"data_source_id",
+		"block_id",
+		"source_ref",
+		"page_ref",
+		"slug",
+		"issue",
+		"issue_ref",
+		"short_id",
+		"project_ref",
+		"project",
+		"org",
+		"release",
+	} {
 		if value := stringArg(args, key); value != "" {
 			return value
 		}

@@ -22,9 +22,18 @@ COPY . .
 COPY --from=ui-builder /src/internal/reviewui/dist ./internal/reviewui/dist
 RUN CGO_ENABLED=${CGO_ENABLED} go build -o /out/service ./cmd/${SERVICE}
 
+FROM debian:bookworm-slim AS sentry-cli
+ARG SENTRY_CLI_VERSION=0.33.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl gzip \
+    && rm -rf /var/lib/apt/lists/*
+RUN SENTRY_CLI_NO_TELEMETRY=1 SENTRY_INSTALL_DIR=/usr/local/bin SENTRY_VERSION=${SENTRY_CLI_VERSION} \
+    bash -c 'curl -fsSL https://cli.sentry.dev/install | bash -s -- --no-modify-path --no-completions --no-agent-skills'
+
 FROM gcr.io/distroless/base-debian12
 ARG SERVICE=improvement-plane
 ENV RSI_SERVICE_NAME=${SERVICE}
 COPY --from=builder /out/service /service
+COPY --from=sentry-cli /usr/local/bin/sentry /usr/local/bin/sentry
 EXPOSE 8080
 ENTRYPOINT ["/service"]

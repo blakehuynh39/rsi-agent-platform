@@ -81,7 +81,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
-        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge",
+        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENROUTER_API_KEY": "openrouter-test-key",
         "SLACK_BOT_TOKEN": "xoxb-test",
@@ -6323,6 +6323,8 @@ class HermesRuntimeTests(unittest.TestCase):
                 "SLACK_BOT_TOKEN": "xoxb-test",
                 "NOTION_TOKEN": "ntn_test",
                 "NOTION_API_KEY": "secret_test",
+                "SENTRY_AUTH_TOKEN": "sntrys_test",
+                "RSI_SENTRY_AUTH_TOKEN": "sntrys_rsi_test",
                 "RSI_DB_READ_CLIENT_TOKEN": "db-read-static",
             },
             clear=True,
@@ -6339,6 +6341,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("SLACK_BOT_TOKEN", env)
         self.assertNotIn("NOTION_TOKEN", env)
         self.assertNotIn("NOTION_API_KEY", env)
+        self.assertNotIn("SENTRY_AUTH_TOKEN", env)
+        self.assertNotIn("RSI_SENTRY_AUTH_TOKEN", env)
         self.assertNotIn("RSI_NATIVE_TOOLS_CLIENT_TOKEN", env)
         self.assertNotIn("RSI_DB_READ_CLIENT_TOKEN", env)
         self.assertIn("RSI_NATIVE_TOOLS_EXECUTION_TOKEN", native_env)
@@ -6349,6 +6353,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(claims["slack_channel_id"], "C123")
         self.assertEqual(claims["slack_thread_ts"], "171000001.000100")
         self.assertEqual(claims["slack_delivery_scope"], "bound_thread")
+        self.assertIn("sentry", claims["surfaces"])
 
     def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
         definitions = rsi_plugin_toolset_definitions()
@@ -6359,6 +6364,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi_slack.message_post", by_toolset["rsi-slack"])
         self.assertIn("rsi_notion.page_create", by_toolset["rsi-notion"])
         self.assertIn("rsi_knowledge.wiki_search", by_toolset["rsi-knowledge"])
+        self.assertIn("rsi_sentry.issues_list", by_toolset["rsi-sentry"])
+        self.assertIn("rsi_sentry.issue_explain", by_toolset["rsi-sentry"])
         self.assertIn("rsi_observability.logs_query", by_toolset["rsi-observability"])
         self.assertIn("rsi_observability.metrics_query", by_toolset["rsi-observability"])
         self.assertIn("rsi_observability.dashboards_search", by_toolset["rsi-observability"])
@@ -6608,6 +6615,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "rsi-slack",
                 "rsi-notion",
                 "rsi-knowledge",
+                "rsi-sentry",
                 "rsi-artifacts",
                 "mcp-rsi-task-trace-workflow-123-0-context-abc",
             ],

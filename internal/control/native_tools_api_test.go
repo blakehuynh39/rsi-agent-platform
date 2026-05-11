@@ -305,6 +305,66 @@ func TestNativeSlackWritesStillHonorEmergencyDenylist(t *testing.T) {
 	}
 }
 
+func TestNativeSentryIssuesListUsesCLIWithServerSideToken(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	cfg.SentryAuthToken = "sntrys-secret"
+	cfg.SentryOrganization = "story-protocol"
+	oldRunner := sentryCommandRunner
+	defer func() { sentryCommandRunner = oldRunner }()
+	var observedArgs []string
+	var observedEnv []string
+	sentryCommandRunner = func(ctx context.Context, args []string, env []string) ([]byte, []byte, error) {
+		observedArgs = append([]string{}, args...)
+		observedEnv = append([]string{}, env...)
+		return []byte(`[{"shortId":"DEPIN-1","title":"boom"}]`), nil, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "sentry"), nativeToolActionRequest{
+		Surface:   "sentry",
+		Operation: "issues_list",
+		Arguments: map[string]any{
+			"project_ref": "depin-backend",
+			"query":       "is:unresolved",
+			"limit":       10,
+			"sort":        "freq",
+		},
+	})
+	if err != nil {
+		t.Fatalf("native sentry action returned error: %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d response=%#v", status, resp)
+	}
+	if resp.Action.TargetRef != "depin-backend" {
+		t.Fatalf("target ref = %q, want project_ref fallback", resp.Action.TargetRef)
+	}
+	wantArgs := []string{"issue", "list", "story-protocol/depin-backend", "--query", "is:unresolved", "--limit", "10", "--sort", "freq", "--json"}
+	if strings.Join(observedArgs, "\x00") != strings.Join(wantArgs, "\x00") {
+		t.Fatalf("args = %#v, want %#v", observedArgs, wantArgs)
+	}
+	if !envContains(observedEnv, "SENTRY_AUTH_TOKEN=sntrys-secret") || !envContains(observedEnv, "SENTRY_FORCE_ENV_TOKEN=1") {
+		t.Fatalf("sentry env missing required token controls: %#v", observedEnv)
+	}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal response: %v", err)
+	}
+	if strings.Contains(string(data), "sntrys-secret") {
+		t.Fatalf("native sentry response leaked token: %s", data)
+	}
+}
+
+func TestNativeSentryRequiresServerSideToken(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "sentry"), nativeToolActionRequest{
+		Surface:   "sentry",
+		Operation: "orgs_list",
+	})
+	if err == nil || status != http.StatusFailedDependency || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+}
+
 func TestNativeNotionWriteResolvesMirrorRootFromSourceMirror(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	cfg.NotionMirrorEnabled = true
@@ -437,4 +497,13 @@ func nativeToolsPost(t *testing.T, router http.Handler, token string, body []byt
 	req.Header.Set("Authorization", "Bearer "+token)
 	router.ServeHTTP(rec, req)
 	return rec
+}
+
+func envContains(env []string, value string) bool {
+	for _, item := range env {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }

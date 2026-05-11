@@ -41,6 +41,7 @@ from .rsi_tools import (
     HERMES_RSI_KNOWLEDGE_TOOLSET,
     HERMES_RSI_NOTION_TOOLSET,
     HERMES_RSI_OBSERVABILITY_TOOLSET,
+    HERMES_RSI_SENTRY_TOOLSET,
     HERMES_RSI_SLACK_TOOLSET,
     canonical_tool_name,
     normalize_tool_names,
@@ -61,6 +62,7 @@ RSI_NATIVE_TOOLSETS = (
     HERMES_RSI_SLACK_TOOLSET,
     HERMES_RSI_NOTION_TOOLSET,
     HERMES_RSI_KNOWLEDGE_TOOLSET,
+    HERMES_RSI_SENTRY_TOOLSET,
 )
 PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
@@ -106,6 +108,8 @@ NATIVE_WORKER_SOURCE_CREDENTIAL_DENYLIST = frozenset(
         "RSI_SLACK_BOT_TOKEN",
         "NOTION_TOKEN",
         "NOTION_API_KEY",
+        "SENTRY_AUTH_TOKEN",
+        "RSI_SENTRY_AUTH_TOKEN",
         "RSI_NATIVE_TOOLS_CLIENT_TOKEN",
         "RSI_DB_READ_CLIENT_TOKEN",
         "RSI_DB_READ_RELAY_TOKEN",
@@ -3235,7 +3239,7 @@ class HermesRuntime:
             "workflow_id": first_non_empty(task.workflow_id, task.trace_id, task.execution_id, "workflow"),
             "conversation_id": first_non_empty(task.conversation_id, task.session_scope_id, task.channel_id, "conversation"),
             "actor": first_non_empty(task.user_peer_id, task.assistant_peer_id, "hermes"),
-            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge"]),
+            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge", "sentry"]),
             "slack_channel_id": task.channel_id or "",
             "slack_thread_ts": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
             "slack_delivery_scope": "bound_thread" if task.channel_id else "",

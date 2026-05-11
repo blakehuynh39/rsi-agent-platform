@@ -11,6 +11,7 @@ HERMES_DB_READ_TOOLSET = "rsi-db-read"
 HERMES_RSI_SLACK_TOOLSET = "rsi-slack"
 HERMES_RSI_NOTION_TOOLSET = "rsi-notion"
 HERMES_RSI_KNOWLEDGE_TOOLSET = "rsi-knowledge"
+HERMES_RSI_SENTRY_TOOLSET = "rsi-sentry"
 HERMES_RSI_OBSERVABILITY_TOOLSET = "rsi-observability"
 
 _JSON_OBJECT_SCHEMA: JsonObject = {"type": "object"}
@@ -342,6 +343,76 @@ _KNOWLEDGE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
 }
 
+_SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "rsi_sentry.orgs_list": _schema(
+        "rsi_sentry.orgs_list",
+        "List Sentry organizations visible to the RSI native Sentry token.",
+        {"limit": {"type": "integer"}, "fresh": {"type": "boolean"}},
+    ),
+    "rsi_sentry.projects_list": _schema(
+        "rsi_sentry.projects_list",
+        "List Sentry projects for an organization or project selector.",
+        {
+            "org": {"type": "string"},
+            "project_ref": {"type": "string", "description": "Sentry project selector such as org/, org/project, or project."},
+            "platform": {"type": "string"},
+            "limit": {"type": "integer"},
+            "cursor": {"type": "string"},
+            "fresh": {"type": "boolean"},
+        },
+    ),
+    "rsi_sentry.issues_list": _schema(
+        "rsi_sentry.issues_list",
+        "List Sentry issues for an organization or project selector.",
+        {
+            "project_ref": {"type": "string", "description": "Sentry issue selector such as org/, org/project, or project."},
+            "query": {"type": "string"},
+            "limit": {"type": "integer"},
+            "sort": {"type": "string", "enum": ["date", "new", "freq", "user"]},
+            "period": {"type": "string", "description": "Time range such as 7d, 24h, or 2026-04-01..2026-05-01."},
+            "cursor": {"type": "string"},
+            "fresh": {"type": "boolean"},
+        },
+    ),
+    "rsi_sentry.issue_view": _schema(
+        "rsi_sentry.issue_view",
+        "View one Sentry issue.",
+        {"issue": {"type": "string"}, "spans": {"type": "string"}, "fresh": {"type": "boolean"}},
+        ["issue"],
+    ),
+    "rsi_sentry.issue_events": _schema(
+        "rsi_sentry.issue_events",
+        "List events for one Sentry issue.",
+        {
+            "issue": {"type": "string"},
+            "limit": {"type": "integer"},
+            "query": {"type": "string"},
+            "period": {"type": "string"},
+            "cursor": {"type": "string"},
+            "full": {"type": "boolean"},
+            "fresh": {"type": "boolean"},
+        },
+        ["issue"],
+    ),
+    "rsi_sentry.issue_explain": _schema(
+        "rsi_sentry.issue_explain",
+        "Ask Sentry Seer to analyze one issue's root cause.",
+        {"issue": {"type": "string"}, "force": {"type": "boolean"}, "fresh": {"type": "boolean"}},
+        ["issue"],
+    ),
+    "rsi_sentry.issue_plan": _schema(
+        "rsi_sentry.issue_plan",
+        "Ask Sentry Seer to generate a remediation plan for one issue.",
+        {"issue": {"type": "string"}, "cause": {"type": "string"}, "force": {"type": "boolean"}, "fresh": {"type": "boolean"}},
+        ["issue"],
+    ),
+    "rsi_sentry.releases_list": _schema(
+        "rsi_sentry.releases_list",
+        "List Sentry releases for an organization or project selector.",
+        {"project_ref": {"type": "string"}, "limit": {"type": "integer"}, "cursor": {"type": "string"}, "fresh": {"type": "boolean"}},
+    ),
+}
+
 _OBSERVABILITY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "rsi_observability.datasources": _schema(
         "rsi_observability.datasources",
@@ -470,6 +541,7 @@ _TOOL_SCHEMAS = {
     **_SLACK_TOOL_SCHEMAS,
     **_NOTION_TOOL_SCHEMAS,
     **_KNOWLEDGE_TOOL_SCHEMAS,
+    **_SENTRY_TOOL_SCHEMAS,
     **_OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TOOLSET_SCHEMAS = {
@@ -478,6 +550,7 @@ _TOOLSET_SCHEMAS = {
     HERMES_RSI_SLACK_TOOLSET: _SLACK_TOOL_SCHEMAS,
     HERMES_RSI_NOTION_TOOLSET: _NOTION_TOOL_SCHEMAS,
     HERMES_RSI_KNOWLEDGE_TOOLSET: _KNOWLEDGE_TOOL_SCHEMAS,
+    HERMES_RSI_SENTRY_TOOLSET: _SENTRY_TOOL_SCHEMAS,
     HERMES_RSI_OBSERVABILITY_TOOLSET: _OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")

@@ -75,7 +75,7 @@ _OBSERVABILITY_CANONICAL_NAMES = {
     "rsi_observability.alert_rule_get",
     "rsi_observability.active_alerts",
 }
-_NATIVE_CANONICAL_PREFIXES = ("rsi_slack.", "rsi_notion.", "rsi_knowledge.")
+_NATIVE_CANONICAL_PREFIXES = ("rsi_slack.", "rsi_notion.", "rsi_knowledge.", "rsi_sentry.")
 
 
 def _runtime_root() -> Path:
@@ -193,6 +193,8 @@ def _native_surface_and_operation(canonical_name: str) -> tuple[str, str]:
         return "notion", canonical_name.split(".", 1)[1]
     if canonical_name.startswith("rsi_knowledge."):
         return "knowledge", canonical_name.split(".", 1)[1]
+    if canonical_name.startswith("rsi_sentry."):
+        return "sentry", canonical_name.split(".", 1)[1]
     raise ValueError(f"unknown native RSI tool {canonical_name!r}")
 
 
@@ -924,6 +926,13 @@ def _native_target_ref(args: JsonObject) -> str:
         "source_ref",
         "page_ref",
         "slug",
+        "issue",
+        "issue_ref",
+        "short_id",
+        "project_ref",
+        "project",
+        "org",
+        "release",
     ):
         value = _string_value(args.get(key))
         if value:

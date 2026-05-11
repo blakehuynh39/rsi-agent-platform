@@ -555,7 +555,7 @@ func validControlPlaneConfig() Config {
 		DefaultReasoningVerbosity: "verbose",
 		NativeToolsEnabled:        true,
 		NativeToolsClientToken:    "native-test-token",
-		NativeToolsSurfaces:       []string{"slack", "notion", "knowledge"},
+		NativeToolsSurfaces:       []string{"slack", "notion", "knowledge", "sentry"},
 		ProposalPromoterInterval:  15 * time.Minute,
 	}
 }
