@@ -343,6 +343,39 @@ func TestNativeNotionWriteResolvesMirrorRootFromSourceMirror(t *testing.T) {
 	}
 }
 
+func TestNativeNotionPageArchiveUsesInTrashPayload(t *testing.T) {
+	var gotPayload map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPatch || r.URL.Path != "/v1/pages/page-archive" {
+			t.Fatalf("unexpected Notion request %s %s", r.Method, r.URL.String())
+		}
+		if err := json.NewDecoder(r.Body).Decode(&gotPayload); err != nil {
+			t.Fatalf("decode request body: %v", err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"object":"page","id":"page-archive","in_trash":true}`))
+	}))
+	defer server.Close()
+
+	cfg := nativeToolsTestConfig()
+	cfg.NotionToken = "ntn-test"
+	cfg.NotionAPIBaseURL = server.URL
+	router := NewRouter(cfg, storepkg.NewMemoryStore())
+	token := nativeToolsTestToken(t, cfg, nativeToolsValidClaims(time.Now().UTC(), "notion"))
+	body := []byte(`{"surface":"notion","operation":"page_archive","idempotency_key":"archive-page","reason":"test archive payload","confirm_destroy":true,"arguments":{"page_id":"page-archive"}}`)
+
+	rec := nativeToolsPost(t, router, token, body)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d body=%s", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	if gotPayload["in_trash"] != true {
+		t.Fatalf("expected in_trash=true payload, got %#v", gotPayload)
+	}
+	if _, ok := gotPayload["archived"]; ok {
+		t.Fatalf("page_archive must not send deprecated archived field, got %#v", gotPayload)
+	}
+}
+
 func TestNativeKnowledgeMessagesReadRefusesUnboundedChannelRead(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	cfg.SlackMirrorChannelDiscovery = "explicit"

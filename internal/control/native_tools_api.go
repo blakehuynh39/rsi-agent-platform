@@ -968,7 +968,7 @@ func executeNotionNativeToolAction(ctx context.Context, cfg config.Config, repo 
 		return out, "updated Notion page", "notion:page:" + pageID, "", nativeNotionMirrorEffect(cfg, repo, input, pageID, "page", "page_update", err), statusFromErr(err), err
 	case "page_archive":
 		pageID := firstNonEmpty(stringArg(input.Arguments, "page_id"), input.TargetRef)
-		out, err := api.UpdatePage(ctx, pageID, map[string]any{"archived": true})
+		out, err := api.UpdatePage(ctx, pageID, map[string]any{"in_trash": true})
 		return out, "archived Notion page", "notion:page:" + pageID, "", nativeNotionMirrorEffect(cfg, repo, input, pageID, "page", "page_archive", err), statusFromErr(err), err
 	case "blocks_append":
 		blockID := firstNonEmpty(stringArg(input.Arguments, "block_id"), input.TargetRef)
