@@ -21835,3 +21835,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6671b4354ca8fac4d6d3954f5e7ac82f
 - summary: Design and implementation overview of the monitoring stack, covering aggressive and passive monitoring strategies, core components (Node Exporter, Prometheus, Grafana, Alertmanager...
 
+## [2026-05-11T16:50:46Z] synthesis | Infrastructure as Code with AWS EKS Blueprints
+
+- status: published
+- slug: projects/infra-as-code-eks-blueprints
+- wiki_revision_id: wikirev_4e6dd5e6bc3a46512b8232e592abf351
+- summary: Project to provision and manage infrastructure using Terraform and AWS EKS Blueprints, covering EKS, ECR, and RDS services.
+

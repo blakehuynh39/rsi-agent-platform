@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b072a24beedc9c9250a6cfa6dcfb3d4e68c605ef8e829454e6bfdefcbd59c5ea",
-        "size": 567424
+        "sha256": "f4b3588ce719abfb73afc0ab33936b46b63c2d2c18e0eb17c714e672feb15cbc",
+        "size": 567761
       },
       {
         "path": "log.md",
-        "sha256": "d286c9bf8870a64914cb04ef298acdbaf55dc79f49a4ee672d62bd55df6ef152",
-        "size": 1040590
+        "sha256": "3c75646f3cc3430627af8a1787bf8fc13a50f14a4974f680e79b49cf77af61d0",
+        "size": 1040939
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4650,6 +4650,11 @@
         "size": 1127
       },
       {
+        "path": "pages/projects/infra-as-code-eks-blueprints.md",
+        "sha256": "dc01aa8ec4808a2f362505df0ba88d898f79a0e1f5d71a6da1cb648c36fd5486",
+        "size": 8198
+      },
+      {
         "path": "pages/projects/infrastructure-revamp.md",
         "sha256": "345ca37ded29b6fe003b7a846d3cda55debec2e42fdb2c422a4499512e6bcf8f",
         "size": 4937
@@ -5969,8 +5974,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T16:38:57Z",
-  "file_count": 1192,
+  "exported_at": "2026-05-11T16:55:38Z",
+  "file_count": 1193,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8907,7 +8912,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "6999428443a989bacb5476ec761623636a7b9eea3e7975373a8f193ae3c909f6",
+  "previous_tree_hash": "6d777f300dd34e50303de2c18406b7d664028f4be5d2f3c735f10cc6297188bd",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8920,14 +8925,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6d777f300dd34e50303de2c18406b7d664028f4be5d2f3c735f10cc6297188bd",
+  "tree_hash": "41c0b152a3bcd7496028cc9c683383969e98e16ca590822dcec3181e8a0174af",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 606,
+  "wiki_file_count": 607,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8936,13 +8941,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b072a24beedc9c9250a6cfa6dcfb3d4e68c605ef8e829454e6bfdefcbd59c5ea",
-      "size": 567424
+      "sha256": "f4b3588ce719abfb73afc0ab33936b46b63c2d2c18e0eb17c714e672feb15cbc",
+      "size": 567761
     },
     {
       "path": "log.md",
-      "sha256": "d286c9bf8870a64914cb04ef298acdbaf55dc79f49a4ee672d62bd55df6ef152",
-      "size": 1040590
+      "sha256": "3c75646f3cc3430627af8a1787bf8fc13a50f14a4974f680e79b49cf77af61d0",
+      "size": 1040939
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10645,6 +10650,11 @@
       "size": 1127
     },
     {
+      "path": "pages/projects/infra-as-code-eks-blueprints.md",
+      "sha256": "dc01aa8ec4808a2f362505df0ba88d898f79a0e1f5d71a6da1cb648c36fd5486",
+      "size": 8198
+    },
+    {
       "path": "pages/projects/infrastructure-revamp.md",
       "sha256": "345ca37ded29b6fe003b7a846d3cda55debec2e42fdb2c422a4499512e6bcf8f",
       "size": 4937
@@ -11961,5 +11971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e3e1f65ce0f9f117738ac041d0fcf9df1245547163e74eff7bf4c86540e38657"
+  "wiki_tree_hash": "4bb600e14f15808b1366217f08c1bfea0cfa98f691807698897ba47022672cae"
 }
