@@ -21807,3 +21807,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_308c6d155c07219e3e15151d04877351
 - summary: Launch plan for the Iliad and Iliad-2 testnets, including code freeze, infrastructure setup, partner enablement, and feature milestones.
 
+## [2026-05-11T14:06:20Z] synthesis | Public Testnet Explorer Service Outage
+
+- status: published
+- slug: systems/public-testnet-explorer-outage
+- wiki_revision_id: wikirev_67158152d7583dde8ba01fad308b3930
+- summary: The public-testnet blockchain explorer at https://testnet.storyscan.xyz/ went offline due to insufficient computational resources and a failure in docker-compose operations. The in...
+

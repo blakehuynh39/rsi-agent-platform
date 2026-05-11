@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a05067b8b9ebfca2a4584740f5eb3344b4db30f7b1b67313def141b21030aa1f",
-        "size": 566680
+        "sha256": "e98ec83151b39fc43043ecfc0cbed76f64144fe957a2c63b3f9140d7d9234936",
+        "size": 567070
       },
       {
         "path": "log.md",
-        "sha256": "cd8f2cbcf1001706ab566f473f76940894863534e71af4d0d7bf1cfd0d493ca2",
-        "size": 1039161
+        "sha256": "14f41bfd5fc415bd89b01fa9084df5d7c38d458d2f0afb6daa0f63ebc64fffae",
+        "size": 1039563
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5860,6 +5860,11 @@
         "size": 5934
       },
       {
+        "path": "pages/systems/public-testnet-explorer-outage.md",
+        "sha256": "468f5f96c8ef1d5feeee38b1c165c4b690cdb9bb1945e68c174b3129bdbac9ab",
+        "size": 7004
+      },
+      {
         "path": "pages/systems/rds-table-schema.md",
         "sha256": "75919590cdb1a88b09ae4eab3ad86353c0e7c9a0b7b6a73c5699cc788a6d7c5d",
         "size": 4972
@@ -5959,8 +5964,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T12:08:07Z",
-  "file_count": 1190,
+  "exported_at": "2026-05-11T14:14:51Z",
+  "file_count": 1191,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8897,7 +8902,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "2e47c0da51ed73a12fe1d5ac240538cc02e410562549b14a6843d93b447674a1",
+  "previous_tree_hash": "34e68f5cc77f0f8ae9e13829c5323c2f083468f183a087f41b11ab60fa2ef0af",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8910,14 +8915,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "34e68f5cc77f0f8ae9e13829c5323c2f083468f183a087f41b11ab60fa2ef0af",
+  "tree_hash": "6999428443a989bacb5476ec761623636a7b9eea3e7975373a8f193ae3c909f6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 604,
+  "wiki_file_count": 605,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8926,13 +8931,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a05067b8b9ebfca2a4584740f5eb3344b4db30f7b1b67313def141b21030aa1f",
-      "size": 566680
+      "sha256": "e98ec83151b39fc43043ecfc0cbed76f64144fe957a2c63b3f9140d7d9234936",
+      "size": 567070
     },
     {
       "path": "log.md",
-      "sha256": "cd8f2cbcf1001706ab566f473f76940894863534e71af4d0d7bf1cfd0d493ca2",
-      "size": 1039161
+      "sha256": "14f41bfd5fc415bd89b01fa9084df5d7c38d458d2f0afb6daa0f63ebc64fffae",
+      "size": 1039563
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11845,6 +11850,11 @@
       "size": 5934
     },
     {
+      "path": "pages/systems/public-testnet-explorer-outage.md",
+      "sha256": "468f5f96c8ef1d5feeee38b1c165c4b690cdb9bb1945e68c174b3129bdbac9ab",
+      "size": 7004
+    },
+    {
       "path": "pages/systems/rds-table-schema.md",
       "sha256": "75919590cdb1a88b09ae4eab3ad86353c0e7c9a0b7b6a73c5699cc788a6d7c5d",
       "size": 4972
@@ -11941,5 +11951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f1c1fa33f789022d94c405bcb2b1f4957c86a2ce42cf5925a11736d3e988a6eb"
+  "wiki_tree_hash": "e7db9d072044ec660e3ab3bb41af57a96ab65751c3eb0a3e4adc2ad7382997b0"
 }
