@@ -26,6 +26,7 @@ const (
 )
 
 var markdownTableSeparatorRegex = regexp.MustCompile(`^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$`)
+var slackReportNumericCellRegex = regexp.MustCompile(`^[+-]?(?:(?:\d+)|(?:\d{1,3}(?:,\d{3})+))(?:\.\d+)?%?$`)
 var safeFilenameRegex = regexp.MustCompile(`[^a-z0-9._-]+`)
 
 type slackReportPayload struct {
@@ -537,7 +538,7 @@ func slackTableBlock(blockID string, table slackReportTable) slackapi.Block {
 	settings := make([]slackapi.ColumnSetting, 0, len(table.Columns))
 	for _, col := range table.Columns {
 		header = append(header, slackReportRichText(firstNonEmpty(col.Label, col.Key)))
-		settings = append(settings, slackapi.ColumnSetting{Align: slackReportColumnAlignment(col.Align), IsWrapped: true})
+		settings = append(settings, slackapi.ColumnSetting{Align: slackReportColumnAlignmentForTable(table, col), IsWrapped: true})
 	}
 	block.AddRow(header...)
 	block.WithColumnSettings(settings...)
@@ -564,6 +565,62 @@ func slackReportColumnAlignment(value string) slackapi.ColumnAlignment {
 	default:
 		return slackapi.ColumnAlignmentLeft
 	}
+}
+
+func slackReportColumnAlignmentForTable(table slackReportTable, col slackReportColumn) slackapi.ColumnAlignment {
+	if strings.TrimSpace(col.Align) != "" {
+		return slackReportColumnAlignment(col.Align)
+	}
+	if slackReportColumnLooksNumeric(table, col.Key) {
+		return slackapi.ColumnAlignmentRight
+	}
+	return slackapi.ColumnAlignmentLeft
+}
+
+func slackReportColumnLooksNumeric(table slackReportTable, key string) bool {
+	key = strings.TrimSpace(key)
+	if key == "" {
+		return false
+	}
+	seenNumeric := false
+	for _, row := range table.Rows {
+		value, ok := row[key]
+		if !ok || value == nil {
+			continue
+		}
+		rendered := strings.TrimSpace(slackReportCellString(value))
+		if rendered == "" {
+			continue
+		}
+		if !slackReportCellLooksNumeric(value) {
+			return false
+		}
+		seenNumeric = true
+	}
+	return seenNumeric
+}
+
+func slackReportCellLooksNumeric(value interface{}) bool {
+	switch value.(type) {
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		return true
+	}
+	raw := strings.TrimSpace(slackReportCellString(value))
+	if raw == "" {
+		return false
+	}
+	if strings.HasPrefix(raw, "(") && strings.HasSuffix(raw, ")") {
+		raw = "-" + strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(raw, "("), ")"))
+	}
+	raw = strings.ReplaceAll(raw, " ", "")
+	if !slackReportNumericCellRegex.MatchString(raw) {
+		return false
+	}
+	normalized := strings.TrimSuffix(strings.ReplaceAll(raw, ",", ""), "%")
+	_, err := strconv.ParseFloat(normalized, 64)
+	return err == nil
 }
 
 func slackReportTableCSV(table slackReportTable) (string, error) {

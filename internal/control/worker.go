@@ -551,6 +551,26 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, replyChannelID, replyThreadTS, runnerCompleted)
 	replyDeliverySucceeded := hasReplyDelivery && events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
 	nativeSlackDeliverySucceeded := replyDeliverySucceeded && isRSINativeSlackDelivery(replyDelivery)
+	runnerToolCalls := bindRunnerToolCallRecords(
+		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
+		ctx.trace,
+		ctx.workflow,
+	)
+	if useLedgerFirst {
+		runnerToolCalls = bindRunnerToolCallRecords(
+			toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted),
+			ctx.trace,
+			ctx.workflow,
+		)
+	}
+	if !nativeSlackDeliverySucceeded {
+		if toolDelivery, ok := workflowReplyDeliveryFromNativeSlackToolCalls(runnerToolCalls, replyChannelID, replyThreadTS, runnerCompleted); ok {
+			replyDelivery = toolDelivery
+			hasReplyDelivery = true
+			replyDeliverySucceeded = events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
+			nativeSlackDeliverySucceeded = isRSINativeSlackDelivery(replyDelivery)
+		}
+	}
 	if replyDeliveryMode == "direct" && !nativeSlackDeliverySucceeded {
 		replyDeliveryMode = "mediated"
 	}
@@ -637,18 +657,6 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			Decision:   "native_slack_delivery_recorded",
 			CreatedAt:  runnerCompleted,
 		})
-	}
-	runnerToolCalls := bindRunnerToolCallRecords(
-		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
-		ctx.trace,
-		ctx.workflow,
-	)
-	if useLedgerFirst {
-		runnerToolCalls = bindRunnerToolCallRecords(
-			toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted),
-			ctx.trace,
-			ctx.workflow,
-		)
 	}
 	runnerEvents := []events.TraceEvent{
 		{
@@ -1751,6 +1759,17 @@ func isRSINativeSlackToolName(name string) bool {
 	}
 }
 
+func canonicalRSINativeSlackToolName(name string) string {
+	switch strings.TrimSpace(name) {
+	case "rsi_slack.message_post", "rsi_slack_message_post":
+		return "rsi_slack.message_post"
+	case "rsi_slack.report_post", "rsi_slack_report_post":
+		return "rsi_slack.report_post"
+	default:
+		return strings.TrimSpace(name)
+	}
+}
+
 func runnerReplyDeliveryReasoningSummary(nativeSlack bool) string {
 	if nativeSlack {
 		return "Runner delivered the final Slack reply through an RSI native Slack delivery tool; preserving it as trace metadata without retrying delivery."
@@ -1812,6 +1831,171 @@ func workflowReplyDeliveryProjection(raw map[string]any, ledgerEvents []events.E
 		return ledgerDelivery, true
 	}
 	return rawDelivery, hasRawDelivery
+}
+
+func workflowReplyDeliveryFromNativeSlackToolCalls(items []events.ToolCallRecord, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {
+	for i := len(items) - 1; i >= 0; i-- {
+		item := items[i]
+		if !isRSINativeSlackToolName(item.ToolName) {
+			continue
+		}
+		record, ok := slackActionRecordFromNativeSlackToolCall(item, fallbackChannelID, fallbackThreadTS, createdAt)
+		if ok && isRSINativeSlackDelivery(record) {
+			return record, true
+		}
+	}
+	return events.SlackActionRecord{}, false
+}
+
+func slackActionRecordFromNativeSlackToolCall(item events.ToolCallRecord, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {
+	request := mapValue(item.Request)
+	if len(request) == 0 {
+		return events.SlackActionRecord{}, false
+	}
+	args := mapValue(request["args"])
+	if len(args) == 0 {
+		args = mapValue(request["arguments"])
+	}
+	if len(args) == 0 {
+		args = mapValue(request["input"])
+	}
+	if len(args) == 0 {
+		args = request
+	}
+	result := toolCallResultPayload(request)
+	if len(result) == 0 {
+		result = mapValue(request["result"])
+	}
+	response := mapValue(result["output"])
+	actionPayload := mapValue(response["action"])
+	if len(actionPayload) == 0 {
+		actionPayload = mapValue(result["action"])
+	}
+	toolOutput := mapValue(response["output"])
+	if len(toolOutput) == 0 {
+		toolOutput = response
+	}
+	manifest := mapValue(toolOutput["render_manifest"])
+	mainMessage := mapValue(manifest["main_message"])
+
+	if !nativeSlackToolCallSucceeded(item, result, response, actionPayload) {
+		return events.SlackActionRecord{}, false
+	}
+
+	sourceRef := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(actionPayload, "source_ref")),
+		strings.TrimSpace(stringValueFromMap(toolOutput, "source_ref")),
+		strings.TrimSpace(stringValueFromMap(mainMessage, "source_ref")),
+	)
+	channelID := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(args, "channel_id")),
+		strings.TrimSpace(stringValueFromMap(toolOutput, "channel_id")),
+		strings.TrimSpace(stringValueFromMap(mainMessage, "channel_id")),
+		fallbackChannelID,
+	)
+	threadTS := firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(args, "thread_ts")),
+		strings.TrimSpace(stringValueFromMap(toolOutput, "thread_ts")),
+		strings.TrimSpace(stringValueFromMap(mainMessage, "thread_ts")),
+		fallbackThreadTS,
+	)
+	body := firstNonEmpty(
+		strings.TrimSpace(slackReportSummaryFromPayload(args)),
+		strings.TrimSpace(stringValueFromMap(args, "text")),
+		strings.TrimSpace(stringValueFromMap(args, "body")),
+		strings.TrimSpace(stringValueFromMap(actionPayload, "response_summary")),
+		strings.TrimSpace(stringValueFromMap(result, "summary")),
+		strings.TrimSpace(item.Summary),
+	)
+	toolName := canonicalRSINativeSlackToolName(firstNonEmpty(
+		strings.TrimSpace(stringValueFromMap(result, "tool_name")),
+		strings.TrimSpace(stringValueFromMap(response, "tool_name")),
+		strings.TrimSpace(item.ToolName),
+	))
+	artifactRefs := append([]string(nil), item.RawArtifactRefs...)
+	artifactRefs = append(artifactRefs, stringSliceFromMap(args, "artifact_refs")...)
+	artifactRefs = append(artifactRefs, stringSliceFromMap(result, "artifact_refs")...)
+	artifactRefs = append(artifactRefs, stringSliceFromMap(response, "artifact_refs")...)
+	artifactRefs = append(artifactRefs, stringSliceFromMap(toolOutput, "artifact_refs")...)
+	if actionID := strings.TrimSpace(stringValueFromMap(actionPayload, "id")); actionID != "" {
+		artifactRefs = append(artifactRefs, "external_tool_action:"+actionID)
+	}
+	if sourceRef != "" {
+		artifactRefs = append(artifactRefs, sourceRef)
+	}
+	artifactRefs = nativeSlackUploadedFileRefs(artifactRefs, toolOutput["uploaded_files"])
+	record := events.SlackActionRecord{
+		ID: firstNonEmpty(
+			strings.TrimSpace(item.ToolCallID),
+			strings.TrimSpace(item.ID),
+			strings.TrimSpace(stringValueFromMap(actionPayload, "id")),
+		),
+		ToolName:  toolName,
+		ChannelID: channelID,
+		ThreadTS:  threadTS,
+		IdempotencyKey: firstNonEmpty(
+			strings.TrimSpace(stringValueFromMap(args, "idempotency_key")),
+			strings.TrimSpace(stringValueFromMap(actionPayload, "idempotency_key")),
+			strings.TrimSpace(item.ToolCallID),
+			strings.TrimSpace(item.ID),
+		),
+		DraftBody:    body,
+		FinalBody:    body,
+		SendStatus:   "posted",
+		ArtifactRefs: uniqueStrings(artifactRefs),
+		CreatedAt:    createdAt,
+	}
+	return record, true
+}
+
+func nativeSlackToolCallSucceeded(item events.ToolCallRecord, result map[string]any, response map[string]any, actionPayload map[string]any) bool {
+	for _, value := range []string{
+		strings.TrimSpace(item.Status),
+		strings.TrimSpace(stringValueFromMap(result, "status")),
+		strings.TrimSpace(stringValueFromMap(response, "status")),
+		strings.TrimSpace(stringValueFromMap(actionPayload, "state")),
+	} {
+		switch strings.ToLower(value) {
+		case "failed", "failure", "error", "blocked":
+			return false
+		}
+	}
+	if boolValue(response["ok"]) {
+		return true
+	}
+	for _, value := range []string{
+		strings.TrimSpace(item.Status),
+		strings.TrimSpace(stringValueFromMap(result, "status")),
+		strings.TrimSpace(stringValueFromMap(response, "status")),
+		strings.TrimSpace(stringValueFromMap(actionPayload, "state")),
+	} {
+		switch strings.ToLower(value) {
+		case "completed", "posted", "sent", "uploaded", "ok", "success", "succeeded":
+			return true
+		}
+	}
+	return false
+}
+
+func nativeSlackUploadedFileRefs(refs []string, value any) []string {
+	items, ok := value.([]any)
+	if !ok {
+		return refs
+	}
+	for _, item := range items {
+		upload := mapValue(item)
+		if len(upload) == 0 {
+			continue
+		}
+		if sourceRef := strings.TrimSpace(stringValueFromMap(upload, "source_ref")); sourceRef != "" {
+			refs = append(refs, sourceRef)
+			continue
+		}
+		if fileID := strings.TrimSpace(stringValueFromMap(upload, "slack_file_id")); fileID != "" {
+			refs = append(refs, "slack_file:"+fileID)
+		}
+	}
+	return refs
 }
 
 func workflowReplyDeliveryFromExecutionLedger(items []events.ExecutionLedgerEvent, fallbackChannelID string, fallbackThreadTS string, createdAt time.Time) (events.SlackActionRecord, bool) {

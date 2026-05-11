@@ -3323,6 +3323,154 @@ func TestWorkflowRSINativeSlackReplyDeliveryCompletesWithoutQueuedSlackReply(t *
 	}
 }
 
+func TestWorkflowRSINativeSlackToolCallDeliveryCompletesWithoutReplyDelivery(t *testing.T) {
+	var runnerRequest map[string]any
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&runnerRequest); err != nil {
+			t.Fatalf("decode runner request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       true,
+			"provider": "openai",
+			"message":  `{"visible_reasoning":[],"reply_draft":"Final report posted.","final_answer":"Final report posted.","confidence":0.88,"context_summary":"Grounded answer.","self_critique":"","proposed_actions":[],"knowledge_drafts":[],"outcome_hypotheses":[]}`,
+			"raw": map[string]any{
+				"structured_output": map[string]any{
+					"visible_reasoning":  []any{},
+					"reply_draft":        "Final report posted.",
+					"final_answer":       "Final report posted.",
+					"confidence":         0.88,
+					"context_summary":    "Grounded answer.",
+					"self_critique":      "",
+					"proposed_actions":   []any{},
+					"knowledge_drafts":   []any{},
+					"outcome_hypotheses": []any{},
+				},
+				"tool_calls": []any{
+					map[string]any{
+						"id":           "runner-tool-call-rsi-report",
+						"tool_name":    "rsi_slack_report_post",
+						"tool_call_id": "call-rsi-report-tool",
+						"status":       "completed",
+						"summary":      "posted Slack report",
+						"request": map[string]any{
+							"args": map[string]any{
+								"channel_id":            "D123",
+								"thread_ts":             "171000001.000100",
+								"idempotency_key":       "report-key",
+								"report_schema_version": 1,
+								"summary":               "Final report posted.",
+							},
+							"result": map[string]any{
+								"status":              "ok",
+								"summary":             "posted Slack report",
+								"tool_name":           "rsi_slack.report_post",
+								"transport_tool_name": "rsi_slack_report_post",
+								"output": map[string]any{
+									"ok": true,
+									"action": map[string]any{
+										"id":               "extact-tool-report",
+										"state":            "succeeded",
+										"operation":        "report_post",
+										"response_summary": "posted Slack report",
+										"source_ref":       "slack:D123:171000002.000200",
+									},
+									"output": map[string]any{
+										"channel_id": "D123",
+										"ts":         "171000002.000200",
+										"render_manifest": map[string]any{
+											"main_message": map[string]any{
+												"status":     "posted",
+												"channel_id": "D123",
+												"thread_ts":  "171000001.000100",
+												"ts":         "171000002.000200",
+												"source_ref": "slack:D123:171000002.000200",
+											},
+										},
+										"uploaded_files": []any{
+											map[string]any{
+												"id":            "chart-0",
+												"status":        "uploaded",
+												"slack_file_id": "F123",
+												"source_ref":    "slack_file:F123",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		NativeToolsEnabled:        true,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	taskPayload := mapValue(runnerRequest["task"])
+	if got := stringFromMap(taskPayload, "reply_delivery_mode"); got != "mediated" {
+		t.Fatalf("expected mediated reply delivery mode, got %q", got)
+	}
+	if queued := queuedActionEffectsForPlane(store, "control"); len(queued) != 0 {
+		t.Fatalf("expected no queued control actions, got %#v", queued)
+	}
+	if intents := store.ListActionIntents(); len(intents) != 0 {
+		t.Fatalf("expected no action intents, got %#v", intents)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "completed" {
+		t.Fatalf("expected completed workflow, got %s", workflow.Status)
+	}
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one projected native Slack action, got %#v", trace.SlackActions)
+	}
+	action := trace.SlackActions[0]
+	if action.ToolName != "rsi_slack.report_post" {
+		t.Fatalf("expected canonical report tool name, got %#v", action)
+	}
+	if action.SendStatus != "posted" || action.FinalBody != "Final report posted." {
+		t.Fatalf("unexpected Slack action record: %#v", action)
+	}
+	if action.ChannelID != "D123" || action.ThreadTS != "171000001.000100" {
+		t.Fatalf("unexpected Slack target: %#v", action)
+	}
+	if !containsString(action.ArtifactRefs, "external_tool_action:extact-tool-report") || !containsString(action.ArtifactRefs, "slack_file:F123") {
+		t.Fatalf("expected report action/file refs, got %#v", action.ArtifactRefs)
+	}
+}
+
 func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) {
 	if got := partialCompletionNoticeForTerminationReason("output_token_budget_exhausted"); got != partialCompletionNoticeOutputBudget {
 		t.Fatalf("unexpected output-budget notice: %q", got)

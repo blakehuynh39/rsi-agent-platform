@@ -111,6 +111,53 @@ func TestBuildSlackReportPlanRendersOneSmallTableInline(t *testing.T) {
 	}
 }
 
+func TestSlackReportInlineTableInfersNumericColumnAlignment(t *testing.T) {
+	plan, err := buildSlackReportPlan(map[string]any{
+		"channel_id":            "C123",
+		"report_schema_version": 1,
+		"summary":               "Distribution histogram",
+		"tables": []any{map[string]any{
+			"title": "Distribution Histogram",
+			"columns": []any{
+				map[string]any{"key": "unique_users", "label": "Unique Users"},
+				map[string]any{"key": "scripts", "label": "Scripts"},
+				map[string]any{"key": "pct", "label": "% of Total"},
+				map[string]any{"key": "pairs", "label": "User-Script Pairs"},
+				map[string]any{"key": "cluster", "label": "Cluster"},
+			},
+			"rows": []any{
+				map[string]any{"unique_users": 17, "scripts": 10, "pct": "0.5%", "pairs": 170, "cluster": "Saturated"},
+				map[string]any{"unique_users": 16, "scripts": 108, "pct": "5.4%", "pairs": "1,728", "cluster": "Saturated"},
+				map[string]any{"unique_users": 15, "scripts": "254", "pct": "12.7%", "pairs": "3,810", "cluster": "Saturated"},
+			},
+		}},
+	}, "")
+	if err != nil {
+		t.Fatalf("buildSlackReportPlan: %v", err)
+	}
+	var table *slackapi.TableBlock
+	for _, block := range plan.Blocks {
+		if candidate, ok := block.(*slackapi.TableBlock); ok {
+			table = candidate
+			break
+		}
+	}
+	if table == nil {
+		t.Fatalf("expected Slack table block in %#v", plan.Blocks)
+	}
+	if len(table.ColumnSettings) != 5 {
+		t.Fatalf("expected column settings for every column, got %#v", table.ColumnSettings)
+	}
+	for _, idx := range []int{0, 1, 2, 3} {
+		if table.ColumnSettings[idx].Align != slackapi.ColumnAlignmentRight {
+			t.Fatalf("column %d should be right aligned, got %#v", idx, table.ColumnSettings)
+		}
+	}
+	if table.ColumnSettings[4].Align != slackapi.ColumnAlignmentLeft {
+		t.Fatalf("text column should be left aligned, got %#v", table.ColumnSettings)
+	}
+}
+
 func TestBuildSlackReportPlanFallsBackToCSVForMultipleTables(t *testing.T) {
 	table := map[string]any{
 		"columns": []any{
