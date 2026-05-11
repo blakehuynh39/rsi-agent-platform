@@ -1083,6 +1083,7 @@ def _native_action_handler(canonical_name: str, transport_name: str, args: JsonO
             "ok": ok,
             "action": response.get("action"),
         }
+        reply_delivery: JsonObject = {}
         if session_id:
             _append_event(
                 session_id,
@@ -1120,6 +1121,7 @@ def _native_action_handler(canonical_name: str, transport_name: str, args: JsonO
                 "status_code": status_code,
                 "summary": response.get("action", {}).get("response_summary", ""),
                 "error": response.get("error", ""),
+                "reply_delivery": reply_delivery,
                 "output": response,
             },
             sort_keys=True,

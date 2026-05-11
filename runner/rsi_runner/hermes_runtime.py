@@ -2461,6 +2461,7 @@ class HermesRuntime:
         max_iterations_override: int | None = None,
         render_prompt: bool = True,
         expand_skills: bool = True,
+        enabled_toolsets_override: list[str] | None = None,
     ) -> HermesExecutionResult:
         if AIAgent is None:
             return HermesExecutionResult(
@@ -2600,7 +2601,9 @@ class HermesRuntime:
                 task,
                 context,
                 max_iterations_override=max_iterations_override,
-                enabled_toolsets_override=self._native_toolsets_for_task(
+                enabled_toolsets_override=enabled_toolsets_override
+                if enabled_toolsets_override is not None
+                else self._native_toolsets_for_task(
                     task, extra_toolsets=agentic_mcp_registration.enabled_toolsets
                 ),
             )
@@ -7045,6 +7048,7 @@ class HermesRuntime:
                         observer=observer,
                         render_prompt=False,
                         expand_skills=False,
+                        enabled_toolsets_override=self._action_contract_repair_toolsets(),
                     )
                     if repair_result.ok:
                         if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
@@ -7580,8 +7584,6 @@ class HermesRuntime:
             return []
         if self._rsi_native_slack_reply_delivery_succeeded(_json_object_or_empty((raw or {}).get("reply_delivery"))):
             return []
-        if self._rsi_native_slack_reply_delivery_succeeded(_json_object_or_empty(structured_output.get("reply_delivery"))):
-            return []
         final_answer = _string_or_json(structured_output.get("final_answer"))
         reply_draft = _string_or_json(structured_output.get("reply_draft"))
         proposed_actions = _normalize_proposed_actions(structured_output.get("proposed_actions"))
@@ -7593,15 +7595,14 @@ class HermesRuntime:
         if not final_answer and not reply_draft and not reply_actions:
             return []
         errors: list[JsonObject] = []
-        if (final_answer or reply_draft) and not reply_actions:
+        if final_answer or reply_draft:
             errors.append(
                 {
-                    "code": "missing_final_reply_action",
-                    "path": "proposed_actions",
-                    "message": "Workflow replies must include exactly one slack_post or slack_report proposed action.",
+                    "code": "missing_native_slack_delivery",
+                    "path": "reply_delivery",
+                    "message": "Workflow replies must be delivered through rsi_slack.message_post or rsi_slack.report_post before completion.",
                 }
             )
-            return errors
         if len(reply_actions) > 1:
             errors.append(
                 {
@@ -7615,6 +7616,13 @@ class HermesRuntime:
         for index, item in enumerate(reply_actions):
             kind = _string_or_json(item.get("kind"))
             payload = _json_object_or_empty(item.get("request_payload"))
+            errors.append(
+                {
+                    "code": "legacy_proposed_slack_action",
+                    "path": f"proposed_actions[{index}]",
+                    "message": "Legacy proposed Slack actions are disabled; call rsi_slack.message_post or rsi_slack.report_post instead.",
+                }
+            )
             if kind == "slack_post":
                 body = first_non_empty(
                     _string_or_json(payload.get("final_body")),
@@ -7634,6 +7642,9 @@ class HermesRuntime:
             elif kind == "slack_report":
                 errors.extend(self._validate_slack_report_action_payload(payload, f"proposed_actions[{index}].request_payload"))
         return errors
+
+    def _action_contract_repair_toolsets(self) -> list[str]:
+        return normalize_tool_names(["rsi-slack"])
 
     def _rsi_native_slack_reply_delivery_succeeded(self, delivery: JsonObject) -> bool:
         if not delivery:
@@ -7819,10 +7830,12 @@ class HermesRuntime:
                 "",
                 "Repair instruction: your previous structured output failed the final Slack action contract.",
                 f"Repair attempt: {attempt} of {max_attempts}.",
-                "Re-emit the full JSON object.",
-                "Preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
-                "Include exactly one proposed action: kind=slack_post for simple prose, or kind=slack_report for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",
-                "Do not put Markdown pipe tables in slack_post; convert tabular output into slack_report.tables with columns [{key,label,align?}] and rows [{column_key: scalar}].",
+                "Do not re-investigate the task. Do not call read/search/terminal/file tools.",
+                "Use the previous structured output below as the source of truth for the answer.",
+                "First call exactly one RSI native Slack delivery tool in the bound thread: rsi_slack.message_post for simple prose, or rsi_slack.report_post for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",
+                "Do not emit slack_post or slack_report proposed_actions; legacy proposed Slack actions are disabled.",
+                "After the Slack delivery tool succeeds, re-emit the full JSON object with proposed_actions=[] and preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
+                "Do not put Markdown pipe tables in message_post; convert tabular output into report_post tables with columns [{key,label,align?}] and rows [{column_key: scalar}].",
                 "Fix these machine-readable validation errors:",
                 json.dumps(errors, ensure_ascii=True, sort_keys=True),
                 "Return only valid JSON with no markdown or surrounding commentary.",

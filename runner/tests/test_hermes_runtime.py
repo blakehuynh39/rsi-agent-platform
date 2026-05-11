@@ -3687,7 +3687,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("structured_output", result.raw)
         register_mock.assert_not_called()
 
-    def test_native_strict_mediated_workflow_projects_slack_report_action(self) -> None:
+    def test_native_strict_mediated_workflow_rejects_legacy_slack_report_action(self) -> None:
         structured = {
             "visible_reasoning": [],
             "reply_draft": "Campaign report is ready.",
@@ -3770,8 +3770,9 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertTrue(result.ok)
         self.assertTrue(result.raw["native_strict"])
-        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_report")
-        self.assertFalse(result.raw["action_contract_repair_attempted"])
+        self.assertEqual(result.raw["structured_output"]["proposed_actions"], [])
+        self.assertTrue(result.raw["action_contract_repair_attempted"])
+        self.assertFalse(result.raw["action_contract_repair_succeeded"])
 
     def test_native_strict_external_tool_pending_is_not_projected(self) -> None:
         native_result = HermesExecutionResult(
@@ -5676,6 +5677,11 @@ class HermesRuntimeTests(unittest.TestCase):
         class ActionRepairAIAgent(FakeAIAgent):
             calls = 0
             prompts: list[str] = []
+            init_history: list[dict[str, object]] = []
+
+            def __init__(self, **kwargs) -> None:
+                super().__init__(**kwargs)
+                type(self).init_history.append(kwargs)
 
             def run_conversation(
                 self,
@@ -5704,17 +5710,12 @@ class HermesRuntimeTests(unittest.TestCase):
                 if type(self).calls == 1:
                     payload["proposed_actions"] = []
                 else:
-                    payload["proposed_actions"] = [
-                        {
-                            "kind": "slack_post",
-                            "target_ref": "slack:thread",
-                            "request_payload": {"body": "Final reply"},
-                            "approval_mode": "deterministic",
-                            "idempotency_key": "reply-1",
-                            "rationale": "Reply in thread",
-                            "evidence_refs": [],
-                        }
-                    ]
+                    payload["proposed_actions"] = []
+                    payload["reply_delivery"] = {
+                        "tool_name": "rsi_slack.message_post",
+                        "send_status": "posted",
+                        "provider_ref": "slack:C123:171000001.000200",
+                    }
                 return {"final_response": json.dumps(payload)}
 
         task = RunnerTaskRequest.from_payload(
@@ -5734,8 +5735,21 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
+        def observed_for_action_repair(*_args, **_kwargs):
+            if ActionRepairAIAgent.calls >= 2:
+                return {
+                    "reply_delivery": {
+                        "tool_name": "rsi_slack.message_post",
+                        "send_status": "posted",
+                        "provider_ref": "slack:C123:171000001.000200",
+                    }
+                }
+            return {}
+
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", ActionRepairAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.object(
+            HermesRuntime, "_observability_metadata", side_effect=observed_for_action_repair
         ), mock.patch(
             "rsi_runner.hermes_runtime.build_skill_invocation_message",
             return_value=None,
@@ -5755,6 +5769,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["action_contract_repair_attempts"], 1)
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("Runner role:"), 1)
         self.assertEqual(ActionRepairAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
+        self.assertIn("rsi-slack", ActionRepairAIAgent.init_history[1]["enabled_toolsets"])
+        self.assertNotIn("terminal", ActionRepairAIAgent.init_history[1]["enabled_toolsets"])
 
     def test_action_contract_repair_default_budget_is_two(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
@@ -5814,17 +5830,11 @@ class HermesRuntimeTests(unittest.TestCase):
                     "proposed_actions": [],
                 }
                 if type(self).calls == 3:
-                    payload["proposed_actions"] = [
-                        {
-                            "kind": "slack_post",
-                            "target_ref": "slack:thread",
-                            "request_payload": {"body": "Final reply"},
-                            "approval_mode": "deterministic",
-                            "idempotency_key": "reply-1",
-                            "rationale": "Reply in thread",
-                            "evidence_refs": [],
-                        }
-                    ]
+                    payload["reply_delivery"] = {
+                        "tool_name": "rsi_slack.message_post",
+                        "send_status": "posted",
+                        "provider_ref": "slack:C123:171000001.000200",
+                    }
                 return {"final_response": json.dumps(payload)}
 
         task = RunnerTaskRequest.from_payload(
@@ -5843,8 +5853,21 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
 
+        def observed_for_retrying_action_repair(*_args, **_kwargs):
+            if RetryingActionRepairAIAgent.calls >= 3:
+                return {
+                    "reply_delivery": {
+                        "tool_name": "rsi_slack.message_post",
+                        "send_status": "posted",
+                        "provider_ref": "slack:C123:171000001.000200",
+                    }
+                }
+            return {}
+
         with mock.patch("rsi_runner.hermes_runtime.AIAgent", RetryingActionRepairAIAgent), mock.patch(
             "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.object(
+            HermesRuntime, "_observability_metadata", side_effect=observed_for_retrying_action_repair
         ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
             runtime = HermesRuntime(RunnerConfig.from_env())
             result = runtime.execute_task(task)
@@ -5856,7 +5879,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(RetryingActionRepairAIAgent.calls, 3)
         self.assertIn("Repair attempt: 1 of 2", RetryingActionRepairAIAgent.prompts[1])
         self.assertIn("Repair attempt: 2 of 2", RetryingActionRepairAIAgent.prompts[2])
-        self.assertEqual(result.raw["structured_output"]["proposed_actions"][0]["kind"], "slack_post")
+        self.assertEqual(result.raw["reply_delivery"]["tool_name"], "rsi_slack.message_post")
 
     def test_action_contract_repair_fails_closed_after_two_attempts(self) -> None:
         class FailingActionRepairAIAgent(FakeAIAgent):
@@ -7833,8 +7856,9 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
 
-        self.assertEqual(errors[0]["code"], "unsupported_markdown_table")
-        self.assertIn("slack_report.tables", errors[0]["message"])
+        codes = {error["code"] for error in errors}
+        self.assertIn("legacy_proposed_slack_action", codes)
+        self.assertIn("unsupported_markdown_table", codes)
 
     def test_partial_slack_post_synthesis_skips_pipe_table_with_diagnostic(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -7911,7 +7935,9 @@ class HermesRuntimeTests(unittest.TestCase):
             runtime = HermesRuntime(RunnerConfig.from_env())
             errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
 
-        self.assertEqual(errors[0]["code"], "unsupported_markdown_table")
+        codes = {error["code"] for error in errors}
+        self.assertIn("legacy_proposed_slack_action", codes)
+        self.assertIn("unsupported_markdown_table", codes)
 
     def test_workflow_final_action_contract_validates_slack_report_schema(self) -> None:
         task = RunnerTaskRequest.from_payload(
@@ -7955,6 +7981,43 @@ class HermesRuntimeTests(unittest.TestCase):
         codes = {error["code"] for error in errors}
         self.assertIn("required", codes)
         self.assertIn("invalid_cell_type", codes)
+
+    def test_workflow_final_action_contract_requires_observed_native_delivery(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Reply in Slack.",
+                    "reply_delivery_mode": "mediated",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                }
+            }
+        )
+        structured_output = {
+            "reply_draft": "Final reply",
+            "final_answer": "Final reply",
+            "reply_delivery": {
+                "tool_name": "rsi_slack.message_post",
+                "send_status": "posted",
+            },
+            "proposed_actions": [],
+        }
+
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            model_only_errors = runtime._workflow_reply_action_contract_errors(task, structured_output)
+            observed_errors = runtime._workflow_reply_action_contract_errors(
+                task,
+                structured_output,
+                {"reply_delivery": structured_output["reply_delivery"]},
+            )
+
+        self.assertEqual(model_only_errors[0]["code"], "missing_native_slack_delivery")
+        self.assertEqual(observed_errors, [])
 
     def test_prod_task_timeout_defaults_to_1800_when_transport_is_extended(self) -> None:
         env = {**runner_env("prod"), "RSI_RUNNER_PROD_TIMEOUT": "1830s"}
