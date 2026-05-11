@@ -21646,3 +21646,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7978e2fc95169e3da4c7132c3c557b77
 - summary: A management console for subnet operators to monitor and manage the state of workflows and activities on an Ethereum L2-based scheduling system. The console focuses on visualizatio...
 
+## [2026-05-11T04:03:30Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-engineering-home
+- wiki_revision_id: wikirev_8d80754b3cce7821dd53e332c1028a14
+- summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
+
