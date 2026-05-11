@@ -43,6 +43,42 @@ Always read `AGENTS.md` first — it's the codebase table of contents. It points
 | Language target hours (defaults) | `apps/api/migrations/0021_reward_system.sql` (INSERT into `language_targets`) |
 | Per-language campaign script availability | `scripts` table (has `language_code` column), `apps/api/src/services/campaigns.rs` script methods |
 
+### Numo Data Validation (NDV) — internal validation pipeline
+
+The NDV endpoints live under `/v1/internal/numo-data-validation/` and integrate with PSDN (the external validation service, also referred to internally as "Poseidon"). Two endpoints: source export (GET) and result ingestion (POST).
+
+**Key files by concern:**
+
+| What to find | Where to look |
+|---|---|
+| Design spec (authoritative) | `docs/superpowers/specs/2026-05-02-numo-data-validation-app-integration-design.md` |
+| Implementation plan (task-level) | `docs/superpowers/plans/2026-05-02-numo-data-validation-app-integration.md` |
+| HTTP handlers (routes, auth, body parsing) | `apps/api/src/http/routes/numo_validation.rs` |
+| Auth extractor (bearer token + IP allowlist) | `apps/api/src/http/extractors_numo_validation.rs` |
+| Export service (watermark + cursor) | `apps/api/src/services/numo_validation/export.rs` |
+| Ingest service (batch insert + state binding) | `apps/api/src/services/numo_validation/ingest.rs` |
+| State binding bridge (NDV decision → submission state) | `apps/api/src/services/numo_validation/state_binding.rs` |
+| Request/response DTOs | `apps/api/src/services/numo_validation/schema.rs` |
+| DB schema: validation_runs, validation_results, pointers | `apps/api/migrations/0062_*` through `0065_*`, `0061_campaign_auto_apply_validation.sql` |
+| Config (enabled, CIDRs, token hashes) | `apps/api/src/bootstrap/config.rs` → `NumoValidationConfig`; `apps/api/config/base.toml` → `[numo_validation]` |
+| Admin UI validation history | `apps/api/src/services/admin_dashboard.rs`, `apps/api/src/http/routes/admin.rs` |
+| Runbook (token rotation, CIDR updates, triage) | `docs/runbooks/numo-validation.md` |
+| Grafana dashboard | `grafana/numo-validation-dashboard.json` |
+
+**Trace for "why do results immediately show as paid/failed in the activity tab?":**
+
+1. `POST /v1/internal/numo-data-validation/validation-results` → `routes/numo_validation.rs::post_results_inner()` (line 265)
+2. → `services/numo_validation/ingest.rs::ingest_batch()` (line 43)
+3. Inside ingest_batch, after the DB transaction commits (line 135), a loop (lines 137-165) calls `state_binding::apply_decision()` for each pass/reject candidate
+4. → `services/numo_validation/state_binding.rs::apply_decision()` (line 43) — gates on `campaigns.auto_apply_validation` and `submissions.state = 'pending_review'`
+5. → `services/submissions.rs::review_submission_with_current_validation()` (line 267) — which calls `review_submission_with_actor_impl()` (line 284)
+6. `review_submission_with_actor_impl()`: UPDATE submissions.state → `finalize_accepted()`/`finalize_rejected()` (payout) → `apply_review_side_effects()` (line 330)
+7. → `apply_review_side_effects()` (line 474) → `activities::update_submission_activity_status()` (line 488) — flips activity card to "success" (paid) or "failed"
+
+**Key config flags for buffering:**
+- `campaigns.auto_apply_validation` (DB column, migration 0061) — per-campaign gate. When FALSE, `apply_decision()` returns `PointerOnly` (no state change, no payout, no activity update). Results are still stored in `validation_results` + `submission_current_validation` with `applied_to_state = FALSE`.
+- `numo_validation.immediate_bind` (proposed, see plan `2026-05-11-ndv-ingestion-buffer.md`) — system-level gate that skips the `apply_decision()` loop entirely during ingestion. Defaults `true` for backward compat.
+
 ### Config and environment
 
 | What to find | Where to look |
