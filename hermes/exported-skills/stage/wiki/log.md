@@ -21660,3 +21660,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c0bdae1325b2e17fae1b003a2b62e95c
 - summary: A collection of design documents for the backend systems, including API specs, data model, security, cloud infrastructure, and workflows.
 
+## [2026-05-11T05:53:58Z] synthesis | License Module PRD
+
+- status: published
+- slug: projects/license-module-prd
+- wiki_revision_id: wikirev_b0c85a9f17687fd4b00e8a3598ec5ea5
+- summary: Requirements for the license module targeting alpha and beta release, including license text templates, License NFT (LNFT) design, and minting processes.
+
+## [2026-05-11T05:53:59Z] synthesis | License NFT (LNFT)
+
+- status: published
+- slug: concepts/license-nft-lnft
+- wiki_revision_id: wikirev_cc3e264d736e65e92f53b63e376dfc30
+- summary: A bounding License NFT together with the License Text to represent a license agreement, with on-chain and off-chain metadata.
+
