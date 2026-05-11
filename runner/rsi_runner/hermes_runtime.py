@@ -2462,6 +2462,7 @@ class HermesRuntime:
         render_prompt: bool = True,
         expand_skills: bool = True,
         enabled_toolsets_override: list[str] | None = None,
+        repair_instruction: str | None = None,
     ) -> HermesExecutionResult:
         if AIAgent is None:
             return HermesExecutionResult(
@@ -2616,6 +2617,7 @@ class HermesRuntime:
                 effective_inactivity_timeout,
                 reasoning_timeout_seconds,
                 observer=observer,
+                repair_instruction=repair_instruction,
             )
             lifecycle_events = self._adapter.lifecycle_events(context.session_id)
             if termination_reason != "normal_completion":
@@ -6717,6 +6719,7 @@ class HermesRuntime:
         reasoning_timeout_seconds: int,
         *,
         observer: ObservationEmitter | None = None,
+        repair_instruction: str | None = None,
     ) -> tuple[str, JsonObject | None, JsonObject]:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         if observer is not None:
@@ -6730,13 +6733,25 @@ class HermesRuntime:
                     "inactivity_timeout_seconds": inactivity_timeout_seconds,
                 },
             )
-        future = executor.submit(
-            agent.run_conversation,
-            task.prompt,
-            task.system_message,
-            context.conversation_history,
-            context.session_id,
-        )
+        if repair_instruction:
+            repair_callable = getattr(agent, "repair_with_instructions", None)
+            if not callable(repair_callable):
+                raise RuntimeError("Hermes AIAgent.repair_with_instructions is required for clean repair mode.")
+            future = executor.submit(
+                repair_callable,
+                instructions=repair_instruction,
+                system_message=task.system_message,
+                conversation_history=context.conversation_history,
+                task_id=context.session_id,
+            )
+        else:
+            future = executor.submit(
+                agent.run_conversation,
+                task.prompt,
+                task.system_message,
+                context.conversation_history,
+                context.session_id,
+            )
         try:
             started_at = time.monotonic()
             while True:
@@ -7042,13 +7057,14 @@ class HermesRuntime:
                         task.trace_id or "",
                         task.workflow_id or "",
                     )
-                    repair_task = self._build_structured_output_repair_task(rendered_task, result.message)
+                    repair_instruction = self._build_structured_output_repair_instruction(rendered_task, result.message)
                     repair_result = self._execute_task_request(
-                        repair_task,
+                        rendered_task,
                         observer=observer,
                         render_prompt=False,
                         expand_skills=False,
                         enabled_toolsets_override=self._action_contract_repair_toolsets(),
+                        repair_instruction=repair_instruction,
                     )
                     if repair_result.ok:
                         if invalid_request := self._provider_invalid_request_diagnostics(repair_result.message):
@@ -7190,7 +7206,7 @@ class HermesRuntime:
                         action_contract_repair_attempts,
                         max_action_contract_repair_attempts,
                     )
-                    repair_task = self._build_action_contract_repair_task(
+                    repair_instruction = self._build_action_contract_repair_instruction(
                         rendered_task,
                         structured_output,
                         action_contract_errors,
@@ -7198,10 +7214,12 @@ class HermesRuntime:
                         max_attempts=max_action_contract_repair_attempts,
                     )
                     repair_result = self._execute_task_request(
-                        repair_task,
+                        rendered_task,
                         observer=observer,
                         render_prompt=False,
                         expand_skills=False,
+                        enabled_toolsets_override=self._action_contract_repair_toolsets(),
+                        repair_instruction=repair_instruction,
                     )
                     action_contract_repair_response = repair_result.message
                     if repair_result.message:
@@ -7557,8 +7575,8 @@ class HermesRuntime:
         message = str(exc).lower()
         return "non-json" in message or "non-object json" in message
 
-    def _build_structured_output_repair_task(self, task: RunnerTaskRequest, raw_response: str) -> RunnerTaskRequest:
-        repair_prompt = "\n".join(
+    def _build_structured_output_repair_instruction(self, task: RunnerTaskRequest, raw_response: str) -> str:
+        return "\n".join(
             [
                 task.prompt,
                 "",
@@ -7568,12 +7586,6 @@ class HermesRuntime:
                 "Previous invalid response:",
                 raw_response,
             ]
-        )
-        return replace(
-            task,
-            prompt=repair_prompt,
-            mcp_servers=[],
-            reply_delivery_mode="none",
         )
 
     def _workflow_missing_explicit_reply_action(self, task: RunnerTaskRequest, structured_output: JsonObject) -> bool:
@@ -7815,7 +7827,7 @@ class HermesRuntime:
                     errors.append({"code": "cell_too_long", "path": f"{base_path}.rows[{row_index}].{key}", "limit": 500, "actual": len(rendered), "message": "table cell is too long."})
         return errors
 
-    def _build_action_contract_repair_task(
+    def _build_action_contract_repair_instruction(
         self,
         task: RunnerTaskRequest,
         structured_output: JsonObject,
@@ -7823,8 +7835,8 @@ class HermesRuntime:
         *,
         attempt: int,
         max_attempts: int,
-    ) -> RunnerTaskRequest:
-        repair_prompt = "\n".join(
+    ) -> str:
+        return "\n".join(
             [
                 task.prompt,
                 "",
@@ -7842,12 +7854,6 @@ class HermesRuntime:
                 "Previous structured output:",
                 json.dumps(structured_output, ensure_ascii=True, sort_keys=True),
             ]
-        )
-        return replace(
-            task,
-            prompt=repair_prompt,
-            mcp_servers=[],
-            reply_delivery_mode="none",
         )
 
 

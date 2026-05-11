@@ -100,6 +100,7 @@ class FakeAIAgent:
     last_valid_tool_names: list[str] | None = None
     last_tool_names: list[str] | None = None
     last_interrupt_message: str | None = None
+    last_repair_instruction: str | None = None
     sleep_seconds: float = 0.0
     budget_used: int = 1
 
@@ -148,6 +149,25 @@ class FakeAIAgent:
                 }
             )
         }
+
+    def repair_with_instructions(
+        self,
+        *,
+        instructions: str,
+        system_message: str | None = None,
+        conversation_history: list[dict] | None = None,
+        task_id: str | None = None,
+    ) -> dict[str, object]:
+        type(self).last_repair_instruction = instructions
+        repair_instructions = getattr(type(self), "repair_instructions", None)
+        if isinstance(repair_instructions, list):
+            repair_instructions.append(instructions)
+        return self.run_conversation(
+            "",
+            system_message=system_message,
+            conversation_history=conversation_history,
+            task_id=task_id,
+        )
 
     def interrupt(self, _message: str | None = None) -> None:
         self._interrupted = True
@@ -2938,6 +2958,7 @@ class HermesRuntimeTests(unittest.TestCase):
         class RepairingAIAgent(FakeAIAgent):
             calls = 0
             prompts: list[str] = []
+            repair_instructions: list[str] = []
 
             def run_conversation(
                 self,
@@ -3005,8 +3026,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(result.raw["structured_output"]["final_answer"], "Final reply")
         self.assertEqual(result.raw["repair_original_response"], "plain text response")
         self.assertGreaterEqual(len(RepairingAIAgent.prompts), 2)
-        self.assertEqual(RepairingAIAgent.prompts[1].count("Runner role:"), 1)
-        self.assertEqual(RepairingAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
+        self.assertEqual(RepairingAIAgent.prompts[1], "")
+        self.assertEqual(RepairingAIAgent.repair_instructions[0].count("Runner role:"), 1)
+        self.assertEqual(RepairingAIAgent.repair_instructions[0].count("[PRELOADED architecture-diagram]"), 1)
 
     def test_workflow_non_json_output_fails_closed_after_single_repair(self) -> None:
         class UnstructuredAIAgent(FakeAIAgent):
@@ -5677,6 +5699,7 @@ class HermesRuntimeTests(unittest.TestCase):
         class ActionRepairAIAgent(FakeAIAgent):
             calls = 0
             prompts: list[str] = []
+            repair_instructions: list[str] = []
             init_history: list[dict[str, object]] = []
 
             def __init__(self, **kwargs) -> None:
@@ -5767,8 +5790,9 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["action_contract_repair_attempted"])
         self.assertTrue(result.raw["action_contract_repair_succeeded"])
         self.assertEqual(result.raw["action_contract_repair_attempts"], 1)
-        self.assertEqual(ActionRepairAIAgent.prompts[1].count("Runner role:"), 1)
-        self.assertEqual(ActionRepairAIAgent.prompts[1].count("[PRELOADED architecture-diagram]"), 1)
+        self.assertEqual(ActionRepairAIAgent.prompts[1], "")
+        self.assertEqual(ActionRepairAIAgent.repair_instructions[0].count("Runner role:"), 1)
+        self.assertEqual(ActionRepairAIAgent.repair_instructions[0].count("[PRELOADED architecture-diagram]"), 1)
         self.assertIn("rsi-slack", ActionRepairAIAgent.init_history[1]["enabled_toolsets"])
         self.assertNotIn("terminal", ActionRepairAIAgent.init_history[1]["enabled_toolsets"])
 
@@ -5806,6 +5830,7 @@ class HermesRuntimeTests(unittest.TestCase):
         class RetryingActionRepairAIAgent(FakeAIAgent):
             calls = 0
             prompts: list[str] = []
+            repair_instructions: list[str] = []
 
             def run_conversation(
                 self,
@@ -5877,8 +5902,10 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(result.raw["action_contract_repair_succeeded"])
         self.assertEqual(result.raw["action_contract_repair_attempts"], 2)
         self.assertEqual(RetryingActionRepairAIAgent.calls, 3)
-        self.assertIn("Repair attempt: 1 of 2", RetryingActionRepairAIAgent.prompts[1])
-        self.assertIn("Repair attempt: 2 of 2", RetryingActionRepairAIAgent.prompts[2])
+        self.assertEqual(RetryingActionRepairAIAgent.prompts[1], "")
+        self.assertEqual(RetryingActionRepairAIAgent.prompts[2], "")
+        self.assertIn("Repair attempt: 1 of 2", RetryingActionRepairAIAgent.repair_instructions[0])
+        self.assertIn("Repair attempt: 2 of 2", RetryingActionRepairAIAgent.repair_instructions[1])
         self.assertEqual(result.raw["reply_delivery"]["tool_name"], "rsi_slack.message_post")
 
     def test_action_contract_repair_fails_closed_after_two_attempts(self) -> None:

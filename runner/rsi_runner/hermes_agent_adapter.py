@@ -538,6 +538,15 @@ class HermesAgentAdapter:
                     task_id=session_id,
                     metadata=_json_object(resume_payload.get("metadata")),
                 )
+            elif repair_instruction := _string(self._payload.get("repair_instruction")):
+                repair_callable = getattr(agent, "repair_with_instructions", None)
+                if not callable(repair_callable):
+                    raise RuntimeError("AIAgent.repair_with_instructions is required for clean repair mode.")
+                result = repair_callable(
+                    instructions=repair_instruction,
+                    conversation_history=conversation_history,
+                    task_id=session_id,
+                )
             else:
                 result = agent.run_conversation(
                     user_message=_string(self._payload.get("prompt")),
