@@ -21793,3 +21793,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b05cb91a7432352f4cb74db2bbd4fc5e
 - summary: A rough list of features that could be researched or developed on the L1 blockchain, including networking improvements (libp2p, erasure encoding, HTTP/3, gossipsub) and consensus e...
 
+## [2026-05-11T11:36:30Z] synthesis | Aug 10 iliad Binary Issue Retro
+
+- status: published
+- slug: decisions/iliad-binary-aug-10-incident-retro
+- wiki_revision_id: wikirev_aff5029863562132318145c471ff3401
+- summary: On August 10, partners reported crashes with the iliad binary. The root cause was a client software bug where the networkId changed to 1723217281, but the client assumed chainId eq...
+

@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d3dbfe68a7eda4ccb3cf6c19d7fc443d0bd13085024958a0511227c823ad063a",
-        "size": 565965
+        "sha256": "397376a5681f705d3477521201f3600596f0bd822140260c044d01c5fbc2c42d",
+        "size": 566354
       },
       {
         "path": "log.md",
-        "sha256": "a4ce35d24a209fc33e3c51c0324df2e6fb14519dc2288867f9c1179a96d07a30",
-        "size": 1038422
+        "sha256": "94332aa68edc392f1d7d557bb43be0ff1763034cd725bf3c2d550d90fdf5472c",
+        "size": 1038823
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3853,6 +3853,11 @@
         "path": "pages/decisions/hook-registry-design.md",
         "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
         "size": 4857
+      },
+      {
+        "path": "pages/decisions/iliad-binary-aug-10-incident-retro.md",
+        "sha256": "dd702da5ecdbb105d50d53c8bfd9746bc8f57c407a90ed8793fafe532f337d0e",
+        "size": 5347
       },
       {
         "path": "pages/decisions/indexer-evaluation.md",
@@ -5949,8 +5954,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T10:43:53Z",
-  "file_count": 1188,
+  "exported_at": "2026-05-11T11:41:12Z",
+  "file_count": 1189,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8887,7 +8892,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "c80329fc50a34614035f79aa0ab3bbf4628a3bce3b9a5c2b357627c7a76f12e1",
+  "previous_tree_hash": "2a82c37e0304ca4c1e11c206628bb86fba971055eaab4191055675c79e6f9493",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8900,14 +8905,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2a82c37e0304ca4c1e11c206628bb86fba971055eaab4191055675c79e6f9493",
+  "tree_hash": "2e47c0da51ed73a12fe1d5ac240538cc02e410562549b14a6843d93b447674a1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 602,
+  "wiki_file_count": 603,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8916,13 +8921,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d3dbfe68a7eda4ccb3cf6c19d7fc443d0bd13085024958a0511227c823ad063a",
-      "size": 565965
+      "sha256": "397376a5681f705d3477521201f3600596f0bd822140260c044d01c5fbc2c42d",
+      "size": 566354
     },
     {
       "path": "log.md",
-      "sha256": "a4ce35d24a209fc33e3c51c0324df2e6fb14519dc2288867f9c1179a96d07a30",
-      "size": 1038422
+      "sha256": "94332aa68edc392f1d7d557bb43be0ff1763034cd725bf3c2d550d90fdf5472c",
+      "size": 1038823
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9828,6 +9833,11 @@
       "path": "pages/decisions/hook-registry-design.md",
       "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
       "size": 4857
+    },
+    {
+      "path": "pages/decisions/iliad-binary-aug-10-incident-retro.md",
+      "sha256": "dd702da5ecdbb105d50d53c8bfd9746bc8f57c407a90ed8793fafe532f337d0e",
+      "size": 5347
     },
     {
       "path": "pages/decisions/indexer-evaluation.md",
@@ -11921,5 +11931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "dd4c9df6c0b683696f50de68965eb02da6307a8222f3fbb54c48de04a157856b"
+  "wiki_tree_hash": "338fed6cda189bdf115a9716eb5514cdbaa40a1f030336dfa1e4b593f4debf59"
 }
