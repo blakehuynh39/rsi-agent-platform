@@ -4,9 +4,10 @@ type: "project"
 slug: "projects/partner-testnet-release-v1-0-1"
 freshness: "2024-08-09T22:36:00Z"
 tags:
+  - "geth"
+  - "partner-testnet"
   - "release"
   - "testnet"
-  - "v1.0.1"
 owners: []
 source_revision_ids:
   - "srcrev_264a0f34097eaab1b7925dc29d53a171"
@@ -17,7 +18,7 @@ conflict_state: "none"
 
 ## Summary
 
-Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashing and staking withdrawals.
+Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 2024. This update enables Geth archive mode and the debug module, while noting known issues with slashing and token withdrawal.
 
 ## Claims
 
@@ -38,6 +39,6 @@ Release notes for Partner Testnet Version 1.0.1-alpha, deployed on August 9, 202
 
 ## Sources
 
-- `source_document_id`: `srcdoc_d9616153284009c1e73f0eada118d897`
-- `source_revision_id`: `srcrev_2cbd3ad88dd910604222b276d31680d4`
-- `source_url`: [Notion source](https://www.notion.so/geth-toml-fca57860b2524971bbb03699bde6bb3d)
+- `source_document_id`: `srcdoc_3390ad10075f2429e5536cd34d81803f`
+- `source_revision_id`: `srcrev_b2a9ec2a4458dde65b6209fd1054c2bf`
+- `source_url`: [Notion source](https://www.notion.so/Release-Notes-8741715819fc44899f3950b9a9da867a)

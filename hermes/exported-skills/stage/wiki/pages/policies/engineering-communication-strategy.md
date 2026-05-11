@@ -6,10 +6,8 @@ freshness: "2024-07-30T17:57:00Z"
 tags:
   - "communication"
   - "engineering"
-  - "process"
-  - "stakeholder-engagement"
-owners:
-  - "Engineering Team"
+  - "stakeholders"
+owners: []
 source_revision_ids:
   - "srcrev_6a37559d1bfdc5c6d4c75a72157c9ab7"
 conflict_state: "none"
@@ -50,6 +48,6 @@ Defines the communication channels and responsibilities for engineering updates,
 
 ## Sources
 
-- `source_document_id`: `srcdoc_ac3ca6983e7fe57561037f71afc42a7e`
-- `source_revision_id`: `srcrev_6a37559d1bfdc5c6d4c75a72157c9ab7`
-- `source_url`: [Notion source](https://www.notion.so/Engineering-Communication-Strategy-5ece7ba8abac4650b29b03751a85cfdc)
+- `source_document_id`: `srcdoc_3390ad10075f2429e5536cd34d81803f`
+- `source_revision_id`: `srcrev_b2a9ec2a4458dde65b6209fd1054c2bf`
+- `source_url`: [Notion source](https://www.notion.so/Release-Notes-8741715819fc44899f3950b9a9da867a)
