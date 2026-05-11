@@ -21863,3 +21863,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1741caa52bd0d69605ada8a34dc3a19a
 - summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
 
+## [2026-05-11T17:37:31Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-engineering-home
+- wiki_revision_id: wikirev_50c95dacf0e081203249049b58882523
+- summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
+
