@@ -9,7 +9,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "92270192bd56263dd9115ec774109e52ec1acfd397f3f14ad5a961b0cba7dac2",
+        "sha256": "a50c5b9dc62cc407e4f072f1afcbe1e45ec99f9f08e10e0a857f24f96ed53b72",
         "size": 2435
       },
       {
@@ -2814,8 +2814,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "ebdc2e8e7920baf1d5cc664ad72a200cc7d8770f308e7461fcacdd5e65e35227",
-        "size": 21325
+        "sha256": "7f8b52fbc45614ec4b1528d44ddd3750037c863f1584cf7332eeacdcac108bed",
+        "size": 22012
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2936,8 +2936,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8ea8519bc7b65b4915b9ae430e29a9940c1512b47bf4b6ce678c7f44131a93a2",
-        "size": 1031092
+        "sha256": "1e34844d092198d6a029b978a651e3c1832e6256837278c0918d0223de5db854",
+        "size": 1031477
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5080,6 +5080,11 @@
         "size": 1650
       },
       {
+        "path": "pages/projects/subnet-management-console.md",
+        "sha256": "8b9e3dca57daa2dde3297963769eab8f33ca9f5d88c885431d63c944a65d9c14",
+        "size": 6191
+      },
+      {
         "path": "pages/projects/subnet-releases.md",
         "sha256": "1790f8e793da244ee05c61df3fd77ad0982c6ba5d3bba8622cc26fb4385e22a6",
         "size": 3184
@@ -5839,8 +5844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T03:29:45Z",
-  "file_count": 1166,
+  "exported_at": "2026-05-11T03:36:00Z",
+  "file_count": 1167,
   "files": [
     {
       "path": ".curator_state",
@@ -5849,7 +5854,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "92270192bd56263dd9115ec774109e52ec1acfd397f3f14ad5a961b0cba7dac2",
+      "sha256": "a50c5b9dc62cc407e4f072f1afcbe1e45ec99f9f08e10e0a857f24f96ed53b72",
       "size": 2435
     },
     {
@@ -8654,8 +8659,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "ebdc2e8e7920baf1d5cc664ad72a200cc7d8770f308e7461fcacdd5e65e35227",
-      "size": 21325
+      "sha256": "7f8b52fbc45614ec4b1528d44ddd3750037c863f1584cf7332eeacdcac108bed",
+      "size": 22012
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -8767,7 +8772,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-54fcd92h7wg",
-  "previous_tree_hash": "7cdb29b75fcfdaa88a52ea8ec21edf80e5ece112b8b87d522992a168c4df0133",
+  "previous_tree_hash": "68d294ef15ad72ed18681ff8df31b4d1f56bf959b2a41a0a6f39ff744f5f8e41",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8778,16 +8783,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "99e80caadbbecc37eb8b1386e119f534068ff9e14bd4a88ae98e8aeb02f9c195",
+  "skill_tree_hash": "9c8dd98ee30820e10c1c11b82522f639cc149c23c3be9601ef69470d550b82bc",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "68d294ef15ad72ed18681ff8df31b4d1f56bf959b2a41a0a6f39ff744f5f8e41",
+  "tree_hash": "0eb09ba55c14ad7c51dfb73758d1b7bc828f505e1bb67d187ec0c30ad7c046e6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 582,
+  "wiki_file_count": 583,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8801,8 +8806,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8ea8519bc7b65b4915b9ae430e29a9940c1512b47bf4b6ce678c7f44131a93a2",
-      "size": 1031092
+      "sha256": "1e34844d092198d6a029b978a651e3c1832e6256837278c0918d0223de5db854",
+      "size": 1031477
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10945,6 +10950,11 @@
       "size": 1650
     },
     {
+      "path": "pages/projects/subnet-management-console.md",
+      "sha256": "8b9e3dca57daa2dde3297963769eab8f33ca9f5d88c885431d63c944a65d9c14",
+      "size": 6191
+    },
+    {
       "path": "pages/projects/subnet-releases.md",
       "sha256": "1790f8e793da244ee05c61df3fd77ad0982c6ba5d3bba8622cc26fb4385e22a6",
       "size": 3184
@@ -11701,5 +11711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5080f9dab1bb4a2d283076fbabd41ef453d8783bba233462b8cc2be6ddfa17a8"
+  "wiki_tree_hash": "13a72e04f31555c32a671af514b929cb14e1636f7c6b1e1051a5f5f35e605825"
 }

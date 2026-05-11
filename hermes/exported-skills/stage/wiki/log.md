@@ -21639,3 +21639,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_27b20ca2cecd5d1d52337d7ad0eaf207
 - summary: Two-week crunch (27 Oct – 10 Nov 2025) at Palo Alto HQ to ship the first Partner Devnet of Poseidon, targeting external operator/miner/validator/DePIN partner feedback, complete su...
 
+## [2026-05-11T03:34:44Z] synthesis | Subnet Management Console
+
+- status: published
+- slug: projects/subnet-management-console
+- wiki_revision_id: wikirev_7978e2fc95169e3da4c7132c3c557b77
+- summary: A management console for subnet operators to monitor and manage the state of workflows and activities on an Ethereum L2-based scheduling system. The console focuses on visualizatio...
+
