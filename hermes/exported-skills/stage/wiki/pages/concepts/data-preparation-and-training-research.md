@@ -14,6 +14,7 @@ tags:
 owners: []
 source_revision_ids:
   - "srcrev_4a705bb797b7d6eaedcfa2dc60b966af"
+  - "srcrev_6c6a589b1714b91a1af7bfd65e24aee5"
   - "srcrev_fcc632b4aae22e4e5a764030d8074c11"
 conflict_state: "none"
 ---
@@ -39,6 +40,8 @@ A research hub covering data preparation, training methods, attribution/influenc
 - The Training Plan (a subpage under Attribution/Influence Functions/Evaluations Research) outlines a research plan for Team 1 to explore model attribution using influence functions, with two complementary approaches: DMIN for fine-tuned diffusion models and kronfluence for language models. Research goals include understanding attribution methods, developing complete pipelines, comparing computational requirements, and having working demonstrations for both image and text attribution. `claim:claim_1_6` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-1) `source_document_id=srcdoc_0e22d68baafd7bdc39ebd5d5279bf37f` `source_revision_id=srcrev_fcc632b4aae22e4e5a764030d8074c11` `chunk_id=srcchunk_64634afcd602866ed76b54e42b2ce355` `native_locator=https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-1` `source_timestamp=2025-04-11T23:47:00Z`
   - citation: [Notion source](https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-2) `source_document_id=srcdoc_0e22d68baafd7bdc39ebd5d5279bf37f` `source_revision_id=srcrev_fcc632b4aae22e4e5a764030d8074c11` `chunk_id=srcchunk_8a79d5595f47818a2fd2d9b2d96a9262` `native_locator=https://www.notion.so/Training-Plan-1d2051299a5480a4a9f5e34d9a7c2d1f#chunk-2` `source_timestamp=2025-04-11T23:47:00Z`
+- The Usage / Research Report documents compute pain points including environment setup friction, CUDA versioning issues, OOM errors during diffusion influence calculations, data format problems (bfloat/float, image resolution), LoRA compatibility, and labeling challenges. `claim:claim_1_7` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Usage-Research-Report-1c8051299a54805eb18cd40a22374590) `source_document_id=srcdoc_4acee15a2e149760b5ec6ff3eb47ce57` `source_revision_id=srcrev_6c6a589b1714b91a1af7bfd65e24aee5` `chunk_id=srcchunk_77c7ef603c264d99b815002b7a9da420` `native_locator=https://www.notion.so/Usage-Research-Report-1c8051299a54805eb18cd40a22374590` `source_timestamp=2025-04-12T00:39:00Z`
 
 ## Related Pages
 
@@ -54,6 +57,6 @@ A research hub covering data preparation, training methods, attribution/influenc
 
 ## Sources
 
-- `source_document_id`: `srcdoc_8fed66f6d58f3b63fe012e610a61679e`
-- `source_revision_id`: `srcrev_4c887489bb0bc68caa64eae4366feabe`
-- `source_url`: [Notion source](https://www.notion.so/Experiment-Results-1d3051299a54806092d8c6f479d63e30)
+- `source_document_id`: `srcdoc_4acee15a2e149760b5ec6ff3eb47ce57`
+- `source_revision_id`: `srcrev_6c6a589b1714b91a1af7bfd65e24aee5`
+- `source_url`: [Notion source](https://www.notion.so/Usage-Research-Report-1c8051299a54805eb18cd40a22374590)

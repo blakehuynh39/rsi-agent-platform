@@ -22021,3 +22021,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c30d4ba17bb495ab77d6bf9a29b7925c
 - summary: <@U067QP5PD6J> for the validation results ingestion endpoint `POST internal/numo-data-validation/validation-results`:
 
+## [2026-05-11T22:36:50Z] synthesis | Data Preparation and Training Research
+
+- status: published
+- slug: concepts/data-preparation-and-training-research
+- wiki_revision_id: wikirev_145fcbb6d425b17e91fcfde690253f3b
+- summary: A research hub covering data preparation, training methods, attribution/influence functions, evaluations, and DePIN-based data collection for AI/robotic training.
+
