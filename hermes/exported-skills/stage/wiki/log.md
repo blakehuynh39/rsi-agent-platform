@@ -22037,3 +22037,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_80943afeae219d11b05bfcec73b754e1
 - summary: <@U08951K4SRY> can you prioritize this issue, there are a lot of issues rn on prod regarding this
 
+## [2026-05-11T23:05:52Z] synthesis | DePIN Research Guide
+
+- status: published
+- slug: concepts/depin-research-guide
+- wiki_revision_id: wikirev_b8d0d6e6e0235e7ca2961bb1e22bc41d
+- summary: A compilation of research directions and resources for Decentralized Physical Infrastructure Networks (DePIN), focusing on L1 platforms, device identity, tokenomics, and data quali...
+

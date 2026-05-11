@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8ac5a80d8b882a03e7198d4dd65551409c62b11ce7a9988a0c2ee1a7b520bd05",
-        "size": 1050978
+        "sha256": "e6823238cea8306dfb9275c920b755b3793c07da42e0a13082dada4eeb7f4233",
+        "size": 1051353
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3083,6 +3083,11 @@
         "path": "pages/concepts/decision-making-template.md",
         "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
         "size": 2561
+      },
+      {
+        "path": "pages/concepts/depin-research-guide.md",
+        "sha256": "27e781d69e1141495cf3c6e5c49b15e6e802d5b4bdb1b1155db893a944b18c96",
+        "size": 4875
       },
       {
         "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -5999,8 +6004,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T23:01:28Z",
-  "file_count": 1198,
+  "exported_at": "2026-05-11T23:08:09Z",
+  "file_count": 1199,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8937,7 +8942,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858797bxltd",
-  "previous_tree_hash": "eb42806a78513ed8b2f7a54f374cb8d620f3dac5017024b449193ad3f4c1e5fa",
+  "previous_tree_hash": "2c47c4520c719c9fc5707c870e31c5cc41ba660fad026ca0149a1851db9160ec",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8950,14 +8955,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2c47c4520c719c9fc5707c870e31c5cc41ba660fad026ca0149a1851db9160ec",
+  "tree_hash": "320db133418ecdf14bfebf4daababe156e737782a37040ae8fb1811aaad57a9e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 612,
+  "wiki_file_count": 613,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8971,8 +8976,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8ac5a80d8b882a03e7198d4dd65551409c62b11ce7a9988a0c2ee1a7b520bd05",
-      "size": 1050978
+      "sha256": "e6823238cea8306dfb9275c920b755b3793c07da42e0a13082dada4eeb7f4233",
+      "size": 1051353
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9108,6 +9113,11 @@
       "path": "pages/concepts/decision-making-template.md",
       "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
       "size": 2561
+    },
+    {
+      "path": "pages/concepts/depin-research-guide.md",
+      "sha256": "27e781d69e1141495cf3c6e5c49b15e6e802d5b4bdb1b1155db893a944b18c96",
+      "size": 4875
     },
     {
       "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -12021,5 +12031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6e40e107f051ca73f79e2cfa7e2979efa20b1acf65975b86d4b0851f4d84e45a"
+  "wiki_tree_hash": "5f68fd407d1e75dcf4e38e5df1d5f2cad44c060445ef4aa76236b27e732fd32d"
 }
