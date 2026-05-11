@@ -21576,3 +21576,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_594b32c810c959ea8c979b49da5200c3
 - summary: Engineering leads offsite held in Vancouver from April 23-26, 2025, focused on defining the architecture of Poseidon, discussing TGE scope, PoC deliverables, resource allocation, a...
 
+## [2026-05-11T01:05:26Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-eng-home
+- wiki_revision_id: wikirev_8d0496e5f8364b40402b025c6bfd981d
+- summary: This is the central wiki page for the Poseidon engineering team, containing references to meeting notes, program tracking, design documents, and research resources.
+
