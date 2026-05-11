@@ -6,6 +6,7 @@ freshness: "2024-04-02T16:35:00Z"
 tags:
   - "eks"
   - "grafana"
+  - "helm"
   - "kubernetes"
   - "monitoring"
   - "prometheus"
@@ -40,8 +41,13 @@ Runbook for deploying the Prometheus/Grafana monitoring stack on EKS using Helm,
 - The deployment references Grafana Cloud documentation for AWS EKS configuration. `claim:claim_1_8` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/KB-Deploy-and-Config-Monitoring-Stack-17b48b3f13104b1eb491b12c33828196) `source_document_id=srcdoc_3704a5e562f18fd813262e6d39cc38c0` `source_revision_id=srcrev_2329bc26ad9dab6d07a766e94f30c97b` `chunk_id=srcchunk_0fcb1d718f182f5322dcb9fe9f1937bf` `native_locator=https://www.notion.so/KB-Deploy-and-Config-Monitoring-Stack-17b48b3f13104b1eb491b12c33828196` `source_timestamp=2024-04-02T16:35:00Z`
 
+## Related Pages
+
+- `concepts/learning-center`
+- `systems/monitoring-stack`
+
 ## Sources
 
-- `source_document_id`: `srcdoc_3704a5e562f18fd813262e6d39cc38c0`
-- `source_revision_id`: `srcrev_2329bc26ad9dab6d07a766e94f30c97b`
-- `source_url`: [Notion source](https://www.notion.so/KB-Deploy-and-Config-Monitoring-Stack-17b48b3f13104b1eb491b12c33828196)
+- `source_document_id`: `srcdoc_d8ad61df9040ef0963d7e30a1c7f87b2`
+- `source_revision_id`: `srcrev_63044eb02327896049b768b6cf22894f`
+- `source_url`: [Notion source](https://www.notion.so/Monitoring-Stack-12a051299a548046ba16d606411cbb31)

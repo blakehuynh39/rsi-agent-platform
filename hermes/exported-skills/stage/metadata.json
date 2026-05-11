@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e98ec83151b39fc43043ecfc0cbed76f64144fe957a2c63b3f9140d7d9234936",
-        "size": 567070
+        "sha256": "b072a24beedc9c9250a6cfa6dcfb3d4e68c605ef8e829454e6bfdefcbd59c5ea",
+        "size": 567424
       },
       {
         "path": "log.md",
-        "sha256": "14f41bfd5fc415bd89b01fa9084df5d7c38d458d2f0afb6daa0f63ebc64fffae",
-        "size": 1039563
+        "sha256": "d286c9bf8870a64914cb04ef298acdbaf55dc79f49a4ee672d62bd55df6ef152",
+        "size": 1040590
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3336,8 +3336,8 @@
       },
       {
         "path": "pages/concepts/learning-center.md",
-        "sha256": "52054b858add4c24ea7a4452c27e9ada4d950bbd0cfc02ed0bb71dd4aaaee828",
-        "size": 1195
+        "sha256": "f28f0deddd8d931f084793141c551afc84b0e77a50979aa1261ccd5c646cd07f",
+        "size": 1340
       },
       {
         "path": "pages/concepts/license-nft-lnft.md",
@@ -5331,8 +5331,8 @@
       },
       {
         "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
-        "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
-        "size": 5781
+        "sha256": "2d5301f0fa250852d9ec22cdb7f34dda4e49aa248a363ce997506ed0e5d27cc8",
+        "size": 5848
       },
       {
         "path": "pages/runbooks/design-review-signup.md",
@@ -5760,6 +5760,11 @@
         "size": 3036
       },
       {
+        "path": "pages/systems/monitoring-stack.md",
+        "sha256": "a2169ad495d6eb823e823eefa6ad47130d40bf8bbd6c872c4ceaf31b1d841132",
+        "size": 6397
+      },
+      {
         "path": "pages/systems/new-product-intake.md",
         "sha256": "f3ea90a52f82c6d74c3e3a493bc7dc2529adcea3c2f789ca71afba13a7a1fbe1",
         "size": 1068
@@ -5964,8 +5969,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T14:14:51Z",
-  "file_count": 1191,
+  "exported_at": "2026-05-11T16:38:57Z",
+  "file_count": 1192,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8902,7 +8907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5b9fdcwvlqq",
-  "previous_tree_hash": "34e68f5cc77f0f8ae9e13829c5323c2f083468f183a087f41b11ab60fa2ef0af",
+  "previous_tree_hash": "6999428443a989bacb5476ec761623636a7b9eea3e7975373a8f193ae3c909f6",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8915,14 +8920,14 @@
   ],
   "skill_tree_hash": "59fdbdb14d4b9ebaba3ad7642e8599d8c602cab966901f2852c14f3a85c16eaa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6999428443a989bacb5476ec761623636a7b9eea3e7975373a8f193ae3c909f6",
+  "tree_hash": "6d777f300dd34e50303de2c18406b7d664028f4be5d2f3c735f10cc6297188bd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 605,
+  "wiki_file_count": 606,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8931,13 +8936,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e98ec83151b39fc43043ecfc0cbed76f64144fe957a2c63b3f9140d7d9234936",
-      "size": 567070
+      "sha256": "b072a24beedc9c9250a6cfa6dcfb3d4e68c605ef8e829454e6bfdefcbd59c5ea",
+      "size": 567424
     },
     {
       "path": "log.md",
-      "sha256": "14f41bfd5fc415bd89b01fa9084df5d7c38d458d2f0afb6daa0f63ebc64fffae",
-      "size": 1039563
+      "sha256": "d286c9bf8870a64914cb04ef298acdbaf55dc79f49a4ee672d62bd55df6ef152",
+      "size": 1040590
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9326,8 +9331,8 @@
     },
     {
       "path": "pages/concepts/learning-center.md",
-      "sha256": "52054b858add4c24ea7a4452c27e9ada4d950bbd0cfc02ed0bb71dd4aaaee828",
-      "size": 1195
+      "sha256": "f28f0deddd8d931f084793141c551afc84b0e77a50979aa1261ccd5c646cd07f",
+      "size": 1340
     },
     {
       "path": "pages/concepts/license-nft-lnft.md",
@@ -11321,8 +11326,8 @@
     },
     {
       "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
-      "sha256": "e277b7a9c771105da475a9632b59c230f2c0392bd08faea07101b7d45fbd7389",
-      "size": 5781
+      "sha256": "2d5301f0fa250852d9ec22cdb7f34dda4e49aa248a363ce997506ed0e5d27cc8",
+      "size": 5848
     },
     {
       "path": "pages/runbooks/design-review-signup.md",
@@ -11750,6 +11755,11 @@
       "size": 3036
     },
     {
+      "path": "pages/systems/monitoring-stack.md",
+      "sha256": "a2169ad495d6eb823e823eefa6ad47130d40bf8bbd6c872c4ceaf31b1d841132",
+      "size": 6397
+    },
+    {
       "path": "pages/systems/new-product-intake.md",
       "sha256": "f3ea90a52f82c6d74c3e3a493bc7dc2529adcea3c2f789ca71afba13a7a1fbe1",
       "size": 1068
@@ -11951,5 +11961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e7db9d072044ec660e3ab3bb41af57a96ab65751c3eb0a3e4adc2ad7382997b0"
+  "wiki_tree_hash": "e3e1f65ce0f9f117738ac041d0fcf9df1245547163e74eff7bf4c86540e38657"
 }

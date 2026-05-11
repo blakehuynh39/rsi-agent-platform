@@ -21814,3 +21814,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_67158152d7583dde8ba01fad308b3930
 - summary: The public-testnet blockchain explorer at https://testnet.storyscan.xyz/ went offline due to insufficient computational resources and a failure in docker-compose operations. The in...
 
+## [2026-05-11T16:38:06Z] synthesis | Learning Center
+
+- status: published
+- slug: concepts/learning-center
+- wiki_revision_id: wikirev_41248d7cea3a56d3b977a5126731d666
+- summary: A Notion page that serves as a hub linking to quick guides for Loki and Grafana, as well as a Monitoring Stack page.
+
+## [2026-05-11T16:38:06Z] synthesis | Deploy and Config Monitoring Stack
+
+- status: published
+- slug: runbooks/deploy-and-config-monitoring-stack
+- wiki_revision_id: wikirev_c456985e50208e0984823d2ed9f8c3da
+- summary: Runbook for deploying the Prometheus/Grafana monitoring stack on EKS using Helm, including namespace creation, secret setup, and Helm commands.
+
+## [2026-05-11T16:38:06Z] synthesis | Monitoring Stack
+
+- status: published
+- slug: systems/monitoring-stack
+- wiki_revision_id: wikirev_6671b4354ca8fac4d6d3954f5e7ac82f
+- summary: Design and implementation overview of the monitoring stack, covering aggressive and passive monitoring strategies, core components (Node Exporter, Prometheus, Grafana, Alertmanager...
+
