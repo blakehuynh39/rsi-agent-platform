@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0478ea9a4bcf573ec961d19cb2a169305982171229c18745e0e6a6302676070b",
-        "size": 1051725
+        "sha256": "372c5db52cb597079e224ab1687a89a0f7c87bcca28d15749bd9cb330c1afa70",
+        "size": 1052983
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3085,9 +3085,24 @@
         "size": 2561
       },
       {
+        "path": "pages/concepts/depin-device-auth-privilege-escalation.md",
+        "sha256": "1f6af3d1fff4375e1a3517e4d25111bdacdfc9388a50018f01b8331986282e10",
+        "size": 4429
+      },
+      {
+        "path": "pages/concepts/depin-iot-threat-stride-table.md",
+        "sha256": "47cf9c643c497df2dde64dbcaf4ee0f8e1d03b9faca0e907d460dd524a7a3558",
+        "size": 4260
+      },
+      {
         "path": "pages/concepts/depin-research-guide.md",
         "sha256": "27e781d69e1141495cf3c6e5c49b15e6e802d5b4bdb1b1155db893a944b18c96",
         "size": 4875
+      },
+      {
+        "path": "pages/concepts/depin-video-security-risks.md",
+        "sha256": "b238e4984a94d37d0c94dffa34b3d1f024fb9ec6cf62228f2e02a5f9269a8996",
+        "size": 5011
       },
       {
         "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -6009,8 +6024,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T23:14:49Z",
-  "file_count": 1200,
+  "exported_at": "2026-05-11T23:36:54Z",
+  "file_count": 1203,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8947,7 +8962,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858797bxltd",
-  "previous_tree_hash": "320db133418ecdf14bfebf4daababe156e737782a37040ae8fb1811aaad57a9e",
+  "previous_tree_hash": "2973e23bbb4c2761452573cbcdbc5d1c4fd38dc74086f076032362505d317099",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8960,14 +8975,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2973e23bbb4c2761452573cbcdbc5d1c4fd38dc74086f076032362505d317099",
+  "tree_hash": "4f63d9e5ced17771245a84888018ca8e559d4fcf6704e7cd6697831d026913c5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 614,
+  "wiki_file_count": 617,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8981,8 +8996,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0478ea9a4bcf573ec961d19cb2a169305982171229c18745e0e6a6302676070b",
-      "size": 1051725
+      "sha256": "372c5db52cb597079e224ab1687a89a0f7c87bcca28d15749bd9cb330c1afa70",
+      "size": 1052983
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9120,9 +9135,24 @@
       "size": 2561
     },
     {
+      "path": "pages/concepts/depin-device-auth-privilege-escalation.md",
+      "sha256": "1f6af3d1fff4375e1a3517e4d25111bdacdfc9388a50018f01b8331986282e10",
+      "size": 4429
+    },
+    {
+      "path": "pages/concepts/depin-iot-threat-stride-table.md",
+      "sha256": "47cf9c643c497df2dde64dbcaf4ee0f8e1d03b9faca0e907d460dd524a7a3558",
+      "size": 4260
+    },
+    {
       "path": "pages/concepts/depin-research-guide.md",
       "sha256": "27e781d69e1141495cf3c6e5c49b15e6e802d5b4bdb1b1155db893a944b18c96",
       "size": 4875
+    },
+    {
+      "path": "pages/concepts/depin-video-security-risks.md",
+      "sha256": "b238e4984a94d37d0c94dffa34b3d1f024fb9ec6cf62228f2e02a5f9269a8996",
+      "size": 5011
     },
     {
       "path": "pages/concepts/derivative-additional-revenue-share-multiple-parents.md",
@@ -12041,5 +12071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "544bd92455138f7647fe72318267f98222fdda9c46533d72ccc252d7e435020b"
+  "wiki_tree_hash": "f9881f2318f7d19ec6904c66626d3117c165a2109059452ea2c0c8cd774d0726"
 }

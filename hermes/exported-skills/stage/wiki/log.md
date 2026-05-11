@@ -22051,3 +22051,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1145fcfdee9691542a983032785ba702
 - summary: A runbook for installing llama.cpp on macOS and running benchmarks with the Gemma 3 4B Q4_0 model on MacBook Pro M4 Max and Mac Studio M3 Ultra.
 
+## [2026-05-11T23:35:11Z] synthesis | Top 5 Security Risks & Mitigations for Video-Capturing DePINs
+
+- status: published
+- slug: concepts/depin-video-security-risks
+- wiki_revision_id: wikirev_2c49677f7fc22c26df7fea66573124db
+- summary: Identifies the top five security risks for video-capturing Decentralized Physical Infrastructure Networks (DePINs) and their mitigations, covering identity spoofing, tampering, rep...
+
+## [2026-05-11T23:35:11Z] synthesis | Device Authentication & Privilege Escalation Risks for IoT DePINs
+
+- status: published
+- slug: concepts/depin-device-auth-privilege-escalation
+- wiki_revision_id: wikirev_6421c0878b8d8fdb9b455891f77a81f1
+- summary: Details risks related to missing user authentication or poorly implemented ACLs on APIs and cloud services, and the threat of stolen devices in DePIN/IoT deployments, along with th...
+
+## [2026-05-11T23:35:11Z] synthesis | STRIDE Threat Table for Video-Capturing DePINs
+
+- status: published
+- slug: concepts/depin-iot-threat-stride-table
+- wiki_revision_id: wikirev_450b4c6fca1a02fc24f67b2106034ce2
+- summary: A structured STRIDE table capturing spoofing, tampering, repudiation, information disclosure, and financial theft/fraud threats and mitigations for video-capturing DePINs.
+
