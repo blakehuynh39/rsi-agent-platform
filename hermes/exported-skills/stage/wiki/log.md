@@ -21597,3 +21597,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7f87f6c37b355f236b69f66546557530
 - summary: Describes two data upload flows: the native Walrus flow using Sui storage units and blob registration, and an S3-compatible flow for Data Publishers that leverages Story Poseidon c...
 
+## [2026-05-11T02:23:44Z] synthesis | Poseidon Subnet Management API Testing Guide
+
+- status: published
+- slug: runbooks/poseidon-subnet-management-api-testing-guide
+- wiki_revision_id: wikirev_c99e87c9f0f9240b2f912e226ff9dc1e
+- summary: A runbook for testing the Poseidon Subnet Management API, covering quick start, endpoints, and example curl commands.
+

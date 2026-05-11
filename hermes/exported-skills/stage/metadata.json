@@ -2931,13 +2931,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9f2247877610fd9fe9eb10c7142cab0e967be8b77ac7ba828e41b9ddb4237674",
-        "size": 558018
+        "sha256": "d021d737a625d865d5cac7a76b1874f05858c967c38a05b66f3d64b8d4fdbb6c",
+        "size": 558363
       },
       {
         "path": "log.md",
-        "sha256": "cb182aa9a20861f85ebe96312e533f84147f065f74d6885e81cc8aaaea7e7d98",
-        "size": 1029084
+        "sha256": "a68e3975823935ed014d571bb952bee77faf1f250bafaddc41f59dfed7feb3e6",
+        "size": 1029441
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5375,6 +5375,11 @@
         "size": 8715
       },
       {
+        "path": "pages/runbooks/poseidon-subnet-management-api-testing-guide.md",
+        "sha256": "22148ffc0374b6054abb3137ad7fd5bcd552ae1842d2ea705e726e8ca9931ced",
+        "size": 5504
+      },
+      {
         "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
         "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
         "size": 7034
@@ -5819,8 +5824,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-11T01:38:25Z",
-  "file_count": 1162,
+  "exported_at": "2026-05-11T02:25:19Z",
+  "file_count": 1163,
   "files": [
     {
       "path": ".curator_state",
@@ -8747,7 +8752,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5d7bdczn8pl",
-  "previous_tree_hash": "6dcf4115f5603396426cd62889ce6260f42a98f3b28850292dc3c18e6de555f2",
+  "previous_tree_hash": "5cbb937ea0530f8a44f465ffe94d1d8821a0319a8abc3446fe93e110e018e8c2",
   "schema_version": 1,
   "skill_file_count": 584,
   "skill_manage_sessions": [
@@ -8760,14 +8765,14 @@
   ],
   "skill_tree_hash": "ddac226b234f8cb5290656c553fb8b034b85a6cb31620c846551f9849d2c4501",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5cbb937ea0530f8a44f465ffe94d1d8821a0319a8abc3446fe93e110e018e8c2",
+  "tree_hash": "49974dba3ec01e74f2ee9a9501f46b00aa54248794788f2082691777edb61414",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 578,
+  "wiki_file_count": 579,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8776,13 +8781,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9f2247877610fd9fe9eb10c7142cab0e967be8b77ac7ba828e41b9ddb4237674",
-      "size": 558018
+      "sha256": "d021d737a625d865d5cac7a76b1874f05858c967c38a05b66f3d64b8d4fdbb6c",
+      "size": 558363
     },
     {
       "path": "log.md",
-      "sha256": "cb182aa9a20861f85ebe96312e533f84147f065f74d6885e81cc8aaaea7e7d98",
-      "size": 1029084
+      "sha256": "a68e3975823935ed014d571bb952bee77faf1f250bafaddc41f59dfed7feb3e6",
+      "size": 1029441
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11220,6 +11225,11 @@
       "size": 8715
     },
     {
+      "path": "pages/runbooks/poseidon-subnet-management-api-testing-guide.md",
+      "sha256": "22148ffc0374b6054abb3137ad7fd5bcd552ae1842d2ea705e726e8ca9931ced",
+      "size": 5504
+    },
+    {
       "path": "pages/runbooks/poseidon-subnet-worker-guide.md",
       "sha256": "c6670c18b2fa40efcbfd866e36efcdb64de5204695b3c471ebfbfff34b1b44ba",
       "size": 7034
@@ -11661,5 +11671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cb2d0a02ce1c9309a1808e785e5546733424b455231a63d255303a7c75e3499a"
+  "wiki_tree_hash": "c4fcd02b5c9717a10b23dfb193aabb443c890ffbb0d77734dae7ee6c96f56e71"
 }
