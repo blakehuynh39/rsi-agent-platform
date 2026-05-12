@@ -2044,13 +2044,13 @@
       },
       {
         "path": "productivity/notion/SKILL.md",
-        "sha256": "3d21b4bcd5473ccd62dfa705c49353cabab702c36b3556dffc7f28aaad9b7195",
-        "size": 4263
+        "sha256": "a209d33cdeef2809a00eec69a16b0ace3aad1393146c79145f48dfcf035249a0",
+        "size": 4749
       },
       {
         "path": "productivity/notion/references/block-types.md",
-        "sha256": "530379beca84804b53fe71834628f8d80ca14a6763dcbf53ff654a246fe67a78",
-        "size": 3021
+        "sha256": "f50d33b45069d328e6717d78e1a4bc36bab163bdabd4dc2bc6a3e237cb929700",
+        "size": 4605
       },
       {
         "path": "productivity/ocr-and-documents/DESCRIPTION.md",
@@ -6229,7 +6229,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T19:23:20Z",
+  "exported_at": "2026-05-12T19:55:33Z",
   "file_count": 1244,
   "files": [
     {
@@ -8274,13 +8274,13 @@
     },
     {
       "path": "productivity/notion/SKILL.md",
-      "sha256": "3d21b4bcd5473ccd62dfa705c49353cabab702c36b3556dffc7f28aaad9b7195",
-      "size": 4263
+      "sha256": "a209d33cdeef2809a00eec69a16b0ace3aad1393146c79145f48dfcf035249a0",
+      "size": 4749
     },
     {
       "path": "productivity/notion/references/block-types.md",
-      "sha256": "530379beca84804b53fe71834628f8d80ca14a6763dcbf53ff654a246fe67a78",
-      "size": 3021
+      "sha256": "f50d33b45069d328e6717d78e1a4bc36bab163bdabd4dc2bc6a3e237cb929700",
+      "size": 4605
     },
     {
       "path": "productivity/ocr-and-documents/DESCRIPTION.md",
@@ -9177,7 +9177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
-  "previous_tree_hash": "d9d566a29274da7036f54746abf0ecf12807987a66130fd14ae4e276b52df3dd",
+  "previous_tree_hash": "394636da3c7d0b3d9ba28cd1d24c38cf61271d85ad25341534ce0b7fdfbb1c5e",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9188,9 +9188,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "98dbfbcd8f8814189522eb5ab48ca0ec2f2a4787cf9e640dbc152c609d031ec2",
+  "skill_tree_hash": "26740463222ebaef70b99bc5635ff4ffc9392922324a824a64bbda8ad351d470",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "394636da3c7d0b3d9ba28cd1d24c38cf61271d85ad25341534ce0b7fdfbb1c5e",
+  "tree_hash": "cb517261086af9902d419a93d6c494d7aae2640ead586213998b9edb3c9ed0fd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

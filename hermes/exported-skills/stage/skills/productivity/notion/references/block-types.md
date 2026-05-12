@@ -104,8 +104,34 @@ When reading blocks from `GET /v1/blocks/{page_id}/children`, each block has a `
 | `bookmark` | `.bookmark.caption` | `.bookmark.url` |
 | `child_page` | — | `.child_page.title` |
 | `child_database` | — | `.child_database.title` |
+| `table` | — | `.table.has_column_header`, `.table.has_row_header`, `.table.table_width`; **has children** — re-query to get rows |
+| `table_row` | — | `.table_row.cells` — 2D array of rich-text arrays |
 
 Rich text arrays contain objects with `.plain_text` — concatenate them for readable output.
+
+### Table blocks — two-level traversal
+
+Notion tables require **two `blocks_children` calls** to read fully:
+
+1. **First call** on the page yields a `type: "table"` block with metadata only (`has_column_header`, `table_width`) — **no cell data**. The table block always has `has_children: true`.
+2. **Second call** on the table block's ID yields `type: "table_row"` blocks. Each row has `.table_row.cells` — a 2D array of rich-text arrays. The first row is typically the header (bold text), subsequent rows are data.
+
+Example workflow from a real session (reading "Gas Cost on rc.2"):
+
+```
+# Step 1 — get page blocks, find the table
+rsi_notion_blocks_children(block_id=page_id)
+→ block type="table", id="be71a5cf-...", has_children=true, table_width=5
+
+# Step 2 — get the table's children (the actual rows)
+rsi_notion_blocks_children(block_id="be71a5cf-...")
+→ 14 table_row blocks, each with cells array:
+  Row 0 (header): ["Action", "Gas Units", "Cost of Txn", "Cost on Base", "Txn Link"]
+  Row 1: ["Register IP (without URI data)", "204,551", "$22", "$0.036", "tx link"]
+  ...
+```
+
+**Pitfall:** The `rsi_notion.search` and `rsi_knowledge_search` results will include pages with tables, but you won't see the table content until you traverse both levels of children. Budget two sequential `blocks_children` calls when you suspect a page contains a table.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: notion
 description: "Story RSI Notion access through native RSI Notion tools."
-version: 2.0.1
+version: 2.1.0
 author: RSI
 license: MIT
 metadata:
@@ -66,6 +66,11 @@ content, database/data-source queries, comments, or any Notion write/update.
 3. Retrieve page content with `rsi_notion.blocks_children`.
 4. For databases, use `rsi_notion.database_get` to inspect metadata and
    `rsi_notion.data_source_get` / `rsi_notion.data_source_query` for rows.
+5. **For tables:** `blocks_children` on the page returns a `type: "table"` block
+   with metadata only (column count, header flags). The actual rows live as
+   children of that table block. Make a **second** `blocks_children` call using
+   the table block's ID to get `table_row` blocks with the cell data.
+   See `references/block-types.md` for the full two-level traversal pattern.
 
 ## Write Workflow
 
@@ -84,6 +89,17 @@ content, database/data-source queries, comments, or any Notion write/update.
 Prefer small, targeted writes. For larger documents, create or update a page in
 sections so failures are easy to diagnose and retries are idempotent.
 
+## Pitfalls
+
+- **Tables need two `blocks_children` calls.** The page-level call returns a
+  `table` block with metadata only. You must call `blocks_children` again on the
+  table block's ID to get `table_row` blocks with actual cell data. Budget two
+  sequential calls when you expect a table. See `references/block-types.md`.
+
+- **`page_archive` returning `400 validation_error: body.archived should be not
+  present`:** known RSI gateway bug (2026-05-11). Use `block_delete` as a partial
+  workaround, or manually archive in the Notion UI.
+
 ## Common Diagnostics
 
 - `object_not_found`, `not_found`, or `forbidden`: the page/database may not be
@@ -93,12 +109,6 @@ sections so failures are easy to diagnose and retries are idempotent.
   Hermes executor issue.
 - Rate limits or transient 5xx responses: retry later with the same idempotency
   key for writes when available.
-- `page_archive` returning `400 validation_error: body.archived should be not
-  present, instead was 'true'`: **known RSI gateway bug** (2026-05-11). The
-  control plane incorrectly passes `archived` in the request body for the PATCH
-  endpoint. This is a platform-level issue, not a Hermes executor issue. Use
-  `block_delete` as a partial workaround for removing individual blocks, or
-  manually archive the page in the Notion UI for now.
 
 ## Deprecated Paths
 
