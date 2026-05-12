@@ -22202,3 +22202,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_00ae5fb8bd1c1925e4643ef7d0455669
 - summary: Design decisions around module upgradeability, IPAccount ACL, delegation, and meta-transactions to unblock the security audit pipeline. Key decisions include adopting a common Modu...
 
+## [2026-05-12T05:01:54Z] synthesis | Licensing Module
+
+- status: published
+- slug: systems/licensing-module
+- wiki_revision_id: wikirev_526c5b34ed69750e35b8f2d9840c83b9
+- summary: The Licensing Module handles attaching license terms to IP, minting license tokens, and registering derivative IP. It enforces permissions, dispute status, and expiration checks.
+
+## [2026-05-12T05:01:54Z] synthesis | License Registry
+
+- status: published
+- slug: systems/license-registry
+- wiki_revision_id: wikirev_f87029728552e98cbd8a1a0fbf0b405d
+- summary: The License Registry is responsible for attaching license terms to IP and verifying mint license tokens. It performs existence, derivative, expiration, attachment, and minting conf...
+
+## [2026-05-12T05:01:54Z] synthesis | License Token
+
+- status: published
+- slug: systems/license-token
+- wiki_revision_id: wikirev_5f28c63afdbc814794ba5a5f05e9574a
+- summary: The License Token contract handles minting, burning, and validation of license tokens for derivatives. It is only callable by the LicensingModule and checks expiration, ownership, ...
+
+## [2026-05-12T05:03:32Z] synthesis | Protocol v1.0.0-rc.1 Subgraph Indexing
+
+- status: published
+- slug: systems/protocol-v1-0-0-rc-1-subgraph-indexing
+- wiki_revision_id: wikirev_a504f9b45451c4a130fc51af4caf4ff3
+- summary: Details the contract addresses, entity changes, and handler modifications for the protocol-beta-v0 subgraph used in Protocol v1.0.0-rc.1 indexing.
+

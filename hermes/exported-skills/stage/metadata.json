@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "86207dc2b33c04332e6ad4f53c7ffcc32a2f95557c311fa1b53a3c22c3a09418",
-        "size": 577371
+        "sha256": "f64a267006ca293e177b1368c4f96c9bca3e125492e3197c20358278f00524fe",
+        "size": 578783
       },
       {
         "path": "log.md",
-        "sha256": "db1690c5816e0eb39830a56ecd5b28eb4ae0d53b09b35103a9ce0f53407e35d8",
-        "size": 1059764
+        "sha256": "b31e9b9776118ed7db0da1db1bf52c685f334452af6fc8b8aaee13032418fb03",
+        "size": 1061224
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5860,6 +5860,21 @@
         "size": 1102
       },
       {
+        "path": "pages/systems/license-registry.md",
+        "sha256": "ebccb28db6a30c3d50d01cd19956821efd0c9a758fd0cb73abf39caf9e9dc04b",
+        "size": 2687
+      },
+      {
+        "path": "pages/systems/license-token.md",
+        "sha256": "89a0334adb520cf285fbe6e15f48cb8f48498d472dab2b82c007ed016b68920c",
+        "size": 2431
+      },
+      {
+        "path": "pages/systems/licensing-module.md",
+        "sha256": "afb08d57b3d1b830da6c15afb935505c81543a2b76468014921484a5dee0566e",
+        "size": 3301
+      },
+      {
         "path": "pages/systems/module-system.md",
         "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
         "size": 3760
@@ -5953,6 +5968,11 @@
         "path": "pages/systems/protocol-api-specs.md",
         "sha256": "808ec9e19deca02d0738072f0537537a2150b30dc4ca720d37edc3b2e8570c85",
         "size": 8518
+      },
+      {
+        "path": "pages/systems/protocol-v1-0-0-rc-1-subgraph-indexing.md",
+        "sha256": "4c6ae8a04a97dbdd647e628b9bfda890214dc66acb8e4f508d9ae7d289dd7d61",
+        "size": 4372
       },
       {
         "path": "pages/systems/protocol-v1-0-0-rc-2-indexing.md",
@@ -6089,8 +6109,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T04:39:14Z",
-  "file_count": 1216,
+  "exported_at": "2026-05-12T05:06:08Z",
+  "file_count": 1220,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9027,7 +9047,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "7b4919a45b3f9026391a890f610257bce8599312587102ca49d5801623e8ccef",
+  "previous_tree_hash": "8c61dd2d23dcb87e17b7d672c1bc6a6811b912ae9af8d09efefee7e7fa4abf09",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9040,14 +9060,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8c61dd2d23dcb87e17b7d672c1bc6a6811b912ae9af8d09efefee7e7fa4abf09",
+  "tree_hash": "bd57b0f4714cd468af8274567123963c54cc221dc2a28ae9538e71b6c6ca3666",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 630,
+  "wiki_file_count": 634,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9056,13 +9076,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "86207dc2b33c04332e6ad4f53c7ffcc32a2f95557c311fa1b53a3c22c3a09418",
-      "size": 577371
+      "sha256": "f64a267006ca293e177b1368c4f96c9bca3e125492e3197c20358278f00524fe",
+      "size": 578783
     },
     {
       "path": "log.md",
-      "sha256": "db1690c5816e0eb39830a56ecd5b28eb4ae0d53b09b35103a9ce0f53407e35d8",
-      "size": 1059764
+      "sha256": "b31e9b9776118ed7db0da1db1bf52c685f334452af6fc8b8aaee13032418fb03",
+      "size": 1061224
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11975,6 +11995,21 @@
       "size": 1102
     },
     {
+      "path": "pages/systems/license-registry.md",
+      "sha256": "ebccb28db6a30c3d50d01cd19956821efd0c9a758fd0cb73abf39caf9e9dc04b",
+      "size": 2687
+    },
+    {
+      "path": "pages/systems/license-token.md",
+      "sha256": "89a0334adb520cf285fbe6e15f48cb8f48498d472dab2b82c007ed016b68920c",
+      "size": 2431
+    },
+    {
+      "path": "pages/systems/licensing-module.md",
+      "sha256": "afb08d57b3d1b830da6c15afb935505c81543a2b76468014921484a5dee0566e",
+      "size": 3301
+    },
+    {
       "path": "pages/systems/module-system.md",
       "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
       "size": 3760
@@ -12068,6 +12103,11 @@
       "path": "pages/systems/protocol-api-specs.md",
       "sha256": "808ec9e19deca02d0738072f0537537a2150b30dc4ca720d37edc3b2e8570c85",
       "size": 8518
+    },
+    {
+      "path": "pages/systems/protocol-v1-0-0-rc-1-subgraph-indexing.md",
+      "sha256": "4c6ae8a04a97dbdd647e628b9bfda890214dc66acb8e4f508d9ae7d289dd7d61",
+      "size": 4372
     },
     {
       "path": "pages/systems/protocol-v1-0-0-rc-2-indexing.md",
@@ -12201,5 +12241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9b9701c279cc2495eb01607c3b818fdab85b1f5e405c147a1d64c84c12440f50"
+  "wiki_tree_hash": "9df964b1fb299f7044b7e0cdc733ce9e5fd67d66afbb494b76cbe3f721c41471"
 }
