@@ -22314,3 +22314,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7f08419b4f79aa981499c9f032d42733
 - summary: A checklist for preparing the Omni and geth fork repositories for public open sourcing. It tracks completed items such as README, security policy, license, code of conduct, and bra...
 
+## [2026-05-12T08:36:10Z] synthesis | Halo ETH Withdrawal Flow
+
+- status: published
+- slug: systems/halo-eth-withdraw-flow
+- wiki_revision_id: wikirev_6a0cff6230d603dee33ae023890ad60a
+- summary: Describes the end-to-end flow for ETH withdrawals in Halo, covering full withdrawal requests through the unbonding queue, processing of mature unbondings, and final transfer to the...
+

@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f671d89863afcc7f7675306076236f78cc3a1be37587b555ac1bf40f829cdbf3",
-        "size": 582732
+        "sha256": "28b82a407351894666148fef766598dddaa0007dc0a091d29eb454db017934ef",
+        "size": 583100
       },
       {
         "path": "log.md",
-        "sha256": "792f02ae427d9f6c280a25adb3f8db62ef3a06d1e4c6e758184c10c1e1defd9c",
-        "size": 1065676
+        "sha256": "0f764a6fedb0b2a6a63849552883d6b28767694a977b6f06f04a5d66904bf235",
+        "size": 1066056
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5875,6 +5875,11 @@
         "size": 8514
       },
       {
+        "path": "pages/systems/halo-eth-withdraw-flow.md",
+        "sha256": "c0b0349338bd3377574d6091276ba8bf9ee021e35faa8416abe6b5668c8ad35e",
+        "size": 7582
+      },
+      {
         "path": "pages/systems/hook-system.md",
         "sha256": "6cb8237675283264a9c14b93aa8365087fce870df7dfd310b96c68050c569bb6",
         "size": 4149
@@ -6164,8 +6169,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T08:07:18Z",
-  "file_count": 1231,
+  "exported_at": "2026-05-12T08:39:08Z",
+  "file_count": 1232,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9102,7 +9107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "d1b6fcff5b76fae26732ae5b05e56f7e00101e447fd174d6be5c5283512fae25",
+  "previous_tree_hash": "a3a14210b49d0e2da67e9f4e8489073bc74883dcc1f7241d328536eaa8a796ed",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9115,14 +9120,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a3a14210b49d0e2da67e9f4e8489073bc74883dcc1f7241d328536eaa8a796ed",
+  "tree_hash": "534477f3f66420d9b712f57a935448aca25fea15379717b8f03a0a165f17ff14",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 645,
+  "wiki_file_count": 646,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9131,13 +9136,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f671d89863afcc7f7675306076236f78cc3a1be37587b555ac1bf40f829cdbf3",
-      "size": 582732
+      "sha256": "28b82a407351894666148fef766598dddaa0007dc0a091d29eb454db017934ef",
+      "size": 583100
     },
     {
       "path": "log.md",
-      "sha256": "792f02ae427d9f6c280a25adb3f8db62ef3a06d1e4c6e758184c10c1e1defd9c",
-      "size": 1065676
+      "sha256": "0f764a6fedb0b2a6a63849552883d6b28767694a977b6f06f04a5d66904bf235",
+      "size": 1066056
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12065,6 +12070,11 @@
       "size": 8514
     },
     {
+      "path": "pages/systems/halo-eth-withdraw-flow.md",
+      "sha256": "c0b0349338bd3377574d6091276ba8bf9ee021e35faa8416abe6b5668c8ad35e",
+      "size": 7582
+    },
+    {
       "path": "pages/systems/hook-system.md",
       "sha256": "6cb8237675283264a9c14b93aa8365087fce870df7dfd310b96c68050c569bb6",
       "size": 4149
@@ -12351,5 +12361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8b73e33acd53cf4ea4873945b6fe598cd230b81251d53f712a1da58c296450d6"
+  "wiki_tree_hash": "d1ecbb61e99e991772d6974ac2a5ada614645cd1c1de8896c74b6e3c28183452"
 }
