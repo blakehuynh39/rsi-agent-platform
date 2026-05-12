@@ -2951,13 +2951,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "836a53caca31a8ce25dcb99b6d3b811c020279a77f2026ec2f6e19a3c4ea6d4d",
+        "sha256": "831206c6290394fce6f67a4663622575b09b2f89a9e40bd7c33e6583a212e83a",
         "size": 588677
       },
       {
         "path": "log.md",
-        "sha256": "ad2cd0bc2db8d82392baf95aeabc20c11a5ed517b7b6aec1ff1702062b8ef23e",
-        "size": 1076639
+        "sha256": "6418ac9c5bbce3cca12499c342167ccb51105ff43e839026e85173adeb381113",
+        "size": 1077392
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5885,6 +5885,11 @@
         "size": 2819
       },
       {
+        "path": "pages/systems/data-portal-backend-architecture.md",
+        "sha256": "55db3adc52f79e54fd9f2d568c97d67143530004b38ca2fdf7643dedf26d121e",
+        "size": 1364
+      },
+      {
         "path": "pages/systems/data-read-write-flow.md",
         "sha256": "b69989543fe94c488cf0e8c0569d7a589e76edf22229dcec9a6e95c6f887aa36",
         "size": 8374
@@ -6239,8 +6244,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T21:33:07Z",
-  "file_count": 1246,
+  "exported_at": "2026-05-12T22:05:06Z",
+  "file_count": 1247,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9187,7 +9192,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
-  "previous_tree_hash": "71fd6895990cebd51eded1e8c1720964be372be4f3c9ecc5686d44b2f1f75aa9",
+  "previous_tree_hash": "422352a4ceb94e582b542bca090543daa0dcaeaad0edea6967ea3f0683217ba2",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9200,14 +9205,14 @@
   ],
   "skill_tree_hash": "26740463222ebaef70b99bc5635ff4ffc9392922324a824a64bbda8ad351d470",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "422352a4ceb94e582b542bca090543daa0dcaeaad0edea6967ea3f0683217ba2",
+  "tree_hash": "c26a66adedb01ac586ba4ef5007d23fb673704bd433611d7e6e17580bf3adf1a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 658,
+  "wiki_file_count": 659,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9216,13 +9221,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "836a53caca31a8ce25dcb99b6d3b811c020279a77f2026ec2f6e19a3c4ea6d4d",
+      "sha256": "831206c6290394fce6f67a4663622575b09b2f89a9e40bd7c33e6583a212e83a",
       "size": 588677
     },
     {
       "path": "log.md",
-      "sha256": "ad2cd0bc2db8d82392baf95aeabc20c11a5ed517b7b6aec1ff1702062b8ef23e",
-      "size": 1076639
+      "sha256": "6418ac9c5bbce3cca12499c342167ccb51105ff43e839026e85173adeb381113",
+      "size": 1077392
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12150,6 +12155,11 @@
       "size": 2819
     },
     {
+      "path": "pages/systems/data-portal-backend-architecture.md",
+      "sha256": "55db3adc52f79e54fd9f2d568c97d67143530004b38ca2fdf7643dedf26d121e",
+      "size": 1364
+    },
+    {
       "path": "pages/systems/data-read-write-flow.md",
       "sha256": "b69989543fe94c488cf0e8c0569d7a589e76edf22229dcec9a6e95c6f887aa36",
       "size": 8374
@@ -12501,5 +12511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d4c69e43a850832928df91f48413c7c7d24a98ed6425765ba639e10e2e347de1"
+  "wiki_tree_hash": "f45f88097b4cf52334d551098d019e88688e01146dc7fd1bd9d8094e87a9de5e"
 }

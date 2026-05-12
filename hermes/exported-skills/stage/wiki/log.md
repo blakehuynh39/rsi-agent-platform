@@ -22526,3 +22526,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_bc5afed72dfb1c92f7168fb92c292219
 - summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-05-12T22:00:34Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_d6091391075e311bb98f0724eaaebbb7
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_ac0e2aa4e083494eb0d84d45943ffcde
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-12T22:01:51Z] synthesis | Data Portal Backend Architecture
+
+- status: published
+- slug: systems/data-portal-backend-architecture
+- wiki_revision_id: wikirev_735963b6bf19e035924a2066fb1b85ad
+- summary: Architecture overview of the Data Portal Backend as documented in Notion.
+
