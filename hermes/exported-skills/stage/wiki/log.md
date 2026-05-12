@@ -22095,3 +22095,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fad4f1867778a0eb494319625ab0162d
 - summary: A subnet worker node can register as either a data miner or a data validator. Miners handle processing jobs (filtering and annotation), while validators handle validation jobs. The...
 
+## [2026-05-12T00:37:16Z] synthesis | Subnet Control Plane Design
+
+- status: published
+- slug: systems/subnet-control-plane-design
+- wiki_revision_id: wikirev_4cbaaf6fd6056efda49a353b3f6e809e
+- summary: Design specification for the Subnet Control Plane smart contract on the Poseidon L2 OP Stack chain. Oversees worker registration, staking, epoch-based reward distribution, worker h...
+

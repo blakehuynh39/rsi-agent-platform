@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f09eb65dd35ef3f6c96eddad208ba0c580fd65951846be15185b5bad28a0c9a5",
-        "size": 572914
+        "sha256": "9743c3c710588c3d1df17590e1d4fa668ae26137a8de54fc0e7a0361ae2cd4a8",
+        "size": 573290
       },
       {
         "path": "log.md",
-        "sha256": "fe0d43030f25e84760a2d6d34217b88f68a90d9e9a92e0d2612a12a3ebf271eb",
-        "size": 1054185
+        "sha256": "e5f938d4433b191af3b2c36269999bb353954823c2dbab6b99162ff09264fb4d",
+        "size": 1054573
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5985,6 +5985,11 @@
         "size": 4797
       },
       {
+        "path": "pages/systems/subnet-control-plane-design.md",
+        "sha256": "0b95ec9853e7c51319e4f6ae8690ea8b5ae80358290705e29bea32cccf5a2c0b",
+        "size": 9189
+      },
+      {
         "path": "pages/systems/subnet-l2-scheduling-contracts.md",
         "sha256": "a5b29574d04d734fa7595152c09e8112f7da9a639145d2d221b9b394080e765f",
         "size": 8131
@@ -6034,8 +6039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T00:27:22Z",
-  "file_count": 1205,
+  "exported_at": "2026-05-12T00:39:13Z",
+  "file_count": 1206,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8972,7 +8977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "5cb74ca49c0092429f9d6836035439f60fafc7b2f7e83d88bf4916bb310f275e",
+  "previous_tree_hash": "e2be65900982b7cbd272366aeb12c35e50704fdb5ac5b45f9de7e6c7788a1f0e",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8985,14 +8990,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e2be65900982b7cbd272366aeb12c35e50704fdb5ac5b45f9de7e6c7788a1f0e",
+  "tree_hash": "d7b0b68cede5e8052152c002eec884cbb77ef95da9399acbe14787c456cd6f94",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 619,
+  "wiki_file_count": 620,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9001,13 +9006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f09eb65dd35ef3f6c96eddad208ba0c580fd65951846be15185b5bad28a0c9a5",
-      "size": 572914
+      "sha256": "9743c3c710588c3d1df17590e1d4fa668ae26137a8de54fc0e7a0361ae2cd4a8",
+      "size": 573290
     },
     {
       "path": "log.md",
-      "sha256": "fe0d43030f25e84760a2d6d34217b88f68a90d9e9a92e0d2612a12a3ebf271eb",
-      "size": 1054185
+      "sha256": "e5f938d4433b191af3b2c36269999bb353954823c2dbab6b99162ff09264fb4d",
+      "size": 1054573
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12045,6 +12050,11 @@
       "size": 4797
     },
     {
+      "path": "pages/systems/subnet-control-plane-design.md",
+      "sha256": "0b95ec9853e7c51319e4f6ae8690ea8b5ae80358290705e29bea32cccf5a2c0b",
+      "size": 9189
+    },
+    {
       "path": "pages/systems/subnet-l2-scheduling-contracts.md",
       "sha256": "a5b29574d04d734fa7595152c09e8112f7da9a639145d2d221b9b394080e765f",
       "size": 8131
@@ -12091,5 +12101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ebbcd8f9728e381b36b08a50ef197bc6b3ccae5017510b276c7c23ee652dbe47"
+  "wiki_tree_hash": "d21c487e64de916ec0e4389f37c7a174ec8630e7c077a0e04a1fd19e2f17b190"
 }
