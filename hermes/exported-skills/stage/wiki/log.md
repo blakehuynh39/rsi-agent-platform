@@ -22335,3 +22335,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f1754d2758f4ff80b2c81d8325ab367e
 - summary: Defines the weekly meeting schedule and communication channels for the engineering team, including deprecated meetings and channel ownership.
 
+## [2026-05-12T11:32:10Z] synthesis | Eng Leads Offsite April 2025
+
+- status: published
+- slug: projects/eng-leads-offsite-april-2025
+- wiki_revision_id: wikirev_6cca91d13f53813c14b68fceb8f71aee
+- summary: Engineering leads offsite held in Vancouver, Canada from April 23-26, 2025. The offsite aimed to define the architecture for Project Poseidon, discuss TGE scope, define a Proof of ...
+

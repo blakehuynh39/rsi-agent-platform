@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "97018a79a3c5d8087c857b69c65726a4cc10a6c943a9a0c7d4886daa58b00687",
+        "sha256": "c255ddbc2a059729965b77be3ccde247882ba640d50267965f4ea9ff298ecd98",
         "size": 583823
       },
       {
         "path": "log.md",
-        "sha256": "6be87b5e5e4222c66e60e68fcad80958ae1b63319e065356354369c9067045be",
-        "size": 1066803
+        "sha256": "8dc2d2a2f6129f231de0600c7ddce02b5324c9f63425b7434e667933ab3504f8",
+        "size": 1067194
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4631,8 +4631,8 @@
       },
       {
         "path": "pages/projects/eng-leads-offsite-april-2025.md",
-        "sha256": "f1ec179e40fcc8516a82c7a2ca14c82f891edd29d9e39dfaeb829e1efca2fba8",
-        "size": 6418
+        "sha256": "0312df1ea2250347bfb70a796a1de72f3c58d30653d722cc1429ead9b606eef0",
+        "size": 7995
       },
       {
         "path": "pages/projects/engineering-lightning-talks.md",
@@ -6179,7 +6179,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T10:24:45Z",
+  "exported_at": "2026-05-12T11:37:08Z",
   "file_count": 1234,
   "files": [
     {
@@ -9117,7 +9117,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "b022d42a6d463c3378c1b3131cecca8676b7b1cf29c0f7ca4e6b7b82b43f0bfd",
+  "previous_tree_hash": "67806e22964942eb930aa9f4c8c45c32ffb645ed9430c96cc42af577b7f7874b",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9130,7 +9130,7 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "67806e22964942eb930aa9f4c8c45c32ffb645ed9430c96cc42af577b7f7874b",
+  "tree_hash": "65da2994ea1a875553df0dc57b3be3bb585060da9571f7934db6dbf9fc21170a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9146,13 +9146,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "97018a79a3c5d8087c857b69c65726a4cc10a6c943a9a0c7d4886daa58b00687",
+      "sha256": "c255ddbc2a059729965b77be3ccde247882ba640d50267965f4ea9ff298ecd98",
       "size": 583823
     },
     {
       "path": "log.md",
-      "sha256": "6be87b5e5e4222c66e60e68fcad80958ae1b63319e065356354369c9067045be",
-      "size": 1066803
+      "sha256": "8dc2d2a2f6129f231de0600c7ddce02b5324c9f63425b7434e667933ab3504f8",
+      "size": 1067194
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10836,8 +10836,8 @@
     },
     {
       "path": "pages/projects/eng-leads-offsite-april-2025.md",
-      "sha256": "f1ec179e40fcc8516a82c7a2ca14c82f891edd29d9e39dfaeb829e1efca2fba8",
-      "size": 6418
+      "sha256": "0312df1ea2250347bfb70a796a1de72f3c58d30653d722cc1429ead9b606eef0",
+      "size": 7995
     },
     {
       "path": "pages/projects/engineering-lightning-talks.md",
@@ -12381,5 +12381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3ab2d8df8371d7c8b54af6249dcfbd3a4867b484d8df8d133226ddd0968d8452"
+  "wiki_tree_hash": "339f3d53a801554339ea506f687bdb2079b216fd15c0813afdd1a76a7308e942"
 }
