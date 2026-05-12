@@ -6,7 +6,7 @@ freshness: "2024-04-23T09:21:00Z"
 tags:
   - "emergence-universe"
   - "eu"
-  - "index"
+  - "story-protocol"
 owners: []
 source_revision_ids:
   - "srcrev_b2b45bc07fb0d1f2b3dabac88315b8d4"
@@ -17,7 +17,7 @@ conflict_state: "none"
 
 ## Summary
 
-Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, protocol procedures, QA, publishing, and a product development database.
+Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, protocol procedures, QA, publishing, and product development.
 
 ## Claims
 
@@ -28,19 +28,19 @@ Top-level index page for the Emergence Universe (EU) project, linking to key sub
 
 ## Related Pages
 
-- `projects/emergence-relationships`
-- `projects/eu-api-sdk-integration-notes`
+- `policies/eu-protocol-procedures`
+- `policies/publishing`
 - `projects/eu-pfp-nfts`
-- `projects/eu-protocol-procedures`
 - `projects/eu-releases-tasks`
 - `projects/eu-v1-qa`
-- `projects/platform-sdk-api-doc`
-- `projects/product-development`
-- `projects/publishing`
+- `projects/product-development-eu`
 - `projects/v1-relationships`
+- `systems/emergence-relationships`
+- `systems/eu-api-sdk-integration`
+- `systems/platform-sdk-api-doc`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_013e4fc605dc443c7aff205f14fbc61d`
-- `source_revision_id`: `srcrev_6b1fa48e0949cdcaab0a6a38d5e92484`
-- `source_url`: [Notion source](https://www.notion.so/EU-API-SDK-integration-notes-34a20201ec534c7a924451c2a13133d7)
+- `source_document_id`: `srcdoc_ee7d26266888fc0107646b370e21a347`
+- `source_revision_id`: `srcrev_74e19b22b57f8e3e2e53bf97f1cb83e3`
+- `source_url`: [Notion source](https://www.notion.so/V1-relationships-63537d0bc1014b0497837b4fbf5825ea)

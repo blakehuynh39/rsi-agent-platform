@@ -22230,3 +22230,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a504f9b45451c4a130fc51af4caf4ff3
 - summary: Details the contract addresses, entity changes, and handler modifications for the protocol-beta-v0 subgraph used in Protocol v1.0.0-rc.1 indexing.
 
+## [2026-05-12T05:35:51Z] synthesis | Emergence Universe
+
+- status: published
+- slug: projects/emergence-universe
+- wiki_revision_id: wikirev_8acac6e8f9160cf225c535692be328b3
+- summary: Top-level index page for the Emergence Universe (EU) project, linking to key sub-pages covering releases, API/SDK integration, relationships, PFP NFTs, platform SDK documentation, ...
+
+## [2026-05-12T05:35:51Z] synthesis | V1 Relationships
+
+- status: published
+- slug: projects/v1-relationships
+- wiki_revision_id: wikirev_9b6a916e40786316c6d64f38ce90b355
+- summary: Design document for V1 intellectual property relationships in the Emergence Universe, including an Excalidraw diagram, a mock narrative collection on Story Protocol Explorer, and a...
+

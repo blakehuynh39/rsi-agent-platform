@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f64a267006ca293e177b1368c4f96c9bca3e125492e3197c20358278f00524fe",
-        "size": 578783
+        "sha256": "fc369c5c22329f53dba7d465952b7106ed648cafaeaa7ac0be37cb856217ae5e",
+        "size": 579138
       },
       {
         "path": "log.md",
-        "sha256": "b31e9b9776118ed7db0da1db1bf52c685f334452af6fc8b8aaee13032418fb03",
-        "size": 1061224
+        "sha256": "225aaeb4c86f9c83c213b12e20583176af61734b74dc44f7fa236a6a6ef9c8af",
+        "size": 1061962
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4586,8 +4586,8 @@
       },
       {
         "path": "pages/projects/emergence-universe.md",
-        "sha256": "23958e63927f705f3ebc63f74db52264142eeb90a9732ebcb91f39228228421b",
-        "size": 2471
+        "sha256": "962c265dab4400fa3819b0e5ebe083a17f4550a118dc70e96ff5042bb7de3efe",
+        "size": 2451
       },
       {
         "path": "pages/projects/eng-leads-offsite-april-2025.md",
@@ -5328,6 +5328,11 @@
         "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
         "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
         "size": 1547
+      },
+      {
+        "path": "pages/projects/v1-relationships.md",
+        "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
+        "size": 4508
       },
       {
         "path": "pages/projects/validator-network-scalability.md",
@@ -6109,8 +6114,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T05:06:08Z",
-  "file_count": 1220,
+  "exported_at": "2026-05-12T05:38:19Z",
+  "file_count": 1221,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9047,7 +9052,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "8c61dd2d23dcb87e17b7d672c1bc6a6811b912ae9af8d09efefee7e7fa4abf09",
+  "previous_tree_hash": "bd57b0f4714cd468af8274567123963c54cc221dc2a28ae9538e71b6c6ca3666",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9060,14 +9065,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bd57b0f4714cd468af8274567123963c54cc221dc2a28ae9538e71b6c6ca3666",
+  "tree_hash": "3508e0812f6a60f59bc75b661cf2b7d2ea8400c1d8a7eea9fa8f1217895959ad",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 634,
+  "wiki_file_count": 635,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9076,13 +9081,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f64a267006ca293e177b1368c4f96c9bca3e125492e3197c20358278f00524fe",
-      "size": 578783
+      "sha256": "fc369c5c22329f53dba7d465952b7106ed648cafaeaa7ac0be37cb856217ae5e",
+      "size": 579138
     },
     {
       "path": "log.md",
-      "sha256": "b31e9b9776118ed7db0da1db1bf52c685f334452af6fc8b8aaee13032418fb03",
-      "size": 1061224
+      "sha256": "225aaeb4c86f9c83c213b12e20583176af61734b74dc44f7fa236a6a6ef9c8af",
+      "size": 1061962
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10721,8 +10726,8 @@
     },
     {
       "path": "pages/projects/emergence-universe.md",
-      "sha256": "23958e63927f705f3ebc63f74db52264142eeb90a9732ebcb91f39228228421b",
-      "size": 2471
+      "sha256": "962c265dab4400fa3819b0e5ebe083a17f4550a118dc70e96ff5042bb7de3efe",
+      "size": 2451
     },
     {
       "path": "pages/projects/eng-leads-offsite-april-2025.md",
@@ -11463,6 +11468,11 @@
       "path": "pages/projects/upwork-fiverr-i18n-translation-vetting.md",
       "sha256": "9474163f52f6a8a3db60b9a9aa0dc370b0174d9fa9af88916baab3ea55cda0e0",
       "size": 1547
+    },
+    {
+      "path": "pages/projects/v1-relationships.md",
+      "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
+      "size": 4508
     },
     {
       "path": "pages/projects/validator-network-scalability.md",
@@ -12241,5 +12251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9df964b1fb299f7044b7e0cdc733ce9e5fd67d66afbb494b76cbe3f721c41471"
+  "wiki_tree_hash": "5b3db1c2240edd4b16a2d7e94660d6cb35f9662f8d696e5dee1e905dfa23bc43"
 }
