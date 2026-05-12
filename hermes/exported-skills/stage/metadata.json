@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0f3d314f1b4df51e0d563cf88d7279237fddef20ae52593a8e18c894bd1b10d1",
-        "size": 1056739
+        "sha256": "45674e1eb439eda86f48596c4e2ebba85c54066f7f8a40191ca86411b5eca71e",
+        "size": 1057077
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4328,6 +4328,11 @@
         "path": "pages/policies/story-naming-conventions.md",
         "sha256": "5b1f04d949c03d222d7b88939bf33dbef52348be7db605dd4e387e8fd9daa681",
         "size": 7736
+      },
+      {
+        "path": "pages/policies/story-protocol-coding-style.md",
+        "sha256": "20d7b5866e7c42b1eda61c589cd1ee7200004fedaeb20caaf6ba89a3961a5a5b",
+        "size": 9665
       },
       {
         "path": "pages/policies/summer-2025-engineering-leader-pto-schedule.md",
@@ -6054,8 +6059,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T02:40:33Z",
-  "file_count": 1209,
+  "exported_at": "2026-05-12T02:47:03Z",
+  "file_count": 1210,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8992,7 +8997,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "118fa4863e40790e052278f6ae4e13b239b1150f554abbb9039c2cc0c0aa450a",
+  "previous_tree_hash": "67822df00f725735734de369c9e4b9a6de501400feaa47670568f013b2a4e068",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9005,14 +9010,14 @@
   ],
   "skill_tree_hash": "1ec6b90e04d4807d44546d9ec6d4e6ac11a60b4e8c5a65d15effde2f414147ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "67822df00f725735734de369c9e4b9a6de501400feaa47670568f013b2a4e068",
+  "tree_hash": "6c46ce199a2a3a8940e99a0ca9d2ee518c11f108ddce7255f89748045b2a555e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 623,
+  "wiki_file_count": 624,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9026,8 +9031,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0f3d314f1b4df51e0d563cf88d7279237fddef20ae52593a8e18c894bd1b10d1",
-      "size": 1056739
+      "sha256": "45674e1eb439eda86f48596c4e2ebba85c54066f7f8a40191ca86411b5eca71e",
+      "size": 1057077
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10408,6 +10413,11 @@
       "path": "pages/policies/story-naming-conventions.md",
       "sha256": "5b1f04d949c03d222d7b88939bf33dbef52348be7db605dd4e387e8fd9daa681",
       "size": 7736
+    },
+    {
+      "path": "pages/policies/story-protocol-coding-style.md",
+      "sha256": "20d7b5866e7c42b1eda61c589cd1ee7200004fedaeb20caaf6ba89a3961a5a5b",
+      "size": 9665
     },
     {
       "path": "pages/policies/summer-2025-engineering-leader-pto-schedule.md",
@@ -12131,5 +12141,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9b7eb47d0546ce25f117f6a6e4ad10e7f4e4bd3314949e778d5482fa3710ef49"
+  "wiki_tree_hash": "df5030be0a453f0084a92315269bbeb6bb8dcb348c4517f458b1e12b6ba8062c"
 }

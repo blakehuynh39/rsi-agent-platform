@@ -22146,3 +22146,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_55f2a9193c576b8a5ba268bd98d23748
 - summary: A collection of parallax scrolling libraries, tools, and reference websites.
 
+## [2026-05-12T02:46:45Z] synthesis | Story Protocol Coding Style
+
+- status: published
+- slug: policies/story-protocol-coding-style
+- wiki_revision_id: wikirev_0f71b34bfe8d1baed568b0202098ddd5
+- summary: A compilation of coding style conventions for Story Protocol's Solidity codebase, covering formatting, naming, imports, and testing.
+
