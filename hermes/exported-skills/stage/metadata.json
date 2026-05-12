@@ -2951,13 +2951,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b18d6be82f9a15baee24423702a09f053dff0ba5c88225c124c3dbc8cedef2a0",
-        "size": 586975
+        "sha256": "f8425968190e6b722c66c564226c8670a17291dc3144c4db38bae2468828aee0",
+        "size": 587345
       },
       {
         "path": "log.md",
-        "sha256": "aba6f913278ebf0fff2f52a3eba63dd6073af2456891dfae33656da5b8fcca14",
-        "size": 1073396
+        "sha256": "f3513b68789e6a4c354b43da7b2df3ff1c9f3ac4896731837d8b17e7030f62f1",
+        "size": 1073778
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5315,6 +5315,11 @@
         "size": 2410
       },
       {
+        "path": "pages/projects/story-depin-platform-strategy.md",
+        "sha256": "c21a98d275f5e4de3a95593463028207fee88ce89b8c70eb6c05c622b5d5d941",
+        "size": 8940
+      },
+      {
         "path": "pages/projects/story-network-features-2024-5.md",
         "sha256": "9997d6e4e2c9218c9631cc1967122c2ad2ecbe2078359874f8a545ee2aebd472",
         "size": 3708
@@ -6224,8 +6229,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T19:08:15Z",
-  "file_count": 1243,
+  "exported_at": "2026-05-12T19:23:20Z",
+  "file_count": 1244,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9171,8 +9176,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "9294400dc41797e8a2e5e71ab228a45ef4c8fc27e149a841dc0ebfc50f5b6e2c",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
+  "previous_tree_hash": "d9d566a29274da7036f54746abf0ecf12807987a66130fd14ae4e276b52df3dd",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9185,14 +9190,14 @@
   ],
   "skill_tree_hash": "98dbfbcd8f8814189522eb5ab48ca0ec2f2a4787cf9e640dbc152c609d031ec2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d9d566a29274da7036f54746abf0ecf12807987a66130fd14ae4e276b52df3dd",
+  "tree_hash": "394636da3c7d0b3d9ba28cd1d24c38cf61271d85ad25341534ce0b7fdfbb1c5e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 655,
+  "wiki_file_count": 656,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9201,13 +9206,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b18d6be82f9a15baee24423702a09f053dff0ba5c88225c124c3dbc8cedef2a0",
-      "size": 586975
+      "sha256": "f8425968190e6b722c66c564226c8670a17291dc3144c4db38bae2468828aee0",
+      "size": 587345
     },
     {
       "path": "log.md",
-      "sha256": "aba6f913278ebf0fff2f52a3eba63dd6073af2456891dfae33656da5b8fcca14",
-      "size": 1073396
+      "sha256": "f3513b68789e6a4c354b43da7b2df3ff1c9f3ac4896731837d8b17e7030f62f1",
+      "size": 1073778
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11565,6 +11570,11 @@
       "size": 2410
     },
     {
+      "path": "pages/projects/story-depin-platform-strategy.md",
+      "sha256": "c21a98d275f5e4de3a95593463028207fee88ce89b8c70eb6c05c622b5d5d941",
+      "size": 8940
+    },
+    {
       "path": "pages/projects/story-network-features-2024-5.md",
       "sha256": "9997d6e4e2c9218c9631cc1967122c2ad2ecbe2078359874f8a545ee2aebd472",
       "size": 3708
@@ -12471,5 +12481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "56a082c7faf09f8028315865f87efb7c8baf3df57407f7596b77321133740a1c"
+  "wiki_tree_hash": "d2c24b9c95be6d63f8b710fe9f21053821c5d82a1e1d4f4ddffa4f1ef7f4bae8"
 }

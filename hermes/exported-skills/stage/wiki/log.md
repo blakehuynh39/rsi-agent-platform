@@ -22462,3 +22462,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_0a09dd219125919f30170c377326c65f
 - summary: Source: [Notion source](https://www.notion.so/Trace-AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-12T19:19:06Z] synthesis | Story DePIN Platform Strategy
+
+- status: published
+- slug: projects/story-depin-platform-strategy
+- wiki_revision_id: wikirev_dd5d24cf8cbcc7416edcf1b38833ad07
+- summary: A three-phase plan to reposition Story as the operating system for data-generating applications, using first-party apps as a wedge to build a DePIN SDK and ecosystem layer.
+
