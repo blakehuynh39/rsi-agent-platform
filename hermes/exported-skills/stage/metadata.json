@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a9c22202d3d090f4216cb1b0d73bd282f81f1cd4051603f7e5d19cbe92b3d167",
-        "size": 572165
+        "sha256": "f09eb65dd35ef3f6c96eddad208ba0c580fd65951846be15185b5bad28a0c9a5",
+        "size": 572914
       },
       {
         "path": "log.md",
-        "sha256": "db3b94675f58a648695e6a0d19084db16ddf801be4f4d96450f1112154e7e9e7",
-        "size": 1053782
+        "sha256": "fe0d43030f25e84760a2d6d34217b88f68a90d9e9a92e0d2612a12a3ebf271eb",
+        "size": 1054185
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3728,6 +3728,11 @@
         "path": "pages/concepts/subnet-specifications.md",
         "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
         "size": 1412
+      },
+      {
+        "path": "pages/concepts/subnet-workers-miners-validators.md",
+        "sha256": "64788918cf3960ce8f26d78b23709fa033984e4819c9c0ed5559ab7d40d658ee",
+        "size": 6248
       },
       {
         "path": "pages/concepts/superbridge-ui.md",
@@ -6029,8 +6034,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T00:20:36Z",
-  "file_count": 1204,
+  "exported_at": "2026-05-12T00:27:22Z",
+  "file_count": 1205,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8967,7 +8972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "03648d114207702e69a77c6da74a2794bc2f74cb32ef9f29cbe89d0dfdf746ef",
+  "previous_tree_hash": "5cb74ca49c0092429f9d6836035439f60fafc7b2f7e83d88bf4916bb310f275e",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8980,14 +8985,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5cb74ca49c0092429f9d6836035439f60fafc7b2f7e83d88bf4916bb310f275e",
+  "tree_hash": "e2be65900982b7cbd272366aeb12c35e50704fdb5ac5b45f9de7e6c7788a1f0e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 618,
+  "wiki_file_count": 619,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8996,13 +9001,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a9c22202d3d090f4216cb1b0d73bd282f81f1cd4051603f7e5d19cbe92b3d167",
-      "size": 572165
+      "sha256": "f09eb65dd35ef3f6c96eddad208ba0c580fd65951846be15185b5bad28a0c9a5",
+      "size": 572914
     },
     {
       "path": "log.md",
-      "sha256": "db3b94675f58a648695e6a0d19084db16ddf801be4f4d96450f1112154e7e9e7",
-      "size": 1053782
+      "sha256": "fe0d43030f25e84760a2d6d34217b88f68a90d9e9a92e0d2612a12a3ebf271eb",
+      "size": 1054185
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9783,6 +9788,11 @@
       "path": "pages/concepts/subnet-specifications.md",
       "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
       "size": 1412
+    },
+    {
+      "path": "pages/concepts/subnet-workers-miners-validators.md",
+      "sha256": "64788918cf3960ce8f26d78b23709fa033984e4819c9c0ed5559ab7d40d658ee",
+      "size": 6248
     },
     {
       "path": "pages/concepts/superbridge-ui.md",
@@ -12081,5 +12091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ea23ea09252e6c2f5c243aff01be13a0a60f237a8e12bcf1e1e29209492e759c"
+  "wiki_tree_hash": "ebbcd8f9728e381b36b08a50ef197bc6b3ccae5017510b276c7c23ee652dbe47"
 }

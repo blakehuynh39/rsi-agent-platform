@@ -22088,3 +22088,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_67f6d2e9885aee364f362b2291bbe492
 - summary: A three-step plan for integrating MinIO into the MVP storage layer, starting with an honest-node assumption and progressing toward a BFT-compatible, heterogeneous storage backend.
 
+## [2026-05-12T00:21:51Z] synthesis | Subnet Workers (Miners & Validators)
+
+- status: published
+- slug: concepts/subnet-workers-miners-validators
+- wiki_revision_id: wikirev_fad4f1867778a0eb494319625ab0162d
+- summary: A subnet worker node can register as either a data miner or a data validator. Miners handle processing jobs (filtering and annotation), while validators handle validation jobs. The...
+
