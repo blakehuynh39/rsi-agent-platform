@@ -22081,3 +22081,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_0b36ad66432d4019bbcbb04240fa645d
 - summary: Source: [Notion source](https://www.notion.so/AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-12T00:19:45Z] synthesis | Using MinIO for MVP
+
+- status: published
+- slug: decisions/using-minio-for-mvp
+- wiki_revision_id: wikirev_67f6d2e9885aee364f362b2291bbe492
+- summary: A three-step plan for integrating MinIO into the MVP storage layer, starting with an honest-node assumption and progressing toward a BFT-compatible, heterogeneous storage backend.
+

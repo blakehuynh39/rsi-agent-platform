@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f1c9fae97b4efcad38d19a46a5f83bfb71d96023c22de896eeb23156a915387d",
-        "size": 1053412
+        "sha256": "db3b94675f58a648695e6a0d19084db16ddf801be4f4d96450f1112154e7e9e7",
+        "size": 1053782
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4083,6 +4083,11 @@
         "path": "pages/decisions/token-distribution-vendor.md",
         "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
         "size": 1226
+      },
+      {
+        "path": "pages/decisions/using-minio-for-mvp.md",
+        "sha256": "489151e28bd73075772973facc6c75a6fd11766307e9a4c3a9eb513862dcc405",
+        "size": 4428
       },
       {
         "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -6024,8 +6029,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T00:03:32Z",
-  "file_count": 1203,
+  "exported_at": "2026-05-12T00:20:36Z",
+  "file_count": 1204,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8962,7 +8967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "1b3036efa369f83a15b0b20351467263ae060d033a1f9b7e3e76ede0f18307ee",
+  "previous_tree_hash": "03648d114207702e69a77c6da74a2794bc2f74cb32ef9f29cbe89d0dfdf746ef",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8975,14 +8980,14 @@
   ],
   "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "03648d114207702e69a77c6da74a2794bc2f74cb32ef9f29cbe89d0dfdf746ef",
+  "tree_hash": "5cb74ca49c0092429f9d6836035439f60fafc7b2f7e83d88bf4916bb310f275e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 617,
+  "wiki_file_count": 618,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -8996,8 +9001,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f1c9fae97b4efcad38d19a46a5f83bfb71d96023c22de896eeb23156a915387d",
-      "size": 1053412
+      "sha256": "db3b94675f58a648695e6a0d19084db16ddf801be4f4d96450f1112154e7e9e7",
+      "size": 1053782
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10133,6 +10138,11 @@
       "path": "pages/decisions/token-distribution-vendor.md",
       "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
       "size": 1226
+    },
+    {
+      "path": "pages/decisions/using-minio-for-mvp.md",
+      "sha256": "489151e28bd73075772973facc6c75a6fd11766307e9a4c3a9eb513862dcc405",
+      "size": 4428
     },
     {
       "path": "pages/decisions/v2-monitoring-cicd-design.md",
@@ -12071,5 +12081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "02d6d7b83686ffb6765f6ce85fbeb58197344df714bfaee247acdf5db44e8e49"
+  "wiki_tree_hash": "ea23ea09252e6c2f5c243aff01be13a0a60f237a8e12bcf1e1e29209492e759c"
 }
