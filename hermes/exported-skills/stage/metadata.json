@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fc369c5c22329f53dba7d465952b7106ed648cafaeaa7ac0be37cb856217ae5e",
-        "size": 579138
+        "sha256": "16d2afd1c27e07478df30d69df72518da5006ab3ecf50ffebf50a63df8442a88",
+        "size": 579809
       },
       {
         "path": "log.md",
-        "sha256": "225aaeb4c86f9c83c213b12e20583176af61734b74dc44f7fa236a6a6ef9c8af",
-        "size": 1061962
+        "sha256": "0b768a4337076a0b6a52fae8a02a55a67c68e291dceef41c2af12a3f2d5b69b2",
+        "size": 1062657
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3038,6 +3038,16 @@
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
         "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
         "size": 1065
+      },
+      {
+        "path": "pages/concepts/concept-native-yield.md",
+        "sha256": "969166e7e4314d7d00f9d0d4a53a020551f8eecd27858c3238998de18320281a",
+        "size": 2391
+      },
+      {
+        "path": "pages/concepts/concept-rebase-token.md",
+        "sha256": "495f289263efaf37bc6e7156c6ed3b5485830e21f039e7112e2e3bab0520ca16",
+        "size": 3868
       },
       {
         "path": "pages/concepts/consensus-mechanism-research.md",
@@ -6114,8 +6124,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T05:38:19Z",
-  "file_count": 1221,
+  "exported_at": "2026-05-12T05:54:06Z",
+  "file_count": 1223,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9051,8 +9061,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "bd57b0f4714cd468af8274567123963c54cc221dc2a28ae9538e71b6c6ca3666",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
+  "previous_tree_hash": "3508e0812f6a60f59bc75b661cf2b7d2ea8400c1d8a7eea9fa8f1217895959ad",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9065,14 +9075,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3508e0812f6a60f59bc75b661cf2b7d2ea8400c1d8a7eea9fa8f1217895959ad",
+  "tree_hash": "a10e29cea7c4244a9f80926cd32ff89d5cb31073ddaddafc753e7989e13263bf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 635,
+  "wiki_file_count": 637,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9081,13 +9091,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fc369c5c22329f53dba7d465952b7106ed648cafaeaa7ac0be37cb856217ae5e",
-      "size": 579138
+      "sha256": "16d2afd1c27e07478df30d69df72518da5006ab3ecf50ffebf50a63df8442a88",
+      "size": 579809
     },
     {
       "path": "log.md",
-      "sha256": "225aaeb4c86f9c83c213b12e20583176af61734b74dc44f7fa236a6a6ef9c8af",
-      "size": 1061962
+      "sha256": "0b768a4337076a0b6a52fae8a02a55a67c68e291dceef41c2af12a3f2d5b69b2",
+      "size": 1062657
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9178,6 +9188,16 @@
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
       "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
       "size": 1065
+    },
+    {
+      "path": "pages/concepts/concept-native-yield.md",
+      "sha256": "969166e7e4314d7d00f9d0d4a53a020551f8eecd27858c3238998de18320281a",
+      "size": 2391
+    },
+    {
+      "path": "pages/concepts/concept-rebase-token.md",
+      "sha256": "495f289263efaf37bc6e7156c6ed3b5485830e21f039e7112e2e3bab0520ca16",
+      "size": 3868
     },
     {
       "path": "pages/concepts/consensus-mechanism-research.md",
@@ -12251,5 +12271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5b3db1c2240edd4b16a2d7e94660d6cb35f9662f8d696e5dee1e905dfa23bc43"
+  "wiki_tree_hash": "29108f8fcd3b0e7bf0a5b5cffff6007d3cc1afc377292611a2e50184fdaf9b5b"
 }

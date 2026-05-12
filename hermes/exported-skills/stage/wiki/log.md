@@ -22244,3 +22244,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9b6a916e40786316c6d64f38ce90b355
 - summary: Design document for V1 intellectual property relationships in the Emergence Universe, including an Excalidraw diagram, a mock narrative collection on Story Protocol Explorer, and a...
 
+## [2026-05-12T05:52:01Z] synthesis | Native Yield
+
+- status: published
+- slug: concepts/concept-native-yield
+- wiki_revision_id: wikirev_068444d386b318725ca7ece6a3407ff7
+- summary: Native yield in DeFi refers to earnings generated directly from underlying protocol operations without reliance on external economic activities.
+
+## [2026-05-12T05:52:01Z] synthesis | Rebase Token
+
+- status: published
+- slug: concepts/concept-rebase-token
+- wiki_revision_id: wikirev_d2deb85e29d9361f617870a674d9ae90
+- summary: Rebase tokens automatically adjust their supply at predetermined intervals based on price targets, changing individual holder balances without altering market cap or percentage sha...
+
