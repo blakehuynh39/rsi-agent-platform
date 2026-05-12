@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "926e4a6545093218711efb7e870975b970201f5f422305c3868e4d68efafb74a",
-        "size": 581230
+        "sha256": "48163023486a042d4ad6d861beb58868264a7580e86fc6c295d023cc1091e056",
+        "size": 582357
       },
       {
         "path": "log.md",
-        "sha256": "51d404efc7bd4409a3021a8050c8e8d922de39a54f9f3495bf9cbecf354c5df6",
-        "size": 1064126
+        "sha256": "18e046b2624e92c2d1f6154ff610f28d7b7b4ae7ceafa1eced1b0e2736c37c54",
+        "size": 1065289
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3073,6 +3073,21 @@
         "path": "pages/concepts/cross-chain-interactions.md",
         "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
         "size": 5888
+      },
+      {
+        "path": "pages/concepts/crypto-governance-proposals-examples.md",
+        "sha256": "d6bdf64a3b436110bf4707e5555ab4de8ced30203500cfa178edacb21a856127",
+        "size": 3469
+      },
+      {
+        "path": "pages/concepts/crypto-governance-systems.md",
+        "sha256": "23aa6c7574edf64ef48a66dfcb9bc33c8a4458e772021ff56bb7162011644d5c",
+        "size": 4411
+      },
+      {
+        "path": "pages/concepts/crypto-voting-strategies.md",
+        "sha256": "10415f1632676cdb3663e84bb0a59080e1102b13f892686063da3b815d3fc1fd",
+        "size": 3618
       },
       {
         "path": "pages/concepts/dashboard-explorer.md",
@@ -6144,8 +6159,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T07:23:59Z",
-  "file_count": 1227,
+  "exported_at": "2026-05-12T07:40:34Z",
+  "file_count": 1230,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9082,7 +9097,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "6cdcb6f36fd2f3961b4beb27e21c8a1b7313bbdc8365ec01707619727b71ff99",
+  "previous_tree_hash": "379be22c83d5a7148e7c7b1dd59e6afa9362b3c2583aa4e730ebd6a63ef3dbea",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9095,14 +9110,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "379be22c83d5a7148e7c7b1dd59e6afa9362b3c2583aa4e730ebd6a63ef3dbea",
+  "tree_hash": "d1b6fcff5b76fae26732ae5b05e56f7e00101e447fd174d6be5c5283512fae25",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 641,
+  "wiki_file_count": 644,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9111,13 +9126,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "926e4a6545093218711efb7e870975b970201f5f422305c3868e4d68efafb74a",
-      "size": 581230
+      "sha256": "48163023486a042d4ad6d861beb58868264a7580e86fc6c295d023cc1091e056",
+      "size": 582357
     },
     {
       "path": "log.md",
-      "sha256": "51d404efc7bd4409a3021a8050c8e8d922de39a54f9f3495bf9cbecf354c5df6",
-      "size": 1064126
+      "sha256": "18e046b2624e92c2d1f6154ff610f28d7b7b4ae7ceafa1eced1b0e2736c37c54",
+      "size": 1065289
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9243,6 +9258,21 @@
       "path": "pages/concepts/cross-chain-interactions.md",
       "sha256": "d0761007f325abd33e7e179da5fd3fefe0830d6f91dae2e0b6f5d36b51d2e767",
       "size": 5888
+    },
+    {
+      "path": "pages/concepts/crypto-governance-proposals-examples.md",
+      "sha256": "d6bdf64a3b436110bf4707e5555ab4de8ced30203500cfa178edacb21a856127",
+      "size": 3469
+    },
+    {
+      "path": "pages/concepts/crypto-governance-systems.md",
+      "sha256": "23aa6c7574edf64ef48a66dfcb9bc33c8a4458e772021ff56bb7162011644d5c",
+      "size": 4411
+    },
+    {
+      "path": "pages/concepts/crypto-voting-strategies.md",
+      "sha256": "10415f1632676cdb3663e84bb0a59080e1102b13f892686063da3b815d3fc1fd",
+      "size": 3618
     },
     {
       "path": "pages/concepts/dashboard-explorer.md",
@@ -12311,5 +12341,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2754bedc7a6b27584e156642c7f18b45510de968684c4f9f363040a06f2bb3a7"
+  "wiki_tree_hash": "74e36786f36863baf9a55f02c89404c22ba3710d7978a99b26bdc24bf7cc840a"
 }

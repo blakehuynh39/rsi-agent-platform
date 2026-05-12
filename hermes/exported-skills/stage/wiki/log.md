@@ -22286,3 +22286,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd08b518cc89d7b8e51d474a3cbaf5a1
 - summary: Outlines the documentation, release cycle, CI/CD, node setup, validator setup, and developer guide preparation for the Story partner testnet L1 launch.
 
+## [2026-05-12T07:37:57Z] synthesis | Crypto Governance Systems
+
+- status: published
+- slug: concepts/crypto-governance-systems
+- wiki_revision_id: wikirev_ff70994af972d69c175efbf1353e369a
+- summary: Overview of governance systems used to upgrade or mutate decentralized systems like blockchains and smart contracts, including 'no governance' approaches, fork-based upgrades, and ...
+
+## [2026-05-12T07:37:57Z] synthesis | Crypto Voting Strategies and Types
+
+- status: published
+- slug: concepts/crypto-voting-strategies
+- wiki_revision_id: wikirev_115fe641c7bd497100fbf42f42961e7d
+- summary: Overview of voting strategies used in crypto governance, including token-based voting power calculations, voting types, and quorum/threshold concepts.
+
+## [2026-05-12T07:37:57Z] synthesis | Crypto Governance Proposals and Voting Examples
+
+- status: published
+- slug: concepts/crypto-governance-proposals-examples
+- wiki_revision_id: wikirev_55486735985d7ed1e51045d2d71e4d58
+- summary: Examples of governance proposals and voting mechanisms across Cosmos (on-chain), Compound (Tally), and Balancer (Snapshot), highlighting the trade-offs between on-chain execution a...
+
