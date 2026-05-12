@@ -2956,8 +2956,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "067a6d2beb5c338d25e9927006d6453c0724b18761438d2a75e3b23e353e5596",
-        "size": 1074931
+        "sha256": "767022ed02243a075f55ab6a57daee6816dd0dafe01a723031ee28b06e5ee9bc",
+        "size": 1075324
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5400,6 +5400,11 @@
         "size": 4253
       },
       {
+        "path": "pages/projects/trace-product-requirements-v1.md",
+        "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
+        "size": 9328
+      },
+      {
         "path": "pages/projects/trident-v0-1-0.md",
         "sha256": "ce49a4eba9f74fbd787a49ed5143fae67be8ad6a1a3d256e1557b3f0ee44cc7f",
         "size": 5234
@@ -6234,8 +6239,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T20:47:37Z",
-  "file_count": 1245,
+  "exported_at": "2026-05-12T21:04:31Z",
+  "file_count": 1246,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9182,7 +9187,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
-  "previous_tree_hash": "7439b6580673c4253309ba4e8c7f20020dbde7c46f232ef2632efad9e72b352a",
+  "previous_tree_hash": "5b3d191e52f28ee58476eb754f3d066963fb91d9e70c6384d2cbe00db562afd4",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9195,14 +9200,14 @@
   ],
   "skill_tree_hash": "26740463222ebaef70b99bc5635ff4ffc9392922324a824a64bbda8ad351d470",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5b3d191e52f28ee58476eb754f3d066963fb91d9e70c6384d2cbe00db562afd4",
+  "tree_hash": "72b1fdf874bea052a494ef7095d3df81b3bfb125cb19da7fbf0baff300bba227",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 657,
+  "wiki_file_count": 658,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9216,8 +9221,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "067a6d2beb5c338d25e9927006d6453c0724b18761438d2a75e3b23e353e5596",
-      "size": 1074931
+      "sha256": "767022ed02243a075f55ab6a57daee6816dd0dafe01a723031ee28b06e5ee9bc",
+      "size": 1075324
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11660,6 +11665,11 @@
       "size": 4253
     },
     {
+      "path": "pages/projects/trace-product-requirements-v1.md",
+      "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
+      "size": 9328
+    },
+    {
       "path": "pages/projects/trident-v0-1-0.md",
       "sha256": "ce49a4eba9f74fbd787a49ed5143fae67be8ad6a1a3d256e1557b3f0ee44cc7f",
       "size": 5234
@@ -12491,5 +12501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4875c004d370ef186d4a292081b813b88b40d15d2119fb66b920061d59eca0aa"
+  "wiki_tree_hash": "4b3b412a5b501dec8b0bc6bcbbca8491b8837aad050d639e24553d89ba9dc37a"
 }

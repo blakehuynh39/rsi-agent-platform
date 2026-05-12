@@ -22492,3 +22492,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_96943895e61253071bf53b9d4e98ad2b
 - summary: Notion page containing an inline database tracking APIs and models related to pre-verification.
 
+## [2026-05-12T21:03:38Z] synthesis | Trace V1 Product Requirements
+
+- status: published
+- slug: projects/trace-product-requirements-v1
+- wiki_revision_id: wikirev_b012be52391d222619a813720356a784
+- summary: Trace is the public audit layer for data registered on the Protocol. It generates immutable receipts for contributions from apps like Kled, Numo, Oto, and Miso, enabling labs to ve...
+
