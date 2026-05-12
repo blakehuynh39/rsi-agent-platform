@@ -22132,3 +22132,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9c0c6c5fd7263bde1e36b5b4ca266c4f
 - summary: Core architectural components of the Story Protocol, including StoryBlocks, Franchises, Ownership vs Control, and data storage mechanisms.
 
+## [2026-05-12T02:33:19Z] synthesis | Frontend
+
+- status: published
+- slug: concepts/frontend
+- wiki_revision_id: wikirev_00fad7175b751e0d795b398ec75228e9
+- summary: A hub page linking to various frontend resources and subpages.
+
+## [2026-05-12T02:33:20Z] synthesis | Parallax Scrolling Resource
+
+- status: published
+- slug: concepts/parallax-scrolling-resource
+- wiki_revision_id: wikirev_55f2a9193c576b8a5ba268bd98d23748
+- summary: A collection of parallax scrolling libraries, tools, and reference websites.
+

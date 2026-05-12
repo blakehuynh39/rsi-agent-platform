@@ -5,7 +5,7 @@ slug: "concepts/frontend"
 freshness: "2023-10-17T00:40:00Z"
 tags:
   - "frontend"
-  - "resources"
+  - "hub"
 owners: []
 source_revision_ids:
   - "srcrev_8e2a5dec8d5a9b8770fc2460733347b1"
@@ -25,10 +25,10 @@ A hub page linking to various frontend resources and subpages.
 
 ## Related Pages
 
-- `concepts/content-references`
+- `concepts/parallax-scrolling-resource`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_57c6e0fbc45bdc41e6d0f45aa3dfb596`
-- `source_revision_id`: `srcrev_c84c1a5fd8040e150d2f7758d5a90020`
-- `source_url`: [Notion source](https://www.notion.so/Content-references-9ae03ae7efa243a3969c0bec6c136d19)
+- `source_document_id`: `srcdoc_890ed34aa17626edd8d9ffdcf3bc472d`
+- `source_revision_id`: `srcrev_9ab15a5c1e7a8d425dd7105346d127eb`
+- `source_url`: [Notion source](https://www.notion.so/Parallax-Scrolling-Resource-4ea82bafd2bd455bb038bfcfeb517b51)

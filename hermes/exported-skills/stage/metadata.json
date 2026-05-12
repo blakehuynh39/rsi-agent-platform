@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7071534d1afb73e27dc9ddc3695c37b43ac000c36bf43c8980594aa3d8f5648a",
-        "size": 1056227
+        "sha256": "0f3d314f1b4df51e0d563cf88d7279237fddef20ae52593a8e18c894bd1b10d1",
+        "size": 1056739
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3201,8 +3201,8 @@
       },
       {
         "path": "pages/concepts/frontend.md",
-        "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
-        "size": 1255
+        "sha256": "0ed26a2b691e1ae3e774b3a932c15ea64c86287ece7dd210b8b9b65d93b977de",
+        "size": 1267
       },
       {
         "path": "pages/concepts/future-research-direction-wishlist.md",
@@ -3493,6 +3493,11 @@
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
         "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
         "size": 1415
+      },
+      {
+        "path": "pages/concepts/parallax-scrolling-resource.md",
+        "sha256": "2b0a6c8782783bb5f813c09e1e072b5dedfdf2ba3153c5adbe0b579fad8b87da",
+        "size": 1404
       },
       {
         "path": "pages/concepts/partner-integration.md",
@@ -6049,8 +6054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T02:12:22Z",
-  "file_count": 1208,
+  "exported_at": "2026-05-12T02:34:06Z",
+  "file_count": 1209,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8987,7 +8992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "a3cdb603f44811319ad281ac43c98ea22756d5935c75e4d9831858fba2276b05",
+  "previous_tree_hash": "ddf21627cb417942eae0c1365ab8ccbf878da0a275cd7adc08a44dc4f263fe7a",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9000,14 +9005,14 @@
   ],
   "skill_tree_hash": "1ec6b90e04d4807d44546d9ec6d4e6ac11a60b4e8c5a65d15effde2f414147ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ddf21627cb417942eae0c1365ab8ccbf878da0a275cd7adc08a44dc4f263fe7a",
+  "tree_hash": "118fa4863e40790e052278f6ae4e13b239b1150f554abbb9039c2cc0c0aa450a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 622,
+  "wiki_file_count": 623,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9021,8 +9026,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7071534d1afb73e27dc9ddc3695c37b43ac000c36bf43c8980594aa3d8f5648a",
-      "size": 1056227
+      "sha256": "0f3d314f1b4df51e0d563cf88d7279237fddef20ae52593a8e18c894bd1b10d1",
+      "size": 1056739
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9276,8 +9281,8 @@
     },
     {
       "path": "pages/concepts/frontend.md",
-      "sha256": "818e0e097e2de12c0ab50f518b48b72601974da9de00a0ef99f455ad2bccc471",
-      "size": 1255
+      "sha256": "0ed26a2b691e1ae3e774b3a932c15ea64c86287ece7dd210b8b9b65d93b977de",
+      "size": 1267
     },
     {
       "path": "pages/concepts/future-research-direction-wishlist.md",
@@ -9568,6 +9573,11 @@
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
       "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
       "size": 1415
+    },
+    {
+      "path": "pages/concepts/parallax-scrolling-resource.md",
+      "sha256": "2b0a6c8782783bb5f813c09e1e072b5dedfdf2ba3153c5adbe0b579fad8b87da",
+      "size": 1404
     },
     {
       "path": "pages/concepts/partner-integration.md",
@@ -12121,5 +12131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9a919e6d34d3f66798f67915f8c548b24a3038282857e9758ab7689c977e6044"
+  "wiki_tree_hash": "e6b2c80acba192d35f2b4f835a74b346f344e5f2d18591fd6aaee4c73645e246"
 }
