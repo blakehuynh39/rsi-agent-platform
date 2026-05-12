@@ -22188,3 +22188,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7d59b38534352f721c68e3f1cd011135
 - summary: Jon Rogers provided feedback on the MCEU project, emphasizing lore consistency, gamified exploration, overcoming Loot's shortcomings with text NFTs, dynamic AI visuals tied to stor...
 
+## [2026-05-12T04:22:56Z] synthesis | Block Explorer Vendor Evaluation
+
+- status: published
+- slug: decisions/block-explorer-vendor-evaluation
+- wiki_revision_id: wikirev_3423ae6bffdea1ebd85502e30047c707
+- summary: An evaluation of three block explorer solutions—Nexandria, SocialScan, and Lore—to inform a selection decision. Nexandria offers a powerful Dev Mode and stats but lacks core featur...
+

@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4e39265fb8c38ac1bc1ce655e2aea0951b833b0e85f329c5995fd835ed8a34d2",
-        "size": 576553
+        "sha256": "43f69949febcca7a87d720efd1136191a58f35daa1cd30ebfb6c84afce85758f",
+        "size": 576945
       },
       {
         "path": "log.md",
-        "sha256": "a9a4682ac728013e71d1e7f02c2318ebf6664b773b53e231916cb2658961a0cc",
-        "size": 1058922
+        "sha256": "610cf63f235ec149f4fbd025237f2b4565ed3ac4bf1adabce7855d63f8a0bfcf",
+        "size": 1059326
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3833,6 +3833,11 @@
         "path": "pages/decisions/beta-1st-week-architectural-review.md",
         "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
         "size": 7155
+      },
+      {
+        "path": "pages/decisions/block-explorer-vendor-evaluation.md",
+        "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
+        "size": 12799
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -6079,8 +6084,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T04:08:44Z",
-  "file_count": 1214,
+  "exported_at": "2026-05-12T04:25:46Z",
+  "file_count": 1215,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9017,7 +9022,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "ad09313083b756c0c04c3055bd5db40dca0cf6d22db3673ddc5a89d22c435745",
+  "previous_tree_hash": "fc1ca7538a7ed458705e1048ad7deda61158a16e5685f0607ce073a99029820d",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9030,14 +9035,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fc1ca7538a7ed458705e1048ad7deda61158a16e5685f0607ce073a99029820d",
+  "tree_hash": "0c6fb3d09608dbd9c6d021bdeea9570e16cba071740324c6ce39bcba7343d2a5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 628,
+  "wiki_file_count": 629,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9046,13 +9051,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4e39265fb8c38ac1bc1ce655e2aea0951b833b0e85f329c5995fd835ed8a34d2",
-      "size": 576553
+      "sha256": "43f69949febcca7a87d720efd1136191a58f35daa1cd30ebfb6c84afce85758f",
+      "size": 576945
     },
     {
       "path": "log.md",
-      "sha256": "a9a4682ac728013e71d1e7f02c2318ebf6664b773b53e231916cb2658961a0cc",
-      "size": 1058922
+      "sha256": "610cf63f235ec149f4fbd025237f2b4565ed3ac4bf1adabce7855d63f8a0bfcf",
+      "size": 1059326
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9938,6 +9943,11 @@
       "path": "pages/decisions/beta-1st-week-architectural-review.md",
       "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
       "size": 7155
+    },
+    {
+      "path": "pages/decisions/block-explorer-vendor-evaluation.md",
+      "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
+      "size": 12799
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -12181,5 +12191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f997aee039079cd47551568e9c6e57c2b5498d5f55114f73306debef7c43efa3"
+  "wiki_tree_hash": "38e71c42be632bd1d93404a4d69381b00d3f851b4dc27160aec646fb05d2b676"
 }
