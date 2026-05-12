@@ -2951,13 +2951,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "11df3d9ae3f41d31418dad97afe45b3d9309f74d5e5a71e4bf7aa6c2931da857",
+        "sha256": "198845d8042c93dc69ad702c8b66eee6566aa084677cafbc0b836356e1191061",
         "size": 589401
       },
       {
         "path": "log.md",
-        "sha256": "72002e5cad5fc459437bd2c353213caabb2621dcb2890a2d4f2ba8eed03ec9e4",
-        "size": 1079780
+        "sha256": "bb34dddd139263d5b1b1752ce57d523182ae0f54133f372a352f02ca3fa95c54",
+        "size": 1080600
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5891,7 +5891,7 @@
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
-        "sha256": "dea304e3daeb1c0c972b67eaece5107965044f34b59f87f9599a50447925786e",
+        "sha256": "d82af28af2d53c72a36c275da3b7c8093a00a584a758ba181be8165b9436ce46",
         "size": 3305
       },
       {
@@ -6249,7 +6249,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T23:03:29Z",
+  "exported_at": "2026-05-12T23:35:34Z",
   "file_count": 1248,
   "files": [
     {
@@ -9197,7 +9197,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
-  "previous_tree_hash": "a260d1d6e9579084290074e4347635b8a670b4b29faa2df27b0c98d791248cb9",
+  "previous_tree_hash": "9a2eefa914f8d5b665cad8beba16fdbe08827a70bc06caf8caaf10ecd1b422b8",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9210,7 +9210,7 @@
   ],
   "skill_tree_hash": "26740463222ebaef70b99bc5635ff4ffc9392922324a824a64bbda8ad351d470",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9a2eefa914f8d5b665cad8beba16fdbe08827a70bc06caf8caaf10ecd1b422b8",
+  "tree_hash": "b6215082571d6e02e3b058dd4c2982c315a0d1af7e12bfab2a205eebe42d9c54",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9226,13 +9226,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "11df3d9ae3f41d31418dad97afe45b3d9309f74d5e5a71e4bf7aa6c2931da857",
+      "sha256": "198845d8042c93dc69ad702c8b66eee6566aa084677cafbc0b836356e1191061",
       "size": 589401
     },
     {
       "path": "log.md",
-      "sha256": "72002e5cad5fc459437bd2c353213caabb2621dcb2890a2d4f2ba8eed03ec9e4",
-      "size": 1079780
+      "sha256": "bb34dddd139263d5b1b1752ce57d523182ae0f54133f372a352f02ca3fa95c54",
+      "size": 1080600
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12166,7 +12166,7 @@
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
-      "sha256": "dea304e3daeb1c0c972b67eaece5107965044f34b59f87f9599a50447925786e",
+      "sha256": "d82af28af2d53c72a36c275da3b7c8093a00a584a758ba181be8165b9436ce46",
       "size": 3305
     },
     {
@@ -12521,5 +12521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bb60ec36bdad24124c1fe516d414e0466d41f3932ef61de1ab54686539e463b8"
+  "wiki_tree_hash": "70228126ab963f7cae558fb5949b43bd8efe53c2b0bb54886540805b5983bb4e"
 }
