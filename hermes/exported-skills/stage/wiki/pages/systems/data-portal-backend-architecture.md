@@ -7,7 +7,7 @@ tags:
   - "architecture"
   - "backend"
   - "data-portal"
-  - "metadata-versioning"
+  - "metadata"
   - "smart-contract"
 owners: []
 source_revision_ids:
@@ -35,5 +35,5 @@ Architecture overview of the Data Portal Backend, including an embedded diagram 
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_dd60750e2bde2f5497f24205c7df28ca`
+- `source_revision_id`: `srcrev_81003b93c67492fc5a715f0885d6e98d`
 - `source_url`: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)

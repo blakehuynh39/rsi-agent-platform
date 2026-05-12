@@ -22572,3 +22572,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_99ba976e8a4a8f56c1e8d851dff7d0f3
 - summary: Architecture overview of the Data Portal Backend, including an embedded diagram and high-level smart contract ideas for metadata versioning.
 
+## [2026-05-12T23:00:34Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_1d51c1e910f7a037341cf67443ec2a79
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_81003b93c67492fc5a715f0885d6e98d
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-12T23:02:34Z] synthesis | Data Portal Backend Architecture
+
+- status: published
+- slug: systems/data-portal-backend-architecture
+- wiki_revision_id: wikirev_1a2f1a778d65c0468e840b6eefef1108
+- summary: Architecture overview of the Data Portal Backend, including an embedded diagram and high-level smart contract ideas for metadata versioning.
+
