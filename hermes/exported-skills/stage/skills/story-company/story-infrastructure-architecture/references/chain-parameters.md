@@ -157,8 +157,26 @@ The `story-api` and `story-api-v2` deployments in K8s are **nginx placeholders**
 | Layer | Limit | Approx Capacity |
 |---|---|---|
 | Consensus (CometBFT) | 1,000+ TPS | Not the bottleneck |
+| EVM execution (Geth fork) | 50-200+ MGas/s (modern clients) | Story needs 16.4 MGas/s at 36M/2.2s — 3-12× headroom |
 | Execution (Geth EVM, 36M gas) | Gas-limit governed | Depends on tx complexity |
 | Full IP registration (1M gas) | ~18 tx/block | ~777K/day |
 | Metadata-only update (75K gas) | ~480 tx/block | ~10.4M/day |
 | Wallet nonce (40 wallets) | ~4-20 TPS | ~345K-1.7M/day |
 | EAS batch attestation | ~360 batches/block | Millions/day |
+
+### EVM Execution Speed Reference
+
+Modern EVM execution clients process 50-200+ MGas/s on production hardware. Source: Paradigm Research (Apr 2024) reports Reth achieves 100-200 MGas/s during live sync; Nethermind Gas Benchmarking Framework (Nov 2025) shows clients handle hundreds of MGas/s for common opcodes. Geth (Story's fork) is in the same order of magnitude.
+
+At Story's 36M gas / 2.2s block time: 16.4 MGas/s required — 3-12× below client capability. The EVM interpreter is NOT the bottleneck. Gas limit could be raised to ~110M (3×) before EVM execution approaches limits. The real constraints on gas limit increases are state growth (SSTORE bloat), block propagation latency, and validator hardware requirements — not raw execution speed.
+
+### Precompile Optimization Potential
+
+See `references/precompile-gas-analysis.md` for full analysis. Summary:
+
+| Operation | Current (Solidity) | Precompile (est.) | Improvement | TPS Impact |
+|---|---|---|---|---|
+| MetadataURISet | ~75,000 gas | ~2,000-3,000 gas | 25-37× | 218 → ~5,400 TPS |
+| mintAndRegisterIp | ~1,000,000 gas | ~30,000-50,000 gas | 20-33× | 16 → ~400 TPS |
+
+Calibrated against Story's existing ipgraph precompile (0x0101): writes at ~1,000 gas, reads at 10-40 gas. Source: docs.story.foundation precompile docs, piplabs/story-geth contracts.go. External EVM benchmarks in `references/evm-performance-benchmarks.md`.
