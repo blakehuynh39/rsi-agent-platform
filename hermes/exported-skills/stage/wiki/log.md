@@ -22272,3 +22272,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c389e8ce0673f59351203e216f34450c
 - summary: Weekly roadmap tracking L1 devnet setup, SDK development, API optimization, and partner integration from May 13 to June 3.
 
+## [2026-05-12T06:47:14Z] synthesis | Story Network Features 2024/5
+
+- status: published
+- slug: projects/story-network-features-2024-5
+- wiki_revision_id: wikirev_0d3729dcbffb2dcf90bac4a9c1246399
+- summary: This document serves as the source of truth for all immediate and future use cases needed by Story's blockchain, ranked by priority. It covers features across client, Cosmos SDK, c...
+
