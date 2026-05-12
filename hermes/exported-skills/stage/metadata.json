@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "610cf63f235ec149f4fbd025237f2b4565ed3ac4bf1adabce7855d63f8a0bfcf",
-        "size": 1059326
+        "sha256": "db1690c5816e0eb39830a56ecd5b28eb4ae0d53b09b35103a9ce0f53407e35d8",
+        "size": 1059764
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4003,6 +4003,11 @@
         "path": "pages/decisions/meta-transaction-architecture-decision.md",
         "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
         "size": 4651
+      },
+      {
+        "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
+        "sha256": "1e7dd3457a5cd5cba1bd0c8fa5779f34a6936902a1e301eeb0f2363c9a5faaa3",
+        "size": 7275
       },
       {
         "path": "pages/decisions/multi-parent-ip-derivation.md",
@@ -6084,8 +6089,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T04:25:46Z",
-  "file_count": 1215,
+  "exported_at": "2026-05-12T04:32:32Z",
+  "file_count": 1216,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9022,7 +9027,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "fc1ca7538a7ed458705e1048ad7deda61158a16e5685f0607ce073a99029820d",
+  "previous_tree_hash": "0c6fb3d09608dbd9c6d021bdeea9570e16cba071740324c6ce39bcba7343d2a5",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9035,14 +9040,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0c6fb3d09608dbd9c6d021bdeea9570e16cba071740324c6ce39bcba7343d2a5",
+  "tree_hash": "7b4919a45b3f9026391a890f610257bce8599312587102ca49d5801623e8ccef",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 629,
+  "wiki_file_count": 630,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9056,8 +9061,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "610cf63f235ec149f4fbd025237f2b4565ed3ac4bf1adabce7855d63f8a0bfcf",
-      "size": 1059326
+      "sha256": "db1690c5816e0eb39830a56ecd5b28eb4ae0d53b09b35103a9ce0f53407e35d8",
+      "size": 1059764
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10113,6 +10118,11 @@
       "path": "pages/decisions/meta-transaction-architecture-decision.md",
       "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
       "size": 4651
+    },
+    {
+      "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
+      "sha256": "1e7dd3457a5cd5cba1bd0c8fa5779f34a6936902a1e301eeb0f2363c9a5faaa3",
+      "size": 7275
     },
     {
       "path": "pages/decisions/multi-parent-ip-derivation.md",
@@ -12191,5 +12201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "38e71c42be632bd1d93404a4d69381b00d3f851b4dc27160aec646fb05d2b676"
+  "wiki_tree_hash": "ab32c336633bc55096fbf8089ecefa5621b5f1141cd2d78574bbedb7fae23126"
 }

@@ -22195,3 +22195,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3423ae6bffdea1ebd85502e30047c707
 - summary: An evaluation of three block explorer solutions—Nexandria, SocialScan, and Lore—to inform a selection decision. Nexandria offers a powerful Dev Mode and stats but lacks core featur...
 
+## [2026-05-12T04:31:55Z] synthesis | Module Upgradeability and IPAccount ACL Design Decisions
+
+- status: published
+- slug: decisions/module-upgradeability-and-acl-design-decisions
+- wiki_revision_id: wikirev_00ae5fb8bd1c1925e4643ef7d0455669
+- summary: Design decisions around module upgradeability, IPAccount ACL, delegation, and meta-transactions to unblock the security audit pipeline. Key decisions include adopting a common Modu...
+
