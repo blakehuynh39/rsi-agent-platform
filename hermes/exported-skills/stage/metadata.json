@@ -2951,13 +2951,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d98ebf88d0443b41ead3ee88530d9e6c3b90930a8979942b3519c6acb1475306",
-        "size": 584920
+        "sha256": "00e33e7edb03e6826276925cbd1b7449774c6339b2521c8b5b9d430e95d42eb1",
+        "size": 585315
       },
       {
         "path": "log.md",
-        "sha256": "99f6f27029461aee547c97bd3495820f3501695996df36f4ad8c80484516a3d1",
-        "size": 1069392
+        "sha256": "0f22df0d75f9b54d94df9afa97f2a53a0708211d5f8acdaa7a29cc8f59646430",
+        "size": 1070154
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -2978,6 +2978,11 @@
         "path": "pages/concepts/ai-frameworks-integration.md",
         "sha256": "6a1ffbbcec82dbb2b5ad6c63d45baefc3a2a03928a7f9ac8fe3d1831ec4ee2a1",
         "size": 3197
+      },
+      {
+        "path": "pages/concepts/ai-inference-optimization-techniques.md",
+        "sha256": "074259067f5f6c2565685865b0ad96e4e8763e2c606743d9abf16813a71cc1fe",
+        "size": 4933
       },
       {
         "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -4476,8 +4481,8 @@
       },
       {
         "path": "pages/projects/ai-inference-deployment-research-process.md",
-        "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
-        "size": 5454
+        "sha256": "700a714394334da2d1be4eaf91961aee7d837f3928bd7e5d947e165e0ca009fb",
+        "size": 5492
       },
       {
         "path": "pages/projects/ai-infra-research-proposal.md",
@@ -6204,8 +6209,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T15:36:55Z",
-  "file_count": 1239,
+  "exported_at": "2026-05-12T16:08:46Z",
+  "file_count": 1240,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9152,7 +9157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "d63648fce0369f1086d72428b9f32a7909ccddd8719800acbf8df6ca70435049",
+  "previous_tree_hash": "8934a42230a23d9dbd32fb89f598e660098e895e658b3867e569ff5f433e5027",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9165,14 +9170,14 @@
   ],
   "skill_tree_hash": "291d88d2f931ba12c71483bfcf3e41c917cc10bd53118f77f1ab9c3ca3d64c7f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8934a42230a23d9dbd32fb89f598e660098e895e658b3867e569ff5f433e5027",
+  "tree_hash": "debf9506405aee667fd7a1bd3fe7928e6c390abe9a0bb38f4df0aafc54c32e5d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 651,
+  "wiki_file_count": 652,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9181,13 +9186,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d98ebf88d0443b41ead3ee88530d9e6c3b90930a8979942b3519c6acb1475306",
-      "size": 584920
+      "sha256": "00e33e7edb03e6826276925cbd1b7449774c6339b2521c8b5b9d430e95d42eb1",
+      "size": 585315
     },
     {
       "path": "log.md",
-      "sha256": "99f6f27029461aee547c97bd3495820f3501695996df36f4ad8c80484516a3d1",
-      "size": 1069392
+      "sha256": "0f22df0d75f9b54d94df9afa97f2a53a0708211d5f8acdaa7a29cc8f59646430",
+      "size": 1070154
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9208,6 +9213,11 @@
       "path": "pages/concepts/ai-frameworks-integration.md",
       "sha256": "6a1ffbbcec82dbb2b5ad6c63d45baefc3a2a03928a7f9ac8fe3d1831ec4ee2a1",
       "size": 3197
+    },
+    {
+      "path": "pages/concepts/ai-inference-optimization-techniques.md",
+      "sha256": "074259067f5f6c2565685865b0ad96e4e8763e2c606743d9abf16813a71cc1fe",
+      "size": 4933
     },
     {
       "path": "pages/concepts/ai-model-training-and-fine-tuning-strategies.md",
@@ -10706,8 +10716,8 @@
     },
     {
       "path": "pages/projects/ai-inference-deployment-research-process.md",
-      "sha256": "405bd56aa65c0cfcd7b64db4f0ee1c22a485a59877ff42623d9ed18a6816974c",
-      "size": 5454
+      "sha256": "700a714394334da2d1be4eaf91961aee7d837f3928bd7e5d947e165e0ca009fb",
+      "size": 5492
     },
     {
       "path": "pages/projects/ai-infra-research-proposal.md",
@@ -12431,5 +12441,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a5038de782d43a3391430dddefb02a81c286473a8f406fc313849c3582b4346d"
+  "wiki_tree_hash": "f926b4f3e7f7f0d43f078f1ca6b8885e5b2e207ac20615394804fb5a4b052d7f"
 }

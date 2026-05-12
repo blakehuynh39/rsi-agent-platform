@@ -22384,3 +22384,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4400fb7b254f629cbe9fd9aba5b17d42
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-12T16:07:51Z] synthesis | AI Inference & Deployment Research Process
+
+- status: published
+- slug: projects/ai-inference-deployment-research-process
+- wiki_revision_id: wikirev_a74c9a4294a934dbf68458b4fdf4e39e
+- summary: Research process and topics for the Story AI team focusing on inference and deployment, as outlined in a Notion document.
+
+## [2026-05-12T16:07:51Z] synthesis | AI Inference Optimization Techniques
+
+- status: published
+- slug: concepts/ai-inference-optimization-techniques
+- wiki_revision_id: wikirev_11878608b8cd49152f4ada2a8241f8b8
+- summary: Overview of AI inference optimization techniques including compilation, quantization, speculative decoding, and model parallelization, along with potential blockchain applications ...
+

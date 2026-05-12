@@ -8,8 +8,7 @@ tags:
   - "deployment"
   - "process"
   - "research"
-owners:
-  - "Story AI team"
+owners: []
 source_revision_ids:
   - "srcrev_26abe28a6e54d753e0add261e61c53dd"
 conflict_state: "none"
@@ -40,8 +39,12 @@ Research process and topics for the Story AI team focusing on inference and depl
 - There is a synergy practice with group1’s model for an E2E flow for model performance observation and evaluation. `claim:claim_1_8` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Story-AI-Research-Inference-Deployment-190051299a5480589ec8edead051ca70) `source_document_id=srcdoc_c014b5a5a68922858c105ce7e9ee9a93` `source_revision_id=srcrev_26abe28a6e54d753e0add261e61c53dd` `chunk_id=srcchunk_87e19e3aa61d305d9d50b65498b1d6d3` `native_locator=https://www.notion.so/Story-AI-Research-Inference-Deployment-190051299a5480589ec8edead051ca70` `source_timestamp=2025-08-11T18:35:00Z`
 
+## Related Pages
+
+- `concepts/ai-inference-optimization-techniques`
+
 ## Sources
 
-- `source_document_id`: `srcdoc_c014b5a5a68922858c105ce7e9ee9a93`
-- `source_revision_id`: `srcrev_26abe28a6e54d753e0add261e61c53dd`
-- `source_url`: [Notion source](https://www.notion.so/Story-AI-Research-Inference-Deployment-190051299a5480589ec8edead051ca70)
+- `source_document_id`: `srcdoc_eca41cbc0fe04f90817274f5124f2cd6`
+- `source_revision_id`: `srcrev_2ff7575f175624705ee23b7cf7429d6a`
+- `source_url`: [Notion source](https://www.notion.so/Optimizations-Techniques-1ce051299a54806185adfe558720e1dc)
