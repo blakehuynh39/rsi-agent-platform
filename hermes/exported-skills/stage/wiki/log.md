@@ -22469,3 +22469,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd5d24cf8cbcc7416edcf1b38833ad07
 - summary: A three-phase plan to reposition Story as the operating system for data-generating applications, using first-party apps as a wedge to build a DePIN SDK and ecosystem layer.
 
+## [2026-05-12T20:05:54Z] synthesis | AI Data Audit Portal
+
+- status: published
+- slug: projects/ai-data-audit-portal
+- wiki_revision_id: wikirev_357c3c2ee940854265e9ccfffd711cd6
+- summary: Project to build an AI Data Audit Portal that provides transparent audit trails for data rights, IP registration, and legal compliance for data collected by third-party partners. I...
+

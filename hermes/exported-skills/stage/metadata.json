@@ -2956,8 +2956,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f3513b68789e6a4c354b43da7b2df3ff1c9f3ac4896731837d8b17e7030f62f1",
-        "size": 1073778
+        "sha256": "65d7d9895ccf1dffb0344b083ca0e9db4f5f6a2ec2f74698793d77fab94424ba",
+        "size": 1074153
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4481,8 +4481,8 @@
       },
       {
         "path": "pages/projects/ai-data-audit-portal.md",
-        "sha256": "0d0742b0a6c1a504cf91676a9867037f4bfa4f276d548592520918c3e395b847",
-        "size": 11674
+        "sha256": "35f92a4447f7a4b4841eba65703421806556b4dad560ea0965c012add5bf6ee3",
+        "size": 12162
       },
       {
         "path": "pages/projects/ai-inference-deployment-research-process.md",
@@ -6229,7 +6229,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T19:55:33Z",
+  "exported_at": "2026-05-12T20:07:20Z",
   "file_count": 1244,
   "files": [
     {
@@ -9177,7 +9177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-664d7844sh8",
-  "previous_tree_hash": "394636da3c7d0b3d9ba28cd1d24c38cf61271d85ad25341534ce0b7fdfbb1c5e",
+  "previous_tree_hash": "cb517261086af9902d419a93d6c494d7aae2640ead586213998b9edb3c9ed0fd",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9190,7 +9190,7 @@
   ],
   "skill_tree_hash": "26740463222ebaef70b99bc5635ff4ffc9392922324a824a64bbda8ad351d470",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cb517261086af9902d419a93d6c494d7aae2640ead586213998b9edb3c9ed0fd",
+  "tree_hash": "e63b9862417d4a8e297f9860c851c915694f6098cbf6c480a1c3a49f466b933e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9211,8 +9211,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f3513b68789e6a4c354b43da7b2df3ff1c9f3ac4896731837d8b17e7030f62f1",
-      "size": 1073778
+      "sha256": "65d7d9895ccf1dffb0344b083ca0e9db4f5f6a2ec2f74698793d77fab94424ba",
+      "size": 1074153
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10736,8 +10736,8 @@
     },
     {
       "path": "pages/projects/ai-data-audit-portal.md",
-      "sha256": "0d0742b0a6c1a504cf91676a9867037f4bfa4f276d548592520918c3e395b847",
-      "size": 11674
+      "sha256": "35f92a4447f7a4b4841eba65703421806556b4dad560ea0965c012add5bf6ee3",
+      "size": 12162
     },
     {
       "path": "pages/projects/ai-inference-deployment-research-process.md",
@@ -12481,5 +12481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d2c24b9c95be6d63f8b710fe9f21053821c5d82a1e1d4f4ddffa4f1ef7f4bae8"
+  "wiki_tree_hash": "8a1ed6545378fab090da461199d1a3926f1c521461037c430dee41c8491bbc01"
 }
