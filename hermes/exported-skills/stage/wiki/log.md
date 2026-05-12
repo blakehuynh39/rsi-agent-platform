@@ -22349,3 +22349,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2ba8f1867994b23911b39418b0fdf38e
 - summary: Guide for setting up a node for the Odyssey test network, including execution client (story-geth) and consensus client (story) setup, system requirements, configuration, automation...
 
+## [2026-05-12T12:25:16Z] synthesis | Odyssey Devnet (Protocol v1.3)
+
+- status: published
+- slug: systems/odyssey-devnet-protocol-v1-3
+- wiki_revision_id: wikirev_73849ddd4472c516c7a6ab23fe83b8b5
+- summary: Deployment details for Protocol v1.3 on the Odyssey Devnet, including RPC endpoint, chain ID, explorer, SUSD token, and contract addresses for core protocol and SPG.
+

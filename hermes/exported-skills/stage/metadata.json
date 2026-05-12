@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c255ddbc2a059729965b77be3ccde247882ba640d50267965f4ea9ff298ecd98",
-        "size": 583823
+        "sha256": "9e65c871100e84e49254f2dcd4200f5b89af9449d66d5ac8eedd084eb36caa52",
+        "size": 584544
       },
       {
         "path": "log.md",
-        "sha256": "7fd674b3133e9862c6ef7804de02f95393b3aeb06c80baa978bf6ac3ad798f33",
-        "size": 1067565
+        "sha256": "f9fbb6c1a98160883869df651e63b5fb0659195a155f1f67efa3f4ac1f82bef8",
+        "size": 1067939
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5980,6 +5980,11 @@
         "size": 1700
       },
       {
+        "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
+        "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
+        "size": 4631
+      },
+      {
         "path": "pages/systems/ollama-practices-macos.md",
         "sha256": "ec5460627c5a26ba43b8298cbb738fd60f8523d4306fcc216723fc650a220ee3",
         "size": 2644
@@ -6184,8 +6189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T12:24:10Z",
-  "file_count": 1235,
+  "exported_at": "2026-05-12T12:30:39Z",
+  "file_count": 1236,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9122,7 +9127,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "65da2994ea1a875553df0dc57b3be3bb585060da9571f7934db6dbf9fc21170a",
+  "previous_tree_hash": "990a6c83dc3634ddae99f80063f91917251469945ffa53cdc060fbf36acdba23",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9135,14 +9140,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "990a6c83dc3634ddae99f80063f91917251469945ffa53cdc060fbf36acdba23",
+  "tree_hash": "dfd892ad014ba0b9d61dd6fd7c7f6cc0c331da2715f0c9ebddb5519d7d054b7c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 649,
+  "wiki_file_count": 650,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9151,13 +9156,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c255ddbc2a059729965b77be3ccde247882ba640d50267965f4ea9ff298ecd98",
-      "size": 583823
+      "sha256": "9e65c871100e84e49254f2dcd4200f5b89af9449d66d5ac8eedd084eb36caa52",
+      "size": 584544
     },
     {
       "path": "log.md",
-      "sha256": "7fd674b3133e9862c6ef7804de02f95393b3aeb06c80baa978bf6ac3ad798f33",
-      "size": 1067565
+      "sha256": "f9fbb6c1a98160883869df651e63b5fb0659195a155f1f67efa3f4ac1f82bef8",
+      "size": 1067939
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12190,6 +12195,11 @@
       "size": 1700
     },
     {
+      "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
+      "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
+      "size": 4631
+    },
+    {
       "path": "pages/systems/ollama-practices-macos.md",
       "sha256": "ec5460627c5a26ba43b8298cbb738fd60f8523d4306fcc216723fc650a220ee3",
       "size": 2644
@@ -12391,5 +12401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d346526b824cf426d827b0155c483d8bc8068ad011464704f02091a3cf1909fb"
+  "wiki_tree_hash": "aeef7652734db4c226883d2952321dce211b74970f4c07a1c8f6dc4f8e48e257"
 }
