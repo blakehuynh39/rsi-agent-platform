@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5f6adb5a61d34cf41e64595b5b5b02790c43d69d6128dbe81edd8bd56675ebb9",
-        "size": 583461
+        "sha256": "97018a79a3c5d8087c857b69c65726a4cc10a6c943a9a0c7d4886daa58b00687",
+        "size": 583823
       },
       {
         "path": "log.md",
-        "sha256": "3908d5133c8b0ba7bc51f897416f1ad2d60d571dd7e7e08aa9c7c1b2356bb73d",
-        "size": 1066429
+        "sha256": "6be87b5e5e4222c66e60e68fcad80958ae1b63319e065356354369c9067045be",
+        "size": 1066803
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4298,6 +4298,11 @@
         "path": "pages/policies/engineering-meeting-cadence.md",
         "sha256": "fbe8ad68b24db646e3f5485a668e340b88b54de0dca9c187cd36e518cf95054a",
         "size": 1454
+      },
+      {
+        "path": "pages/policies/engineering-meetings-communication.md",
+        "sha256": "5f2e1b6ec614722546da331c75e58748ea16b8b1eb43d4c80b6e3b51b8fe7708",
+        "size": 6557
       },
       {
         "path": "pages/policies/engineering-onboarding.md",
@@ -6174,8 +6179,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T10:03:05Z",
-  "file_count": 1233,
+  "exported_at": "2026-05-12T10:24:45Z",
+  "file_count": 1234,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9112,7 +9117,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "512f892f863e5e51e370af7a626c0966a1e4a2acd860c48b198b8572f50b42c8",
+  "previous_tree_hash": "b022d42a6d463c3378c1b3131cecca8676b7b1cf29c0f7ca4e6b7b82b43f0bfd",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9125,14 +9130,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b022d42a6d463c3378c1b3131cecca8676b7b1cf29c0f7ca4e6b7b82b43f0bfd",
+  "tree_hash": "67806e22964942eb930aa9f4c8c45c32ffb645ed9430c96cc42af577b7f7874b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 647,
+  "wiki_file_count": 648,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9141,13 +9146,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5f6adb5a61d34cf41e64595b5b5b02790c43d69d6128dbe81edd8bd56675ebb9",
-      "size": 583461
+      "sha256": "97018a79a3c5d8087c857b69c65726a4cc10a6c943a9a0c7d4886daa58b00687",
+      "size": 583823
     },
     {
       "path": "log.md",
-      "sha256": "3908d5133c8b0ba7bc51f897416f1ad2d60d571dd7e7e08aa9c7c1b2356bb73d",
-      "size": 1066429
+      "sha256": "6be87b5e5e4222c66e60e68fcad80958ae1b63319e065356354369c9067045be",
+      "size": 1066803
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10498,6 +10503,11 @@
       "path": "pages/policies/engineering-meeting-cadence.md",
       "sha256": "fbe8ad68b24db646e3f5485a668e340b88b54de0dca9c187cd36e518cf95054a",
       "size": 1454
+    },
+    {
+      "path": "pages/policies/engineering-meetings-communication.md",
+      "sha256": "5f2e1b6ec614722546da331c75e58748ea16b8b1eb43d4c80b6e3b51b8fe7708",
+      "size": 6557
     },
     {
       "path": "pages/policies/engineering-onboarding.md",
@@ -12371,5 +12381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aedb379ef36318bb215ded80331c79dcedefa0ee7b61df25c340f473d95633f8"
+  "wiki_tree_hash": "3ab2d8df8371d7c8b54af6249dcfbd3a4867b484d8df8d133226ddd0968d8452"
 }

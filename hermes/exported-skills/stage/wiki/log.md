@@ -22328,3 +22328,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_08ca94d74c9e4951dc72e0d3d05d9ab2
 - summary: A comprehensive checklist covering security risks, operational tasks, scalability, and vendor considerations for the Hub project launch.
 
+## [2026-05-12T10:19:54Z] synthesis | Engineering Meetings and Communication Channels
+
+- status: published
+- slug: policies/engineering-meetings-communication
+- wiki_revision_id: wikirev_f1754d2758f4ff80b2c81d8325ab367e
+- summary: Defines the weekly meeting schedule and communication channels for the engineering team, including deprecated meetings and channel ownership.
+
