@@ -22265,3 +22265,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b7a7f55bc75e3097f9e77390cac68d9d
 - summary: Aggregated cost estimates for L1 infrastructure and applications, covering 1p infrastructure, 1p applications, ecosystem fund, IP studio, infrastructure partners, and engineering r...
 
+## [2026-05-12T06:23:58Z] synthesis | L1 Internal Devnet Roadmap
+
+- status: published
+- slug: projects/l1-internal-devnet-roadmap
+- wiki_revision_id: wikirev_c389e8ce0673f59351203e216f34450c
+- summary: Weekly roadmap tracking L1 devnet setup, SDK development, API optimization, and partner integration from May 13 to June 3.
+
