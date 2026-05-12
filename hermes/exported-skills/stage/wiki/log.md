@@ -22307,3 +22307,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_55486735985d7ed1e51045d2d71e4d58
 - summary: Examples of governance proposals and voting mechanisms across Cosmos (on-chain), Compound (Tally), and Balancer (Snapshot), highlighting the trade-offs between on-chain execution a...
 
+## [2026-05-12T08:06:09Z] synthesis | Open Source Repo Checklist
+
+- status: published
+- slug: policies/repo-open-source-checklist
+- wiki_revision_id: wikirev_7f08419b4f79aa981499c9f032d42733
+- summary: A checklist for preparing the Omni and geth fork repositories for public open sourcing. It tracks completed items such as README, security policy, license, code of conduct, and bra...
+

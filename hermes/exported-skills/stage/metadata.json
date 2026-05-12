@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "48163023486a042d4ad6d861beb58868264a7580e86fc6c295d023cc1091e056",
-        "size": 582357
+        "sha256": "f671d89863afcc7f7675306076236f78cc3a1be37587b555ac1bf40f829cdbf3",
+        "size": 582732
       },
       {
         "path": "log.md",
-        "sha256": "18e046b2624e92c2d1f6154ff610f28d7b7b4ae7ceafa1eced1b0e2736c37c54",
-        "size": 1065289
+        "sha256": "792f02ae427d9f6c280a25adb3f8db62ef3a06d1e4c6e758184c10c1e1defd9c",
+        "size": 1065676
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4363,6 +4363,11 @@
         "path": "pages/policies/product-intake-process.md",
         "sha256": "7664d52c28134ac8ed008f4b6c6ade445a3e265c3ddefffaa93ea021f5e83b8c",
         "size": 6644
+      },
+      {
+        "path": "pages/policies/repo-open-source-checklist.md",
+        "sha256": "d84a932732fd1ae06fe196ef6dd306933381972d7ede766770bc5d782a59c375",
+        "size": 7927
       },
       {
         "path": "pages/policies/serve-least-used-transcript-priority.md",
@@ -6159,8 +6164,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T07:40:34Z",
-  "file_count": 1230,
+  "exported_at": "2026-05-12T08:07:18Z",
+  "file_count": 1231,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9097,7 +9102,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "379be22c83d5a7148e7c7b1dd59e6afa9362b3c2583aa4e730ebd6a63ef3dbea",
+  "previous_tree_hash": "d1b6fcff5b76fae26732ae5b05e56f7e00101e447fd174d6be5c5283512fae25",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9110,14 +9115,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d1b6fcff5b76fae26732ae5b05e56f7e00101e447fd174d6be5c5283512fae25",
+  "tree_hash": "a3a14210b49d0e2da67e9f4e8489073bc74883dcc1f7241d328536eaa8a796ed",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 644,
+  "wiki_file_count": 645,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9126,13 +9131,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "48163023486a042d4ad6d861beb58868264a7580e86fc6c295d023cc1091e056",
-      "size": 582357
+      "sha256": "f671d89863afcc7f7675306076236f78cc3a1be37587b555ac1bf40f829cdbf3",
+      "size": 582732
     },
     {
       "path": "log.md",
-      "sha256": "18e046b2624e92c2d1f6154ff610f28d7b7b4ae7ceafa1eced1b0e2736c37c54",
-      "size": 1065289
+      "sha256": "792f02ae427d9f6c280a25adb3f8db62ef3a06d1e4c6e758184c10c1e1defd9c",
+      "size": 1065676
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10548,6 +10553,11 @@
       "path": "pages/policies/product-intake-process.md",
       "sha256": "7664d52c28134ac8ed008f4b6c6ade445a3e265c3ddefffaa93ea021f5e83b8c",
       "size": 6644
+    },
+    {
+      "path": "pages/policies/repo-open-source-checklist.md",
+      "sha256": "d84a932732fd1ae06fe196ef6dd306933381972d7ede766770bc5d782a59c375",
+      "size": 7927
     },
     {
       "path": "pages/policies/serve-least-used-transcript-priority.md",
@@ -12341,5 +12351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "74e36786f36863baf9a55f02c89404c22ba3710d7978a99b26bdc24bf7cc840a"
+  "wiki_tree_hash": "8b73e33acd53cf4ea4873945b6fe598cd230b81251d53f712a1da58c296450d6"
 }
