@@ -22437,3 +22437,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_4ce94435dad1b46489c63b6bebd7c96c
 - summary: Source: [Notion source](https://www.notion.so/Trace-AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-12T18:54:14Z] synthesis | AI Data Audit Portal
+
+- status: published
+- slug: projects/ai-data-audit-portal
+- wiki_revision_id: wikirev_9ec9ea65e5633234d4c8f8bfc894dad6
+- summary: Build a portal for AI labs to audit data rights and attribution for data collected by third-party partners, with high-throughput IP registration, live activity logs, and data group...
+
