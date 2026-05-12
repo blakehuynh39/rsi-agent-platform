@@ -22421,3 +22421,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d92096500acee797e7a6afdb294b9f6
 - summary: Design for the Subnet Management Console API, a REST data layer aggregating blockchain events for monitoring workflows, activities, workers, and task queues.
 
+## [2026-05-12T18:22:12Z] synthesis | H1 2025 Engineering OKRs
+
+- status: published
+- slug: projects/h1-2025-engineering-okrs
+- wiki_revision_id: wikirev_7e49249f71c4e63c842ddb27e71b5e4d
+- summary: This page captures the H1 2025 engineering objectives and key results for Story Protocol, covering brand building, onchain activity, infrastructure, ecosystem support, security, an...
+

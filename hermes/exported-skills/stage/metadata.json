@@ -2951,13 +2951,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8ced99e94922755db517d84aa7fdda39cb8a15937c5ba8643240cb1cd0358cf5",
-        "size": 585626
+        "sha256": "d5ee61d4bf19907f3262e0c63ef54bb3f6188b623009c4aab3554e575f21013c",
+        "size": 586358
       },
       {
         "path": "log.md",
-        "sha256": "d3e0d5eb6471b13c139ed32ec7ed7e26207e30e4b9cb03824cd27166a6ee8d02",
-        "size": 1071343
+        "sha256": "e3f5f5830c560fa7c40ddab7ba13bb24d2c4b72158dcd89b32cecc3247c29063",
+        "size": 1071726
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4755,6 +4755,11 @@
         "size": 8146
       },
       {
+        "path": "pages/projects/h1-2025-engineering-okrs.md",
+        "sha256": "bc2fe3506125dbb2c4a95b29fc4827ebc02006a3484701bcdc122e70aca8ec97",
+        "size": 11868
+      },
+      {
         "path": "pages/projects/hub-v1-backend.md",
         "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
         "size": 4080
@@ -6214,8 +6219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T18:20:08Z",
-  "file_count": 1241,
+  "exported_at": "2026-05-12T18:26:41Z",
+  "file_count": 1242,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9162,7 +9167,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "14eb095243f58ddc64967e43834ec213f936f67e7511563b8edad4f4a99e0cbc",
+  "previous_tree_hash": "87c3164b40410c7c3751103c975b3f4317f33101522d79a3e30939bdcdda35aa",
   "schema_version": 1,
   "skill_file_count": 588,
   "skill_manage_sessions": [
@@ -9175,14 +9180,14 @@
   ],
   "skill_tree_hash": "396203fd20ee1b2526894d1a3c6a872e80da55abab11e9524158647e874c8db2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "87c3164b40410c7c3751103c975b3f4317f33101522d79a3e30939bdcdda35aa",
+  "tree_hash": "964de32e3dfa5517dfcfbac9ee0bbcab5fc1d7f5bceaa3c15d2d8fc494e9a6bf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 653,
+  "wiki_file_count": 654,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9191,13 +9196,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8ced99e94922755db517d84aa7fdda39cb8a15937c5ba8643240cb1cd0358cf5",
-      "size": 585626
+      "sha256": "d5ee61d4bf19907f3262e0c63ef54bb3f6188b623009c4aab3554e575f21013c",
+      "size": 586358
     },
     {
       "path": "log.md",
-      "sha256": "d3e0d5eb6471b13c139ed32ec7ed7e26207e30e4b9cb03824cd27166a6ee8d02",
-      "size": 1071343
+      "sha256": "e3f5f5830c560fa7c40ddab7ba13bb24d2c4b72158dcd89b32cecc3247c29063",
+      "size": 1071726
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10995,6 +11000,11 @@
       "size": 8146
     },
     {
+      "path": "pages/projects/h1-2025-engineering-okrs.md",
+      "sha256": "bc2fe3506125dbb2c4a95b29fc4827ebc02006a3484701bcdc122e70aca8ec97",
+      "size": 11868
+    },
+    {
       "path": "pages/projects/hub-v1-backend.md",
       "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
       "size": 4080
@@ -12451,5 +12461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "53944f00156a72d22542303d9fe5cd684301207ab1538f3fc9b14e36f529a8a6"
+  "wiki_tree_hash": "92b1f1d9dd5f5046e637e11f4ff77b3d5891e6709c4eaf44a43a0e6abb9ac523"
 }
