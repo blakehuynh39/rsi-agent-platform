@@ -7,7 +7,8 @@ tags:
   - "architecture"
   - "backend"
   - "data-portal"
-  - "smart-contracts"
+  - "metadata-versioning"
+  - "smart-contract"
 owners: []
 source_revision_ids:
   - "srcrev_ac0e2aa4e083494eb0d84d45943ffcde"
@@ -31,12 +32,8 @@ Architecture overview of the Data Portal Backend, including an embedded diagram 
 - It is assumed that the lifecycle events are bounded to less than 20 metadata updates during the whole life of a data IP. `claim:claim_4_1` `confidence:0.80`
   - citation: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_ac0e2aa4e083494eb0d84d45943ffcde` `chunk_id=srcchunk_a8acfa9a863f74aafb1f3432104db77c` `native_locator=https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914` `source_timestamp=2026-05-12T21:57:00Z`
 
-## Open Questions
-
-- Permissions for data-id updates or attestation using signatures?
-
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_ac0e2aa4e083494eb0d84d45943ffcde`
+- `source_revision_id`: `srcrev_dd60750e2bde2f5497f24205c7df28ca`
 - `source_url`: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
