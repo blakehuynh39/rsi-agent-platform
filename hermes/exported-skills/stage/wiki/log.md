@@ -22118,3 +22118,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0406255ecc60d278ff94670339b5f21c
 - summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
 
+## [2026-05-12T01:39:30Z] synthesis | Story Naming Convention
+
+- status: published
+- slug: policies/story-naming-conventions
+- wiki_revision_id: wikirev_866b6efa280b9c62585e32eb2868cc5e
+- summary: Defines the naming scheme for Story's L1 blockchain networks (Testnet: ancient works/IP; Mainnet: ancient authors/Creators), domain reservations for public services, and network id...
+
