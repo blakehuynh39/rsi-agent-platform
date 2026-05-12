@@ -1,7 +1,7 @@
 ---
 name: notion
 description: "Story RSI Notion access through native RSI Notion tools."
-version: 2.0.0
+version: 2.0.1
 author: RSI
 license: MIT
 metadata:
@@ -93,6 +93,12 @@ sections so failures are easy to diagnose and retries are idempotent.
   Hermes executor issue.
 - Rate limits or transient 5xx responses: retry later with the same idempotency
   key for writes when available.
+- `page_archive` returning `400 validation_error: body.archived should be not
+  present, instead was 'true'`: **known RSI gateway bug** (2026-05-11). The
+  control plane incorrectly passes `archived` in the request body for the PATCH
+  endpoint. This is a platform-level issue, not a Hermes executor issue. Use
+  `block_delete` as a partial workaround for removing individual blocks, or
+  manually archive the page in the Notion UI for now.
 
 ## Deprecated Paths
 
