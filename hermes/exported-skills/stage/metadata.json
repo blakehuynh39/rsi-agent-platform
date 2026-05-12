@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "97b22a2d37d717786fca99e805cb6d277b4dbaf17008be36ddf9897a30b7e3a6",
-        "size": 575415
+        "sha256": "ff34c291404c515b83592a98df87dd44abc85d503e764f40dfb95d2b35ce14ec",
+        "size": 575794
       },
       {
         "path": "log.md",
-        "sha256": "b34b302b21a4fb440996dc09e5955bb0b21956323efabe4939c7c369c6261a3e",
-        "size": 1057748
+        "sha256": "8199c57f48aa1f2146ecd4642361b6c8938db6c5084f21eb74319292fa909bf7",
+        "size": 1058139
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4995,6 +4995,11 @@
         "size": 3884
       },
       {
+        "path": "pages/projects/platform-services-initiative.md",
+        "sha256": "084d181c3e9d582a7b01bbdf86f1f18afe98c617fb0f50a79ea9ce17ccdf2a1e",
+        "size": 4952
+      },
+      {
         "path": "pages/projects/poc-1-3-odyssey-testnet-deployment.md",
         "sha256": "7bbf4e5b612f533ad57ae8b92e6bfe527ccff5f5d8ad640da0b96e9608ecd7fc",
         "size": 4171
@@ -6064,8 +6069,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T03:10:09Z",
-  "file_count": 1211,
+  "exported_at": "2026-05-12T03:21:57Z",
+  "file_count": 1212,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9002,7 +9007,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "d97d719276e567190159c0d46651db022886f8f3e4d9b15a15144261ece90175",
+  "previous_tree_hash": "5375de1a52d98fad90c98dff1176ddcb5f6f14bbd52c6327748f142a2d702b01",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9015,14 +9020,14 @@
   ],
   "skill_tree_hash": "4d3d146ca0be93d75175a78ffb83f171675e00b9e95a04456d2613d5bc8f6da9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5375de1a52d98fad90c98dff1176ddcb5f6f14bbd52c6327748f142a2d702b01",
+  "tree_hash": "df6c8a827d3c1125d77bd90a35d454a15b110640845f3efe61317821e17a7cbc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 625,
+  "wiki_file_count": 626,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9031,13 +9036,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "97b22a2d37d717786fca99e805cb6d277b4dbaf17008be36ddf9897a30b7e3a6",
-      "size": 575415
+      "sha256": "ff34c291404c515b83592a98df87dd44abc85d503e764f40dfb95d2b35ce14ec",
+      "size": 575794
     },
     {
       "path": "log.md",
-      "sha256": "b34b302b21a4fb440996dc09e5955bb0b21956323efabe4939c7c369c6261a3e",
-      "size": 1057748
+      "sha256": "8199c57f48aa1f2146ecd4642361b6c8938db6c5084f21eb74319292fa909bf7",
+      "size": 1058139
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11085,6 +11090,11 @@
       "size": 3884
     },
     {
+      "path": "pages/projects/platform-services-initiative.md",
+      "sha256": "084d181c3e9d582a7b01bbdf86f1f18afe98c617fb0f50a79ea9ce17ccdf2a1e",
+      "size": 4952
+    },
+    {
       "path": "pages/projects/poc-1-3-odyssey-testnet-deployment.md",
       "sha256": "7bbf4e5b612f533ad57ae8b92e6bfe527ccff5f5d8ad640da0b96e9608ecd7fc",
       "size": 4171
@@ -12151,5 +12161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "582bd2bf40d928489821d63d2b84d3b0160cdc719262f63ca276763ab4f1e201"
+  "wiki_tree_hash": "7ac7fb638bf2608a0508288679ee44a6a45111cc4cf344f0200793ad789beaf1"
 }
