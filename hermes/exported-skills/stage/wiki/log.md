@@ -22279,3 +22279,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0d3729dcbffb2dcf90bac4a9c1246399
 - summary: This document serves as the source of truth for all immediate and future use cases needed by Story's blockchain, ranked by priority. It covers features across client, Cosmos SDK, c...
 
+## [2026-05-12T07:23:04Z] synthesis | Story Partner Testnet L1 Readiness Plan
+
+- status: published
+- slug: projects/story-partner-testnet-l1-readiness-plan
+- wiki_revision_id: wikirev_dd08b518cc89d7b8e51d474a3cbaf5a1
+- summary: Outlines the documentation, release cycle, CI/CD, node setup, validator setup, and developer guide preparation for the Story partner testnet L1 launch.
+
