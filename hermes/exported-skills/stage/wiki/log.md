@@ -22153,3 +22153,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0f71b34bfe8d1baed568b0202098ddd5
 - summary: A compilation of coding style conventions for Story Protocol's Solidity codebase, covering formatting, naming, imports, and testing.
 
+## [2026-05-12T03:08:10Z] synthesis | EU: PFP NFTs
+
+- status: published
+- slug: projects/eu-pfp-nfts
+- wiki_revision_id: wikirev_747ec089936949c5dc38dc5bb832882c
+- summary: A hub page for discussions, references, and shelved items related to EU PFP NFTs. The project is currently shelved.
+
+## [2026-05-12T03:08:10Z] synthesis | Kickoff Questions
+
+- status: published
+- slug: projects/eu-pfp-nfts/kickoff-questions
+- wiki_revision_id: wikirev_f4f43dd7d24e48c11ab82713fae9c632
+- summary: A shelved document containing numbered, unordered questions about the EU: PFP NFTs project, covering smart contract housekeeping and conceptual brainstorming. Answers from JL are p...
+

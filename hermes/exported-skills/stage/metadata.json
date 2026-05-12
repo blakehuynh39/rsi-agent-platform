@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "726c3e4b7038a89dee16843547f043da3213a1384ab15174babab82858b77fec",
-        "size": 575012
+        "sha256": "97b22a2d37d717786fca99e805cb6d277b4dbaf17008be36ddf9897a30b7e3a6",
+        "size": 575415
       },
       {
         "path": "log.md",
-        "sha256": "45674e1eb439eda86f48596c4e2ebba85c54066f7f8a40191ca86411b5eca71e",
-        "size": 1057077
+        "sha256": "b34b302b21a4fb440996dc09e5955bb0b21956323efabe4939c7c369c6261a3e",
+        "size": 1057748
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4625,9 +4625,14 @@
         "size": 3356
       },
       {
+        "path": "pages/projects/eu-pfp-nfts/kickoff-questions.md",
+        "sha256": "1032f969dab23f75f03e9ca63445750d47c4ebb8081cfc93fd2ed2d876f167a0",
+        "size": 3312
+      },
+      {
         "path": "pages/projects/eu-pfp-nfts.md",
-        "sha256": "6d76b7a5b2c8afa0b0fddef127602376adbb9e7b757981cc62ddeff636ee55a1",
-        "size": 2363
+        "sha256": "41e14e7bc81f2152abeb543aa67807e8324b99a8ca0b07c09a11415ea881f7f4",
+        "size": 5412
       },
       {
         "path": "pages/projects/eu-v1-qa.md",
@@ -6059,8 +6064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T02:53:30Z",
-  "file_count": 1210,
+  "exported_at": "2026-05-12T03:10:09Z",
+  "file_count": 1211,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -8997,7 +9002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "6c46ce199a2a3a8940e99a0ca9d2ee518c11f108ddce7255f89748045b2a555e",
+  "previous_tree_hash": "d97d719276e567190159c0d46651db022886f8f3e4d9b15a15144261ece90175",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9010,14 +9015,14 @@
   ],
   "skill_tree_hash": "4d3d146ca0be93d75175a78ffb83f171675e00b9e95a04456d2613d5bc8f6da9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d97d719276e567190159c0d46651db022886f8f3e4d9b15a15144261ece90175",
+  "tree_hash": "5375de1a52d98fad90c98dff1176ddcb5f6f14bbd52c6327748f142a2d702b01",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 624,
+  "wiki_file_count": 625,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9026,13 +9031,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "726c3e4b7038a89dee16843547f043da3213a1384ab15174babab82858b77fec",
-      "size": 575012
+      "sha256": "97b22a2d37d717786fca99e805cb6d277b4dbaf17008be36ddf9897a30b7e3a6",
+      "size": 575415
     },
     {
       "path": "log.md",
-      "sha256": "45674e1eb439eda86f48596c4e2ebba85c54066f7f8a40191ca86411b5eca71e",
-      "size": 1057077
+      "sha256": "b34b302b21a4fb440996dc09e5955bb0b21956323efabe4939c7c369c6261a3e",
+      "size": 1057748
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10710,9 +10715,14 @@
       "size": 3356
     },
     {
+      "path": "pages/projects/eu-pfp-nfts/kickoff-questions.md",
+      "sha256": "1032f969dab23f75f03e9ca63445750d47c4ebb8081cfc93fd2ed2d876f167a0",
+      "size": 3312
+    },
+    {
       "path": "pages/projects/eu-pfp-nfts.md",
-      "sha256": "6d76b7a5b2c8afa0b0fddef127602376adbb9e7b757981cc62ddeff636ee55a1",
-      "size": 2363
+      "sha256": "41e14e7bc81f2152abeb543aa67807e8324b99a8ca0b07c09a11415ea881f7f4",
+      "size": 5412
     },
     {
       "path": "pages/projects/eu-v1-qa.md",
@@ -12141,5 +12151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5ee845e925993b869f8f3f1726cdb27fb46c5e4ea77c5827718c6372d8b1a3b1"
+  "wiki_tree_hash": "582bd2bf40d928489821d63d2b84d3b0160cdc719262f63ca276763ab4f1e201"
 }
