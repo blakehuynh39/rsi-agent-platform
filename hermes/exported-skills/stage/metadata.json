@@ -1514,8 +1514,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "85cdd2bfbc2ead9aab917cbc4ce6a32d34ca04a050fb140b28cf3534a70e0c89",
-        "size": 25009
+        "sha256": "488cdddd896e5f344d5da8b0bd13413ea13ec358cbe393101e6f79fd82d203dd",
+        "size": 25818
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -1529,8 +1529,8 @@
       },
       {
         "path": "github/github-code-review/references/review-output-template.md",
-        "sha256": "4560662913e8f89d558c7ba4f34daf77a35a88367c2d480ad86de7085cbcaf34",
-        "size": 2465
+        "sha256": "01283539a27b3726aee252d1f6c741c6d4d4479f61fe4c9625a34038c775d9bc",
+        "size": 2885
       },
       {
         "path": "github/github-issues/SKILL.md",
@@ -6079,7 +6079,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T03:56:47Z",
+  "exported_at": "2026-05-12T04:08:44Z",
   "file_count": 1214,
   "files": [
     {
@@ -7594,8 +7594,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "85cdd2bfbc2ead9aab917cbc4ce6a32d34ca04a050fb140b28cf3534a70e0c89",
-      "size": 25009
+      "sha256": "488cdddd896e5f344d5da8b0bd13413ea13ec358cbe393101e6f79fd82d203dd",
+      "size": 25818
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -7609,8 +7609,8 @@
     },
     {
       "path": "github/github-code-review/references/review-output-template.md",
-      "sha256": "4560662913e8f89d558c7ba4f34daf77a35a88367c2d480ad86de7085cbcaf34",
-      "size": 2465
+      "sha256": "01283539a27b3726aee252d1f6c741c6d4d4479f61fe4c9625a34038c775d9bc",
+      "size": 2885
     },
     {
       "path": "github/github-issues/SKILL.md",
@@ -9017,7 +9017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "52753a3c094d336fe2233936a09f1d275ebe6daa1249b10f72b8ea4b5c7ade42",
+  "previous_tree_hash": "ad09313083b756c0c04c3055bd5db40dca0cf6d22db3673ddc5a89d22c435745",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9028,9 +9028,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "58a66ac2ffafaa9038613765b08d4eb67747ac48bcacc6115ce8b1df67e8ec24",
+  "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ad09313083b756c0c04c3055bd5db40dca0cf6d22db3673ddc5a89d22c435745",
+  "tree_hash": "fc1ca7538a7ed458705e1048ad7deda61158a16e5685f0607ce073a99029820d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

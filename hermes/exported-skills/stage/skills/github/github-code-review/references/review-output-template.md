@@ -37,16 +37,19 @@ Use this as the structure for PR review summary comments. Copy and fill in the s
 
 | Level | Icon | When to use | Blocks merge? |
 |-------|------|-------------|---------------|
-| Critical | 🔴 | Security vulnerabilities, data loss risk, crashes, broken core functionality | Yes |
-| Warning | ⚠️ | Bugs in non-critical paths, missing error handling, missing tests for new code | Usually yes |
-| Suggestion | 💡 | Style improvements, refactoring ideas, performance hints, documentation gaps | No |
+| Critical | 🔴 | Security vulnerabilities, data loss risk, crashes, broken core functionality | **YES — always** |
+| High | 🔴 | Bugs in core logic, data integrity risks, cross-repo misalignment with production risk, missing critical error handling, performance regressions that would impact prod | **YES — always** |
+| Medium | 🟡 | Missing non-critical error handling, non-idempotent migrations, missing docs/runbook, no retention policy, stale references | At reviewer discretion |
+| Low / Suggestion | 💡 | Style improvements, refactoring ideas, dead code, minor redundancy, future considerations | No |
 | Looks Good | ✅ | Clean patterns, good test coverage, clear naming, smart design decisions | N/A |
 
 ## Verdict Decision
 
-- **Approved ✅** — Zero critical/warning items. Only suggestions or all clear.
-- **Changes Requested 🔴** — Any critical or warning item exists.
+- **Approved ✅** — Zero CRITICAL and zero HIGH items. Only MEDIUM, LOW, or suggestions at most.
+- **Changes Requested 🔴** — Any CRITICAL or HIGH item exists. These are always blocking.
 - **Reviewed 💬** — Observations only (draft PRs, uncertain findings, informational).
+
+**🚫 HARD RULE: Never approve a PR with CRITICAL or HIGH issues. No exceptions.**
 
 ## For Inline Comments
 

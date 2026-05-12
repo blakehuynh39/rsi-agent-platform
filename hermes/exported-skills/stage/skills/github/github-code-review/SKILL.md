@@ -586,9 +586,13 @@ git branch -D pr-$PR_NUMBER
 
 ### Decision: Approve vs Request Changes vs Comment
 
-- **Approve** — no critical or warning-level issues, only minor suggestions or all clear
-- **Request Changes** — any critical or warning-level issue that should be fixed before merge
+- **Approve** — zero CRITICAL issues AND zero HIGH issues. Only MEDIUM, LOW, or suggestions at most. All clear is also fine.
+- **Request Changes** — any CRITICAL or HIGH issue exists. These are always blocking.
 - **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
+
+**🚫 HARD RULE: NEVER approve a PR that has CRITICAL or HIGH-severity issues.** This rule has no exceptions — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If you find CRITICAL or HIGH issues, the verdict is always REQUEST_CHANGES. If the author argues the issues are acceptable, they can override the bot — but RSI must never be the one to approve through them.
+
+Rationale: CRITICAL issues represent security vulnerabilities, data corruption, or crashes. HIGH issues represent bugs in core logic, data integrity risks, or missing cross-repo coordination that could cause production incidents. Feature gates degrade, configs get toggled, and "follow-up PRs" get deprioritized — the only safe merge is one without known severe issues.
 
 ---
 
