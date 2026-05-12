@@ -22321,3 +22321,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6a0cff6230d603dee33ae023890ad60a
 - summary: Describes the end-to-end flow for ETH withdrawals in Halo, covering full withdrawal requests through the unbonding queue, processing of mature unbondings, and final transfer to the...
 
+## [2026-05-12T09:52:43Z] synthesis | The Hub Operational Readiness Review Checklist
+
+- status: published
+- slug: runbooks/the-hub-operational-readiness-checklist
+- wiki_revision_id: wikirev_08ca94d74c9e4951dc72e0d3d05d9ab2
+- summary: A comprehensive checklist covering security risks, operational tasks, scalability, and vendor considerations for the Hub project launch.
+
