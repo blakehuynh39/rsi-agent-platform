@@ -436,6 +436,124 @@ func TestNativeNotionPageArchiveUsesInTrashPayload(t *testing.T) {
 	}
 }
 
+func TestNativeNotionBlocksChildrenReturnsReadableText(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/v1/blocks/page-1/children" {
+			t.Fatalf("unexpected Notion request %s %s", r.Method, r.URL.String())
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{
+			"object":"list",
+			"has_more":false,
+			"next_cursor":null,
+			"results":[{
+				"object":"block",
+				"id":"block-1",
+				"type":"paragraph",
+				"has_children":false,
+				"paragraph":{"rich_text":[{"type":"text","plain_text":"Launch checklist","text":{"content":"Launch checklist"}}]}
+			}]
+		}`))
+	}))
+	defer server.Close()
+
+	cfg := nativeToolsTestConfig()
+	cfg.NotionToken = "ntn-test"
+	cfg.NotionAPIBaseURL = server.URL
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "notion"), nativeToolActionRequest{
+		Surface:   "notion",
+		Operation: "blocks_children",
+		Arguments: map[string]any{"block_id": "page-1"},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	output, ok := resp.Output.(map[string]any)
+	if !ok {
+		t.Fatalf("output type = %T, want map", resp.Output)
+	}
+	results, ok := output["results"].([]map[string]any)
+	if !ok || len(results) != 1 {
+		t.Fatalf("results = %#v", output["results"])
+	}
+	if results[0]["plain_text"] != "Launch checklist" || results[0]["markdown"] != "Launch checklist" {
+		t.Fatalf("expected readable block text, got %#v", results[0])
+	}
+	if _, ok := results[0]["type_payload"].(map[string]any); !ok {
+		t.Fatalf("expected typed Notion block payload, got %#v", results[0])
+	}
+}
+
+func TestNativeKnowledgeDocumentGetResolvesRawNotionIDViaMirror(t *testing.T) {
+	const notionID = "ca4efc315c2143689d1543b9de66a111"
+	state := storepkg.NewMemoryStore()
+	if _, err := state.MarkSourceMirrorRecordStale(storepkg.SourceMirrorRecord{
+		SourceType:       companyknowledge.NotionDocumentSourceType,
+		SourceKey:        companyknowledge.NotionDocumentSourceKey("notion", notionID),
+		Workspace:        "notion",
+		Environment:      "stage",
+		SourceSessionKey: companyknowledge.NotionDocumentSessionKey("notion", notionID),
+		HonchoWorkspace:  "rsi_company_knowledge",
+		HonchoSessionID:  "notion_" + notionID,
+		HonchoObjectType: "document",
+		HonchoObjectID:   "doc_notion_1",
+		SourceRevision:   "rev-1",
+	}, "seed", nil); err != nil {
+		t.Fatalf("seed notion source mirror record: %v", err)
+	}
+	var gotFilters map[string]any
+	honcho := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/v3/workspaces/rsi_company_knowledge/conclusions/list" {
+			t.Fatalf("unexpected Honcho request %s %s", r.Method, r.URL.String())
+		}
+		var payload map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode honcho payload: %v", err)
+		}
+		gotFilters, _ = payload["filters"].(map[string]any)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"items":[{"id":"doc_notion_1","content":"mirrored body","observer_id":"notion_mirror","observed_id":"story_company"}],"page":1,"size":1,"pages":1,"total":1}`))
+	}))
+	defer honcho.Close()
+
+	cfg := nativeToolsTestConfig()
+	cfg.HonchoBaseURL = honcho.URL
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, nativeToolsValidClaims(time.Now().UTC(), "knowledge"), nativeToolActionRequest{
+		Surface:   "knowledge",
+		Operation: "document_get",
+		Arguments: map[string]any{"document_id": notionID},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(mustJSONForTest(t, gotFilters), "doc_notion_1") {
+		t.Fatalf("expected Honcho lookup by resolved document id, got %#v", gotFilters)
+	}
+	output, ok := resp.Output.(map[string]any)
+	if !ok {
+		t.Fatalf("output type = %T, want map", resp.Output)
+	}
+	lookup, ok := output["lookup"].(map[string]any)
+	if !ok || lookup["resolved_document_id"] != "doc_notion_1" {
+		t.Fatalf("expected resolved lookup metadata, got %#v", output["lookup"])
+	}
+}
+
+func TestNativeKnowledgeDocumentGetRejectsUnresolvedRawNotionID(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "knowledge"), nativeToolActionRequest{
+		Surface:   "knowledge",
+		Operation: "document_get",
+		Arguments: map[string]any{"document_id": "6a075c2acabb4dcf91dd83667d414aac"},
+	})
+	if err == nil || status != http.StatusBadRequest || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(err.Error(), "raw Notion id") {
+		t.Fatalf("expected raw Notion id repair hint, got %v", err)
+	}
+}
+
 func TestNativeKnowledgeMessagesReadRefusesUnboundedChannelRead(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	cfg.SlackMirrorChannelDiscovery = "explicit"
@@ -497,6 +615,15 @@ func nativeToolsPost(t *testing.T, router http.Handler, token string, body []byt
 	req.Header.Set("Authorization", "Bearer "+token)
 	router.ServeHTTP(rec, req)
 	return rec
+}
+
+func mustJSONForTest(t *testing.T, value any) string {
+	t.Helper()
+	data, err := json.Marshal(value)
+	if err != nil {
+		t.Fatalf("marshal json: %v", err)
+	}
+	return string(data)
 }
 
 func envContains(env []string, value string) bool {

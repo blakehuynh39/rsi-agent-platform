@@ -4451,7 +4451,7 @@ class HermesRuntimeTests(unittest.TestCase):
             exec(_build_plugin_module(), namespace)
             with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
                 file_handler = namespace["_tool_handler"]("rsi_slack_file_upload")
-                json.loads(
+                upload_result = json.loads(
                     file_handler(
                         {
                             "channel_id": "C123",
@@ -4463,8 +4463,10 @@ class HermesRuntimeTests(unittest.TestCase):
                         task_id=session_id,
                     )
                 )
+                self.assertEqual(upload_result["status"], "ok")
+                self.assertNotIn("error", upload_result)
                 report_handler = namespace["_tool_handler"]("rsi_slack_report_post")
-                json.loads(
+                report_result = json.loads(
                     report_handler(
                         {
                             "channel_id": "C123",
@@ -4478,6 +4480,8 @@ class HermesRuntimeTests(unittest.TestCase):
                         task_id=session_id,
                     )
                 )
+                self.assertEqual(report_result["status"], "ok")
+                self.assertNotIn("error", report_result)
 
         upload_args = requests[0]["arguments"]
         self.assertEqual(base64.b64decode(upload_args["content_base64"]), b"png-bytes")

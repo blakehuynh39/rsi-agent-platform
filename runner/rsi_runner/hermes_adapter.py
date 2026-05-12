@@ -1122,19 +1122,19 @@ def _native_action_handler(canonical_name: str, transport_name: str, args: JsonO
                         **reply_delivery,
                     },
                 )
-        return json.dumps(
-            {
-                "tool_name": canonical_name,
-                "transport_tool_name": transport_name,
-                "status": "ok" if ok else "error",
-                "status_code": status_code,
-                "summary": response.get("action", {}).get("response_summary", ""),
-                "error": response.get("error", ""),
-                "reply_delivery": reply_delivery,
-                "output": response,
-            },
-            sort_keys=True,
-        )
+        result: JsonObject = {
+            "tool_name": canonical_name,
+            "transport_tool_name": transport_name,
+            "status": "ok" if ok else "error",
+            "status_code": status_code,
+            "summary": response.get("action", {}).get("response_summary", ""),
+            "reply_delivery": reply_delivery,
+            "output": response,
+        }
+        error_text = _string_value(response.get("error"))
+        if error_text:
+            result["error"] = error_text
+        return json.dumps(result, sort_keys=True)
     except Exception as exc:
         if session_id:
             _append_event(

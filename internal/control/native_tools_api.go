@@ -431,14 +431,31 @@ func nativeKnowledgeDocumentGet(ctx context.Context, cfg config.Config, repo sto
 	_ = ctx
 	documentID := firstNonEmpty(stringArg(input.Arguments, "document_id"), input.TargetRef)
 	sourceRef := stringArg(input.Arguments, "source_ref")
-	if documentID == "" && sourceRef != "" {
-		if record, found, err := nativeSourceMirrorRecordForRef(repo, companyknowledge.NotionDocumentSourceType, sourceRef); err != nil {
+	resolvedID := ""
+	resolutionRef := ""
+	if sourceRef != "" {
+		resolutionRef = sourceRef
+	} else {
+		resolutionRef = documentID
+	}
+	if resolutionRef != "" {
+		record, found, err := nativeSourceMirrorRecordForRef(repo, companyknowledge.NotionDocumentSourceType, resolutionRef)
+		if err != nil {
 			return nil, http.StatusInternalServerError, err
-		} else if found {
-			documentID = strings.TrimSpace(record.HonchoObjectID)
-		} else {
-			documentID = sourceRef
 		}
+		if found {
+			resolvedID = strings.TrimSpace(record.HonchoObjectID)
+			if resolvedID == "" {
+				return nil, http.StatusConflict, fmt.Errorf("mirrored Notion source %s has no knowledge document id yet; retry after the mirror completes", resolutionRef)
+			}
+		}
+	}
+	if resolvedID != "" {
+		documentID = resolvedID
+	} else if sourceRef != "" {
+		return nil, http.StatusBadRequest, fmt.Errorf("source_ref %s did not resolve to a mirrored Notion document; use rsi_notion.page_get or rsi_notion.blocks_children for raw Notion reads", sourceRef)
+	} else if nativeLooksLikeRawNotionRef(documentID) {
+		return nil, http.StatusBadRequest, fmt.Errorf("document_id %s looks like a raw Notion id, not a mirrored knowledge document id; use source_ref after search, or rsi_notion.page_get/rsi_notion.blocks_children for direct Notion reads", documentID)
 	}
 	if documentID == "" {
 		return nil, http.StatusBadRequest, errors.New("document_get requires document_id or source_ref that resolves to a mirrored document")
@@ -459,7 +476,15 @@ func nativeKnowledgeDocumentGet(ctx context.Context, cfg config.Config, repo sto
 	if len(page.Items) == 0 {
 		return nil, http.StatusNotFound, fmt.Errorf("mirrored document %s was not found", documentID)
 	}
-	return map[string]any{"source": "honcho_notion_documents", "document": page.Items[0]}, http.StatusOK, nil
+	return map[string]any{
+		"source":   "honcho_notion_documents",
+		"document": page.Items[0],
+		"lookup": map[string]any{
+			"requested_document_id": firstNonEmpty(stringArg(input.Arguments, "document_id"), input.TargetRef),
+			"requested_source_ref":  sourceRef,
+			"resolved_document_id":  documentID,
+		},
+	}, http.StatusOK, nil
 }
 
 func nativeKnowledgeConversationGet(ctx context.Context, cfg config.Config, repo storepkg.Repository, input nativeToolActionRequest) (nativeKnowledgeConversationResponse, int, error) {
@@ -643,6 +668,68 @@ func nativeSourceMirrorRecordForRef(repo storepkg.Repository, sourceType string,
 		}
 	}
 	return storepkg.SourceMirrorRecord{}, false, nil
+}
+
+func nativeLooksLikeRawNotionRef(ref string) bool {
+	ref = strings.TrimSpace(ref)
+	if ref == "" {
+		return false
+	}
+	if strings.HasPrefix(ref, "notion:") {
+		return true
+	}
+	return normalizeStrictNotionID(ref) != ""
+}
+
+func nativeNotionBlockChildrenOutput(out clients.NotionListResponse[clients.NotionBlock]) map[string]any {
+	results := make([]map[string]any, 0, len(out.Results))
+	for _, block := range out.Results {
+		item := map[string]any{
+			"object":           block.Object,
+			"id":               block.ID,
+			"type":             block.Type,
+			"has_children":     block.HasChildren,
+			"created_time":     block.CreatedTime,
+			"last_edited_time": block.LastEditedTime,
+			"archived":         block.Archived,
+			"in_trash":         block.InTrash,
+		}
+		if plainText := nativeNotionBlockPlainText(block); plainText != "" {
+			item["plain_text"] = plainText
+		}
+		if markdown := strings.TrimSpace(notionBlockMarkdown(block, 0)); markdown != "" {
+			item["markdown"] = markdown
+		}
+		if payload, ok := block.Raw[block.Type].(map[string]any); ok && len(payload) > 0 {
+			item["type_payload"] = payload
+		}
+		results = append(results, item)
+	}
+	return map[string]any{
+		"object":      out.Object,
+		"results":     results,
+		"next_cursor": out.NextCursor,
+		"has_more":    out.HasMore,
+	}
+}
+
+func nativeNotionBlockPlainText(block clients.NotionBlock) string {
+	payload, ok := block.Raw[block.Type].(map[string]any)
+	if !ok {
+		return ""
+	}
+	if text := richTextPlainTextFromAny(payload["rich_text"]); text != "" {
+		return text
+	}
+	if text := richTextPlainTextFromAny(payload["caption"]); text != "" {
+		return text
+	}
+	for _, key := range []string{"title", "name"} {
+		if text := strings.TrimSpace(fmt.Sprint(payload[key])); text != "" && text != "<nil>" {
+			return text
+		}
+	}
+	return ""
 }
 
 func cloneNativeToolArguments(args map[string]any) map[string]any {
@@ -949,7 +1036,7 @@ func executeNotionNativeToolAction(ctx context.Context, cfg config.Config, repo 
 	case "blocks_children":
 		blockID := firstNonEmpty(stringArg(input.Arguments, "block_id"), input.TargetRef)
 		out, err := api.ListBlockChildren(ctx, blockID, stringArg(input.Arguments, "cursor"), intArg(input.Arguments, "page_size", 100))
-		return out, "loaded Notion block children", "notion:block:" + blockID, "", notionMirrorEffect("not_applicable", "", ""), statusFromErr(err), err
+		return nativeNotionBlockChildrenOutput(out), "loaded Notion block children", "notion:block:" + blockID, "", notionMirrorEffect("not_applicable", "", ""), statusFromErr(err), err
 	case "database_get":
 		databaseID := firstNonEmpty(stringArg(input.Arguments, "database_id"), input.TargetRef)
 		out, err := api.RetrieveDatabase(ctx, databaseID)

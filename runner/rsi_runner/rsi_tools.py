@@ -264,7 +264,7 @@ _NOTION_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
         {"query": {"type": "string"}, "filter": _JSON_OBJECT_SCHEMA, "sort": _JSON_OBJECT_SCHEMA, "page_size": {"type": "integer"}, "cursor": {"type": "string"}},
     ),
     "rsi_notion.page_get": _schema("rsi_notion.page_get", "Retrieve a Notion page through the RSI native Notion gateway.", {"page_id": {"type": "string"}}, ["page_id"]),
-    "rsi_notion.blocks_children": _schema("rsi_notion.blocks_children", "List Notion block children through the RSI native Notion gateway.", {"block_id": {"type": "string"}, "page_size": {"type": "integer"}, "cursor": {"type": "string"}}, ["block_id"]),
+    "rsi_notion.blocks_children": _schema("rsi_notion.blocks_children", "List Notion block children through the RSI native Notion gateway. Returns block summaries with plain_text, markdown, and typed block payloads for reading page content directly.", {"block_id": {"type": "string"}, "page_size": {"type": "integer"}, "cursor": {"type": "string"}}, ["block_id"]),
     "rsi_notion.database_get": _schema("rsi_notion.database_get", "Retrieve a Notion database through the RSI native Notion gateway.", {"database_id": {"type": "string"}}, ["database_id"]),
     "rsi_notion.data_source_get": _schema("rsi_notion.data_source_get", "Retrieve a Notion data source through the RSI native Notion gateway.", {"data_source_id": {"type": "string"}}, ["data_source_id"]),
     "rsi_notion.data_source_query": _schema(
@@ -321,7 +321,7 @@ _NOTION_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 
 _KNOWLEDGE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "rsi_knowledge.search": _schema("rsi_knowledge.search", "Search mirrored company knowledge through the RSI native knowledge gateway.", {"query": {"type": "string"}, "limit": {"type": "integer"}, "source_types": _STRING_ARRAY_SCHEMA}, ["query"]),
-    "rsi_knowledge.document_get": _schema("rsi_knowledge.document_get", "Retrieve a mirrored company knowledge document.", {"source_ref": {"type": "string"}, "document_id": {"type": "string"}}),
+    "rsi_knowledge.document_get": _schema("rsi_knowledge.document_get", "Retrieve a mirrored company knowledge document. Use document_id only with mirrored knowledge/Honcho document IDs returned by rsi_knowledge.search. For raw Notion page/block IDs, pass source_ref when a mirror source ref is available, or use rsi_notion.page_get / rsi_notion.blocks_children for direct Notion reads.", {"source_ref": {"type": "string"}, "document_id": {"type": "string"}}),
     "rsi_knowledge.conversation_get": _schema("rsi_knowledge.conversation_get", "Retrieve a mirrored conversation by source reference.", {"conversation_ref": {"type": "string"}, "channel_id": {"type": "string"}, "thread_ts": {"type": "string"}}),
     "rsi_knowledge.messages_read": _schema("rsi_knowledge.messages_read", "Read mirrored Slack messages from the company knowledge corpus.", {"channel_id": {"type": "string"}, "thread_ts": {"type": "string"}, "oldest": {"type": "string"}, "latest": {"type": "string"}, "limit": {"type": "integer"}}, ["channel_id"]),
     "rsi_knowledge.wiki_search": _schema("rsi_knowledge.wiki_search", "Search the synthesized company wiki.", {"query": {"type": "string"}, "limit": {"type": "integer"}}, ["query"]),
