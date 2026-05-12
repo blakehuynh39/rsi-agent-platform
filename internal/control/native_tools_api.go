@@ -55,8 +55,8 @@ var nativeToolReadOps = map[string]map[string]bool{
 		"source_status": true,
 	},
 	"sentry": {
-		"orgs_list": true, "projects_list": true, "issues_list": true, "issue_view": true,
-		"issue_events": true, "issue_explain": true, "issue_plan": true, "releases_list": true,
+		"projects_list": true, "issues_list": true, "issue_view": true,
+		"issue_events": true, "releases_list": true,
 	},
 }
 

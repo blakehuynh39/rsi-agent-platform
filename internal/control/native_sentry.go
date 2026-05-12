@@ -67,18 +67,11 @@ func executeSentryNativeToolAction(ctx context.Context, cfg config.Config, input
 func sentryCLIArgs(cfg config.Config, input nativeToolActionRequest) ([]string, string, error) {
 	args := make([]string, 0, 12)
 	targetRef := input.TargetRef
-	org := firstNonEmpty(stringArg(input.Arguments, "org"), cfg.SentryOrganization)
 	switch input.Operation {
-	case "orgs_list":
-		args = append(args, "org", "list")
-		if limit := sentryLimitArg(input.Arguments, "limit", 25, 100); limit > 0 {
-			args = append(args, "--limit", fmt.Sprintf("%d", limit))
-		}
-		targetRef = firstNonEmpty(targetRef, "sentry:orgs")
 	case "projects_list":
-		selector := sentryProjectSelector(cfg, input.Arguments, true)
-		if selector == "" {
-			return nil, "", errors.New("rsi_sentry.projects_list requires org, project_ref, or RSI_SENTRY_ORGANIZATION")
+		selector, err := sentryProjectSelector(cfg, input.Arguments, true)
+		if err != nil {
+			return nil, "", err
 		}
 		args = append(args, "project", "list", selector)
 		if platform := stringArg(input.Arguments, "platform"); platform != "" {
@@ -92,9 +85,9 @@ func sentryCLIArgs(cfg config.Config, input nativeToolActionRequest) ([]string, 
 		}
 		targetRef = firstNonEmpty(targetRef, "sentry:projects:"+selector)
 	case "issues_list":
-		selector := sentryProjectSelector(cfg, input.Arguments, true)
-		if selector == "" {
-			return nil, "", errors.New("rsi_sentry.issues_list requires project_ref, org, or RSI_SENTRY_ORGANIZATION")
+		selector, err := sentryProjectSelector(cfg, input.Arguments, true)
+		if err != nil {
+			return nil, "", err
 		}
 		args = append(args, "issue", "list", selector)
 		if query := stringArg(input.Arguments, "query"); query != "" {
@@ -145,36 +138,10 @@ func sentryCLIArgs(cfg config.Config, input nativeToolActionRequest) ([]string, 
 			args = append(args, "--full")
 		}
 		targetRef = firstNonEmpty(targetRef, "sentry:issue:"+issue+":events")
-	case "issue_explain":
-		issue := sentryIssueArg(input)
-		if issue == "" {
-			return nil, "", errors.New("rsi_sentry.issue_explain requires issue")
-		}
-		args = append(args, "issue", "explain", issue)
-		if boolArg(input.Arguments, "force", false) {
-			args = append(args, "--force")
-		}
-		targetRef = firstNonEmpty(targetRef, "sentry:issue:"+issue+":explain")
-	case "issue_plan":
-		issue := sentryIssueArg(input)
-		if issue == "" {
-			return nil, "", errors.New("rsi_sentry.issue_plan requires issue")
-		}
-		args = append(args, "issue", "plan", issue)
-		if cause := stringArg(input.Arguments, "cause"); cause != "" {
-			args = append(args, "--cause", cause)
-		}
-		if boolArg(input.Arguments, "force", false) {
-			args = append(args, "--force")
-		}
-		targetRef = firstNonEmpty(targetRef, "sentry:issue:"+issue+":plan")
 	case "releases_list":
-		selector := sentryProjectSelector(cfg, input.Arguments, true)
-		if selector == "" && org != "" {
-			selector = org + "/"
-		}
-		if selector == "" {
-			return nil, "", errors.New("rsi_sentry.releases_list requires project_ref, org, or RSI_SENTRY_ORGANIZATION")
+		selector, err := sentryProjectSelector(cfg, input.Arguments, true)
+		if err != nil {
+			return nil, "", err
 		}
 		args = append(args, "release", "list", selector)
 		if limit := sentryLimitArg(input.Arguments, "limit", 25, 100); limit > 0 {
@@ -276,22 +243,40 @@ func stderrExcerpt(stderr []byte, token string) string {
 	return text[:max] + "...[truncated]"
 }
 
-func sentryProjectSelector(cfg config.Config, args map[string]any, allowOrgWide bool) string {
+func sentryProjectSelector(cfg config.Config, args map[string]any, allowOrgWide bool) (string, error) {
+	org := strings.TrimSpace(cfg.SentryOrganization)
+	if org == "" {
+		return "", errors.New("RSI_SENTRY_ORGANIZATION is required for native Sentry project and issue tools")
+	}
+	if requestedOrg := strings.TrimSpace(stringArg(args, "org")); requestedOrg != "" && requestedOrg != org {
+		return "", fmt.Errorf("native Sentry tools are scoped to configured organization %s; model-supplied org %s is not allowed", org, requestedOrg)
+	}
 	ref := firstNonEmpty(stringArg(args, "project_ref"), stringArg(args, "project"), stringArg(args, "project_slug"))
 	if ref != "" {
 		if strings.Contains(ref, "/") {
-			return ref
+			parts := strings.SplitN(ref, "/", 2)
+			refOrg := strings.TrimSpace(parts[0])
+			project := ""
+			if len(parts) > 1 {
+				project = strings.Trim(strings.TrimSpace(parts[1]), "/")
+			}
+			if refOrg != org {
+				return "", fmt.Errorf("native Sentry tools are scoped to configured organization %s; project_ref %s targets %s", org, ref, refOrg)
+			}
+			if project == "" {
+				if !allowOrgWide {
+					return "", errors.New("native Sentry operation requires a project")
+				}
+				return org + "/", nil
+			}
+			return org + "/" + project, nil
 		}
-		if org := firstNonEmpty(stringArg(args, "org"), cfg.SentryOrganization); org != "" {
-			return org + "/" + ref
-		}
-		return ref
+		return org + "/" + ref, nil
 	}
-	org := firstNonEmpty(stringArg(args, "org"), cfg.SentryOrganization)
 	if org != "" && allowOrgWide {
-		return org + "/"
+		return org + "/", nil
 	}
-	return ""
+	return "", errors.New("native Sentry operation requires project_ref")
 }
 
 func sentryIssueArg(input nativeToolActionRequest) string {
@@ -327,8 +312,6 @@ func sentrySortArg(args map[string]any) string {
 func sentryResponseSummary(operation string, output any) string {
 	count := sentryOutputCount(output)
 	switch operation {
-	case "orgs_list":
-		return fmt.Sprintf("loaded %d Sentry organization(s)", count)
 	case "projects_list":
 		return fmt.Sprintf("loaded %d Sentry project(s)", count)
 	case "issues_list":
@@ -337,10 +320,6 @@ func sentryResponseSummary(operation string, output any) string {
 		return fmt.Sprintf("loaded %d Sentry issue event(s)", count)
 	case "issue_view":
 		return "loaded Sentry issue"
-	case "issue_explain":
-		return "loaded Sentry issue root-cause explanation"
-	case "issue_plan":
-		return "loaded Sentry issue remediation plan"
 	case "releases_list":
 		return fmt.Sprintf("loaded %d Sentry release(s)", count)
 	default:

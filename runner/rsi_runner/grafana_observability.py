@@ -11,6 +11,7 @@ from .json_types import JsonObject, JsonValue
 
 DEFAULT_METRICS_DATASOURCE_UID = "thanos"
 DEFAULT_LOGS_DATASOURCE_UID = "loki"
+DEFAULT_USER_AGENT = "rsi-agent-platform-observability/1.0"
 
 
 class GrafanaObservabilityError(RuntimeError):
@@ -43,6 +44,12 @@ def _request_json(path: str, params: JsonObject | None = None) -> JsonValue:
     req = request.Request(server + path + query)
     req.add_header("Authorization", f"Bearer {_grafana_token()}")
     req.add_header("Accept", "application/json")
+    req.add_header("User-Agent", _env("RSI_GRAFANA_USER_AGENT", DEFAULT_USER_AGENT))
+    cf_client_id = _env("RSI_GRAFANA_CF_ACCESS_CLIENT_ID")
+    cf_client_secret = _env("RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET")
+    if cf_client_id and cf_client_secret:
+        req.add_header("CF-Access-Client-Id", cf_client_id)
+        req.add_header("CF-Access-Client-Secret", cf_client_secret)
     try:
         with request.urlopen(req, timeout=30) as response:
             raw = response.read().decode("utf-8")

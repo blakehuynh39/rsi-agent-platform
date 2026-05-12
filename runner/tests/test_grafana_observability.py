@@ -18,6 +18,9 @@ class GrafanaObservabilityHandler(BaseHTTPRequestHandler):
             {
                 "path": self.path,
                 "authorization": self.headers.get("Authorization", ""),
+                "user_agent": self.headers.get("User-Agent", ""),
+                "cf_access_client_id": self.headers.get("CF-Access-Client-Id", ""),
+                "cf_access_client_secret": self.headers.get("CF-Access-Client-Secret", ""),
             }
         )
         if self.path.startswith("/api/datasources?") or self.path == "/api/datasources":
@@ -112,7 +115,23 @@ class GrafanaObservabilityTest(unittest.TestCase):
 
         self.assertEqual([{"name": "Loki", "type": "loki", "uid": "loki"}], payload["datasources"])
         self.assertEqual("Bearer secret-token", GrafanaObservabilityHandler.requests[0]["authorization"])
+        self.assertEqual("rsi-agent-platform-observability/1.0", GrafanaObservabilityHandler.requests[0]["user_agent"])
         self.assertNotIn("secret-token", json.dumps(payload))
+
+    def test_datasources_sends_cloudflare_access_headers_when_configured(self) -> None:
+        with self.grafana_env(), mock.patch.dict(
+            "os.environ",
+            {
+                "RSI_GRAFANA_CF_ACCESS_CLIENT_ID": "cf-client",
+                "RSI_GRAFANA_CF_ACCESS_CLIENT_SECRET": "cf-secret",
+                "RSI_GRAFANA_USER_AGENT": "custom-rsi-agent",
+            },
+        ):
+            grafana_observability.datasources_query()
+
+        self.assertEqual("custom-rsi-agent", GrafanaObservabilityHandler.requests[0]["user_agent"])
+        self.assertEqual("cf-client", GrafanaObservabilityHandler.requests[0]["cf_access_client_id"])
+        self.assertEqual("cf-secret", GrafanaObservabilityHandler.requests[0]["cf_access_client_secret"])
 
     def test_metrics_query_uses_prometheus_datasource_proxy(self) -> None:
         with self.grafana_env():

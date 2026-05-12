@@ -344,17 +344,11 @@ _KNOWLEDGE_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 }
 
 _SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
-    "rsi_sentry.orgs_list": _schema(
-        "rsi_sentry.orgs_list",
-        "List Sentry organizations visible to the RSI native Sentry token.",
-        {"limit": {"type": "integer"}, "fresh": {"type": "boolean"}},
-    ),
     "rsi_sentry.projects_list": _schema(
         "rsi_sentry.projects_list",
-        "List Sentry projects for an organization or project selector.",
+        "List Sentry projects in the server-configured RSI organization, optionally narrowed by project_ref.",
         {
-            "org": {"type": "string"},
-            "project_ref": {"type": "string", "description": "Sentry project selector such as org/, org/project, or project."},
+            "project_ref": {"type": "string", "description": "Project slug such as depin-backend. Do not include an organization; RSI adds the configured org server-side."},
             "platform": {"type": "string"},
             "limit": {"type": "integer"},
             "cursor": {"type": "string"},
@@ -363,9 +357,9 @@ _SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_sentry.issues_list": _schema(
         "rsi_sentry.issues_list",
-        "List Sentry issues for an organization or project selector.",
+        "List Sentry issues in the server-configured RSI organization, optionally narrowed by project_ref.",
         {
-            "project_ref": {"type": "string", "description": "Sentry issue selector such as org/, org/project, or project."},
+            "project_ref": {"type": "string", "description": "Project slug such as depin-backend. Omit for org-wide issues."},
             "query": {"type": "string"},
             "limit": {"type": "integer"},
             "sort": {"type": "string", "enum": ["date", "new", "freq", "user"]},
@@ -394,21 +388,9 @@ _SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
         },
         ["issue"],
     ),
-    "rsi_sentry.issue_explain": _schema(
-        "rsi_sentry.issue_explain",
-        "Ask Sentry Seer to analyze one issue's root cause.",
-        {"issue": {"type": "string"}, "force": {"type": "boolean"}, "fresh": {"type": "boolean"}},
-        ["issue"],
-    ),
-    "rsi_sentry.issue_plan": _schema(
-        "rsi_sentry.issue_plan",
-        "Ask Sentry Seer to generate a remediation plan for one issue.",
-        {"issue": {"type": "string"}, "cause": {"type": "string"}, "force": {"type": "boolean"}, "fresh": {"type": "boolean"}},
-        ["issue"],
-    ),
     "rsi_sentry.releases_list": _schema(
         "rsi_sentry.releases_list",
-        "List Sentry releases for an organization or project selector.",
+        "List Sentry releases in the server-configured RSI organization, optionally narrowed by project_ref.",
         {"project_ref": {"type": "string"}, "limit": {"type": "integer"}, "cursor": {"type": "string"}, "fresh": {"type": "boolean"}},
     ),
 }

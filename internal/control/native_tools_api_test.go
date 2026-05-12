@@ -354,11 +354,54 @@ func TestNativeSentryIssuesListUsesCLIWithServerSideToken(t *testing.T) {
 	}
 }
 
+func TestNativeSentryRejectsModelSuppliedOrganization(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	cfg.SentryAuthToken = "sntrys-secret"
+	cfg.SentryOrganization = "story-protocol"
+	oldRunner := sentryCommandRunner
+	defer func() { sentryCommandRunner = oldRunner }()
+	sentryCommandRunner = func(ctx context.Context, args []string, env []string) ([]byte, []byte, error) {
+		t.Fatalf("sentry CLI should not run for rejected cross-org request: %#v", args)
+		return nil, nil, nil
+	}
+
+	for _, tc := range []struct {
+		name      string
+		operation string
+		args      map[string]any
+	}{
+		{
+			name:      "project_ref org prefix",
+			operation: "issues_list",
+			args:      map[string]any{"project_ref": "other-org/depin-backend"},
+		},
+		{
+			name:      "project list org argument",
+			operation: "projects_list",
+			args:      map[string]any{"org": "other-org"},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "sentry"), nativeToolActionRequest{
+				Surface:   "sentry",
+				Operation: tc.operation,
+				Arguments: tc.args,
+			})
+			if err == nil || status != http.StatusBadRequest || resp.OK {
+				t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+			}
+			if !strings.Contains(err.Error(), "configured organization story-protocol") {
+				t.Fatalf("error = %q, want configured org rejection", err.Error())
+			}
+		})
+	}
+}
+
 func TestNativeSentryRequiresServerSideToken(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "sentry"), nativeToolActionRequest{
 		Surface:   "sentry",
-		Operation: "orgs_list",
+		Operation: "projects_list",
 	})
 	if err == nil || status != http.StatusFailedDependency || resp.OK {
 		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
