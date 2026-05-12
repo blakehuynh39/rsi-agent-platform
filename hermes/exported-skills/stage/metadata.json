@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0b768a4337076a0b6a52fae8a02a55a67c68e291dceef41c2af12a3f2d5b69b2",
-        "size": 1062657
+        "sha256": "dad481f489b721d2c650db4d7393d59ce7a68d2bc3f03802259e3a558c3e8dbb",
+        "size": 1063026
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3368,6 +3368,11 @@
         "path": "pages/concepts/l1-configs-and-metrics.md",
         "sha256": "cc64535c8088485f1ca39a2b66a389a5da587bca64909c4809aecc15512ac478",
         "size": 1242
+      },
+      {
+        "path": "pages/concepts/l1-cost-estimates.md",
+        "sha256": "1d1e2f626781cba5e9e96ae8e5e63cbf9b02c568ed08b4ac5823165b6f88ddf3",
+        "size": 12736
       },
       {
         "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -6124,8 +6129,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T05:54:06Z",
-  "file_count": 1223,
+  "exported_at": "2026-05-12T06:05:37Z",
+  "file_count": 1224,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9062,7 +9067,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "3508e0812f6a60f59bc75b661cf2b7d2ea8400c1d8a7eea9fa8f1217895959ad",
+  "previous_tree_hash": "a10e29cea7c4244a9f80926cd32ff89d5cb31073ddaddafc753e7989e13263bf",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9075,14 +9080,14 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a10e29cea7c4244a9f80926cd32ff89d5cb31073ddaddafc753e7989e13263bf",
+  "tree_hash": "9eaca55f512e82b590383ddd5b5f092b79f84f281faee2d388ab59b2121cbfe9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 637,
+  "wiki_file_count": 638,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9096,8 +9101,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0b768a4337076a0b6a52fae8a02a55a67c68e291dceef41c2af12a3f2d5b69b2",
-      "size": 1062657
+      "sha256": "dad481f489b721d2c650db4d7393d59ce7a68d2bc3f03802259e3a558c3e8dbb",
+      "size": 1063026
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9518,6 +9523,11 @@
       "path": "pages/concepts/l1-configs-and-metrics.md",
       "sha256": "cc64535c8088485f1ca39a2b66a389a5da587bca64909c4809aecc15512ac478",
       "size": 1242
+    },
+    {
+      "path": "pages/concepts/l1-cost-estimates.md",
+      "sha256": "1d1e2f626781cba5e9e96ae8e5e63cbf9b02c568ed08b4ac5823165b6f88ddf3",
+      "size": 12736
     },
     {
       "path": "pages/concepts/l1-features-services-brainstorming.md",
@@ -12271,5 +12281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "29108f8fcd3b0e7bf0a5b5cffff6007d3cc1afc377292611a2e50184fdaf9b5b"
+  "wiki_tree_hash": "c76e714ae2dddf73dca4baa5b9b3cc663902d63b4ae1836e46b5a13e757fff9e"
 }

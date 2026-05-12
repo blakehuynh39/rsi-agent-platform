@@ -22258,3 +22258,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d2deb85e29d9361f617870a674d9ae90
 - summary: Rebase tokens automatically adjust their supply at predetermined intervals based on price targets, changing individual holder balances without altering market cap or percentage sha...
 
+## [2026-05-12T06:02:15Z] synthesis | L1 Cost Estimates
+
+- status: published
+- slug: concepts/l1-cost-estimates
+- wiki_revision_id: wikirev_b7a7f55bc75e3097f9e77390cac68d9d
+- summary: Aggregated cost estimates for L1 infrastructure and applications, covering 1p infrastructure, 1p applications, ecosystem fund, IP studio, infrastructure partners, and engineering r...
+
