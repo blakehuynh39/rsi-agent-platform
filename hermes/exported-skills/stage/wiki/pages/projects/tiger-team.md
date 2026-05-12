@@ -3,7 +3,11 @@ title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T01:08:00Z"
-tags: []
+tags:
+  - "app-initiative"
+  - "data-ecosystem"
+  - "depin"
+  - "voice"
 owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
@@ -18,7 +22,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, planning documents, and development resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents, and is currently prioritizing human-to-agent apps for speed and virality.
 
 ## Claims
 
@@ -62,11 +66,14 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 
 ## Related Pages
 
-- `projects/adaptive-trust-screening-reputation`
-- `projects/numo-app-strategy`
+- `projects/aura`
+- `projects/depin-admin`
+- `projects/depin-backend`
+- `projects/numo`
+- `projects/scout-careers`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_23ea56dd8e1ad8665e6c69083639f4e7`
-- `source_revision_id`: `srcrev_b60200373b9e5cc6e10a3f12d76855ce`
-- `source_url`: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)
+- `source_document_id`: `srcdoc_18ad4a0f808bd3c815e7e0c1275b5600`
+- `source_revision_id`: `srcrev_5edd17ed207ce1bfda252fd01f3dbf80`
+- `source_url`: [Notion source](https://www.notion.so/Scout-Careers-32c051299a5480e5b42fd67a3268da83)

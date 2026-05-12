@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a081fac829f53626e14b91599241f165113fd122b6d7e9fb12b5f14e44d5560",
+        "sha256": "a8cf92252a86a14488385630e0ff62fac6d9cd979eeb9c2eb2cbfcfcf90d777a",
         "size": 584920
       },
       {
         "path": "log.md",
-        "sha256": "96e1ca4eccbb816546a1d1dd8d2fb6b4747c8955610789d91eff698299a65018",
-        "size": 1068682
+        "sha256": "c8359306c9c181f92eda1d67991308739d98b0f14f4b558b26ff498af73dfae1",
+        "size": 1069037
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5356,8 +5356,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "08b233a4d31232870417cc6939705a50573714a66708392632f6ab155feeb895",
-        "size": 12289
+        "sha256": "2f20f711c72da1dc2b5873193f8ce853066ca64177dabab56b68d1c0e5b4b720",
+        "size": 12442
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6194,7 +6194,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T13:12:40Z",
+  "exported_at": "2026-05-12T14:04:49Z",
   "file_count": 1237,
   "files": [
     {
@@ -9132,7 +9132,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "dfd892ad014ba0b9d61dd6fd7c7f6cc0c331da2715f0c9ebddb5519d7d054b7c",
+  "previous_tree_hash": "05154b29cb45828cdb75907bea9a6c27a2abacc23948171a38977c9a8387a751",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9145,7 +9145,7 @@
   ],
   "skill_tree_hash": "564c8471c455c179c5fc55706caf9f852c699da74a3c65eb9a5851fc06819332",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "05154b29cb45828cdb75907bea9a6c27a2abacc23948171a38977c9a8387a751",
+  "tree_hash": "ea9b4b1c06a44044c447c71d574adee5503dea189ab2dcb759037d318fe4d8ec",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9161,13 +9161,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a081fac829f53626e14b91599241f165113fd122b6d7e9fb12b5f14e44d5560",
+      "sha256": "a8cf92252a86a14488385630e0ff62fac6d9cd979eeb9c2eb2cbfcfcf90d777a",
       "size": 584920
     },
     {
       "path": "log.md",
-      "sha256": "96e1ca4eccbb816546a1d1dd8d2fb6b4747c8955610789d91eff698299a65018",
-      "size": 1068682
+      "sha256": "c8359306c9c181f92eda1d67991308739d98b0f14f4b558b26ff498af73dfae1",
+      "size": 1069037
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11576,8 +11576,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "08b233a4d31232870417cc6939705a50573714a66708392632f6ab155feeb895",
-      "size": 12289
+      "sha256": "2f20f711c72da1dc2b5873193f8ce853066ca64177dabab56b68d1c0e5b4b720",
+      "size": 12442
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -12411,5 +12411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "eb47041add43979ee4e6c04ce80bdc1d80338bcc3295ba285c8afd48464f4ea6"
+  "wiki_tree_hash": "e66713fa938e03ac5dfca8d1328d3d981fa3fcd668821dbbcdc5a21f426f27c0"
 }

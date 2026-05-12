@@ -22370,3 +22370,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9e815c23e27a60c02411d894abd8d5bb
 - summary: Document tracking open questions and design decisions for the Story Protocol after the hackathon, covering data structures, modules, canon handling, licensing, and permissions.
 
+## [2026-05-12T14:02:07Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_8756740a2c6fa8cca70930bb40fa98bc
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
