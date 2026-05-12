@@ -2946,8 +2946,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8199c57f48aa1f2146ecd4642361b6c8938db6c5084f21eb74319292fa909bf7",
-        "size": 1058139
+        "sha256": "a9a4682ac728013e71d1e7f02c2318ebf6664b773b53e231916cb2658961a0cc",
+        "size": 1058922
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4215,6 +4215,11 @@
         "size": 1026
       },
       {
+        "path": "pages/people/jon-rogers.md",
+        "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
+        "size": 3758
+      },
+      {
         "path": "pages/people/user-142d872b-594c-81c4-baa6-000236c53ad3.md",
         "sha256": "f1176cfb6c453970efaadc8c2531382d6909244a8d28ca549ea7d86a61d1138e",
         "size": 1045
@@ -4908,6 +4913,11 @@
         "path": "pages/projects/multichain-story-supernet.md",
         "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
         "size": 1410
+      },
+      {
+        "path": "pages/projects/mythoscape-chronicles-emergence-universe-mceu.md",
+        "sha256": "c1e1a05dbaaaa849a83ef4c636662484d7e0eec05f08fe72b36e708ead48187b",
+        "size": 10473
       },
       {
         "path": "pages/projects/network-rolling-upgrade-workflow.md",
@@ -6069,8 +6079,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T03:21:57Z",
-  "file_count": 1212,
+  "exported_at": "2026-05-12T03:33:32Z",
+  "file_count": 1214,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9007,7 +9017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "5375de1a52d98fad90c98dff1176ddcb5f6f14bbd52c6327748f142a2d702b01",
+  "previous_tree_hash": "df6c8a827d3c1125d77bd90a35d454a15b110640845f3efe61317821e17a7cbc",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -9020,14 +9030,14 @@
   ],
   "skill_tree_hash": "4d3d146ca0be93d75175a78ffb83f171675e00b9e95a04456d2613d5bc8f6da9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "df6c8a827d3c1125d77bd90a35d454a15b110640845f3efe61317821e17a7cbc",
+  "tree_hash": "2fc97efa5bcdbb1e1c826512c3d42de9883d91a2e036c66228c582fe2d5d38a0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 626,
+  "wiki_file_count": 628,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9041,8 +9051,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8199c57f48aa1f2146ecd4642361b6c8938db6c5084f21eb74319292fa909bf7",
-      "size": 1058139
+      "sha256": "a9a4682ac728013e71d1e7f02c2318ebf6664b773b53e231916cb2658961a0cc",
+      "size": 1058922
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10310,6 +10320,11 @@
       "size": 1026
     },
     {
+      "path": "pages/people/jon-rogers.md",
+      "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
+      "size": 3758
+    },
+    {
       "path": "pages/people/user-142d872b-594c-81c4-baa6-000236c53ad3.md",
       "sha256": "f1176cfb6c453970efaadc8c2531382d6909244a8d28ca549ea7d86a61d1138e",
       "size": 1045
@@ -11003,6 +11018,11 @@
       "path": "pages/projects/multichain-story-supernet.md",
       "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
       "size": 1410
+    },
+    {
+      "path": "pages/projects/mythoscape-chronicles-emergence-universe-mceu.md",
+      "sha256": "c1e1a05dbaaaa849a83ef4c636662484d7e0eec05f08fe72b36e708ead48187b",
+      "size": 10473
     },
     {
       "path": "pages/projects/network-rolling-upgrade-workflow.md",
@@ -12161,5 +12181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7ac7fb638bf2608a0508288679ee44a6a45111cc4cf344f0200793ad789beaf1"
+  "wiki_tree_hash": "e117bdf52c7d7e66febbdfeef3ca430144ee6643f9d5250ee6721be64ba5609f"
 }

@@ -22174,3 +22174,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_310742ca16a8a22d970068ad57bc4dea
 - summary: Initiative to build Platform Services that bridge the gap between the core protocol SDK and the IP ecosystem needs for Emergence Universe (EU). It includes utilities like content u...
 
+## [2026-05-12T03:31:52Z] synthesis | Mythoscape Chronicles of Emergence Universe (MCEU)
+
+- status: published
+- slug: projects/mythoscape-chronicles-emergence-universe-mceu
+- wiki_revision_id: wikirev_059a40912940fbca1b668abe8fd8f07b
+- summary: MCEU is an NFT collection set in the Emergence Universe created by David Goyer. It blends storytelling, generative AI, and evolving token standards to create a text-first, AI-visua...
+
+## [2026-05-12T03:31:52Z] synthesis | Jon Rogers
+
+- status: published
+- slug: people/jon-rogers
+- wiki_revision_id: wikirev_7d59b38534352f721c68e3f1cd011135
+- summary: Jon Rogers provided feedback on the MCEU project, emphasizing lore consistency, gamified exploration, overcoming Loot's shortcomings with text NFTs, dynamic AI visuals tied to stor...
+
