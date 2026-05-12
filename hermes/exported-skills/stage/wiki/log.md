@@ -22407,3 +22407,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c22ee5541bf40792b6c9de762fa82b2a
 - summary: Source: [Notion source](https://www.notion.so/Trace-AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-12T18:18:13Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-engineering-home
+- wiki_revision_id: wikirev_1536274b62b3339a4d4647f27eb6b370
+- summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
+
+## [2026-05-12T18:18:13Z] synthesis | Subnet Management Console API Design
+
+- status: published
+- slug: systems/subnet-management-console-api
+- wiki_revision_id: wikirev_8d92096500acee797e7a6afdb294b9f6
+- summary: Design for the Subnet Management Console API, a REST data layer aggregating blockchain events for monitoring workflows, activities, workers, and task queues.
+

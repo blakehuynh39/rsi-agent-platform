@@ -3,7 +3,10 @@ title: "Poseidon Engineering Home"
 type: "project"
 slug: "projects/poseidon-engineering-home"
 freshness: "2026-05-06T22:12:00Z"
-tags: []
+tags:
+  - "engineering"
+  - "index"
+  - "poseidon"
 owners: []
 source_revision_ids:
   - "srcrev_97bc7e4177f72517740b87f04e6d43bf"
@@ -41,6 +44,6 @@ Central index page for the Poseidon engineering team, linking to meeting notes, 
 
 ## Sources
 
-- `source_document_id`: `srcdoc_68d8f3cc1617e0ce2c3b133ac3724913`
-- `source_revision_id`: `srcrev_608dbf0f305dff443b828c5832f52300`
-- `source_url`: [Notion source](https://www.notion.so/Data-Requirements-Available-Events-27e051299a5480c494dcf5209b385eb5)
+- `source_document_id`: `srcdoc_c7eb629d764e4785381685f0da17ab63`
+- `source_revision_id`: `srcrev_7c518adb1a10e30ac1947fc6784f03e1`
+- `source_url`: [Notion source](https://www.notion.so/Subnet-Management-Console-API-Design-288051299a54805baaebebddc1807131)
