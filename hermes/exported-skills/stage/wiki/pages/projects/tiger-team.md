@@ -4,13 +4,15 @@ type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T01:08:00Z"
 tags:
-  - "app-initiative"
+  - "ai"
+  - "apps"
   - "data-ecosystem"
   - "depin"
   - "voice"
 owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
+  - "srcrev_0515809d6cc43cab067e1e1de246c11d"
   - "srcrev_29fb37287dd828609727dbf3aa4e89a8"
   - "srcrev_43dba63dc37ec8ab005c9753a5d88b68"
   - "srcrev_7e2bdc03a6af9ec06e97282af76837d2"
@@ -63,17 +65,18 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_23e896ee0d884675ffc60d4f480c1283` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2` `source_timestamp=2026-03-18T17:39:00Z`
 - Product ideas discussed in the Sandeep chat include targeting niche languages, toxicity datasets, social sentiment, debate, A/B testing, RLHF, coding challenges, finance predictions, voice, Indic languages, data annotation, and hard negatives mining. `claim:claim_3_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_f41f7d5ec957ad5857d6d5431448b867` `chunk_id=srcchunk_e1aec63642cce1d2c84f347be23ecc58` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-03-23T21:38:00Z`
+- DePIN Backend tasks include wiring Sentry log Slack channels, integrating job data search API to the job helper service, and setting up Grafana for monitoring. `claim:claim_4_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec) `source_document_id=srcdoc_59a54884735af81769540da9db298aa7` `source_revision_id=srcrev_0515809d6cc43cab067e1e1de246c11d` `chunk_id=srcchunk_8df6cfbdef7b4c8a60c4030d81bd66a1` `native_locator=https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec` `source_timestamp=2026-03-23T23:06:00Z`
 
 ## Related Pages
 
 - `projects/aura`
-- `projects/depin-admin`
-- `projects/depin-backend`
-- `projects/numo`
 - `projects/scout-careers`
+- `systems/depin-admin`
+- `systems/depin-backend`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_18ad4a0f808bd3c815e7e0c1275b5600`
-- `source_revision_id`: `srcrev_5edd17ed207ce1bfda252fd01f3dbf80`
-- `source_url`: [Notion source](https://www.notion.so/Scout-Careers-32c051299a5480e5b42fd67a3268da83)
+- `source_document_id`: `srcdoc_59a54884735af81769540da9db298aa7`
+- `source_revision_id`: `srcrev_0515809d6cc43cab067e1e1de246c11d`
+- `source_url`: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec)
