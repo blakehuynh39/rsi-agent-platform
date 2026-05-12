@@ -22476,3 +22476,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_357c3c2ee940854265e9ccfffd711cd6
 - summary: Project to build an AI Data Audit Portal that provides transparent audit trails for data rights, IP registration, and legal compliance for data collected by third-party partners. I...
 
+## [2026-05-12T20:30:38Z] ingest | APIs / Models for pre-verification
+
+- status: published
+- slug: notion_document/apis-/-models-for-pre-verification-a01462a5
+- wiki_revision_id: wikirev_2c8b92012ded307990eadac29eb5e6d4
+- source_document_id: srcdoc_48fde66a8a1bc0d1e803964da01462a5
+- source_revision_id: srcrev_2952238435c0cecc44ebaf9643d8fa4f
+- summary: Source: [Notion source](https://www.notion.so/APIs-Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)
+
