@@ -22102,3 +22102,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4cbaaf6fd6056efda49a353b3f6e809e
 - summary: Design specification for the Subnet Control Plane smart contract on the Poseidon L2 OP Stack chain. Oversees worker registration, staking, epoch-based reward distribution, worker h...
 
+## [2026-05-12T00:45:19Z] ingest | Slack thread C0AKH5SNGKH 1778546044.349309
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778546044-349309-55ab41dc
+- wiki_revision_id: wikirev_c62ab709324b9bb993e386caed4ff202
+- source_document_id: srcdoc_c8aa1971221339a71ea1d23755ab41dc
+- source_revision_id: srcrev_e91f9122d0f0307391758180144efc18
+- summary: hi team, <https://github.com/piplabs/depin-backend/pull/451> the stripe poc has been tested in sandbox and working and currently safely gated behind `STRIPE_ENABLED` we're able to ...
+
