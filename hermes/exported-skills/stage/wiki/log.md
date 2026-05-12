@@ -22111,3 +22111,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e91f9122d0f0307391758180144efc18
 - summary: hi team, <https://github.com/piplabs/depin-backend/pull/451> the stripe poc has been tested in sandbox and working and currently safely gated behind `STRIPE_ENABLED` we're able to ...
 
+## [2026-05-12T00:50:56Z] synthesis | Poseidon Engineering Home
+
+- status: published
+- slug: projects/poseidon-engineering-home
+- wiki_revision_id: wikirev_0406255ecc60d278ff94670339b5f21c
+- summary: Central index page for the Poseidon engineering team, linking to meeting notes, program tracking, design docs, requirements, recordings, guides, and documentation.
+

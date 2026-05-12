@@ -20,6 +20,8 @@ Central index page for the Poseidon engineering team, linking to meeting notes, 
 
 - The Poseidon Eng Home page serves as the engineering team's space for tracking design requirements, managing resources, and defining eng team processes and cadences. `claim:claim_1_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-1) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_fbd2426b5ebde8946e3968f2a51fb5b2` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-1` `source_timestamp=2026-05-06T22:12:00Z`
+- Additional resources include links to Storj, an AI roadmap on StackBlitz, a Figma board for Story AI Infra, and various Google Docs for design and research. `claim:claim_1_10` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_e74b75a5a5deb11088797e9055d8da9d` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2` `source_timestamp=2026-05-06T22:12:00Z`
 - The page references an overall Poseidon source of truth and product requirements documents. `claim:claim_1_2` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-1) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_fbd2426b5ebde8946e3968f2a51fb5b2` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-1` `source_timestamp=2026-05-06T22:12:00Z`
 - Meeting notes section includes Eng Standup, Product/Eng Sync, Product Open Questions, and Subnet Weekly. `claim:claim_1_3` `confidence:1.00`
@@ -36,11 +38,9 @@ Central index page for the Poseidon engineering team, linking to meeting notes, 
   - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-3) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_6e4d6d9c0aa3f2035e1fd26e8285c5f9` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-3` `source_timestamp=2026-05-06T22:12:00Z`
 - The page also links to AI research pages including Story AI Research - Inference & Deployment, Data Preparation and Training Research, Story AI Research - Analyzing Existing Infra, G4 - AI Infra Research Proposal, Infra Research Evaluation Matrix Guide, Infra Research Evaluation Matrix database, AI Research: DePIN, Payment Solutions, and Fiat - Token routes: Decision Points. `claim:claim_1_9` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_e74b75a5a5deb11088797e9055d8da9d` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2` `source_timestamp=2026-05-06T22:12:00Z`
-- Additional resources include links to Storj, an AI roadmap on StackBlitz, a Figma board for Story AI Infra, and various Google Docs for design and research. `claim:claim_1_10` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2) `source_document_id=srcdoc_f42fd2902cb181790fb1003eda25ed2d` `source_revision_id=srcrev_97bc7e4177f72517740b87f04e6d43bf` `chunk_id=srcchunk_e74b75a5a5deb11088797e9055d8da9d` `native_locator=https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209#chunk-2` `source_timestamp=2026-05-06T22:12:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_f42fd2902cb181790fb1003eda25ed2d`
-- `source_revision_id`: `srcrev_97bc7e4177f72517740b87f04e6d43bf`
-- `source_url`: [Notion source](https://www.notion.so/Poseidon-Eng-Home-1cb051299a5480caa0d6c4d65e698209)
+- `source_document_id`: `srcdoc_68d8f3cc1617e0ce2c3b133ac3724913`
+- `source_revision_id`: `srcrev_608dbf0f305dff443b828c5832f52300`
+- `source_url`: [Notion source](https://www.notion.so/Data-Requirements-Available-Events-27e051299a5480c494dcf5209b385eb5)
