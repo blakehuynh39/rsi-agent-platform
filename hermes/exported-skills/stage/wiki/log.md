@@ -22551,3 +22551,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_dd60750e2bde2f5497f24205c7df28ca
 - summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-05-12T22:35:58Z] synthesis | Trace V1 Product Requirements
+
+- status: published
+- slug: projects/trace-v1-product-requirements
+- wiki_revision_id: wikirev_4e0b93bc715d7485925a8741b354c599
+- summary: Trace is the public audit layer for AI training data registered on the Protocol. V1 ships a central public portal at trace.thedatafoundation.ai and whitelabel embeds for contributi...
+
+## [2026-05-12T22:38:34Z] synthesis | Data Portal Backend Architecture
+
+- status: published
+- slug: systems/data-portal-backend-architecture
+- wiki_revision_id: wikirev_6228ecdc25f2fffec3e821fef94c9696
+- summary: Architecture overview of the Data Portal Backend, including an embedded diagram and high-level smart contract ideas for metadata versioning.
+
