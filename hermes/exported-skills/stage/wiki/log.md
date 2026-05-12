@@ -22125,3 +22125,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_866b6efa280b9c62585e32eb2868cc5e
 - summary: Defines the naming scheme for Story's L1 blockchain networks (Testnet: ancient works/IP; Mainnet: ancient authors/Creators), domain reservations for public services, and network id...
 
+## [2026-05-12T02:10:57Z] synthesis | Story Protocol Core Architecture
+
+- status: published
+- slug: systems/story-protocol-core-architecture
+- wiki_revision_id: wikirev_9c0c6c5fd7263bde1e36b5b4ca266c4f
+- summary: Core architectural components of the Story Protocol, including StoryBlocks, Franchises, Ownership vs Control, and data storage mechanisms.
+

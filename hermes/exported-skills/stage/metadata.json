@@ -19,7 +19,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "c739e91dc744fe03d10eedb0bfdc72d80c92bcfd52394e4285b00048fc168916",
+        "sha256": "27ac004f5abf706972c782473d1e545e44e8f1e2f6d39a196f75f77119d5effd",
         "size": 2435
       },
       {
@@ -2941,13 +2941,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "948e2cbc96aef1913508ad20b2fd6b822883ac739eb300f290f203ca208c40e0",
-        "size": 574075
+        "sha256": "4de2b1273aa52fd57fbb2959a7256eefd160954fbbdc05f67fe3e17ff7dd9a8e",
+        "size": 574416
       },
       {
         "path": "log.md",
-        "sha256": "e9282fc634cb1fb77eaa66e7d860edc9b49e1e9d693914b875467bf266bce5ed",
-        "size": 1055874
+        "sha256": "7071534d1afb73e27dc9ddc3695c37b43ac000c36bf43c8980594aa3d8f5648a",
+        "size": 1056227
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5975,6 +5975,11 @@
         "size": 5356
       },
       {
+        "path": "pages/systems/story-protocol-core-architecture.md",
+        "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
+        "size": 9851
+      },
+      {
         "path": "pages/systems/story-protocol-devnet-contract-addresses.md",
         "sha256": "d85a454b09b6ce3e2874c0f8dd3c7ee2a896a92e37990a562dc5dae6d1bc778c",
         "size": 12599
@@ -6044,8 +6049,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T01:40:27Z",
-  "file_count": 1207,
+  "exported_at": "2026-05-12T02:12:22Z",
+  "file_count": 1208,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6064,7 +6069,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "c739e91dc744fe03d10eedb0bfdc72d80c92bcfd52394e4285b00048fc168916",
+      "sha256": "27ac004f5abf706972c782473d1e545e44e8f1e2f6d39a196f75f77119d5effd",
       "size": 2435
     },
     {
@@ -8982,7 +8987,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-58b46fbkxmb",
-  "previous_tree_hash": "2853553bb371fb3c1548670e65cc297f413b4b3fe478afd1d845e98199e13a7c",
+  "previous_tree_hash": "a3cdb603f44811319ad281ac43c98ea22756d5935c75e4d9831858fba2276b05",
   "schema_version": 1,
   "skill_file_count": 586,
   "skill_manage_sessions": [
@@ -8993,16 +8998,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "400c8560a2036dc7a5f1571c427e1d8e93a54d2ba2b25be21185278264cd9e94",
+  "skill_tree_hash": "1ec6b90e04d4807d44546d9ec6d4e6ac11a60b4e8c5a65d15effde2f414147ff",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a3cdb603f44811319ad281ac43c98ea22756d5935c75e4d9831858fba2276b05",
+  "tree_hash": "ddf21627cb417942eae0c1365ab8ccbf878da0a275cd7adc08a44dc4f263fe7a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 621,
+  "wiki_file_count": 622,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9011,13 +9016,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "948e2cbc96aef1913508ad20b2fd6b822883ac739eb300f290f203ca208c40e0",
-      "size": 574075
+      "sha256": "4de2b1273aa52fd57fbb2959a7256eefd160954fbbdc05f67fe3e17ff7dd9a8e",
+      "size": 574416
     },
     {
       "path": "log.md",
-      "sha256": "e9282fc634cb1fb77eaa66e7d860edc9b49e1e9d693914b875467bf266bce5ed",
-      "size": 1055874
+      "sha256": "7071534d1afb73e27dc9ddc3695c37b43ac000c36bf43c8980594aa3d8f5648a",
+      "size": 1056227
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12045,6 +12050,11 @@
       "size": 5356
     },
     {
+      "path": "pages/systems/story-protocol-core-architecture.md",
+      "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
+      "size": 9851
+    },
+    {
       "path": "pages/systems/story-protocol-devnet-contract-addresses.md",
       "sha256": "d85a454b09b6ce3e2874c0f8dd3c7ee2a896a92e37990a562dc5dae6d1bc778c",
       "size": 12599
@@ -12111,5 +12121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b25e7894fd388b494b5917337f6bf77b0352c27c08adbbe27db8e35dec8264bf"
+  "wiki_tree_hash": "9a919e6d34d3f66798f67915f8c548b24a3038282857e9758ab7689c977e6044"
 }
