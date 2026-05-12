@@ -1,10 +1,10 @@
 ---
 name: story-infrastructure-architecture
 description: "Investigate Story Protocol's technical infrastructure: L1 blockchain parameters, on-chain contracts (EAS, attestation, protocol core/periphery), off-chain services (indexer, orchestration, API), throughput analysis, and architectural patterns."
-version: 1.0.0
+version: 1.1.0
 metadata:
   hermes:
-    tags: [story-protocol, blockchain, architecture, infrastructure, indexing, attestation, l1, evm, cometbft, eas, throughput]
+    tags: [story-protocol, blockchain, architecture, infrastructure, indexing, attestation, l1, evm, cometbft, eas, throughput, precompile, gas-optimization]
     related_skills: [numo-project-status, depin-prod-admin-read, rsi-platform-investigation, cloudflare-management]
 ---
 
@@ -139,6 +139,42 @@ kubectl exec -n story deploy/story-indexer -- curl -s localhost:8080/config/list
 
 **PITFALL:** Chain gas limit gives ~18 IP registrations/block (~777K/day), but the current 40-wallet fleet limits to ~4-20 TPS. When capacity questions arise, distinguish the **chain gas ceiling** from the **wallet nonce bottleneck**.
 
+### 6b. Gas limit vs EVM execution speed analysis
+
+When the question is about whether raising the gas limit helps or EVM execution speed is the bottleneck:
+
+1. **Check live utilization**: `curl -s "https://www.storyscan.io/api/v2/stats" | jq '.network_utilization_percentage'` — if <5%, neither limit is under pressure.
+
+2. **Compute required MGas/s**: `gas_limit / block_time_s`. At 36M gas / 2.2s = ~16.4 MGas/s.
+
+3. **Compare against client benchmarks**: See `references/evm-performance-benchmarks.md`. Modern EVM clients process 50-200+ MGas/s. Story's Geth fork has 3-12× headroom at 36M gas.
+
+4. **Determine bottleneck hierarchy**:
+   - Consensus (CometBFT, max_gas=-1): not the bottleneck at any realistic scale
+   - EVM execution (Geth): ~50 MGas/s conservative ceiling → would bottleneck at ~110M gas limit
+   - Gas limit (36M): first chain-side bottleneck if blocks filled → caps MetadataURISet at ~218 TPS
+   - Application (wallets, demand): current actual bottleneck at ~4-20 TPS
+
+The real constraints on gas limit increases are **state growth** (SSTORE bloat), **block propagation** latency across 64 validators, and **validator hardware requirements** — not raw EVM execution speed.
+
+### 6c. Analyze precompile optimization potential
+
+When the question involves precompiles, precompile gas models, or IP registration / metadata gas optimization:
+
+1. **Load the ipgraph precompile reference**: Story's existing ipgraph precompile (0x0101 in story-geth) provides the calibration. Reads: 10-40 gas, writes: ~1,000 gas. Source: docs.story.foundation precompile docs, `references/precompile-gas-analysis.md`.
+
+2. **Break down current Solidity gas**: Analyze the Solidity implementation (e.g., CoreMetadataModule.sol) to identify: external calls, SSTOREs, modifier checks, EVM interpreter overhead. The EVM interpreter typically accounts for ~50% of execution cost (Paradigm Research).
+
+3. **Estimate precompile gas at ipgraph rates**: Assign ipgraph-level gas to each operation: state reads at ~40 gas, state writes at ~1,000 gas. Precompiles bypass the EVM interpreter and charge only native computation cost.
+
+4. **Compute throughput impact**: `tx_per_block = 36M / precompile_gas`, `tps = tx_per_block / block_time_s`.
+
+5. **Identify remaining bottlenecks**: After precompile optimization, the bottleneck shifts to state root calculation (75% of block time per Paradigm), block propagation, and transaction signature validation.
+
+See `references/precompile-gas-analysis.md` for full breakdown with gas-per-operation tables and throughput projections.
+
+**PITFALL:** Precompile gas costs are set by the protocol, not the EVM gas schedule. The ipgraph write rate (~1,000 gas) may not perfectly transfer to MetadataURISet writes (which write variable-length strings vs fixed mapping entries). Use ipgraph as a conservative calibration point and note the uncertainty.
+
 ### 7. Search Honcho/Slack for prior discussions
 
 ```bash
@@ -159,11 +195,21 @@ kubectl get pods -n story --sort-by=.metadata.creationTimestamp
 
 See `references/chain-parameters.md` for the full reference sheet of Story L1 parameters, on-chain contract addresses, off-chain service architecture, and gas/throughput tables. This is the go-to quick reference.
 
+Additional support files:
+- `references/evm-performance-benchmarks.md` — Paradigm and Nethermind EVM client benchmarks (MGas/s data)
+- `references/precompile-gas-analysis.md` — Precompile optimization analysis using ipgraph calibration
+
 ## Report Structure
 
 For infrastructure questions, structure the response around:
 1. **Parameters** — concrete numbers with sources (Blockscout, genesis, docs)
 2. **Architecture** — how components connect (diagram when useful)
-3. **Bottlenecks** — what limits throughput at each layer
+3. **Bottlenecks** — what limits throughput at each layer (consensus → EVM execution → gas limit → application)
 4. **Gaps** — what doesn't exist yet
 5. **Concrete evidence** — cite specific URLs, block numbers, contract addresses
+
+For throughput / gas-limit questions, additionally:
+6. **EVM performance context** — compare Story's MGas/s requirement against client benchmarks (see `references/evm-performance-benchmarks.md`)
+
+For precompile optimization questions, additionally:
+7. **ipgraph calibration** — ground estimates in Story's existing precompile gas model (see `references/precompile-gas-analysis.md`)

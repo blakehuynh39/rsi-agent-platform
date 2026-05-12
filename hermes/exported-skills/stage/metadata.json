@@ -19,7 +19,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "e09bdaa5d66f8803060060562c2495f51b5479015f28a1155cd6133374e390b6",
+        "sha256": "aef044e695ea1719b8331f1e407025717874a7700d20522e1b4b87657304b63c",
         "size": 2435
       },
       {
@@ -2919,13 +2919,23 @@
       },
       {
         "path": "story-company/story-infrastructure-architecture/SKILL.md",
-        "sha256": "97a53a42089ece835ff259ad983dd24cf26b107a349cf1999d3b2d290e7ff212",
-        "size": 8415
+        "sha256": "0041f819e55a8b65b13ee3888c825ff412ac9752b2a524902ceec83c13b07e4e",
+        "size": 12018
       },
       {
         "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
-        "sha256": "9989f0cac57e991bc841a68dbcecede11c00210713faa6fa302ee7f6a93d2cdb",
-        "size": 6892
+        "sha256": "8226325639b77663de30e6025a1bd380d310460ac353298d2a140d96aa6dd03e",
+        "size": 8418
+      },
+      {
+        "path": "story-company/story-infrastructure-architecture/references/evm-performance-benchmarks.md",
+        "sha256": "f8cec528e65fd1a1f5798992e4b64cb2dc1e63ed1af90dc20fa9ee451cf173e7",
+        "size": 3406
+      },
+      {
+        "path": "story-company/story-infrastructure-architecture/references/precompile-gas-analysis.md",
+        "sha256": "bc4d7e61a0a10e9a1b439d053ba4ddfee7b044f3adb28fd1f40acb901b2ae95b",
+        "size": 5770
       },
       {
         "path": "yuanbao/SKILL.md",
@@ -6194,8 +6204,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-12T15:30:28Z",
-  "file_count": 1237,
+  "exported_at": "2026-05-12T15:36:55Z",
+  "file_count": 1239,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6214,7 +6224,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "e09bdaa5d66f8803060060562c2495f51b5479015f28a1155cd6133374e390b6",
+      "sha256": "aef044e695ea1719b8331f1e407025717874a7700d20522e1b4b87657304b63c",
       "size": 2435
     },
     {
@@ -9114,13 +9124,23 @@
     },
     {
       "path": "story-company/story-infrastructure-architecture/SKILL.md",
-      "sha256": "97a53a42089ece835ff259ad983dd24cf26b107a349cf1999d3b2d290e7ff212",
-      "size": 8415
+      "sha256": "0041f819e55a8b65b13ee3888c825ff412ac9752b2a524902ceec83c13b07e4e",
+      "size": 12018
     },
     {
       "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
-      "sha256": "9989f0cac57e991bc841a68dbcecede11c00210713faa6fa302ee7f6a93d2cdb",
-      "size": 6892
+      "sha256": "8226325639b77663de30e6025a1bd380d310460ac353298d2a140d96aa6dd03e",
+      "size": 8418
+    },
+    {
+      "path": "story-company/story-infrastructure-architecture/references/evm-performance-benchmarks.md",
+      "sha256": "f8cec528e65fd1a1f5798992e4b64cb2dc1e63ed1af90dc20fa9ee451cf173e7",
+      "size": 3406
+    },
+    {
+      "path": "story-company/story-infrastructure-architecture/references/precompile-gas-analysis.md",
+      "sha256": "bc4d7e61a0a10e9a1b439d053ba4ddfee7b044f3adb28fd1f40acb901b2ae95b",
+      "size": 5770
     },
     {
       "path": "yuanbao/SKILL.md",
@@ -9132,9 +9152,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-75cc588clt6",
-  "previous_tree_hash": "08f639869f436905a26fa7196615767a11b7ca2f6eacd7562e497a4b84482929",
+  "previous_tree_hash": "d63648fce0369f1086d72428b9f32a7909ccddd8719800acbf8df6ca70435049",
   "schema_version": 1,
-  "skill_file_count": 586,
+  "skill_file_count": 588,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9143,9 +9163,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "73ec5201db05eea6bda3d6aa21b2e9e60232da1ffcb3ef15a1b859904e031aa9",
+  "skill_tree_hash": "291d88d2f931ba12c71483bfcf3e41c917cc10bd53118f77f1ab9c3ca3d64c7f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d63648fce0369f1086d72428b9f32a7909ccddd8719800acbf8df6ca70435049",
+  "tree_hash": "8934a42230a23d9dbd32fb89f598e660098e895e658b3867e569ff5f433e5027",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
