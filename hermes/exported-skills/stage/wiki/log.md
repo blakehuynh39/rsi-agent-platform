@@ -22342,3 +22342,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6cca91d13f53813c14b68fceb8f71aee
 - summary: Engineering leads offsite held in Vancouver, Canada from April 23-26, 2025. The offsite aimed to define the architecture for Project Poseidon, discuss TGE scope, define a Proof of ...
 
+## [2026-05-12T12:21:27Z] synthesis | Odyssey Node Setup
+
+- status: published
+- slug: runbooks/odyssey-node-setup
+- wiki_revision_id: wikirev_2ba8f1867994b23911b39418b0fdf38e
+- summary: Guide for setting up a node for the Odyssey test network, including execution client (story-geth) and consensus client (story) setup, system requirements, configuration, automation...
+
