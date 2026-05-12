@@ -22356,3 +22356,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_73849ddd4472c516c7a6ab23fe83b8b5
 - summary: Deployment details for Protocol v1.3 on the Odyssey Devnet, including RPC endpoint, chain ID, explorer, SUSD token, and contract addresses for core protocol and SPG.
 
+## [2026-05-12T13:07:43Z] synthesis | Protocol Home
+
+- status: published
+- slug: concepts/protocol-home
+- wiki_revision_id: wikirev_bb95b229319b39a514ae6b05f4857ddc
+- summary: Central hub for Story Protocol design, development, ecosystem, and roadmap discussions. Contains links to key design documents, roadmap updates, project progress, and resources.
+
+## [2026-05-12T13:07:43Z] synthesis | Open Questions for Protocol
+
+- status: published
+- slug: open-questions/open-questions-for-protocol
+- wiki_revision_id: wikirev_9e815c23e27a60c02411d894abd8d5bb
+- summary: Document tracking open questions and design decisions for the Story Protocol after the hackathon, covering data structures, modules, canon handling, licensing, and permissions.
+

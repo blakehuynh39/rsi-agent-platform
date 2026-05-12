@@ -4,8 +4,9 @@ type: "concept"
 slug: "concepts/protocol-home"
 freshness: "2025-04-03T18:52:00Z"
 tags:
-  - "home"
+  - "design"
   - "protocol"
+  - "resources"
   - "roadmap"
 owners: []
 source_revision_ids:
@@ -34,10 +35,10 @@ Central hub for Story Protocol design, development, ecosystem, and roadmap discu
 
 ## Related Pages
 
-- `concepts/beta-protocol-interface`
+- `open_questions/open-questions-for-protocol`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_aeb45af31362098b908ed27d9e2ce76a`
-- `source_revision_id`: `srcrev_f8ab25602df939e8c386929f90fc3476`
-- `source_url`: [Notion source](https://www.notion.so/Registration-Module-76974164cd8447bb92cb55c67e70f96e)
+- `source_document_id`: `srcdoc_e8d34fd2b2e8081f2765f8284fd8c37e`
+- `source_revision_id`: `srcrev_da3c70ebb01487cf0b8ea658c475b60c`
+- `source_url`: [Notion source](https://www.notion.so/Open-Questions-for-Protocol-76894426b83c45abaf5b1598612c8ff3)
