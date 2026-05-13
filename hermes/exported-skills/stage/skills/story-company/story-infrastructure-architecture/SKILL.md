@@ -24,14 +24,19 @@ mcp slack_read_thread(channel_id, thread_ts)
 
 ### 2. Determine what layer the question targets
 
-Story infrastructure has four layers — narrow your search to the right one:
+Story infrastructure has five layers — narrow your search to the right one:
 
 | Layer | Questions about | Primary Sources |
 |---|---|---|
 | **L1 Chain** | Block time, gas limit, consensus, throughput, finality | docs.story.foundation, Blockscout, piplabs/story (genesis.json), Thanos metrics |
 | **On-chain Contracts** | EAS, attestation, protocol core, protocol periphery, gas costs | storyprotocol repos (attestation-contracts, protocol-core-v1, protocol-periphery-v1) |
 | **Off-chain Services** | Indexer, orchestration, API proxy, Temporal workers, databases | piplabs repos (story-indexer, story-orchestration-service), K8s story namespace |
+| **Infrastructure-as-Code** | AWS resources (EKS, VPC, RDS, IAM), Terraform state, account topology, k8s deployment manifests | storyprotocol/story-infra-aws (high-level AWS infra + permissions), story-deployments (Helm charts, ArgoCD, per-service k8s topology) |
 | **DePIN/Numo** | IP registration pipeline, metadata flow, wallet fleet | piplabs/depin-backend, piplabs/numo-monorepo, story-deployments |
+
+**IaC Repo Split:**
+- `storyprotocol/story-infra-aws` — **high-level AWS infrastructure**: Terraform for EKS clusters, VPC networking, RDS databases, IAM roles/policies, Karpenter, monitoring stack (Prometheus/Grafana/Loki/Tempo), across 4 accounts (dev/stage/prod/ops). This repo provisions the *platform* that everything runs on.
+- `story-deployments` — **per-service Kubernetes deployment topology**: Helm charts, ArgoCD Application manifests, per-service k8s YAML. This is where you find *what* runs where — not the AWS infra underneath.
 
 ### 3. Gather chain parameters (L1 Layer)
 
