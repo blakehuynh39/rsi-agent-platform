@@ -19,7 +19,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "b93a483d9b25843ac049798cad9c668652423eadc696935db311f1588727367d",
+        "sha256": "3a30adea72a65fe6e7100a100e91d199b43b2b89956f9e63c42515a67ed6a615",
         "size": 2435
       },
       {
@@ -2834,8 +2834,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "340ff03cc8c6a81031398cbbbf4cd0dd0f8582793350b5131dfec8a62928aee1",
-        "size": 23086
+        "sha256": "08e72e0da7704cc479f4383bf87272140eac2cc1e7037684fbbe33879e0359d3",
+        "size": 25997
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2851,6 +2851,11 @@
         "path": "story-company/depin-prod-admin-read/references/db-read-api.md",
         "sha256": "1675f3737bddc5ba5546c429e73e14be23b4f2f5703c1d0c9d9c5aa6f51d47b5",
         "size": 2417
+      },
+      {
+        "path": "story-company/depin-prod-admin-read/references/k8s-service-dns.md",
+        "sha256": "bc0b47a31eb005092cddbb85a4dae577fe9107d20fb4505aba52264c2254b7e5",
+        "size": 2826
       },
       {
         "path": "story-company/depin-prod-admin-read/references/rsidb-propagation-architecture.md",
@@ -6259,8 +6264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-13T01:28:20Z",
-  "file_count": 1250,
+  "exported_at": "2026-05-13T16:14:50Z",
+  "file_count": 1251,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6279,7 +6284,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "b93a483d9b25843ac049798cad9c668652423eadc696935db311f1588727367d",
+      "sha256": "3a30adea72a65fe6e7100a100e91d199b43b2b89956f9e63c42515a67ed6a615",
       "size": 2435
     },
     {
@@ -9094,8 +9099,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "340ff03cc8c6a81031398cbbbf4cd0dd0f8582793350b5131dfec8a62928aee1",
-      "size": 23086
+      "sha256": "08e72e0da7704cc479f4383bf87272140eac2cc1e7037684fbbe33879e0359d3",
+      "size": 25997
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -9111,6 +9116,11 @@
       "path": "story-company/depin-prod-admin-read/references/db-read-api.md",
       "sha256": "1675f3737bddc5ba5546c429e73e14be23b4f2f5703c1d0c9d9c5aa6f51d47b5",
       "size": 2417
+    },
+    {
+      "path": "story-company/depin-prod-admin-read/references/k8s-service-dns.md",
+      "sha256": "bc0b47a31eb005092cddbb85a4dae577fe9107d20fb4505aba52264c2254b7e5",
+      "size": 2826
     },
     {
       "path": "story-company/depin-prod-admin-read/references/rsidb-propagation-architecture.md",
@@ -9216,10 +9226,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6885dcnw24b",
-  "previous_tree_hash": "82c74ea31c2cf4dfa5f34f3206a3b7f72bf4e3a76c3f73f841f62fa9d5cf086e",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-77c4ccpwj8k",
+  "previous_tree_hash": "06c2580d35049fb087e7e395bb451ccae48203ccca6f0a934152d8f84d0ae744",
   "schema_version": 1,
-  "skill_file_count": 590,
+  "skill_file_count": 591,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9228,9 +9238,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "541c109adc0dc6af64cf3d3c75f2e83d25e840310a5f28855e140e2ad8981ed9",
+  "skill_tree_hash": "0413da565172f3d4f66f764bce1612ac7d650adb712307994fbd73cb6d989bad",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "06c2580d35049fb087e7e395bb451ccae48203ccca6f0a934152d8f84d0ae744",
+  "tree_hash": "41a5896272ca225f66c6239d74a41c67297f639bb12f3b1ba4eb9b4e3b57c032",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

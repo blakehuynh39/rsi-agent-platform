@@ -126,6 +126,7 @@ Full reference queries and case studies: `references/country-breakdown-queries.m
 - **Submission count ≠ unique user count.** These are different dimensions that can diverge dramatically (e.g., Nigeria: 755 subs but #4 by unique users; Poland: 2,589 subs but only 25 unique users). When the user asks about "submissions from Country X," present both counts if they tell different stories. See `references/country-breakdown-queries.md` for patterns.
 - **Country-by-campaign queries easily exceed the 100-row cap.** With 9 campaigns and 60+ distinct nationalities, worst case is 540 rows. Use LIMIT/OFFSET pagination (LIMIT 100 OFFSET 0, then OFFSET 100) to stay within caps. If only top-N per campaign is needed, use ROW_NUMBER() window function: `ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY count(*) DESC) AS rn` then filter `WHERE rn <= 10`.
 - **Triple-table JOINs (scripts→script_assignments→submissions) may exceed the 20s timeout on depin-prod.** When the 3-table histogram query (Query 3 in `references/vi-transcript-queries.md`) times out, use the two-path strategy: Query 5 (assignment-only, `scripts`→`script_assignments`) + Query 6 (submission-only, `scripts`→`script_assignments`→`submissions`). The two distributions tell different stories — assignment is bimodal (provisioning strategy), submission is bell-shaped (actual user behavior). The gap between them (e.g., 52% conversion) is itself a diagnostic signal. See `references/vi-transcript-queries.md` for the full query patterns and May 10 case study.
+- **`/v1/auth/logout` may not exist in your local checkout.** If searching for logout in the source returns nothing, the repo may be on an older commit. The staging deployment runs `d995c67` (Stripe Connect POC #451) which DOES include logout at `apps/api/src/http/routes/auth.rs:38`. Run `git fetch origin && git checkout origin/staging` before source-diving to avoid false negatives.
 - **RSI Slack delivery tools may be blocked by channel scope.** `rsi_slack.message_post`, `rsi_slack.report_post`, and `rsi_slack.file_upload` can all return `403: "outside allowed channel scope"` for every channel — including channels that `rsi_slack.channel_info` confirms exist and `rsi_slack.channels_list` returns. This is a workspace-level DeliveryPolicy restriction where the channel allowlist for posting is empty or misconfigured. When this happens: (a) try all three delivery tools with different channels to confirm it's a policy issue, not a single-channel restriction; (b) check `rsi_slack.channels_list` — if it returns channels but none are postable, the delivery scope is empty; (c) fall back to providing the complete answer via the structured JSON response (`final_answer`, `visible_reasoning`, `produced_artifacts`) — the control plane may still deliver it; (d) note the delivery blockage in `self_critique` so the user knows the answer exists but couldn't reach Slack. Do not loop-retry delivery tools — the 403 is deterministic for the session.
 
 ## Source Of Truth
@@ -179,3 +180,35 @@ The `db_query_duration_seconds_*` metrics that exist in Thanos belong to `story-
 3. Check admin stats endpoints. If `/v1/admin/stats/user-growth` returns data, the DB is reachable.
 4. Note connection pool pressure: API pods and workers share the PostgreSQL instance.
 5. Flag slow admin endpoints as likely query plan or indexing issues, not just missing metrics.
+
+## Grafana Observability Gap
+
+The RSI toolchain's Grafana proxy (`rsi_observability_*` tools) is blocked by Cloudflare Error 1010 ("browser signature banned") on `grafana.ops.storyprotocol.net`. All Prometheus/Loki queries via the RSI observability tools return 403 — do not retry; the block is deterministic for the session.
+
+**Fallbacks that still work:**
+- **Direct `/metrics` scrape** from `depin.storyprotocol.net/metrics` (or staging equivalent) — use `curl` via terminal with `User-Agent: rsi-hermes-company-computer/1.0`.
+- **Kubernetes pod logs** via `kubectl logs -n story` — staging logs are accessible; production is on a different cluster (see "Production Cluster Separation" below).
+- **Admin REST API** — all stats endpoints work as documented.
+
+## Production Cluster Separation
+
+Production depin-backend runs on a **separate EKS cluster** (`use1-prod`: `https://6345B193081358905BE7E8B5A00C54DF.gr7.us-east-1.eks.amazonaws.com`), not the staging cluster accessible via `kubectl`. Both share the `story` namespace.
+
+**Staging cluster** (current `kubectl` context): services prefixed `use1-stage-*` in namespace `story`.
+**Production cluster** (separate, no direct kubectl): services prefixed `use1-prod-*` in namespace `story`.
+
+Deployment source of truth: `story-deployments/story/depin-backend/use1-prod.yaml` and `story-deployments/story/depin-ip-registration/use1-prod.yaml`. The ArgoCD ApplicationSet (`applicationset/templates/applicationset.yaml`) confirms namespace derivation: the top-level key under `elements` (e.g., `story`) becomes the namespace.
+
+### Helm Service Naming Convention
+
+The Helm chart uses `fullnameOverride` for exact service names:
+- Backend: `{fullnameOverride}` → e.g., `use1-prod-depin-backend`
+- IP Registration workers: `{fullnameOverride}-{worker_name}` → e.g., `use1-prod-depin-ip-registration-submitter`
+
+Internal DNS follows standard K8s convention: `<service-name>.<namespace>.svc.cluster.local`. Short form `<service-name>.<namespace>` also works within cluster.
+
+Full service registry: `references/k8s-service-dns.md`.
+
+## Sentry DSN in Production
+
+The checked-in `apps/api/config/production.toml` has `sentry_dsn = ""` (empty string), which is misleading. In production, the Sentry DSN is injected from Vault: `SENTRY_DSN: "vault:secret/data/use1-prod/depin-backend#SENTRY_DSN"` with `SENTRY_ATTACH_STACK_TRACE: "true"`. The empty default is a placeholder that gets overridden by the Helm values in `story-deployments`. Staging also has Sentry via Vault.
