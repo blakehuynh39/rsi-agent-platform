@@ -3338,6 +3338,25 @@ class HermesRuntime:
             "missing_required_toolsets": [item for item in required_toolsets if item not in set(toolsets)],
         }
 
+    def _native_required_final_tool_names(self, task: RunnerTaskRequest) -> list[str]:
+        if not self._workflow_requires_explicit_reply_action(task):
+            return []
+        if self._execution_phase(task) in {"render", "deliver"}:
+            return []
+        return ["rsi_slack_message_post", "rsi_slack_report_post"]
+
+    def _native_required_final_tool_instruction(self, task: RunnerTaskRequest) -> str:
+        if not self._native_required_final_tool_names(task):
+            return ""
+        return (
+            "This RSI workflow is Slack-bound. Deliver the final response by calling "
+            "exactly one RSI native Slack tool in the bound channel/thread: "
+            "rsi_slack.message_post for simple prose, or rsi_slack.report_post for "
+            "rich/tabular output using report_schema_version=1 and structured tables. "
+            "Do not use generic send_message, legacy proposed Slack actions, or raw "
+            "Markdown pipe tables for tabular Slack output."
+        )
+
     def _github_cli_environment(self, task: RunnerTaskRequest) -> tuple[dict[str, str], JsonObject]:
         status: JsonObject = {
             "configured": False,
@@ -3734,6 +3753,9 @@ class HermesRuntime:
             "execution_phase": self._execution_phase(task),
             "toolsets": list(toolsets),
             "phase_contract": phase_contract,
+            "required_final_tool_names": self._native_required_final_tool_names(task),
+            "required_final_tool_max_attempts": 2,
+            "required_final_tool_instruction": self._native_required_final_tool_instruction(task),
             "task_scoped_mcp_servers": [
                 {
                     "source_label": server.source_label,

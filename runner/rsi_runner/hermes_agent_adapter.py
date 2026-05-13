@@ -905,6 +905,13 @@ class HermesAgentAdapter:
             "tool_complete_callback": self._tool_complete_callback,
             "status_callback": self._status_callback,
         }
+        required_final_tools = _string_list(self._payload.get("required_final_tool_names"))
+        if required_final_tools:
+            agent_kwargs["required_final_tool_names"] = required_final_tools
+            agent_kwargs["required_final_tool_max_attempts"] = int(self._payload.get("required_final_tool_max_attempts") or 2)
+            instruction = _string(self._payload.get("required_final_tool_instruction"))
+            if instruction:
+                agent_kwargs["required_final_tool_instruction"] = instruction
         provider_routing = _json_object(runtime.get("provider_routing"))
         if provider_routing:
             allowed = _string_list(provider_routing.get("only"))

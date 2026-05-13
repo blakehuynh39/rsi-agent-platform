@@ -4040,6 +4040,79 @@ class HermesRuntimeTests(unittest.TestCase):
 
         self.assertEqual(request["external_tool_resume"], resume_payload)
 
+    def test_native_executor_request_payload_requires_final_slack_tool_for_mediated_workflows(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "rsi-agent-platform",
+                        "prompt": "Reply in Slack.",
+                        "reply_delivery_mode": "mediated",
+                        "execution_id": "hexec-slack-final",
+                        "trace_id": "trace-slack-final",
+                        "workflow_id": "wf-slack-final",
+                        "operation_id": "op-slack-final",
+                        "channel_id": "C123",
+                        "thread_ts": "171000001.000100",
+                    }
+                }
+            )
+            context = FakeSessionManager(runtime._config).prepare(task)
+            request = runtime._native_executor_request_payload(
+                task,
+                context,
+                toolsets=["rsi-slack"],
+                task_scoped_mcp_registration=TaskScopedMCPRegistration(),
+                max_iterations=5,
+                workdir=Path(tempdir),
+                result_path=Path(tempdir) / "result.json",
+                phase_contract={},
+                github_cli_credentials={},
+            )
+
+        self.assertEqual(
+            request["required_final_tool_names"],
+            ["rsi_slack_message_post", "rsi_slack_report_post"],
+        )
+        self.assertEqual(request["required_final_tool_max_attempts"], 2)
+        self.assertIn("rsi_slack.report_post", request["required_final_tool_instruction"])
+
+    def test_hermes_agent_adapter_passes_required_final_tool_contract_to_aiagent(self) -> None:
+        payload = {
+            "model": "openrouter/deepseek/deepseek-v4-pro",
+            "session_id": "rsi-prod-conversation-required-final",
+            "toolsets": ["rsi-slack"],
+            "required_final_tool_names": ["rsi_slack_message_post", "rsi_slack_report_post"],
+            "required_final_tool_max_attempts": 2,
+            "required_final_tool_instruction": "Deliver with RSI Slack tools.",
+            "runtime": {"provider": "openrouter"},
+        }
+
+        with mock.patch("rsi_runner.hermes_agent_adapter.AIAgent", FakeAIAgent), mock.patch.dict(
+            os.environ,
+            {"OPENROUTER_API_KEY": "openrouter-test-key"},
+            clear=True,
+        ):
+            adapter = HermesAgentAdapter(payload)
+            adapter._create_agent("rsi-prod-conversation-required-final", None, "system prompt")
+
+        self.assertEqual(
+            FakeAIAgent.last_kwargs["required_final_tool_names"],
+            ["rsi_slack_message_post", "rsi_slack_report_post"],
+        )
+        self.assertEqual(FakeAIAgent.last_kwargs["required_final_tool_max_attempts"], 2)
+        self.assertEqual(FakeAIAgent.last_kwargs["required_final_tool_instruction"], "Deliver with RSI Slack tools.")
+
     def test_plugin_artifact_write_creates_workspace_metadata_and_lifecycle_events(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as artifact_dir, mock.patch.dict(
             os.environ, {"HERMES_HOME": hermes_home}, clear=True
