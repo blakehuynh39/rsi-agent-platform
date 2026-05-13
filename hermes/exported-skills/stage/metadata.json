@@ -2966,13 +2966,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a829d23aa4f9e69c319c7374e9fbb46521423fb956f1e40eb8a5ff16e49802f7",
-        "size": 589402
+        "sha256": "23c49ad05e31c0cb3ffb1741116e2ae21c889ce22e89c4005190fe6fe99644b4",
+        "size": 589776
       },
       {
         "path": "log.md",
-        "sha256": "facfc9f2825e52215f2abff185ee12811fc7c00231910a5fdd598807101fbe26",
-        "size": 1082322
+        "sha256": "cd95b6bad1e1a499b1007adb09e254f6e82b5370ab48d29cb0e5047c0ff09e73",
+        "size": 1082708
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5415,6 +5415,11 @@
         "size": 4253
       },
       {
+        "path": "pages/projects/trace-audit-portal-v1.md",
+        "sha256": "f89f943635448a7d108b7b57f897366f72e5945a32139be684070df33d7c38c5",
+        "size": 5605
+      },
+      {
         "path": "pages/projects/trace-product-requirements-v1.md",
         "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
         "size": 9328
@@ -6264,8 +6269,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-13T20:44:44Z",
-  "file_count": 1251,
+  "exported_at": "2026-05-13T21:16:51Z",
+  "file_count": 1252,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9227,7 +9232,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-77c4ccpwj8k",
-  "previous_tree_hash": "1dd793351ab146417a02e4ba866574772adbc32bab2b913550bb27af2ba484b2",
+  "previous_tree_hash": "8b94a432c686032c37b7664f3ab78ec1dff61070662aaf5e72e44309b0032d4f",
   "schema_version": 1,
   "skill_file_count": 591,
   "skill_manage_sessions": [
@@ -9240,14 +9245,14 @@
   ],
   "skill_tree_hash": "1ab32a802ab08f6352751391b96dfea1052db5d624a157f6d161f25f53283c99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8b94a432c686032c37b7664f3ab78ec1dff61070662aaf5e72e44309b0032d4f",
+  "tree_hash": "eee0675c64eaa4d3f1b48f6616b44475ee84c6b58898ce78cc45f09ecaf64542",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 660,
+  "wiki_file_count": 661,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9256,13 +9261,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a829d23aa4f9e69c319c7374e9fbb46521423fb956f1e40eb8a5ff16e49802f7",
-      "size": 589402
+      "sha256": "23c49ad05e31c0cb3ffb1741116e2ae21c889ce22e89c4005190fe6fe99644b4",
+      "size": 589776
     },
     {
       "path": "log.md",
-      "sha256": "facfc9f2825e52215f2abff185ee12811fc7c00231910a5fdd598807101fbe26",
-      "size": 1082322
+      "sha256": "cd95b6bad1e1a499b1007adb09e254f6e82b5370ab48d29cb0e5047c0ff09e73",
+      "size": 1082708
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11705,6 +11710,11 @@
       "size": 4253
     },
     {
+      "path": "pages/projects/trace-audit-portal-v1.md",
+      "sha256": "f89f943635448a7d108b7b57f897366f72e5945a32139be684070df33d7c38c5",
+      "size": 5605
+    },
+    {
       "path": "pages/projects/trace-product-requirements-v1.md",
       "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
       "size": 9328
@@ -12551,5 +12561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a9089bdc10319ca0a645f4d1ffac2a6654f3f907a8fe0ff6d8ac00530b29b0d7"
+  "wiki_tree_hash": "8e3dbb6d8d2716331272bd61602a6bb78d2218025e13d15881f8c88ba1483e95"
 }

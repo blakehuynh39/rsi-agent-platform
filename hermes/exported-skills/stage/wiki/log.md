@@ -22638,3 +22638,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_fb031702b3c20983279d8c892be7ca0f
 - summary: Source: [Notion source](https://www.notion.so/Trace-AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8)
 
+## [2026-05-13T21:16:23Z] synthesis | Trace V1: AI Data Audit Portal
+
+- status: published
+- slug: projects/trace-audit-portal-v1
+- wiki_revision_id: wikirev_ef9b3d770300e1d7d0b5442be33591f8
+- summary: Trace is the public audit layer for AI training data registered on the Protocol. It provides an immutable receipt registry for data contributions, enabling labs to verify data prov...
+
