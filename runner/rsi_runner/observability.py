@@ -5,6 +5,7 @@ import hashlib
 import http.client
 import json
 import logging
+import queue
 import threading
 import time
 from typing import Any
@@ -14,6 +15,12 @@ from .config import RunnerConfig
 from .json_types import JsonObject
 
 logger = logging.getLogger(__name__)
+
+_SINK_BATCH_MAX_ITEMS = 64
+_SINK_FLUSH_INTERVAL_SECONDS = 0.25
+_SINK_IDLE_EXIT_SECONDS = 30.0
+_SINK_CONNECT_TIMEOUT_SECONDS = 10
+_SINK_DIAGNOSTIC_FLUSH_SECONDS = 2.0
 
 
 def _string(value: Any) -> str:
@@ -53,6 +60,9 @@ class ObservationEmitter:
     invocation_id: str = ""
     _events: list[JsonObject] = field(default_factory=list)
     _lock: threading.Lock = field(default_factory=threading.Lock)
+    _sink_queue: "queue.Queue[JsonObject]" = field(default_factory=queue.Queue)
+    _sink_worker: threading.Thread | None = None
+    _sink_worker_lock: threading.Lock = field(default_factory=threading.Lock)
 
     @classmethod
     def create(
@@ -103,27 +113,79 @@ class ObservationEmitter:
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
         if not self.config.runtime_observation_sink_url:
             return
-        body = json.dumps(item, ensure_ascii=True, sort_keys=True).encode("utf-8")
-        try:
-            self._post_observation(body)
-            with self._lock:
-                self.sink_status = "ok"
-        except (TimeoutError, OSError, ValueError, http.client.HTTPException) as exc:
-            with self._lock:
-                self.sink_status = "degraded"
-                error_text = _string(exc)
-                if error_text:
-                    self.sink_errors.append(error_text)
+        self._ensure_sink_worker()
+        self._sink_queue.put(dict(item))
 
-    def _post_observation(self, body: bytes) -> None:
+    def _ensure_sink_worker(self) -> None:
+        if not self.config.runtime_observation_sink_url:
+            return
+        with self._sink_worker_lock:
+            if self._sink_worker is not None and self._sink_worker.is_alive():
+                return
+            self._sink_worker = threading.Thread(
+                target=self._sink_loop,
+                name=f"rsi-observation-sink-{self.execution_id}",
+                daemon=True,
+            )
+            self._sink_worker.start()
+
+    def _sink_loop(self) -> None:
+        while True:
+            try:
+                first = self._sink_queue.get(timeout=_SINK_IDLE_EXIT_SECONDS)
+            except queue.Empty:
+                return
+            batch = [first]
+            flush_deadline = time.monotonic() + (
+                0.0 if self._observation_requires_fast_flush(first) else _SINK_FLUSH_INTERVAL_SECONDS
+            )
+            while len(batch) < _SINK_BATCH_MAX_ITEMS:
+                timeout = max(0.0, flush_deadline - time.monotonic())
+                if timeout <= 0:
+                    break
+                try:
+                    item = self._sink_queue.get(timeout=timeout)
+                except queue.Empty:
+                    break
+                batch.append(item)
+                if self._observation_requires_fast_flush(item):
+                    flush_deadline = time.monotonic()
+            try:
+                self._post_observation_batch(batch)
+                with self._lock:
+                    self.sink_status = "ok"
+            except (TimeoutError, OSError, ValueError, http.client.HTTPException) as exc:
+                with self._lock:
+                    self.sink_status = "degraded"
+                    error_text = _string(exc)
+                    if error_text:
+                        self.sink_errors.append(error_text)
+            finally:
+                for _ in batch:
+                    self._sink_queue.task_done()
+
+    @staticmethod
+    def _observation_requires_fast_flush(item: JsonObject) -> bool:
+        event_type = _string(item.get("event_type"))
+        return not event_type.startswith("model.reasoning.delta") and not event_type.startswith("model.output.delta")
+
+    def _post_observation_batch(self, observations: list[JsonObject]) -> None:
+        if not observations:
+            return
+        body = json.dumps({"observations": observations}, ensure_ascii=True, sort_keys=True).encode("utf-8")
+        self._post_observation(body, batch=True)
+
+    def _post_observation(self, body: bytes, *, batch: bool = False) -> None:
         parsed = urlparse(self.config.runtime_observation_sink_url or "")
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise ValueError("runtime observation sink URL must be an absolute http(s) URL")
         connection_cls = http.client.HTTPSConnection if parsed.scheme == "https" else http.client.HTTPConnection
         path = parsed.path or "/"
+        if batch and not path.rstrip("/").endswith("/batch"):
+            path = f"{path.rstrip('/')}/batch"
         if parsed.query:
             path = f"{path}?{parsed.query}"
-        connection = connection_cls(parsed.netloc, timeout=5)
+        connection = connection_cls(parsed.netloc, timeout=_SINK_CONNECT_TIMEOUT_SECONDS)
         try:
             connection.request("POST", path, body=body, headers={"Content-Type": "application/json"})
             response = connection.getresponse()
@@ -133,7 +195,22 @@ class ObservationEmitter:
         finally:
             connection.close()
 
+    def flush(self, timeout_seconds: float = _SINK_DIAGNOSTIC_FLUSH_SECONDS) -> bool:
+        if not self.config.runtime_observation_sink_url:
+            return True
+        self._ensure_sink_worker()
+        deadline = time.monotonic() + max(0.0, timeout_seconds)
+        while time.monotonic() < deadline:
+            if self._sink_queue.unfinished_tasks == 0:
+                return True
+            time.sleep(0.01)
+        with self._lock:
+            self.sink_status = "degraded"
+            self.sink_errors.append("observation sink flush timed out")
+        return False
+
     def diagnostics(self) -> JsonObject:
+        self.flush()
         out: JsonObject = {
             "observation_execution_id": self.execution_id,
             "observation_sink_status": self.sink_status,

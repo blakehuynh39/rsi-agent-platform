@@ -153,6 +153,15 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 		status, out := recordRuntimeObservation(store, payload)
 		app.WriteJSON(w, status, out)
 	})
+	r.Post("/internal/runtime/observations/batch", func(w http.ResponseWriter, r *http.Request) {
+		var payload runtimeObservationBatchRequest
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			app.WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+		status, out := recordRuntimeObservationBatch(store, payload)
+		app.WriteJSON(w, status, out)
+	})
 	r.Post("/internal/source-mirror/messages", func(w http.ResponseWriter, r *http.Request) {
 		var payload sourceMirrorMessageWriteRequest
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {

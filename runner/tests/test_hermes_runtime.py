@@ -554,16 +554,49 @@ class HermesRuntimeTests(unittest.TestCase):
                 hermes_session_id="session-obs",
             )
             emitter.emit(phase="main", event_type="model.reasoning.delta", status="streaming", payload={"delta": "hello"})
+            self.assertTrue(emitter.flush(timeout_seconds=2))
 
         self.assertEqual(emitter.sink_status, "ok")
         self.assertEqual(len(FakeObservationSinkConnection.requests), 1)
         request = FakeObservationSinkConnection.requests[0]
         self.assertEqual(request["netloc"], "control-plane.internal:8080")
-        self.assertEqual(request["path"], "/internal/runtime/observations")
+        self.assertEqual(request["path"], "/internal/runtime/observations/batch")
         body = json.loads(request["body"])
+        body = body["observations"][0]
         self.assertEqual(body["trace_id"], "trace-obs")
         self.assertEqual(body["event_type"], "model.reasoning.delta")
         self.assertEqual(body["payload"]["delta"], "hello")
+
+    def test_observation_emitter_batches_high_volume_deltas(self) -> None:
+        FakeObservationSinkConnection.requests = []
+        with mock.patch.dict(
+            os.environ,
+            {**runner_env("prod"), "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations"},
+            clear=True,
+        ), mock.patch("rsi_runner.observability.http.client.HTTPConnection", FakeObservationSinkConnection):
+            config = RunnerConfig.from_env()
+            emitter = ObservationEmitter.create(
+                config,
+                trace_id="trace-obs",
+                workflow_id="wf-obs",
+                operation_id="op-obs",
+                role="prod",
+                hermes_session_id="session-obs",
+            )
+            for index in range(12):
+                emitter.emit(
+                    phase="main",
+                    event_type="model.reasoning.delta",
+                    status="streaming",
+                    payload={"delta": str(index)},
+                )
+            self.assertTrue(emitter.flush(timeout_seconds=2))
+
+        self.assertEqual(emitter.sink_status, "ok")
+        self.assertEqual(len(FakeObservationSinkConnection.requests), 1)
+        body = json.loads(FakeObservationSinkConnection.requests[0]["body"])
+        self.assertEqual(len(body["observations"]), 12)
+        self.assertEqual([item["seq"] for item in body["observations"]], list(range(1, 13)))
 
     def test_context_engine_plugin_module_compiles_as_python(self) -> None:
         source = _build_plugin_module()

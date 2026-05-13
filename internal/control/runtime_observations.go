@@ -10,6 +10,8 @@ import (
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
+const maxRuntimeObservationBatchSize = 256
+
 type runtimeObservationRequest struct {
 	ID              string         `json:"id,omitempty"`
 	ExecutionID     string         `json:"execution_id"`
@@ -24,6 +26,10 @@ type runtimeObservationRequest struct {
 	Seq             int            `json:"seq"`
 	Payload         map[string]any `json:"payload,omitempty"`
 	RecordedAt      string         `json:"recorded_at,omitempty"`
+}
+
+type runtimeObservationBatchRequest struct {
+	Observations []runtimeObservationRequest `json:"observations"`
 }
 
 func recordRuntimeObservation(store storepkg.Repository, input runtimeObservationRequest) (int, map[string]any) {
@@ -104,5 +110,29 @@ func recordRuntimeObservation(store storepkg.Repository, input runtimeObservatio
 		"status":       "ok",
 		"observation":  recorded,
 		"ledger_event": ledgerEvent,
+	}
+}
+
+func recordRuntimeObservationBatch(store storepkg.Repository, input runtimeObservationBatchRequest) (int, map[string]any) {
+	if len(input.Observations) == 0 {
+		return http.StatusBadRequest, map[string]any{"error": "observations must not be empty"}
+	}
+	if len(input.Observations) > maxRuntimeObservationBatchSize {
+		return http.StatusBadRequest, map[string]any{
+			"error": "observations batch is too large",
+			"limit": maxRuntimeObservationBatchSize,
+			"count": len(input.Observations),
+		}
+	}
+	for index, observation := range input.Observations {
+		status, out := recordRuntimeObservation(store, observation)
+		if status >= http.StatusBadRequest {
+			out["index"] = index
+			return status, out
+		}
+	}
+	return http.StatusOK, map[string]any{
+		"status":   "ok",
+		"recorded": len(input.Observations),
 	}
 }

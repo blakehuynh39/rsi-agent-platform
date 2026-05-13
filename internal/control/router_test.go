@@ -73,6 +73,69 @@ func TestRuntimeObservationEndpointRecordsHarnessAndLedgerEvents(t *testing.T) {
 	}
 }
 
+func TestRuntimeObservationBatchEndpointRecordsHarnessAndLedgerEvents(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+	body := bytes.NewBufferString(`{
+		"observations":[
+			{
+				"execution_id":"hexec-live",
+				"operation_id":"op-live",
+				"trace_id":"trace-live",
+				"workflow_id":"wf-live",
+				"hermes_session_id":"session-live",
+				"role":"prod",
+				"phase":"main",
+				"event_type":"model.reasoning.delta",
+				"status":"streaming",
+				"seq":7,
+				"payload":{"delta":"hello","idempotency_key":"obs-live-7"},
+				"recorded_at":"2026-05-01T04:11:15Z"
+			},
+			{
+				"execution_id":"hexec-live",
+				"operation_id":"op-live",
+				"trace_id":"trace-live",
+				"workflow_id":"wf-live",
+				"hermes_session_id":"session-live",
+				"role":"prod",
+				"phase":"main",
+				"event_type":"tool.call.started",
+				"status":"running",
+				"seq":8,
+				"payload":{"tool_name":"rsi_slack_report_post","idempotency_key":"obs-live-8"},
+				"recorded_at":"2026-05-01T04:11:16Z"
+			}
+		]
+	}`)
+	req := httptest.NewRequest(http.MethodPost, "/internal/runtime/observations/batch", body)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(rec.Body)
+		t.Fatalf("expected status 200, got %d: %s", rec.Code, string(responseBody))
+	}
+	var response map[string]any
+	if err := json.NewDecoder(rec.Body).Decode(&response); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if response["recorded"] != float64(2) {
+		t.Fatalf("expected recorded=2, got %#v", response["recorded"])
+	}
+	if observations := store.ListHarnessExecutionObservations(); len(observations) != 2 {
+		t.Fatalf("expected two harness observations, got %d", len(observations))
+	}
+	ledger := store.ListExecutionLedgerEventsByTrace("trace-live")
+	if len(ledger) != 2 {
+		t.Fatalf("expected two ledger events, got %d", len(ledger))
+	}
+	if ledger[0].Kind != "model.reasoning.delta" || ledger[1].Kind != "tool.call.started" {
+		t.Fatalf("unexpected ledger kinds: %#v", ledger)
+	}
+}
+
 func TestRuntimeObservationEndpointRejectsInvalidRecordedAt(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
