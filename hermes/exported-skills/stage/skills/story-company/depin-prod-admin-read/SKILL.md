@@ -1,7 +1,7 @@
 ---
 name: depin-prod-admin-read
 description: "Live prod Numo/depin stats through admin REST reads and native approved DB reads."
-version: 1.7.0
+version: 1.8.0
 metadata:
   hermes:
     tags: [numo, depin, production, prod, admin, read-only, user-stats, users, submissions, api, db-read]
@@ -209,6 +209,42 @@ Internal DNS follows standard K8s convention: `<service-name>.<namespace>.svc.cl
 
 Full service registry: `references/k8s-service-dns.md`.
 
-## Sentry DSN in Production
+## S3 Storage Architecture
 
-The checked-in `apps/api/config/production.toml` has `sentry_dsn = ""` (empty string), which is misleading. In production, the Sentry DSN is injected from Vault: `SENTRY_DSN: "vault:secret/data/use1-prod/depin-backend#SENTRY_DSN"` with `SENTRY_ATTACH_STACK_TRACE: "true"`. The empty default is a placeholder that gets overridden by the Helm values in `story-deployments`. Staging also has Sentry via Vault.
+The depin-backend uses **two separate S3 stores** for different purposes. When asked about S3 access, distinguish which bucket the user needs.
+
+### Private Upload Bucket (StorageClient)
+
+Used for user-generated artifact storage: submission uploads, avatars, voice-phrase recordings. Managed by `apps/api/src/integrations/storage.rs` via `aws-sdk-s3`.
+
+| Config key | Staging value | Production value |
+|---|---|---|
+| `s3_bucket` | `depin-backend-staging-private-media` | (Vault-injected) |
+| `s3_endpoint_url` | `""` (empty = native AWS S3) | (native AWS) |
+| `s3_presign_ttl_seconds` | 900 | 900 |
+| `aws_region` | (Vault-injected) | (Vault-injected) |
+
+Config location: `apps/api/config/staging.toml` and `apps/api/config/production.toml`. Credentials are injected via Vault at deploy time — the checked-in configs contain only bucket name, not credentials.
+
+### Public Metadata Bucket (S3PublicObjectStore)
+
+Used by the IP registration worker for public metadata and avatar caching. Managed by `crates/public-object-store/src/lib.rs`.
+
+Config keys: `ip_registration_metadata_bucket` + `ip_registration_metadata_public_base_url`. These are empty in staging.toml — the IP registration worker is not actively configured in staging (all three worker roles set to `replicaCount: 0` in story-deployments).
+
+### No General S3 Admin API Endpoint
+
+**There is NO admin endpoint for general S3 bucket browsing, listing, or arbitrary object download.** The API uses S3 internally through presigned URLs for specific workflows:
+
+- `POST /v1/submissions/initiate-upload` → presigned PUT URL for user upload
+- `GET /v1/admin/submissions/{id}` → includes presigned download URL for the submission artifact (admin only)
+- `GET /v1/public/users/{user_id}/avatar` → 303 redirect to presigned GET URL
+
+When someone asks about granting S3 access to a team member (e.g., for debugging or data inspection), present these options:
+
+1. **AWS IAM credentials** (fastest): Grant IAM user with `s3:ListBucket` + `s3:GetObject` on the target bucket. The staging bucket lives on the Poseidon AWS account.
+2. **Per-artifact admin download**: If they only need specific submission artifacts, the existing admin submission detail endpoint provides presigned download URLs (requires admin JWT).
+3. **Cloudflare R2 dashboard/API**: If any buckets are on R2 (mentioned in Slack threads but not confirmed in staging config), R2 has its own API token system.
+4. **New admin S3 proxy endpoint**: Would require building a new route — does not exist today.
+
+**PITFALL:** Don't confuse "Poseidon" (the multiplier/claim system in `services/poseidon.rs`, or the decentralized Poseidon storage subnet) with the actual S3 buckets. The `poseidon` Rust module handles multiplier claims and season-1 rewards. The Poseidon subnet is a separate decentralized storage network with its own S3-compatible API (documented in Notion under "Poseidon S3 compatible APIs"). Neither of these is the depin-backend's S3 bucket.
