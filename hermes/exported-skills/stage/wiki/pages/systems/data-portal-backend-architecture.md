@@ -35,5 +35,5 @@ Architecture overview of the Data Portal Backend, including an embedded diagram 
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_690ff4cad493be0ef9a141a4fe69926a`
+- `source_revision_id`: `srcrev_8f122004c71099e8ac1eaa0e4756568e`
 - `source_url`: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
