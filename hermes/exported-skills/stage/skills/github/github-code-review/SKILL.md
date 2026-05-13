@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST."
-version: 1.2.1
+version: 1.2.2
 author: Hermes Agent
 license: MIT
 metadata:
@@ -645,3 +645,49 @@ After all subagents complete:
 5. Deliver the merged review as a single Slack message or GitHub comment
 
 **PITFALL:** Subagents can't share context. Pass the repo path and branch name in the `context` parameter, and any repo-specific conventions (base branch, deployment topology, cross-repo contract rules) so each subagent has enough context to review independently.
+
+---
+
+## 5c. Re-Review After Fixes (Delta Review)
+
+When the author addresses feedback and asks for a re-review, do NOT re-read the entire diff. Focus on verifying the specific fixes — this is a fraction of the cost of a full review.
+
+### Workflow
+
+1. **Pull latest commits** on both PRs (re-clone if `/tmp/` was cleaned between sessions):
+
+```bash
+cd /tmp/<repo>-review
+git fetch origin pull/<N>/head:pr-<N> && git checkout pr-<N>
+```
+
+2. **Check CI first** — it's the fastest signal. If "Validate migrations" was failing before, it should pass now.
+
+```bash
+gh pr view <N> --json statusCheckRollup --jq '[.statusCheckRollup[] | {name, conclusion}]'
+```
+
+3. **Verify specific fixes** — delegate to focused subagents, one per repo. Each subagent's goal should list the exact issues from the previous review with file paths and expected changes:
+
+```
+Goal: "Verify HIGH/MEDIUM fixes in depin-backend#464: reject flow, FOR UPDATE, doc comment, transfer.failed webhook"
+Context: "Repo: /tmp/depin-backend-review, branch: pr-464, base: staging.
+1. Non-atomic reject flow: check admin_withdrawals.rs reject_withdrawal — should pass audit params into reverse_withdrawal
+2. Missing FOR UPDATE: check admin_withdrawals.rs approve_withdrawal users SELECT — should have FOR UPDATE
+3. Stale doc comment: check admin_withdrawals.rs approve doc — should say 'completed' not 'processing'
+4. transfer.failed webhook: check stripe_payouts.rs handle_transfer_failed — should call reverse_withdrawal"
+```
+
+Use fewer subagents than the initial review — 1-2 per repo instead of 3-4. Subagents should report each finding as FIXED / NOT FIXED / PARTIALLY FIXED with evidence (file path + line number).
+
+4. **Report only the delta** — the re-review message should focus on what changed. Structure:
+   - "Previous blocking issues" table: CRITICAL→FIXED, HIGH→FIXED, etc.
+   - CI status update
+   - Remaining items (if any) with severity downgrades
+   - Verdict with merge order
+
+5. **Decision**: If all CRITICAL and HIGH issues are confirmed fixed → **APPROVE**. Partial fixes on MEDIUM or LOW items (e.g., "server value preferred, constant kept as fallback") are acceptable and do not block.
+
+**PITFALL:** Running a full re-review from scratch. This wastes time re-checking areas that were already clean. The subagent goals should list explicit fix expectations — not "review this file" but "verify line X now says Y".
+
+**PITFALL:** Re-using the same idempotency_key for the Slack report. The re-review is a new event — use a key like `review-<feature>-<PRs>-<date>-rereview` to ensure it posts as a fresh message.
