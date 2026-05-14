@@ -22708,3 +22708,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_952dfbcd7ac1497d2006121e7e5aeeab
 - summary: Slack file attachment:
 
+## [2026-05-14T22:30:21Z] ingest | Slack thread C0AKH5SNGKH 1778797385.801839
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1778797385-801839-035ab937
+- wiki_revision_id: wikirev_4173d7ae4fa3a76ee27c9af1e23d3147
+- source_document_id: srcdoc_688bc42c3426d03f0e0a2953035ab937
+- source_revision_id: srcrev_770f2ffef724aa3da69a03e27ae669e6
+- summary: Slack file attachment:
+
