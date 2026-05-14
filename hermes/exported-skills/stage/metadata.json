@@ -19,8 +19,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "f2054666481621fa756643cfb162b9813dd4a961660e6252fbf3c939c0c44bcc",
-        "size": 2437
+        "sha256": "8eeeaf4ea4591d8baaa2e57c108f3a37b1d84dc1fdc655985ac8e3d79b302fca",
+        "size": 2438
       },
       {
         "path": ".usage.json.lock",
@@ -2934,18 +2934,23 @@
       },
       {
         "path": "story-company/story-infrastructure-architecture/SKILL.md",
-        "sha256": "d549f3444dec01c64fbc6a39964a555f793e88a421a905d9260bcc2ef7ea7540",
-        "size": 12832
+        "sha256": "74cce694c4ee770e9956209da0d276110336442c0ab3d3f8b14508842c3da51d",
+        "size": 13995
       },
       {
         "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
-        "sha256": "8226325639b77663de30e6025a1bd380d310460ac353298d2a140d96aa6dd03e",
-        "size": 8418
+        "sha256": "36e5b35364da74b35e65ffdf09eea1a1a6f26638222b19ee3985b464feabf696",
+        "size": 10051
       },
       {
         "path": "story-company/story-infrastructure-architecture/references/evm-performance-benchmarks.md",
         "sha256": "f8cec528e65fd1a1f5798992e4b64cb2dc1e63ed1af90dc20fa9ee451cf173e7",
         "size": 3406
+      },
+      {
+        "path": "story-company/story-infrastructure-architecture/references/notion-investigation-patterns.md",
+        "sha256": "50f37f65d107ee94919effc0363df643aa33196c3a7c72d88ac6f397089a3400",
+        "size": 3076
       },
       {
         "path": "story-company/story-infrastructure-architecture/references/precompile-gas-analysis.md",
@@ -6269,8 +6274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-13T22:37:40Z",
-  "file_count": 1252,
+  "exported_at": "2026-05-14T00:27:35Z",
+  "file_count": 1253,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6289,8 +6294,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "f2054666481621fa756643cfb162b9813dd4a961660e6252fbf3c939c0c44bcc",
-      "size": 2437
+      "sha256": "8eeeaf4ea4591d8baaa2e57c108f3a37b1d84dc1fdc655985ac8e3d79b302fca",
+      "size": 2438
     },
     {
       "path": ".usage.json.lock",
@@ -9204,18 +9209,23 @@
     },
     {
       "path": "story-company/story-infrastructure-architecture/SKILL.md",
-      "sha256": "d549f3444dec01c64fbc6a39964a555f793e88a421a905d9260bcc2ef7ea7540",
-      "size": 12832
+      "sha256": "74cce694c4ee770e9956209da0d276110336442c0ab3d3f8b14508842c3da51d",
+      "size": 13995
     },
     {
       "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
-      "sha256": "8226325639b77663de30e6025a1bd380d310460ac353298d2a140d96aa6dd03e",
-      "size": 8418
+      "sha256": "36e5b35364da74b35e65ffdf09eea1a1a6f26638222b19ee3985b464feabf696",
+      "size": 10051
     },
     {
       "path": "story-company/story-infrastructure-architecture/references/evm-performance-benchmarks.md",
       "sha256": "f8cec528e65fd1a1f5798992e4b64cb2dc1e63ed1af90dc20fa9ee451cf173e7",
       "size": 3406
+    },
+    {
+      "path": "story-company/story-infrastructure-architecture/references/notion-investigation-patterns.md",
+      "sha256": "50f37f65d107ee94919effc0363df643aa33196c3a7c72d88ac6f397089a3400",
+      "size": 3076
     },
     {
       "path": "story-company/story-infrastructure-architecture/references/precompile-gas-analysis.md",
@@ -9231,10 +9241,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-77c4ccpwj8k",
-  "previous_tree_hash": "e5335f5490197f946cd38010becdb40c493961eae103fb515f2acda4c8d8d924",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-675776tpcsq",
+  "previous_tree_hash": "6a02aa2d788a0bd900ba5fba0448459a23bf71d447d7d15334905aede114defe",
   "schema_version": 1,
-  "skill_file_count": 591,
+  "skill_file_count": 592,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9243,9 +9253,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "404db2ce0e8ac67310efd454f6795695ec07ba4825cd344b14332217b4df0b78",
+  "skill_tree_hash": "437e77ebafad3420fefd11b10b9b270a2ecb586a21633eb0f6426410b737d3b1",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6a02aa2d788a0bd900ba5fba0448459a23bf71d447d7d15334905aede114defe",
+  "tree_hash": "ee62acda96659f3c9455c99850c6ed214554a6a37cfc8ce0b5fc00c6f3b65fe2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

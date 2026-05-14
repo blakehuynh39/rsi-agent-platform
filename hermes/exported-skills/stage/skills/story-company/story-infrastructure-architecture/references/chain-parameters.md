@@ -7,8 +7,9 @@
 | Block gas limit | 36,000,000 (36M) | Blockscout live block data |
 | Block time (live, measured) | ~2.0–2.2s (2.184s avg over 50 blocks) | [Blockscout Stats API](https://www.storyscan.io/api/v2/stats) |
 | Block time (design target) | ~3.0s (10,368,000 blocks/year) | [Token Economy Docs](https://docs.story.foundation/network/learn/token-economy) |
+| Block time (`timeout_commit`) | **1.5s** (CometBFT config.toml) | Notion "Other Mainnet Configs" (2024-12-30), Story `config.toml` |
 | Chain ID | 1514 (mainnet), 1315 (Aeneid testnet) | docs.story.foundation |
-| Current network utilization | ~0.16% | Blockscout |
+| Current network utilization | ~0.16% (Blockscout), ~2.6% (Slack monitoring, May 2026) | Blockscout, #decentralized-engineering Slack |
 | Total transactions (all-time) | ~104,981,080 | Blockscout |
 | Avg TPS since genesis | ~2.8 TPS | Computed |
 
@@ -22,6 +23,23 @@
 | Finality | Instant / one-shot finality |
 | Active validators | Top 64 by stake weight |
 | Cosmos `max_gas` | `-1` (unlimited at consensus layer — enforcement at execution layer) |
+
+### CometBFT config.toml Comparison (vs. Other Cosmos Chains)
+
+Story's CometBFT config is tuned for speed over peer count. Source: Notion "Other Mainnet Configs" (2024-12-30).
+
+| Config Parameter | Story | Cosmos Hub (Gaia) | Osmosis | Evmos |
+|---|---|---|---|---|
+| `timeout_commit` | **1.5s** | 5s | — | 3s |
+| `mempool.size` | 5,000 | — | 10,000 | 10,000 |
+| `max_num_inbound_peers` | 40 | — | 80 | 240 |
+| `max_num_outbound_peers` | 10 | — | 60 | 30 |
+| `p2p.dial_timeout` | 20s | 3s | 3s | 3s |
+| `statesync.discovery_time` | 10s | 15s | 15s | 15s |
+| `statesync.chunk_request_timeout` | 1m | 10s | 10s | 10s |
+| `instrumentation.prometheus` | true | false | false | false |
+
+Key takeaways: Story has the fastest block time (1.5s), smallest peer budgets, and most conservative state sync timeouts compared to other Cosmos chains. The long `dial_timeout` (20s vs typical 3s) suggests deliberate tolerance for slow peer connections.
 
 ## Execution Layer
 
@@ -104,7 +122,11 @@ API (Gin HTTP) + Temporal Workflows
 ### Note on story-api / story-api-v2
 The `story-api` and `story-api-v2` deployments in K8s are **nginx placeholders**, not active API services. The `story-orchestration-service` is the actual enriched data API.
 
-## Gas Reference
+| Gas Reference
+
+**PITFALL: Utilization numbers vary by source.** Blockscout's `network_utilization_percentage` shows ~0.16% (averaged over a long window), but recent Slack monitoring (May 2026) pegs it at ~2.6% of the 36M gas limit. The discrepancy likely comes from different measurement windows — Blockscout averages over all blocks including empty ones, while Slack monitoring focuses on blocks containing transactions. Cite both and note the source date.
+
+## Gas Reference Table
 
 | Transaction Type | Est. Gas | Max Tx/Block (36M) | TPS @ 2.0s | TPS @ 2.2s |
 |---|---|---|---|---|

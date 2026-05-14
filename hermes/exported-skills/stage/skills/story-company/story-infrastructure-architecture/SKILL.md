@@ -40,6 +40,17 @@ Story infrastructure has five layers — narrow your search to the right one:
 
 ### 3. Gather chain parameters (L1 Layer)
 
+**PITFALL: Data freshness across sources.** The most current Story L1 parameters (especially gas limit, utilization, and config changes) often surface first in **Slack discussions** (e.g., #decentralized-engineering), not in Notion or Blockscout. When Blockscout shows one number and Slack shows another, prefer the Slack number for recent data — but cite both and note the discrepancy.
+
+**Multi-source search pattern for finding parameters:**
+```bash
+# Single call searches Notion + Slack simultaneously — often finds Slack threads
+# with the most current technical details that haven't reached documentation yet.
+rsi_knowledge_search(query="gas limit OR block gas OR timeout_commit", source_types=["notion", "slack"])
+```
+
+If knowledge search returns Slack results, read the containing threads — they often have follow-up clarifications, calculations, and context.
+
 Pull live data from Blockscout and cross-reference with docs:
 
 ```bash
@@ -62,7 +73,7 @@ curl -s "https://raw.githubusercontent.com/piplabs/story/main/lib/netconf/story/
 - Current network utilization: ~0.16%
 - Chain ID: 1514 (mainnet), 1315 (Aeneid testnet)
 
-**PITFALL:** The design block time (3.0s from docs.story.foundation) differs from the live block time (~2.0-2.2s from Blockscout). Always cite both and note which one you're using for calculations.
+**PITFALL:** The design block time (3.0s from docs.story.foundation) differs from the live block time (~2.0-2.2s from Blockscout). Story's `config.toml` sets `timeout_commit = 1.5s` (theoretical floor), but actual block time is higher due to network propagation and consensus overhead. Always cite all three numbers and note which one you're using for throughput calculations. For throughput math, use the live Blockscout value (~2.0-2.2s) since that's what the chain actually produces.
 
 ### 4. Investigate on-chain contracts
 
