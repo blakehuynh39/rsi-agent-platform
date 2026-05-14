@@ -416,12 +416,49 @@ When the user asks you to "review the code" or "check before pushing":
 
 ## 5. PR Review Workflow (End-to-End)
 
-When the user asks you to "review PR #N", "look at this PR", or gives you a PR URL, follow this recipe:
+When the user asks you to "review PR #N", "look at this PR", or gives you a PR URL, follow this recipe. **Choose the right path based on PR size:**
+
+- **PRs under ~50 files / ~1000 lines**: Use the **Remote-Only fast path** (no local checkout). Most PRs fall here — `gh pr view --json` + `gh pr diff` + `gh pr checks` is enough.
+- **PRs over ~50 files / ~10K lines**: Use the **Local Checkout path** (check out branch for `read_file` + `search_files` context), or delegate to parallel subagents (Section 5b).
+
+### Remote-Only Fast Path (no checkout — use for most PRs)
+
+**Step A1: Gather PR metadata in one structured call**
+
+```bash
+gh pr view N --json number,title,body,state,author,files,additions,deletions,baseRefName,headRefName,labels,reviews,mergeable
+```
+
+Key fields: `number`, `title`, `body`, `state`, `author.login`, `files` (array of `{path, additions, deletions}`), `additions`, `deletions`, `baseRefName`, `headRefName`, `mergeable` ("MERGEABLE"/"CONFLICTING"/"UNKNOWN"), `reviews[].state`.
+
+**Step A2: Check CI status**
+
+```bash
+gh pr checks N
+```
+
+Look for failures — CI is the fastest signal. If any required check is failing, flag it before starting the code review.
+
+**Step A3: Read the full diff**
+
+```bash
+gh pr diff N
+```
+
+For large diffs, pipe through `head` or `grep` first to scan structure (e.g., `| grep "^diff \|^@@\|^+\|^-" | head -200`), then read the full diff.
+
+**Step A4: Apply the review checklist (Section 3)**
+
+Go through each category: Correctness, Security, Code Quality, Testing, Performance, Documentation, Multi-Pod Deployment. Use the diff + metadata to assess each area — no local checkout needed for PRs under ~50 files.
+
+**PITFALL:** Don't checkout locally for small PRs when `gh pr diff` suffices. Checking out, running `git diff main...HEAD`, and running local tests adds friction with no additional signal when the PR is small and CI is already green. Remote-only is faster and equally thorough for most PRs.
+
+### Local Checkout Path (for large PRs needing deeper context)
 
 ### Step 1: Set up environment
 
 ```bash
-source "${HERMES_HOME:-$HOME/.hermes}/skills/github/github-auth/scripts/gh-env.sh"
+source "${HERMES_HOME:-$HOME/.hermes}/skills/github/github-code-review/scripts/gh-env.sh"
 # Or run the inline setup block from the top of this skill
 ```
 
@@ -448,7 +485,6 @@ Key fields: `title`, `author.login`, `state`, `isDraft`, `mergeable` (\"MERGEABL
 **With curl:**
 ```bash
 PR_NUMBER=123
-```bash
 # PR details (title, author, description, branch)
 curl -s -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$GH_OWNER/$GH_REPO/pulls/$PR_NUMBER
@@ -497,9 +533,9 @@ ruff check . 2>&1 | head -30
 
 ### Step 6: Apply the review checklist (Section 3)
 
-Go through each category: Correctness, Security, Code Quality, Testing, Performance, Documentation.
+Go through each category: Correctness, Security, Code Quality, Testing, Performance, Documentation, Multi-Pod Deployment.
 
-### Step 7: Post the review to GitHub
+### Step 7 (shared): Post the review to GitHub
 
 Collect your findings and submit them as a formal review with inline comments.
 
@@ -524,6 +560,8 @@ REVIEW_EOF
 
 gh pr review $PR_NUMBER --approve --body-file /tmp/review-body.md
 ```
+
+**PITFALL:** Non-pending reviews (COMMENTED, APPROVED, CHANGES_REQUESTED) cannot be deleted — GitHub's API only allows deleting PENDING reviews. If you post a test review comment to verify capabilities, it's permanent. Use a small, obvious "test review" message and be transparent with the PR author.
 
 **With curl — atomic review with multiple inline comments:**
 ```bash
