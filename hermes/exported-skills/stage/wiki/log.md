@@ -22681,3 +22681,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_1c30ee2efc3acc11a5f09791ab09b173
 - summary: Source: [Notion source](https://www.notion.so/Data-Registration-on-Story-L1-Engineering-Summary-360051299a548168a92afabb9a2c0ba5)
 
+## [2026-05-14T21:00:24Z] ingest | Data Registration on Story L1 — Engineering Summary
+
+- status: published
+- slug: notion_document/data-registration-on-story-l1-engineering-summary-3ae1c4ea
+- wiki_revision_id: wikirev_7665585664ef8a51bc455bcd9f43e26a
+- source_document_id: srcdoc_855465804d3255183d264f8f3ae1c4ea
+- source_revision_id: srcrev_54a0b05d94f312e9fdd4e049c128aa1a
+- summary: Source: [Notion source](https://www.notion.so/Data-Registration-on-Story-L1-Engineering-Summary-360051299a548168a92afabb9a2c0ba5)
+
