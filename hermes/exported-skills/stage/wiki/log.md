@@ -22672,3 +22672,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a4715a4c43df005cdf172035fbe726e8
 - summary: <@U04L0DD6B6F> The admin dashboard for me doesn't load, do you have same issue?
 
+## [2026-05-14T18:30:24Z] ingest | Data Registration on Story L1 — Engineering Summary
+
+- status: published
+- slug: notion_document/data-registration-on-story-l1-engineering-summary-3ae1c4ea
+- wiki_revision_id: wikirev_783cbe7e6ce3d24ef8b156e7222b2eec
+- source_document_id: srcdoc_855465804d3255183d264f8f3ae1c4ea
+- source_revision_id: srcrev_1c30ee2efc3acc11a5f09791ab09b173
+- summary: Source: [Notion source](https://www.notion.so/Data-Registration-on-Story-L1-Engineering-Summary-360051299a548168a92afabb9a2c0ba5)
+
