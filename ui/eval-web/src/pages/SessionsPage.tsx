@@ -13,7 +13,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Circle,
   Database,
+  FileText,
   MessageSquare,
   Search,
   Clock,
@@ -21,6 +23,7 @@ import {
   Globe,
   MessageCircle,
   Hash,
+  XCircle,
   X,
   Play,
   GitBranch,
@@ -30,6 +33,9 @@ import type {
   SessionInfo,
   SessionMessage,
   SessionSearchResult,
+  TraceActivityItem,
+  TraceActivitySnapshot,
+  TraceLedgerResponse,
 } from "@/lib/api";
 import { cn, timeAgo } from "@/lib/utils";
 import { Markdown } from "@/components/Markdown";
@@ -441,6 +447,522 @@ function MessageList({
   );
 }
 
+type TraceViewMode = "clean" | "detailed" | "raw";
+
+function TraceActivityPanel({
+  traceId,
+  streamEvents,
+  autoScrollToLatest = true,
+}: {
+  traceId: string;
+  streamEvents?: boolean;
+  autoScrollToLatest?: boolean;
+}) {
+  const [mode, setMode] = useState<TraceViewMode>("clean");
+  const [snapshot, setSnapshot] = useState<TraceActivitySnapshot | null>(null);
+  const [ledger, setLedger] = useState<TraceLedgerResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [rawPageLoading, setRawPageLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const foregroundLoadRef = useRef(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const load = useCallback(
+    async (showLoading = false, signal?: AbortSignal) => {
+      const foregroundLoadID = showLoading
+        ? foregroundLoadRef.current + 1
+        : foregroundLoadRef.current;
+      if (showLoading) {
+        foregroundLoadRef.current = foregroundLoadID;
+        setLoading(true);
+        setError(null);
+      }
+      try {
+        if (mode === "raw") {
+          const raw = await api.getTraceLedger(traceId, { limit: 250 }, signal);
+          if (signal?.aborted) return;
+          setLedger(raw);
+          setSnapshot(null);
+        } else {
+          const next = await api.getTraceActivity(
+            traceId,
+            { mode, limit: 250 },
+            signal,
+          );
+          if (signal?.aborted) return;
+          setSnapshot(next);
+          setLedger(null);
+        }
+        setError(null);
+      } catch (err) {
+        if (signal?.aborted || (err as { name?: string })?.name === "AbortError") {
+          return;
+        }
+        setError(String(err));
+      } finally {
+        if (
+          showLoading &&
+          mountedRef.current &&
+          foregroundLoadRef.current === foregroundLoadID
+        ) {
+          setLoading(false);
+        }
+      }
+    },
+    [mode, traceId],
+  );
+
+  const loadOlderRawLedger = useCallback(async () => {
+    const before = ledger?.paging.next_before;
+    if (!before || rawPageLoading) return;
+    setRawPageLoading(true);
+    try {
+      const older = await api.getTraceLedger(traceId, { limit: 250, before });
+      if (!mountedRef.current) return;
+      setLedger((current) => {
+        if (!current) return older;
+        const seen = new Set(
+          current.events
+            .map(traceLedgerEventID)
+            .filter((id): id is string => Boolean(id)),
+        );
+        const olderEvents = older.events.filter((event) => {
+          const id = traceLedgerEventID(event);
+          return !id || !seen.has(id);
+        });
+        return {
+          ...current,
+          events: [...olderEvents, ...current.events],
+          paging: older.paging,
+        };
+      });
+      setError(null);
+    } catch (err) {
+      if (mountedRef.current) {
+        setError(String(err));
+      }
+    } finally {
+      if (mountedRef.current) {
+        setRawPageLoading(false);
+      }
+    }
+  }, [ledger?.paging.next_before, rawPageLoading, traceId]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    void load(true, abortController.signal);
+    return () => abortController.abort();
+  }, [load]);
+
+  useEffect(() => {
+    if (!streamEvents) return;
+    if (mode === "raw") {
+      let closed = false;
+      let refreshTimer: number | undefined;
+      const abortController = new AbortController();
+      const source = new EventSource(api.getTraceLedgerStreamURL(traceId));
+      const scheduleRefresh = () => {
+        if (closed || refreshTimer !== undefined) return;
+        refreshTimer = window.setTimeout(() => {
+          refreshTimer = undefined;
+          void load(false, abortController.signal);
+        }, 200);
+      };
+      source.addEventListener("ledger", scheduleRefresh);
+      source.onerror = scheduleRefresh;
+      return () => {
+        closed = true;
+        abortController.abort();
+        if (refreshTimer !== undefined) window.clearTimeout(refreshTimer);
+        source.close();
+      };
+    }
+
+    const source = new EventSource(api.getTraceActivityStreamURL(traceId, { mode }));
+    source.addEventListener("activity.snapshot", (event) => {
+      try {
+        const next = JSON.parse((event as MessageEvent).data) as TraceActivitySnapshot;
+        setSnapshot(next);
+        setError(null);
+      } catch {
+        // ignore malformed stream chunks; the next poll/snapshot will repair it
+      }
+    });
+    source.addEventListener("activity.upsert", (event) => {
+      try {
+        const item = JSON.parse((event as MessageEvent).data) as TraceActivityItem;
+        setSnapshot((current) => {
+          if (!current) return current;
+          const items = current.items.filter((existing) => existing.id !== item.id);
+          items.push(item);
+          items.sort(compareActivityItems);
+          return {
+            ...current,
+            items,
+            metrics: {
+              ...current.metrics,
+              item_count: items.length,
+            },
+          };
+        });
+        setError(null);
+      } catch {
+        // ignore malformed stream chunks; the next snapshot will repair it
+      }
+    });
+    source.addEventListener("activity.remove", (event) => {
+      try {
+        const payload = JSON.parse((event as MessageEvent).data) as { id?: string };
+        if (!payload.id) return;
+        setSnapshot((current) => {
+          if (!current) return current;
+          const items = current.items.filter((existing) => existing.id !== payload.id);
+          if (items.length === current.items.length) return current;
+          return {
+            ...current,
+            items,
+            metrics: {
+              ...current.metrics,
+              item_count: items.length,
+            },
+          };
+        });
+      } catch {
+        // ignore malformed stream chunks; the next snapshot will repair it
+      }
+    });
+    source.onerror = () => {
+      // Keep the last good snapshot visible; EventSource will retry.
+    };
+    return () => source.close();
+  }, [load, mode, streamEvents, traceId]);
+
+  useEffect(() => {
+    if (!autoScrollToLatest || !containerRef.current) return;
+    const timer = window.setTimeout(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }, 50);
+    return () => window.clearTimeout(timer);
+  }, [autoScrollToLatest, mode, snapshot?.items.length, ledger?.events.length]);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1">
+          {(["clean", "detailed", "raw"] as TraceViewMode[]).map((candidate) => (
+            <Button
+              key={candidate}
+              size="sm"
+              outlined={mode !== candidate}
+              onClick={() => setMode(candidate)}
+              className="capitalize"
+            >
+              {candidate}
+            </Button>
+          ))}
+        </div>
+        {snapshot && (
+          <span className="font-mono-ui text-[0.68rem] normal-case tracking-normal text-muted-foreground">
+            {snapshot.metrics.item_count} items · {snapshot.metrics.ledger_event_count} ledger events · {snapshot.metrics.projection_ms}ms
+          </span>
+        )}
+      </div>
+
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <Spinner className="text-xl text-primary" />
+        </div>
+      )}
+      {error && !loading && (
+        <p className="text-sm text-destructive py-4 text-center">{error}</p>
+      )}
+      {!loading && mode === "raw" && ledger && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono-ui text-[0.68rem] normal-case tracking-normal text-muted-foreground">
+              {ledger.events.length} ledger events loaded
+            </span>
+            {ledger.paging.has_more && ledger.paging.next_before && (
+              <Button
+                size="sm"
+                outlined
+                onClick={() => void loadOlderRawLedger()}
+                disabled={rawPageLoading}
+              >
+                {rawPageLoading ? "Loading..." : "Load older"}
+              </Button>
+            )}
+          </div>
+          <pre
+            className="max-h-[640px] overflow-auto border border-border bg-secondary/30 px-3 py-2 font-mono text-[0.68rem] leading-relaxed whitespace-pre-wrap"
+          >
+            {JSON.stringify(ledger, null, 2)}
+          </pre>
+        </div>
+      )}
+      {!loading && mode !== "raw" && snapshot && (
+        <div
+          ref={containerRef}
+          className="flex max-h-[640px] flex-col gap-2 overflow-y-auto pr-2"
+        >
+          {snapshot.items.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              no activity yet
+            </p>
+          ) : (
+            snapshot.items.map((item) => (
+              <TraceActivityCard key={`${item.id}:${item.revision}`} item={item} mode={mode} />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TraceActivityCard({
+  item,
+  mode,
+}: {
+  item: TraceActivityItem;
+  mode: "clean" | "detailed";
+}) {
+  const [open, setOpen] = useState(item.status === "failed");
+  if (item.kind === "todo") {
+    return <TraceTodoCard item={item} mode={mode} />;
+  }
+  const statusTone = activityStatusTone(item.status);
+  const Icon = activityIcon(item);
+  const hasDetails = mode === "detailed" && item.details && Object.keys(item.details).length > 0;
+  return (
+    <div className={cn("overflow-hidden border", statusTone.border, statusTone.bg)}>
+      <button
+        type="button"
+        className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-secondary/20"
+        onClick={() => hasDetails && setOpen(!open)}
+        aria-expanded={open}
+      >
+        {hasDetails ? (
+          open ? <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        ) : (
+          <span className="w-3.5 shrink-0" />
+        )}
+        <Icon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", statusTone.icon)} />
+        <div className="min-w-0 flex-1 font-mono-ui normal-case tracking-normal">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-[0.78rem] font-medium text-foreground">
+              {item.title}
+            </span>
+            {item.duration_ms ? (
+              <span className="shrink-0 text-[0.64rem] text-muted-foreground">
+                {formatDuration(item.duration_ms)}
+              </span>
+            ) : null}
+          </div>
+          {item.summary && (
+            <div className="mt-0.5 line-clamp-2 text-[0.72rem] text-muted-foreground">
+              {item.summary}
+            </div>
+          )}
+        </div>
+        <Badge tone={activityBadgeTone(item.status)} className="shrink-0 text-[9px]">
+          {displayActivityStatus(item.status)}
+        </Badge>
+      </button>
+      {open && hasDetails && (
+        <div className="border-t border-border/60 px-3 py-2">
+          <TraceActivityDetails details={item.details ?? {}} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TraceTodoCard({
+  item,
+  mode,
+}: {
+  item: TraceActivityItem;
+  mode: "clean" | "detailed";
+}) {
+  const todos = traceTodoItems(item.details);
+  return (
+    <div className="border border-primary/25 bg-primary/[0.035] px-3 py-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="font-mono-ui text-[0.78rem] font-medium normal-case tracking-normal">
+          {item.title}
+        </div>
+        {item.summary && (
+          <span className="text-[0.68rem] text-muted-foreground">{item.summary}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {todos.map((todo, index) => (
+          <div key={todo.id || index} className="flex items-start gap-2 text-sm">
+            <TodoStatusIcon status={todo.status} />
+            <span
+              className={cn(
+                "min-w-0 flex-1 leading-snug",
+                todo.status === "completed" && "text-muted-foreground line-through",
+                todo.status === "cancelled" && "text-muted-foreground",
+              )}
+            >
+              {todo.content || `Task ${index + 1}`}
+            </span>
+          </div>
+        ))}
+      </div>
+      {mode === "detailed" && item.raw_event_ids.length > 0 && (
+        <div className="mt-2 text-[0.65rem] text-muted-foreground">
+          source: {item.raw_event_ids.join(", ")}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TraceActivityDetails({ details }: { details: Record<string, unknown> }) {
+  const entries = Object.entries(details).filter(([key]) => key !== "type" && key !== "version");
+  if (entries.length === 0) return null;
+  return (
+    <div className="grid gap-1.5 font-mono text-[0.68rem]">
+      {entries.map(([key, value]) => (
+        <div key={key} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-2">
+          <span className="text-muted-foreground">{key}</span>
+          <pre className="min-w-0 whitespace-pre-wrap break-words text-foreground/85">
+            {typeof value === "string" ? value : JSON.stringify(value, null, 2)}
+          </pre>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TodoStatusIcon({ status }: { status: string }) {
+  if (status === "in_progress") {
+    return <Spinner className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />;
+  }
+  if (status === "completed") {
+    return <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />;
+  }
+  if (status === "cancelled") {
+    return <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
+  }
+  return <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
+}
+
+function traceTodoItems(details: Record<string, unknown> | undefined) {
+  const raw = details?.todos;
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => {
+    const record = isRecord(item) ? item : {};
+    return {
+      id: String(record.id ?? ""),
+      content: String(record.content ?? ""),
+      status: String(record.status ?? "pending"),
+    };
+  });
+}
+
+function traceLedgerEventID(event: Record<string, unknown>) {
+  return typeof event.id === "string" ? event.id : "";
+}
+
+function compareActivityItems(a: TraceActivityItem, b: TraceActivityItem) {
+  const left = activityTime(a);
+  const right = activityTime(b);
+  if (left !== right) return left - right;
+  return a.id.localeCompare(b.id);
+}
+
+function activityTime(item: TraceActivityItem) {
+  return Date.parse(item.started_at ?? item.completed_at ?? "") || 0;
+}
+
+function activityIcon(item: TraceActivityItem) {
+  if (item.kind === "final_response") return MessageSquare;
+  if (item.kind === "tool_generation") return Clock;
+  const tool = item.tool_name ?? "";
+  if (tool === "terminal") return Terminal;
+  if (tool.startsWith("rsi_observability.")) return Database;
+  if (tool.startsWith("rsi_sentry.")) return AlertTriangle;
+  if (tool.startsWith("rsi_notion.") || tool.startsWith("rsi_knowledge.")) return FileText;
+  if (tool.startsWith("rsi_slack.")) return MessageSquare;
+  if (tool.startsWith("db_read.")) return Database;
+  return GitBranch;
+}
+
+function activityStatusTone(status: string) {
+  const normalized = displayActivityStatus(status);
+  if (normalized === "failed") {
+    return {
+      border: "border-destructive/40",
+      bg: "bg-destructive/[0.04]",
+      icon: "text-destructive",
+    };
+  }
+  if (normalized === "running") {
+    return {
+      border: "border-primary/35",
+      bg: "bg-primary/[0.035]",
+      icon: "text-primary",
+    };
+  }
+  if (normalized === "cancelled") {
+    return {
+      border: "border-muted",
+      bg: "bg-muted/20",
+      icon: "text-muted-foreground",
+    };
+  }
+  return {
+    border: "border-border",
+    bg: "bg-background/35",
+    icon: "text-success",
+  };
+}
+
+function activityBadgeTone(status: string): "success" | "warning" | "destructive" | "outline" {
+  const normalized = displayActivityStatus(status);
+  if (normalized === "failed") return "destructive";
+  if (normalized === "running") return "warning";
+  if (normalized === "completed") return "success";
+  return "outline";
+}
+
+function displayActivityStatus(status: string) {
+  const normalized = status.trim().toLowerCase();
+  if (["ok", "success", "succeeded", "posted", "delivered", "complete"].includes(normalized)) {
+    return "completed";
+  }
+  if (["blocked", "error", "failed", "failure"].includes(normalized)) return "failed";
+  if (["in_progress", "streaming", "started", "pending"].includes(normalized)) return "running";
+  if (["canceled", "cancelled", "denied", "expired"].includes(normalized)) return "cancelled";
+  return normalized || "unknown";
+}
+
+function formatDuration(ms: number) {
+  if (ms < 1000) return `${ms}ms`;
+  const seconds = ms / 1000;
+  if (seconds < 10) return `${seconds.toFixed(1)}s`;
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
 function AnimatedSessionTitle({
   title,
   tooltip,
@@ -761,13 +1283,11 @@ function SessionRow({
 function TraceAttemptRow({
   trace,
   snippet,
-  searchQuery,
   isExpanded,
   onToggle,
 }: {
   trace: SessionInfo;
   snippet?: string;
-  searchQuery?: string;
   isExpanded: boolean;
   onToggle: () => void;
 }) {
@@ -844,9 +1364,8 @@ function TraceAttemptRow({
       </button>
       {isExpanded && (
         <div className="border-t border-border bg-background/45 p-3">
-          <SessionTranscript
-            sessionId={trace.id}
-            searchQuery={searchQuery}
+          <TraceActivityPanel
+            traceId={trace.trace_id ?? trace.id}
             streamEvents
             autoScrollToLatest
           />
@@ -985,7 +1504,6 @@ function SessionGroupRow({
                 key={trace.id}
                 trace={trace}
                 snippet={childSnippets.get(trace.id)}
-                searchQuery={searchQuery}
                 isExpanded={expandedId === trace.id}
                 onToggle={() => onToggle(trace.id)}
               />
@@ -1060,7 +1578,6 @@ function SessionListContent({
               key={item.id}
               trace={item.session}
               snippet={snippetMap.get(item.session.id)}
-              searchQuery={search || undefined}
               isExpanded={expandedId === item.session.id}
               onToggle={() => onToggle(item.session.id)}
             />

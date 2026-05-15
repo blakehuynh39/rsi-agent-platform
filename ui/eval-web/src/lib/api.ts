@@ -28,6 +28,39 @@ export const api = {
     fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`, { signal }),
   getSessionStreamURL: (id: string) =>
     `${BASE}/api/sessions/${encodeURIComponent(id)}/stream`,
+  getTraceActivity: (traceId: string, params?: { mode?: "clean" | "detailed"; scope?: string; limit?: number; cursor?: string }, signal?: AbortSignal) => {
+    const qs = new URLSearchParams();
+    qs.set("mode", params?.mode ?? "clean");
+    qs.set("scope", params?.scope ?? "main");
+    if (params?.limit) qs.set("limit", String(params.limit));
+    if (params?.cursor) qs.set("cursor", params.cursor);
+    return fetchJSON<TraceActivitySnapshot>(
+      `/api/traces/${encodeURIComponent(traceId)}/activity?${qs.toString()}`,
+      { signal },
+    );
+  },
+  getTraceActivityStreamURL: (traceId: string, params?: { mode?: "clean" | "detailed"; scope?: string }) => {
+    const qs = new URLSearchParams();
+    qs.set("view", "activity");
+    qs.set("mode", params?.mode ?? "clean");
+    qs.set("scope", params?.scope ?? "main");
+    return `${BASE}/api/traces/${encodeURIComponent(traceId)}/stream?${qs.toString()}`;
+  },
+  getTraceLedgerStreamURL: (traceId: string, params?: { scope?: string }) => {
+    const qs = new URLSearchParams();
+    qs.set("scope", params?.scope ?? "main");
+    return `${BASE}/api/traces/${encodeURIComponent(traceId)}/stream?${qs.toString()}`;
+  },
+  getTraceLedger: (traceId: string, params?: { scope?: string; limit?: number; before?: string }, signal?: AbortSignal) => {
+    const qs = new URLSearchParams();
+    qs.set("scope", params?.scope ?? "main");
+    if (params?.limit) qs.set("limit", String(params.limit));
+    if (params?.before) qs.set("before", params.before);
+    return fetchJSON<TraceLedgerResponse>(
+      `/api/traces/${encodeURIComponent(traceId)}/ledger?${qs.toString()}`,
+      { signal },
+    );
+  },
   deleteSession: (id: string) =>
     fetchJSON<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}`, {
       method: "DELETE",
@@ -407,6 +440,51 @@ export interface SessionMessage {
 export interface SessionMessagesResponse {
   session_id: string;
   messages: SessionMessage[];
+}
+
+export interface TraceActivitySnapshot {
+  trace_id: string;
+  scope: string;
+  mode: "clean" | "detailed";
+  generated_at: string;
+  items: TraceActivityItem[];
+  paging: {
+    limit: number;
+    has_more: boolean;
+    next_cursor?: string;
+  };
+  metrics: {
+    ledger_event_count: number;
+    item_count: number;
+    projection_ms: number;
+    oversized_trace?: boolean;
+  };
+}
+
+export interface TraceActivityItem {
+  id: string;
+  revision: string;
+  kind: string;
+  status: string;
+  title: string;
+  summary?: string;
+  started_at?: string;
+  completed_at?: string;
+  duration_ms?: number;
+  tool_name?: string;
+  tool_call_id?: string;
+  source_ledger_ids: string[];
+  raw_event_ids: string[];
+  details?: Record<string, unknown>;
+}
+
+export interface TraceLedgerResponse {
+  events: Array<Record<string, unknown>>;
+  paging: {
+    limit: number;
+    has_more: boolean;
+    next_before?: string;
+  };
 }
 
 export interface LogsResponse {

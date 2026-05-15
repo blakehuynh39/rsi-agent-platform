@@ -538,6 +538,71 @@ func TestTraceStreamBackfillsLedgerEventsAndFiltersScope(t *testing.T) {
 	}
 }
 
+func TestTraceActivityRouteProjectsCleanScopedActivity(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ExecutionID: "hexec-main",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-main",
+			PhaseID:     "investigate",
+			Kind:        "tool.call.completed",
+			Status:      "completed",
+			Seq:         1,
+			Payload: map[string]any{
+				"tool_name": "terminal",
+				"args":      map[string]any{"command": "echo sensitive"},
+				"result":    `{"status":"ok","exit_code":0,"output":"done"}`,
+			},
+			RecordedAt: now,
+		},
+		{
+			ExecutionID: "hexec-eval",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-eval",
+			PhaseID:     "eval",
+			Kind:        "tool.call.completed",
+			Status:      "completed",
+			Seq:         1,
+			Payload: map[string]any{
+				"role":      "eval",
+				"tool_name": "terminal",
+				"result":    `{"status":"ok","exit_code":0}`,
+			},
+			RecordedAt: now.Add(time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/activity?scope=main&mode=clean", nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("activity status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	var snapshot TraceActivitySnapshot
+	if err := json.Unmarshal(rec.Body.Bytes(), &snapshot); err != nil {
+		t.Fatalf("decode activity snapshot: %v", err)
+	}
+	if snapshot.Metrics.LedgerEventCount != 1 {
+		t.Fatalf("ledger event count = %d, want 1", snapshot.Metrics.LedgerEventCount)
+	}
+	if len(snapshot.Items) != 1 {
+		t.Fatalf("items len = %d, want 1", len(snapshot.Items))
+	}
+	if got := snapshot.Items[0].ToolName; got != "terminal" {
+		t.Fatalf("tool name = %q, want terminal", got)
+	}
+	if _, ok := snapshot.Items[0].Details["args_excerpt"]; ok {
+		t.Fatalf("clean activity unexpectedly included args excerpt: %#v", snapshot.Items[0].Details)
+	}
+}
+
 func TestCompanyWikiDashboardRoutesReadIndexAndFiles(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, "pages", "runbooks"), 0o755); err != nil {

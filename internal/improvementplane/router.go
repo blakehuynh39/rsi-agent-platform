@@ -179,7 +179,27 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
 			return
 		}
+		if strings.TrimSpace(r.URL.Query().Get("view")) == "activity" {
+			streamTraceActivityEvents(w, r, store, traceID)
+			return
+		}
 		streamTraceLedgerEvents(w, r, store, traceID)
+	})
+	r.Get("/api/traces/{traceID}/activity", func(w http.ResponseWriter, r *http.Request) {
+		traceID := chi.URLParam(r, "traceID")
+		scope := strings.TrimSpace(r.URL.Query().Get("scope"))
+		if scope == "" {
+			scope = "main"
+		}
+		limit := streamLimitFromRequest(r)
+		cursor := strings.TrimSpace(r.URL.Query().Get("cursor"))
+		mode := strings.TrimSpace(r.URL.Query().Get("mode"))
+		payload, ok := buildTraceActivitySnapshot(store, traceID, scope, mode, limit, cursor, time.Now().UTC())
+		if !ok {
+			app.WriteError(w, http.StatusNotFound, errors.New("trace not found"))
+			return
+		}
+		app.WriteJSON(w, http.StatusOK, payload)
 	})
 	r.Get("/api/traces/{traceID}/ledger", func(w http.ResponseWriter, r *http.Request) {
 		traceID := chi.URLParam(r, "traceID")
@@ -452,6 +472,123 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 	}
 }
 
+func streamTraceActivityEvents(w http.ResponseWriter, r *http.Request, store storepkg.Repository, traceID string) {
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		app.WriteError(w, http.StatusInternalServerError, errors.New("streaming unsupported"))
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	scope := strings.TrimSpace(r.URL.Query().Get("scope"))
+	if scope == "" {
+		scope = "main"
+	}
+	mode := strings.TrimSpace(r.URL.Query().Get("mode"))
+	if mode == "" {
+		mode = "clean"
+	}
+	limit := streamLimitFromRequest(r)
+	sent := map[string]string{}
+	lastHighWater := ""
+	nextSyntheticRefresh := time.Time{}
+	sendSnapshot := func() {
+		now := time.Now().UTC()
+		snapshot, _, ok := buildTraceActivitySnapshotWithHighWater(store, traceID, scope, mode, limit, "", now)
+		if !ok {
+			return
+		}
+		writeSSEActivitySnapshot(w, snapshot)
+		for _, item := range snapshot.Items {
+			sent[item.ID] = item.Revision
+		}
+		latest, hasLatest := latestTraceActivityLedgerEvent(store, traceID, scope)
+		lastHighWater = traceActivityLatestHighWaterID(latest, hasLatest)
+		nextSyntheticRefresh = nextTraceActivitySyntheticRefresh(snapshot, latest, hasLatest, now)
+		flusher.Flush()
+	}
+	sendUpserts := func() {
+		now := time.Now().UTC()
+		latest, hasLatest := latestTraceActivityLedgerEvent(store, traceID, scope)
+		latestHighWater := traceActivityLatestHighWaterID(latest, hasLatest)
+		if latestHighWater == lastHighWater && (nextSyntheticRefresh.IsZero() || now.Before(nextSyntheticRefresh)) {
+			return
+		}
+		snapshot, highWater, ok := buildTraceActivitySnapshotWithHighWater(store, traceID, scope, mode, limit, "", now)
+		if !ok {
+			return
+		}
+		lastHighWater = latestHighWater
+		nextSyntheticRefresh = nextTraceActivitySyntheticRefresh(snapshot, latest, hasLatest, now)
+		current := map[string]bool{}
+		for _, item := range snapshot.Items {
+			current[item.ID] = true
+		}
+		for id := range sent {
+			if current[id] {
+				continue
+			}
+			writeSSEActivityRemove(w, highWater, id)
+			delete(sent, id)
+		}
+		for _, item := range snapshot.Items {
+			if sent[item.ID] == item.Revision {
+				continue
+			}
+			writeSSEActivityUpsert(w, highWater, item)
+			sent[item.ID] = item.Revision
+		}
+		flusher.Flush()
+	}
+	sendSnapshot()
+	heartbeat := time.NewTicker(10 * time.Second)
+	poll := time.NewTicker(1 * time.Second)
+	defer heartbeat.Stop()
+	defer poll.Stop()
+	for {
+		select {
+		case <-r.Context().Done():
+			return
+		case <-poll.C:
+			sendUpserts()
+		case <-heartbeat.C:
+			_, _ = fmt.Fprint(w, ": heartbeat\n\n")
+			flusher.Flush()
+		}
+	}
+}
+
+func latestTraceActivityLedgerEvent(store storepkg.Repository, traceID string, scope string) (events.ExecutionLedgerEvent, bool) {
+	page := traceLedgerEventPage(store, traceID, scope, 1, "")
+	if len(page.Events) == 0 {
+		return events.ExecutionLedgerEvent{}, false
+	}
+	return page.Events[len(page.Events)-1], true
+}
+
+func traceActivityLatestHighWaterID(item events.ExecutionLedgerEvent, ok bool) string {
+	if !ok {
+		return "none"
+	}
+	return firstNonEmptyString(item.ID, fmt.Sprintf("%s:%d", item.ExecutionID, item.Seq))
+}
+
+func nextTraceActivitySyntheticRefresh(snapshot TraceActivitySnapshot, latest events.ExecutionLedgerEvent, hasLatest bool, now time.Time) time.Time {
+	for _, item := range snapshot.Items {
+		if item.Kind == "tool_generation" && item.Status == "running" {
+			return now.Add(10 * time.Second)
+		}
+	}
+	if hasLatest && strings.EqualFold(latest.Kind, "tool.generation.started") {
+		if due := latest.RecordedAt.Add(traceActivityQuietThreshold); due.After(now) {
+			return due
+		}
+		return now
+	}
+	return time.Time{}
+}
+
 func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string, limit int) []events.ExecutionLedgerEvent {
 	normalized := strings.TrimSpace(strings.ToLower(scope))
 	items := []events.ExecutionLedgerEvent{}
@@ -536,6 +673,39 @@ func writeSSELedgerEvent(w http.ResponseWriter, item events.ExecutionLedgerEvent
 	id := strings.NewReplacer("\n", "", "\r", "").Replace(item.ID)
 	_, _ = fmt.Fprintf(w, "id: %s\n", id)
 	_, _ = fmt.Fprint(w, "event: ledger\n")
+	_, _ = fmt.Fprintf(w, "data: %s\n\n", payload)
+}
+
+func writeSSEActivitySnapshot(w http.ResponseWriter, snapshot TraceActivitySnapshot) {
+	payload, err := json.Marshal(snapshot)
+	if err != nil {
+		return
+	}
+	id := "activity:snapshot:" + traceActivitySafeID(snapshot.TraceID) + ":" + strconv.FormatInt(snapshot.GeneratedAt.UnixNano(), 10)
+	_, _ = fmt.Fprintf(w, "id: %s\n", id)
+	_, _ = fmt.Fprint(w, "event: activity.snapshot\n")
+	_, _ = fmt.Fprintf(w, "data: %s\n\n", payload)
+}
+
+func writeSSEActivityRemove(w http.ResponseWriter, highWater string, itemID string) {
+	payload, err := json.Marshal(map[string]string{"id": itemID})
+	if err != nil {
+		return
+	}
+	id := fmt.Sprintf("activity:%s:remove:%s", traceActivitySafeID(highWater), traceActivitySafeID(itemID))
+	_, _ = fmt.Fprintf(w, "id: %s\n", id)
+	_, _ = fmt.Fprint(w, "event: activity.remove\n")
+	_, _ = fmt.Fprintf(w, "data: %s\n\n", payload)
+}
+
+func writeSSEActivityUpsert(w http.ResponseWriter, highWater string, item TraceActivityItem) {
+	payload, err := json.Marshal(item)
+	if err != nil {
+		return
+	}
+	id := fmt.Sprintf("activity:%s:%s", traceActivitySafeID(highWater), item.Revision)
+	_, _ = fmt.Fprintf(w, "id: %s\n", id)
+	_, _ = fmt.Fprint(w, "event: activity.upsert\n")
 	_, _ = fmt.Fprintf(w, "data: %s\n\n", payload)
 }
 
