@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST."
-version: 1.2.2
+version: 1.3.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -133,6 +133,8 @@ gh pr view 123
 gh pr diff 123
 gh pr diff 123 --name-only
 ```
+
+**PITFALL:** `gh pr diff N -- path/to/file.rs` does NOT work — `gh pr diff` does not accept `--` for file path filtering (unlike `git diff`). To inspect only specific files from a PR, either clone the repo and use `git diff main...HEAD -- path/to/file` or pipe `gh pr diff N | sed -n '/^diff --git a\/path\/to\/file/,/^diff /{p}'`. For targeted cross-repo checks on specific files, just clone and use `git diff` — it's cleaner.
 
 **With git + curl:**
 
@@ -677,12 +679,15 @@ If the BE PR adds API routes, new schemas, or response fields and no FE PR exist
 
 After all subagents complete:
 1. Collect findings from each subagent
-2. Deduplicate (same issue found by multiple reviewers)
-3. Classify into the standard output format: Critical → Warnings → Suggestions → Looks Good
-4. Add a Verdict section at the bottom
-5. Deliver the merged review as a single Slack message or GitHub comment
+2. **Verify subagent findings before re-reporting** — subagents frequently produce false positives and false negatives, especially on cross-repo alignment checks. A subagent scanning a 699-line `api-client.ts` may miss `adminApi.withdrawals.*` and report an entire API surface as "uncovered" when it exists. Before reporting any CRITICAL or HIGH finding from a subagent, spot-check 2-3 key files yourself to confirm. If a subagent timed out, re-run a narrower version focused on the files that matter most.
+3. Deduplicate (same issue found by multiple reviewers)
+4. Classify into the standard output format: Critical → Warnings → Suggestions → Looks Good
+5. Add a Verdict section at the bottom
+6. Deliver the merged review as a single Slack message or GitHub comment
 
 **PITFALL:** Subagents can't share context. Pass the repo path and branch name in the `context` parameter, and any repo-specific conventions (base branch, deployment topology, cross-repo contract rules) so each subagent has enough context to review independently.
+
+**PITFALL:** Giving subagents too broad a scope causes false negatives. A subagent told to "check cross-repo alignment for all 70 files" will scan too broadly and miss things. Instead, give subagents explicit file paths to check. For a cross-repo alignment subagent, list the specific files where API client calls and route definitions live — e.g., `apps/api/src/http/routes/mod.rs`, `apps/admin/src/lib/api-client.ts`, `apps/admin/src/lib/types.ts`. Asking it to discover these by searching the repo is unreliable.
 
 ---
 
