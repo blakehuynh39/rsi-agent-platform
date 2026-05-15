@@ -64,6 +64,12 @@ const SOURCE_CONFIG: Record<string, { icon: typeof Terminal; color: string }> =
 
 const PAGE_SIZE = 20;
 const SESSION_REFRESH_MS = 10_000;
+const CLEAN_ACTIVITY_DETAIL_HIDDEN_KEYS = new Set([
+  "tool_call_id",
+  "native_action_id",
+  "args_excerpt",
+  "result_excerpt",
+]);
 
 function isTraceSession(session: SessionInfo) {
   const title = session.title?.toLowerCase() ?? "";
@@ -467,6 +473,8 @@ function TraceActivityPanel({
   const containerRef = useRef<HTMLDivElement>(null);
   const foregroundLoadRef = useRef(0);
   const mountedRef = useRef(true);
+  const activityItems = snapshot?.items ?? [];
+  const ledgerEvents = ledger?.events ?? [];
 
   useEffect(() => {
     mountedRef.current = true;
@@ -529,18 +537,20 @@ function TraceActivityPanel({
       if (!mountedRef.current) return;
       setLedger((current) => {
         if (!current) return older;
+        const currentEvents = Array.isArray(current.events) ? current.events : [];
+        const olderEventsPage = Array.isArray(older.events) ? older.events : [];
         const seen = new Set(
-          current.events
+          currentEvents
             .map(traceLedgerEventID)
             .filter((id): id is string => Boolean(id)),
         );
-        const olderEvents = older.events.filter((event) => {
+        const olderEvents = olderEventsPage.filter((event) => {
           const id = traceLedgerEventID(event);
           return !id || !seen.has(id);
         });
         return {
           ...current,
-          events: [...olderEvents, ...current.events],
+          events: [...olderEvents, ...currentEvents],
           paging: older.paging,
         };
       });
@@ -601,7 +611,8 @@ function TraceActivityPanel({
         const item = JSON.parse((event as MessageEvent).data) as TraceActivityItem;
         setSnapshot((current) => {
           if (!current) return current;
-          const items = current.items.filter((existing) => existing.id !== item.id);
+          const currentItems = Array.isArray(current.items) ? current.items : [];
+          const items = currentItems.filter((existing) => existing.id !== item.id);
           items.push(item);
           items.sort(compareActivityItems);
           return {
@@ -624,8 +635,9 @@ function TraceActivityPanel({
         if (!payload.id) return;
         setSnapshot((current) => {
           if (!current) return current;
-          const items = current.items.filter((existing) => existing.id !== payload.id);
-          if (items.length === current.items.length) return current;
+          const currentItems = Array.isArray(current.items) ? current.items : [];
+          const items = currentItems.filter((existing) => existing.id !== payload.id);
+          if (items.length === currentItems.length) return current;
           return {
             ...current,
             items,
@@ -653,7 +665,7 @@ function TraceActivityPanel({
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }, 50);
     return () => window.clearTimeout(timer);
-  }, [autoScrollToLatest, mode, snapshot?.items.length, ledger?.events.length]);
+  }, [autoScrollToLatest, mode, activityItems.length, ledgerEvents.length]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -690,7 +702,7 @@ function TraceActivityPanel({
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono-ui text-[0.68rem] normal-case tracking-normal text-muted-foreground">
-              {ledger.events.length} ledger events loaded
+              {ledgerEvents.length} ledger events loaded
             </span>
             {ledger.paging.has_more && ledger.paging.next_before && (
               <Button
@@ -713,14 +725,14 @@ function TraceActivityPanel({
       {!loading && mode !== "raw" && snapshot && (
         <div
           ref={containerRef}
-          className="flex max-h-[640px] flex-col gap-2 overflow-y-auto pr-2"
+          className="flex max-h-[70vh] min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain pr-2"
         >
-          {snapshot.items.length === 0 ? (
+          {activityItems.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
               no activity yet
             </p>
           ) : (
-            snapshot.items.map((item) => (
+            activityItems.map((item) => (
               <TraceActivityCard key={`${item.id}:${item.revision}`} item={item} mode={mode} />
             ))
           )}
@@ -743,14 +755,20 @@ function TraceActivityCard({
   }
   const statusTone = activityStatusTone(item.status);
   const Icon = activityIcon(item);
-  const hasDetails = mode === "detailed" && item.details && Object.keys(item.details).length > 0;
+  const metaParts = activityMetaParts(item);
+  const hasDetails = hasTraceActivityDetails(item.details, mode);
   return (
-    <div className={cn("overflow-hidden border", statusTone.border, statusTone.bg)}>
+    <div className={cn("shrink-0 overflow-hidden border", statusTone.border, statusTone.bg)}>
       <button
         type="button"
-        className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-secondary/20"
-        onClick={() => hasDetails && setOpen(!open)}
-        aria-expanded={open}
+        className={cn(
+          "flex w-full items-start gap-2 px-3 py-2.5 text-left hover:bg-secondary/20",
+          hasDetails ? "cursor-pointer" : "cursor-default",
+        )}
+        onClick={() => {
+          if (hasDetails) setOpen((current) => !current);
+        }}
+        aria-expanded={hasDetails ? open : undefined}
       >
         {hasDetails ? (
           open ? <ChevronDown className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" /> : <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -774,6 +792,16 @@ function TraceActivityCard({
               {item.summary}
             </div>
           )}
+          {metaParts.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[0.66rem] text-muted-foreground/90">
+              {metaParts.map((part) => (
+                <span key={`${part.label}:${part.value}`} className="min-w-0">
+                  <span className="text-muted-foreground/70">{part.label}</span>{" "}
+                  <span className="break-all text-foreground/75">{part.value}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <Badge tone={activityBadgeTone(item.status)} className="shrink-0 text-[9px]">
           {displayActivityStatus(item.status)}
@@ -781,7 +809,7 @@ function TraceActivityCard({
       </button>
       {open && hasDetails && (
         <div className="border-t border-border/60 px-3 py-2">
-          <TraceActivityDetails details={item.details ?? {}} />
+          <TraceActivityDetails details={item.details ?? {}} mode={mode} />
         </div>
       )}
     </div>
@@ -797,7 +825,7 @@ function TraceTodoCard({
 }) {
   const todos = traceTodoItems(item.details);
   return (
-    <div className="border border-primary/25 bg-primary/[0.035] px-3 py-2">
+    <div className="shrink-0 border border-primary/25 bg-primary/[0.035] px-3 py-2">
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="font-mono-ui text-[0.78rem] font-medium normal-case tracking-normal">
           {item.title}
@@ -831,8 +859,14 @@ function TraceTodoCard({
   );
 }
 
-function TraceActivityDetails({ details }: { details: Record<string, unknown> }) {
-  const entries = Object.entries(details).filter(([key]) => key !== "type" && key !== "version");
+function TraceActivityDetails({
+  details,
+  mode,
+}: {
+  details: Record<string, unknown>;
+  mode: "clean" | "detailed";
+}) {
+  const entries = traceActivityDetailEntries(details, mode);
   if (entries.length === 0) return null;
   return (
     <div className="grid gap-1.5 font-mono text-[0.68rem]">
@@ -846,6 +880,72 @@ function TraceActivityDetails({ details }: { details: Record<string, unknown> })
       ))}
     </div>
   );
+}
+
+function hasTraceActivityDetails(
+  details: Record<string, unknown> | undefined,
+  mode: "clean" | "detailed",
+) {
+  return traceActivityDetailEntries(details, mode).length > 0;
+}
+
+function traceActivityDetailEntries(
+  details: Record<string, unknown> | undefined,
+  mode: "clean" | "detailed",
+) {
+  return Object.entries(details ?? {}).filter(([key]) => {
+    if (key === "type" || key === "version") return false;
+    if (mode === "clean") {
+      return !CLEAN_ACTIVITY_DETAIL_HIDDEN_KEYS.has(key);
+    }
+    return true;
+  });
+}
+
+function activityMetaParts(item: TraceActivityItem) {
+  const details = item.details ?? {};
+  const parts: Array<{ label: string; value: string }> = [];
+  const add = (label: string, value: string, limit = 140) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (parts.some((part) => part.label === label && part.value === trimmed)) return;
+    parts.push({ label, value: truncateActivityMeta(trimmed, limit) });
+  };
+
+  add("query", firstActivityDetailString(details, "query"), 180);
+  add("page", firstActivityDetailString(details, "page_ref", "slug", "page_id"), 160);
+  add("document", firstActivityDetailString(details, "document_id", "source_ref"), 160);
+  add("conversation", firstActivityDetailString(details, "conversation_ref"), 160);
+
+  const channel = firstActivityDetailString(details, "channel_id");
+  const thread = firstActivityDetailString(details, "thread_ts");
+  if (channel && thread) {
+    add("thread", `${channel} · ${thread}`, 180);
+  } else {
+    add("channel", channel, 120);
+    add("thread", thread, 120);
+  }
+
+  add("message", firstActivityDetailString(details, "message_ts"), 120);
+  add("target", firstActivityDetailString(details, "target", "target_ref"), 160);
+  add("path", firstActivityDetailString(details, "path"), 180);
+  add("sql", firstActivityDetailString(details, "sql_sha256"), 96);
+  add("command", firstActivityDetailString(details, "command"), 180);
+  return parts.slice(0, 5);
+}
+
+function firstActivityDetailString(details: Record<string, unknown>, ...keys: string[]) {
+  for (const key of keys) {
+    const value = details[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+  }
+  return "";
+}
+
+function truncateActivityMeta(value: string, limit: number) {
+  if (value.length <= limit) return value;
+  return `${value.slice(0, Math.max(0, limit - 1))}…`;
 }
 
 function TodoStatusIcon({ status }: { status: string }) {

@@ -1,11 +1,14 @@
 package improvementplane
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 	"unicode/utf8"
 
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
 
 func TestTraceActivityProjectorCollapsesTodoCompletions(t *testing.T) {
@@ -72,6 +75,86 @@ func TestTraceActivityProjectorDedupeNativeLifecycleWithToolCompletion(t *testin
 	}
 	if count != 1 {
 		t.Fatalf("slack report activity count=%d, want 1", count)
+	}
+}
+
+func TestTraceActivityProjectorProjectsKnowledgeTargets(t *testing.T) {
+	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("wiki-1", 1, "tool.call.completed", "failed", now, map[string]any{
+			"tool_name": "wiki_page_get",
+			"args": map[string]any{
+				"page_ref": "architecture/project-data-audit",
+				"slug":     "project-data-audit",
+			},
+			"result": `Error: wiki_page_get failed: company wiki API returned HTTP 404`,
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1", len(items))
+	}
+	item := items[0]
+	if item.ToolName != "rsi_knowledge.wiki_page_get" {
+		t.Fatalf("tool_name=%q, want canonical wiki page tool", item.ToolName)
+	}
+	if got := item.Details["page_ref"]; got != "architecture/project-data-audit" {
+		t.Fatalf("page_ref=%#v, want requested wiki page", got)
+	}
+	if got := item.Details["slug"]; got != "project-data-audit" {
+		t.Fatalf("slug=%#v, want requested wiki slug", got)
+	}
+	if !strings.Contains(item.Summary, "architecture/project-data-audit") {
+		t.Fatalf("summary=%q, want wiki page target", item.Summary)
+	}
+}
+
+func TestTraceActivityProjectorProjectsSlackThreadTargets(t *testing.T) {
+	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("slack-1", 1, "tool.call.completed", "completed", now, map[string]any{
+			"tool_name": "rsi_slack_conversation_read",
+			"args": map[string]any{
+				"channel_id": "CENG",
+				"thread_ts":  "171000001.000100",
+				"limit":      25,
+			},
+			"result": `{"status":"ok","messages":[{"text":"hello"}]}`,
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1", len(items))
+	}
+	item := items[0]
+	if item.ToolName != "rsi_slack.conversation_read" {
+		t.Fatalf("tool_name=%q, want canonical Slack conversation read", item.ToolName)
+	}
+	if got := item.Details["channel_id"]; got != "CENG" {
+		t.Fatalf("channel_id=%#v, want Slack channel", got)
+	}
+	if got := item.Details["thread_ts"]; got != "171000001.000100" {
+		t.Fatalf("thread_ts=%#v, want Slack thread", got)
+	}
+	if !strings.Contains(item.Summary, "CENG") || !strings.Contains(item.Summary, "171000001.000100") {
+		t.Fatalf("summary=%q, want Slack thread target", item.Summary)
+	}
+}
+
+func TestTraceActivityStringFromResultSkipsStructuredValues(t *testing.T) {
+	result := map[string]any{
+		"output": map[string]any{
+			"page": map[string]any{
+				"title": "Deployment Guide",
+			},
+			"count": 2,
+		},
+	}
+	if got := traceActivityStringFromResult(result, "page"); got != "" {
+		t.Fatalf("structured page value=%q, want empty string", got)
+	}
+	if got := traceActivityStringFromResult(result, "count"); got != "2" {
+		t.Fatalf("numeric scalar value=%q, want 2", got)
 	}
 }
 
@@ -158,6 +241,25 @@ func TestTraceActivityProjectorProjectsSlackMessageSentAsFinalResponse(t *testin
 	}
 	if got := final.Details["provider_ref"]; got != "slack:C123:171000001.000200" {
 		t.Fatalf("provider_ref=%#v, want Slack provider ref", got)
+	}
+}
+
+func TestTraceActivitySnapshotEncodesEmptyItemsAsArray(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	snapshot, ok := buildTraceActivitySnapshot(store, traceID, "main", "clean", 250, "", time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC))
+	if !ok {
+		t.Fatal("buildTraceActivitySnapshot returned !ok")
+	}
+	if snapshot.Items == nil {
+		t.Fatal("snapshot items is nil, want empty slice")
+	}
+	raw, err := json.Marshal(snapshot)
+	if err != nil {
+		t.Fatalf("marshal snapshot: %v", err)
+	}
+	if !strings.Contains(string(raw), `"items":[]`) {
+		t.Fatalf("snapshot JSON encoded items as non-array: %s", raw)
 	}
 }
 

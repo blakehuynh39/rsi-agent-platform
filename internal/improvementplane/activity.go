@@ -110,6 +110,9 @@ func buildTraceActivitySnapshotWithHighWater(store storepkg.Repository, traceID 
 		log.Printf("improvement-plane activity projection oversized trace=%s scope=%s ledger_events=%d items=%d projection_ms=%d", traceID, normalizedScope, scopedCount, len(items), metrics.ProjectionMs)
 	}
 	page, paging := pageTraceActivityItems(items, limit, cursor)
+	if page == nil {
+		page = []TraceActivityItem{}
+	}
 	return TraceActivitySnapshot{
 		TraceID:     traceID,
 		Scope:       normalizedScope,
@@ -457,6 +460,8 @@ func (p traceActivityProjector) summarizeToolGroup(group *traceActivityToolGroup
 		return traceActivityDBReadSummary(group, details)
 	case group.name == "terminal":
 		return traceActivityTerminalSummary(group, details)
+	case group.name == "session_search":
+		return traceActivitySessionSearchSummary(group, details)
 	case group.name == "delegate_task":
 		return "Delegated work", firstNonEmptyString(group.summary, "Delegated a subtask."), details
 	case strings.Contains(group.name, "read_file") || strings.Contains(group.name, "search"):
@@ -471,20 +476,63 @@ func (p traceActivityProjector) summarizeToolGroup(group *traceActivityToolGroup
 func traceActivitySlackSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
 	op := strings.TrimPrefix(group.name, "rsi_slack.")
 	title := "Slack " + strings.ReplaceAll(op, "_", " ")
+	channelID := traceActivityStringFromGroup(group, "channel_id", "channel")
+	threadTS := traceActivityStringFromGroup(group, "thread_ts", "thread")
+	messageTS := traceActivityStringFromGroup(group, "ts", "message_ts", "timestamp")
+	userID := traceActivityStringFromGroup(group, "user_id", "user")
+	query := traceActivityStringFromGroup(group, "query", "search")
+	targetRef := traceActivityStringFromGroup(group, "target_ref", "source_ref", "provider_ref")
+	traceActivitySetDetailString(details, "channel_id", channelID, 160)
+	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
+	traceActivitySetDetailString(details, "message_ts", messageTS, 160)
+	traceActivitySetDetailString(details, "user_id", userID, 160)
+	traceActivitySetDetailString(details, "query", query, 500)
+	traceActivitySetDetailString(details, "target_ref", targetRef, 240)
 	if delivery, ok := group.result["reply_delivery"].(map[string]any); ok {
+		channelID = firstNonEmptyString(channelID, strings.TrimSpace(stringValue(delivery["channel_id"])))
+		threadTS = firstNonEmptyString(threadTS, strings.TrimSpace(stringValue(delivery["thread_ts"])))
 		if ref := strings.TrimSpace(stringValue(delivery["provider_ref"])); ref != "" {
 			details["provider_ref"] = ref
+			targetRef = firstNonEmptyString(targetRef, ref)
 		}
 		if status := strings.TrimSpace(stringValue(delivery["send_status"])); status != "" {
 			details["send_status"] = status
 		}
 	}
-	return title, firstNonEmptyString(group.summary, traceActivityOperationSummary("Slack", op)), details
+	traceActivitySetDetailString(details, "channel_id", channelID, 160)
+	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
+	traceActivitySetDetailString(details, "target_ref", targetRef, 240)
+	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("channel", channelID),
+		traceActivityLabelValue("thread", threadTS),
+		traceActivityLabelValue("message", messageTS),
+		traceActivityLabelValue("user", userID),
+		traceActivityLabelValue("query", query),
+		traceActivityLabelValue("ref", targetRef),
+	)
+	return title, firstNonEmptyString(group.summary, targetSummary, traceActivityOperationSummary("Slack", op)), details
 }
 
 func traceActivityNotionSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
 	op := strings.TrimPrefix(group.name, "rsi_notion.")
-	return "Notion " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, traceActivityOperationSummary("Notion", op)), details
+	pageID := traceActivityStringFromGroup(group, "page_id", "page")
+	databaseID := traceActivityStringFromGroup(group, "database_id", "database")
+	dataSourceID := traceActivityStringFromGroup(group, "data_source_id", "datasource_id", "data_source")
+	blockID := traceActivityStringFromGroup(group, "block_id", "block")
+	query := traceActivityStringFromGroup(group, "query", "search")
+	traceActivitySetDetailString(details, "page_id", pageID, 200)
+	traceActivitySetDetailString(details, "database_id", databaseID, 200)
+	traceActivitySetDetailString(details, "data_source_id", dataSourceID, 200)
+	traceActivitySetDetailString(details, "block_id", blockID, 200)
+	traceActivitySetDetailString(details, "query", query, 500)
+	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("page", pageID),
+		traceActivityLabelValue("database", databaseID),
+		traceActivityLabelValue("source", dataSourceID),
+		traceActivityLabelValue("block", blockID),
+		traceActivityLabelValue("query", query),
+	)
+	return "Notion " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, targetSummary, traceActivityOperationSummary("Notion", op)), details
 }
 
 func traceActivityKnowledgeSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -493,7 +541,31 @@ func traceActivityKnowledgeSummary(group *traceActivityToolGroup, details map[st
 	if count >= 0 {
 		details["result_count"] = count
 	}
-	return "Knowledge " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, traceActivityCountSummary("Knowledge", op, count)), details
+	query := traceActivityStringFromGroup(group, "query", "search")
+	pageRef := traceActivityStringFromGroup(group, "page_ref", "page")
+	slug := traceActivityStringFromGroup(group, "slug")
+	sourceRef := traceActivityStringFromGroup(group, "source_ref", "source")
+	documentID := traceActivityStringFromGroup(group, "document_id", "document")
+	conversationRef := traceActivityStringFromGroup(group, "conversation_ref", "conversation")
+	channelID := traceActivityStringFromGroup(group, "channel_id", "channel")
+	threadTS := traceActivityStringFromGroup(group, "thread_ts", "thread")
+	traceActivitySetDetailString(details, "query", query, 500)
+	traceActivitySetDetailString(details, "page_ref", pageRef, 240)
+	traceActivitySetDetailString(details, "slug", slug, 240)
+	traceActivitySetDetailString(details, "source_ref", sourceRef, 240)
+	traceActivitySetDetailString(details, "document_id", documentID, 240)
+	traceActivitySetDetailString(details, "conversation_ref", conversationRef, 240)
+	traceActivitySetDetailString(details, "channel_id", channelID, 160)
+	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
+	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("query", query),
+		traceActivityLabelValue("page", firstNonEmptyString(pageRef, slug)),
+		traceActivityLabelValue("doc", firstNonEmptyString(documentID, sourceRef)),
+		traceActivityLabelValue("conversation", conversationRef),
+		traceActivityLabelValue("channel", channelID),
+		traceActivityLabelValue("thread", threadTS),
+	)
+	return "Knowledge " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, targetSummary, traceActivityCountSummary("Knowledge", op, count)), details
 }
 
 func traceActivitySentrySummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -581,6 +653,22 @@ func traceActivityTerminalSummary(group *traceActivityToolGroup, details map[str
 		}
 	}
 	return "Terminal", summary, details
+}
+
+func traceActivitySessionSearchSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
+	query := traceActivityStringFromArgs(group.args, "query", "search")
+	limit := traceActivityStringFromArgs(group.args, "limit")
+	count := traceActivityCountFromResult(group.result, "results", "sessions", "matches")
+	traceActivitySetDetailString(details, "query", query, 500)
+	traceActivitySetDetailString(details, "limit", limit, 40)
+	if count >= 0 {
+		details["result_count"] = count
+	}
+	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("query", query),
+		traceActivityLabelValue("limit", limit),
+	)
+	return "Session search", firstNonEmptyString(group.summary, targetSummary, traceActivityCountSummary("Session", "search", count)), details
 }
 
 func traceActivityFileSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -902,6 +990,12 @@ func canonicalTraceActivityToolName(name string) string {
 		"rsi_knowledge_source_status":          "rsi_knowledge.source_status",
 		"rsi_knowledge_wiki_edit_propose":      "rsi_knowledge.wiki_edit_propose",
 		"rsi_knowledge_wiki_edit_apply":        "rsi_knowledge.wiki_edit_apply",
+		"rsi_knowledge_search":                 "rsi_knowledge.search",
+		"knowledge_search":                     "rsi_knowledge.search",
+		"wiki_search":                          "rsi_knowledge.wiki_search",
+		"wiki_page_get":                        "rsi_knowledge.wiki_page_get",
+		"wiki_index_get":                       "rsi_knowledge.wiki_index_get",
+		"wiki_log_get":                         "rsi_knowledge.wiki_log_get",
 		"rsi_sentry_projects_list":             "rsi_sentry.projects_list",
 		"rsi_sentry_issues_list":               "rsi_sentry.issues_list",
 		"rsi_sentry_issue_view":                "rsi_sentry.issue_view",
@@ -1123,6 +1217,9 @@ func pageTraceActivityItems(items []TraceActivityItem, limit int, cursor string)
 	if limit > traceActivityMaxLimit {
 		limit = traceActivityMaxLimit
 	}
+	if len(items) == 0 {
+		return []TraceActivityItem{}, TraceActivityPaging{Limit: limit, HasMore: false}
+	}
 	end := len(items)
 	if cursor != "" {
 		for index, item := range items {
@@ -1248,13 +1345,23 @@ func traceActivityCountFromResult(result map[string]any, keys ...string) int {
 	return -1
 }
 
+func traceActivityStringFromGroup(group *traceActivityToolGroup, keys ...string) string {
+	if group == nil {
+		return ""
+	}
+	return firstNonEmptyString(
+		traceActivityStringFromArgs(group.args, keys...),
+		traceActivityStringFromResult(group.result, keys...),
+	)
+}
+
 func traceActivityStringFromArgs(args any, keys ...string) string {
-	values, ok := args.(map[string]any)
+	values, ok := traceActivityMapFromAny(args)
 	if !ok {
 		return ""
 	}
 	for _, key := range keys {
-		if value := strings.TrimSpace(stringValue(values[key])); value != "" {
+		if value := strings.TrimSpace(traceActivityScalarString(values[key])); value != "" {
 			return value
 		}
 	}
@@ -1263,11 +1370,102 @@ func traceActivityStringFromArgs(args any, keys ...string) string {
 
 func traceActivityStringFromResult(result map[string]any, keys ...string) string {
 	for _, key := range keys {
-		if value := strings.TrimSpace(stringValue(result[key])); value != "" {
+		if value := strings.TrimSpace(traceActivityScalarString(result[key])); value != "" {
+			return value
+		}
+	}
+	for _, nestedKey := range []string{"output", "data", "request", "response", "metadata"} {
+		nested, ok := traceActivityMapFromAny(result[nestedKey])
+		if !ok {
+			continue
+		}
+		if value := traceActivityStringFromResult(nested, keys...); value != "" {
 			return value
 		}
 	}
 	return ""
+}
+
+func traceActivityMapFromAny(value any) (map[string]any, bool) {
+	switch typed := value.(type) {
+	case map[string]any:
+		return typed, true
+	case string:
+		var parsed map[string]any
+		if err := json.Unmarshal([]byte(typed), &parsed); err == nil {
+			return parsed, true
+		}
+	}
+	return nil, false
+}
+
+func traceActivityScalarString(value any) string {
+	switch typed := value.(type) {
+	case nil:
+		return ""
+	case string:
+		return typed
+	case bool:
+		return strconv.FormatBool(typed)
+	case int:
+		return strconv.Itoa(typed)
+	case int8:
+		return strconv.FormatInt(int64(typed), 10)
+	case int16:
+		return strconv.FormatInt(int64(typed), 10)
+	case int32:
+		return strconv.FormatInt(int64(typed), 10)
+	case int64:
+		return strconv.FormatInt(typed, 10)
+	case uint:
+		return strconv.FormatUint(uint64(typed), 10)
+	case uint8:
+		return strconv.FormatUint(uint64(typed), 10)
+	case uint16:
+		return strconv.FormatUint(uint64(typed), 10)
+	case uint32:
+		return strconv.FormatUint(uint64(typed), 10)
+	case uint64:
+		return strconv.FormatUint(typed, 10)
+	case float32:
+		return strconv.FormatFloat(float64(typed), 'f', -1, 32)
+	case float64:
+		return strconv.FormatFloat(typed, 'f', -1, 64)
+	case json.Number:
+		return typed.String()
+	default:
+		return ""
+	}
+}
+
+func traceActivitySetDetailString(details map[string]any, key string, value string, limit int) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return
+	}
+	if limit > 0 {
+		value = traceActivityTruncate(value, limit)
+	}
+	details[key] = value
+}
+
+func traceActivityLabelValue(label string, value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	return label + " " + traceActivityTruncate(value, 120)
+}
+
+func traceActivityTargetSummary(parts ...string) string {
+	filtered := []string{}
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			filtered = append(filtered, part)
+		}
+	}
+	return strings.Join(filtered, " · ")
 }
 
 func traceActivityIntFromResult(result map[string]any, keys ...string) int {
