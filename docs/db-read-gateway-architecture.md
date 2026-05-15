@@ -12,7 +12,7 @@ The design goal is to let Hermes answer operational data questions without givin
 - **Slack surface**: posts and updates the approval/result card in the original Slack thread. Only configured approver Slack IDs can approve or deny.
 - **DB read worker**: leases approved jobs from control-plane and performs validation/execution for stage targets. For prod targets, it invokes the prod Lambda relay.
 - **Prod Lambda relay**: runs in the prod AWS network path and performs validation/execution against prod RDS using read-only DB credentials.
-- **Postgres targets**: currently include `depin-stage`, `depin-prod`, and `rsi-platform-stage`.
+- **Postgres targets**: currently include `depin-stage`, `depin-prod`, `sos-royalty-graph-prod`, `story-blockchain-prod`, and `rsi-platform-stage`.
 
 ## High-Level Flow
 
