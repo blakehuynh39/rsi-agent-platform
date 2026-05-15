@@ -134,7 +134,7 @@ gh pr diff 123
 gh pr diff 123 --name-only
 ```
 
-**PITFALL:** `gh pr diff N -- path/to/file.rs` does NOT work — `gh pr diff` does not accept `--` for file path filtering (unlike `git diff`). To inspect only specific files from a PR, either clone the repo and use `git diff main...HEAD -- path/to/file` or pipe `gh pr diff N | sed -n '/^diff --git a\/path\/to\/file/,/^diff /{p}'`. For targeted cross-repo checks on specific files, just clone and use `git diff` — it's cleaner.
+**PITFALL:** `gh pr diff N -- path/to/file.rs` does NOT work — `gh pr diff` does not accept `--` for file path filtering (unlike `git diff`). The error is `accepts at most 1 arg(s), received 2`. To inspect only specific files from a PR, either clone the repo and use `git diff main...HEAD -- path/to/file` or pipe `gh pr diff N | sed -n '/^diff --git a\/path\/to\/file/,/^diff /{p}'`. For targeted cross-repo checks on specific files, just clone and use `git diff` — it's cleaner.
 
 **With git + curl:**
 
@@ -440,6 +440,8 @@ gh pr checks N
 ```
 
 Look for failures — CI is the fastest signal. If any required check is failing, flag it before starting the code review.
+
+**PITFALL:** `gh pr checks` does NOT support `--json` — it only outputs a human-readable table. When you need structured CI status (e.g., to filter by check name or programmatically check conclusions), use `gh pr view N --json statusCheckRollup --jq '...'` instead.
 
 **Step A3: Read the full diff**
 
