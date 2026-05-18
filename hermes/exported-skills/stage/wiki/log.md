@@ -22783,3 +22783,28 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7f30a685d4ce085ef0ca8819dad820aa
 - summary: Architecture overview of the Data Portal Backend, including an embedded diagram and high-level smart contract ideas for metadata versioning. The design proposes an event-sourced me...
 
+## [2026-05-18T22:00:21Z] ingest | Slack thread C0AKH5SNGKH 1779141009.722109
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1779141009-722109-64c194a5
+- wiki_revision_id: wikirev_7688a9255fa0bc5f176757b783983a5b
+- source_document_id: srcdoc_5e6180dceeeb44652024f13b64c194a5
+- source_revision_id: srcrev_476e6ea5b114ee4d526fa8e8c149d302
+- summary: <@U0772SH7BRA> - RSI does not have any email associated with it? Vercel build does not pass because of this, wondering if there's a way to give it a seat?
+
+## [2026-05-18T22:00:40Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_1e8bc234df0c2554d2bba435aa1db7cf
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_28dbdbbb9ea2bd6313604e3dbe7774a4
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-18T22:05:10Z] synthesis | Data Portal Backend Architecture
+
+- status: published
+- slug: systems/data-portal-backend-architecture
+- wiki_revision_id: wikirev_55b0b724a197732fd178e0eb8a0d349f
+- summary: Architecture overview of the Data Portal Backend, including an embedded diagram, high-level smart contract ideas for metadata versioning, and a detailed Data Audit API specificatio...
+
