@@ -8,7 +8,7 @@ import logging
 import queue
 import threading
 import time
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse
 
 from .config import RunnerConfig
@@ -63,6 +63,7 @@ class ObservationEmitter:
     _sink_queue: "queue.Queue[JsonObject]" = field(default_factory=queue.Queue)
     _sink_worker: threading.Thread | None = None
     _sink_worker_lock: threading.Lock = field(default_factory=threading.Lock)
+    on_emit: Callable[[JsonObject], None] | None = None
 
     @classmethod
     def create(
@@ -111,6 +112,11 @@ class ObservationEmitter:
             }
             self._events.append(dict(item))
         logger.info("runner observation %s", json.dumps(item, ensure_ascii=True, sort_keys=True))
+        if self.on_emit is not None:
+            try:
+                self.on_emit(dict(item))
+            except Exception:
+                logger.exception("runner observation callback failed execution_id=%s", self.execution_id)
         if not self.config.runtime_observation_sink_url:
             return
         self._ensure_sink_worker()

@@ -1179,6 +1179,7 @@ class HermesRuntime:
         self._executor_native_session_keys: dict[str, str] = {}
         self._executor_native_started_at_unix: dict[str, float] = {}
         self._executor_native_tracked_pids: dict[str, set[int]] = {}
+        self._executor_status_heartbeat_at: dict[str, float] = {}
         self._self_review_draining = False
         self._executor_process_lock = threading.RLock()
         self._executor_cancel_requests: set[str] = set()
@@ -3010,7 +3011,9 @@ class HermesRuntime:
             self._config.executor_instance_id,
         )
         out["current_executor_instance_id"] = self._config.executor_instance_id
-        out["executor_started_at_unix"] = self._started_at_unix
+        if "executor_started_at_unix" not in out:
+            out["executor_started_at_unix"] = self._started_at_unix
+        out["current_executor_started_at_unix"] = self._started_at_unix
         out["status_file_path"] = str(path)
         out["last_observed_status"] = str(payload.get("status") or "").strip()
         if path.exists():
@@ -3940,6 +3943,59 @@ class HermesRuntime:
             _atomic_write_json(path, stored)
         except Exception as exc:
             logger.warning("executor status persist failed execution_id=%s path=%s error=%s", key, path, exc)
+
+    def _attach_executor_status_heartbeat(self, observer: ObservationEmitter, task: RunnerTaskRequest) -> None:
+        observer.on_emit = lambda item: self._persist_executor_observation_heartbeat(observer.execution_id, task, item)
+
+    def _persist_executor_observation_heartbeat(self, execution_id: str, task: RunnerTaskRequest, item: JsonObject) -> None:
+        key = str(execution_id or "").strip()
+        if not key:
+            return
+        event_type = _string_or_json(item.get("event_type"))
+        now = time.time()
+        force = not event_type.startswith("model.reasoning.delta") and not event_type.startswith("model.output.delta")
+        last_heartbeat_at = self._executor_status_heartbeat_at.get(key, 0.0)
+        if not force and now - last_heartbeat_at < 2.0:
+            return
+        self._executor_status_heartbeat_at[key] = now
+        existing = dict(self._executor_recent_results.get(key) or {})
+        if not existing:
+            path = self._executor_status_path(key)
+            try:
+                if path.exists():
+                    loaded = json.loads(path.read_text(encoding="utf-8"))
+                    if isinstance(loaded, dict):
+                        existing = loaded
+            except Exception as exc:
+                logger.debug("executor heartbeat status read failed execution_id=%s error=%s", key, exc)
+        existing_status = str(existing.get("status") or "").strip().lower()
+        if existing_status in {"completed", "failed", "cancelled"}:
+            return
+        next_status = existing_status if existing_status in {"accepted", "finalizing", "cancelling", "cancel_requested"} else "running"
+        last_observed_seq = item.get("seq")
+        heartbeat: JsonObject = {
+            **existing,
+            "execution_id": key,
+            "operation_id": first_non_empty(_string_or_json(existing.get("operation_id")), task.operation_id),
+            "trace_id": first_non_empty(_string_or_json(existing.get("trace_id")), task.trace_id),
+            "workflow_id": first_non_empty(_string_or_json(existing.get("workflow_id")), task.workflow_id),
+            "executor_instance_id": first_non_empty(
+                _string_or_json(existing.get("executor_instance_id")),
+                self._config.executor_instance_id,
+            ),
+            "executor_started_at_unix": self._started_at_unix,
+            "phase": first_non_empty(_string_or_json(item.get("phase")), self._execution_phase(task)),
+            "status": next_status,
+            "message": "Execution active; last observation persisted.",
+            "last_observed_ledger_seq": "" if last_observed_seq in (None, "") else str(last_observed_seq),
+            "last_observed_event_type": event_type,
+            "last_observed_event_status": _string_or_json(item.get("status")),
+            "last_observed_phase": _string_or_json(item.get("phase")),
+            "last_observed_recorded_at": _string_or_json(item.get("recorded_at")),
+            "last_observed_at_unix": time.time(),
+            "last_observed_invocation_id": _string_or_json(item.get("invocation_id")),
+        }
+        self._store_executor_result(key, heartbeat)
 
     def _executor_status_path(self, execution_id: str) -> Path:
         return (
@@ -6906,6 +6962,7 @@ class HermesRuntime:
             ),
             execution_id=task.execution_id or "",
         )
+        self._attach_executor_status_heartbeat(observer, task)
         self._store_executor_result(
             observer.execution_id,
             {

@@ -100,6 +100,64 @@ func TestWorkflowRuntimeReducerCancellationOverridesFailedResultFailureClass(t *
 	}
 }
 
+func TestWorkflowRuntimeReducerTerminalStatusCarriesExecutorTelemetry(t *testing.T) {
+	now := time.Now().UTC()
+	heartbeat := now.Add(-30 * time.Second)
+	existing := storepkg.RunnerExecution{
+		ExecutionID: "hexec-orphan",
+		Status:      "running",
+		HeartbeatAt: &heartbeat,
+		CreatedAt:   heartbeat,
+		UpdatedAt:   heartbeat,
+	}
+	decision := ReduceWorkflowRuntime(WorkflowRuntimeSnapshot{
+		RunnerExecution: &existing,
+		Now:             now,
+	}, WorkflowRuntimeEvent{
+		Kind: WorkflowRuntimeEventRunnerStatus,
+		RunnerStatus: clients.HermesExecutionStatus{
+			ExecutionID:                  "hexec-orphan",
+			OperationID:                  "op-orphan",
+			TraceID:                      "trace-orphan",
+			WorkflowID:                   "wf-orphan",
+			ExecutorInstanceID:           "executor-pod-old",
+			CurrentExecutorInstanceID:    "executor-pod-new",
+			ExecutorStartedAtUnix:        1779091470,
+			CurrentExecutorStartedAtUnix: 1779128886,
+			Status:                       "orphaned",
+			Message:                      "Persisted executor status was running, but no local execution process is active.",
+			Phase:                        "main",
+			LastObservedStatus:           "running",
+			LastObservedLedgerSeq:        "1223",
+			LastObservedEventType:        "tool.call.progress",
+			LastObservedEventStatus:      "running",
+			LastObservedRecordedAt:       "2026-05-18T08:16:34Z",
+			StatusFilePath:               "/workspace/company/.rsi/runs/_executions/hexec-orphan.json",
+			StatusFileMtimeUnix:          1779092194,
+			StatusFileSizeBytes:          640,
+		},
+	})
+	if decision.RunnerResponse == nil {
+		t.Fatalf("expected runner response, got %+v", decision)
+	}
+	diagnostics, _ := decision.RunnerResponse.Raw["runner_diagnostics"].(map[string]any)
+	if diagnostics["executor_status"] != "orphaned" {
+		t.Fatalf("executor_status diagnostic = %#v, want orphaned", diagnostics["executor_status"])
+	}
+	if diagnostics["last_observed_ledger_seq"] != "1223" || diagnostics["last_observed_event_type"] != "tool.call.progress" {
+		t.Fatalf("missing last observation diagnostics: %#v", diagnostics)
+	}
+	if diagnostics["executor_instance_id"] != "executor-pod-old" || diagnostics["current_executor_instance_id"] != "executor-pod-new" {
+		t.Fatalf("missing executor instance diagnostics: %#v", diagnostics)
+	}
+	if diagnostics["executor_started_at_unix"] != float64(1779091470) || diagnostics["current_executor_started_at_unix"] != float64(1779128886) {
+		t.Fatalf("missing executor start diagnostics: %#v", diagnostics)
+	}
+	if diagnostics["status_file_size_bytes"] != int64(640) {
+		t.Fatalf("status file diagnostics = %#v", diagnostics["status_file_size_bytes"])
+	}
+}
+
 func TestWorkflowRuntimeReducerCancelRequestedRunningStatusRefreshesHeartbeat(t *testing.T) {
 	heartbeat := time.Now().Add(-30 * time.Second).UTC()
 	now := heartbeat.Add(10 * time.Second)

@@ -292,7 +292,7 @@ func reduceWorkflowRuntimeRunnerStatus(snapshot WorkflowRuntimeSnapshot, event W
 			decision.WorkflowFailure = &failure
 			return decision
 		}
-		return workflowRuntimeFailureDecision(snapshot, existing.ExecutionID, workflowFailureRunnerExecutorResultUnavailable, "Hermes executor reached a terminal state without a durable result.", status)
+		return workflowRuntimeFailureDecisionWithStatus(snapshot, existing.ExecutionID, workflowFailureRunnerExecutorResultUnavailable, "Hermes executor reached a terminal state without a durable result.", event.RunnerStatus)
 	default:
 		return workflowRuntimeFailureDecision(snapshot, existing.ExecutionID, workflowFailureRunnerExecutorStatusUnrecognized, fmt.Sprintf("Hermes executor returned unrecognized async status %q.", status), status)
 	}
@@ -385,6 +385,15 @@ func waitWithRunnerUpdate(snapshot WorkflowRuntimeSnapshot, event WorkflowRuntim
 
 func workflowRuntimeFailureDecision(snapshot WorkflowRuntimeSnapshot, executionID string, failureClass string, message string, status string) WorkflowRuntimeDecision {
 	failureResp := hermesExecutorRecoveryFailure(executionID, failureClass, message, status)
+	return workflowRuntimeFailureDecisionFromResponse(snapshot, executionID, failureClass, failureResp)
+}
+
+func workflowRuntimeFailureDecisionWithStatus(snapshot WorkflowRuntimeSnapshot, executionID string, failureClass string, message string, status clients.HermesExecutionStatus) WorkflowRuntimeDecision {
+	failureResp := hermesExecutorRecoveryFailureWithStatus(executionID, failureClass, message, status)
+	return workflowRuntimeFailureDecisionFromResponse(snapshot, executionID, failureClass, failureResp)
+}
+
+func workflowRuntimeFailureDecisionFromResponse(snapshot WorkflowRuntimeSnapshot, executionID string, failureClass string, failureResp clients.RunnerResponse) WorkflowRuntimeDecision {
 	update := storepkg.RunnerExecution{
 		ExecutionID:  executionID,
 		Status:       "failed",

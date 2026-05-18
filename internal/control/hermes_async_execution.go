@@ -46,11 +46,11 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 		return hermesExecutionRecovery{stillRunning: true, status: statusText}, nil
 	case "completed", "failed", "cancelled", "orphaned":
 		return hermesExecutionRecovery{
-			response: hermesExecutorRecoveryFailure(
+			response: hermesExecutorRecoveryFailureWithStatus(
 				executionID,
 				workflowFailureRunnerExecutorResultUnavailable,
 				"Hermes executor reached a terminal state but did not expose a durable result; refusing to launch a duplicate run.",
-				status.Status,
+				status,
 			),
 			status: statusText,
 		}, nil
@@ -641,7 +641,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 				},
 			}
 		}
-		failure := hermesExecutorRecoveryFailure(task.ExecutionID, workflowFailureRunnerExecutorResultUnavailable, "Hermes executor reached a terminal state without a durable result.", statusText)
+		failure := hermesExecutorRecoveryFailureWithStatus(task.ExecutionID, workflowFailureRunnerExecutorResultUnavailable, "Hermes executor reached a terminal state without a durable result.", status)
 		_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
 			ExecutionID:  task.ExecutionID,
 			Status:       "failed",
@@ -790,6 +790,53 @@ func hermesExecutorRecoveryFailure(executionID string, failureClass string, mess
 			},
 		},
 	}
+}
+
+func hermesExecutorRecoveryFailureWithStatus(executionID string, failureClass string, message string, status clients.HermesExecutionStatus) clients.RunnerResponse {
+	resp := hermesExecutorRecoveryFailure(executionID, failureClass, message, firstNonEmpty(status.Status, status.LastObservedStatus))
+	diagnostics, _ := resp.Raw["runner_diagnostics"].(map[string]any)
+	if diagnostics == nil {
+		diagnostics = map[string]any{}
+		resp.Raw["runner_diagnostics"] = diagnostics
+	}
+	addStringDiagnostic := func(key string, value string) {
+		if strings.TrimSpace(value) != "" {
+			diagnostics[key] = strings.TrimSpace(value)
+		}
+	}
+	addFloatDiagnostic := func(key string, value float64) {
+		if value != 0 {
+			diagnostics[key] = value
+		}
+	}
+	addIntDiagnostic := func(key string, value int64) {
+		if value != 0 {
+			diagnostics[key] = value
+		}
+	}
+	addStringDiagnostic("executor_instance_id", status.ExecutorInstanceID)
+	addStringDiagnostic("current_executor_instance_id", status.CurrentExecutorInstanceID)
+	addFloatDiagnostic("executor_started_at_unix", status.ExecutorStartedAtUnix)
+	addFloatDiagnostic("current_executor_started_at_unix", status.CurrentExecutorStartedAtUnix)
+	addStringDiagnostic("executor_message", status.Message)
+	addStringDiagnostic("operation_id", status.OperationID)
+	addStringDiagnostic("trace_id", status.TraceID)
+	addStringDiagnostic("workflow_id", status.WorkflowID)
+	addStringDiagnostic("phase", status.Phase)
+	addStringDiagnostic("workspace_root", status.WorkspaceRoot)
+	addStringDiagnostic("session_id", status.SessionID)
+	addStringDiagnostic("last_observed_status", status.LastObservedStatus)
+	addStringDiagnostic("last_observed_ledger_seq", status.LastObservedLedgerSeq)
+	addStringDiagnostic("last_observed_event_type", status.LastObservedEventType)
+	addStringDiagnostic("last_observed_event_status", status.LastObservedEventStatus)
+	addStringDiagnostic("last_observed_phase", status.LastObservedPhase)
+	addStringDiagnostic("last_observed_recorded_at", status.LastObservedRecordedAt)
+	addFloatDiagnostic("last_observed_at_unix", status.LastObservedAtUnix)
+	addStringDiagnostic("last_observed_invocation_id", status.LastObservedInvocationID)
+	addStringDiagnostic("status_file_path", status.StatusFilePath)
+	addFloatDiagnostic("status_file_mtime_unix", status.StatusFileMtimeUnix)
+	addIntDiagnostic("status_file_size_bytes", status.StatusFileSizeBytes)
+	return resp
 }
 
 func heartbeatExpiredFailureClassAndMessage(status string) (failureClass string, message string) {

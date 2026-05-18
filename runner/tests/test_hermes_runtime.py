@@ -2882,8 +2882,66 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(status["status"], "orphaned")
         self.assertEqual(status["executor_instance_id"], "executor-pod-1")
         self.assertEqual(status["current_executor_instance_id"], "executor-pod-1")
+        self.assertIn("current_executor_started_at_unix", status)
         self.assertEqual(status["last_observed_status"], "running")
         self.assertTrue(str(status["status_file_path"]).endswith("hexec-orphan.json"))
+
+    def test_executor_status_heartbeat_persists_last_observation_for_orphan_diagnostics(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HOSTNAME": "executor-pod-1",
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            },
+            clear=True,
+        ):
+            config = RunnerConfig.from_env()
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "prompt": "Review the PR.",
+                        "trace_id": "trace-heartbeat",
+                        "workflow_id": "wf-heartbeat",
+                        "operation_id": "op-heartbeat",
+                        "execution_id": "hexec-heartbeat",
+                        "execution_phase": "main",
+                    }
+                }
+            )
+            runtime = HermesRuntime(config)
+            observer = ObservationEmitter.create(
+                config,
+                trace_id="trace-heartbeat",
+                workflow_id="wf-heartbeat",
+                operation_id="op-heartbeat",
+                role="prod",
+                hermes_session_id="session-heartbeat",
+                execution_id="hexec-heartbeat",
+            )
+            runtime._attach_executor_status_heartbeat(observer, task)
+            runtime._store_executor_result("hexec-heartbeat", {"execution_id": "hexec-heartbeat", "status": "running"})
+
+            observer.emit(phase="main", event_type="tool.call.progress", status="running", payload={"preview": "working"})
+
+            second = HermesRuntime(config)
+            status = second.executor_status("hexec-heartbeat")
+
+        self.assertEqual(status["status"], "orphaned")
+        self.assertEqual(status["last_observed_ledger_seq"], "1")
+        self.assertEqual(status["last_observed_event_type"], "tool.call.progress")
+        self.assertEqual(status["last_observed_event_status"], "running")
+        self.assertEqual(status["last_observed_phase"], "main")
+        self.assertEqual(status["trace_id"], "trace-heartbeat")
+        self.assertEqual(status["workflow_id"], "wf-heartbeat")
+        self.assertIn("executor_started_at_unix", status)
+        self.assertIn("current_executor_started_at_unix", status)
 
     def test_executor_status_persists_completed_result_for_recovery(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root, mock.patch(
