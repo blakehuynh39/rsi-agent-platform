@@ -588,6 +588,8 @@ gh pr review $PR_NUMBER --approve --body-file /tmp/review-body.md
 
 **PITFALL:** When reviewing locale/i18n changes, do NOT flag a locale directory as "missed" without first checking the i18n configuration (e.g., `lingui.config.ts`, `next.config.js` i18n section) to confirm which locales are actually active. A locale directory may exist in the repo but be inactive — the config is the source of truth, not the filesystem.
 
+When locale `.po` files have merge conflicts, see `references/po-file-merge-conflicts.md` for the resolution pattern — these are almost always line-number reference differences, not semantic conflicts.
+
 **With curl — atomic review with multiple inline comments:**
 ```bash
 HEAD_SHA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
@@ -711,6 +713,10 @@ After all subagents complete:
 **PITFALL:** Subagents can't share context. Pass the repo path and branch name in the `context` parameter, and any repo-specific conventions (base branch, deployment topology, cross-repo contract rules) so each subagent has enough context to review independently.
 
 **PITFALL:** Giving subagents too broad a scope causes false negatives. A subagent told to "check cross-repo alignment for all 70 files" will scan too broadly and miss things. Instead, give subagents explicit file paths to check. For a cross-repo alignment subagent, list the specific files where API client calls and route definitions live — e.g., `apps/api/src/http/routes/mod.rs`, `apps/admin/src/lib/api-client.ts`, `apps/admin/src/lib/types.ts`. Asking it to discover these by searching the repo is unreliable.
+
+**PITFALL:** Subagents default to the repo's base branch (e.g., `staging` or `main`), NOT the PR branch. If you give a subagent `search_files` or `read_file` instructions without specifying the PR branch explicitly, it searches the base branch and reports \"findings\" that don't exist on the PR. This produces false positives — the subagent flags code that is already on the base branch, unrelated to the PR. Always pass `branch=<headRefName>` or explicitly check out the PR branch in the subagent's instructions. This is the #1 source of subagent false positives.
+
+**PITFALL:** Even after instructing subagents to use the PR branch, they may silently fall back to base-branch file reads. Always spot-check 2-3 subagent findings against the actual PR diff (which you have from `gh pr diff`) before reporting them as issues.
 
 ---
 
