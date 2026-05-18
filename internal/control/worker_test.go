@@ -16,7 +16,9 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	"github.com/piplabs/rsi-agent-platform/internal/runnerutil"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
@@ -104,6 +106,62 @@ func TestWorkflowRunnerUsesHermesExecutorWhenConfigured(t *testing.T) {
 	}
 	if executorTask.WorkflowID != workflowItem.workflowID {
 		t.Fatalf("executor workflow_id = %q, want %q", executorTask.WorkflowID, workflowItem.workflowID)
+	}
+}
+
+func TestRunnerRequesterContextLineUsesSlackDisplayName(t *testing.T) {
+	line := runnerRequesterContextLine(slackpkg.Ingestion{
+		UserID: "U083MMT1771",
+		Prompt: slackpkg.SlackPromptEnvelope{
+			SenderUserID:      "U083MMT1771",
+			SenderDisplayName: "Aiwei",
+		},
+	})
+	if !strings.Contains(line, "Slack requester: Aiwei (U083MMT1771)") {
+		t.Fatalf("requester context line = %q, want display name and user ID", line)
+	}
+	if !strings.Contains(line, "do not infer or invent") {
+		t.Fatalf("requester context line should forbid invented names: %q", line)
+	}
+}
+
+func TestRecentConversationEntriesPreserveSlackRequesterMetadata(t *testing.T) {
+	now := time.Unix(1778891462, 637879000).UTC()
+	entries := recentConversationEntries([]conversation.Entry{
+		{
+			ID:             "entry-aiwei",
+			ConversationID: "conv-1",
+			EventID:        "evt-1",
+			Source:         ingestion.SourceSlack,
+			SourceEventID:  "1778891462.637879",
+			EntryType:      "external_event",
+			ActorID:        "U083MMT1771",
+			ActorType:      "user",
+			Body:           "@RSI can you help while I am OOO?",
+			Metadata: map[string]interface{}{
+				"channel_id": "C0AKH5SNGKH",
+				"thread_ts":  "1778891462.637879",
+				"prompt_envelope": slackpkg.SlackPromptEnvelope{
+					ChannelID:         "C0AKH5SNGKH",
+					ThreadTS:          "1778891462.637879",
+					SenderUserID:      "U083MMT1771",
+					SenderDisplayName: "Aiwei",
+				},
+				"slack_user_names": map[string]string{"U083MMT1771": "Aiwei"},
+			},
+			CreatedAt: now,
+		},
+	})
+	if len(entries) != 1 {
+		t.Fatalf("entries len = %d, want 1", len(entries))
+	}
+	entry := entries[0]
+	if entry.ActorDisplayName != "Aiwei" || entry.ChannelID != "C0AKH5SNGKH" || entry.ThreadTS != "1778891462.637879" || entry.MessageTS != "1778891462.637879" {
+		t.Fatalf("projected entry metadata = %+v", entry)
+	}
+	contextText := workflowIntentContextText(nil, entries)
+	if !strings.Contains(contextText, "Aiwei (U083MMT1771): @RSI can you help while I am OOO?") {
+		t.Fatalf("context text = %q, want human-readable Slack actor", contextText)
 	}
 }
 

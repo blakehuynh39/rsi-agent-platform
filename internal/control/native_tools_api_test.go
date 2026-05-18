@@ -271,9 +271,19 @@ func TestNativeSlackWritesAreBoundToExecutionThreadScope(t *testing.T) {
 		t.Fatalf("allowed status = %d, want missing Slack token dependency after policy pass; body=%s", allowed.Code, allowed.Body.String())
 	}
 
+	allowedReaction := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"reaction_add","idempotency_key":"bound-reaction-ok","reason":"ack","arguments":{"channel_id":"C123","timestamp":"171000001.000100","name":"white_check_mark"}}`))
+	if allowedReaction.Code != http.StatusFailedDependency {
+		t.Fatalf("allowed reaction status = %d, want missing Slack token dependency after policy pass; body=%s", allowedReaction.Code, allowedReaction.Body.String())
+	}
+
 	wrongChannel := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"message_post","idempotency_key":"bound-channel","reason":"reply","arguments":{"channel_id":"C999","thread_ts":"171000001.000100","text":"hello"}}`))
 	if wrongChannel.Code != http.StatusForbidden || !strings.Contains(wrongChannel.Body.String(), "outside bound Slack delivery scope") {
 		t.Fatalf("wrong channel response = %d %s", wrongChannel.Code, wrongChannel.Body.String())
+	}
+
+	wrongReactionTimestamp := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"reaction_add","idempotency_key":"bound-reaction-wrong","reason":"ack","arguments":{"channel_id":"C123","timestamp":"171000002.000200","name":"white_check_mark"}}`))
+	if wrongReactionTimestamp.Code != http.StatusForbidden || !strings.Contains(wrongReactionTimestamp.Body.String(), "outside bound Slack delivery scope") {
+		t.Fatalf("wrong reaction timestamp response = %d %s", wrongReactionTimestamp.Code, wrongReactionTimestamp.Body.String())
 	}
 
 	wrongThread := nativeToolsPost(t, router, token, []byte(`{"surface":"slack","operation":"file_upload","idempotency_key":"bound-thread","reason":"upload","arguments":{"channel_id":"C123","thread_ts":"171000002.000200","content":"hello","filename":"hello.txt"}}`))

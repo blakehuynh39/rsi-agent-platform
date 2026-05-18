@@ -16,16 +16,20 @@ type RunnerRejectedProposalContext struct {
 }
 
 type RunnerConversationEntry struct {
-	ID            string    `json:"id"`
-	EventID       string    `json:"event_id,omitempty"`
-	TraceID       string    `json:"trace_id,omitempty"`
-	Source        string    `json:"source"`
-	SourceEventID string    `json:"source_event_id"`
-	EntryType     string    `json:"entry_type"`
-	ActorID       string    `json:"actor_id,omitempty"`
-	ActorType     string    `json:"actor_type,omitempty"`
-	Body          string    `json:"body"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID               string    `json:"id"`
+	EventID          string    `json:"event_id,omitempty"`
+	TraceID          string    `json:"trace_id,omitempty"`
+	Source           string    `json:"source"`
+	SourceEventID    string    `json:"source_event_id"`
+	EntryType        string    `json:"entry_type"`
+	ActorID          string    `json:"actor_id,omitempty"`
+	ActorType        string    `json:"actor_type,omitempty"`
+	ActorDisplayName string    `json:"actor_display_name,omitempty"`
+	ChannelID        string    `json:"channel_id,omitempty"`
+	ThreadTS         string    `json:"thread_ts,omitempty"`
+	MessageTS        string    `json:"message_ts,omitempty"`
+	Body             string    `json:"body"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 
 type RunnerCaseSummary struct {

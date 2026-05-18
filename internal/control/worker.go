@@ -1472,6 +1472,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	promptParts := []string{
 		fmt.Sprintf("User request: %s", userRequest),
 	}
+	if requesterContext := runnerRequesterContextLine(ingestion); requesterContext != "" {
+		promptParts = append(promptParts, requesterContext)
+	}
 	if hasAttachedBoundSlackThreadContext(contextRefs, ingestion) {
 		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
 	}
@@ -2181,16 +2184,20 @@ func recentConversationEntries(items []conversation.Entry) []clients.RunnerConve
 	out := make([]clients.RunnerConversationEntry, 0, len(items))
 	for _, item := range items {
 		out = append(out, clients.RunnerConversationEntry{
-			ID:            item.ID,
-			EventID:       item.EventID,
-			TraceID:       item.TraceID,
-			Source:        string(item.Source),
-			SourceEventID: item.SourceEventID,
-			EntryType:     item.EntryType,
-			ActorID:       item.ActorID,
-			ActorType:     item.ActorType,
-			Body:          item.Body,
-			CreatedAt:     item.CreatedAt,
+			ID:               item.ID,
+			EventID:          item.EventID,
+			TraceID:          item.TraceID,
+			Source:           string(item.Source),
+			SourceEventID:    item.SourceEventID,
+			EntryType:        item.EntryType,
+			ActorID:          item.ActorID,
+			ActorType:        item.ActorType,
+			ActorDisplayName: conversationEntryActorDisplayName(item),
+			ChannelID:        conversationEntryChannelID(item),
+			ThreadTS:         conversationEntryThreadTS(item),
+			MessageTS:        conversationEntryMessageTS(item),
+			Body:             item.Body,
+			CreatedAt:        item.CreatedAt,
 		})
 	}
 	return out
@@ -2267,13 +2274,133 @@ func workflowIntentContextText(contextRefs []clients.RunnerContextRef, recentEnt
 		if strings.TrimSpace(entry.Body) == "" {
 			continue
 		}
-		parts = append(parts, fmt.Sprintf("%s: %s", firstNonEmpty(entry.ActorType, "participant"), strings.TrimSpace(entry.Body)))
+		parts = append(parts, fmt.Sprintf("%s: %s", runnerConversationEntryActorLabel(entry), strings.TrimSpace(entry.Body)))
 	}
 	return strings.Join(nonEmptyStrings(parts...), "\n")
 }
 
 func runnerUserRequest(ingestion slackpkg.Ingestion) string {
 	return firstNonEmpty(strings.TrimSpace(ingestion.Prompt.RenderedText), strings.TrimSpace(ingestion.Text))
+}
+
+func runnerRequesterContextLine(ingestion slackpkg.Ingestion) string {
+	displayName := strings.TrimSpace(ingestion.Prompt.SenderDisplayName)
+	userID := strings.TrimSpace(firstNonEmpty(ingestion.Prompt.SenderUserID, ingestion.UserID))
+	switch {
+	case displayName != "" && userID != "":
+		return fmt.Sprintf("Slack requester: %s (%s). If you address the requester by name, use exactly this display name; do not infer or invent a different personal name.", displayName, userID)
+	case displayName != "":
+		return fmt.Sprintf("Slack requester: %s. If you address the requester by name, use exactly this display name; do not infer or invent a different personal name.", displayName)
+	case userID != "":
+		return fmt.Sprintf("Slack requester user ID: %s. If you do not know their display name, do not invent one.", userID)
+	default:
+		return ""
+	}
+}
+
+func runnerConversationEntryActorLabel(entry clients.RunnerConversationEntry) string {
+	displayName := strings.TrimSpace(entry.ActorDisplayName)
+	actorID := strings.TrimSpace(entry.ActorID)
+	actorType := strings.TrimSpace(entry.ActorType)
+	switch {
+	case displayName != "" && actorID != "":
+		return fmt.Sprintf("%s (%s)", displayName, actorID)
+	case displayName != "":
+		return displayName
+	case actorID != "" && actorType != "":
+		return fmt.Sprintf("%s:%s", actorType, actorID)
+	case actorType != "":
+		return actorType
+	case actorID != "":
+		return actorID
+	default:
+		return "participant"
+	}
+}
+
+func conversationEntryActorDisplayName(item conversation.Entry) string {
+	metadata := mapValue(item.Metadata)
+	prompt := slackpkg.PromptEnvelopeFromValue(metadata["prompt_envelope"])
+	if prompt.SenderDisplayName != "" {
+		return prompt.SenderDisplayName
+	}
+	if displayName := stringValueFromMap(metadata, "sender_display_name"); displayName != "" {
+		return displayName
+	}
+	actorID := strings.ToUpper(strings.TrimSpace(firstNonEmpty(item.ActorID, stringValueFromMap(metadata, "user_id"), prompt.SenderUserID)))
+	if actorID == "" {
+		return ""
+	}
+	names := stringMapValue(metadata["slack_user_names"])
+	if displayName := strings.TrimSpace(names[actorID]); displayName != "" {
+		return displayName
+	}
+	if displayName := strings.TrimSpace(names[strings.ToUpper(strings.TrimSpace(item.ActorID))]); displayName != "" {
+		return displayName
+	}
+	return ""
+}
+
+func conversationEntryChannelID(item conversation.Entry) string {
+	metadata := mapValue(item.Metadata)
+	prompt := slackpkg.PromptEnvelopeFromValue(metadata["prompt_envelope"])
+	return firstNonEmpty(stringValueFromMap(metadata, "channel_id"), prompt.ChannelID)
+}
+
+func conversationEntryThreadTS(item conversation.Entry) string {
+	metadata := mapValue(item.Metadata)
+	prompt := slackpkg.PromptEnvelopeFromValue(metadata["prompt_envelope"])
+	return firstNonEmpty(stringValueFromMap(metadata, "thread_ts"), prompt.ThreadTS)
+}
+
+func conversationEntryMessageTS(item conversation.Entry) string {
+	metadata := mapValue(item.Metadata)
+	for _, candidate := range []string{
+		stringValueFromMap(metadata, "message_ts"),
+		stringValueFromMap(metadata, "ts"),
+		stringValueFromMap(metadata, "event_ts"),
+		item.SourceEventID,
+	} {
+		if looksLikeSlackTimestamp(candidate) {
+			return strings.TrimSpace(candidate)
+		}
+	}
+	return ""
+}
+
+func stringMapValue(value any) map[string]string {
+	out := map[string]string{}
+	switch typed := value.(type) {
+	case map[string]string:
+		for key, val := range typed {
+			if strings.TrimSpace(key) != "" && strings.TrimSpace(val) != "" {
+				out[strings.ToUpper(strings.TrimSpace(key))] = strings.TrimSpace(val)
+			}
+		}
+	case map[string]any:
+		for key, val := range typed {
+			if text := stringValue(val); strings.TrimSpace(key) != "" && text != "" {
+				out[strings.ToUpper(strings.TrimSpace(key))] = text
+			}
+		}
+	}
+	return out
+}
+
+func looksLikeSlackTimestamp(value string) bool {
+	value = strings.TrimSpace(value)
+	if value == "" || !strings.Contains(value, ".") {
+		return false
+	}
+	for _, ch := range value {
+		if ch == '.' {
+			continue
+		}
+		if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func shouldAttachBoundSlackThreadContext(ingestion slackpkg.Ingestion) bool {

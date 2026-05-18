@@ -1136,6 +1136,16 @@ func validateNativeSlackWriteScope(claims nativeToolClaims, input nativeToolActi
 	if boundThreadTS == "" {
 		return nil
 	}
+	if nativeSlackReactionOperation(input.Operation) {
+		timestamp := strings.TrimSpace(stringArg(input.Arguments, "timestamp"))
+		if timestamp == "" {
+			return errors.New("native Slack reaction requires timestamp for bound-thread delivery")
+		}
+		if timestamp != boundThreadTS {
+			return fmt.Errorf("slack reaction timestamp %s is outside bound Slack delivery scope", timestamp)
+		}
+		return nil
+	}
 	threadTS := strings.TrimSpace(stringArg(input.Arguments, "thread_ts"))
 	if threadTS == "" {
 		return errors.New("native Slack write requires thread_ts for bound-thread delivery")
@@ -1148,7 +1158,16 @@ func validateNativeSlackWriteScope(claims nativeToolClaims, input nativeToolActi
 
 func nativeSlackBoundDeliveryOperation(operation string) bool {
 	switch strings.TrimSpace(operation) {
-	case "message_post", "report_post", "file_upload":
+	case "message_post", "report_post", "file_upload", "reaction_add", "reaction_remove":
+		return true
+	default:
+		return false
+	}
+}
+
+func nativeSlackReactionOperation(operation string) bool {
+	switch strings.TrimSpace(operation) {
+	case "reaction_add", "reaction_remove":
 		return true
 	default:
 		return false
