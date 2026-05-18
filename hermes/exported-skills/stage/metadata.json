@@ -3006,13 +3006,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0616666a0afe80fc2da3bc76672e146cbeba587b41ef4690764cfd4069ca51ce",
-        "size": 591304
+        "sha256": "080f58f1bfd14006dad8bda5d44ac03b657862981b1b4f79513e0c462f36faae",
+        "size": 591347
       },
       {
         "path": "log.md",
-        "sha256": "3aadf3d01014300278f713a4d0db54e2581839f8243aadb7e5c0c2f134f1c508",
-        "size": 1089274
+        "sha256": "6dbec3339f2f193f4b00a96ca1239c7f0b5fc11414a731d4646e755cdfe1d986",
+        "size": 1089672
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5951,8 +5951,8 @@
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
-        "sha256": "72cf1f3a90756f8724f100388edbcc4a7fbbb775b2ce9fe50837671b4ea4b5f8",
-        "size": 3305
+        "sha256": "e612fcb1b20b9adbadfb20d5b1c0cca0c6bb51762356736f7208136fc3c48d1a",
+        "size": 3353
       },
       {
         "path": "pages/systems/data-read-write-flow.md",
@@ -6309,7 +6309,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-18T21:02:27Z",
+  "exported_at": "2026-05-18T21:32:39Z",
   "file_count": 1260,
   "files": [
     {
@@ -9311,8 +9311,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-599f4dlc597",
-  "previous_tree_hash": "e01e34374ecef2424b09837693306db43ec7f36cb443a0d974c1901900a1fb9b",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-599f4dzs6wh",
+  "previous_tree_hash": "19039ef1fe67cfdc135256311f7995609b07276508f43fbab2d692e015f86a12",
   "schema_version": 1,
   "skill_file_count": 599,
   "skill_manage_sessions": [
@@ -9325,7 +9325,7 @@
   ],
   "skill_tree_hash": "6366f995859976a83e72659b35b06aa90b027b0e2f19018f9c9c2c6bc71fccd2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "19039ef1fe67cfdc135256311f7995609b07276508f43fbab2d692e015f86a12",
+  "tree_hash": "77ff3cc94278e578e4aded7686f95c91ce382a29fa11662f942a3a45fa221024",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9341,13 +9341,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0616666a0afe80fc2da3bc76672e146cbeba587b41ef4690764cfd4069ca51ce",
-      "size": 591304
+      "sha256": "080f58f1bfd14006dad8bda5d44ac03b657862981b1b4f79513e0c462f36faae",
+      "size": 591347
     },
     {
       "path": "log.md",
-      "sha256": "3aadf3d01014300278f713a4d0db54e2581839f8243aadb7e5c0c2f134f1c508",
-      "size": 1089274
+      "sha256": "6dbec3339f2f193f4b00a96ca1239c7f0b5fc11414a731d4646e755cdfe1d986",
+      "size": 1089672
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12286,8 +12286,8 @@
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
-      "sha256": "72cf1f3a90756f8724f100388edbcc4a7fbbb775b2ce9fe50837671b4ea4b5f8",
-      "size": 3305
+      "sha256": "e612fcb1b20b9adbadfb20d5b1c0cca0c6bb51762356736f7208136fc3c48d1a",
+      "size": 3353
     },
     {
       "path": "pages/systems/data-read-write-flow.md",
@@ -12641,5 +12641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2f72a491367eceab28cdc4165b9bf1afe783163d90350ef650c14b5a4f7812aa"
+  "wiki_tree_hash": "ff4b2aca5347b026873a5b26a76178dfb59c9da9c170e6636f94aa8d0c4d1e35"
 }
