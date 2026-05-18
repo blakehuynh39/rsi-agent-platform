@@ -1524,8 +1524,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "cada9d51558b70126019d8449ac952199841a50135b0c16d3ce428d07afbd6e6",
-        "size": 32480
+        "sha256": "e6d8f4e73025fc83b2df9c34ae92a2b25e18b1c73799d0f934d4af3d7502ac9f",
+        "size": 33183
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -6279,7 +6279,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-15T21:29:54Z",
+  "exported_at": "2026-05-18T04:04:37Z",
   "file_count": 1254,
   "files": [
     {
@@ -7804,8 +7804,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "cada9d51558b70126019d8449ac952199841a50135b0c16d3ce428d07afbd6e6",
-      "size": 32480
+      "sha256": "e6d8f4e73025fc83b2df9c34ae92a2b25e18b1c73799d0f934d4af3d7502ac9f",
+      "size": 33183
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -9251,8 +9251,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-648d75nz27h",
-  "previous_tree_hash": "425b3502047aac54ec2b07a2968272229d2135ff203a0a9ecf11aa13099aa450",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-66fc684kx25",
+  "previous_tree_hash": "b1d6f3121679ce581e63b1f938c3888339f483980555a783e6618b4a736c3fed",
   "schema_version": 1,
   "skill_file_count": 593,
   "skill_manage_sessions": [
@@ -9263,9 +9263,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "824a776ca25ff3adaac27bd1355dcc70d718bf8cde028feb50f2283105752051",
+  "skill_tree_hash": "bdf1e96e9a2eb6bcda4ec1ccc426aa1a055b442a53f9684af706dac2a1af788e",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b1d6f3121679ce581e63b1f938c3888339f483980555a783e6618b4a736c3fed",
+  "tree_hash": "75321e33ff17b1cba374599aa2b8505283c11238e1ed50cda637ce954d62035e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

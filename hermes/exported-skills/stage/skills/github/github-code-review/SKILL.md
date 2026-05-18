@@ -567,6 +567,10 @@ gh pr review $PR_NUMBER --approve --body-file /tmp/review-body.md
 
 **PITFALL:** Non-pending reviews (COMMENTED, APPROVED, CHANGES_REQUESTED) cannot be deleted — GitHub's API only allows deleting PENDING reviews. If you post a test review comment to verify capabilities, it's permanent. Use a small, obvious "test review" message and be transparent with the PR author.
 
+**PITFALL:** Emoji (e.g., 🔴, ⚠️, ✅) in review bodies may trigger security scanners like Tirith/Wiz that flag Unicode variation selectors. If the terminal blocks your review with "[MEDIUM] Variation selector characters detected", strip all emoji from the body and retry with plain-text markers (e.g., `[HIGH]`, `[MEDIUM]`, `[FIXED]`).
+
+**PITFALL:** When reviewing locale/i18n changes, do NOT flag a locale directory as "missed" without first checking the i18n configuration (e.g., `lingui.config.ts`, `next.config.js` i18n section) to confirm which locales are actually active. A locale directory may exist in the repo but be inactive — the config is the source of truth, not the filesystem.
+
 **With curl — atomic review with multiple inline comments:**
 ```bash
 HEAD_SHA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
@@ -712,27 +716,30 @@ git fetch origin pull/<N>/head:pr-<N> && git checkout pr-<N>
 gh pr view <N> --json statusCheckRollup --jq '[.statusCheckRollup[] | {name, conclusion}]'
 ```
 
-3. **Verify specific fixes** — delegate to focused subagents, one per repo. Each subagent's goal should list the exact issues from the previous review with file paths and expected changes:
+3. **Inspect the fix commit(s) without checkout** — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
 
+```bash
+# List commits since your review to find the fix commit(s)
+gh pr view <N> --json commits --jq '.commits[-5:] | .[] | {oid: .oid[0:8], message: .messageHeadline}'
+
+# See which files the fix commit touched
+gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | "\(.filename): +\(.additions) -\(.deletions)"'
+
+# Inspect a specific fix in detail
+gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filename == "path/to/file.ts") | .patch'
 ```
-Goal: "Verify HIGH/MEDIUM fixes in depin-backend#464: reject flow, FOR UPDATE, doc comment, transfer.failed webhook"
-Context: "Repo: /tmp/depin-backend-review, branch: pr-464, base: staging.
-1. Non-atomic reject flow: check admin_withdrawals.rs reject_withdrawal — should pass audit params into reverse_withdrawal
-2. Missing FOR UPDATE: check admin_withdrawals.rs approve_withdrawal users SELECT — should have FOR UPDATE
-3. Stale doc comment: check admin_withdrawals.rs approve doc — should say 'completed' not 'processing'
-4. transfer.failed webhook: check stripe_payouts.rs handle_transfer_failed — should call reverse_withdrawal"
+
+**PITFALL:** Don't re-clone or re-diff the entire branch. The `gh api` commit-inspection pattern above tells you exactly what changed in the fix commit without a local checkout — use it to verify each flagged issue individually.
+
+4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes):
+
+```bash
+# Read a specific file from the PR branch without cloning
+gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | base64 -d | grep -A5 "<pattern>"
 ```
 
-Use fewer subagents than the initial review — 1-2 per repo instead of 3-4. Subagents should report each finding as FIXED / NOT FIXED / PARTIALLY FIXED with evidence (file path + line number).
-
-4. **Report only the delta** — the re-review message should focus on what changed. Structure:
-   - "Previous blocking issues" table: CRITICAL→FIXED, HIGH→FIXED, etc.
+5. **Report only the delta** — the re-review message should focus on what changed. Structure:
+   - "Previous blocking issues" table: each issue with FIXED / NOT FIXED / N/A status
    - CI status update
-   - Remaining items (if any) with severity downgrades
-   - Verdict with merge order
-
-5. **Decision**: If all CRITICAL and HIGH issues are confirmed fixed → **APPROVE**. Partial fixes on MEDIUM or LOW items (e.g., "server value preferred, constant kept as fallback") are acceptable and do not block.
-
-**PITFALL:** Running a full re-review from scratch. This wastes time re-checking areas that were already clean. The subagent goals should list explicit fix expectations — not "review this file" but "verify line X now says Y".
-
-**PITFALL:** Re-using the same idempotency_key for the Slack report. The re-review is a new event — use a key like `review-<feature>-<PRs>-<date>-rereview` to ensure it posts as a fresh message.
+   - Remaining items (if any) with severity and whether they were downgraded
+   - Verdict
