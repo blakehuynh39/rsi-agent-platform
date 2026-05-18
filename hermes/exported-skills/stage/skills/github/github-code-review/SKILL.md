@@ -502,6 +502,21 @@ curl -s -H "Authorization: token $GITHUB_TOKEN" \
 
 **PITFALL:** `gh pr diff --stat` is NOT a valid flag. `gh pr diff` supports `--name-only`, `--patch`, `--color`, and `--web`. For a stat summary (lines changed per file), use the REST API `/pulls/$PR_NUMBER/files` endpoint (see curl example above), or `git diff --stat` after checking out the PR branch locally.
 
+**PITFALL:** Shell escaping with `gh api` JSON bodies. When using `gh api` to submit reviews, the review body often contains backticks, parentheses `()`, markdown table pipes `|`, dollar signs `$`, and other shell-significant characters. Passing the body via `-f body='...'` or as an inline string will produce shell syntax errors (e.g., `syntax error near unexpected token '('`). Always write the JSON payload to a temp file and use `--input`:
+
+```bash
+# Write the full JSON payload (body + event) to a file first
+cat > /tmp/review.json << 'REVIEW_EOF'
+{"body": "**Approved** — clean change.\n\nAll CI green.", "event": "APPROVE"}
+REVIEW_EOF
+
+gh api repos/<owner>/<repo>/pulls/<N>/reviews --input /tmp/review.json
+```
+
+This applies to any `gh api` call where the JSON body contains markdown, code snippets, or special characters. The `--input` flag reads the raw file without the shell interpreting its contents.
+
+**PITFALL:** This same escaping problem bites `execute_code` / `terminal` when the command being run contains `gh api` with JSON bodies. The shell that `terminal()` invokes still interprets backticks and parentheses in the command string. Always write the JSON to a file first, then reference the file with `--input`, rather than trying to pass it inline.
+
 ### Step 3: Check out the PR locally
 
 This gives you full access to `read_file`, `search_files`, and the ability to run tests.
