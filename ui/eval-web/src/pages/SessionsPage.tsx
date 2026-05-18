@@ -872,7 +872,9 @@ function TraceActivityDetails({
     <div className="grid gap-1.5 font-mono text-[0.68rem]">
       {entries.map(([key, value]) => (
         <div key={key} className="grid grid-cols-[9rem_minmax(0,1fr)] gap-2">
-          <span className="text-muted-foreground">{key}</span>
+          <span className="text-muted-foreground">
+            {humanActivityDetailLabel(key, value)}
+          </span>
           <pre className="min-w-0 whitespace-pre-wrap break-words text-foreground/85">
             {typeof value === "string" ? value : JSON.stringify(value, null, 2)}
           </pre>
@@ -893,10 +895,16 @@ function traceActivityDetailEntries(
   details: Record<string, unknown> | undefined,
   mode: "clean" | "detailed",
 ) {
-  return Object.entries(details ?? {}).filter(([key]) => {
+  const seenCleanValues = new Set<string>();
+  return Object.entries(details ?? {}).filter(([key, value]) => {
     if (key === "type" || key === "version") return false;
     if (mode === "clean") {
-      return !CLEAN_ACTIVITY_DETAIL_HIDDEN_KEYS.has(key);
+      if (CLEAN_ACTIVITY_DETAIL_HIDDEN_KEYS.has(key)) return false;
+      const scalar = typeof value === "string" ? value.trim() : "";
+      if (scalar) {
+        if (seenCleanValues.has(scalar)) return false;
+        seenCleanValues.add(scalar);
+      }
     }
     return true;
   });
@@ -908,10 +916,15 @@ function activityMetaParts(item: TraceActivityItem) {
   const add = (label: string, value: string, limit = 140) => {
     const trimmed = value.trim();
     if (!trimmed) return;
-    if (parts.some((part) => part.label === label && part.value === trimmed)) return;
-    parts.push({ label, value: truncateActivityMeta(trimmed, limit) });
+    const humanLabel = humanActivityMetaLabel(label, trimmed);
+    if (parts.some((part) => part.value === trimmed)) return;
+    parts.push({ label: humanLabel, value: truncateActivityMeta(trimmed, limit) });
   };
 
+  add("title", firstActivityDetailString(details, "title"), 180);
+  add("description", firstActivityDetailString(details, "description"), 220);
+  add("url", firstActivityDetailString(details, "url"), 220);
+  add("user", firstActivityDetailString(details, "user_name", "user_id"), 180);
   add("query", firstActivityDetailString(details, "query"), 180);
   add("page", firstActivityDetailString(details, "page_ref", "slug", "page_id"), 160);
   add("document", firstActivityDetailString(details, "document_id", "source_ref"), 160);
@@ -946,6 +959,70 @@ function firstActivityDetailString(details: Record<string, unknown>, ...keys: st
 function truncateActivityMeta(value: string, limit: number) {
   if (value.length <= limit) return value;
   return `${value.slice(0, Math.max(0, limit - 1))}…`;
+}
+
+function humanActivityDetailLabel(key: string, value: unknown) {
+  const valueText = typeof value === "string" ? value : "";
+  if (key === "query" && classifySlackID(valueText) === "user") return "Slack user ID";
+  const explicit: Record<string, string> = {
+    user_id: "Slack user ID",
+    user_name: "Slack user",
+    title: "Title",
+    description: "Description",
+    url: "URL",
+    channel_id: "Slack channel ID",
+    thread_ts: "Slack thread",
+    message_ts: "Slack message",
+    page_ref: "Wiki page",
+    slug: "Wiki slug",
+    page_id: "Notion page",
+    database_id: "Notion database",
+    data_source_id: "Notion source",
+    block_id: "Notion block",
+    source_ref: "Source ref",
+    document_id: "Document",
+    conversation_ref: "Conversation",
+    target_ref: "Target ref",
+    sql_sha256: "SQL hash",
+    error_excerpt: "Error",
+    output_excerpt: "Output",
+    result_count: "Results",
+    send_status: "Send status",
+    provider_ref: "Provider ref",
+  };
+  return explicit[key] ?? key.replaceAll("_", " ");
+}
+
+function humanActivityMetaLabel(label: string, value: string) {
+  const slackKind = classifySlackID(value);
+  if (slackKind === "user") return "Slack user ID";
+  if (slackKind === "channel") return "Slack channel ID";
+  const explicit: Record<string, string> = {
+    title: "Title",
+    description: "Description",
+    url: "URL",
+    query: "Search query",
+    page: "Wiki page",
+    document: "Document",
+    conversation: "Conversation",
+    user: "Slack user",
+    channel: "Slack channel",
+    thread: "Slack thread",
+    message: "Slack message",
+    target: "Target",
+    path: "Path",
+    sql: "SQL hash",
+    command: "Command",
+  };
+  return explicit[label] ?? label;
+}
+
+function classifySlackID(value: string) {
+  const trimmed = value.trim();
+  if (!/^[A-Z][A-Z0-9]{7,}$/.test(trimmed)) return "";
+  if (trimmed.startsWith("U") || trimmed.startsWith("W")) return "user";
+  if (trimmed.startsWith("C") || trimmed.startsWith("G") || trimmed.startsWith("D")) return "channel";
+  return "";
 }
 
 function TodoStatusIcon({ status }: { status: string }) {

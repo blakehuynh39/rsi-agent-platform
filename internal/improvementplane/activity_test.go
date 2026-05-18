@@ -141,6 +141,71 @@ func TestTraceActivityProjectorProjectsSlackThreadTargets(t *testing.T) {
 	}
 }
 
+func TestTraceActivityProjectorHumanizesSlackUserIDQuery(t *testing.T) {
+	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("knowledge-user", 1, "tool.call.completed", "completed", now, map[string]any{
+			"tool_name": "rsi_knowledge_search",
+			"args": map[string]any{
+				"query": "U0772SH7BRA",
+			},
+			"result": `{"status":"ok","summary":"U0772SH7BRA","results":[]}`,
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1", len(items))
+	}
+	if got := items[0].Details["user_id"]; got != "U0772SH7BRA" {
+		t.Fatalf("user_id=%#v, want Slack user ID detail", got)
+	}
+	if got := items[0].Summary; got != "Slack user ID U0772SH7BRA" {
+		t.Fatalf("summary=%q, want humanized Slack ID", got)
+	}
+}
+
+func TestTraceActivityProjectorProjectsNotionPageMetadata(t *testing.T) {
+	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("notion-page", 1, "tool.call.completed", "completed", now, map[string]any{
+			"tool_name": "rsi_notion_page_get",
+			"args": map[string]any{
+				"page_id": "page-abc",
+			},
+			"result": `{
+				"status":"ok",
+				"summary":"loaded Notion page",
+				"output":{
+					"object":"page",
+					"id":"page-abc",
+					"url":"https://notion.so/page-abc",
+					"properties":{
+						"Name":{"title":[{"plain_text":"Project Data Audit"}]},
+						"Description":{"rich_text":[{"plain_text":"Architecture context for the audit portal."}]}
+					}
+				}
+			}`,
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1", len(items))
+	}
+	item := items[0]
+	if got := item.Details["title"]; got != "Project Data Audit" {
+		t.Fatalf("title=%#v, want Notion title", got)
+	}
+	if got := item.Details["description"]; got != "Architecture context for the audit portal." {
+		t.Fatalf("description=%#v, want Notion description", got)
+	}
+	if got := item.Details["url"]; got != "https://notion.so/page-abc" {
+		t.Fatalf("url=%#v, want Notion URL", got)
+	}
+	if !strings.Contains(item.Summary, "Project Data Audit") {
+		t.Fatalf("summary=%q, want Notion title", item.Summary)
+	}
+}
+
 func TestTraceActivityStringFromResultSkipsStructuredValues(t *testing.T) {
 	result := map[string]any{
 		"output": map[string]any{

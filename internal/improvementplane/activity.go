@@ -480,12 +480,14 @@ func traceActivitySlackSummary(group *traceActivityToolGroup, details map[string
 	threadTS := traceActivityStringFromGroup(group, "thread_ts", "thread")
 	messageTS := traceActivityStringFromGroup(group, "ts", "message_ts", "timestamp")
 	userID := traceActivityStringFromGroup(group, "user_id", "user")
+	userName := traceActivityStringFromGroup(group, "user_name", "real_name", "display_name", "name", "email")
 	query := traceActivityStringFromGroup(group, "query", "search")
 	targetRef := traceActivityStringFromGroup(group, "target_ref", "source_ref", "provider_ref")
 	traceActivitySetDetailString(details, "channel_id", channelID, 160)
 	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
 	traceActivitySetDetailString(details, "message_ts", messageTS, 160)
 	traceActivitySetDetailString(details, "user_id", userID, 160)
+	traceActivitySetDetailString(details, "user_name", userName, 200)
 	traceActivitySetDetailString(details, "query", query, 500)
 	traceActivitySetDetailString(details, "target_ref", targetRef, 240)
 	if delivery, ok := group.result["reply_delivery"].(map[string]any); ok {
@@ -506,11 +508,11 @@ func traceActivitySlackSummary(group *traceActivityToolGroup, details map[string
 		traceActivityLabelValue("channel", channelID),
 		traceActivityLabelValue("thread", threadTS),
 		traceActivityLabelValue("message", messageTS),
-		traceActivityLabelValue("user", userID),
+		traceActivityLabelValue("user", traceActivityNameWithID(userName, userID)),
 		traceActivityLabelValue("query", query),
 		traceActivityLabelValue("ref", targetRef),
 	)
-	return title, firstNonEmptyString(group.summary, targetSummary, traceActivityOperationSummary("Slack", op)), details
+	return title, traceActivityPreferredSummary(group.summary, targetSummary, traceActivityOperationSummary("Slack", op)), details
 }
 
 func traceActivityNotionSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -520,19 +522,45 @@ func traceActivityNotionSummary(group *traceActivityToolGroup, details map[strin
 	dataSourceID := traceActivityStringFromGroup(group, "data_source_id", "datasource_id", "data_source")
 	blockID := traceActivityStringFromGroup(group, "block_id", "block")
 	query := traceActivityStringFromGroup(group, "query", "search")
+	notionTitle := firstNonEmptyString(
+		traceActivityStringFromGroup(group, "title", "name"),
+		traceActivityNotionTitleFromValue(group.result),
+		traceActivityNotionTitleFromValue(group.args),
+	)
+	description := firstNonEmptyString(
+		traceActivityStringFromGroup(group, "description"),
+		traceActivityNotionDescriptionFromValue(group.result),
+		traceActivityNotionDescriptionFromValue(group.args),
+	)
+	url := traceActivityStringFromGroup(group, "url", "public_url", "href")
+	if resultID := traceActivityStringFromResult(group.result, "id"); resultID != "" {
+		switch op {
+		case "page_get", "page_create", "page_update", "page_archive":
+			pageID = firstNonEmptyString(pageID, resultID)
+		case "database_get":
+			databaseID = firstNonEmptyString(databaseID, resultID)
+		case "data_source_get", "data_source_query":
+			dataSourceID = firstNonEmptyString(dataSourceID, resultID)
+		}
+	}
+	traceActivitySetDetailString(details, "title", notionTitle, 300)
+	traceActivitySetDetailString(details, "description", description, 500)
+	traceActivitySetDetailString(details, "url", url, 500)
 	traceActivitySetDetailString(details, "page_id", pageID, 200)
 	traceActivitySetDetailString(details, "database_id", databaseID, 200)
 	traceActivitySetDetailString(details, "data_source_id", dataSourceID, 200)
 	traceActivitySetDetailString(details, "block_id", blockID, 200)
 	traceActivitySetDetailString(details, "query", query, 500)
 	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("title", notionTitle),
+		traceActivityLabelValue("description", description),
 		traceActivityLabelValue("page", pageID),
 		traceActivityLabelValue("database", databaseID),
 		traceActivityLabelValue("source", dataSourceID),
 		traceActivityLabelValue("block", blockID),
 		traceActivityLabelValue("query", query),
 	)
-	return "Notion " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, targetSummary, traceActivityOperationSummary("Notion", op)), details
+	return "Notion " + strings.ReplaceAll(op, "_", " "), traceActivityPreferredSummary(targetSummary, group.summary, traceActivityOperationSummary("Notion", op)), details
 }
 
 func traceActivityKnowledgeSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -549,7 +577,12 @@ func traceActivityKnowledgeSummary(group *traceActivityToolGroup, details map[st
 	conversationRef := traceActivityStringFromGroup(group, "conversation_ref", "conversation")
 	channelID := traceActivityStringFromGroup(group, "channel_id", "channel")
 	threadTS := traceActivityStringFromGroup(group, "thread_ts", "thread")
+	userID := ""
+	if traceActivitySlackIDKind(query) == "user" {
+		userID = query
+	}
 	traceActivitySetDetailString(details, "query", query, 500)
+	traceActivitySetDetailString(details, "user_id", userID, 160)
 	traceActivitySetDetailString(details, "page_ref", pageRef, 240)
 	traceActivitySetDetailString(details, "slug", slug, 240)
 	traceActivitySetDetailString(details, "source_ref", sourceRef, 240)
@@ -559,13 +592,14 @@ func traceActivityKnowledgeSummary(group *traceActivityToolGroup, details map[st
 	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
 	targetSummary := traceActivityTargetSummary(
 		traceActivityLabelValue("query", query),
+		traceActivityLabelValue("user", userID),
 		traceActivityLabelValue("page", firstNonEmptyString(pageRef, slug)),
 		traceActivityLabelValue("doc", firstNonEmptyString(documentID, sourceRef)),
 		traceActivityLabelValue("conversation", conversationRef),
 		traceActivityLabelValue("channel", channelID),
 		traceActivityLabelValue("thread", threadTS),
 	)
-	return "Knowledge " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, targetSummary, traceActivityCountSummary("Knowledge", op, count)), details
+	return "Knowledge " + strings.ReplaceAll(op, "_", " "), traceActivityPreferredSummary(group.summary, targetSummary, traceActivityCountSummary("Knowledge", op, count)), details
 }
 
 func traceActivitySentrySummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -1374,7 +1408,7 @@ func traceActivityStringFromResult(result map[string]any, keys ...string) string
 			return value
 		}
 	}
-	for _, nestedKey := range []string{"output", "data", "request", "response", "metadata"} {
+	for _, nestedKey := range []string{"output", "data", "request", "response", "metadata", "user", "profile"} {
 		nested, ok := traceActivityMapFromAny(result[nestedKey])
 		if !ok {
 			continue
@@ -1438,6 +1472,116 @@ func traceActivityScalarString(value any) string {
 	}
 }
 
+func traceActivityNotionTitleFromValue(value any) string {
+	values, ok := traceActivityMapFromAny(value)
+	if !ok {
+		return traceActivityNotionPlainText(value)
+	}
+	if output, exists := values["output"]; exists {
+		if title := traceActivityNotionTitleFromValue(output); title != "" {
+			return title
+		}
+	}
+	for _, key := range []string{"title", "name"} {
+		if title := traceActivityNotionPlainText(values[key]); title != "" {
+			return title
+		}
+	}
+	if properties, ok := traceActivityMapFromAny(values["properties"]); ok {
+		for _, property := range properties {
+			if title := traceActivityNotionPropertyText(property, "title"); title != "" {
+				return title
+			}
+		}
+	}
+	return ""
+}
+
+func traceActivityNotionDescriptionFromValue(value any) string {
+	values, ok := traceActivityMapFromAny(value)
+	if !ok {
+		return ""
+	}
+	if output, exists := values["output"]; exists {
+		if description := traceActivityNotionDescriptionFromValue(output); description != "" {
+			return description
+		}
+	}
+	for _, key := range []string{"description", "summary"} {
+		if description := traceActivityNotionPlainText(values[key]); description != "" {
+			return description
+		}
+	}
+	if properties, ok := traceActivityMapFromAny(values["properties"]); ok {
+		for propertyName, property := range properties {
+			normalized := strings.ToLower(strings.TrimSpace(propertyName))
+			if !strings.Contains(normalized, "description") && !strings.Contains(normalized, "summary") {
+				continue
+			}
+			if description := traceActivityNotionPropertyText(property, "rich_text", "title"); description != "" {
+				return description
+			}
+		}
+	}
+	return ""
+}
+
+func traceActivityNotionPropertyText(value any, preferredKeys ...string) string {
+	values, ok := traceActivityMapFromAny(value)
+	if !ok {
+		return traceActivityNotionPlainText(value)
+	}
+	for _, key := range preferredKeys {
+		if text := traceActivityNotionPlainText(values[key]); text != "" {
+			return text
+		}
+	}
+	for _, key := range []string{"title", "rich_text", "plain_text", "name"} {
+		if text := traceActivityNotionPlainText(values[key]); text != "" {
+			return text
+		}
+	}
+	return ""
+}
+
+func traceActivityNotionPlainText(value any) string {
+	if text := strings.TrimSpace(traceActivityScalarString(value)); text != "" {
+		return text
+	}
+	switch typed := value.(type) {
+	case []any:
+		parts := []string{}
+		for _, item := range typed {
+			if text := traceActivityNotionPlainText(item); text != "" {
+				parts = append(parts, text)
+			}
+		}
+		return strings.Join(parts, "")
+	case []map[string]any:
+		parts := []string{}
+		for _, item := range typed {
+			if text := traceActivityNotionPlainText(item); text != "" {
+				parts = append(parts, text)
+			}
+		}
+		return strings.Join(parts, "")
+	case map[string]any:
+		for _, key := range []string{"plain_text", "content", "name"} {
+			if text := traceActivityNotionPlainText(typed[key]); text != "" {
+				return text
+			}
+		}
+		if text, ok := typed["text"].(map[string]any); ok {
+			if content := traceActivityNotionPlainText(text["content"]); content != "" {
+				return content
+			}
+		}
+		return traceActivityNotionPropertyText(typed, "title", "rich_text")
+	default:
+		return ""
+	}
+}
+
 func traceActivitySetDetailString(details map[string]any, key string, value string, limit int) {
 	value = strings.TrimSpace(value)
 	if value == "" {
@@ -1449,19 +1593,87 @@ func traceActivitySetDetailString(details map[string]any, key string, value stri
 	details[key] = value
 }
 
+func traceActivityPreferredSummary(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		return traceActivityHumanizeOpaqueValue(value)
+	}
+	return ""
+}
+
 func traceActivityLabelValue(label string, value string) string {
 	value = strings.TrimSpace(value)
 	if value == "" {
 		return ""
 	}
-	return label + " " + traceActivityTruncate(value, 120)
+	return traceActivityHumanLabel(label, value) + " " + traceActivityTruncate(value, 120)
+}
+
+func traceActivityHumanLabel(label string, value string) string {
+	if kind := traceActivitySlackIDKind(value); kind != "" {
+		switch kind {
+		case "user":
+			return "Slack user ID"
+		case "channel":
+			return "Slack channel ID"
+		}
+	}
+	return label
+}
+
+func traceActivityHumanizeOpaqueValue(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	if kind := traceActivitySlackIDKind(value); kind != "" {
+		return traceActivityHumanLabel("", value) + " " + value
+	}
+	return value
+}
+
+func traceActivityNameWithID(name string, id string) string {
+	name = strings.TrimSpace(name)
+	id = strings.TrimSpace(id)
+	if name == "" {
+		return id
+	}
+	if id == "" || strings.EqualFold(name, id) {
+		return name
+	}
+	return fmt.Sprintf("%s (%s)", name, id)
+}
+
+func traceActivitySlackIDKind(value string) string {
+	value = strings.TrimSpace(value)
+	if len(value) < 8 {
+		return ""
+	}
+	for _, char := range value {
+		if (char < 'A' || char > 'Z') && (char < '0' || char > '9') {
+			return ""
+		}
+	}
+	switch value[0] {
+	case 'U', 'W':
+		return "user"
+	case 'C', 'G', 'D':
+		return "channel"
+	default:
+		return ""
+	}
 }
 
 func traceActivityTargetSummary(parts ...string) string {
+	seen := map[string]bool{}
 	filtered := []string{}
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
-		if part != "" {
+		if part != "" && !seen[part] {
+			seen[part] = true
 			filtered = append(filtered, part)
 		}
 	}
