@@ -6,7 +6,7 @@ freshness: "2026-05-08T16:19:00Z"
 tags:
   - "database"
   - "notion"
-  - "product-backlog"
+  - "numo"
 owners: []
 source_revision_ids:
   - "srcrev_992d665de3f461dc2dc58a6e14621ca2"
@@ -18,7 +18,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document.
+The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
 
 ## Claims
 
@@ -30,5 +30,5 @@ The Numo Product Backlog is a Notion database where each row is mirrored as a se
 ## Sources
 
 - `source_document_id`: `srcdoc_43bd0953755e8e9f4722bd66185bcbc7`
-- `source_revision_id`: `srcrev_f49ada0ce449d7056fb414208825bb93`
+- `source_revision_id`: `srcrev_cf173630f13cbf86f5d5fd39d6f2cff0`
 - `source_url`: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)

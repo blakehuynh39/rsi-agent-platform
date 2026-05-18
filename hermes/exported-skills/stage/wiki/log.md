@@ -22735,3 +22735,35 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_357fd00d44f67faac13c847186890c00
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-18T16:30:36Z] ingest | Numo Product Backlog
+
+- status: published
+- slug: notion_document/numo-product-backlog-aa9d5203
+- wiki_revision_id: wikirev_29f6984df5d9e41791da26cb4ac278c5
+- source_document_id: srcdoc_aaf7c292a4521a755ec260ecaa9d5203
+- source_revision_id: srcrev_1b2c088b1139a8e2720bbb600ad1acb9
+- summary: Source: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)
+
+## [2026-05-18T16:30:37Z] ingest | Numo Product Backlog
+
+- status: published
+- slug: notion_document/numo-product-backlog-185bcbc7
+- wiki_revision_id: wikirev_062b8623ff6c3d2b2e1f4eec2ab292d1
+- source_document_id: srcdoc_43bd0953755e8e9f4722bd66185bcbc7
+- source_revision_id: srcrev_cf173630f13cbf86f5d5fd39d6f2cff0
+- summary: Source: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)
+
+## [2026-05-18T16:33:57Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_efdcbdbbb5167b9d36bc608ce6276e19
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
+
+## [2026-05-18T16:34:35Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_1b5b97eb5dded9b970401f3b97a1c3f3
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
+
