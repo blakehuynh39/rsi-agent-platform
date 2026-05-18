@@ -1,8 +1,8 @@
 {
-  "last_report_path": "/var/lib/hermes/logs/curator/20260511-090039",
+  "last_report_path": "/var/lib/hermes/logs/curator/20260518-090106",
   "last_run_at": "2026-05-18T09:01:06.652220+00:00",
-  "last_run_duration_seconds": 73.849241,
-  "last_run_summary": "auto: no changes",
+  "last_run_duration_seconds": 66.701656,
+  "last_run_summary": "auto: no changes; llm: ## Curation Pass Results\n\n### Skills examined: 3 (all agent-created, none pinned)\n\n| Skill | Domain | Assessment |\n|---|---|---|\n| `state-machine-design-review` | software-development | Class-level umbrella — general methodology for analyzi…",
   "last_run_summary_shown_at": null,
   "paused": false,
   "run_count": 2
