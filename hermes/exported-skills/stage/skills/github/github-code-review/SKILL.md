@@ -457,6 +457,8 @@ Go through each category: Correctness, Security, Code Quality, Testing, Performa
 
 **PITFALL:** Don't checkout locally for small PRs when `gh pr diff` suffices. Checking out, running `git diff main...HEAD`, and running local tests adds friction with no additional signal when the PR is small and CI is already green. Remote-only is faster and equally thorough for most PRs.
 
+For reading individual files from the PR branch without a full checkout, use `gh api .../contents/<path>?ref=<branch> | base64 -d` — see `references/remote-file-inspection.md` for patterns.
+
 ### Local Checkout Path (for large PRs needing deeper context)
 
 ### Step 1: Set up environment
@@ -731,7 +733,7 @@ gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filenam
 
 **PITFALL:** Don't re-clone or re-diff the entire branch. The `gh api` commit-inspection pattern above tells you exactly what changed in the fix commit without a local checkout — use it to verify each flagged issue individually.
 
-4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes):
+4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes). See `references/remote-file-inspection.md` for the full pattern set.
 
 ```bash
 # Read a specific file from the PR branch without cloning
