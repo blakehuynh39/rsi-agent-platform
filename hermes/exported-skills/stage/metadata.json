@@ -1543,6 +1543,11 @@
         "size": 1622
       },
       {
+        "path": "github/github-code-review/references/cross-repo-fe-pr-search.md",
+        "sha256": "2b0239b394358cc1a0be8dc11d3cb66444bbef847750b0fb990ddad1a239cf08",
+        "size": 2164
+      },
+      {
         "path": "github/github-code-review/references/depin-backend-deployment-topology.md",
         "sha256": "0cd7955a79887a0b80e7abc29105e292bad222c6d24a5beb5207c60c1ba6fe7c",
         "size": 2409
@@ -6309,8 +6314,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-18T23:42:27Z",
-  "file_count": 1260,
+  "exported_at": "2026-05-19T00:46:07Z",
+  "file_count": 1261,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -7853,6 +7858,11 @@
       "size": 1622
     },
     {
+      "path": "github/github-code-review/references/cross-repo-fe-pr-search.md",
+      "sha256": "2b0239b394358cc1a0be8dc11d3cb66444bbef847750b0fb990ddad1a239cf08",
+      "size": 2164
+    },
+    {
       "path": "github/github-code-review/references/depin-backend-deployment-topology.md",
       "sha256": "0cd7955a79887a0b80e7abc29105e292bad222c6d24a5beb5207c60c1ba6fe7c",
       "size": 2409
@@ -9311,10 +9321,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6lh9mh",
-  "previous_tree_hash": "1acfa8df540008a52d7c34207e9d8a70ef190f171a4a2746064c14376a921b9e",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6mwgcj",
+  "previous_tree_hash": "68d9966ada682bfae1335234a0aa154f7dac779a7c37e298a7dbe04affde7438",
   "schema_version": 1,
-  "skill_file_count": 599,
+  "skill_file_count": 600,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9323,9 +9333,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "01fe6474fc5ceed66fcb1d70d7293d2cee9a34b3e3bde24a3f59c560ed9ce54f",
+  "skill_tree_hash": "722e7e8ad7435d7e12b951134e89c616bbe9b296a5ef6b59b6fdd7c3b71c45c5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "68d9966ada682bfae1335234a0aa154f7dac779a7c37e298a7dbe04affde7438",
+  "tree_hash": "3c215f05ad557f398ae9d698051406154d1701549b961ccb601725bcc6b08641",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

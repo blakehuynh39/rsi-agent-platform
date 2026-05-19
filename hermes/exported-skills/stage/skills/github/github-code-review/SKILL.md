@@ -704,6 +704,8 @@ gh search prs --repo=piplabs/numo-monorepo --head feat/fraud
 **PITFALL:** `gh search prs` has a narrower `--json` field set than `gh pr list`/`gh pr view`. It does NOT support `headRefName`, `baseRefName`, `mergeable`, `reviews`, `statusCheckRollup`, or `changedFiles`. When you need those fields, use `gh pr list` with `--search` instead. For branch-prefix matching specifically, `gh search prs --head <prefix>` works fine as a filter (no `--json` needed).
 ```
 
+When a BE PR claims a linked FE PR exists but provides no URL, use the thorough 4-step search procedure in `references/cross-repo-fe-pr-search.md`. A `gh search prs --head` alone is not sufficient to prove a PR doesn't exist — always run the full checklist before flagging `missing-cross-repo-pair`.
+
 If the BE PR adds API routes, new schemas, or response fields and no FE PR exists, flag it as `missing-cross-repo-pair`.
 
 ### Merging findings
