@@ -8,6 +8,7 @@ tags:
   - "miner"
   - "security"
   - "subnet"
+  - "transcription"
   - "validator"
 owners: []
 source_revision_ids:
@@ -19,7 +20,7 @@ conflict_state: "none"
 
 ## Summary
 
-Documented attack vectors for the subnet pipeline, covering both miner and validator roles. Miner attacks include bypassing transcription by using the reference script and skipping transcription/translation to score with RNG or preference. Validator attacks include copying another validator's work with slight modifications.
+Documented attack vectors for the subnet pipeline, covering both miner and validator roles. Miner attacks include bypassing transcription by using the reference script and skipping transcription entirely. Validator attacks include copying another validator's work. Mitigations are proposed.
 
 ## Claims
 
@@ -34,6 +35,6 @@ Documented attack vectors for the subnet pipeline, covering both miner and valid
 
 ## Sources
 
-- `source_document_id`: `srcdoc_01e3beb9e649788a17f3251adcaf1154`
-- `source_revision_id`: `srcrev_af1e3375b5419c211d76c42e83682c8a`
-- `source_url`: [Notion source](https://www.notion.so/Subnet-Pipeline-Attack-Vectors-29a051299a5480928918c11d39eec6b9)
+- `source_document_id`: `srcdoc_67ae03c2c6c9aa6eaa1bd5c0f7dd8f3f`
+- `source_revision_id`: `srcrev_7fe38cf94e5767c134f47244bcf6f60b`
+- `source_url`: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)

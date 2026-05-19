@@ -7,9 +7,9 @@ tags:
   - "contract"
   - "specification"
   - "subnet"
-  - "testing"
-  - "worker"
-  - "workflow"
+  - "test-cases"
+  - "worker-registration"
+  - "workflow-management"
 owners: []
 source_revision_ids:
   - "srcrev_8f44f6d242c9b23843daf4673866d383"
@@ -20,7 +20,7 @@ conflict_state: "none"
 
 ## Summary
 
-Detailed functional test cases for the Subnet Contract V1 covering worker registration, workflow management, activity execution, rewards, access control, upgrades, and configuration.
+Detailed functional test cases for the Subnet Contract V1 covering worker registration, workflow management, activity execution, rewards, access control, upgrades, and configuration updates.
 
 ## Claims
 
@@ -34,12 +34,8 @@ Detailed functional test cases for the Subnet Contract V1 covering worker regist
 - Edge case testing includes handling head-of-line blocking with expired activities (WF-046) and processing empty workflow results gracefully (WF-047). `claim:claim_2_4` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Subnet-Contract-Spec-V1-269051299a5480fbb12cd38434a55d7d#chunk-2) `source_document_id=srcdoc_b8b6ab1c492ace2285e8f44b6ceb09b0` `source_revision_id=srcrev_8f44f6d242c9b23843daf4673866d383` `chunk_id=srcchunk_3560025cd9c82c0ce894890a9a358c6e` `native_locator=https://www.notion.so/Subnet-Contract-Spec-V1-269051299a5480fbb12cd38434a55d7d#chunk-2` `source_timestamp=2025-09-11T02:12:00Z`
 
-## Related Pages
-
-- `concepts/subnet-specifications`
-
 ## Sources
 
-- `source_document_id`: `srcdoc_b8b6ab1c492ace2285e8f44b6ceb09b0`
-- `source_revision_id`: `srcrev_8f44f6d242c9b23843daf4673866d383`
-- `source_url`: [Notion source](https://www.notion.so/Subnet-Contract-Spec-V1-269051299a5480fbb12cd38434a55d7d)
+- `source_document_id`: `srcdoc_67ae03c2c6c9aa6eaa1bd5c0f7dd8f3f`
+- `source_revision_id`: `srcrev_7fe38cf94e5767c134f47244bcf6f60b`
+- `source_url`: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)

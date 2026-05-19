@@ -10,6 +10,7 @@ tags:
   - "validation"
   - "validators"
   - "workers"
+  - "workflow"
 owners: []
 source_revision_ids:
   - "srcrev_7d58f76331d9e024a803dd1ccd83ca8a"
@@ -20,7 +21,7 @@ conflict_state: "none"
 
 ## Summary
 
-A subnet worker node can register as either a data miner or a data validator. Miners handle processing jobs (filtering and annotation), while validators handle validation jobs. The two roles are kept separate to prevent self-validation, limit validator count for accountability, and allow different staking/bonding requirements. The document also defines task types and an initial workflow YAML (video/1.0.0) for a full video processing pipeline.
+A subnet worker node can register as either a data miner or a data validator. Miners handle processing jobs (filtering and annotation), while validators handle validation jobs. The two roles are kept separate to prevent self-validation, limit validator count, and allow different staking criteria.
 
 ## Claims
 
@@ -40,6 +41,6 @@ A subnet worker node can register as either a data miner or a data validator. Mi
 
 ## Sources
 
-- `source_document_id`: `srcdoc_d0294ac78e860a8d1c7ffc45158056bf`
-- `source_revision_id`: `srcrev_7d58f76331d9e024a803dd1ccd83ca8a`
-- `source_url`: [Notion source](https://www.notion.so/Subnet-Workers-Miners-Validators-23f051299a5480ca83badf1822ef9165)
+- `source_document_id`: `srcdoc_67ae03c2c6c9aa6eaa1bd5c0f7dd8f3f`
+- `source_revision_id`: `srcrev_7fe38cf94e5767c134f47244bcf6f60b`
+- `source_url`: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)

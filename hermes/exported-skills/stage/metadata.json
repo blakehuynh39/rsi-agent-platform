@@ -3011,13 +3011,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "97c39cefbeb8489029d0b7a97e71fda0889e8f38f7edaf9ce34b65ad238770bf",
+        "sha256": "001f6ed0db63664821a47ab61457d18eb6922be1c9600aa9058adf04bd8fc8b8",
         "size": 591987
       },
       {
         "path": "log.md",
-        "sha256": "d310e95c699904be6f60bf932a48bf7d171128dd63451b3e80977eb418048ee1",
-        "size": 1091840
+        "sha256": "593dd29575879e07cf5b468be01e0e0598e43649f5fe8cfd33f8f45026d0aa07",
+        "size": 1094777
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3031,8 +3031,8 @@
       },
       {
         "path": "pages/concepts/ai-data-service.md",
-        "sha256": "5d327951006d13ca2b7d1ba859ccd749ce43ec872fa61e51640abc84ff902767",
-        "size": 1623
+        "sha256": "59551af5f0aff71fc9695acab14715addd9fca36874b94481371fb1ec29632f7",
+        "size": 1577
       },
       {
         "path": "pages/concepts/ai-frameworks-integration.md",
@@ -3826,23 +3826,23 @@
       },
       {
         "path": "pages/concepts/subnet-contract-spec-v1.md",
-        "sha256": "f87b81604092b63d68827ff24b2c8bec695c1001f21124799658973224beaafa",
-        "size": 3962
+        "sha256": "3e95df5a5a45fb7fd548d0f767f65ac85a0dbae098ba3a7d8af072b018535d45",
+        "size": 3926
       },
       {
         "path": "pages/concepts/subnet-pipeline-attack-vectors.md",
-        "sha256": "fe1b07ab1d2f53979e5caf4f6e931af4354d94c8bb6480c85d15143b92bcb7ed",
-        "size": 3898
+        "sha256": "e6c04991c249564abd77b5d35905767a12c6219ba7b5b8f25d2228bb778b2755",
+        "size": 3859
       },
       {
         "path": "pages/concepts/subnet-specifications.md",
-        "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
-        "size": 1412
+        "sha256": "04aae6b514d6e739546de67520ab6a61be262309669c7425c43dc49f17b340a2",
+        "size": 1339
       },
       {
         "path": "pages/concepts/subnet-workers-miners-validators.md",
-        "sha256": "64788918cf3960ce8f26d78b23709fa033984e4819c9c0ed5559ab7d40d658ee",
-        "size": 6248
+        "sha256": "9ece3e51f0b4d6d79ea7ec3e93e98c9145affe58334d895c4dba789850f6b702",
+        "size": 6088
       },
       {
         "path": "pages/concepts/superbridge-ui.md",
@@ -4176,18 +4176,18 @@
       },
       {
         "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
-        "sha256": "7ec40cbc86b4dd5d420297959601b908217be7658d4f8172c2b2489ea96a15ec",
-        "size": 2238
+        "sha256": "a9020af7d0ac7218d6fadb66ae023bd0af22100b0e4a8bc40ef497d6d718cfbb",
+        "size": 2138
       },
       {
         "path": "pages/decisions/subnet-2-0-validation-scheme.md",
-        "sha256": "b5920b3eb5aed4718c281e3baa0380e21123dd2a38be79b604f397694b03be8e",
-        "size": 4482
+        "sha256": "7dac72b0b12bb68628e123e59a417cb3e1aa0b8d3f19d2397d3e7e152c69bec0",
+        "size": 4408
       },
       {
         "path": "pages/decisions/subnet-design-decisions.md",
-        "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
-        "size": 1222
+        "sha256": "69fd86c7e52306077b70305ddaef970d0637853ad62e79adc1124bf77f9cd79a",
+        "size": 1216
       },
       {
         "path": "pages/decisions/subnet-stale-task-detection.md",
@@ -6314,7 +6314,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-19T02:33:04Z",
+  "exported_at": "2026-05-19T02:49:37Z",
   "file_count": 1261,
   "files": [
     {
@@ -9322,7 +9322,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6mwgcj",
-  "previous_tree_hash": "0010ee1c8fe6f65adfd0624e5180dc6959e140deb1dca9995524a130868fc5d2",
+  "previous_tree_hash": "fd9014296f1da378350f2423b2eb32e953c5caac75d3bd182d3819e4cf49e480",
   "schema_version": 1,
   "skill_file_count": 600,
   "skill_manage_sessions": [
@@ -9335,7 +9335,7 @@
   ],
   "skill_tree_hash": "f5a5046402646b8a3f9fa11a1a929e3d567b793b825a10123bf36e653b63bb26",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fd9014296f1da378350f2423b2eb32e953c5caac75d3bd182d3819e4cf49e480",
+  "tree_hash": "399ce9278635da94d00efb88c9424d4dd2c3e18d148a6c0d2649ab1acd155fbe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9351,13 +9351,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "97c39cefbeb8489029d0b7a97e71fda0889e8f38f7edaf9ce34b65ad238770bf",
+      "sha256": "001f6ed0db63664821a47ab61457d18eb6922be1c9600aa9058adf04bd8fc8b8",
       "size": 591987
     },
     {
       "path": "log.md",
-      "sha256": "d310e95c699904be6f60bf932a48bf7d171128dd63451b3e80977eb418048ee1",
-      "size": 1091840
+      "sha256": "593dd29575879e07cf5b468be01e0e0598e43649f5fe8cfd33f8f45026d0aa07",
+      "size": 1094777
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9371,8 +9371,8 @@
     },
     {
       "path": "pages/concepts/ai-data-service.md",
-      "sha256": "5d327951006d13ca2b7d1ba859ccd749ce43ec872fa61e51640abc84ff902767",
-      "size": 1623
+      "sha256": "59551af5f0aff71fc9695acab14715addd9fca36874b94481371fb1ec29632f7",
+      "size": 1577
     },
     {
       "path": "pages/concepts/ai-frameworks-integration.md",
@@ -10166,23 +10166,23 @@
     },
     {
       "path": "pages/concepts/subnet-contract-spec-v1.md",
-      "sha256": "f87b81604092b63d68827ff24b2c8bec695c1001f21124799658973224beaafa",
-      "size": 3962
+      "sha256": "3e95df5a5a45fb7fd548d0f767f65ac85a0dbae098ba3a7d8af072b018535d45",
+      "size": 3926
     },
     {
       "path": "pages/concepts/subnet-pipeline-attack-vectors.md",
-      "sha256": "fe1b07ab1d2f53979e5caf4f6e931af4354d94c8bb6480c85d15143b92bcb7ed",
-      "size": 3898
+      "sha256": "e6c04991c249564abd77b5d35905767a12c6219ba7b5b8f25d2228bb778b2755",
+      "size": 3859
     },
     {
       "path": "pages/concepts/subnet-specifications.md",
-      "sha256": "07313cc10866704b74d24a07ff6267b76eb4353790c1a4aa797756764fe0f088",
-      "size": 1412
+      "sha256": "04aae6b514d6e739546de67520ab6a61be262309669c7425c43dc49f17b340a2",
+      "size": 1339
     },
     {
       "path": "pages/concepts/subnet-workers-miners-validators.md",
-      "sha256": "64788918cf3960ce8f26d78b23709fa033984e4819c9c0ed5559ab7d40d658ee",
-      "size": 6248
+      "sha256": "9ece3e51f0b4d6d79ea7ec3e93e98c9145affe58334d895c4dba789850f6b702",
+      "size": 6088
     },
     {
       "path": "pages/concepts/superbridge-ui.md",
@@ -10516,18 +10516,18 @@
     },
     {
       "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
-      "sha256": "7ec40cbc86b4dd5d420297959601b908217be7658d4f8172c2b2489ea96a15ec",
-      "size": 2238
+      "sha256": "a9020af7d0ac7218d6fadb66ae023bd0af22100b0e4a8bc40ef497d6d718cfbb",
+      "size": 2138
     },
     {
       "path": "pages/decisions/subnet-2-0-validation-scheme.md",
-      "sha256": "b5920b3eb5aed4718c281e3baa0380e21123dd2a38be79b604f397694b03be8e",
-      "size": 4482
+      "sha256": "7dac72b0b12bb68628e123e59a417cb3e1aa0b8d3f19d2397d3e7e152c69bec0",
+      "size": 4408
     },
     {
       "path": "pages/decisions/subnet-design-decisions.md",
-      "sha256": "6c8c59e901deaaee30648fdec3fad52a143ce89bcda7bd6494261b7713683dc2",
-      "size": 1222
+      "sha256": "69fd86c7e52306077b70305ddaef970d0637853ad62e79adc1124bf77f9cd79a",
+      "size": 1216
     },
     {
       "path": "pages/decisions/subnet-stale-task-detection.md",
@@ -12651,5 +12651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "531f26d4eb15710e47808a022e7282188249a6ea25166c9c336e3fe091f31bae"
+  "wiki_tree_hash": "044593c128c48cc5eb61c6c08a53004b194bcf073d43d2ced35b9bcdba71932f"
 }

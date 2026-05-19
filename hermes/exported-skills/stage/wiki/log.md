@@ -22826,3 +22826,59 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_23256cea3c936eaf5a7c8e7504751c78
 - summary: Slack file attachment:
 
+## [2026-05-19T02:49:01Z] synthesis | AI Data Service
+
+- status: published
+- slug: concepts/ai-data-service
+- wiki_revision_id: wikirev_6413fc05a355d3c1c24ef008f9ea4e0c
+- summary: A centralized data service that facilitates blob/data uploading and downloading, allows web2 users to sign up, provides wallet abstraction, fiat payments, and a community dataset l...
+
+## [2026-05-19T02:49:01Z] synthesis | Subnet Contract Spec V1
+
+- status: published
+- slug: concepts/subnet-contract-spec-v1
+- wiki_revision_id: wikirev_ea9abad6c7c0b29ad4368a450b6d1eaf
+- summary: Detailed functional test cases for the Subnet Contract V1 covering worker registration, workflow management, activity execution, rewards, access control, upgrades, and configuratio...
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet Pipeline Attack Vectors
+
+- status: published
+- slug: concepts/subnet-pipeline-attack-vectors
+- wiki_revision_id: wikirev_a22c379329cd5190299db7d4184149e1
+- summary: Documented attack vectors for the subnet pipeline, covering both miner and validator roles. Miner attacks include bypassing transcription by using the reference script and skipping...
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet Specifications
+
+- status: published
+- slug: concepts/subnet-specifications
+- wiki_revision_id: wikirev_fccbc4608f967241cc4356e0c9be956e
+- summary: A collection of subnet-related specifications including API, contract, and worker specs, as linked from the main Subnet Specifications page.
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet Workers (Miners & Validators)
+
+- status: published
+- slug: concepts/subnet-workers-miners-validators
+- wiki_revision_id: wikirev_92236fab7a9004c03e156a114402db9c
+- summary: A subnet worker node can register as either a data miner or a data validator. Miners handle processing jobs (filtering and annotation), while validators handle validation jobs. The...
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet 2.0 Rewards and Incentivization
+
+- status: published
+- slug: decisions/subnet-2-0-rewards-and-incentivization
+- wiki_revision_id: wikirev_e1ca4a7f7429c50fa127a2c0d549ea75
+- summary: Outlines the reward and incentivization strategy for Subnet 2.0, including initial Poseidon token grants for subnet owners that gradually decrease, shifting revenue to data buyers ...
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet 2.0 Validation Scheme
+
+- status: published
+- slug: decisions/subnet-2-0-validation-scheme
+- wiki_revision_id: wikirev_eb93ed2bd24239bcf4d48254e32f0206
+- summary: Explores the validation scheme for Subnet 2.0, weighing optimistic validation against the need for a final auditor, likely the subnet owner, to ensure data quality.
+
+## [2026-05-19T02:49:02Z] synthesis | Subnet Design Decisions
+
+- status: published
+- slug: decisions/subnet-design-decisions
+- wiki_revision_id: wikirev_8a25ad58a47e29c42032eaefeed91dee
+- summary: A Notion database tracking design decisions related to subnet architecture.
+
