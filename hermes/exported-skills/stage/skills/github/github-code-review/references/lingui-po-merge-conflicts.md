@@ -84,3 +84,62 @@ pnpm lingui compile   # compile .po → .js for runtime
 If `pnpm` is not available in the current environment, the references will
 be fixed in CI or the next local build. Stale references do not affect
 runtime behavior — only the `msgid`/`msgstr` pairs matter.
+
+## Pitfall: conflict markers embedded inside `msgstr` values (silent corruption)
+
+When `git merge` auto-resolves a `.po` file merge without producing file-level
+conflict markers, it can embed `<<<<<<< HEAD` (and `=======`, `>>>>>>> origin/develop`)
+**inside** `msgstr` translation string values. This produces broken translations that
+are invisible to standard `grep "^<<<<<<"` checks because the markers are on
+the same line as valid content:
+
+```
+msgstr "চালিয়ে যান<<<<<<< HEAD"
+msgstr "সংযোগ বিচ্ছিন্ন করুন<<<<<<< HEAD======="
+msgstr ">>>>>>> origin/develop"
+```
+
+This was observed on 2026-05-18 in numo-monorepo#292 where a merge of `develop`
+embedded 23 conflict markers in each of 7 locale `.po` files (161 total).
+
+### Detection
+
+```bash
+# Check for markers ANYWHERE in .po files (not just start-of-line)
+grep -r -c '<<<<<<< HEAD' apps/web/src/locales/*/messages.po
+grep -r -c '<<<<<<< HEAD' apps/landing/locales/*/messages.po  # if present
+```
+
+### Resolution
+
+The fix is simpler than standard conflict resolution — the corruption is
+always one-sided (the merge picked up markers from one branch):
+
+```bash
+# Revert .po files to the PR branch's clean copies
+git checkout <feature-branch> -- apps/web/src/locales/*/messages.po
+
+# Regenerate references against current code
+pnpm lingui extract
+pnpm lingui compile
+
+# Verify
+grep -r -c '<<<<<<< HEAD' apps/web/src/locales/*/messages.po
+# Expected: all files show 0
+```
+
+### Why this happens
+
+`.po` files are structured text with position-independent entries. When two
+branches modify different entries and git's three-way merge sees no adjacent
+conflicts, it may auto-merge by concatenating chunks — but if the chunks
+contain partial conflict markers from an intermediate state, they end up
+spliced into `msgstr` values. This is unique to `.po` files because git
+treats them as plain text (not Mergeable-format) and the file's structure
+masks the corruption.
+
+### Prevention during review
+
+Any time a PR includes a merge of `develop` (or any base branch), run the
+detection grep above as part of the review checklist. Do NOT rely on
+file-level conflict marker checks — they will miss this pattern.
