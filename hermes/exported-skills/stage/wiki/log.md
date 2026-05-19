@@ -22941,3 +22941,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_5f761d122f93d6ab470e8b9e23880a96
 - summary: <!here> we need to start filling out more tasks on Numo right now its pretty bleak
 
+## [2026-05-19T22:32:14Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_55ae977035ba5a708a14b0d4ff705f24
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_03f2a06180d7c7939d8b2cb00249e138
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
