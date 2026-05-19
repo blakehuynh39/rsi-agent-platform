@@ -22923,3 +22923,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_df3b689ce020f170fb7dd027a644a001
 - summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
 
+## [2026-05-19T22:00:34Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_f074067b933431340f8fea472ee11f2d
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_778a4e9510f4e54c3f15786f96fcbad3
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
