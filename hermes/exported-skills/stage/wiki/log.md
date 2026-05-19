@@ -22959,3 +22959,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_8cf4c6c25e46353f19bd9987e5fe86a4
 - summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-05-19T23:35:16Z] synthesis | Data Portal Backend Architecture
+
+- status: published
+- slug: systems/data-portal-backend-architecture
+- wiki_revision_id: wikirev_cb4cab00da476577e83ba72667ad82cb
+- summary: Current architecture for the Data Portal Backend as of May 19, 2026. Story ingests provider payloads into a standardized Trace Schema v1.0, stores durable traces in DynamoDB with e...
+
