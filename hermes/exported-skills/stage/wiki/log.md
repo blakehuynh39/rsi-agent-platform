@@ -22808,3 +22808,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_55b0b724a197732fd178e0eb8a0d349f
 - summary: Architecture overview of the Data Portal Backend, including an embedded diagram, high-level smart contract ideas for metadata versioning, and a detailed Data Audit API specificatio...
 
+## [2026-05-19T01:30:24Z] ingest | Subnet
+
+- status: published
+- slug: notion_document/subnet-f7dd8f3f
+- wiki_revision_id: wikirev_8b567374c3fdff4c0eef4b6c7ff709d6
+- source_document_id: srcdoc_67ae03c2c6c9aa6eaa1bd5c0f7dd8f3f
+- source_revision_id: srcrev_7fe38cf94e5767c134f47244bcf6f60b
+- summary: Source: [Notion source](https://www.notion.so/Subnet-358051299a5480f49fc2de7420dad342)
+
