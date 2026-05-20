@@ -22966,3 +22966,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cb4cab00da476577e83ba72667ad82cb
 - summary: Current architecture for the Data Portal Backend as of May 19, 2026. Story ingests provider payloads into a standardized Trace Schema v1.0, stores durable traces in DynamoDB with e...
 
+## [2026-05-20T01:15:20Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_f79be2da5a0d99113ff0f25de5a12d85
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_9ad6efe2783b3179adb8fd6f15c40873
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
