@@ -1,7 +1,7 @@
 ---
 name: github-pr-workflow
 description: "GitHub PR lifecycle: branch, commit, open, CI, merge."
-version: 1.1.0
+version: 1.2.0
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -275,6 +275,48 @@ When asked to auto-fix CI, follow this loop:
 6. Repeat if still failing (up to 3 attempts, then ask the user)
 
 ## 6. Merging
+
+### Resolving Merge Conflicts
+
+When a PR has merge conflicts (GitHub shows `mergeable: CONFLICTING`, `mergeStateStatus: DIRTY`), resolve them on the feature branch (not on the base branch):
+
+```bash
+# 1. Check PR conflict status
+gh pr view <N> --json mergeStateStatus,mergeable,baseRefName,headRefName
+
+# 2. Fetch and checkout the PR branch
+git fetch origin <head-branch>
+git checkout <head-branch>
+
+# 3. Merge the base into the feature (the conflict shows up here)
+git merge origin/<base-branch>
+# → Auto-merging <file> ... CONFLICT (content): Merge conflict in <file>
+
+# 4. Read the conflicted files and resolve
+# Use read_file to see the conflict markers, then patch to resolve.
+# Resolution rule: keep additions from both branches where they don't logically conflict.
+# Remove conflict markers (<<<<<<<, =======, >>>>>>>) and keep the merged result.
+
+# 5. Add resolved files and commit the merge
+git add <resolved-files>
+git commit -m "fix: resolve merge conflicts — <brief description of resolution>"
+
+# 6. Push the resolved branch
+git push origin <head-branch>
+
+# 7. Verify via GitHub API
+gh pr view <N> --json mergeStateStatus,mergeable
+# → Should show mergeable: MERGEABLE
+```
+
+**PITFALL — do not merge into the base branch locally.** Always merge `origin/<base-branch>` INTO the feature branch, resolve there, and push the feature branch. If you accidentally commit a merge on the base branch, use `git reset --hard origin/<base-branch>` to clean it up before pushing.
+
+**PITFALL — git safe.directory.** Cloned repos in shared environments may fail with `fatal: detected dubious ownership`. Fix with:
+```bash
+git config --global --add safe.directory /path/to/repo
+```
+
+### Merging the PR
 
 **With gh:**
 
