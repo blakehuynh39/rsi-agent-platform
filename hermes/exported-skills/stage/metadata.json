@@ -3011,13 +3011,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "37807848c2869c17024589cafa79823a638bb82dc812e8a3d086126c9b0d45f9",
-        "size": 593016
+        "sha256": "8fad87d8d93de17f50fbeeebb4ab786e5b940f489d16e96637826f9ef21cf3e0",
+        "size": 593459
       },
       {
         "path": "log.md",
-        "sha256": "4765ceb09863dbc8d16d43d11f6bdab594d815529401ab2d65ecaa0a7c4990bb",
-        "size": 1101717
+        "sha256": "41c9fdbc887bc393ac89bb2d06e991f6d027f61a046ade0c76b4548439044f9e",
+        "size": 1102172
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5575,6 +5575,11 @@
         "size": 5223
       },
       {
+        "path": "pages/runbooks/bug-statesync-iavl-import-race-condition-expansion14.md",
+        "sha256": "f650ea3a9dde6db3f09854bf04bb5beb7f6bd3d148c0373003c6fe4c40370ece",
+        "size": 10720
+      },
+      {
         "path": "pages/runbooks/cdn-management.md",
         "sha256": "4ba6cbc927d61f5f10d7dce27039fb9420eb3f32f6958fee079618adfbfbaaf2",
         "size": 4536
@@ -6314,8 +6319,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-20T06:02:49Z",
-  "file_count": 1261,
+  "exported_at": "2026-05-20T06:09:06Z",
+  "file_count": 1262,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9322,7 +9327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "47c5c1bc0b2d31845c53f58544eec7b9db900e03be68d2d5018553bd6d38cb9b",
+  "previous_tree_hash": "fd51d158edcf1658774faa7fe9fc9ca9dc74717c3fc850d159d4363966b9aedf",
   "schema_version": 1,
   "skill_file_count": 600,
   "skill_manage_sessions": [
@@ -9335,14 +9340,14 @@
   ],
   "skill_tree_hash": "21e365298e6cb10dc0dacaf8d5e72e595beb0d16d5af99c931189b8fbb27b9cd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fd51d158edcf1658774faa7fe9fc9ca9dc74717c3fc850d159d4363966b9aedf",
+  "tree_hash": "4c5b4f2fbdf2bad36f1792aafb7410dbdb0a1d63f9520ae12fa41301ec8c90d7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 661,
+  "wiki_file_count": 662,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9351,13 +9356,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "37807848c2869c17024589cafa79823a638bb82dc812e8a3d086126c9b0d45f9",
-      "size": 593016
+      "sha256": "8fad87d8d93de17f50fbeeebb4ab786e5b940f489d16e96637826f9ef21cf3e0",
+      "size": 593459
     },
     {
       "path": "log.md",
-      "sha256": "4765ceb09863dbc8d16d43d11f6bdab594d815529401ab2d65ecaa0a7c4990bb",
-      "size": 1101717
+      "sha256": "41c9fdbc887bc393ac89bb2d06e991f6d027f61a046ade0c76b4548439044f9e",
+      "size": 1102172
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11915,6 +11920,11 @@
       "size": 5223
     },
     {
+      "path": "pages/runbooks/bug-statesync-iavl-import-race-condition-expansion14.md",
+      "sha256": "f650ea3a9dde6db3f09854bf04bb5beb7f6bd3d148c0373003c6fe4c40370ece",
+      "size": 10720
+    },
+    {
       "path": "pages/runbooks/cdn-management.md",
       "sha256": "4ba6cbc927d61f5f10d7dce27039fb9420eb3f32f6958fee079618adfbfbaaf2",
       "size": 4536
@@ -12651,5 +12661,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "de9c738bffada7c0ac85e2bc9c431ead3b130a43d3bc07003c4456fcf872d4d1"
+  "wiki_tree_hash": "531ee91b17d0414b1d58de4f63ddb80cb7b4775761f5a35e72a938404021ef3c"
 }

@@ -23020,3 +23020,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_87a32b5c3416dbdce59c20150dd114d5
 - summary: Source: [Notion source](https://www.notion.so/Numo-Jed-Onboarding-364051299a5480e89387ce3d9cc535d3)
 
+## [2026-05-20T06:08:30Z] synthesis | Bug Report: Statesync IAVL Import Race Condition (expansion14 crash)
+
+- status: published
+- slug: runbooks/bug-statesync-iavl-import-race-condition-expansion14
+- wiki_revision_id: wikirev_c0cab926a33fcef273739a3a6a67531d
+- summary: Non-deterministic crash during statesync caused by a race condition in cosmos/iavl v1.2.2 import.go where an asynchronous batch write goroutine has not completed before LoadVersion...
+
