@@ -23086,3 +23086,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2ec648ea1f8913752c2e81dd6fba2178
 - summary: Project to implement and test a Stripe-based payment solution for P0 countries, including a proof of concept for global payouts and safeguards against spam and malicious withdrawal...
 
+## [2026-05-20T20:31:45Z] synthesis | Record Seedphrase during signup flow
+
+- status: published
+- slug: projects/record-seedphrase-during-signup-flow
+- wiki_revision_id: wikirev_77e21ea4106ad54cbe38b92f78defb6c
+- summary: Designs for recording seedphrase during the signup flow are available in Figma.
+

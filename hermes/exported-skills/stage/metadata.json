@@ -3011,13 +3011,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1afccdd014c67d6e4425308b1eaf92c9d837341a50a63e9b7d4e114f4bd6bd6c",
+        "sha256": "3f799e3760c1cb0034483149d6bfdfa4e212f7c442892375b63d64fdf3a6aa0f",
         "size": 594060
       },
       {
         "path": "log.md",
-        "sha256": "f84f7b701d3791c3896f24845772a5474277af5f7a412268b7c837d758d6535b",
-        "size": 1105247
+        "sha256": "639f80fec28eee9b46e08aa939dfbcccc477dfeebb74fa435cbb870f5e044682",
+        "size": 1105550
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5301,8 +5301,8 @@
       },
       {
         "path": "pages/projects/record-seedphrase-during-signup-flow.md",
-        "sha256": "e7ace0095d21cf9c4b5c3660413829d863e94949cc7de7e50f7fa643fc65686e",
-        "size": 1220
+        "sha256": "b452917bec6b96ffc6dab5c121d1490188b798a14f0a00ba2a7c757243b8db3f",
+        "size": 1234
       },
       {
         "path": "pages/projects/renaissance-infrastructure-planning.md",
@@ -6319,7 +6319,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-20T20:21:40Z",
+  "exported_at": "2026-05-20T20:32:57Z",
   "file_count": 1262,
   "files": [
     {
@@ -9327,7 +9327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "b49feb0be0978704ce9b05d352f476d48c069ebd7a0180f8b946c353149f63e6",
+  "previous_tree_hash": "dd6358bd39b2b524828ef62b4567d3371ee188842e7ad7e08bf883a9c2bb15d2",
   "schema_version": 1,
   "skill_file_count": 600,
   "skill_manage_sessions": [
@@ -9340,7 +9340,7 @@
   ],
   "skill_tree_hash": "21e365298e6cb10dc0dacaf8d5e72e595beb0d16d5af99c931189b8fbb27b9cd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "dd6358bd39b2b524828ef62b4567d3371ee188842e7ad7e08bf883a9c2bb15d2",
+  "tree_hash": "34b8d38061052809a6bbe581b0b4f8b84325f271cbbfd66424086342157f1211",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9356,13 +9356,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1afccdd014c67d6e4425308b1eaf92c9d837341a50a63e9b7d4e114f4bd6bd6c",
+      "sha256": "3f799e3760c1cb0034483149d6bfdfa4e212f7c442892375b63d64fdf3a6aa0f",
       "size": 594060
     },
     {
       "path": "log.md",
-      "sha256": "f84f7b701d3791c3896f24845772a5474277af5f7a412268b7c837d758d6535b",
-      "size": 1105247
+      "sha256": "639f80fec28eee9b46e08aa939dfbcccc477dfeebb74fa435cbb870f5e044682",
+      "size": 1105550
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11646,8 +11646,8 @@
     },
     {
       "path": "pages/projects/record-seedphrase-during-signup-flow.md",
-      "sha256": "e7ace0095d21cf9c4b5c3660413829d863e94949cc7de7e50f7fa643fc65686e",
-      "size": 1220
+      "sha256": "b452917bec6b96ffc6dab5c121d1490188b798a14f0a00ba2a7c757243b8db3f",
+      "size": 1234
     },
     {
       "path": "pages/projects/renaissance-infrastructure-planning.md",
@@ -12661,5 +12661,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c3dc15a5cf52fe3ce7d50cebc7ba35ad56233296f0cbad776cd5d6ac1ad332d"
+  "wiki_tree_hash": "22e9bab603559563ebf2e2d1412a3a84e3767c6d13596d76bc21bba8fc639792"
 }
