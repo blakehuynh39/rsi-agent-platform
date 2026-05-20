@@ -182,14 +182,30 @@ The `db_query_duration_seconds_*` metrics that exist in Thanos belong to `story-
 4. Note connection pool pressure: API pods and workers share the PostgreSQL instance.
 5. Flag slow admin endpoints as likely query plan or indexing issues, not just missing metrics.
 
-## Grafana Observability Gap
+## Grafana / Observability Tools (Loki, Prometheus, Sentry)
 
-The RSI toolchain's Grafana proxy (`rsi_observability_*` tools) is blocked by Cloudflare Error 1010 ("browser signature banned") on `grafana.ops.storyprotocol.net`. All Prometheus/Loki queries via the RSI observability tools return 403 — do not retry; the block is deterministic for the session.
+The RSI observability tools (`rsi_observability_*`, `rsi_sentry_*`) are available and functional for depin-backend investigation. The `rsi_observability_logs_query`, `rsi_observability_metrics_query`, `rsi_observability_alert_rules_search`, and `rsi_observability_active_alerts` tools all return data from the staging and production observability stack.
 
-**Fallbacks that still work:**
-- **Direct `/metrics` scrape** from `depin.storyprotocol.net/metrics` (or staging equivalent) — use `curl` via terminal with `User-Agent: rsi-hermes-company-computer/1.0`.
-- **Kubernetes pod logs** via `kubectl logs -n story` — staging logs are accessible; production is on a different cluster (see "Production Cluster Separation" below).
-- **Admin REST API** — all stats endpoints work as documented.
+**Loki log query tips for depin services:**
+- Depin-backend API logs may NOT appear under `app="depin-backend"` in Loki. Try `{namespace="story", environment="stage"} |= "error"` for broad searches.
+- IP registration worker logs DO appear under `{app=~".*ip-registration.*", environment="stage"}`. Use `component="submitter"` to filter further.
+- Loki queries filter by `|=` (line contains) or `|= ""` (regex). Prefer simple `|=` patterns like `|= "estimate_gas"` over complex regex.
+- Loki queries can time out on broad label selectors — narrow with `app`, `environment`, and `component` labels first.
+
+**Sentry tips:**
+- `rsi_sentry_issues_list` searches issue TITLES, not event bodies/breadcrumbs. Searching for `eth_estimateGas` returns 0 results because the term lives in event breadcrumbs, not titles. Use broad queries like `is:unresolved environment:staging` then drill into individual issues with `rsi_sentry_issue_view`.
+- `rsi_sentry_issue_events` with `full=true` returns complete event data including breadcrumbs, Rust tracing fields, and tags. Use this to get the actual error payload.
+
+**Prometheus metrics:**
+- Use `rsi_observability_metrics_query` with the `since` parameter for time-series data.
+- The `rsi_observability_active_alerts` tool returns currently-firing Grafana alerts.
+- `rsi_observability_alert_rules_search` returns alert rule definitions, useful for understanding what triggers exist.
+
+**Direct `/metrics` scrape** from `depin.storyprotocol.net/metrics` (or staging equivalent) — use `curl` via terminal with `User-Agent: rsi-hermes-company-computer/1.0` as an alternative path.
+
+**Kubernetes pod logs** via `kubectl logs -n story` — staging logs are accessible; production is on a different cluster (see "Production Cluster Separation" below).
+
+**Admin REST API** — all stats endpoints work as documented.
 
 ## Production Cluster Separation
 

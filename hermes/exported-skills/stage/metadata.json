@@ -29,7 +29,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "f0f5bce08d0900f20e432f3251f79746742e12c70e0a1e0ed2fb588e253d74a5",
+        "sha256": "adf2a780abcdb67f585d075b4646b319709b18073097a98333c673ea6ec0583a",
         "size": 2831
       },
       {
@@ -2874,8 +2874,8 @@
       },
       {
         "path": "story-company/depin-prod-admin-read/SKILL.md",
-        "sha256": "c1fb0e70576107d54297f91bdd5e28bcb429ab28c1ff0a6486a46d59a8912ba7",
-        "size": 29397
+        "sha256": "903860fb97da6f76f6c321873b9d9a7f33539a778dde8abf7a34f9c3c8fa4cee",
+        "size": 30894
       },
       {
         "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -2909,8 +2909,8 @@
       },
       {
         "path": "story-company/numo-project-status/SKILL.md",
-        "sha256": "d8cc877d0db8425d993570e3df37d7eef8c8d427c5d70aa0b441984e20bdb0d3",
-        "size": 17124
+        "sha256": "fbfb3732c2a93badc39fd03d16996728feb09af182cccb0aa1a5859f63793238",
+        "size": 17562
       },
       {
         "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -2946,6 +2946,11 @@
         "path": "story-company/numo-project-status/references/grafana-metrics.md",
         "sha256": "0fb1525b6acaefbbce2a57982065d695f2eb4c2ba751a3d22158e52ec751f863",
         "size": 18546
+      },
+      {
+        "path": "story-company/numo-project-status/references/observability-investigation.md",
+        "sha256": "a9ef95d9f2f3be515a45e82be5f533edb9daa05d32018753a4658d47c17698a8",
+        "size": 4921
       },
       {
         "path": "story-company/numo-project-status/references/report-template.md",
@@ -6319,8 +6324,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-20T22:02:37Z",
-  "file_count": 1262,
+  "exported_at": "2026-05-20T22:13:53Z",
+  "file_count": 1263,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6349,7 +6354,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "f0f5bce08d0900f20e432f3251f79746742e12c70e0a1e0ed2fb588e253d74a5",
+      "sha256": "adf2a780abcdb67f585d075b4646b319709b18073097a98333c673ea6ec0583a",
       "size": 2831
     },
     {
@@ -9194,8 +9199,8 @@
     },
     {
       "path": "story-company/depin-prod-admin-read/SKILL.md",
-      "sha256": "c1fb0e70576107d54297f91bdd5e28bcb429ab28c1ff0a6486a46d59a8912ba7",
-      "size": 29397
+      "sha256": "903860fb97da6f76f6c321873b9d9a7f33539a778dde8abf7a34f9c3c8fa4cee",
+      "size": 30894
     },
     {
       "path": "story-company/depin-prod-admin-read/references/campaign-language-filtering.md",
@@ -9229,8 +9234,8 @@
     },
     {
       "path": "story-company/numo-project-status/SKILL.md",
-      "sha256": "d8cc877d0db8425d993570e3df37d7eef8c8d427c5d70aa0b441984e20bdb0d3",
-      "size": 17124
+      "sha256": "fbfb3732c2a93badc39fd03d16996728feb09af182cccb0aa1a5859f63793238",
+      "size": 17562
     },
     {
       "path": "story-company/numo-project-status/references/admin-api-endpoints.md",
@@ -9266,6 +9271,11 @@
       "path": "story-company/numo-project-status/references/grafana-metrics.md",
       "sha256": "0fb1525b6acaefbbce2a57982065d695f2eb4c2ba751a3d22158e52ec751f863",
       "size": 18546
+    },
+    {
+      "path": "story-company/numo-project-status/references/observability-investigation.md",
+      "sha256": "a9ef95d9f2f3be515a45e82be5f533edb9daa05d32018753a4658d47c17698a8",
+      "size": 4921
     },
     {
       "path": "story-company/numo-project-status/references/report-template.md",
@@ -9327,9 +9337,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "c23b1e547ce313414f1170e330b5ea0901b38bb46f911d9cf38bae017c7270bc",
+  "previous_tree_hash": "9fd4a3a3a1aea6a5f932f4b03abb7b51e8fee476b8927beb40911e17cd7807ed",
   "schema_version": 1,
-  "skill_file_count": 600,
+  "skill_file_count": 601,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9338,9 +9348,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ebe0b54ccdfc9a4641bce90f605f0e6c8a6502c8e507f15f90cebf96ebe4e7da",
+  "skill_tree_hash": "553f5a4310a6ecaff7ee71f435356cc0a7c94a10aa6e925025548e1d853c430d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9fd4a3a3a1aea6a5f932f4b03abb7b51e8fee476b8927beb40911e17cd7807ed",
+  "tree_hash": "c48b51584f4d995dbb7d3019e6ce74c9b0543a29dbc33dcebf1f29818e563d9c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
