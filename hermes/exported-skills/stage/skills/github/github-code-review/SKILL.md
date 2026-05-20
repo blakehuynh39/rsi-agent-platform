@@ -732,6 +732,11 @@ After all subagents complete:
 
 When the author addresses feedback and asks for a re-review, do NOT re-read the entire diff. Focus on verifying the specific fixes — this is a fraction of the cost of a full review.
 
+**PITFALL (force-push amended commits):** When the author force-pushes an amended commit (common when fixing review feedback), the commit SHA from `gh pr view --json headRefOid` may not be reachable via `gh api /repos/.../commits/<sha>` — the API returns 422 "No commit found". The PR branch ref still points to the correct tree, so fall back to one of:
+- Read individual files remotely: `gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | base64 -d`
+- Use `gh pr diff N` to see the full branch diff (works regardless of force-push history)
+- Clone locally and use `git diff develop...HEAD`
+
 ### Workflow
 
 1. **Pull latest commits** on both PRs (re-clone if `/tmp/` was cleaned between sessions):
