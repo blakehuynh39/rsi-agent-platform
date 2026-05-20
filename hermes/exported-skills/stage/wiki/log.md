@@ -23027,3 +23027,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c0cab926a33fcef273739a3a6a67531d
 - summary: Non-deterministic crash during statesync caused by a race condition in cosmos/iavl v1.2.2 import.go where an asynchronous batch write goroutine has not completed before LoadVersion...
 
+## [2026-05-20T18:01:29Z] ingest | Slack thread C0AKH5SNGKH 1779299754.275349
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1779299754-275349-7cf2c31e
+- wiki_revision_id: wikirev_ee1a611c51a2d5d029488afa3f513e32
+- source_document_id: srcdoc_533b079f1cc80de403b5a4a77cf2c31e
+- source_revision_id: srcrev_d75c911358c1e3669d47da95c6073e52
+- summary: Slack file attachment:
+
