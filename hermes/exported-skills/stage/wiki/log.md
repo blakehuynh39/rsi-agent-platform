@@ -23143,3 +23143,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_1314818db55bad13586642449f3b9bb8
 - summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-05-20T22:21:25Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_e0ecefabbb0652c2fb14264e1374bba2
+- summary: Planned feature releases and tasks for Numo launch, starting May 27, 2026, over four weeks.
+
