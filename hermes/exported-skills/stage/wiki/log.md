@@ -23072,3 +23072,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_86ced895406a360aa94d2f9d8c67d570
 - summary: Source: [Notion source](https://www.notion.so/Record-Seedphrase-during-signup-flow-34f051299a548072a1c1e2603cc75ecd)
 
+## [2026-05-20T20:19:36Z] synthesis | Migrate Web App to React Native
+
+- status: published
+- slug: projects/migrate-web-app-to-react-native
+- wiki_revision_id: wikirev_52d52afaa4644d833466389a4e2f14d7
+- summary: Project to migrate the existing web application to a React Native app, including necessary legal updates, GDPR compliance, and testing.
+
+## [2026-05-20T20:19:58Z] synthesis | Implement and Test Payment Solution for P0 countries - Stripe PoC
+
+- status: published
+- slug: projects/stripe-poc-payment-solution
+- wiki_revision_id: wikirev_2ec648ea1f8913752c2e81dd6fba2178
+- summary: Project to implement and test a Stripe-based payment solution for P0 countries, including a proof of concept for global payouts and safeguards against spam and malicious withdrawal...
+
