@@ -23111,3 +23111,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ca329e3cc447bc80e5b66e92ab2018f8
 - summary: Source: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)
 
+## [2026-05-20T21:46:36Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_db21ec9f8e6aac361d522e8a6d2ff2cf
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
+
+## [2026-05-20T21:46:54Z] synthesis | Numo Product Backlog
+
+- status: published
+- slug: systems/numo-product-backlog
+- wiki_revision_id: wikirev_0fcd9d3620a263da1a5a9b63e063825b
+- summary: The Numo Product Backlog is a Notion database where each row is mirrored as a separate Notion document and each data source is mirrored as a separate Notion data source document.
+

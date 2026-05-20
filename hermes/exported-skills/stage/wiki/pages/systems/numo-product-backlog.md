@@ -27,5 +27,5 @@ The Numo Product Backlog is a Notion database where each row is mirrored as a se
 ## Sources
 
 - `source_document_id`: `srcdoc_43bd0953755e8e9f4722bd66185bcbc7`
-- `source_revision_id`: `srcrev_839a4ea764ad6ee1491542166929504d`
+- `source_revision_id`: `srcrev_ca329e3cc447bc80e5b66e92ab2018f8`
 - `source_url`: [Notion source](https://www.notion.so/34f051299a5480649b98c7337f8c8084)
