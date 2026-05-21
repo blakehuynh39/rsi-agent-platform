@@ -131,6 +131,10 @@ Certain frontend rendering issues have reusable investigation recipes in `refere
 
 When the bug involves a state machine or workflow pipeline (job lifecycle, transaction FSM, multi-step process), use the dedicated audit checklist in `references/state-machine-debugging.md` before proposing fixes. It covers the three dimensions: missing states, transition function gaps, and DB-commit vs external-action ordering. Load it whenever the error involves a state enum, a reducer/pipeline, or a crash-recovery path.
 
+### 5c. API Latency / Performance Bugs
+
+When the bug is a specific API endpoint being slow (high p95/p99 latency), use `references/api-latency-observability.md` for the investigation workflow. It covers: quantifying latency with Prometheus/Thanos metrics, establishing baselines against sibling endpoints, tracing external call latency (including the `exported_service`/`exported_endpoint` label quirk), cross-referencing code paths for missing instrumentation, and verifying database indexes. Load it whenever the task is "why is endpoint X slow" or involves Prometheus histograms + code inspection.
+
 ### 6. Trace Data Flow
 
 **WHEN error is deep in the call stack:**
