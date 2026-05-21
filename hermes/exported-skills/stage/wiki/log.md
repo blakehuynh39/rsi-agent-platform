@@ -23175,3 +23175,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_5efb3cc442b6916ec49a4aa737a09694
 - summary: Slack file attachment:
 
+## [2026-05-21T03:30:44Z] ingest | Trace Data Registration Val Benchmark Status
+
+- status: published
+- slug: notion_document/trace-data-registration-val-benchmark-status-86fdea22
+- wiki_revision_id: wikirev_ef202f5f8cec867310e53cc49629c98d
+- source_document_id: srcdoc_3c316ec0192642b46f8c44d186fdea22
+- source_revision_id: srcrev_f0dd3c7fb32db1f44ccd7f636b8a31c6
+- summary: Source: [Notion source](https://www.notion.so/Trace-Data-Registration-Val-Benchmark-Status-367051299a548173b9f7dad358889b01)
+
