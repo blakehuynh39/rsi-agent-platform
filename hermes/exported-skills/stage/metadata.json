@@ -29,7 +29,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "e8c4183ae4fecac4bf314447eb7a6400221510079c2c9ca31f1806c3ce63d9d6",
+        "sha256": "3a2018e611a26962b6c4a18f2b9592d0cbdfc858de1fe1e482f697a5ff190446",
         "size": 2831
       },
       {
@@ -2984,8 +2984,13 @@
       },
       {
         "path": "story-company/story-infrastructure-architecture/SKILL.md",
-        "sha256": "74cce694c4ee770e9956209da0d276110336442c0ab3d3f8b14508842c3da51d",
-        "size": 13995
+        "sha256": "821b7a51bcb4e9016fc2d6d9c45c95da670716ed32e4d09f737548a028f9021d",
+        "size": 15464
+      },
+      {
+        "path": "story-company/story-infrastructure-architecture/references/aeneid-observability.md",
+        "sha256": "dd3bc9958ed17d4044fdd31fe50d64537b49f493f997eb54ac6d5a42372f85ae",
+        "size": 4878
       },
       {
         "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
@@ -6334,8 +6339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-21T23:04:46Z",
-  "file_count": 1265,
+  "exported_at": "2026-05-21T23:51:32Z",
+  "file_count": 1266,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6364,7 +6369,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "e8c4183ae4fecac4bf314447eb7a6400221510079c2c9ca31f1806c3ce63d9d6",
+      "sha256": "3a2018e611a26962b6c4a18f2b9592d0cbdfc858de1fe1e482f697a5ff190446",
       "size": 2831
     },
     {
@@ -9319,8 +9324,13 @@
     },
     {
       "path": "story-company/story-infrastructure-architecture/SKILL.md",
-      "sha256": "74cce694c4ee770e9956209da0d276110336442c0ab3d3f8b14508842c3da51d",
-      "size": 13995
+      "sha256": "821b7a51bcb4e9016fc2d6d9c45c95da670716ed32e4d09f737548a028f9021d",
+      "size": 15464
+    },
+    {
+      "path": "story-company/story-infrastructure-architecture/references/aeneid-observability.md",
+      "sha256": "dd3bc9958ed17d4044fdd31fe50d64537b49f493f997eb54ac6d5a42372f85ae",
+      "size": 4878
     },
     {
       "path": "story-company/story-infrastructure-architecture/references/chain-parameters.md",
@@ -9352,9 +9362,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "2e52cfad8300366256ecd366eb4172bb85681bf1e2697845fcb6a1b08f6eab25",
+  "previous_tree_hash": "72ebb3b4cf51371bcad7862758f0b96b36e77b830ee25f2bac1359a4937f3145",
   "schema_version": 1,
-  "skill_file_count": 602,
+  "skill_file_count": 603,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9363,9 +9373,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "31285c1bb21c495a2be9f2ebbd5d5292cdb0bbb1dbac47640d710770ca9d7ad9",
+  "skill_tree_hash": "78bf10661eec9cade4033864fa30b6aaa9528f4818507e239a05a08acc38e5dd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "72ebb3b4cf51371bcad7862758f0b96b36e77b830ee25f2bac1359a4937f3145",
+  "tree_hash": "06aac7699859cf4a8b53a3041225f633fc5baa8e18b2b375a51823171dad990a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

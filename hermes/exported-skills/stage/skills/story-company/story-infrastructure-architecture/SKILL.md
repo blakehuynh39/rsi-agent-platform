@@ -214,6 +214,31 @@ See `references/chain-parameters.md` for the full reference sheet of Story L1 pa
 Additional support files:
 - `references/evm-performance-benchmarks.md` — Paradigm and Nethermind EVM client benchmarks (MGas/s data)
 - `references/precompile-gas-analysis.md` — Precompile optimization analysis using ipgraph calibration
+- `references/aeneid-observability.md` — Aeneid testnet metrics, dashboard panel map, and bottleneck analysis recipe
+
+## Observability Investigation
+
+When asked to analyze Story node performance (Aeneid or mainnet), use the **Go Ethereum By Instance** Grafana dashboard (uid: `go-ethereum-by-instance`). See `references/aeneid-observability.md` for the full recipe.
+
+### Quick Start
+
+1. Find the dashboard: `rsi_observability_dashboards_search(query="Go Ethereum By Instance")`
+2. Get panel structure: `rsi_observability_dashboard_get(uid="go-ethereum-by-instance")`
+3. Query metrics with `thanos` datasource (NOT `prometheus`):
+   ```
+   rsi_observability_metrics_query(datasource="thanos", expr="...")
+   ```
+
+### Key Aeneid Labels
+
+- `network="aeneid"` — use this, not `chain="aeneid"` (Aeneid has no chain label)
+- `role="validator"` — for block production metrics
+- `role="public-rpc"` — for RPC endpoint metrics
+- `job="story-geth"` (use1) or `job="cdr-aeneid-story-geth"` (jpe)
+
+### Common Notion Sources for Story Config
+
+The **"Other Mainnet Configs"** Notion page (id: `169051299a5480338ce2cb0435cb6ca3`) contains `config.toml` diffs comparing Story against other Cosmos chains (Osmosis, Evmos, Gaia, etc.). This is often the best source for parameters like mempool size, peer counts, and timeout values that aren't on public docs. The **"config.toml"** Notion page (id: `fcfe718bede6438a812de649f63fee13`) has Story's bootnode and validator configs.
 
 ## Report Structure
 
