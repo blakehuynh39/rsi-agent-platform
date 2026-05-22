@@ -23256,3 +23256,120 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_8961a7dabdd10184f3a061b64f62ed44
 - summary: Source: [Notion source](https://www.notion.so/Trace-Data-Registration-Val-Benchmark-Status-367051299a548173b9f7dad358889b01)
 
+## [2026-05-22T18:00:27Z] ingest | List of Potential Apps
+
+- status: published
+- slug: notion_document/list-of-potential-apps-0aaf0e20
+- wiki_revision_id: wikirev_cf02aff1a6920da8f1773688a6bf1758
+- source_document_id: srcdoc_af1ff5c9adbe33bc4da78c8b0aaf0e20
+- source_revision_id: srcrev_dbc818c844ab219f333ae3282cc9b768
+- summary: Source: [Notion source](https://www.notion.so/List-of-Potential-Apps-327051299a548057b7e9cec4190dfed5)
+
+## [2026-05-22T18:00:30Z] ingest | SPAM Combat
+
+- status: published
+- slug: notion_document/spam-combat-5800dc26
+- wiki_revision_id: wikirev_9b861b2129b12e149b6122086b3056ca
+- source_document_id: srcdoc_e0986692a5484368264439705800dc26
+- source_revision_id: srcrev_4d1ae30be0d018c0f1fc71bb2ec815e2
+- summary: Source: [Notion source](https://www.notion.so/SPAM-Combat-327051299a54802a9172ed82c9bf8cb7)
+
+## [2026-05-22T18:00:33Z] ingest | Sandeep chat
+
+- status: published
+- slug: notion_document/sandeep-chat-19079059
+- wiki_revision_id: wikirev_302b4552880ca067eedcb24c8b1d0f64
+- source_document_id: srcdoc_7f33f1322a692f1be4fd76ec19079059
+- source_revision_id: srcrev_cfb145a04754521e58102ae3fd3dc4a0
+- summary: Source: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20)
+
+## [2026-05-22T18:00:34Z] ingest | Eleven Labs Orchestration Tradeoffs— Managed vs. Hybrid vs. DIY
+
+- status: published
+- slug: notion_document/eleven-labs-orchestration-tradeoffs-managed-vs-hybrid-vs-diy-ac6afe7d
+- wiki_revision_id: wikirev_bf5d8de30719cf2118491ab3a2cdb00b
+- source_document_id: srcdoc_1b46c424944d0f61891ab6beac6afe7d
+- source_revision_id: srcrev_84ea76af7c33431c6b914468ea530af2
+- summary: Source: [Notion source](https://www.notion.so/Eleven-Labs-Orchestration-Tradeoffs-Managed-vs-Hybrid-vs-DIY-32c051299a54805b9427f63f3edc962e)
+
+## [2026-05-22T18:00:36Z] ingest | Voice Models
+
+- status: published
+- slug: notion_document/voice-models-1de484fc
+- wiki_revision_id: wikirev_fb2e0764184f7bf16abd55222f533cae
+- source_document_id: srcdoc_406ad3672ed538d69269ee481de484fc
+- source_revision_id: srcrev_a2433bfff874c2f6ed261da3e22c28cf
+- summary: Source: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)
+
+## [2026-05-22T18:00:37Z] ingest | Magical Prompts
+
+- status: published
+- slug: notion_document/magical-prompts-9a794325
+- wiki_revision_id: wikirev_c81413e321991a76dea7ef6966663a63
+- source_document_id: srcdoc_d95f1fd49f99be316f8c0cd39a794325
+- source_revision_id: srcrev_d24f0c29194a324a4672b2df861c9147
+- summary: Source: [Notion source](https://www.notion.so/Magical-Prompts-32d051299a54801f8ea3f5973ff27b63)
+
+## [2026-05-22T18:00:39Z] ingest | DePIN season 1 ↔ Numo Eng hand-off
+
+- status: published
+- slug: notion_document/depin-season-1-numo-eng-hand-off-d72869f5
+- wiki_revision_id: wikirev_94aebc6a1133e9e48ed34d8cdfb1173c
+- source_document_id: srcdoc_df54c3fd0adbb52f93998570d72869f5
+- source_revision_id: srcrev_da4ec0abd5d6cf85ce89f244eb22d815
+- summary: Source: [Notion source](https://www.notion.so/DePIN-season-1-Numo-Eng-hand-off-334051299a54807e9b94de55d327db0c)
+
+## [2026-05-22T18:00:41Z] ingest | Yash’s Post Analysis notes
+
+- status: published
+- slug: notion_document/yash-s-post-analysis-notes-a402c8a9
+- wiki_revision_id: wikirev_ca5892508831b7b0f29860bdb68dea4c
+- source_document_id: srcdoc_ee9e7bb5f3da238e122ed856a402c8a9
+- source_revision_id: srcrev_1781af1f83ecfbbd10494c739b93b497
+- summary: Source: [Notion source](https://www.notion.so/Yash-s-Post-Analysis-notes-335051299a54808597c3d45c715ce8d9)
+
+## [2026-05-22T18:00:42Z] ingest | Numo App Strategy
+
+- status: published
+- slug: notion_document/numo-app-strategy-3639f4e7
+- wiki_revision_id: wikirev_6071740f407e93018fa41c7b57175a58
+- source_document_id: srcdoc_23ea56dd8e1ad8665e6c69083639f4e7
+- source_revision_id: srcrev_12d53291c160d6628b674b2cdb321098
+- summary: Source: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)
+
+## [2026-05-22T18:00:45Z] ingest | APIs / Models for pre-verification
+
+- status: published
+- slug: notion_document/apis-/-models-for-pre-verification-a01462a5
+- wiki_revision_id: wikirev_139ac0cc37c9ac7b5b50002214d1d0e3
+- source_document_id: srcdoc_48fde66a8a1bc0d1e803964da01462a5
+- source_revision_id: srcrev_6ff362b17a60602947d3888bfdf15e6c
+- summary: Source: [Notion source](https://www.notion.so/APIs-Models-for-pre-verification-359051299a5480a18997e04f4a1919a9)
+
+## [2026-05-22T18:00:47Z] ingest | Data Portal Backend Architecture
+
+- status: published
+- slug: notion_document/data-portal-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_a4616c43faa26044f12aef312334da17
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_bddae52de9bbd81552b855b5edacc9fa
+- summary: Source: [Notion source](https://www.notion.so/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-22T18:00:49Z] ingest | Numo Jed Onboarding
+
+- status: published
+- slug: notion_document/numo-jed-onboarding-45dfbcd4
+- wiki_revision_id: wikirev_c7ff70d939e5c0886085580f7dc069fa
+- source_document_id: srcdoc_5b2f0266ee274de6a7ca742845dfbcd4
+- source_revision_id: srcrev_c40798802abd0c9d2479697825e096a7
+- summary: Source: [Notion source](https://www.notion.so/Numo-Jed-Onboarding-364051299a5480e89387ce3d9cc535d3)
+
+## [2026-05-22T18:00:50Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_be0ce5a9c744dfeef42ec7847e6dda8e
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_1aad37fe2161138f76374883377624ac
+- summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
