@@ -3031,8 +3031,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b5a083f463503ca5650a8a9310afac2bfb4c85c8cbfcf1eb6b8a8f00623c6112",
-        "size": 1122620
+        "sha256": "f5e80632f9bd4c1c40b45b470d34ed5503462f738d73423b2422a89b72d2427f",
+        "size": 1122963
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5116,8 +5116,8 @@
       },
       {
         "path": "pages/projects/numo-launch-roadmap.md",
-        "sha256": "99770159bcf9693ba190da72c7cf16fe5c62ab7d7495c148effc45e9b4737a15",
-        "size": 3964
+        "sha256": "652e9e39d4692570767365e7f3edc17d59d106cd0b283302502d9065efed9067",
+        "size": 4600
       },
       {
         "path": "pages/projects/odyssey-testnet.md",
@@ -6354,7 +6354,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T19:32:34Z",
+  "exported_at": "2026-05-22T19:49:04Z",
   "file_count": 1269,
   "files": [
     {
@@ -9377,7 +9377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "84c65b730d95326b12c6fc504d55bb71714359aba0fe2166e7234db7fc2266a1",
+  "previous_tree_hash": "176aa362c1b236c240da660118efd440a0fb1cab95fa204d66e650d806995441",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9390,7 +9390,7 @@
   ],
   "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "176aa362c1b236c240da660118efd440a0fb1cab95fa204d66e650d806995441",
+  "tree_hash": "23e689e8e8c9ff3e1fa7f939d199a2c176130bcc3655941632ae365d28be3c10",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9411,8 +9411,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b5a083f463503ca5650a8a9310afac2bfb4c85c8cbfcf1eb6b8a8f00623c6112",
-      "size": 1122620
+      "sha256": "f5e80632f9bd4c1c40b45b470d34ed5503462f738d73423b2422a89b72d2427f",
+      "size": 1122963
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11496,8 +11496,8 @@
     },
     {
       "path": "pages/projects/numo-launch-roadmap.md",
-      "sha256": "99770159bcf9693ba190da72c7cf16fe5c62ab7d7495c148effc45e9b4737a15",
-      "size": 3964
+      "sha256": "652e9e39d4692570767365e7f3edc17d59d106cd0b283302502d9065efed9067",
+      "size": 4600
     },
     {
       "path": "pages/projects/odyssey-testnet.md",
@@ -12731,5 +12731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c12529f8232841bb4bb376bc19a5dd86e898d41bc36e41e533dddb9a295bcd5"
+  "wiki_tree_hash": "e1f2a85e8b1e30ea36486d7b887429958a1e796ec3aa7453a639afdf799aec52"
 }
