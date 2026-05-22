@@ -29,8 +29,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "3a2018e611a26962b6c4a18f2b9592d0cbdfc858de1fe1e482f697a5ff190446",
-        "size": 2831
+        "sha256": "9050919b2e7ab181db15f48edbf645d2bdb91203d1c884bf51d88ed54abdc8c5",
+        "size": 2861
       },
       {
         "path": ".usage.json.lock",
@@ -1534,8 +1534,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "589728d6fd10d0aaf2efc706892304ea89ccfcae9b57bda2c5e985274aa104f7",
-        "size": 37960
+        "sha256": "cd0c52645bbcca269b582f133e6d04387193fa5e9e71eb2f1ff52dc3a8ef4f79",
+        "size": 38554
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -2974,8 +2974,8 @@
       },
       {
         "path": "story-company/rsi-platform-investigation/SKILL.md",
-        "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
-        "size": 7393
+        "sha256": "a971142bc0b7a50630dae55b40ff0c1bfc17d3ec051f19af895f5bc0edbcaee2",
+        "size": 8471
       },
       {
         "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
@@ -6339,7 +6339,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T00:43:35Z",
+  "exported_at": "2026-05-22T04:08:33Z",
   "file_count": 1266,
   "files": [
     {
@@ -6369,8 +6369,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "3a2018e611a26962b6c4a18f2b9592d0cbdfc858de1fe1e482f697a5ff190446",
-      "size": 2831
+      "sha256": "9050919b2e7ab181db15f48edbf645d2bdb91203d1c884bf51d88ed54abdc8c5",
+      "size": 2861
     },
     {
       "path": ".usage.json.lock",
@@ -7874,8 +7874,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "589728d6fd10d0aaf2efc706892304ea89ccfcae9b57bda2c5e985274aa104f7",
-      "size": 37960
+      "sha256": "cd0c52645bbcca269b582f133e6d04387193fa5e9e71eb2f1ff52dc3a8ef4f79",
+      "size": 38554
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -9314,8 +9314,8 @@
     },
     {
       "path": "story-company/rsi-platform-investigation/SKILL.md",
-      "sha256": "e1ed76288913f8eded3c1277ccd69c41179f90ea0787dde47bfbe94bc2f3d1fd",
-      "size": 7393
+      "sha256": "a971142bc0b7a50630dae55b40ff0c1bfc17d3ec051f19af895f5bc0edbcaee2",
+      "size": 8471
     },
     {
       "path": "story-company/rsi-platform-investigation/references/wiki-sync-pipeline.md",
@@ -9361,8 +9361,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "06aac7699859cf4a8b53a3041225f633fc5baa8e18b2b375a51823171dad990a",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fb999vd7ch",
+  "previous_tree_hash": "1b6f3d9c4d68e608dfb2c90ee56cbaff8068d996589f68d0cf63efb45cdeb3fc",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9373,9 +9373,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "c6cd26ccce440cd00f6b785470315459feacc8dbd84643b8204bb2bc271387c6",
+  "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1b6f3d9c4d68e608dfb2c90ee56cbaff8068d996589f68d0cf63efb45cdeb3fc",
+  "tree_hash": "6c94fe69636cd42fb552eba057243f6892363995a1525544643c84685a3416de",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

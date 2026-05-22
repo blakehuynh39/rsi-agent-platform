@@ -704,6 +704,8 @@ gh search prs --repo=piplabs/numo-monorepo --match title "submission quality"
 gh search prs --repo=piplabs/numo-monorepo --head feat/fraud
 
 **PITFALL:** `gh search prs` has a narrower `--json` field set than `gh pr list`/`gh pr view`. It does NOT support `headRefName`, `baseRefName`, `mergeable`, `reviews`, `statusCheckRollup`, or `changedFiles`. When you need those fields, use `gh pr list` with `--search` instead. For branch-prefix matching specifically, `gh search prs --head <prefix>` works fine as a filter (no `--json` needed).
+
+**PITFALL:** A cross-repo partner PR (e.g., story-deployments) may return 404 from `gh pr view` or `gh api`. This is often because the GitHub App token isn't installed on that repo, not because the PR doesn't exist. Run `gh api /installation/repositories --jq '.repositories[].full_name'` to see the token's actual scope. If the target repo isn't listed, ask the repo admin to install the GitHub App on it. See `rsi-platform-investigation` skill, Section 7, for detailed diagnosis. The review should still proceed on the accessible PRs — just flag the inaccessible one rather than blocking.
 ```
 
 When a BE PR claims a linked FE PR exists but provides no URL, use the thorough 4-step search procedure in `references/cross-repo-fe-pr-search.md`. A `gh search prs --head` alone is not sufficient to prove a PR doesn't exist — always run the full checklist before flagging `missing-cross-repo-pair`.

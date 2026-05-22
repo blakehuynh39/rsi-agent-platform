@@ -52,14 +52,14 @@
   "rsi-platform-investigation": {
     "archived_at": null,
     "created_at": "2026-05-05T03:17:34.230148+00:00",
-    "last_patched_at": null,
-    "last_used_at": "2026-05-15T12:17:40.625864+00:00",
-    "last_viewed_at": "2026-05-15T12:17:40.576168+00:00",
-    "patch_count": 0,
+    "last_patched_at": "2026-05-22T04:04:14.914305+00:00",
+    "last_used_at": "2026-05-22T04:03:35.974152+00:00",
+    "last_viewed_at": "2026-05-22T04:03:35.922100+00:00",
+    "patch_count": 1,
     "pinned": false,
     "state": "active",
-    "use_count": 7,
-    "view_count": 8
+    "use_count": 8,
+    "view_count": 9
   },
   "state-machine-design-review": {
     "archived_at": null,

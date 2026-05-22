@@ -179,3 +179,18 @@ gh api repos/piplabs/rsi-agent-platform/commits --jq '.[0:10].[] | "\(.sha[0:7])
 # Check repo permissions
 gh api repos/piplabs/rsi-agent-platform --jq '.permissions'
 ```
+
+### Diagnosing "repo not found" (GitHub App scope)
+
+When `gh api /repos/<owner>/<repo>` returns HTTP 404 for a repo you expect to exist, the most common cause is that the GitHub App hasn't been installed on that repo. Check the installation scope:
+
+```bash
+# List all repos the GitHub App token can access
+gh api /installation/repositories --jq '.repositories[] | {full_name, private}'
+```
+
+This returns the exact installation scope — if a repo isn't listed here, the token has no access to it. The 404 is GitHub's way of hiding private repos the token can't see (even if they exist).
+
+**PITFALL:** A 404 can mean either "repo doesn't exist" OR "repo is private and this token isn't authorized." The `/installation/repositories` call is the only reliable way to distinguish them — if the repo isn't in the list, ask the repo owner to install the GitHub App on it.
+
+**PITFALL:** For GitHub App tokens, the `/user` and `/app/installations` endpoints are typically inaccessible (require JWT, not installation token). Stick to `/installation/repositories` for scope diagnosis.
