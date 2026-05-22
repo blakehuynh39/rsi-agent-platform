@@ -23539,3 +23539,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bdfe6d49a906134956307347ab8e6c0b
 - summary: A guide on how to prompt effectively to one-shot an application, using a detailed description, layout outline, and fleshed-out PRD. Includes an example workflow for the Scout caree...
 
+## [2026-05-22T23:47:52Z] synthesis | Numo 1.1 Dogfooding Guide
+
+- status: published
+- slug: runbooks/numo-1-1-dogfooding-guide
+- wiki_revision_id: wikirev_71a1d288da38b2376658c0580f3297f9
+- summary: Internal guide for dogfooding the Numo 1.1 release, covering resume upload and Stripe payments setup.
+
