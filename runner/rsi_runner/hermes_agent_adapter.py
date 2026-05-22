@@ -211,8 +211,13 @@ def _status_text(ok: bool) -> str:
     return "ok" if ok else "failed"
 
 
-def _runtime_api_key() -> str | None:
-    return os.getenv("RSI_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or None
+def _runtime_api_key(provider: str) -> str | None:
+    provider = _string(provider).strip().lower()
+    if provider == "deepseek":
+        return os.getenv("RSI_DEEPSEEK_API_KEY") or os.getenv("DEEPSEEK_API_KEY") or None
+    if provider == "openrouter":
+        return os.getenv("RSI_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or None
+    return None
 
 
 @dataclass
@@ -871,11 +876,11 @@ class HermesAgentAdapter:
             raise RuntimeError("run_agent.AIAgent is unavailable.")
         runtime = _json_object(self._payload.get("runtime"))
         runtime_provider = _string(runtime.get("provider")) or "openrouter"
-        if runtime_provider != "openrouter":
-            raise RuntimeError("Hermes native execution only supports the OpenRouter runtime provider.")
+        if runtime_provider not in {"openrouter", "deepseek"}:
+            raise RuntimeError("Hermes native execution only supports OpenRouter or DeepSeek runtime providers.")
         agent_kwargs: JsonObject = {
             "model": _string(self._payload.get("model")),
-            "api_key": _runtime_api_key(),
+            "api_key": _runtime_api_key(runtime_provider),
             "base_url": _string(runtime.get("base_url")) or None,
             "provider": runtime_provider,
             "api_mode": _string(runtime.get("api_mode")) or None,

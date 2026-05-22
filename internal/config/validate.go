@@ -150,9 +150,24 @@ func (c Config) validateCompanyWikiCompiler(issues *[]string) {
 		*issues = append(*issues, "RSI_COMPANY_WIKI_SYNTHESIS_ENABLED must be true")
 	}
 	addRequiredString(issues, "RSI_COMPANY_WIKI_ROOT", c.CompanyWikiRoot)
+	switch strings.ToLower(strings.TrimSpace(c.CompanyWikiCompilerProvider)) {
+	case "deepseek", "openrouter":
+	default:
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_PROVIDER must be deepseek or openrouter")
+	}
 	addRequiredString(issues, "RSI_COMPANY_WIKI_COMPILER_MODEL", c.CompanyWikiCompilerModel)
-	addRequiredString(issues, "RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY or RSI_OPENROUTER_API_KEY or OPENROUTER_API_KEY", c.CompanyWikiCompilerOpenRouterAPIKey)
-	addRequiredURL(issues, "RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", c.CompanyWikiCompilerOpenRouterBaseURL, false)
+	addRequiredString(issues, "RSI_COMPANY_WIKI_COMPILER_API_KEY or provider API key", c.CompanyWikiCompilerAPIKey)
+	addRequiredURL(issues, "RSI_COMPANY_WIKI_COMPILER_BASE_URL", c.CompanyWikiCompilerBaseURL, false)
+	switch strings.ToLower(strings.TrimSpace(c.CompanyWikiCompilerThinking)) {
+	case "enabled", "disabled":
+	default:
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_THINKING must be enabled or disabled")
+	}
+	switch strings.ToLower(strings.TrimSpace(c.CompanyWikiCompilerReasoningEffort)) {
+	case "", "none", "low", "medium", "high", "max", "xhigh":
+	default:
+		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_REASONING_EFFORT must be none, low, medium, high, max, or xhigh")
+	}
 	if c.CompanyWikiCompilerBatchLimit <= 0 {
 		*issues = append(*issues, "RSI_COMPANY_WIKI_COMPILER_BATCH_LIMIT must be positive")
 	}

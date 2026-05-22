@@ -446,11 +446,148 @@ class HermesRuntimeTests(unittest.TestCase):
             config = RunnerConfig.from_env()
 
         self.assertEqual(config.model, "openrouter/deepseek/deepseek-v4-pro")
+        self.assertEqual(config.model_provider, "openrouter")
+        self.assertEqual(config.provider_model, "deepseek/deepseek-v4-pro")
         self.assertEqual(config.reasoning_effort, "xhigh")
         self.assertEqual(config.memory_backend, "honcho")
         self.assertEqual(config.honcho_workspace, "rsi-stage")
         self.assertEqual(config.honcho_environment_effective, "production")
         self.assertEqual(config.native_max_output_tokens, 15000)
+
+    def test_config_reads_direct_deepseek_main_and_summary_profiles(self) -> None:
+        env = {
+            **runner_env("eval"),
+            "RSI_RUNNER_PROVIDER": "deepseek",
+            "RSI_RUNNER_MODEL": "deepseek-v4-pro",
+            "RSI_RUNNER_THINKING": "enabled",
+            "RSI_SUMMARY_PROVIDER": "deepseek",
+            "RSI_SUMMARY_MODEL": "deepseek-v4-flash",
+            "RSI_SUMMARY_THINKING": "disabled",
+            "RSI_SUMMARY_REASONING_EFFORT": "none",
+            "DEEPSEEK_API_KEY": "deepseek-test-key",
+        }
+        env.pop("OPENROUTER_API_KEY")
+        with mock.patch.dict(os.environ, env, clear=True):
+            config = RunnerConfig.from_env()
+
+        self.assertEqual(config.model_provider, "deepseek")
+        self.assertEqual(config.provider_model, "deepseek-v4-pro")
+        self.assertEqual(config.model_base_url, "https://api.deepseek.com")
+        self.assertEqual(config.thinking_mode, "enabled")
+        self.assertTrue(config.model_api_key_configured)
+        self.assertEqual(config.summary_model_provider, "deepseek")
+        self.assertEqual(config.summary_provider_model, "deepseek-v4-flash")
+        self.assertEqual(config.summary_thinking_mode, "disabled")
+        self.assertEqual(config.summary_reasoning_effort, "none")
+        self.assertTrue(config.summary_model_api_key_configured)
+
+    def test_config_rejects_missing_direct_deepseek_key(self) -> None:
+        env = {
+            **runner_env("eval"),
+            "RSI_RUNNER_PROVIDER": "deepseek",
+            "RSI_RUNNER_MODEL": "deepseek-v4-pro",
+        }
+        env.pop("OPENROUTER_API_KEY")
+        with mock.patch.dict(os.environ, env, clear=True):
+            with self.assertRaisesRegex(RunnerConfigError, "DEEPSEEK_API_KEY"):
+                RunnerConfig.from_env()
+
+    def test_config_allows_missing_summary_key_until_summary_profile_is_selected(self) -> None:
+        env = {
+            **runner_env("eval"),
+            "RSI_SUMMARY_PROVIDER": "deepseek",
+            "RSI_SUMMARY_MODEL": "deepseek-v4-flash",
+        }
+        env.pop("DEEPSEEK_API_KEY", None)
+        env.pop("RSI_DEEPSEEK_API_KEY", None)
+        with mock.patch.dict(os.environ, env, clear=True):
+            config = RunnerConfig.from_env()
+
+        self.assertEqual(config.summary_model_provider, "deepseek")
+        self.assertEqual(config.summary_provider_model, "deepseek-v4-flash")
+        self.assertFalse(config.summary_model_api_key_configured)
+
+    def test_model_override_rejects_raw_provider_fields(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "general",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Summarize this.",
+                    "model_override": {
+                        "profile": "summary",
+                        "base_url": "https://evil.example/v1",
+                    },
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("eval"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "invalid_model_override")
+
+    def test_model_override_summary_fails_when_summary_credentials_are_missing(self) -> None:
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "general",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Title this thread.",
+                    "model_override": {"profile": "summary"},
+                }
+            }
+        )
+        env = runner_env("eval")
+        env.pop("DEEPSEEK_API_KEY", None)
+        env.pop("RSI_DEEPSEEK_API_KEY", None)
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertFalse(result.ok)
+        self.assertEqual(result.raw["failure_class"], "model_profile_credentials_missing")
+        self.assertEqual(result.raw["model_profile"], "summary")
+
+    def test_model_override_summary_uses_deepseek_flash_non_thinking(self) -> None:
+        env = {
+            **runner_env("eval"),
+            "RSI_RUNNER_PROVIDER": "deepseek",
+            "RSI_RUNNER_MODEL": "deepseek-v4-pro",
+            "RSI_SUMMARY_PROVIDER": "deepseek",
+            "RSI_SUMMARY_MODEL": "deepseek-v4-flash",
+            "RSI_SUMMARY_THINKING": "disabled",
+            "RSI_SUMMARY_REASONING_EFFORT": "none",
+            "DEEPSEEK_API_KEY": "deepseek-test-key",
+        }
+        env.pop("OPENROUTER_API_KEY")
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "general",
+                    "repo": "rsi-agent-platform",
+                    "prompt": "Title this thread.",
+                    "model_override": {"profile": "summary"},
+                }
+            }
+        )
+        with mock.patch("rsi_runner.hermes_runtime.AIAgent", FakeAIAgent), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, env, clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(FakeAIAgent.last_kwargs["provider"], "deepseek")
+        self.assertEqual(FakeAIAgent.last_kwargs["model"], "deepseek-v4-flash")
+        self.assertEqual(FakeAIAgent.last_kwargs["api_key"], "deepseek-test-key")
+        self.assertEqual(FakeAIAgent.last_kwargs["base_url"], "https://api.deepseek.com")
+        self.assertEqual(FakeAIAgent.last_kwargs["reasoning_config"], {"enabled": False})
 
     def test_config_reads_openrouter_routing_and_requires_key(self) -> None:
         env = openrouter_runner_env("eval")

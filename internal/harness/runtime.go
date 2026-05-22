@@ -49,7 +49,7 @@ func ResolveEffectiveConfig(store ConfigResolver, role string, fallbackReasoning
 			ID:                 DefaultProfileID(role),
 			Role:               role,
 			Name:               role,
-			Model:              "openai/gpt-5.4",
+			Model:              DefaultModel,
 			ReasoningEffort:    "xhigh",
 			ReasoningVerbosity: fallbackReasoningVerbosity,
 			MemoryReadEnabled:  true,

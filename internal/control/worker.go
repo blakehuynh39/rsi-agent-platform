@@ -1578,6 +1578,7 @@ func buildSessionTitleRunnerTask(cfg config.Config, store storepkg.Store, role s
 		RepoAllowlist:             cfg.AllowedTargetRepos,
 		ReplyDeliveryMode:         "none",
 		ReasoningVerbosity:        effectiveHarness.ReasoningVerbosity,
+		ModelOverride:             &clients.RunnerModelOverride{Profile: "summary"},
 		SessionScopeKind:          "trace",
 		SessionScopeID:            ctx.trace.Summary.TraceID,
 		ParentSessionScopeKind:    "conversation",

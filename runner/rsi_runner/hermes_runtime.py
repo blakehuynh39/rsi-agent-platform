@@ -24,7 +24,7 @@ from urllib import request as urlrequest
 
 from .json_types import JsonObject, JsonToolWrapperSchema, JsonValue
 
-from .config import RunnerConfig
+from .config import ModelProfile, RunnerConfig
 from .file_utils import _atomic_write_json
 from .hermes_adapter import HermesAdapter
 from .hermes_agent_adapter import validate_hermes_contract
@@ -76,6 +76,9 @@ DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "com
 SELF_REVIEW_SECRET_ENV_ALLOWLIST = frozenset(
     {
         "OPENROUTER_API_KEY",
+        "RSI_OPENROUTER_API_KEY",
+        "DEEPSEEK_API_KEY",
+        "RSI_DEEPSEEK_API_KEY",
         "OPENAI_API_KEY",
         "LLM_OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
@@ -983,6 +986,31 @@ except (ImportError, ModuleNotFoundError):  # pragma: no cover - import depends 
         return None
 
 
+def _reasoning_config_for_profile(profile: ModelProfile) -> JsonObject:
+    if str(profile.thinking_mode or "").strip().lower() == "disabled":
+        return {"enabled": False}
+    parsed = parse_reasoning_effort(profile.reasoning_effort)
+    if parsed:
+        return parsed
+    return {"enabled": True, "effort": "medium"}
+
+
+def _runtime_api_key_for_provider(provider: str) -> str:
+    provider = str(provider or "").strip().lower()
+    if provider == "deepseek":
+        return first_non_empty(os.getenv("RSI_DEEPSEEK_API_KEY"), os.getenv("DEEPSEEK_API_KEY"))
+    if provider == "openrouter":
+        return first_non_empty(os.getenv("RSI_OPENROUTER_API_KEY"), os.getenv("OPENROUTER_API_KEY"))
+    return ""
+
+
+def _base_url_host(base_url: str) -> str:
+    try:
+        return urlparse.urlparse(str(base_url or "").strip()).netloc
+    except Exception:
+        return ""
+
+
 @dataclass
 class HermesExecutionResult:
     ok: bool
@@ -1052,6 +1080,7 @@ class RunnerTaskRequest:
     context_refs: list[JsonObject]
     approval_mode: str | None
     reasoning_verbosity: str | None
+    model_override: JsonObject
     session_scope_kind: str | None
     session_scope_id: str | None
     parent_session_scope_kind: str | None
@@ -1111,6 +1140,7 @@ class RunnerTaskRequest:
             context_refs=_json_object_list(task.get("context_refs")),
             approval_mode=_optional_string(task.get("approval_mode")),
             reasoning_verbosity=_optional_string(task.get("reasoning_verbosity")),
+            model_override=_json_object_or_empty(task.get("model_override")),
             session_scope_kind=_optional_string(task.get("session_scope_kind")),
             session_scope_id=_optional_string(task.get("session_scope_id")),
             parent_session_scope_kind=_optional_string(task.get("parent_session_scope_kind")),
@@ -1153,8 +1183,37 @@ class HermesRuntime:
         self._api_key = ""
         self._provider_model = config.model
         self._provider_hint = ""
-        self._provider_routing = dict(config.openrouter_provider_routing or {})
-        self._reasoning_config = parse_reasoning_effort(config.reasoning_effort) or {"enabled": True, "effort": "medium"}
+        self._model_profiles = {
+            "main": ModelProfile(
+                name="main",
+                provider=config.model_provider,
+                configured_model=config.model,
+                provider_model=config.provider_model,
+                base_url=config.model_base_url,
+                api_key_configured=config.model_api_key_configured,
+                reasoning_effort=config.reasoning_effort,
+                thinking_mode=config.thinking_mode,
+                openrouter_provider_routing=dict(config.openrouter_provider_routing or {})
+                if config.model_provider == "openrouter"
+                else {},
+            ),
+            "summary": ModelProfile(
+                name="summary",
+                provider=config.summary_model_provider,
+                configured_model=config.summary_model,
+                provider_model=config.summary_provider_model,
+                base_url=config.summary_model_base_url,
+                api_key_configured=config.summary_model_api_key_configured,
+                reasoning_effort=config.summary_reasoning_effort,
+                thinking_mode=config.summary_thinking_mode,
+                openrouter_provider_routing=dict(config.openrouter_provider_routing or {})
+                if config.summary_model_provider == "openrouter"
+                else {},
+            ),
+        }
+        self._active_model_profile = self._model_profiles["main"]
+        self._provider_routing = dict(self._active_model_profile.openrouter_provider_routing or {})
+        self._reasoning_config = _reasoning_config_for_profile(self._active_model_profile)
         self._openrouter_configured = False
         self._session_manager = SessionManager(config)
         self._adapter = HermesAdapter(config)
@@ -1538,26 +1597,19 @@ class HermesRuntime:
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
 
     def _configure_runtime(self) -> None:
-        self._provider = "openrouter"
-        self._provider_hint = "openrouter"
-        self._provider_model = self._configured_model.split("/", 1)[1]
+        profile = self._active_model_profile
+        self._provider = profile.provider
+        self._provider_hint = profile.provider
+        self._provider_model = profile.provider_model
         self._api_mode = ""
-        self._base_url = first_non_empty(
-            os.getenv("RSI_OPENROUTER_BASE_URL"),
-            os.getenv("OPENROUTER_BASE_URL"),
-            "",
-        )
-        self._api_key = first_non_empty(
-            os.getenv("RSI_OPENROUTER_API_KEY"),
-            os.getenv("OPENROUTER_API_KEY"),
-        )
-        self._openrouter_configured = bool(self._api_key)
+        self._base_url = profile.base_url
+        self._api_key = _runtime_api_key_for_provider(profile.provider)
+        self._provider_routing = dict(profile.openrouter_provider_routing or {}) if profile.provider == "openrouter" else {}
+        self._reasoning_config = _reasoning_config_for_profile(profile)
+        self._openrouter_configured = bool(_runtime_api_key_for_provider("openrouter"))
 
     def _runtime_has_credentials(self) -> bool:
         return bool(self._api_key)
-
-    def _runtime_credentials_error_message(self) -> str:
-        return "Hermes OpenRouter runtime selected but RSI_OPENROUTER_API_KEY / OPENROUTER_API_KEY is not configured."
 
     @property
     def available(self) -> bool:
@@ -1582,11 +1634,18 @@ class HermesRuntime:
             "provider": self._provider,
             "model": self._configured_model,
             "provider_model": self._provider_model,
+            "model_profile": self._active_model_profile.name,
+            "base_url_host": _base_url_host(self._base_url),
+            "thinking_mode": self._active_model_profile.thinking_mode,
+            "summary_provider": self._model_profiles["summary"].provider,
+            "summary_model": self._model_profiles["summary"].provider_model,
+            "summary_thinking_mode": self._model_profiles["summary"].thinking_mode,
             "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
             "reasoning_effort": self._reasoning_effort,
             "api_mode": self._api_mode,
             "available": self.available,
             "hermes_available": AIAgent is not None,
+            "runtime_credentials_configured": self._runtime_has_credentials(),
             "openrouter_configured": self._openrouter_configured,
             "persistence_enabled": self._session_manager.available,
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
@@ -1679,6 +1738,7 @@ class HermesRuntime:
             "api_mode": self._api_mode,
             "available": self.available,
             "hermes_available": AIAgent is not None,
+            "runtime_credentials_configured": self._runtime_has_credentials(),
             "openrouter_configured": self._openrouter_configured,
             "persistence_enabled": self._session_manager.available,
             "session_continuity_status": "ok" if self._session_manager.available else "degraded",
@@ -1981,8 +2041,8 @@ class HermesRuntime:
             memory_backend=self._config.memory_backend,
             honcho_workspace=self._config.honcho_workspace,
             honcho_environment=self._config.honcho_environment,
-            model=self._configured_model.removeprefix("openrouter/"),
-            provider="openrouter",
+            model=self._active_model_profile.provider_model,
+            provider=self._active_model_profile.provider,
             base_url=self._base_url,
             api_mode=self._api_mode,
         )
@@ -2011,8 +2071,8 @@ class HermesRuntime:
                 "RSI_MEMORY_BACKEND": self._config.memory_backend,
                 "RSI_HONCHO_WORKSPACE": self._config.honcho_workspace,
                 "RSI_HONCHO_ENVIRONMENT": self._config.honcho_environment,
-                "RSI_MODEL": self._configured_model.removeprefix("openrouter/"),
-                "RSI_PROVIDER": "openrouter",
+                "RSI_MODEL": self._active_model_profile.provider_model,
+                "RSI_PROVIDER": self._active_model_profile.provider,
                 "RSI_HERMES_API_MODE": self._api_mode,
             }
         )
@@ -2227,6 +2287,7 @@ class HermesRuntime:
         return out
 
     def _native_execution_started_payload(self, task: RunnerTaskRequest) -> JsonObject:
+        profile = self._model_profile_for_task(task)
         mcp_servers = []
         for server in task.mcp_servers:
             if not isinstance(server, dict):
@@ -2252,7 +2313,7 @@ class HermesRuntime:
             "session_scope_id": task.session_scope_id or "",
             "timeout_seconds": self._effective_task_timeout(task),
             "transport_timeout_seconds": self._transport_timeout_seconds,
-            "model": self._provider_model,
+            "model": profile.provider_model,
             "mcp_servers": mcp_servers,
         }
 
@@ -2308,11 +2369,15 @@ class HermesRuntime:
         max_iterations_override: int | None = None,
         enabled_toolsets_override: list[str] | None = None,
     ) -> Any:
+        profile = self._model_profile_for_task(task)
+        api_key = _runtime_api_key_for_provider(profile.provider)
+        if not api_key:
+            raise RuntimeError(self._credentials_error_message_for_profile(profile))
         configured_max_iterations = max_iterations_override if max_iterations_override and max_iterations_override > 0 else self._max_iterations
         agent_kwargs: JsonObject = {
-            "model": self._provider_model,
+            "model": profile.provider_model,
             "quiet_mode": True,
-            "reasoning_config": self._reasoning_config,
+            "reasoning_config": _reasoning_config_for_profile(profile),
             "enabled_toolsets": enabled_toolsets_override
             if enabled_toolsets_override is not None
             else self._native_toolsets_for_task(task),
@@ -2322,33 +2387,67 @@ class HermesRuntime:
             "session_id": context.session_id,
             "parent_session_id": context.parent_session_id or None,
             "session_db": self._session_manager.session_db,
+            "self_review_mode": "manual",
         }
-        if self._provider_hint:
-            agent_kwargs["provider"] = self._provider_hint
+        if profile.provider:
+            agent_kwargs["provider"] = profile.provider
         if self._api_mode:
             agent_kwargs["api_mode"] = self._api_mode
-        if self._base_url:
-            agent_kwargs["base_url"] = self._base_url
-        if self._api_key:
-            agent_kwargs["api_key"] = self._api_key
-        self._apply_openrouter_provider_routing(agent_kwargs)
+        if profile.base_url:
+            agent_kwargs["base_url"] = profile.base_url
+        if api_key:
+            agent_kwargs["api_key"] = api_key
+        self._apply_openrouter_provider_routing(
+            agent_kwargs,
+            provider=profile.provider,
+            provider_routing=profile.openrouter_provider_routing,
+        )
         return AIAgent(**agent_kwargs)
 
-    def _apply_openrouter_provider_routing(self, agent_kwargs: JsonObject) -> None:
-        if not self._provider_routing:
+    def _model_profile_for_task(self, task: RunnerTaskRequest) -> ModelProfile:
+        override = _json_object_or_empty(task.model_override)
+        if not override:
+            return self._model_profiles["main"]
+        unexpected = sorted(key for key in override.keys() if key != "profile")
+        if unexpected:
+            raise ValueError("model_override only supports the server-side profile selector")
+        profile_name = _string_or_json(override.get("profile")).strip().lower()
+        if profile_name not in {"main", "summary"}:
+            raise ValueError("model_override.profile must be one of: main, summary")
+        return self._model_profiles[profile_name]
+
+    def _credentials_error_message_for_profile(self, profile: ModelProfile) -> str:
+        if profile.provider == "deepseek":
+            return "Hermes DeepSeek runtime selected but RSI_DEEPSEEK_API_KEY / DEEPSEEK_API_KEY is not configured."
+        if profile.provider == "openrouter":
+            return "Hermes OpenRouter runtime selected but RSI_OPENROUTER_API_KEY / OPENROUTER_API_KEY is not configured."
+        return f"Hermes runtime provider {profile.provider or 'unknown'} is missing credentials."
+
+    def _apply_openrouter_provider_routing(
+        self,
+        agent_kwargs: JsonObject,
+        *,
+        provider: str | None = None,
+        provider_routing: JsonObject | None = None,
+    ) -> None:
+        provider_name = provider or self._provider
+        routing = dict(provider_routing or self._provider_routing or {})
+        if provider_name != "openrouter":
             return
-        if isinstance(self._provider_routing.get("only"), list):
-            agent_kwargs["providers_allowed"] = list(self._provider_routing["only"])  # type: ignore[index]
-        if isinstance(self._provider_routing.get("ignore"), list):
-            agent_kwargs["providers_ignored"] = list(self._provider_routing["ignore"])  # type: ignore[index]
-        if isinstance(self._provider_routing.get("order"), list):
-            agent_kwargs["providers_order"] = list(self._provider_routing["order"])  # type: ignore[index]
-        if isinstance(self._provider_routing.get("sort"), str):
-            agent_kwargs["provider_sort"] = self._provider_routing["sort"]
-        if isinstance(self._provider_routing.get("require_parameters"), bool):
-            agent_kwargs["provider_require_parameters"] = self._provider_routing["require_parameters"]
-        if isinstance(self._provider_routing.get("data_collection"), str):
-            agent_kwargs["provider_data_collection"] = self._provider_routing["data_collection"]
+        if not routing:
+            return
+        if isinstance(routing.get("only"), list):
+            agent_kwargs["providers_allowed"] = list(routing["only"])  # type: ignore[index]
+        if isinstance(routing.get("ignore"), list):
+            agent_kwargs["providers_ignored"] = list(routing["ignore"])  # type: ignore[index]
+        if isinstance(routing.get("order"), list):
+            agent_kwargs["providers_order"] = list(routing["order"])  # type: ignore[index]
+        if isinstance(routing.get("sort"), str):
+            agent_kwargs["provider_sort"] = routing["sort"]
+        if isinstance(routing.get("require_parameters"), bool):
+            agent_kwargs["provider_require_parameters"] = routing["require_parameters"]
+        if isinstance(routing.get("data_collection"), str):
+            agent_kwargs["provider_data_collection"] = routing["data_collection"]
 
     def _extract_user_request_text(self, prompt: str) -> str:
         text = str(prompt or "")
@@ -2491,12 +2590,31 @@ class HermesRuntime:
                     },
                 },
             )
-        if not self._runtime_has_credentials():
+        try:
+            task_model_profile = self._model_profile_for_task(task)
+        except ValueError as exc:
             return HermesExecutionResult(
                 ok=False,
-                message=self._runtime_credentials_error_message(),
+                message=str(exc),
                 provider=self._backend,
-                raw=self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "invalid_model_override",
+                    "model_override": task.model_override,
+                },
+            )
+        if not _runtime_api_key_for_provider(task_model_profile.provider):
+            return HermesExecutionResult(
+                ok=False,
+                message=self._credentials_error_message_for_profile(task_model_profile),
+                provider=self._backend,
+                raw={
+                    **self._base_raw(prompt=task.prompt, system_message=task.system_message),
+                    "failure_class": "model_profile_credentials_missing",
+                    "model_profile": task_model_profile.name,
+                    "provider": task_model_profile.provider,
+                    "provider_model": task_model_profile.provider_model,
+                },
             )
         if not self._session_manager.available:
             return HermesExecutionResult(
@@ -2863,7 +2981,13 @@ class HermesRuntime:
             "provider_hint": self._provider_hint,
             "api_mode": self._api_mode,
             "model": self._configured_model,
+            "model_profile": self._active_model_profile.name,
             "provider_model": self._provider_model,
+            "base_url_host": _base_url_host(self._base_url),
+            "thinking_mode": self._active_model_profile.thinking_mode,
+            "summary_provider": self._model_profiles["summary"].provider,
+            "summary_model": self._model_profiles["summary"].provider_model,
+            "summary_thinking_mode": self._model_profiles["summary"].thinking_mode,
             "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
             "reasoning_effort": self._reasoning_effort,
             "reasoning_config": self._reasoning_config,
@@ -3995,6 +4119,7 @@ if __name__ == "__main__":
         phase_contract: JsonObject,
         github_cli_credentials: JsonObject,
     ) -> JsonObject:
+        profile = self._model_profile_for_task(task)
         return {
             "session_id": context.session_id,
             "parent_session_id": context.parent_session_id,
@@ -4032,9 +4157,9 @@ if __name__ == "__main__":
                 }
                 for server in task_scoped_mcp_registration.servers
             ],
-            "model": self._provider_model,
+            "model": profile.provider_model,
             "max_iterations": max_iterations,
-            "reasoning_config": self._reasoning_config,
+            "reasoning_config": _reasoning_config_for_profile(profile),
             "request_overrides": {},
             "workdir": str(workdir),
             "result_path": str(result_path),
@@ -4058,10 +4183,10 @@ if __name__ == "__main__":
             "workspace_policy": task.workspace_policy,
             "approval_policy": task.approval_policy,
             "runtime": {
-                "provider": self._provider_hint,
-                "base_url": self._base_url,
+                "provider": profile.provider,
+                "base_url": profile.base_url,
                 "api_mode": self._api_mode,
-                "provider_routing": dict(self._provider_routing) if self._provider == "openrouter" else {},
+                "provider_routing": dict(profile.openrouter_provider_routing) if profile.provider == "openrouter" else {},
             },
         }
 
@@ -4592,11 +4717,19 @@ if __name__ == "__main__":
         allow_partial_recovery: bool = True,
         max_iterations_override: int | None = None,
     ) -> HermesExecutionResult:
-        if not self._runtime_has_credentials():
+        try:
+            task_model_profile = self._model_profile_for_task(task)
+        except ValueError as exc:
+            return self._native_strict_failure(
+                task,
+                failure_class="invalid_model_override",
+                message=str(exc),
+            )
+        if not _runtime_api_key_for_provider(task_model_profile.provider):
             return self._native_strict_failure(
                 task,
                 failure_class="native_workflow_preflight_failed",
-                message=self._runtime_credentials_error_message(),
+                message=self._credentials_error_message_for_profile(task_model_profile),
             )
         if not self._contract_status.ok:
             return self._native_strict_failure(
@@ -6484,19 +6617,21 @@ if __name__ == "__main__":
                 error="Hermes reducer is unavailable.",
                 provider_response_id="",
             )
-        if not self._api_key:
+        profile = self._model_profiles["main"]
+        api_key = _runtime_api_key_for_provider(profile.provider)
+        if not api_key:
             return PartialReducerAttemptResult(
                 ok=False,
                 response_text="",
                 structured_output={},
-                error=self._runtime_credentials_error_message(),
+                error=self._credentials_error_message_for_profile(profile),
                 provider_response_id="",
             )
         session_id = f"rsi-{self._role}-{operation}-{int(time.time() * 1000)}"
         agent_kwargs: JsonObject = {
-            "model": self._provider_model,
-            "provider": "openrouter",
-            "api_key": self._api_key,
+            "model": profile.provider_model,
+            "provider": profile.provider,
+            "api_key": api_key,
             "quiet_mode": True,
             "reasoning_config": parse_reasoning_effort(reasoning_effort) or {"enabled": True, "effort": reasoning_effort},
             "enabled_toolsets": [],
@@ -6504,19 +6639,26 @@ if __name__ == "__main__":
             "skip_memory": True,
             "max_iterations": 1,
             "session_id": session_id,
+            "self_review_mode": "manual",
         }
-        if self._base_url:
-            agent_kwargs["base_url"] = self._base_url
-        self._apply_openrouter_provider_routing(agent_kwargs)
+        if profile.base_url:
+            agent_kwargs["base_url"] = profile.base_url
+        self._apply_openrouter_provider_routing(
+            agent_kwargs,
+            provider=profile.provider,
+            provider_routing=profile.openrouter_provider_routing,
+        )
         if recorder is not None:
             recorder.record(
                 "hermes_reducer_request",
                 {
                     "operation": operation,
                     "timeout_seconds": timeout_seconds,
-                    "model": self._provider_model,
-                    "provider": self._provider,
-                    "provider_routing": dict(self._provider_routing),
+                    "model": profile.provider_model,
+                    "provider": profile.provider,
+                    "provider_routing": dict(profile.openrouter_provider_routing)
+                    if profile.provider == "openrouter"
+                    else {},
                 },
             )
         agent = AIAgent(**agent_kwargs)

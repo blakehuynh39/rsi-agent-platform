@@ -18,6 +18,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/conversation"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
@@ -1678,8 +1679,8 @@ func hermesEnvInfo(value string, description string, category string, password b
 }
 
 func hermesModelInfo(cfg config.Config, store storepkg.Repository) map[string]any {
-	model := "openai/gpt-5.4"
-	provider := "openai"
+	model := harness.DefaultModel
+	provider := "deepseek"
 	for _, role := range buildHermesRuntimeStatus(cfg, store) {
 		if role.Model != "" {
 			model = role.Model
@@ -1710,8 +1711,8 @@ func buildHermesRuntimeStatus(cfg config.Config, store storepkg.Repository) []ru
 		out = append(out, runtimeRoleStatus{
 			Role:            role,
 			Status:          "disabled",
-			Model:           "openai/gpt-5.4",
-			Provider:        "openai",
+			Model:           harness.DefaultModel,
+			Provider:        "deepseek",
 			ReasoningEffort: "xhigh",
 		})
 	}

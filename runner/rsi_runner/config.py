@@ -15,6 +15,19 @@ DEFAULT_PROD_TASK_TIMEOUT_SECONDS = 1800
 
 
 @dataclass
+class ModelProfile:
+    name: str
+    provider: str
+    configured_model: str
+    provider_model: str
+    base_url: str
+    api_key_configured: bool
+    reasoning_effort: str
+    thinking_mode: str
+    openrouter_provider_routing: dict[str, object]
+
+
+@dataclass
 class RunnerConfig:
     role: str
     executor_instance_id: str
@@ -22,6 +35,18 @@ class RunnerConfig:
     port: int
     model: str
     reasoning_effort: str
+    model_provider: str
+    provider_model: str
+    model_base_url: str
+    model_api_key_configured: bool
+    thinking_mode: str
+    summary_model: str
+    summary_reasoning_effort: str
+    summary_model_provider: str
+    summary_provider_model: str
+    summary_model_base_url: str
+    summary_model_api_key_configured: bool
+    summary_thinking_mode: str
     openrouter_api_key_configured: bool
     openrouter_provider_routing: dict[str, object]
     hermes_pin: str
@@ -92,10 +117,33 @@ class RunnerConfig:
         executor_instance_id = optional_env("RSI_HERMES_EXECUTOR_INSTANCE_ID") or optional_env("HOSTNAME") or role
         host = required_env("RSI_RUNNER_HOST")
         port = parse_port(required_env("RSI_RUNNER_PORT"))
-        model = required_env("RSI_RUNNER_MODEL")
-        reasoning_effort = required_env("RSI_RUNNER_REASONING_EFFORT")
+        model = optional_env("RSI_RUNNER_MODEL") or "deepseek-v4-pro"
+        reasoning_effort = optional_env("RSI_RUNNER_REASONING_EFFORT") or "xhigh"
+        thinking_mode = normalize_thinking_mode(optional_env("RSI_RUNNER_THINKING") or "enabled", "RSI_RUNNER_THINKING")
         openrouter_api_key = optional_env("RSI_OPENROUTER_API_KEY") or optional_env("OPENROUTER_API_KEY")
         openrouter_provider_routing = parse_openrouter_provider_routing()
+        main_profile = resolve_model_profile(
+            name="main",
+            provider_raw=optional_env("RSI_RUNNER_PROVIDER"),
+            model_raw=model,
+            reasoning_effort=reasoning_effort,
+            thinking_mode=thinking_mode,
+            openrouter_provider_routing=openrouter_provider_routing,
+        )
+        summary_model = optional_env("RSI_SUMMARY_MODEL") or "deepseek-v4-flash"
+        summary_reasoning_effort = optional_env("RSI_SUMMARY_REASONING_EFFORT") or "none"
+        summary_thinking_mode = normalize_thinking_mode(
+            optional_env("RSI_SUMMARY_THINKING") or "disabled",
+            "RSI_SUMMARY_THINKING",
+        )
+        summary_profile = resolve_model_profile(
+            name="summary",
+            provider_raw=optional_env("RSI_SUMMARY_PROVIDER"),
+            model_raw=summary_model,
+            reasoning_effort=summary_reasoning_effort,
+            thinking_mode=summary_thinking_mode,
+            openrouter_provider_routing=openrouter_provider_routing,
+        )
         hermes_pin = optional_env("RSI_HERMES_PIN")
         public_base_url = required_url_env("RSI_RUNNER_PUBLIC_BASE_URL")
         runtime_observation_sink_url = optional_url_env("RSI_RUNTIME_OBSERVATION_SINK_URL")
@@ -177,10 +225,10 @@ class RunnerConfig:
         verbose_trace_logging = parse_bool(optional_env("RSI_VERBOSE_TRACE_LOGGING") or "false", "RSI_VERBOSE_TRACE_LOGGING")
         verbose_trace_log_limit = parse_non_negative_int(optional_env("RSI_VERBOSE_TRACE_LOG_LIMIT") or "100000", "RSI_VERBOSE_TRACE_LOG_LIMIT")
         drain_timeout_seconds = parse_positive_int(optional_env("RSI_RUNNER_DRAIN_TIMEOUT_SECONDS") or "900", "RSI_RUNNER_DRAIN_TIMEOUT_SECONDS")
-        if not model.startswith("openrouter/") or len(model.split("/", 1)) < 2 or not model.split("/", 1)[1]:
-            raise RunnerConfigError("RSI_RUNNER_MODEL must use the openrouter/<model> form")
-        if not openrouter_api_key:
-            raise RunnerConfigError("RSI_OPENROUTER_API_KEY or OPENROUTER_API_KEY is required when RSI_RUNNER_MODEL starts with openrouter/")
+        if not main_profile.api_key_configured:
+            raise RunnerConfigError(
+                f"{provider_api_key_label(main_profile.provider)} is required when RSI_RUNNER_PROVIDER={main_profile.provider}"
+            )
         if memory_backend != "honcho":
             raise RunnerConfigError("RSI_RUNNER_MEMORY_BACKEND must be set to honcho")
         if not honcho_api_key and not honcho_base_url:
@@ -194,6 +242,18 @@ class RunnerConfig:
             port=port,
             model=model,
             reasoning_effort=reasoning_effort,
+            model_provider=main_profile.provider,
+            provider_model=main_profile.provider_model,
+            model_base_url=main_profile.base_url,
+            model_api_key_configured=main_profile.api_key_configured,
+            thinking_mode=main_profile.thinking_mode,
+            summary_model=summary_model,
+            summary_reasoning_effort=summary_reasoning_effort,
+            summary_model_provider=summary_profile.provider,
+            summary_provider_model=summary_profile.provider_model,
+            summary_model_base_url=summary_profile.base_url,
+            summary_model_api_key_configured=summary_profile.api_key_configured,
+            summary_thinking_mode=summary_profile.thinking_mode,
             openrouter_api_key_configured=bool(openrouter_api_key),
             openrouter_provider_routing=openrouter_provider_routing,
             hermes_pin=hermes_pin,
@@ -286,6 +346,132 @@ def required_url_env(name: str) -> str:
 
 def optional_url_env(name: str) -> str:
     value = optional_env(name)
+    if not value:
+        return ""
+    parsed = urlparse(value)
+    if not parsed.scheme or not parsed.netloc:
+        raise RunnerConfigError(f"{name} must be a valid absolute URL")
+    return value
+
+
+def resolve_model_profile(
+    *,
+    name: str,
+    provider_raw: str,
+    model_raw: str,
+    reasoning_effort: str,
+    thinking_mode: str,
+    openrouter_provider_routing: dict[str, object],
+) -> ModelProfile:
+    provider, provider_model, configured_model = normalize_provider_model(provider_raw, model_raw)
+    base_url = provider_base_url(provider)
+    api_key_configured = bool(provider_api_key(provider))
+    return ModelProfile(
+        name=name,
+        provider=provider,
+        configured_model=configured_model,
+        provider_model=provider_model,
+        base_url=base_url,
+        api_key_configured=api_key_configured,
+        reasoning_effort=str(reasoning_effort or "").strip().lower(),
+        thinking_mode=normalize_thinking_mode(thinking_mode, f"RSI_{name.upper()}_THINKING"),
+        openrouter_provider_routing=dict(openrouter_provider_routing or {}) if provider == "openrouter" else {},
+    )
+
+
+def normalize_provider_model(provider_raw: str, model_raw: str) -> tuple[str, str, str]:
+    model = str(model_raw or "").strip()
+    if not model:
+        raise RunnerConfigError("model must be configured")
+    explicit_provider = str(provider_raw or "").strip().lower()
+    if explicit_provider and explicit_provider not in {"deepseek", "openrouter"}:
+        raise RunnerConfigError("model provider must be one of: deepseek, openrouter")
+
+    if model.startswith("openrouter/"):
+        provider = explicit_provider or "openrouter"
+        if provider != "openrouter":
+            raise RunnerConfigError("openrouter/<model> strings require provider=openrouter")
+        provider_model = model.split("/", 1)[1].strip()
+    elif model.startswith("deepseek/"):
+        provider = explicit_provider or "deepseek"
+        if provider == "openrouter":
+            provider_model = model
+            model = "openrouter/" + model
+        else:
+            provider_model = model.split("/", 1)[1].strip()
+    elif model.startswith("deepseek-"):
+        provider = explicit_provider or "deepseek"
+        provider_model = model
+        if provider == "openrouter":
+            provider_model = "deepseek/" + model
+            model = "openrouter/" + provider_model
+    else:
+        provider = explicit_provider or "openrouter"
+        provider_model = model
+        if provider == "openrouter" and "/" not in model:
+            raise RunnerConfigError("OpenRouter model strings must include a provider namespace or use openrouter/<provider>/<model>")
+
+    if not provider_model:
+        raise RunnerConfigError("model must include a provider model name")
+    return provider, provider_model, model
+
+
+def normalize_thinking_mode(raw: str, name: str) -> str:
+    value = str(raw or "").strip().lower()
+    if value in {"enabled", "enable", "on", "true", "1", "yes"}:
+        return "enabled"
+    if value in {"disabled", "disable", "off", "false", "0", "no", "none"}:
+        return "disabled"
+    raise RunnerConfigError(f"{name} must be enabled or disabled")
+
+
+def provider_base_url(provider: str) -> str:
+    provider = str(provider or "").strip().lower()
+    if provider == "deepseek":
+        return normalize_base_url(
+            first_non_empty_env(
+                "RSI_DEEPSEEK_BASE_URL",
+                "DEEPSEEK_BASE_URL",
+            )
+            or "https://api.deepseek.com",
+            "DEEPSEEK_BASE_URL",
+        )
+    if provider == "openrouter":
+        return normalize_base_url(
+            first_non_empty_env("RSI_OPENROUTER_BASE_URL", "OPENROUTER_BASE_URL") or "",
+            "RSI_OPENROUTER_BASE_URL",
+        )
+    raise RunnerConfigError("model provider must be one of: deepseek, openrouter")
+
+
+def provider_api_key(provider: str) -> str:
+    provider = str(provider or "").strip().lower()
+    if provider == "deepseek":
+        return first_non_empty_env("RSI_DEEPSEEK_API_KEY", "DEEPSEEK_API_KEY")
+    if provider == "openrouter":
+        return first_non_empty_env("RSI_OPENROUTER_API_KEY", "OPENROUTER_API_KEY")
+    return ""
+
+
+def provider_api_key_label(provider: str) -> str:
+    provider = str(provider or "").strip().lower()
+    if provider == "deepseek":
+        return "RSI_DEEPSEEK_API_KEY or DEEPSEEK_API_KEY"
+    if provider == "openrouter":
+        return "RSI_OPENROUTER_API_KEY or OPENROUTER_API_KEY"
+    return "provider API key"
+
+
+def first_non_empty_env(*names: str) -> str:
+    for name in names:
+        value = optional_env(name)
+        if value:
+            return value
+    return ""
+
+
+def normalize_base_url(raw: str, name: str) -> str:
+    value = str(raw or "").strip().rstrip("/")
     if not value:
         return ""
     parsed = urlparse(value)

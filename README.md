@@ -58,12 +58,12 @@ The runner uses the structured task contract for repo-scoped eval, proposal, and
 
 Runtime defaults:
 
-- model: `openai/gpt-5.4`
+- provider/model: `deepseek` / `deepseek-v4-pro`
 - reasoning effort: `xhigh`
 - Hermes harness: `AIAgent`
-- OpenAI transport mode: `codex_responses`
+- chat-completions transport with direct DeepSeek credentials
 
-For `openai/*` models, the runner uses Hermes directly and forwards the configured `reasoning_effort` into Hermes `reasoning_config`. The effective runtime is exposed at `/runtimez` on each runner and aggregated by `improvement-plane` at `/api/runtime`.
+For DeepSeek models, the runner uses Hermes directly and forwards the configured `reasoning_effort` and thinking mode into Hermes `reasoning_config`. The effective runtime is exposed at `/runtimez` on each runner and aggregated by `improvement-plane` at `/api/runtime`.
 
 `control-plane --mode slack-surface` uses the Slack env contract:
 `RSI_SLACK_APP_IDENTITY`, `RSI_SLACK_SOCKET_MODE_ENABLED`, `RSI_SLACK_APP_TOKEN`, and `SLACK_BOT_TOKEN`.

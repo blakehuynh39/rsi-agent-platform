@@ -115,6 +115,46 @@ func TestLoadUsesCompanyWikiCompilerRunBudgetDefaults(t *testing.T) {
 	}
 }
 
+func TestLoadUsesDeepSeekCompanyWikiCompilerDefaults(t *testing.T) {
+	t.Setenv("DEEPSEEK_API_KEY", "deepseek-test")
+
+	cfg := Load("control-plane")
+
+	if cfg.CompanyWikiCompilerProvider != "deepseek" {
+		t.Fatalf("CompanyWikiCompilerProvider = %q, want deepseek", cfg.CompanyWikiCompilerProvider)
+	}
+	if cfg.CompanyWikiCompilerModel != "deepseek-v4-pro" {
+		t.Fatalf("CompanyWikiCompilerModel = %q", cfg.CompanyWikiCompilerModel)
+	}
+	if cfg.CompanyWikiCompilerBaseURL != "https://api.deepseek.com" {
+		t.Fatalf("CompanyWikiCompilerBaseURL = %q", cfg.CompanyWikiCompilerBaseURL)
+	}
+	if cfg.CompanyWikiCompilerAPIKey != "deepseek-test" {
+		t.Fatal("CompanyWikiCompilerAPIKey did not read DeepSeek key")
+	}
+	if cfg.CompanyWikiCompilerThinking != "enabled" || cfg.CompanyWikiCompilerReasoningEffort != "high" {
+		t.Fatalf("compiler thinking/effort = %q/%q", cfg.CompanyWikiCompilerThinking, cfg.CompanyWikiCompilerReasoningEffort)
+	}
+}
+
+func TestLoadPreservesOpenRouterCompanyWikiCompilerAliases(t *testing.T) {
+	t.Setenv("RSI_COMPANY_WIKI_COMPILER_PROVIDER", "openrouter")
+	t.Setenv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", "https://openrouter.example/v1")
+	t.Setenv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", "openrouter-test")
+
+	cfg := Load("control-plane")
+
+	if cfg.CompanyWikiCompilerProvider != "openrouter" {
+		t.Fatalf("CompanyWikiCompilerProvider = %q, want openrouter", cfg.CompanyWikiCompilerProvider)
+	}
+	if cfg.CompanyWikiCompilerBaseURL != "https://openrouter.example/v1" {
+		t.Fatalf("CompanyWikiCompilerBaseURL = %q", cfg.CompanyWikiCompilerBaseURL)
+	}
+	if cfg.CompanyWikiCompilerAPIKey != "openrouter-test" {
+		t.Fatal("CompanyWikiCompilerAPIKey did not read OpenRouter alias key")
+	}
+}
+
 func TestLoadUsesSourceControlledDBReadApprovers(t *testing.T) {
 	t.Setenv("RSI_DB_READ_APPROVER_SLACK_USER_IDS", "")
 

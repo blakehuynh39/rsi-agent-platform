@@ -829,6 +829,9 @@ func TestSessionTitleEffectProjectsGeneratedTitle(t *testing.T) {
 	if received.ReplyDeliveryMode != "none" {
 		t.Fatalf("title task reply_delivery_mode = %q, want none", received.ReplyDeliveryMode)
 	}
+	if received.ModelOverride == nil || received.ModelOverride.Profile != "summary" {
+		t.Fatalf("title task model_override = %#v, want summary profile", received.ModelOverride)
+	}
 	if !strings.Contains(received.Prompt, "Latest Slack request:") {
 		t.Fatalf("title task prompt missing latest request: %q", received.Prompt)
 	}

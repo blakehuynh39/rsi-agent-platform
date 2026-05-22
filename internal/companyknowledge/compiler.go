@@ -201,17 +201,57 @@ func (c *WikiSynthesisConflict) UnmarshalJSON(raw []byte) error {
 	return nil
 }
 
-type OpenRouterWikiSynthesisClient struct {
-	BaseURL string
-	APIKey  string
-	Client  *http.Client
+type OpenAICompatibleWikiSynthesisClient struct {
+	Provider        string
+	BaseURL         string
+	APIKey          string
+	Thinking        string
+	ReasoningEffort string
+	Client          *http.Client
 }
 
-func NewOpenRouterWikiSynthesisClient(cfg config.Config) *OpenRouterWikiSynthesisClient {
-	return &OpenRouterWikiSynthesisClient{
-		BaseURL: strings.TrimRight(strings.TrimSpace(cfg.CompanyWikiCompilerOpenRouterBaseURL), "/"),
-		APIKey:  strings.TrimSpace(cfg.CompanyWikiCompilerOpenRouterAPIKey),
-		Client:  &http.Client{Timeout: cfg.CompanyWikiCompilerTimeout},
+type OpenRouterWikiSynthesisClient = OpenAICompatibleWikiSynthesisClient
+
+func NewOpenAICompatibleWikiSynthesisClient(cfg config.Config) *OpenAICompatibleWikiSynthesisClient {
+	return &OpenAICompatibleWikiSynthesisClient{
+		Provider:        strings.ToLower(strings.TrimSpace(cfg.CompanyWikiCompilerProvider)),
+		BaseURL:         strings.TrimRight(strings.TrimSpace(cfg.CompanyWikiCompilerBaseURL), "/"),
+		APIKey:          strings.TrimSpace(cfg.CompanyWikiCompilerAPIKey),
+		Thinking:        strings.ToLower(strings.TrimSpace(cfg.CompanyWikiCompilerThinking)),
+		ReasoningEffort: strings.ToLower(strings.TrimSpace(cfg.CompanyWikiCompilerReasoningEffort)),
+		Client:          &http.Client{Timeout: cfg.CompanyWikiCompilerTimeout},
+	}
+}
+
+func NewOpenRouterWikiSynthesisClient(cfg config.Config) *OpenAICompatibleWikiSynthesisClient {
+	if strings.TrimSpace(cfg.CompanyWikiCompilerProvider) == "" {
+		cfg.CompanyWikiCompilerProvider = "openrouter"
+	}
+	if strings.TrimSpace(cfg.CompanyWikiCompilerBaseURL) == "" {
+		cfg.CompanyWikiCompilerBaseURL = cfg.CompanyWikiCompilerOpenRouterBaseURL
+	}
+	if strings.TrimSpace(cfg.CompanyWikiCompilerAPIKey) == "" {
+		cfg.CompanyWikiCompilerAPIKey = cfg.CompanyWikiCompilerOpenRouterAPIKey
+	}
+	return NewOpenAICompatibleWikiSynthesisClient(cfg)
+}
+
+func chatCompletionURL(baseURL string) string {
+	base := strings.TrimRight(strings.TrimSpace(baseURL), "/")
+	if strings.HasSuffix(base, "/chat/completions") {
+		return base
+	}
+	return base + "/chat/completions"
+}
+
+func normalizeDeepSeekReasoningEffort(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "xhigh", "max":
+		return "max"
+	case "low", "medium", "high":
+		return strings.ToLower(strings.TrimSpace(value))
+	default:
+		return ""
 	}
 }
 
@@ -221,7 +261,7 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any, cl
 		return WikiCompilerResult{}, errors.New("configured store does not support company wiki")
 	}
 	if client == nil {
-		client = NewOpenRouterWikiSynthesisClient(cfg)
+		client = NewOpenAICompatibleWikiSynthesisClient(cfg)
 	}
 	if cfg.CompanyWikiCompilerRunTimeout > 0 {
 		var cancel context.CancelFunc
@@ -257,6 +297,7 @@ func RunCompanyWikiCompiler(ctx context.Context, cfg config.Config, repo any, cl
 			"schema_version":       CompanyWikiSchemaVersion,
 			"renderer_version":     CompanyWikiRendererVersion,
 			"model_policy_version": CompanyWikiModelPolicyVersion,
+			"provider":             cfg.CompanyWikiCompilerProvider,
 			"model":                cfg.CompanyWikiCompilerModel,
 		})
 		defer func() {
@@ -726,9 +767,9 @@ func publishSynthesisTarget(cfg config.Config, wikiStore store.CompanyWikiStore,
 	return page, nil
 }
 
-func (c *OpenRouterWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request WikiSynthesisRequest) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
+func (c *OpenAICompatibleWikiSynthesisClient) SynthesizeWiki(ctx context.Context, request WikiSynthesisRequest) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
 	if strings.TrimSpace(c.BaseURL) == "" || strings.TrimSpace(c.APIKey) == "" {
-		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("OpenRouter company wiki compiler is not configured")
+		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("company wiki compiler LLM client is not configured")
 	}
 	client := c.Client
 	if client == nil {
@@ -748,7 +789,7 @@ func (c *OpenRouterWikiSynthesisClient) SynthesizeWiki(ctx context.Context, requ
 	return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, lastErr
 }
 
-func (c *OpenRouterWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, client *http.Client, request WikiSynthesisRequest, attempt int, previousErr error) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
+func (c *OpenAICompatibleWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, client *http.Client, request WikiSynthesisRequest, attempt int, previousErr error) (WikiSynthesisOutput, WikiSynthesisMetadata, error) {
 	messages := []map[string]string{
 		{"role": "system", "content": synthesisSystemPrompt()},
 		{"role": "user", "content": synthesisUserPrompt(request)},
@@ -762,14 +803,26 @@ func (c *OpenRouterWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, 
 	payload := map[string]any{
 		"model":           request.Model,
 		"messages":        messages,
-		"temperature":     0,
 		"response_format": map[string]string{"type": "json_object"},
+	}
+	provider := strings.ToLower(strings.TrimSpace(c.Provider))
+	thinking := strings.ToLower(strings.TrimSpace(c.Thinking))
+	if provider == "deepseek" && thinking == "enabled" {
+		payload["thinking"] = map[string]string{"type": "enabled"}
+		if effort := normalizeDeepSeekReasoningEffort(c.ReasoningEffort); effort != "" {
+			payload["reasoning_effort"] = effort
+		}
+	} else {
+		if provider == "deepseek" && thinking == "disabled" {
+			payload["thinking"] = map[string]string{"type": "disabled"}
+		}
+		payload["temperature"] = 0
 	}
 	raw, err := json.Marshal(payload)
 	if err != nil {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.BaseURL+"/chat/completions", bytes.NewReader(raw))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, chatCompletionURL(c.BaseURL), bytes.NewReader(raw))
 	if err != nil {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
 	}
@@ -783,7 +836,7 @@ func (c *OpenRouterWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, 
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, fmt.Errorf("OpenRouter compiler returned HTTP %d: %s", resp.StatusCode, truncateForCitation(string(body), 800))
+		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, fmt.Errorf("company wiki compiler returned HTTP %d: %s", resp.StatusCode, truncateForCitation(string(body), 800))
 	}
 	var decoded struct {
 		ID      string `json:"id"`
@@ -799,13 +852,13 @@ func (c *OpenRouterWikiSynthesisClient) synthesizeWikiOnce(ctx context.Context, 
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
 	}
 	if len(decoded.Choices) == 0 || strings.TrimSpace(decoded.Choices[0].Message.Content) == "" {
-		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("OpenRouter compiler returned no content")
+		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, errors.New("company wiki compiler returned no content")
 	}
 	output, err := decodeWikiSynthesisContent(decoded.Choices[0].Message.Content)
 	if err != nil {
 		return WikiSynthesisOutput{}, WikiSynthesisMetadata{}, err
 	}
-	meta := map[string]any{"model": decoded.Model, "id": decoded.ID, "usage": decoded.Usage, "attempt": attempt}
+	meta := map[string]any{"provider": provider, "model": decoded.Model, "id": decoded.ID, "usage": decoded.Usage, "attempt": attempt}
 	return output, WikiSynthesisMetadata{
 		RequestMetadataHash:  store.CompanyWikiSHA256(request.Model + ":" + request.Source.Revision.ID),
 		ResponseMetadataHash: store.CompanyWikiSHA256(mustMarshalString(meta)),

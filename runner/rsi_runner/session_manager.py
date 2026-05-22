@@ -349,13 +349,15 @@ class SessionManager:
 
     def _write_hermes_config(self) -> None:
         config_path = self._hermes_home / "config.yaml"
-        configured_model = str(self._config.model or "").strip()
-        provider_model = configured_model.split("/", 1)[1]
-        provider_routing = dict(self._config.openrouter_provider_routing or {})
+        provider_model = str(self._config.provider_model or "").strip()
+        provider = str(self._config.model_provider or "").strip() or "openrouter"
+        provider_routing = (
+            dict(self._config.openrouter_provider_routing or {}) if provider == "openrouter" else {}
+        )
 
         content = "model:\n"
         content += f"  default: {json.dumps(provider_model)}\n"
-        content += "  provider: openrouter\n"
+        content += f"  provider: {provider}\n"
         content += "  api_key: \"\"\n"
         if provider_routing:
             content += _render_provider_routing(provider_routing)

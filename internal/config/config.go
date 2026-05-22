@@ -64,12 +64,17 @@ type Config struct {
 	CompanyWikiRoot                      string
 	CompanyWikiSynthesisEnabled          bool
 	CompanyWikiSourcePageMode            string
+	CompanyWikiCompilerProvider          string
 	CompanyWikiCompilerModel             string
 	CompanyWikiCompilerBatchLimit        int
 	CompanyWikiCompilerChunkLimit        int
 	CompanyWikiCompilerTimeout           time.Duration
 	CompanyWikiCompilerRunTimeout        time.Duration
 	CompanyWikiCompilerShutdownGrace     time.Duration
+	CompanyWikiCompilerBaseURL           string
+	CompanyWikiCompilerAPIKey            string
+	CompanyWikiCompilerThinking          string
+	CompanyWikiCompilerReasoningEffort   string
 	CompanyWikiCompilerOpenRouterBaseURL string
 	CompanyWikiCompilerOpenRouterAPIKey  string
 	NativeToolsEnabled                   bool
@@ -190,6 +195,38 @@ func Load(serviceName string) Config {
 	environment := stringEnv("RSI_ENV", "")
 	runnerBaseURL := stringEnv("RSI_RUNNER_BASE_URL", "")
 	dbReadApprovers := CompactUniqueStrings(append(defaultDBReadApproverSlackUserIDs(), listEnv("RSI_DB_READ_APPROVER_SLACK_USER_IDS")...))
+	compilerProvider := strings.ToLower(strings.TrimSpace(stringEnv("RSI_COMPANY_WIKI_COMPILER_PROVIDER", "deepseek")))
+	compilerDefaultBaseURL := "https://api.deepseek.com"
+	if compilerProvider == "openrouter" {
+		compilerDefaultBaseURL = "https://openrouter.ai/api/v1"
+	}
+	compilerBaseURL := firstNonEmpty(
+		stringEnv("RSI_COMPANY_WIKI_COMPILER_BASE_URL", ""),
+		stringEnv("RSI_DEEPSEEK_BASE_URL", ""),
+		stringEnv("DEEPSEEK_BASE_URL", ""),
+		compilerDefaultBaseURL,
+	)
+	compilerAPIKey := firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_API_KEY", ""))
+	if compilerProvider == "openrouter" {
+		compilerBaseURL = firstNonEmpty(
+			stringEnv("RSI_COMPANY_WIKI_COMPILER_BASE_URL", ""),
+			stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", ""),
+			stringEnv("RSI_OPENROUTER_BASE_URL", ""),
+			compilerDefaultBaseURL,
+		)
+		compilerAPIKey = firstNonEmpty(
+			compilerAPIKey,
+			stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""),
+			stringEnv("RSI_OPENROUTER_API_KEY", ""),
+			stringEnv("OPENROUTER_API_KEY", ""),
+		)
+	} else {
+		compilerAPIKey = firstNonEmpty(
+			compilerAPIKey,
+			stringEnv("RSI_DEEPSEEK_API_KEY", ""),
+			stringEnv("DEEPSEEK_API_KEY", ""),
+		)
+	}
 	return Config{
 		ServiceName:                          stringEnv("RSI_SERVICE_NAME", serviceName),
 		ServiceKind:                          serviceName,
@@ -241,12 +278,17 @@ func Load(serviceName string) Config {
 		CompanyWikiRoot:                      stringEnv("RSI_COMPANY_WIKI_ROOT", "/workspace/company/wiki"),
 		CompanyWikiSynthesisEnabled:          boolEnv("RSI_COMPANY_WIKI_SYNTHESIS_ENABLED", false),
 		CompanyWikiSourcePageMode:            stringEnv("RSI_COMPANY_WIKI_SOURCE_PAGE_MODE", "evidence"),
-		CompanyWikiCompilerModel:             stringEnv("RSI_COMPANY_WIKI_COMPILER_MODEL", ""),
+		CompanyWikiCompilerProvider:          compilerProvider,
+		CompanyWikiCompilerModel:             stringEnv("RSI_COMPANY_WIKI_COMPILER_MODEL", "deepseek-v4-pro"),
 		CompanyWikiCompilerBatchLimit:        intEnv("RSI_COMPANY_WIKI_COMPILER_BATCH_LIMIT", 10),
 		CompanyWikiCompilerChunkLimit:        intEnv("RSI_COMPANY_WIKI_COMPILER_CHUNK_LIMIT", 24),
 		CompanyWikiCompilerTimeout:           durationEnv("RSI_COMPANY_WIKI_COMPILER_TIMEOUT", 120*time.Second),
 		CompanyWikiCompilerRunTimeout:        durationEnv("RSI_COMPANY_WIKI_COMPILER_RUN_TIMEOUT", 25*time.Minute),
 		CompanyWikiCompilerShutdownGrace:     durationEnv("RSI_COMPANY_WIKI_COMPILER_SHUTDOWN_GRACE", 30*time.Second),
+		CompanyWikiCompilerBaseURL:           compilerBaseURL,
+		CompanyWikiCompilerAPIKey:            compilerAPIKey,
+		CompanyWikiCompilerThinking:          strings.ToLower(strings.TrimSpace(stringEnv("RSI_COMPANY_WIKI_COMPILER_THINKING", "enabled"))),
+		CompanyWikiCompilerReasoningEffort:   strings.ToLower(strings.TrimSpace(stringEnv("RSI_COMPANY_WIKI_COMPILER_REASONING_EFFORT", "high"))),
 		CompanyWikiCompilerOpenRouterBaseURL: stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_BASE_URL", stringEnv("RSI_OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")),
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", true),

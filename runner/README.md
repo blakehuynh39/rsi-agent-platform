@@ -13,11 +13,14 @@ The wrapper is intentionally small:
 
 Default runtime:
 
-- `RSI_RUNNER_MODEL=openai/gpt-5.4`
+- `RSI_RUNNER_PROVIDER=deepseek`
+- `RSI_RUNNER_MODEL=deepseek-v4-pro`
 - `RSI_RUNNER_REASONING_EFFORT=xhigh`
-- Hermes `api_mode=codex_responses` for `openai/*` models
+- `RSI_RUNNER_THINKING=enabled`
+- `RSI_SUMMARY_MODEL=deepseek-v4-flash`
+- `RSI_SUMMARY_THINKING=disabled`
 
-`/runtimez` reports the effective role, backend, provider, model, API mode, and reasoning effort so improvement-plane can surface the live runtime configuration in the operator UI.
+`/runtimez` reports the effective role, backend, provider, model, thinking mode, summary model, API mode, and reasoning effort so improvement-plane can surface the live runtime configuration in the operator UI.
 
 ## Hermes Fork Pin
 

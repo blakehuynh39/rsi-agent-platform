@@ -4,6 +4,8 @@ import "time"
 
 const (
 	DefaultMemoryBackend = "honcho"
+	DefaultModel         = "deepseek/deepseek-v4-pro"
+	LegacyDefaultModel   = "openai/gpt-5.4"
 )
 
 func DefaultProfileID(role string) string {
@@ -17,7 +19,7 @@ func SeedProfiles(now time.Time) []Profile {
 			Role:                "prod",
 			Name:                "Production Operator",
 			Description:         "Live conversation and incident workflow agent with durable memory and explicit evidence-first reasoning.",
-			Model:               "openai/gpt-5.4",
+			Model:               DefaultModel,
 			ReasoningEffort:     "xhigh",
 			PromptFragments:     []string{"Ground answers in explicit evidence. Prefer concrete repo, Slack, and tool context over generic advice."},
 			ToolPreferenceOrder: []string{"repo.context", "knowledge.context", "github.repo_activity", "sentry.lookup", "kubernetes.logs"},
@@ -34,7 +36,7 @@ func SeedProfiles(now time.Time) []Profile {
 			Role:                "proactive",
 			Name:                "Proactive Thread Agent",
 			Description:         "Monitors and joins conversations when evidence justifies intervention.",
-			Model:               "openai/gpt-5.4",
+			Model:               DefaultModel,
 			ReasoningEffort:     "xhigh",
 			PromptFragments:     []string{"Intervene only when the evidence supports a useful reply or workflow launch."},
 			ToolPreferenceOrder: []string{"knowledge.context", "repo.context", "github.repo_activity"},
@@ -51,7 +53,7 @@ func SeedProfiles(now time.Time) []Profile {
 			Role:                "eval",
 			Name:                "Eval Analyst",
 			Description:         "Summarizes failures, compares traces, and improves recurring eval lines without hiding uncertainty.",
-			Model:               "openai/gpt-5.4",
+			Model:               DefaultModel,
 			ReasoningEffort:     "xhigh",
 			PromptFragments:     []string{"Focus on observable evidence, failure patterns, and novelty relative to prior rejected proposals."},
 			ToolPreferenceOrder: []string{"knowledge.context"},
@@ -68,7 +70,7 @@ func SeedProfiles(now time.Time) []Profile {
 			Role:                "proposal",
 			Name:                "Proposal Materializer",
 			Description:         "Turns approved candidate lines into governed repo-change or overlay-ready reasoning with prior memory context.",
-			Model:               "openai/gpt-5.4",
+			Model:               DefaultModel,
 			ReasoningEffort:     "xhigh",
 			PromptFragments:     []string{"Respect proposal memory, review rationale, and rollback expectations before materializing work."},
 			ToolPreferenceOrder: []string{"knowledge.context", "repo.context"},

@@ -238,6 +238,7 @@ type RunnerTask struct {
 	ContextRefs               []RunnerContextRef              `json:"context_refs,omitempty"`
 	ApprovalMode              string                          `json:"approval_mode,omitempty"`
 	ReasoningVerbosity        string                          `json:"reasoning_verbosity,omitempty"`
+	ModelOverride             *RunnerModelOverride            `json:"model_override,omitempty"`
 	SessionScopeKind          string                          `json:"session_scope_kind,omitempty"`
 	SessionScopeID            string                          `json:"session_scope_id,omitempty"`
 	ParentSessionScopeKind    string                          `json:"parent_session_scope_kind,omitempty"`
@@ -258,6 +259,10 @@ type RunnerTask struct {
 	DeliveryPolicy            *RunnerDeliveryPolicy           `json:"delivery_policy,omitempty"`
 	WorkspacePolicy           *RunnerWorkspacePolicy          `json:"workspace_policy,omitempty"`
 	ApprovalPolicy            *RunnerApprovalPolicy           `json:"approval_policy,omitempty"`
+}
+
+type RunnerModelOverride struct {
+	Profile string `json:"profile,omitempty"`
 }
 
 type RunnerMCPServer struct {

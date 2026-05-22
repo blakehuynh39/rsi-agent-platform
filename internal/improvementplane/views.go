@@ -1436,7 +1436,7 @@ func buildRuntimeStatusWithProbeTimeoutCap(cfg config.Config, store storepkg.Rep
 			BaseURL:         baseURL,
 			TimeoutSeconds:  int(cfg.RunnerTimeoutForRole(role).Seconds()),
 			Status:          "unreachable",
-			Model:           "openai/gpt-5.4",
+			Model:           harness.DefaultModel,
 			ReasoningEffort: "xhigh",
 		}
 		if profile, ok := store.GetHarnessProfile(harness.DefaultProfileID(role)); ok {

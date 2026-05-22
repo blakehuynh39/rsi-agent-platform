@@ -238,6 +238,109 @@ func TestOpenRouterWikiSynthesisClientRetriesMalformedJSON(t *testing.T) {
 	}
 }
 
+func TestOpenAICompatibleWikiSynthesisClientDeepSeekThinkingPayload(t *testing.T) {
+	var captured map[string]any
+	var capturedPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":    "chatcmpl-test",
+			"model": "deepseek-v4-pro",
+			"choices": []map[string]any{{
+				"message": map[string]string{"content": `{"pages":[{"slug":"status","title":"Status","type":"project","summary":"Status summary.","claims":[]}]}`},
+			}},
+			"usage": map[string]any{"prompt_tokens": 1},
+		})
+	}))
+	defer server.Close()
+
+	client := &OpenAICompatibleWikiSynthesisClient{
+		Provider:        "deepseek",
+		BaseURL:         server.URL + "/v1",
+		APIKey:          "test",
+		Thinking:        "enabled",
+		ReasoningEffort: "xhigh",
+		Client:          server.Client(),
+	}
+	_, _, err := client.SynthesizeWiki(context.Background(), WikiSynthesisRequest{
+		Model: "deepseek-v4-pro",
+		Source: store.CompanyWikiSourceEvidence{
+			Revision: store.CompanyWikiSourceRevision{ID: "rev"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("SynthesizeWiki() error = %v", err)
+	}
+	if capturedPath != "/v1/chat/completions" {
+		t.Fatalf("path = %q, want /v1/chat/completions", capturedPath)
+	}
+	thinking, _ := captured["thinking"].(map[string]any)
+	if thinking["type"] != "enabled" {
+		t.Fatalf("thinking = %+v, want enabled", thinking)
+	}
+	if captured["reasoning_effort"] != "max" {
+		t.Fatalf("reasoning_effort = %v, want max", captured["reasoning_effort"])
+	}
+	for _, key := range []string{"temperature", "top_p", "presence_penalty", "frequency_penalty"} {
+		if _, ok := captured[key]; ok {
+			t.Fatalf("payload unexpectedly included %s: %+v", key, captured)
+		}
+	}
+}
+
+func TestOpenAICompatibleWikiSynthesisClientDeepSeekDisabledThinkingPayload(t *testing.T) {
+	var captured map[string]any
+	var capturedPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedPath = r.URL.Path
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode request: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"id":    "chatcmpl-test",
+			"model": "deepseek-v4-flash",
+			"choices": []map[string]any{{
+				"message": map[string]string{"content": `{"pages":[{"slug":"status","title":"Status","type":"project","summary":"Status summary.","claims":[]}]}`},
+			}},
+		})
+	}))
+	defer server.Close()
+
+	client := &OpenAICompatibleWikiSynthesisClient{
+		Provider:        "deepseek",
+		BaseURL:         server.URL,
+		APIKey:          "test",
+		Thinking:        "disabled",
+		ReasoningEffort: "none",
+		Client:          server.Client(),
+	}
+	_, _, err := client.SynthesizeWiki(context.Background(), WikiSynthesisRequest{
+		Model: "deepseek-v4-flash",
+		Source: store.CompanyWikiSourceEvidence{
+			Revision: store.CompanyWikiSourceRevision{ID: "rev"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("SynthesizeWiki() error = %v", err)
+	}
+	if capturedPath != "/chat/completions" {
+		t.Fatalf("path = %q, want /chat/completions", capturedPath)
+	}
+	thinking, _ := captured["thinking"].(map[string]any)
+	if thinking["type"] != "disabled" {
+		t.Fatalf("thinking = %+v, want disabled", thinking)
+	}
+	if _, ok := captured["reasoning_effort"]; ok {
+		t.Fatalf("disabled thinking should omit reasoning_effort: %+v", captured)
+	}
+	if captured["temperature"] != float64(0) {
+		t.Fatalf("temperature = %v, want 0 for disabled thinking", captured["temperature"])
+	}
+}
+
 func TestRunCompanyWikiCompilerRetriesValidationFailure(t *testing.T) {
 	state := store.NewMemoryStore()
 	cfg := testWikiCompilerConfig(t.TempDir(), "off")
