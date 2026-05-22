@@ -23394,3 +23394,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_839feab0efa4ebcf27ec89148e35e426
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-22T19:03:13Z] synthesis | DePIN Season 1 Handoff
+
+- status: published
+- slug: projects/depin-season-1-handoff
+- wiki_revision_id: wikirev_ac2429b8bf62970f9402ca8c117f2c16
+- summary: Handoff document for DePIN season 1 transitioning to Numo, covering key dates, repositories, and task assignments.
+

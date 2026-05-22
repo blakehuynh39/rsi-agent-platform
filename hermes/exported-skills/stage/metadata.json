@@ -3031,8 +3031,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ec900091207a13137632b2c743c23c19e79ae82cf90b67892acd96e67e8e9891",
-        "size": 1120311
+        "sha256": "9fb809531543339214a00431ec5d4c2f4b3b888a3cf8745b320074098be7f35f",
+        "size": 1120621
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -4683,6 +4683,11 @@
         "path": "pages/projects/depin-release-v1-0-0.md",
         "sha256": "2da7aec70e8a5a762d7190185f1f4e2451f730ec0f6fd50a1bde2d23a369e7fb",
         "size": 6503
+      },
+      {
+        "path": "pages/projects/depin-season-1-handoff.md",
+        "sha256": "4ea29e7a2fcb4f4ad7953bd63afebe4731529f602b36459d9658a84d89bb62dd",
+        "size": 7721
       },
       {
         "path": "pages/projects/depin-season-1-numo-handoff.md",
@@ -6344,8 +6349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T18:41:51Z",
-  "file_count": 1267,
+  "exported_at": "2026-05-22T19:03:22Z",
+  "file_count": 1268,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9367,7 +9372,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "a1adb3fc1f42e1d0ee5e8238ff38f0a6fbed1173d0b94cdead5832ee06b16b0a",
+  "previous_tree_hash": "0dee997fb4e6b277e3b48fd6740c666908366ec9a790fcad26b8470848a11f44",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9380,14 +9385,14 @@
   ],
   "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0dee997fb4e6b277e3b48fd6740c666908366ec9a790fcad26b8470848a11f44",
+  "tree_hash": "6e612ba925c70883b90dd43ee01a1d56fe984cb6046dcfb8b837426a79df8071",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 664,
+  "wiki_file_count": 665,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9401,8 +9406,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ec900091207a13137632b2c743c23c19e79ae82cf90b67892acd96e67e8e9891",
-      "size": 1120311
+      "sha256": "9fb809531543339214a00431ec5d4c2f4b3b888a3cf8745b320074098be7f35f",
+      "size": 1120621
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11053,6 +11058,11 @@
       "path": "pages/projects/depin-release-v1-0-0.md",
       "sha256": "2da7aec70e8a5a762d7190185f1f4e2451f730ec0f6fd50a1bde2d23a369e7fb",
       "size": 6503
+    },
+    {
+      "path": "pages/projects/depin-season-1-handoff.md",
+      "sha256": "4ea29e7a2fcb4f4ad7953bd63afebe4731529f602b36459d9658a84d89bb62dd",
+      "size": 7721
     },
     {
       "path": "pages/projects/depin-season-1-numo-handoff.md",
@@ -12711,5 +12721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "33c5b705774f256d5fadd6d1a3c552297e6228d287456cae101b62a8c9677482"
+  "wiki_tree_hash": "1873ca89d7f25bbbea7941baa06065d94a90142368db12dcd29d294575e3fad2"
 }
