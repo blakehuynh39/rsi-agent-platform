@@ -3026,13 +3026,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "df6ecb070b33e39ed2119094619d198493eb976f9308e52979548cb956bd06bd",
-        "size": 597565
+        "sha256": "cf42af4cfe6c0845a4841a05881f5b859b6a398c6761a2a4d44756b2759d528e",
+        "size": 597856
       },
       {
         "path": "log.md",
-        "sha256": "3886e3ed59437770729f674e226361592c33463b938b4ae01bded4b241645d09",
-        "size": 1126532
+        "sha256": "7b5e3f8422f0863891c3afb343941f1889d6c14cb8a1d29296f88c44640f0089",
+        "size": 1126835
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5785,6 +5785,11 @@
         "size": 6068
       },
       {
+        "path": "pages/runbooks/numo-1-1-dogfooding-guide.md",
+        "sha256": "dd8662e0fcd7ca6780814b8a5fa770f20540a9be4f3df8163e43a4c69154ffbc",
+        "size": 3174
+      },
+      {
         "path": "pages/runbooks/odyssey-devnet-runbook.md",
         "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
         "size": 6053
@@ -6359,8 +6364,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T21:34:59Z",
-  "file_count": 1270,
+  "exported_at": "2026-05-22T22:06:43Z",
+  "file_count": 1271,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9382,7 +9387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "dcc86bea48b5b26ecaf3384701cef757f757ab466a12b9c1d78ce29b948c98a4",
+  "previous_tree_hash": "473581291a7b06c7e0b5f98f50577601e1ba1a86000bc4042952fb0fd90f3c17",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9395,14 +9400,14 @@
   ],
   "skill_tree_hash": "9f82f2eabd51457faf97fec153de1803e11e22848b6f4cfde60133ed420e5456",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "473581291a7b06c7e0b5f98f50577601e1ba1a86000bc4042952fb0fd90f3c17",
+  "tree_hash": "cca344128c36a735217b201f84d826f59b29cd4e01115550552e92c5848e65ca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 667,
+  "wiki_file_count": 668,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9411,13 +9416,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "df6ecb070b33e39ed2119094619d198493eb976f9308e52979548cb956bd06bd",
-      "size": 597565
+      "sha256": "cf42af4cfe6c0845a4841a05881f5b859b6a398c6761a2a4d44756b2759d528e",
+      "size": 597856
     },
     {
       "path": "log.md",
-      "sha256": "3886e3ed59437770729f674e226361592c33463b938b4ae01bded4b241645d09",
-      "size": 1126532
+      "sha256": "7b5e3f8422f0863891c3afb343941f1889d6c14cb8a1d29296f88c44640f0089",
+      "size": 1126835
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12170,6 +12175,11 @@
       "size": 6068
     },
     {
+      "path": "pages/runbooks/numo-1-1-dogfooding-guide.md",
+      "sha256": "dd8662e0fcd7ca6780814b8a5fa770f20540a9be4f3df8163e43a4c69154ffbc",
+      "size": 3174
+    },
+    {
       "path": "pages/runbooks/odyssey-devnet-runbook.md",
       "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
       "size": 6053
@@ -12741,5 +12751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ca8bfb4970319ba61b05ed609bbbce1d35bdf6de433d4862abfd32b35a3bb2c6"
+  "wiki_tree_hash": "0a8ed0a3252c39c0fe951043fb832787faedd6baec0923754651526a468e2223"
 }
