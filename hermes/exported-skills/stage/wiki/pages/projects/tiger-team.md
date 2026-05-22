@@ -2,25 +2,21 @@
 title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
-freshness: "2026-05-07T01:08:00Z"
+freshness: "2026-05-22T17:56:00Z"
 tags:
   - "apps"
-  - "data-ecosystem"
-  - "depin"
+  - "data ecosystem"
+  - "dePIN"
+  - "tiger team"
   - "voice"
-owners:
-  - "Allen"
-  - "Infra Team (2 members)"
-  - "Jacob"
-  - "JDub"
-  - "Sam"
+owners: []
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
   - "srcrev_0515809d6cc43cab067e1e1de246c11d"
   - "srcrev_29fb37287dd828609727dbf3aa4e89a8"
   - "srcrev_43dba63dc37ec8ab005c9753a5d88b68"
   - "srcrev_7e2bdc03a6af9ec06e97282af76837d2"
-  - "srcrev_f41f7d5ec957ad5857d6d5431448b867"
+  - "srcrev_cfb145a04754521e58102ae3fd3dc4a0"
 conflict_state: "none"
 ---
 
@@ -28,7 +24,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, strategic documents, and development resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, planning documents, and development resources.
 
 ## Claims
 
@@ -67,17 +63,13 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_23e896ee0d884675ffc60d4f480c1283` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2` `source_timestamp=2026-03-18T17:39:00Z`
 - The operating principle for this phase is fast iteration, tight feedback loops, parallel experimentation, and shared infrastructure that compounds across apps. `claim:claim_2_8` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_23e896ee0d884675ffc60d4f480c1283` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-2` `source_timestamp=2026-03-18T17:39:00Z`
-- Product ideas discussed in the Sandeep chat include targeting niche languages, toxicity datasets, social sentiment, debate, A/B testing, RLHF, coding challenges, finance predictions, voice, Indic languages, data annotation, and hard negatives mining. `claim:claim_3_1` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_f41f7d5ec957ad5857d6d5431448b867` `chunk_id=srcchunk_e1aec63642cce1d2c84f347be23ecc58` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-03-23T21:38:00Z`
+- Product ideas discussed in the Sandeep chat include targeting niche languages, toxicity datasets (Surge AI toxicity), social sentiment, debate (news politics / middle east war), A/B testing (e.g., Coke vs Pepsi), RLHF, coding challenges (LeetCode), finance predictions (Nvidia price crowdsourcing), voice, Indic languages (IndicQA, IndQA), Sasi data annotation app, and hard negatives mining focusing on edge cases where models fail. `claim:claim_3_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_cfb145a04754521e58102ae3fd3dc4a0` `chunk_id=srcchunk_91a06fce43ab3c90794392153c6ac76f` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-05-22T17:56:00Z`
 - DePIN Backend tasks include wiring Sentry log Slack channels, integrating job data search API to the job helper service, and setting up Grafana for monitoring. `claim:claim_4_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec) `source_document_id=srcdoc_59a54884735af81769540da9db298aa7` `source_revision_id=srcrev_0515809d6cc43cab067e1e1de246c11d` `chunk_id=srcchunk_8df6cfbdef7b4c8a60c4030d81bd66a1` `native_locator=https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec` `source_timestamp=2026-03-23T23:06:00Z`
 
-## Related Pages
-
-- `concepts/spam-combat`
-
 ## Sources
 
-- `source_document_id`: `srcdoc_e0986692a5484368264439705800dc26`
-- `source_revision_id`: `srcrev_4d1ae30be0d018c0f1fc71bb2ec815e2`
-- `source_url`: [Notion source](https://www.notion.so/SPAM-Combat-327051299a54802a9172ed82c9bf8cb7)
+- `source_document_id`: `srcdoc_7f33f1322a692f1be4fd76ec19079059`
+- `source_revision_id`: `srcrev_cfb145a04754521e58102ae3fd3dc4a0`
+- `source_url`: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20)

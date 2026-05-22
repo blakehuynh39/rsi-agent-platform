@@ -23387,3 +23387,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7d3dd24305bfb45a8e6aa2cc4dec8761
 - summary: Notes on combating spam, including the need to show video, addressing crypto user spam/farmed accounts, phone verification, World app, and mobile apps.
 
+## [2026-05-22T18:34:08Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_839feab0efa4ebcf27ec89148e35e426
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
