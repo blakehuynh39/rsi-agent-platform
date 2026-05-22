@@ -592,6 +592,8 @@ gh pr review $PR_NUMBER --approve --body-file /tmp/review-body.md
 
 **PITFALL:** When reviewing locale/i18n changes, do NOT flag a locale directory as "missed" without first checking the i18n configuration (e.g., `lingui.config.ts`, `next.config.js` i18n section) to confirm which locales are actually active. A locale directory may exist in the repo but be inactive — the config is the source of truth, not the filesystem.
 
+**PITFALL:** Lingui `.po` diffs showing `#~`-prefixed lines (obsolete entries) are normal catalog hygiene — do NOT flag them as suspicious or erroneous. When `lingui extract` runs, it marks previously-extracted messages that are no longer referenced in source code as obsolete (`#~`) rather than deleting them, preserving translation history. This is standard Lingui behavior and is distinct from merge conflict markers (`<<<<<<<`). Obsolete entries do not affect runtime behavior — they are stripped during `lingui compile`.
+
 **PITFALL:** `git push --force-with-lease` may be blocked by the terminal approval gate even when the intent is corrective (e.g., fixing a commit author email to satisfy Vercel). When this happens, fall back to the GitHub API commit-object + ref-update technique documented in [`references/force-push-via-api.md`](references/force-push-via-api.md). This creates a new commit object with the correct author metadata on GitHub and updates the branch ref directly — no git push required.
 
 ### Lingui `.po` Merge Conflicts

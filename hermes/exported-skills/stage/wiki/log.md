@@ -23484,3 +23484,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2934c2e58d95e36aa8005799327d88cf
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-22T20:32:16Z] synthesis | 100M Gas Data Registration Benchmarks
+
+- status: published
+- slug: concepts/100m-gas-data-registration-benchmarks
+- wiki_revision_id: wikirev_b0277ad80431198a4638cc4d75364618
+- summary: Performance benchmarks for the data registration contract (single and batch10 workloads) under a 100M EL gas limit, measuring transaction throughput, storage writes per second, and...
+

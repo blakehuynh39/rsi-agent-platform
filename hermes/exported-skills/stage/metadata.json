@@ -1534,8 +1534,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "cd0c52645bbcca269b582f133e6d04387193fa5e9e71eb2f1ff52dc3a8ef4f79",
-        "size": 38554
+        "sha256": "8b2af10bfa40183a4f2adc512ca0140fcd42b93a81c0497a61d19bf1065024b5",
+        "size": 39085
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -3031,8 +3031,13 @@
       },
       {
         "path": "log.md",
-        "sha256": "13ece7f71f0f5eb1202d2e21e156764eb7655f9d1e9e5597c776930dc3f6bfab",
-        "size": 1124836
+        "sha256": "971001ec478a63e036cb66c3bdff1efdbb12a8e9a2c08f62257ee435a5678113",
+        "size": 1125245
+      },
+      {
+        "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
+        "sha256": "9df230d19d3bbca4587e0f199b3d08737c3a0e8649347f905617ff08399891f9",
+        "size": 7675
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -6354,8 +6359,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T20:23:36Z",
-  "file_count": 1269,
+  "exported_at": "2026-05-22T20:35:05Z",
+  "file_count": 1270,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -7889,8 +7894,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "cd0c52645bbcca269b582f133e6d04387193fa5e9e71eb2f1ff52dc3a8ef4f79",
-      "size": 38554
+      "sha256": "8b2af10bfa40183a4f2adc512ca0140fcd42b93a81c0497a61d19bf1065024b5",
+      "size": 39085
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -9377,7 +9382,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "d63b3bc1a1fd3f8e0f419f804a4f4a2db7713123c5a4254dba5bff59640b91f6",
+  "previous_tree_hash": "8a81ace1271f0cc8a07009d9c8f8cb14e1d9e250439764fb91fb33f304ec7765",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9388,16 +9393,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
+  "skill_tree_hash": "9f82f2eabd51457faf97fec153de1803e11e22848b6f4cfde60133ed420e5456",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8a81ace1271f0cc8a07009d9c8f8cb14e1d9e250439764fb91fb33f304ec7765",
+  "tree_hash": "a0432639e36ec2a6f38b035306d03a01d7e614c90be22d1885c649a36e86e3c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 666,
+  "wiki_file_count": 667,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9411,8 +9416,13 @@
     },
     {
       "path": "log.md",
-      "sha256": "13ece7f71f0f5eb1202d2e21e156764eb7655f9d1e9e5597c776930dc3f6bfab",
-      "size": 1124836
+      "sha256": "971001ec478a63e036cb66c3bdff1efdbb12a8e9a2c08f62257ee435a5678113",
+      "size": 1125245
+    },
+    {
+      "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
+      "sha256": "9df230d19d3bbca4587e0f199b3d08737c3a0e8649347f905617ff08399891f9",
+      "size": 7675
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -12731,5 +12741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2f9de09faefcefbd6fb90fe8372d24b1d3934c9c1a041e199c1eaf6deb9b4162"
+  "wiki_tree_hash": "a9bf1e2a6c9a1961fc774588355dc2ebb7709dd3192892e23173c93c2fa58b48"
 }
