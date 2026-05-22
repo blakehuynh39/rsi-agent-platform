@@ -23509,3 +23509,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_dd87e6979337019368f30b443e560f1e
 - summary: Source: [Notion source](https://www.notion.so/Numo-1-1-Dogfooding-Guide-a28051299a5483aea76e01ba0a8d0fac)
 
+## [2026-05-22T21:31:53Z] ingest | Numo 1.1 Dogfooding Guide
+
+- status: published
+- slug: notion_document/numo-1-1-dogfooding-guide-44392313
+- wiki_revision_id: wikirev_00c969548aab0275a236851bdfb58732
+- source_document_id: srcdoc_c89b865ceeeab41ee41b6cde44392313
+- source_revision_id: srcrev_b31b0dcfafb2abf416ba68e00b384df5
+- summary: Source: [Notion source](https://www.notion.so/Numo-1-1-Dogfooding-Guide-a28051299a5483aea76e01ba0a8d0fac)
+
