@@ -334,6 +334,8 @@ When reviewing a `depin-backend` PR (base: `staging`), the accompanying FE repo 
 
 **PITFALL:** Treating a BE PR as self-contained when it adds a new admin endpoint. The admin dashboard lives in `numo-monorepo/apps/admin` — if operators can't reach the new endpoint, the feature is incomplete. Always verify the FE half exists or flag the gap.
 
+**PITFALL:** When a PR description links to a deployment/infra counterpart PR (e.g., story-deployments) that the bot cannot access (repo 404, private repo, missing token scope), do NOT block the review on it. Review the accessible PRs independently, note the inaccessible PR as a deployment dependency, and proceed with approvals if the code is clean. The inaccessible PR may be a private repo that needs manual verification — flag it for the requester rather than stalling the review chain.
+
 ### Common Failure Modes
 
 - **Route mismatch**: BE adds a depth-2 hyphenated route (`/admin/users-safety-distributions`) to avoid `{user_id}` routing conflicts, but FE uses a slashed path (`/v1/admin/users/safety-distributions`) — results in 404.

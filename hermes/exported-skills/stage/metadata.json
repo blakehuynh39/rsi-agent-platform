@@ -1534,8 +1534,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "57df6f481ee16464d690ed3912fb293e9e8184e5365442d2614c90ba7c28e5d7",
-        "size": 37465
+        "sha256": "589728d6fd10d0aaf2efc706892304ea89ccfcae9b57bda2c5e985274aa104f7",
+        "size": 37960
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -6339,7 +6339,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-21T23:51:32Z",
+  "exported_at": "2026-05-22T00:43:35Z",
   "file_count": 1266,
   "files": [
     {
@@ -7874,8 +7874,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "57df6f481ee16464d690ed3912fb293e9e8184e5365442d2614c90ba7c28e5d7",
-      "size": 37465
+      "sha256": "589728d6fd10d0aaf2efc706892304ea89ccfcae9b57bda2c5e985274aa104f7",
+      "size": 37960
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
@@ -9362,7 +9362,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd5b6jkj5x",
-  "previous_tree_hash": "72ebb3b4cf51371bcad7862758f0b96b36e77b830ee25f2bac1359a4937f3145",
+  "previous_tree_hash": "06aac7699859cf4a8b53a3041225f633fc5baa8e18b2b375a51823171dad990a",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9373,9 +9373,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "78bf10661eec9cade4033864fa30b6aaa9528f4818507e239a05a08acc38e5dd",
+  "skill_tree_hash": "c6cd26ccce440cd00f6b785470315459feacc8dbd84643b8204bb2bc271387c6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "06aac7699859cf4a8b53a3041225f633fc5baa8e18b2b375a51823171dad990a",
+  "tree_hash": "1b6f3d9c4d68e608dfb2c90ee56cbaff8068d996589f68d0cf63efb45cdeb3fc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
