@@ -3026,13 +3026,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e25747ba5666146deb5ce892035496549a7333c147e92a4c27d554ad3ec190cb",
-        "size": 595797
+        "sha256": "dd9a1db57e3ca1c69c5989fdade6f1a5e73d33f5087d9732843c169a5368fd02",
+        "size": 596471
       },
       {
         "path": "log.md",
-        "sha256": "9fb809531543339214a00431ec5d4c2f4b3b888a3cf8745b320074098be7f35f",
-        "size": 1120621
+        "sha256": "69242b6f38e1e74134c8e8403e7f7f79bd2ca2ead40ab2e76e5912425bddd8c4",
+        "size": 1121009
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3908,6 +3908,11 @@
         "path": "pages/concepts/virtual-machine-execution-environments.md",
         "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
         "size": 2000
+      },
+      {
+        "path": "pages/concepts/voice-verification-limitations.md",
+        "sha256": "8740ed564bd610c6a44468dfcd4bc14994d8e965941a0c4e982f5865ea2fb4e1",
+        "size": 2572
       },
       {
         "path": "pages/concepts/voice-verification-post-analysis.md",
@@ -6349,8 +6354,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T19:03:22Z",
-  "file_count": 1268,
+  "exported_at": "2026-05-22T19:09:44Z",
+  "file_count": 1269,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9372,7 +9377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "0dee997fb4e6b277e3b48fd6740c666908366ec9a790fcad26b8470848a11f44",
+  "previous_tree_hash": "6e612ba925c70883b90dd43ee01a1d56fe984cb6046dcfb8b837426a79df8071",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9385,14 +9390,14 @@
   ],
   "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6e612ba925c70883b90dd43ee01a1d56fe984cb6046dcfb8b837426a79df8071",
+  "tree_hash": "c700d067f798ad0bbb00ec57679f2fe5ec41e59b0d2601b75f4e500512d7c962",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 665,
+  "wiki_file_count": 666,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9401,13 +9406,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e25747ba5666146deb5ce892035496549a7333c147e92a4c27d554ad3ec190cb",
-      "size": 595797
+      "sha256": "dd9a1db57e3ca1c69c5989fdade6f1a5e73d33f5087d9732843c169a5368fd02",
+      "size": 596471
     },
     {
       "path": "log.md",
-      "sha256": "9fb809531543339214a00431ec5d4c2f4b3b888a3cf8745b320074098be7f35f",
-      "size": 1120621
+      "sha256": "69242b6f38e1e74134c8e8403e7f7f79bd2ca2ead40ab2e76e5912425bddd8c4",
+      "size": 1121009
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -10283,6 +10288,11 @@
       "path": "pages/concepts/virtual-machine-execution-environments.md",
       "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
       "size": 2000
+    },
+    {
+      "path": "pages/concepts/voice-verification-limitations.md",
+      "sha256": "8740ed564bd610c6a44468dfcd4bc14994d8e965941a0c4e982f5865ea2fb4e1",
+      "size": 2572
     },
     {
       "path": "pages/concepts/voice-verification-post-analysis.md",
@@ -12721,5 +12731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1873ca89d7f25bbbea7941baa06065d94a90142368db12dcd29d294575e3fad2"
+  "wiki_tree_hash": "cf400e73e8e5c51c6199f4c95864bd6aa809a293fb3721d6e06d2e909f76d283"
 }

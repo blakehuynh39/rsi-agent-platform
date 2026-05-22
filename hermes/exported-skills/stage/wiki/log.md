@@ -23401,3 +23401,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ac2429b8bf62970f9402ca8c117f2c16
 - summary: Handoff document for DePIN season 1 transitioning to Numo, covering key dates, repositories, and task assignments.
 
+## [2026-05-22T19:06:47Z] synthesis | Voice Verification Limitations
+
+- status: published
+- slug: concepts/voice-verification-limitations
+- wiki_revision_id: wikirev_827ce6bd355dd3c59e189511bed47fc4
+- summary: Current voice verification systems are insufficient for detecting gibberish, spam, or background noise, and improvements are needed to support verification in native languages.
+
