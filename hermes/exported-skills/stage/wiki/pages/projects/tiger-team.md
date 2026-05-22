@@ -4,12 +4,16 @@ type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-07T01:08:00Z"
 tags:
-  - "ai"
   - "apps"
   - "data-ecosystem"
   - "depin"
   - "voice"
-owners: []
+owners:
+  - "Allen"
+  - "Infra Team (2 members)"
+  - "Jacob"
+  - "JDub"
+  - "Sam"
 source_revision_ids:
   - "srcrev_044c3891ab0bcf24d56f2c2e37ce8361"
   - "srcrev_0515809d6cc43cab067e1e1de246c11d"
@@ -24,7 +28,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents, and is currently prioritizing human-to-agent apps for speed and virality.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, strategic documents, and development resources.
 
 ## Claims
 
@@ -70,13 +74,10 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 
 ## Related Pages
 
-- `projects/aura`
-- `projects/scout-careers`
-- `systems/depin-admin`
-- `systems/depin-backend`
+- `concepts/spam-combat`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_59a54884735af81769540da9db298aa7`
-- `source_revision_id`: `srcrev_0515809d6cc43cab067e1e1de246c11d`
-- `source_url`: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec)
+- `source_document_id`: `srcdoc_e0986692a5484368264439705800dc26`
+- `source_revision_id`: `srcrev_4d1ae30be0d018c0f1fc71bb2ec815e2`
+- `source_url`: [Notion source](https://www.notion.so/SPAM-Combat-327051299a54802a9172ed82c9bf8cb7)

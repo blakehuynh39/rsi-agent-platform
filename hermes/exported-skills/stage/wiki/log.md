@@ -23373,3 +23373,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_1aad37fe2161138f76374883377624ac
 - summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-05-22T18:21:17Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_9f0596b6bd4e2df0b063dfda102af57d
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-22T18:21:18Z] synthesis | SPAM Combat
+
+- status: published
+- slug: concepts/spam-combat
+- wiki_revision_id: wikirev_7d3dd24305bfb45a8e6aa2cc4dec8761
+- summary: Notes on combating spam, including the need to show video, addressing crypto user spam/farmed accounts, phone verification, World app, and mobile apps.
+
