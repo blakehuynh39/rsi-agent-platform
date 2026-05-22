@@ -3026,13 +3026,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "dd9a1db57e3ca1c69c5989fdade6f1a5e73d33f5087d9732843c169a5368fd02",
+        "sha256": "056051a1cd11c8da84c90652fefa2f55e9c7ef34a275b50934214a6b850fd383",
         "size": 596471
       },
       {
         "path": "log.md",
-        "sha256": "69242b6f38e1e74134c8e8403e7f7f79bd2ca2ead40ab2e76e5912425bddd8c4",
-        "size": 1121009
+        "sha256": "727b0b97e9eba530cdc5ed0ad7be52d3fdcfdc60d1ff8af67c64abbba0787324",
+        "size": 1121318
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -5266,8 +5266,8 @@
       },
       {
         "path": "pages/projects/pre-verification-apis-models.md",
-        "sha256": "954f937f6c4e10f10190b17d8f72bd92a421c5660598c0bd126f3619751d9ae5",
-        "size": 1386
+        "sha256": "b9a6e58768cb67e89c8862522607ce6d489588ea119fa5b8549fa0372b1d8f66",
+        "size": 1917
       },
       {
         "path": "pages/projects/precompiles-plan.md",
@@ -6354,7 +6354,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T19:09:44Z",
+  "exported_at": "2026-05-22T19:21:09Z",
   "file_count": 1269,
   "files": [
     {
@@ -9377,7 +9377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "6e612ba925c70883b90dd43ee01a1d56fe984cb6046dcfb8b837426a79df8071",
+  "previous_tree_hash": "c700d067f798ad0bbb00ec57679f2fe5ec41e59b0d2601b75f4e500512d7c962",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9390,7 +9390,7 @@
   ],
   "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c700d067f798ad0bbb00ec57679f2fe5ec41e59b0d2601b75f4e500512d7c962",
+  "tree_hash": "84c65b730d95326b12c6fc504d55bb71714359aba0fe2166e7234db7fc2266a1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9406,13 +9406,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "dd9a1db57e3ca1c69c5989fdade6f1a5e73d33f5087d9732843c169a5368fd02",
+      "sha256": "056051a1cd11c8da84c90652fefa2f55e9c7ef34a275b50934214a6b850fd383",
       "size": 596471
     },
     {
       "path": "log.md",
-      "sha256": "69242b6f38e1e74134c8e8403e7f7f79bd2ca2ead40ab2e76e5912425bddd8c4",
-      "size": 1121009
+      "sha256": "727b0b97e9eba530cdc5ed0ad7be52d3fdcfdc60d1ff8af67c64abbba0787324",
+      "size": 1121318
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -11646,8 +11646,8 @@
     },
     {
       "path": "pages/projects/pre-verification-apis-models.md",
-      "sha256": "954f937f6c4e10f10190b17d8f72bd92a421c5660598c0bd126f3619751d9ae5",
-      "size": 1386
+      "sha256": "b9a6e58768cb67e89c8862522607ce6d489588ea119fa5b8549fa0372b1d8f66",
+      "size": 1917
     },
     {
       "path": "pages/projects/precompiles-plan.md",
@@ -12731,5 +12731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cf400e73e8e5c51c6199f4c95864bd6aa809a293fb3721d6e06d2e909f76d283"
+  "wiki_tree_hash": "fc13d25049fa6bc0e336593af853e86404f3441caa389fe594b79c1a4628b413"
 }

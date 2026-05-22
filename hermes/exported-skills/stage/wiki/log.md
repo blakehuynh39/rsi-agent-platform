@@ -23408,3 +23408,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_827ce6bd355dd3c59e189511bed47fc4
 - summary: Current voice verification systems are insufficient for detecting gibberish, spam, or background noise, and improvements are needed to support verification in native languages.
 
+## [2026-05-22T19:18:23Z] synthesis | APIs / Models for pre-verification
+
+- status: published
+- slug: projects/pre-verification-apis-models
+- wiki_revision_id: wikirev_1cf1df2e6bb1cfd33f66e76d8eebabad
+- summary: Notion page containing an inline database tracking APIs and models related to pre-verification.
+
