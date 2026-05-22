@@ -1489,7 +1489,20 @@ func traceActivityNotionTitleFromValue(value any) string {
 	}
 	if properties, ok := traceActivityMapFromAny(values["properties"]); ok {
 		for _, property := range properties {
-			if title := traceActivityNotionPropertyText(property, "title"); title != "" {
+			propertyValues, ok := traceActivityMapFromAny(property)
+			if !ok {
+				continue
+			}
+			if title := traceActivityNotionPlainText(propertyValues["title"]); title != "" {
+				return title
+			}
+		}
+		for propertyName, property := range properties {
+			normalized := strings.ToLower(strings.TrimSpace(propertyName))
+			if normalized != "title" && normalized != "name" {
+				continue
+			}
+			if title := traceActivityNotionPropertyText(property, "title", "rich_text"); title != "" {
 				return title
 			}
 		}

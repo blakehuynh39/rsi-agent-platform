@@ -206,6 +206,24 @@ func TestTraceActivityProjectorProjectsNotionPageMetadata(t *testing.T) {
 	}
 }
 
+func TestTraceActivityNotionTitleIgnoresDescriptionOnlyProperties(t *testing.T) {
+	payload := map[string]any{
+		"output": map[string]any{
+			"object": "page",
+			"properties": map[string]any{
+				"Description": map[string]any{
+					"rich_text": []any{
+						map[string]any{"plain_text": "Architecture context for the audit portal."},
+					},
+				},
+			},
+		},
+	}
+	if got := traceActivityNotionTitleFromValue(payload); got != "" {
+		t.Fatalf("title=%#v, want empty title for description-only properties", got)
+	}
+}
+
 func TestTraceActivityStringFromResultSkipsStructuredValues(t *testing.T) {
 	result := map[string]any{
 		"output": map[string]any{
