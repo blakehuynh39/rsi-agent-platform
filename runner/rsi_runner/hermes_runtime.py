@@ -3615,8 +3615,235 @@ class HermesRuntime:
             }
         }
 
-    def _write_git_credential_helper(self, request_dir: Path) -> Path:
+    def _write_github_token_store(self, request_dir: Path, env: dict[str, str]) -> Path:
+        token_store_path = request_dir / "github-token-store.json"
+        try:
+            raw_tokens = json.loads(env.get("_HERMES_GITHUB_TOKEN_MAP_JSON", "{}"))
+        except json.JSONDecodeError:
+            raw_tokens = {}
+        tokens = {str(key): str(value) for key, value in raw_tokens.items() if value}
+        token_store_path.write_text(
+            json.dumps(
+                {
+                    "default_owner": env.get("_HERMES_GITHUB_DEFAULT_OWNER", ""),
+                    "tokens_by_owner": tokens,
+                },
+                sort_keys=True,
+            ),
+            encoding="utf-8",
+        )
+        token_store_path.chmod(0o600)
+        return token_store_path
+
+    def _write_github_credential_broker(self, request_dir: Path) -> Path:
+        broker_path = request_dir / "rsi-github-credential-broker.py"
+        broker_path.write_text(
+            r'''#!/usr/bin/env python3
+import json
+import os
+import re
+import sys
+
+OWNER_RE = r"[A-Za-z0-9_.-]+"
+REPO_RE = r"[A-Za-z0-9_.-]+"
+
+
+def _load_token_state():
+    default_owner = os.environ.get("_HERMES_GITHUB_DEFAULT_OWNER", "").strip().lower()
+    tokens = {}
+    token_store_path = os.environ.get("_HERMES_GITHUB_TOKEN_MAP_PATH", "").strip()
+    if token_store_path:
+        try:
+            with open(token_store_path, "r", encoding="utf-8") as handle:
+                payload = json.load(handle)
+            default_owner = str(payload.get("default_owner") or default_owner).strip().lower()
+            raw_tokens = payload.get("tokens_by_owner") or {}
+            tokens = {str(key).lower(): str(value) for key, value in raw_tokens.items() if value}
+        except Exception:
+            tokens = {}
+    if not tokens:
+        try:
+            raw_tokens = json.loads(os.environ.get("_HERMES_GITHUB_TOKEN_MAP_JSON", "{}"))
+        except json.JSONDecodeError:
+            raw_tokens = {}
+        tokens = {str(key).lower(): str(value) for key, value in raw_tokens.items() if value}
+    return tokens, default_owner
+
+
+def _known_owner(owner):
+    tokens, _default_owner = _load_token_state()
+    owner = str(owner or "").strip().lower()
+    return owner if owner in tokens else ""
+
+
+def _owner_from_text(value):
+    value = str(value or "").strip().strip("'\"")
+    if not value:
+        return ""
+    patterns = [
+        rf"(?:^|[/:])repos/({OWNER_RE})/({REPO_RE})(?:$|[/?#:\s])",
+        rf"github\.com[:/]({OWNER_RE})/({REPO_RE})(?:\.git)?(?:$|[/?#:\s])",
+        rf"\brepo:({OWNER_RE})/({REPO_RE})(?:$|[,\s])",
+        rf"^({OWNER_RE})/({REPO_RE})(?:\.git)?$",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, value)
+        if match:
+            owner = _known_owner(match.group(1))
+            if owner:
+                return owner
+    return ""
+
+
+def _owner_from_gh_args(args):
+    for index, arg in enumerate(args):
+        if arg in {"--repo", "-R"} and index + 1 < len(args):
+            owner = _owner_from_text(args[index + 1])
+            if owner:
+                return owner
+        for prefix in ("--repo=", "-R="):
+            if arg.startswith(prefix):
+                owner = _owner_from_text(arg[len(prefix):])
+                if owner:
+                    return owner
+    for arg in args:
+        owner = _owner_from_text(arg)
+        if owner:
+            return owner
+    return ""
+
+
+def _token_for_owner(owner):
+    tokens, default_owner = _load_token_state()
+    owner = str(owner or "").strip().lower()
+    token = tokens.get(owner) if owner else ""
+    if token:
+        return owner, token
+    if default_owner and tokens.get(default_owner):
+        return default_owner, tokens[default_owner]
+    if tokens:
+        first_owner = sorted(tokens)[0]
+        return first_owner, tokens[first_owner]
+    return "", ""
+
+
+def _git_credential():
+    if len(sys.argv) > 2 and sys.argv[2] not in {"get", ""}:
+        raise SystemExit(0)
+    query = {}
+    for line in sys.stdin:
+        line = line.rstrip("\n")
+        if not line:
+            break
+        key, _, value = line.partition("=")
+        query[key] = value
+    if query.get("host") not in {"github.com", "www.github.com"}:
+        raise SystemExit(0)
+    owner = _owner_from_text(query.get("path", "").lstrip("/"))
+    _owner, token = _token_for_owner(owner)
+    if token:
+        print("username=x-access-token")
+        print(f"password={token}")
+
+
+def _askpass():
+    prompt = " ".join(sys.argv[2:])
+    if "username" in prompt.lower():
+        print("x-access-token")
+        return
+    owner = _owner_from_text(prompt)
+    _owner, token = _token_for_owner(owner)
+    if token:
+        print(token)
+
+
+def _find_real_binary(name):
+    self_path = os.path.realpath(sys.argv[0])
+    shim_dir = os.path.realpath(os.environ.get("_HERMES_GITHUB_SHIM_DIR", ""))
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        if not directory:
+            continue
+        real_dir = os.path.realpath(directory)
+        if shim_dir and real_dir == shim_dir:
+            continue
+        candidate = os.path.realpath(os.path.join(directory, name))
+        if candidate == self_path:
+            continue
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return ""
+
+
+def _exec_gh():
+    args = sys.argv[2:]
+    owner = _owner_from_gh_args(args)
+    selected_owner, token = _token_for_owner(owner)
+    if not token:
+        print("rsi github credential broker: no GitHub token is available", file=sys.stderr)
+        raise SystemExit(1)
+    real_gh = _find_real_binary("gh")
+    if not real_gh:
+        print("rsi github credential broker: real gh binary not found on PATH", file=sys.stderr)
+        raise SystemExit(127)
+    env = dict(os.environ)
+    env["GH_TOKEN"] = token
+    env["GITHUB_TOKEN"] = token
+    env["_HERMES_GITHUB_SELECTED_OWNER"] = selected_owner
+    os.execve(real_gh, [real_gh, *args], env)
+
+
+def _print_token():
+    owner = ""
+    args = sys.argv[2:]
+    for index, arg in enumerate(args):
+        if arg == "--owner" and index + 1 < len(args):
+            owner = args[index + 1]
+        elif arg.startswith("--owner="):
+            owner = arg.split("=", 1)[1]
+        elif "/" in arg:
+            owner = _owner_from_text(arg)
+    selected_owner, token = _token_for_owner(owner)
+    if not token:
+        raise SystemExit(1)
+    if "--print-owner" in args:
+        print(selected_owner)
+    else:
+        print(token)
+
+
+def main():
+    mode = sys.argv[1] if len(sys.argv) > 1 else ""
+    if mode == "git-credential":
+        _git_credential()
+    elif mode == "askpass":
+        _askpass()
+    elif mode == "exec-gh":
+        _exec_gh()
+    elif mode == "token":
+        _print_token()
+    else:
+        print("usage: rsi-github-credential-broker.py {git-credential|askpass|exec-gh|token}", file=sys.stderr)
+        raise SystemExit(2)
+
+
+if __name__ == "__main__":
+    main()
+''',
+            encoding="utf-8",
+        )
+        broker_path.chmod(0o700)
+        return broker_path
+
+    def _write_git_credential_helper(self, request_dir: Path, broker_path: Path | None = None) -> Path:
         helper_path = request_dir / "git-credential-rsi-github.py"
+        if broker_path is not None:
+            helper_path.write_text(
+                "#!/bin/sh\n"
+                f"exec {shlex.quote(str(broker_path))} git-credential \"$@\"\n",
+                encoding="utf-8",
+            )
+            helper_path.chmod(0o700)
+            return helper_path
         helper_path.write_text(
             "#!/usr/bin/env python3\n"
             "import json\n"
@@ -3662,8 +3889,16 @@ class HermesRuntime:
             env[f"GIT_CONFIG_VALUE_{index}"] = value
         env["GIT_CONFIG_COUNT"] = str(start + len(entries))
 
-    def _write_git_askpass(self, request_dir: Path) -> Path:
+    def _write_git_askpass(self, request_dir: Path, broker_path: Path | None = None) -> Path:
         askpass_path = request_dir / "git-askpass.sh"
+        if broker_path is not None:
+            askpass_path.write_text(
+                "#!/bin/sh\n"
+                f"exec {shlex.quote(str(broker_path))} askpass \"$@\"\n",
+                encoding="utf-8",
+            )
+            askpass_path.chmod(0o700)
+            return askpass_path
         askpass_path.write_text(
             "#!/bin/sh\n"
             "case \"$1\" in\n"
@@ -3674,6 +3909,20 @@ class HermesRuntime:
         )
         askpass_path.chmod(0o700)
         return askpass_path
+
+    def _write_github_cli_wrapper(self, request_dir: Path, broker_path: Path) -> Path:
+        shim_dir = request_dir / "github-bin"
+        shim_dir.mkdir(parents=True, exist_ok=True)
+        wrapper_path = shim_dir / "gh"
+        wrapper_path.write_text(
+            "#!/bin/sh\n"
+            "_HERMES_GITHUB_SHIM_DIR=${_HERMES_GITHUB_SHIM_DIR:-$(CDPATH= cd -- \"$(dirname -- \"$0\")\" && pwd)}\n"
+            "export _HERMES_GITHUB_SHIM_DIR\n"
+            f"exec {shlex.quote(str(broker_path))} exec-gh \"$@\"\n",
+            encoding="utf-8",
+        )
+        wrapper_path.chmod(0o700)
+        return wrapper_path
 
     def _native_executor_completion_meta(self, parsed_result: JsonObject, max_iterations: int) -> JsonObject:
         result_payload = _json_object_or_empty(parsed_result.get("result"))
@@ -4476,7 +4725,15 @@ class HermesRuntime:
             gh_config_dir.mkdir(parents=True, exist_ok=True)
             github_cli_env["GH_CONFIG_DIR"] = str(gh_config_dir)
             github_cli_credentials["gh_config_dir"] = str(gh_config_dir)
-            credential_helper_path = self._write_git_credential_helper(request_dir)
+            token_store_path = self._write_github_token_store(request_dir, github_cli_env)
+            github_cli_env["_HERMES_GITHUB_TOKEN_MAP_PATH"] = str(token_store_path)
+            github_cli_env.pop("_HERMES_GITHUB_TOKEN_MAP_JSON", None)
+            github_cli_credentials["github_token_store_configured"] = True
+            github_cli_credentials["github_token_store_path"] = str(token_store_path)
+            credential_broker_path = self._write_github_credential_broker(request_dir)
+            github_cli_credentials["github_credential_broker_configured"] = True
+            github_cli_credentials["github_credential_broker_path"] = str(credential_broker_path)
+            credential_helper_path = self._write_git_credential_helper(request_dir, credential_broker_path)
             self._append_git_config_env(
                 github_cli_env,
                 [
@@ -4486,10 +4743,17 @@ class HermesRuntime:
             )
             github_cli_credentials["git_credential_helper_configured"] = True
             github_cli_credentials["git_credential_helper_path"] = str(credential_helper_path)
-            askpass_path = self._write_git_askpass(request_dir)
+            askpass_path = self._write_git_askpass(request_dir, credential_broker_path)
             github_cli_env["GIT_ASKPASS"] = str(askpass_path)
             github_cli_env["GIT_TERMINAL_PROMPT"] = "0"
             github_cli_credentials["git_askpass_configured"] = True
+            gh_wrapper_path = self._write_github_cli_wrapper(request_dir, credential_broker_path)
+            gh_shim_dir = str(gh_wrapper_path.parent)
+            existing_path = github_cli_env.get("PATH") or os.environ.get("PATH", "")
+            github_cli_env["PATH"] = f"{gh_shim_dir}{os.pathsep}{existing_path}" if existing_path else gh_shim_dir
+            github_cli_env["_HERMES_GITHUB_SHIM_DIR"] = gh_shim_dir
+            github_cli_credentials["github_cli_wrapper_configured"] = True
+            github_cli_credentials["github_cli_wrapper_path"] = str(gh_wrapper_path)
         if observer is not None:
             observer.emit(
                 phase=execution_phase,

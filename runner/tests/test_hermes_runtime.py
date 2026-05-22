@@ -829,11 +829,13 @@ class HermesRuntimeTests(unittest.TestCase):
             }
         )
         captured_env: dict[str, str] = {}
+        captured_token_store: dict[str, object] = {}
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
                 captured_env.update(env)
                 captured_env["_test_git_askpass_exists"] = str(Path(env["GIT_ASKPASS"]).exists())
+                captured_token_store.update(json.loads(Path(env["_HERMES_GITHUB_TOKEN_MAP_PATH"]).read_text(encoding="utf-8")))
                 request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 payload = {
                     "ok": True,
@@ -901,9 +903,16 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_env["GITHUB_TOKEN"], "github-app-token")
         self.assertEqual(captured_env["_HERMES_FORCE_GH_TOKEN"], "github-app-token")
         self.assertEqual(captured_env["_HERMES_FORCE_GITHUB_TOKEN"], "github-app-token")
-        self.assertEqual(json.loads(captured_env["_HERMES_GITHUB_TOKEN_MAP_JSON"]), {"piplabs": "github-app-token"})
+        self.assertNotIn("_HERMES_GITHUB_TOKEN_MAP_JSON", captured_env)
+        token_store_path = Path(captured_env["_HERMES_GITHUB_TOKEN_MAP_PATH"])
+        self.assertEqual(
+            captured_token_store["tokens_by_owner"],
+            {"piplabs": "github-app-token"},
+        )
         self.assertEqual(captured_env["GIT_TERMINAL_PROMPT"], "0")
         self.assertEqual(captured_env["_test_git_askpass_exists"], "True")
+        self.assertIn("github-bin", captured_env["PATH"])
+        self.assertEqual(captured_env["_HERMES_GITHUB_SHIM_DIR"], str(token_store_path.parent / "github-bin"))
         self.assertGreaterEqual(int(captured_env["GIT_CONFIG_COUNT"]), 2)
         git_config = {
             captured_env[f"GIT_CONFIG_KEY_{index}"]: captured_env[f"GIT_CONFIG_VALUE_{index}"]
@@ -961,6 +970,133 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("password=storyprotocol-token", storyprotocol_output)
         self.assertIn("username=x-access-token", piplabs_output)
         self.assertIn("password=piplabs-token", piplabs_output)
+
+    def test_github_broker_backed_git_helper_uses_token_store(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            request_dir = Path(tempdir)
+            env = {
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(
+                    {"piplabs": "piplabs-token", "storyprotocol": "storyprotocol-token"},
+                    sort_keys=True,
+                ),
+            }
+            token_store = runtime._write_github_token_store(request_dir, env)
+            broker = runtime._write_github_credential_broker(request_dir)
+            helper = runtime._write_git_credential_helper(request_dir, broker)
+            askpass = runtime._write_git_askpass(request_dir, broker)
+            helper_env = {
+                **os.environ,
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_PATH": str(token_store),
+            }
+
+            storyprotocol_output = subprocess.check_output(
+                [str(helper), "get"],
+                input="protocol=https\nhost=github.com\npath=storyprotocol/story-deployments.git\n\n",
+                env=helper_env,
+                text=True,
+            )
+            piplabs_password = subprocess.check_output(
+                [str(askpass), "Password for 'https://github.com/piplabs/depin-backend.git':"],
+                env=helper_env,
+                text=True,
+            ).strip()
+
+        self.assertIn("password=storyprotocol-token", storyprotocol_output)
+        self.assertEqual(piplabs_password, "piplabs-token")
+
+    def test_github_cli_wrapper_selects_owner_specific_token_from_repo_arg(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            request_dir = Path(tempdir)
+            real_bin = request_dir / "real-bin"
+            real_bin.mkdir()
+            real_gh = real_bin / "gh"
+            real_gh.write_text(
+                f"#!{sys.executable}\n"
+                "import json, os, sys\n"
+                "print(json.dumps({'token': os.environ.get('GH_TOKEN'), 'owner': os.environ.get('_HERMES_GITHUB_SELECTED_OWNER'), 'args': sys.argv[1:]}))\n",
+                encoding="utf-8",
+            )
+            real_gh.chmod(0o700)
+            env = {
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(
+                    {"piplabs": "piplabs-token", "storyprotocol": "storyprotocol-token"},
+                    sort_keys=True,
+                ),
+            }
+            token_store = runtime._write_github_token_store(request_dir, env)
+            broker = runtime._write_github_credential_broker(request_dir)
+            wrapper = runtime._write_github_cli_wrapper(request_dir, broker)
+            wrapper_env = {
+                **os.environ,
+                "PATH": f"{wrapper.parent}{os.pathsep}{real_bin}{os.pathsep}/usr/bin{os.pathsep}/bin",
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_PATH": str(token_store),
+                "_HERMES_GITHUB_SHIM_DIR": str(wrapper.parent),
+            }
+
+            output = subprocess.check_output(
+                [str(wrapper), "pr", "view", "361", "--repo", "storyprotocol/story-deployments"],
+                env=wrapper_env,
+                text=True,
+            )
+
+        payload = json.loads(output)
+        self.assertEqual(payload["token"], "storyprotocol-token")
+        self.assertEqual(payload["owner"], "storyprotocol")
+        self.assertEqual(payload["args"], ["pr", "view", "361", "--repo", "storyprotocol/story-deployments"])
+
+    def test_github_cli_wrapper_selects_owner_specific_token_from_api_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            request_dir = Path(tempdir)
+            real_bin = request_dir / "real-bin"
+            real_bin.mkdir()
+            real_gh = real_bin / "gh"
+            real_gh.write_text(
+                f"#!{sys.executable}\n"
+                "import json, os, sys\n"
+                "print(json.dumps({'token': os.environ.get('GH_TOKEN'), 'owner': os.environ.get('_HERMES_GITHUB_SELECTED_OWNER'), 'args': sys.argv[1:]}))\n",
+                encoding="utf-8",
+            )
+            real_gh.chmod(0o700)
+            env = {
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(
+                    {"piplabs": "piplabs-token", "storyprotocol": "storyprotocol-token"},
+                    sort_keys=True,
+                ),
+            }
+            token_store = runtime._write_github_token_store(request_dir, env)
+            broker = runtime._write_github_credential_broker(request_dir)
+            wrapper = runtime._write_github_cli_wrapper(request_dir, broker)
+            wrapper_env = {
+                **os.environ,
+                "PATH": f"{wrapper.parent}{os.pathsep}{real_bin}{os.pathsep}/usr/bin{os.pathsep}/bin",
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_PATH": str(token_store),
+                "_HERMES_GITHUB_SHIM_DIR": str(wrapper.parent),
+            }
+
+            output = subprocess.check_output(
+                [str(wrapper), "api", "/repos/storyprotocol/story-deployments/pulls/361"],
+                env=wrapper_env,
+                text=True,
+            )
+
+        payload = json.loads(output)
+        self.assertEqual(payload["token"], "storyprotocol-token")
+        self.assertEqual(payload["owner"], "storyprotocol")
 
     def test_github_app_repo_scope_accepts_owner_qualified_repositories(self) -> None:
         with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
