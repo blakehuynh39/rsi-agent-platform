@@ -3924,6 +3924,19 @@ if __name__ == "__main__":
         wrapper_path.chmod(0o700)
         return wrapper_path
 
+    def _write_github_shell_init(self, request_dir: Path, broker_path: Path) -> Path:
+        shell_init_path = request_dir / "github-shell-init.sh"
+        shell_init_path.write_text(
+            "# RSI GitHub capability bridge. Sourced by bash via BASH_ENV before Hermes captures its terminal snapshot.\n"
+            "gh() {\n"
+            f"  {shlex.quote(str(broker_path))} exec-gh \"$@\"\n"
+            "}\n"
+            "export -f gh 2>/dev/null || true\n",
+            encoding="utf-8",
+        )
+        shell_init_path.chmod(0o600)
+        return shell_init_path
+
     def _native_executor_completion_meta(self, parsed_result: JsonObject, max_iterations: int) -> JsonObject:
         result_payload = _json_object_or_empty(parsed_result.get("result"))
         explicit_termination_reason = first_non_empty(
@@ -4754,6 +4767,10 @@ if __name__ == "__main__":
             github_cli_env["_HERMES_GITHUB_SHIM_DIR"] = gh_shim_dir
             github_cli_credentials["github_cli_wrapper_configured"] = True
             github_cli_credentials["github_cli_wrapper_path"] = str(gh_wrapper_path)
+            shell_init_path = self._write_github_shell_init(request_dir, credential_broker_path)
+            github_cli_env["BASH_ENV"] = str(shell_init_path)
+            github_cli_credentials["github_shell_init_configured"] = True
+            github_cli_credentials["github_shell_init_path"] = str(shell_init_path)
         if observer is not None:
             observer.emit(
                 phase=execution_phase,

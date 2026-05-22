@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shlex
 import sqlite3
 import subprocess
 import sys
@@ -830,12 +831,15 @@ class HermesRuntimeTests(unittest.TestCase):
         )
         captured_env: dict[str, str] = {}
         captured_token_store: dict[str, object] = {}
+        captured_shell_init_exists = False
 
         class FakePopen:
             def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                nonlocal captured_shell_init_exists
                 captured_env.update(env)
                 captured_env["_test_git_askpass_exists"] = str(Path(env["GIT_ASKPASS"]).exists())
                 captured_token_store.update(json.loads(Path(env["_HERMES_GITHUB_TOKEN_MAP_PATH"]).read_text(encoding="utf-8")))
+                captured_shell_init_exists = Path(env["BASH_ENV"]).exists()
                 request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
                 payload = {
                     "ok": True,
@@ -913,6 +917,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(captured_env["_test_git_askpass_exists"], "True")
         self.assertIn("github-bin", captured_env["PATH"])
         self.assertEqual(captured_env["_HERMES_GITHUB_SHIM_DIR"], str(token_store_path.parent / "github-bin"))
+        self.assertTrue(captured_shell_init_exists)
         self.assertGreaterEqual(int(captured_env["GIT_CONFIG_COUNT"]), 2)
         git_config = {
             captured_env[f"GIT_CONFIG_KEY_{index}"]: captured_env[f"GIT_CONFIG_VALUE_{index}"]
@@ -1091,6 +1096,60 @@ class HermesRuntimeTests(unittest.TestCase):
             output = subprocess.check_output(
                 [str(wrapper), "api", "/repos/storyprotocol/story-deployments/pulls/361"],
                 env=wrapper_env,
+                text=True,
+            )
+
+        payload = json.loads(output)
+        self.assertEqual(payload["token"], "storyprotocol-token")
+        self.assertEqual(payload["owner"], "storyprotocol")
+
+    def test_github_shell_init_routes_gh_when_profile_resets_path(self) -> None:
+        bash = Path("/bin/bash")
+        if not bash.exists():
+            self.skipTest("/bin/bash is required for BASH_ENV routing coverage")
+        with tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch.dict(os.environ, runner_env("prod"), clear=True):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            request_dir = Path(tempdir)
+            real_bin = request_dir / "real-bin"
+            real_bin.mkdir()
+            real_gh = real_bin / "gh"
+            real_gh.write_text(
+                f"#!{sys.executable}\n"
+                "import json, os, sys\n"
+                "print(json.dumps({'token': os.environ.get('GH_TOKEN'), 'owner': os.environ.get('_HERMES_GITHUB_SELECTED_OWNER'), 'args': sys.argv[1:]}))\n",
+                encoding="utf-8",
+            )
+            real_gh.chmod(0o700)
+            env = {
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_JSON": json.dumps(
+                    {"piplabs": "piplabs-token", "storyprotocol": "storyprotocol-token"},
+                    sort_keys=True,
+                ),
+            }
+            token_store = runtime._write_github_token_store(request_dir, env)
+            broker = runtime._write_github_credential_broker(request_dir)
+            shell_init = runtime._write_github_shell_init(request_dir, broker)
+            shell_env = {
+                **os.environ,
+                "PATH": str(real_bin),
+                "BASH_ENV": str(shell_init),
+                "_HERMES_GITHUB_DEFAULT_OWNER": "piplabs",
+                "_HERMES_GITHUB_TOKEN_MAP_PATH": str(token_store),
+            }
+
+            output = subprocess.check_output(
+                [
+                    str(bash),
+                    "-l",
+                    "-c",
+                    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; "
+                    f"export PATH; hash -r; export PATH={shlex.quote(str(real_bin))}:/usr/bin:/bin; "
+                    "gh api /repos/storyprotocol/story-deployments",
+                ],
+                env=shell_env,
                 text=True,
             )
 
