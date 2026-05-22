@@ -23525,3 +23525,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_142ab6860ed648084d6f29a0a0431c2b
 - summary: Internal guide for dogfooding the Numo 1.1 release, covering resume upload and Stripe payments setup.
 
+## [2026-05-22T22:20:51Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_4fba17adda1ba086cfc3b55db2875a2c
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-22T22:20:51Z] synthesis | Magical Prompts
+
+- status: published
+- slug: concepts/magical-prompts
+- wiki_revision_id: wikirev_bdfe6d49a906134956307347ab8e6c0b
+- summary: A guide on how to prompt effectively to one-shot an application, using a detailed description, layout outline, and fleshed-out PRD. Includes an example workflow for the Scout caree...
+

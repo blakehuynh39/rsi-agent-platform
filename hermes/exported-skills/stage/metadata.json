@@ -3026,13 +3026,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cf42af4cfe6c0845a4841a05881f5b859b6a398c6761a2a4d44756b2759d528e",
-        "size": 597856
+        "sha256": "88ed61aa6ef08f23c7d903d5ab5641a4ff3e854ec458b0669bc25c9bdb07a067",
+        "size": 598209
       },
       {
         "path": "log.md",
-        "sha256": "7b5e3f8422f0863891c3afb343941f1889d6c14cb8a1d29296f88c44640f0089",
-        "size": 1126835
+        "sha256": "350e4eeef54cc959eb34a286f5f6bad5691fc41addde56919956a9f9a4a3fc05",
+        "size": 1127555
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3533,6 +3533,11 @@
         "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
         "sha256": "705551ac715cdf707a4cff4b65205213d8b542ad902067d792e96bf8840418fa",
         "size": 4821
+      },
+      {
+        "path": "pages/concepts/magical-prompts.md",
+        "sha256": "b2d9f9d1815981ca5e182db17e8d8b7fc1ed4a3fc0a6f89a6573f2deb6a915ff",
+        "size": 4697
       },
       {
         "path": "pages/concepts/mainnet-api-data-model.md",
@@ -5491,8 +5496,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "cce16204dc4a8c0422152caa603b7585169fea30d8fd15d7cf3fdf549400556b",
-        "size": 13845
+        "sha256": "8ea86e89008cc3d0ef5e322acf49df8439b7b19aac4db053eb3c35cab61d0b01",
+        "size": 13846
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6364,8 +6369,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T22:06:43Z",
-  "file_count": 1271,
+  "exported_at": "2026-05-22T22:23:24Z",
+  "file_count": 1272,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9387,7 +9392,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "473581291a7b06c7e0b5f98f50577601e1ba1a86000bc4042952fb0fd90f3c17",
+  "previous_tree_hash": "cca344128c36a735217b201f84d826f59b29cd4e01115550552e92c5848e65ca",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9400,14 +9405,14 @@
   ],
   "skill_tree_hash": "9f82f2eabd51457faf97fec153de1803e11e22848b6f4cfde60133ed420e5456",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cca344128c36a735217b201f84d826f59b29cd4e01115550552e92c5848e65ca",
+  "tree_hash": "048d7438f0c26848a660ab44ceda4e833b4f294c79fcc7d6dfad58250e374516",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 668,
+  "wiki_file_count": 669,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9416,13 +9421,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cf42af4cfe6c0845a4841a05881f5b859b6a398c6761a2a4d44756b2759d528e",
-      "size": 597856
+      "sha256": "88ed61aa6ef08f23c7d903d5ab5641a4ff3e854ec458b0669bc25c9bdb07a067",
+      "size": 598209
     },
     {
       "path": "log.md",
-      "sha256": "7b5e3f8422f0863891c3afb343941f1889d6c14cb8a1d29296f88c44640f0089",
-      "size": 1126835
+      "sha256": "350e4eeef54cc959eb34a286f5f6bad5691fc41addde56919956a9f9a4a3fc05",
+      "size": 1127555
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -9923,6 +9928,11 @@
       "path": "pages/concepts/lowering-barrier-of-entry-for-creators.md",
       "sha256": "705551ac715cdf707a4cff4b65205213d8b542ad902067d792e96bf8840418fa",
       "size": 4821
+    },
+    {
+      "path": "pages/concepts/magical-prompts.md",
+      "sha256": "b2d9f9d1815981ca5e182db17e8d8b7fc1ed4a3fc0a6f89a6573f2deb6a915ff",
+      "size": 4697
     },
     {
       "path": "pages/concepts/mainnet-api-data-model.md",
@@ -11881,8 +11891,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "cce16204dc4a8c0422152caa603b7585169fea30d8fd15d7cf3fdf549400556b",
-      "size": 13845
+      "sha256": "8ea86e89008cc3d0ef5e322acf49df8439b7b19aac4db053eb3c35cab61d0b01",
+      "size": 13846
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -12751,5 +12761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0a8ed0a3252c39c0fe951043fb832787faedd6baec0923754651526a468e2223"
+  "wiki_tree_hash": "3b7d016f981dfa0d7f8724f20f12623cf85ff4c05c64d7ec8eddf4201cd96cd4"
 }

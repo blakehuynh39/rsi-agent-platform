@@ -4,10 +4,9 @@ type: "project"
 slug: "projects/tiger-team"
 freshness: "2026-05-22T17:58:00Z"
 tags:
-  - "apps"
+  - "app-initiative"
   - "data-ecosystem"
   - "depin"
-  - "strategy"
   - "voice"
 owners: []
 source_revision_ids:
@@ -25,7 +24,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, strategic documents, and development resources, and is currently prioritizing human-to-agent apps for speed and virality.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active applications and strategic documents, and is currently prioritizing human-to-agent apps for speed and virality.
 
 ## Claims
 
@@ -73,11 +72,13 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
 
 ## Related Pages
 
-- `projects/adaptive-trust-screening-reputation`
-- `projects/numo-app-strategy`
+- `concepts/magical-prompts`
+- `systems/depin-admin`
+- `systems/depin-backend`
+- `systems/voice-models`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_23ea56dd8e1ad8665e6c69083639f4e7`
-- `source_revision_id`: `srcrev_12d53291c160d6628b674b2cdb321098`
-- `source_url`: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)
+- `source_document_id`: `srcdoc_d95f1fd49f99be316f8c0cd39a794325`
+- `source_revision_id`: `srcrev_d24f0c29194a324a4672b2df861c9147`
+- `source_url`: [Notion source](https://www.notion.so/Magical-Prompts-32d051299a54801f8ea3f5973ff27b63)
