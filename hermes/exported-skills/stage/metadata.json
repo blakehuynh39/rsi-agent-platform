@@ -84,8 +84,18 @@
       },
       {
         "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-        "sha256": "2001c739d6f2eb7d90a44d49984c49b5556d7bcb138fa4bed905b8b68ab4dcf3",
-        "size": 45630
+        "sha256": "2e4ce50d64e58e853b8c55336e4babee0f0e791d257a32dfd4b1b36e2c649bdc",
+        "size": 46167
+      },
+      {
+        "path": "autonomous-ai-agents/kanban-codex-lane/SKILL.md",
+        "sha256": "ca946e1f7968f767a7b235a12c7847d2befe4c1121e2ba4b2c0f0ab309ae6dfe",
+        "size": 12774
+      },
+      {
+        "path": "autonomous-ai-agents/kanban-codex-lane/templates/pmb-codex-lane-prompt.md",
+        "sha256": "3b8414c78e6babdfb8631a8f1dca94333b1696731ca2a9886be1801b776266bf",
+        "size": 2208
       },
       {
         "path": "autonomous-ai-agents/opencode/SKILL.md",
@@ -161,6 +171,181 @@
         "path": "creative/ascii-video/references/troubleshooting.md",
         "sha256": "eb992b11d051ba1ec8bb47d62cb28c329b69fc8ebc5ba38d4f501a9893ae9ebd",
         "size": 13246
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/PORT_NOTES.md",
+        "sha256": "062dfd16b97ed055839da2a14e258d407197c298fa48800f36cfcbe957c951eb",
+        "size": 3414
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/SKILL.md",
+        "sha256": "9de0861d5fe4da97d053aa972baffc68d7271c0bc13344161ab36f9f67827aa3",
+        "size": 10131
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/prompts/system.md",
+        "sha256": "62492d3874b8c103bdeba50611dfb571a20e65923afafc25775e7df95fd86269",
+        "size": 1050
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/palettes/macaron.md",
+        "sha256": "29735369d5a56d0c24652806ff6326d1716a3c8fc8578e03f4cd8d31b80f1060",
+        "size": 1339
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/palettes/mono-ink.md",
+        "sha256": "a45b5ba9656c56d44e3b4774cd8454bd68ea8a0ee93defa823906c7b1bb0b055",
+        "size": 1780
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/palettes/neon.md",
+        "sha256": "9b2689b9dc7d0d3382f9f0a7a80c25ce7305e1cdb58e5699f2dbb969af4a8349",
+        "size": 1025
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/palettes/warm.md",
+        "sha256": "6db979618df3b217ad0f46a4fe897e32bf08c0e3189a3873400b2ffc7175041c",
+        "size": 1036
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/prompt-construction.md",
+        "sha256": "221badadf42d56e64a8275c21a7872ee5b47579d87489a162e341bcab94d1893",
+        "size": 14981
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/style-presets.md",
+        "sha256": "2cd47e5be9b807522ddb030484563a1a9b9163668a815c7f5fcaf58d32857c0a",
+        "size": 4830
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/blueprint.md",
+        "sha256": "4836bdd8c4fcb17694b3010fd21c091e0b2234dca2aafe0ac5fd046d5fb24f67",
+        "size": 1844
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/chalkboard.md",
+        "sha256": "242f11f226016b388c4d69f1c950fff78a0462ebe47109150b8cfde53b793366",
+        "size": 2249
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/editorial.md",
+        "sha256": "ca096334d70ff7b96ab32ec7796e0c49d60eba1fdb934249559976c33daef008",
+        "size": 1722
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/elegant.md",
+        "sha256": "8bc8ad9a290646f806e2447af513f9c4df76befae6aa3ad777b02bb514b92cfc",
+        "size": 1733
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/fantasy-animation.md",
+        "sha256": "5bc59a1780be6682a21d211b9b4289056c7f44aeba8016560bd2ef7ddb454e3d",
+        "size": 1969
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/flat-doodle.md",
+        "sha256": "094beb61d541c2b2afc73a1162a1f4962e8ef6c4caa03f67c09c2f8637b52e24",
+        "size": 1869
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/flat.md",
+        "sha256": "999afbadd7a32138e6036ee13f23da9f199e82deca351dfec2f29ed9abced28c",
+        "size": 1688
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/ink-notes.md",
+        "sha256": "5fcb449e9343271498c23642618ebc6b4df1029c3356f42c78abb1c9fd7128a1",
+        "size": 4289
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/intuition-machine.md",
+        "sha256": "7009797b135ef1d9752b81d9bf71d4035039207602edb18b74f8c6bd82413201",
+        "size": 1850
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/minimal.md",
+        "sha256": "9f45c7852e8b053e1083737a3ca79b175556121951792f814b47f9c596be6e1a",
+        "size": 1607
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/nature.md",
+        "sha256": "44302deb399cdd5856439b493ffb74925866f238c8bc6379094cab93b05ed631",
+        "size": 1703
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/notion.md",
+        "sha256": "52efbd2587c46104e2b47bf2e259a3a1bb8546ad5ed15b274a374d9af1a5b314",
+        "size": 1636
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/pixel-art.md",
+        "sha256": "3c6a7ce22957179e3a344c4ec8085793951ba2dbab59d8315fe1b5af24a19246",
+        "size": 1907
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/playful.md",
+        "sha256": "ea58b9791b4babd3eaeb2d7285fec44ad7e58d3416ec415e564d7207d00d0940",
+        "size": 1707
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/retro.md",
+        "sha256": "6f69883852c693f314f0f1dd3ab1f025aaf4bd4c6f0708dbeeaa74fe0c9066d7",
+        "size": 1682
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/scientific.md",
+        "sha256": "0d360a3ab10df6d6dd47c9cee76fa18e3a57fd805d52df84e0b7e24ce315befa",
+        "size": 1741
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/screen-print.md",
+        "sha256": "52faa0188b7beb71d118d6ef4e936891e615d02eadada8ccf8b79665f605a9f2",
+        "size": 2680
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/sketch-notes.md",
+        "sha256": "9fd928a3c49f9e371b4a2b9e9fc2b8ad678f8be7184e9f79f12c96b1ab1652a0",
+        "size": 1824
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/sketch.md",
+        "sha256": "e74cc5696fbeb7e52be9cf126784c4a8e58787a5810e3b84f2972cdc69689aae",
+        "size": 1691
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/vector-illustration.md",
+        "sha256": "9b28324319a29f82480401e092d513f9b212571d283bc43c6a8d029f829ed027",
+        "size": 1940
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/vintage.md",
+        "sha256": "b10f965bcdd7951927614a958159d1081aba3f841c97096c704f8ab2431642a6",
+        "size": 1819
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/warm.md",
+        "sha256": "bebcacbf585b7dd47939a58923a09708aec708afdd88b0c372efe3c1fe461394",
+        "size": 1760
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles/watercolor.md",
+        "sha256": "d66b08079ea4d99d80691fe2a0aef6075ad58ec7adcc1f8976d7ac0249804cb4",
+        "size": 1815
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/styles.md",
+        "sha256": "e619cc16e970b2cc00ba840f2e0e3698396ce37b2b74c8303874df716a08b29c",
+        "size": 9385
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/usage.md",
+        "sha256": "83d2ebe50890a411c672bfb86afc048cd98d1054daef134e82aae64a57391aef",
+        "size": 1834
+      },
+      {
+        "path": "creative/baoyu-article-illustrator/references/workflow.md",
+        "sha256": "1e21ee7665fb71896a02f6b300734a16580ec06114be5443fa4e1f6265e7f200",
+        "size": 13773
       },
       {
         "path": "creative/baoyu-comic/PORT_NOTES.md",
@@ -579,8 +764,8 @@
       },
       {
         "path": "creative/comfyui/SKILL.md",
-        "sha256": "dc23dc22f1d9f0d97fdd45af260e981ea101371d3fe9d6e6dfd21424bf65b1cb",
-        "size": 23856
+        "sha256": "fc9514a3b888b35226a3d2276955bfcf1778fd1e61f4000d79c8c0c53e7905c3",
+        "size": 24287
       },
       {
         "path": "creative/comfyui/references/official-cli.md",
@@ -593,13 +778,18 @@
         "size": 10363
       },
       {
+        "path": "creative/comfyui/references/template-integrity.md",
+        "sha256": "746caa050d4e321b142efecf5a16c72d609e3c08cec9061ba4108781d14aa7d9",
+        "size": 8821
+      },
+      {
         "path": "creative/comfyui/references/workflow-format.md",
         "sha256": "c5749b962b8e438b777e7f4d6529469c53b945728cc847083110e5a742fd0af4",
         "size": 8025
       },
       {
         "path": "creative/comfyui/scripts/_common.py",
-        "sha256": "a5d5e24b463bb5f8a6df5beb9254dfc67780aadf78acadbddf033eef973e1f90",
+        "sha256": "80494670d7ab0d514de520eac0b54c26069db9f65015d4b8e0502d575e084e16",
         "size": 33742
       },
       {
@@ -619,17 +809,17 @@
       },
       {
         "path": "creative/comfyui/scripts/extract_schema.py",
-        "sha256": "280c53a95ae54604e757b9fabe132e0dfcc1b393b8c6dc2d978fc301eeece6c9",
+        "sha256": "d81db3b45ce6cfe916e7a4a4ca07d7610b4d841dd3e4a60d081bcbc0e649bb71",
         "size": 11289
       },
       {
         "path": "creative/comfyui/scripts/fetch_logs.py",
-        "sha256": "5dad70cd09b7fc49e435cd28dd40aea114567e1202377b6026e099dc9c195fa9",
+        "sha256": "dd8c6e48feb0c54207276c35bdbbfbeefe035fcc364798f4a0aec7d831e5e5d9",
         "size": 5702
       },
       {
         "path": "creative/comfyui/scripts/hardware_check.py",
-        "sha256": "34bd3d2d4d9d7264d9b1f9c2c815729061ea2f867197a7ecb1f6c168f305c498",
+        "sha256": "0a6df49c2aba4e9e843794b0ba85d0a503bf751171d0f774223809ba2824f780",
         "size": 17833
       },
       {
@@ -644,12 +834,12 @@
       },
       {
         "path": "creative/comfyui/scripts/run_workflow.py",
-        "sha256": "ecdb5515c79e1c8c8958bf6db71e69d76a36d54f13a9c99b343ecb415ee471cd",
+        "sha256": "137df57497b6fa72922f527fd9f2550d137a5ab14908a741a51346b34771f6b4",
         "size": 31591
       },
       {
         "path": "creative/comfyui/scripts/ws_monitor.py",
-        "sha256": "b4144c716cf67223cd4d14a883c7fef60699ccfdc7f9f8a50016bfa21fa3fb57",
+        "sha256": "3c8f920578b4996d4accd806f17c5b0028ef93dc77982327caeb47177cbe817d",
         "size": 10512
       },
       {
@@ -674,7 +864,7 @@
       },
       {
         "path": "creative/comfyui/tests/test_cloud_integration.py",
-        "sha256": "a2f0d4cb6ec289baa5ad3c910fbb27d680370ca47b79eae18e10ac91f6526393",
+        "sha256": "23a6ed9ecc5287a748352bf8f99972b08845b31961825c59cb98acf9d0dcae54",
         "size": 4324
       },
       {
@@ -684,7 +874,7 @@
       },
       {
         "path": "creative/comfyui/tests/test_extract_schema.py",
-        "sha256": "6ce71010807db07392ede81d49c814e4fe87e36792b1161d7772994b84c00a53",
+        "sha256": "b7dc9bb41a5f69b5fa67bd952dd0a863c173e6517d4e08ad3a82ee5789a9d3f8",
         "size": 7986
       },
       {
@@ -1439,8 +1629,8 @@
       },
       {
         "path": "devops/kanban-worker/SKILL.md",
-        "sha256": "aef52e7513b68e0fb2308cc0e3680e49dcb01badd9bc4a0ae428eed1958873fd",
-        "size": 10030
+        "sha256": "1a4324dc156cd65bf38fc02c97d344983f3d09cf135fd09561622e725fc4b3a1",
+        "size": 10500
       },
       {
         "path": "devops/webhook-subscriptions/SKILL.md",
@@ -2049,18 +2239,18 @@
       },
       {
         "path": "productivity/google-workspace/scripts/google_api.py",
-        "sha256": "2b7c1ab9f1d8fa0bfd9291a267d6de52963756476c95874f1d5ece88522e8eea",
+        "sha256": "0adc3e1b8ddc359e76ed95520e09cae923f35e79bdc519b31a2f67d4acae2b7c",
         "size": 43428
       },
       {
         "path": "productivity/google-workspace/scripts/gws_bridge.py",
-        "sha256": "a27fd9195ca4d84e0fbe4048d78fc1711ea7ba4e23fb45c751f98eaf31629272",
-        "size": 3483
+        "sha256": "e8b6d7f492d33e3643ff8a27712aef75f51d9c95ba6b4ec736f555337023bc81",
+        "size": 3648
       },
       {
         "path": "productivity/google-workspace/scripts/setup.py",
-        "sha256": "1ef899cea46b49a31011e8adfca732e3671e1731e196e61a759cacf4d09f307b",
-        "size": 17617
+        "sha256": "23a999312a52ec37d59ee4c9d723d008180bc3bbd0fa0d851f46a6c6a7655367",
+        "size": 17642
       },
       {
         "path": "productivity/linear/SKILL.md",
@@ -2079,7 +2269,7 @@
       },
       {
         "path": "productivity/maps/scripts/maps_client.py",
-        "sha256": "5f4a216bc2652d049150a897353d95f1f7fa59a803746cd76da7e70fcc9fa953",
+        "sha256": "5aa054efd2e29ae6e758344990ed9436d62fcda421972b93edec1aa27b071027",
         "size": 46688
       },
       {
@@ -2109,12 +2299,12 @@
       },
       {
         "path": "productivity/ocr-and-documents/scripts/extract_marker.py",
-        "sha256": "927bc7597d36c6f86b3d4d7ba8a674c771246774d1dfe71d74f67d74d7ee3959",
+        "sha256": "7e4b66050b61fd50680ab506fcf075441f52d2d43336ca49a662ff19d64d3dbd",
         "size": 3034
       },
       {
         "path": "productivity/ocr-and-documents/scripts/extract_pymupdf.py",
-        "sha256": "256aed934e95dff4c07f395a821c76697bd1a7728ceeef2b9f9c54379ddb721d",
+        "sha256": "8476bafbf0becc09a74a5329e0c54aeeb92badd4d3eb6ee7a25519656ed8ae60",
         "size": 3132
       },
       {
@@ -2429,7 +2619,7 @@
       },
       {
         "path": "research/arxiv/scripts/search_arxiv.py",
-        "sha256": "58e1ec809be26ed6cdb0dfe96af2c69e17a4896942e743d8949b0c0b4e911d71",
+        "sha256": "68f0bcc09ef1f59ecd9be8a7693e47239fd99b19d62cecb80a92b8c476cca371",
         "size": 4272
       },
       {
@@ -2454,7 +2644,7 @@
       },
       {
         "path": "research/polymarket/scripts/polymarket.py",
-        "sha256": "433e1a7084cd5795b8108453275a4250bf0bf2b957ee8372cc8520fcbaa7cee7",
+        "sha256": "7873e054539a8c782a671dd84686e1ee763e29fe20245c1d10798b767d76980f",
         "size": 10214
       },
       {
@@ -6369,8 +6559,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T22:23:24Z",
-  "file_count": 1272,
+  "exported_at": "2026-05-22T22:50:21Z",
+  "file_count": 1310,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6454,8 +6644,18 @@
     },
     {
       "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-      "sha256": "2001c739d6f2eb7d90a44d49984c49b5556d7bcb138fa4bed905b8b68ab4dcf3",
-      "size": 45630
+      "sha256": "2e4ce50d64e58e853b8c55336e4babee0f0e791d257a32dfd4b1b36e2c649bdc",
+      "size": 46167
+    },
+    {
+      "path": "autonomous-ai-agents/kanban-codex-lane/SKILL.md",
+      "sha256": "ca946e1f7968f767a7b235a12c7847d2befe4c1121e2ba4b2c0f0ab309ae6dfe",
+      "size": 12774
+    },
+    {
+      "path": "autonomous-ai-agents/kanban-codex-lane/templates/pmb-codex-lane-prompt.md",
+      "sha256": "3b8414c78e6babdfb8631a8f1dca94333b1696731ca2a9886be1801b776266bf",
+      "size": 2208
     },
     {
       "path": "autonomous-ai-agents/opencode/SKILL.md",
@@ -6531,6 +6731,181 @@
       "path": "creative/ascii-video/references/troubleshooting.md",
       "sha256": "eb992b11d051ba1ec8bb47d62cb28c329b69fc8ebc5ba38d4f501a9893ae9ebd",
       "size": 13246
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/PORT_NOTES.md",
+      "sha256": "062dfd16b97ed055839da2a14e258d407197c298fa48800f36cfcbe957c951eb",
+      "size": 3414
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/SKILL.md",
+      "sha256": "9de0861d5fe4da97d053aa972baffc68d7271c0bc13344161ab36f9f67827aa3",
+      "size": 10131
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/prompts/system.md",
+      "sha256": "62492d3874b8c103bdeba50611dfb571a20e65923afafc25775e7df95fd86269",
+      "size": 1050
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/palettes/macaron.md",
+      "sha256": "29735369d5a56d0c24652806ff6326d1716a3c8fc8578e03f4cd8d31b80f1060",
+      "size": 1339
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/palettes/mono-ink.md",
+      "sha256": "a45b5ba9656c56d44e3b4774cd8454bd68ea8a0ee93defa823906c7b1bb0b055",
+      "size": 1780
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/palettes/neon.md",
+      "sha256": "9b2689b9dc7d0d3382f9f0a7a80c25ce7305e1cdb58e5699f2dbb969af4a8349",
+      "size": 1025
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/palettes/warm.md",
+      "sha256": "6db979618df3b217ad0f46a4fe897e32bf08c0e3189a3873400b2ffc7175041c",
+      "size": 1036
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/prompt-construction.md",
+      "sha256": "221badadf42d56e64a8275c21a7872ee5b47579d87489a162e341bcab94d1893",
+      "size": 14981
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/style-presets.md",
+      "sha256": "2cd47e5be9b807522ddb030484563a1a9b9163668a815c7f5fcaf58d32857c0a",
+      "size": 4830
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/blueprint.md",
+      "sha256": "4836bdd8c4fcb17694b3010fd21c091e0b2234dca2aafe0ac5fd046d5fb24f67",
+      "size": 1844
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/chalkboard.md",
+      "sha256": "242f11f226016b388c4d69f1c950fff78a0462ebe47109150b8cfde53b793366",
+      "size": 2249
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/editorial.md",
+      "sha256": "ca096334d70ff7b96ab32ec7796e0c49d60eba1fdb934249559976c33daef008",
+      "size": 1722
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/elegant.md",
+      "sha256": "8bc8ad9a290646f806e2447af513f9c4df76befae6aa3ad777b02bb514b92cfc",
+      "size": 1733
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/fantasy-animation.md",
+      "sha256": "5bc59a1780be6682a21d211b9b4289056c7f44aeba8016560bd2ef7ddb454e3d",
+      "size": 1969
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/flat-doodle.md",
+      "sha256": "094beb61d541c2b2afc73a1162a1f4962e8ef6c4caa03f67c09c2f8637b52e24",
+      "size": 1869
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/flat.md",
+      "sha256": "999afbadd7a32138e6036ee13f23da9f199e82deca351dfec2f29ed9abced28c",
+      "size": 1688
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/ink-notes.md",
+      "sha256": "5fcb449e9343271498c23642618ebc6b4df1029c3356f42c78abb1c9fd7128a1",
+      "size": 4289
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/intuition-machine.md",
+      "sha256": "7009797b135ef1d9752b81d9bf71d4035039207602edb18b74f8c6bd82413201",
+      "size": 1850
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/minimal.md",
+      "sha256": "9f45c7852e8b053e1083737a3ca79b175556121951792f814b47f9c596be6e1a",
+      "size": 1607
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/nature.md",
+      "sha256": "44302deb399cdd5856439b493ffb74925866f238c8bc6379094cab93b05ed631",
+      "size": 1703
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/notion.md",
+      "sha256": "52efbd2587c46104e2b47bf2e259a3a1bb8546ad5ed15b274a374d9af1a5b314",
+      "size": 1636
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/pixel-art.md",
+      "sha256": "3c6a7ce22957179e3a344c4ec8085793951ba2dbab59d8315fe1b5af24a19246",
+      "size": 1907
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/playful.md",
+      "sha256": "ea58b9791b4babd3eaeb2d7285fec44ad7e58d3416ec415e564d7207d00d0940",
+      "size": 1707
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/retro.md",
+      "sha256": "6f69883852c693f314f0f1dd3ab1f025aaf4bd4c6f0708dbeeaa74fe0c9066d7",
+      "size": 1682
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/scientific.md",
+      "sha256": "0d360a3ab10df6d6dd47c9cee76fa18e3a57fd805d52df84e0b7e24ce315befa",
+      "size": 1741
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/screen-print.md",
+      "sha256": "52faa0188b7beb71d118d6ef4e936891e615d02eadada8ccf8b79665f605a9f2",
+      "size": 2680
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/sketch-notes.md",
+      "sha256": "9fd928a3c49f9e371b4a2b9e9fc2b8ad678f8be7184e9f79f12c96b1ab1652a0",
+      "size": 1824
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/sketch.md",
+      "sha256": "e74cc5696fbeb7e52be9cf126784c4a8e58787a5810e3b84f2972cdc69689aae",
+      "size": 1691
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/vector-illustration.md",
+      "sha256": "9b28324319a29f82480401e092d513f9b212571d283bc43c6a8d029f829ed027",
+      "size": 1940
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/vintage.md",
+      "sha256": "b10f965bcdd7951927614a958159d1081aba3f841c97096c704f8ab2431642a6",
+      "size": 1819
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/warm.md",
+      "sha256": "bebcacbf585b7dd47939a58923a09708aec708afdd88b0c372efe3c1fe461394",
+      "size": 1760
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles/watercolor.md",
+      "sha256": "d66b08079ea4d99d80691fe2a0aef6075ad58ec7adcc1f8976d7ac0249804cb4",
+      "size": 1815
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/styles.md",
+      "sha256": "e619cc16e970b2cc00ba840f2e0e3698396ce37b2b74c8303874df716a08b29c",
+      "size": 9385
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/usage.md",
+      "sha256": "83d2ebe50890a411c672bfb86afc048cd98d1054daef134e82aae64a57391aef",
+      "size": 1834
+    },
+    {
+      "path": "creative/baoyu-article-illustrator/references/workflow.md",
+      "sha256": "1e21ee7665fb71896a02f6b300734a16580ec06114be5443fa4e1f6265e7f200",
+      "size": 13773
     },
     {
       "path": "creative/baoyu-comic/PORT_NOTES.md",
@@ -6949,8 +7324,8 @@
     },
     {
       "path": "creative/comfyui/SKILL.md",
-      "sha256": "dc23dc22f1d9f0d97fdd45af260e981ea101371d3fe9d6e6dfd21424bf65b1cb",
-      "size": 23856
+      "sha256": "fc9514a3b888b35226a3d2276955bfcf1778fd1e61f4000d79c8c0c53e7905c3",
+      "size": 24287
     },
     {
       "path": "creative/comfyui/references/official-cli.md",
@@ -6963,13 +7338,18 @@
       "size": 10363
     },
     {
+      "path": "creative/comfyui/references/template-integrity.md",
+      "sha256": "746caa050d4e321b142efecf5a16c72d609e3c08cec9061ba4108781d14aa7d9",
+      "size": 8821
+    },
+    {
       "path": "creative/comfyui/references/workflow-format.md",
       "sha256": "c5749b962b8e438b777e7f4d6529469c53b945728cc847083110e5a742fd0af4",
       "size": 8025
     },
     {
       "path": "creative/comfyui/scripts/_common.py",
-      "sha256": "a5d5e24b463bb5f8a6df5beb9254dfc67780aadf78acadbddf033eef973e1f90",
+      "sha256": "80494670d7ab0d514de520eac0b54c26069db9f65015d4b8e0502d575e084e16",
       "size": 33742
     },
     {
@@ -6989,17 +7369,17 @@
     },
     {
       "path": "creative/comfyui/scripts/extract_schema.py",
-      "sha256": "280c53a95ae54604e757b9fabe132e0dfcc1b393b8c6dc2d978fc301eeece6c9",
+      "sha256": "d81db3b45ce6cfe916e7a4a4ca07d7610b4d841dd3e4a60d081bcbc0e649bb71",
       "size": 11289
     },
     {
       "path": "creative/comfyui/scripts/fetch_logs.py",
-      "sha256": "5dad70cd09b7fc49e435cd28dd40aea114567e1202377b6026e099dc9c195fa9",
+      "sha256": "dd8c6e48feb0c54207276c35bdbbfbeefe035fcc364798f4a0aec7d831e5e5d9",
       "size": 5702
     },
     {
       "path": "creative/comfyui/scripts/hardware_check.py",
-      "sha256": "34bd3d2d4d9d7264d9b1f9c2c815729061ea2f867197a7ecb1f6c168f305c498",
+      "sha256": "0a6df49c2aba4e9e843794b0ba85d0a503bf751171d0f774223809ba2824f780",
       "size": 17833
     },
     {
@@ -7014,12 +7394,12 @@
     },
     {
       "path": "creative/comfyui/scripts/run_workflow.py",
-      "sha256": "ecdb5515c79e1c8c8958bf6db71e69d76a36d54f13a9c99b343ecb415ee471cd",
+      "sha256": "137df57497b6fa72922f527fd9f2550d137a5ab14908a741a51346b34771f6b4",
       "size": 31591
     },
     {
       "path": "creative/comfyui/scripts/ws_monitor.py",
-      "sha256": "b4144c716cf67223cd4d14a883c7fef60699ccfdc7f9f8a50016bfa21fa3fb57",
+      "sha256": "3c8f920578b4996d4accd806f17c5b0028ef93dc77982327caeb47177cbe817d",
       "size": 10512
     },
     {
@@ -7044,7 +7424,7 @@
     },
     {
       "path": "creative/comfyui/tests/test_cloud_integration.py",
-      "sha256": "a2f0d4cb6ec289baa5ad3c910fbb27d680370ca47b79eae18e10ac91f6526393",
+      "sha256": "23a6ed9ecc5287a748352bf8f99972b08845b31961825c59cb98acf9d0dcae54",
       "size": 4324
     },
     {
@@ -7054,7 +7434,7 @@
     },
     {
       "path": "creative/comfyui/tests/test_extract_schema.py",
-      "sha256": "6ce71010807db07392ede81d49c814e4fe87e36792b1161d7772994b84c00a53",
+      "sha256": "b7dc9bb41a5f69b5fa67bd952dd0a863c173e6517d4e08ad3a82ee5789a9d3f8",
       "size": 7986
     },
     {
@@ -7809,8 +8189,8 @@
     },
     {
       "path": "devops/kanban-worker/SKILL.md",
-      "sha256": "aef52e7513b68e0fb2308cc0e3680e49dcb01badd9bc4a0ae428eed1958873fd",
-      "size": 10030
+      "sha256": "1a4324dc156cd65bf38fc02c97d344983f3d09cf135fd09561622e725fc4b3a1",
+      "size": 10500
     },
     {
       "path": "devops/webhook-subscriptions/SKILL.md",
@@ -8419,18 +8799,18 @@
     },
     {
       "path": "productivity/google-workspace/scripts/google_api.py",
-      "sha256": "2b7c1ab9f1d8fa0bfd9291a267d6de52963756476c95874f1d5ece88522e8eea",
+      "sha256": "0adc3e1b8ddc359e76ed95520e09cae923f35e79bdc519b31a2f67d4acae2b7c",
       "size": 43428
     },
     {
       "path": "productivity/google-workspace/scripts/gws_bridge.py",
-      "sha256": "a27fd9195ca4d84e0fbe4048d78fc1711ea7ba4e23fb45c751f98eaf31629272",
-      "size": 3483
+      "sha256": "e8b6d7f492d33e3643ff8a27712aef75f51d9c95ba6b4ec736f555337023bc81",
+      "size": 3648
     },
     {
       "path": "productivity/google-workspace/scripts/setup.py",
-      "sha256": "1ef899cea46b49a31011e8adfca732e3671e1731e196e61a759cacf4d09f307b",
-      "size": 17617
+      "sha256": "23a999312a52ec37d59ee4c9d723d008180bc3bbd0fa0d851f46a6c6a7655367",
+      "size": 17642
     },
     {
       "path": "productivity/linear/SKILL.md",
@@ -8449,7 +8829,7 @@
     },
     {
       "path": "productivity/maps/scripts/maps_client.py",
-      "sha256": "5f4a216bc2652d049150a897353d95f1f7fa59a803746cd76da7e70fcc9fa953",
+      "sha256": "5aa054efd2e29ae6e758344990ed9436d62fcda421972b93edec1aa27b071027",
       "size": 46688
     },
     {
@@ -8479,12 +8859,12 @@
     },
     {
       "path": "productivity/ocr-and-documents/scripts/extract_marker.py",
-      "sha256": "927bc7597d36c6f86b3d4d7ba8a674c771246774d1dfe71d74f67d74d7ee3959",
+      "sha256": "7e4b66050b61fd50680ab506fcf075441f52d2d43336ca49a662ff19d64d3dbd",
       "size": 3034
     },
     {
       "path": "productivity/ocr-and-documents/scripts/extract_pymupdf.py",
-      "sha256": "256aed934e95dff4c07f395a821c76697bd1a7728ceeef2b9f9c54379ddb721d",
+      "sha256": "8476bafbf0becc09a74a5329e0c54aeeb92badd4d3eb6ee7a25519656ed8ae60",
       "size": 3132
     },
     {
@@ -8799,7 +9179,7 @@
     },
     {
       "path": "research/arxiv/scripts/search_arxiv.py",
-      "sha256": "58e1ec809be26ed6cdb0dfe96af2c69e17a4896942e743d8949b0c0b4e911d71",
+      "sha256": "68f0bcc09ef1f59ecd9be8a7693e47239fd99b19d62cecb80a92b8c476cca371",
       "size": 4272
     },
     {
@@ -8824,7 +9204,7 @@
     },
     {
       "path": "research/polymarket/scripts/polymarket.py",
-      "sha256": "433e1a7084cd5795b8108453275a4250bf0bf2b957ee8372cc8520fcbaa7cee7",
+      "sha256": "7873e054539a8c782a671dd84686e1ee763e29fe20245c1d10798b767d76980f",
       "size": 10214
     },
     {
@@ -9392,9 +9772,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "cca344128c36a735217b201f84d826f59b29cd4e01115550552e92c5848e65ca",
+  "previous_tree_hash": "048d7438f0c26848a660ab44ceda4e833b4f294c79fcc7d6dfad58250e374516",
   "schema_version": 1,
-  "skill_file_count": 603,
+  "skill_file_count": 641,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9403,9 +9783,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "9f82f2eabd51457faf97fec153de1803e11e22848b6f4cfde60133ed420e5456",
+  "skill_tree_hash": "261931866ce99c9dc7efb7432d48db44932bb43775d88dff11caa4a9de72befc",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "048d7438f0c26848a660ab44ceda4e833b4f294c79fcc7d6dfad58250e374516",
+  "tree_hash": "3646ac811aab783c954ab3613c11b68b31070c778c4579c49cc023aae8030a48",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
