@@ -23463,3 +23463,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7ccac21fda8730cb32e5757b30453011
 - summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
 
+## [2026-05-22T20:22:44Z] synthesis | Adaptive Trust Screening (Reputation)
+
+- status: published
+- slug: projects/adaptive-trust-screening-reputation
+- wiki_revision_id: wikirev_1f758bba056d8406e919e764f30942e6
+- summary: A P2 project for adaptive trust screening based on reputation, owned by Allen Chuang and Ramtin Seraj, with a documentation task for Numo App Strategy.
+
+## [2026-05-22T20:22:44Z] synthesis | Numo App Strategy
+
+- status: published
+- slug: projects/numo-app-strategy
+- wiki_revision_id: wikirev_40acca0eda46b03a2b80181cbde30d6d
+- summary: Numo is a two-sided marketplace that rewards users for data and sells packaged data to AI labs. The strategy focuses on phased launches: first casting a wide net for user volume, t...
+
+## [2026-05-22T20:22:44Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_2934c2e58d95e36aa8005799327d88cf
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+

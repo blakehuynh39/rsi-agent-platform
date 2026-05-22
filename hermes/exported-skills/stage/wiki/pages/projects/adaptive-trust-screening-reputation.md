@@ -3,7 +3,11 @@ title: "Adaptive Trust Screening (Reputation)"
 type: "project"
 slug: "projects/adaptive-trust-screening-reputation"
 freshness: "2026-04-27T15:36:00Z"
-tags: []
+tags:
+  - "data-quality"
+  - "numo"
+  - "reputation"
+  - "trust"
 owners:
   - "Allen Chuang"
   - "Ramtin Seraj"
@@ -30,5 +34,5 @@ A P2 project for adaptive trust screening based on reputation, owned by Allen Ch
 ## Sources
 
 - `source_document_id`: `srcdoc_23ea56dd8e1ad8665e6c69083639f4e7`
-- `source_revision_id`: `srcrev_b60200373b9e5cc6e10a3f12d76855ce`
+- `source_revision_id`: `srcrev_12d53291c160d6628b674b2cdb321098`
 - `source_url`: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)

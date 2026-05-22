@@ -5,8 +5,9 @@ slug: "projects/tiger-team"
 freshness: "2026-05-22T17:58:00Z"
 tags:
   - "apps"
-  - "data"
+  - "data-ecosystem"
   - "depin"
+  - "strategy"
   - "voice"
 owners: []
 source_revision_ids:
@@ -24,7 +25,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, planning documents, and development resources.
+The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active apps, strategic documents, and development resources, and is currently prioritizing human-to-agent apps for speed and virality.
 
 ## Claims
 
@@ -47,6 +48,8 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9) `source_document_id=srcdoc_48fde66a8a1bc0d1e803964da01462a5` `source_revision_id=srcrev_29fb37287dd828609727dbf3aa4e89a8` `chunk_id=srcchunk_b8409b874d66861c343d0fb61ee74bac` `native_locator=https://www.notion.so/Models-for-pre-verification-359051299a5480a18997e04f4a1919a9` `source_timestamp=2026-05-07T01:08:00Z`
 - DePIN Admin has a proof-of-concept web app at https://human-agent-poc-web.vercel.app/. `claim:claim_1_9` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a) `source_document_id=srcdoc_368feb26bfb0baebfb1c30d01ffccbe1` `source_revision_id=srcrev_044c3891ab0bcf24d56f2c2e37ce8361` `chunk_id=srcchunk_e413b17f694e24326db5616e0bfc83d1` `native_locator=https://www.notion.so/DePIN-Admin-32c051299a5480db8225e157465e024a` `source_timestamp=2026-03-23T21:50:00Z`
+- The Voice Models page includes a link to Rime (https://rime.ai/), a trusted AI voice model provider. `claim:claim_1_10` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628) `source_document_id=srcdoc_406ad3672ed538d69269ee481de484fc` `source_revision_id=srcrev_a2433bfff874c2f6ed261da3e22c28cf` `chunk_id=srcchunk_88ae183f7bc4df1f630485a88757eb08` `native_locator=https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628` `source_timestamp=2026-05-22T17:58:00Z`
 - The team is prioritizing human-to-agent apps for speed and virality, while acknowledging human-to-human apps are the highest-conviction path to rare training data but are more complex. `claim:claim_2_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1) `source_document_id=srcdoc_49714bb369c0e85d4eb3f4f9a902804c` `source_revision_id=srcrev_7e2bdc03a6af9ec06e97282af76837d2` `chunk_id=srcchunk_94b1f3ec6e18a585fcce193249006f85` `native_locator=https://www.notion.so/DePIN-Tiger-Team-App-Initiative-Update-326051299a5480e0880ffccf8784a13a#chunk-1` `source_timestamp=2026-03-18T17:39:00Z`
 - Immediate priorities include a job search human-to-agent app, a personality app, a debate app, a dating human-to-agent app, and a small set of additional miscellaneous apps. `claim:claim_2_2` `confidence:1.00`
@@ -67,11 +70,14 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_cfb145a04754521e58102ae3fd3dc4a0` `chunk_id=srcchunk_91a06fce43ab3c90794392153c6ac76f` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-05-22T17:56:00Z`
 - DePIN Backend tasks include wiring Sentry log Slack channels, integrating job data search API to the job helper service, and setting up Grafana for monitoring. `claim:claim_4_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec) `source_document_id=srcdoc_59a54884735af81769540da9db298aa7` `source_revision_id=srcrev_0515809d6cc43cab067e1e1de246c11d` `chunk_id=srcchunk_8df6cfbdef7b4c8a60c4030d81bd66a1` `native_locator=https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec` `source_timestamp=2026-03-23T23:06:00Z`
-- The Voice Models page includes a link to Rime (https://rime.ai/), a trusted AI voice model provider. `claim:claim_1_10` `confidence:1.00`
-  - citation: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628) `source_document_id=srcdoc_406ad3672ed538d69269ee481de484fc` `source_revision_id=srcrev_a2433bfff874c2f6ed261da3e22c28cf` `chunk_id=srcchunk_88ae183f7bc4df1f630485a88757eb08` `native_locator=https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628` `source_timestamp=2026-05-22T17:58:00Z`
+
+## Related Pages
+
+- `projects/adaptive-trust-screening-reputation`
+- `projects/numo-app-strategy`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_406ad3672ed538d69269ee481de484fc`
-- `source_revision_id`: `srcrev_a2433bfff874c2f6ed261da3e22c28cf`
-- `source_url`: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)
+- `source_document_id`: `srcdoc_23ea56dd8e1ad8665e6c69083639f4e7`
+- `source_revision_id`: `srcrev_12d53291c160d6628b674b2cdb321098`
+- `source_url`: [Notion source](https://www.notion.so/Numo-App-Strategy-33b051299a5480378830d5c7bfe5111e)
