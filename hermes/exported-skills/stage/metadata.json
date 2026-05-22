@@ -3026,13 +3026,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "86a21455b40f61d84c4298b0977d4de39a8538e908692ed66a068c250a0ba391",
+        "sha256": "0f5d0c179f1bdaec36ffa040304899f5aeac59a3132aaaff1fe193693f238380",
         "size": 596864
       },
       {
         "path": "log.md",
-        "sha256": "f5e80632f9bd4c1c40b45b470d34ed5503462f738d73423b2422a89b72d2427f",
-        "size": 1122963
+        "sha256": "204db112080c5e55a933c3de66509122a93ecefa67705958460a338133975a1b",
+        "size": 1123737
       },
       {
         "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -3261,8 +3261,8 @@
       },
       {
         "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
-        "sha256": "2c4ec75a571a1a39b4856a0573bfcb64107fb3f7b6912e4981dfb5ae1b15a809",
-        "size": 11608
+        "sha256": "18d9f87077cd96edd55fe7148932fbf626f219dfd52a2dc45b2c356b09a612d7",
+        "size": 17757
       },
       {
         "path": "pages/concepts/enshrined-protocol.md",
@@ -5486,8 +5486,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "85a92652e930ca821972ec127089445d0ddf2ec3e01e651c236fb517153b966e",
-        "size": 13083
+        "sha256": "f64f961905331a97dc28211c976c5d60e3396a68d6dd8629b579584e456b89e8",
+        "size": 13641
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6354,7 +6354,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-22T19:55:30Z",
+  "exported_at": "2026-05-22T20:06:58Z",
   "file_count": 1269,
   "files": [
     {
@@ -9377,7 +9377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6fd875lv25s",
-  "previous_tree_hash": "23e689e8e8c9ff3e1fa7f939d199a2c176130bcc3655941632ae365d28be3c10",
+  "previous_tree_hash": "3d18d17fbcc05fd87a8a4f5692796cdd686b7a878f43e09637d3236305cf3c12",
   "schema_version": 1,
   "skill_file_count": 603,
   "skill_manage_sessions": [
@@ -9390,7 +9390,7 @@
   ],
   "skill_tree_hash": "7266e30f2e56caa11503c04cdbe7d9dd877664ad34f324c6b75e9f3f9aac3377",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3d18d17fbcc05fd87a8a4f5692796cdd686b7a878f43e09637d3236305cf3c12",
+  "tree_hash": "d63b3bc1a1fd3f8e0f419f804a4f4a2db7713123c5a4254dba5bff59640b91f6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9406,13 +9406,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "86a21455b40f61d84c4298b0977d4de39a8538e908692ed66a068c250a0ba391",
+      "sha256": "0f5d0c179f1bdaec36ffa040304899f5aeac59a3132aaaff1fe193693f238380",
       "size": 596864
     },
     {
       "path": "log.md",
-      "sha256": "f5e80632f9bd4c1c40b45b470d34ed5503462f738d73423b2422a89b72d2427f",
-      "size": 1122963
+      "sha256": "204db112080c5e55a933c3de66509122a93ecefa67705958460a338133975a1b",
+      "size": 1123737
     },
     {
       "path": "pages/concepts/access-control-complexity-analysis.md",
@@ -9641,8 +9641,8 @@
     },
     {
       "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
-      "sha256": "2c4ec75a571a1a39b4856a0573bfcb64107fb3f7b6912e4981dfb5ae1b15a809",
-      "size": 11608
+      "sha256": "18d9f87077cd96edd55fe7148932fbf626f219dfd52a2dc45b2c356b09a612d7",
+      "size": 17757
     },
     {
       "path": "pages/concepts/enshrined-protocol.md",
@@ -11866,8 +11866,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "85a92652e930ca821972ec127089445d0ddf2ec3e01e651c236fb517153b966e",
-      "size": 13083
+      "sha256": "f64f961905331a97dc28211c976c5d60e3396a68d6dd8629b579584e456b89e8",
+      "size": 13641
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -12731,5 +12731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f461dea7bee07112b095cf5cec9a12be18a060bb9c3a1498f7be19de0b16589f"
+  "wiki_tree_hash": "b86a078fffd7ccd69463c38a9b56c607a22ed40a0a6fc5ea5251cefdc8bc4b44"
 }

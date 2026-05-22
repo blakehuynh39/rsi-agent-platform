@@ -23449,3 +23449,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1cd52471ab7d3d53b343354bc4b610f2
 - summary: Phased launch plan for the Numo product beginning May 27, 2026, covering feature releases, associated tasks, and messaging across four weekly milestones.
 
+## [2026-05-22T20:02:17Z] synthesis | ElevenLabs Voice Agent Orchestration Paths
+
+- status: published
+- slug: concepts/elevenlabs-voice-agent-orchestration-paths
+- wiki_revision_id: wikirev_5a0175900ff11bd6fe5d4d74d139b534
+- summary: Overview of three approaches to building voice agents with ElevenLabs: Fully Managed, Managed + Custom LLM Server, DIY. Covers tradeoffs in pipeline control, session state, RAG, in...
+
+## [2026-05-22T20:03:52Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_7ccac21fda8730cb32e5757b30453011
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+

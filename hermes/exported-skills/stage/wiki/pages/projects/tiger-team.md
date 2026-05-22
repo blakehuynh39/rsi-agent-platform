@@ -2,12 +2,11 @@
 title: "Tiger Team"
 type: "project"
 slug: "projects/tiger-team"
-freshness: "2026-05-22T17:56:00Z"
+freshness: "2026-05-22T17:58:00Z"
 tags:
   - "apps"
-  - "data ecosystem"
-  - "dePIN"
-  - "tiger team"
+  - "data"
+  - "depin"
   - "voice"
 owners: []
 source_revision_ids:
@@ -16,6 +15,7 @@ source_revision_ids:
   - "srcrev_29fb37287dd828609727dbf3aa4e89a8"
   - "srcrev_43dba63dc37ec8ab005c9753a5d88b68"
   - "srcrev_7e2bdc03a6af9ec06e97282af76837d2"
+  - "srcrev_a2433bfff874c2f6ed261da3e22c28cf"
   - "srcrev_cfb145a04754521e58102ae3fd3dc4a0"
 conflict_state: "none"
 ---
@@ -67,9 +67,11 @@ The Tiger Team is a cross-functional group focused on building DePIN apps, expan
   - citation: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20) `source_document_id=srcdoc_7f33f1322a692f1be4fd76ec19079059` `source_revision_id=srcrev_cfb145a04754521e58102ae3fd3dc4a0` `chunk_id=srcchunk_91a06fce43ab3c90794392153c6ac76f` `native_locator=https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20` `source_timestamp=2026-05-22T17:56:00Z`
 - DePIN Backend tasks include wiring Sentry log Slack channels, integrating job data search API to the job helper service, and setting up Grafana for monitoring. `claim:claim_4_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec) `source_document_id=srcdoc_59a54884735af81769540da9db298aa7` `source_revision_id=srcrev_0515809d6cc43cab067e1e1de246c11d` `chunk_id=srcchunk_8df6cfbdef7b4c8a60c4030d81bd66a1` `native_locator=https://www.notion.so/DePIN-Backend-32c051299a548031b6bae4473339d3ec` `source_timestamp=2026-03-23T23:06:00Z`
+- The Voice Models page includes a link to Rime (https://rime.ai/), a trusted AI voice model provider. `claim:claim_1_10` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628) `source_document_id=srcdoc_406ad3672ed538d69269ee481de484fc` `source_revision_id=srcrev_a2433bfff874c2f6ed261da3e22c28cf` `chunk_id=srcchunk_88ae183f7bc4df1f630485a88757eb08` `native_locator=https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628` `source_timestamp=2026-05-22T17:58:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_7f33f1322a692f1be4fd76ec19079059`
-- `source_revision_id`: `srcrev_cfb145a04754521e58102ae3fd3dc4a0`
-- `source_url`: [Notion source](https://www.notion.so/Sandeep-chat-329051299a5480ffbceaf43f6617cf20)
+- `source_document_id`: `srcdoc_406ad3672ed538d69269ee481de484fc`
+- `source_revision_id`: `srcrev_a2433bfff874c2f6ed261da3e22c28cf`
+- `source_url`: [Notion source](https://www.notion.so/Voice-Models-32d051299a54806c9837c9347cf05628)
