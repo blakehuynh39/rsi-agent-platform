@@ -164,6 +164,126 @@ func TestNativeKanbanCreateTicketRequiresProjectSelectionAsFailedNonMutation(t *
 	}
 }
 
+func TestNativeKanbanProjectToolsCreateAndListProjects(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+
+	createResp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_project",
+		IdempotencyKey: "kanban-create-project-numo",
+		Reason:         "Blake asked RSI to create the Numo Kanban project",
+		Arguments: map[string]any{
+			"slug":        "numo",
+			"name":        "Numo",
+			"description": "Numo project board",
+		},
+	})
+	if err != nil || status != http.StatusOK || !createResp.OK {
+		t.Fatalf("create project status=%d err=%v resp=%#v", status, err, createResp)
+	}
+	if got := len(state.ListKanbanProjects()); got != 1 {
+		t.Fatalf("expected one Kanban project, got %d", got)
+	}
+	project, ok := state.GetKanbanProject("numo")
+	if !ok {
+		t.Fatalf("created project not found by slug")
+	}
+	if _, ok := state.GetKanbanDefaultBoard(project.ID); !ok {
+		t.Fatalf("create_project should create the default board")
+	}
+
+	listResp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:   "kanban",
+		Operation: "list_projects",
+		Arguments: map[string]any{
+			"include_routes": true,
+		},
+	})
+	if err != nil || status != http.StatusOK || !listResp.OK {
+		t.Fatalf("list projects status=%d err=%v resp=%#v", status, err, listResp)
+	}
+	output, ok := listResp.Output.(map[string]any)
+	if !ok {
+		t.Fatalf("list output type=%T", listResp.Output)
+	}
+	projects, ok := output["projects"].([]storepkg.KanbanProject)
+	if !ok || len(projects) != 1 {
+		t.Fatalf("projects=%#v", output["projects"])
+	}
+	routes, ok := output["routes"].([]storepkg.KanbanProjectSlackRoute)
+	if !ok || len(routes) != 0 {
+		t.Fatalf("routes=%#v", output["routes"])
+	}
+}
+
+func TestNativeKanbanSetProjectSlackRouteTool(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "trace", Name: "Trace"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "set_project_slack_route",
+		IdempotencyKey: "kanban-bind-trace-thread",
+		Reason:         "Bind the Slack thread to the Trace Kanban project",
+		Arguments: map[string]any{
+			"project_slug": "trace",
+			"team_id":      "T123",
+			"channel_id":   "C123",
+			"thread_ts":    "171000001.000100",
+		},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("set route status=%d err=%v resp=%#v", status, err, resp)
+	}
+	resolved, ok := state.ResolveKanbanSlackProject("T123", "C123", "171000001.000100")
+	if !ok || resolved.ID != project.ID {
+		t.Fatalf("expected route to resolve project %s, got %#v ok=%v", project.ID, resolved, ok)
+	}
+}
+
+func TestNativeKanbanListProjectRoutesUsesSlackContextAsRouteFilter(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "trace", Name: "Trace"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	if _, err := state.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+		ProjectID: project.ID,
+		TeamID:    "T123",
+		ChannelID: "C123",
+		Actor:     storepkg.KanbanActor{Type: "test", ID: "tester"},
+	}, time.Now().UTC()); err != nil {
+		t.Fatalf("set slack route: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:   "kanban",
+		Operation: "list_project_routes",
+		Arguments: map[string]any{
+			"team_id":    "T123",
+			"channel_id": "C123",
+		},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("list routes status=%d err=%v resp=%#v", status, err, resp)
+	}
+	output, ok := resp.Output.(map[string]any)
+	if !ok {
+		t.Fatalf("list routes output type=%T", resp.Output)
+	}
+	routes, ok := output["routes"].([]storepkg.KanbanProjectSlackRoute)
+	if !ok || len(routes) != 1 || routes[0].ProjectID != project.ID {
+		t.Fatalf("routes=%#v", output["routes"])
+	}
+}
+
 func TestNativeKanbanCreateTicketWithProject(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	state := storepkg.NewMemoryStore()

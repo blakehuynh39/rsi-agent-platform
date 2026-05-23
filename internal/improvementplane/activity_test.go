@@ -141,6 +141,47 @@ func TestTraceActivityProjectorProjectsSlackThreadTargets(t *testing.T) {
 	}
 }
 
+func TestTraceActivityProjectorProjectsKanbanProjectTools(t *testing.T) {
+	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("kanban-project", 1, "tool.call.completed", "completed", now, map[string]any{
+			"tool_name":    "rsi_kanban_create_project",
+			"tool_call_id": "call-kanban-project",
+			"args": map[string]any{
+				"name":       "Numo",
+				"slug":       "numo",
+				"channel_id": "C123",
+				"thread_ts":  "171000001.000100",
+			},
+			"result": `{
+				"status":"ok",
+				"summary":"created Kanban project numo",
+				"output":{
+					"project":{"id":"kproj_1","slug":"numo","name":"Numo"},
+					"route":{"project_id":"kproj_1","channel_id":"C123","thread_ts":"171000001.000100"}
+				}
+			}`,
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1", len(items))
+	}
+	item := items[0]
+	if item.ToolName != "rsi_kanban.create_project" {
+		t.Fatalf("tool_name=%q, want canonical Kanban create project", item.ToolName)
+	}
+	if got := item.Details["project_slug"]; got != "numo" {
+		t.Fatalf("project_slug=%#v, want numo", got)
+	}
+	if got := item.Details["channel_id"]; got != "C123" {
+		t.Fatalf("channel_id=%#v, want C123", got)
+	}
+	if !strings.Contains(item.Summary, "created Kanban project numo") {
+		t.Fatalf("summary=%q, want project creation summary", item.Summary)
+	}
+}
+
 func TestTraceActivityProjectorHumanizesSlackUserIDQuery(t *testing.T) {
 	now := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
 	projector := traceActivityProjector{scope: "main", mode: "clean", now: now}

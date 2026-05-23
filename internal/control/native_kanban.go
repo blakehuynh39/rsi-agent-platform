@@ -15,6 +15,69 @@ func executeKanbanNativeToolAction(ctx context.Context, repo storepkg.Repository
 	_ = ctx
 	kanban := storepkg.KanbanStore(repo)
 	switch input.Operation {
+	case "list_projects":
+		projects := kanban.ListKanbanProjects()
+		routes := []storepkg.KanbanProjectSlackRoute{}
+		if boolArg(input.Arguments, "include_routes", false) {
+			routes = kanban.ListKanbanSlackProjectRoutes("")
+		}
+		output := map[string]any{"ok": true, "projects": projects}
+		if boolArg(input.Arguments, "include_routes", false) {
+			output["routes"] = routes
+		}
+		return output, fmt.Sprintf("listed %d Kanban project(s)", len(projects)), "kanban:projects", "", map[string]any{"status": "not_applicable"}, http.StatusOK, nil
+	case "create_project":
+		project, err := kanban.CreateKanbanProject(storepkg.KanbanProjectCreateInput{
+			Slug:        stringArg(input.Arguments, "slug"),
+			Name:        stringArg(input.Arguments, "name"),
+			Description: firstNonEmpty(stringArg(input.Arguments, "description"), stringArg(input.Arguments, "summary")),
+			Metadata:    mapArg(input.Arguments, "metadata"),
+			Actor:       nativeKanbanActor(claims),
+		}, time.Now().UTC())
+		alreadyExists := false
+		if err != nil {
+			if errors.Is(err, storepkg.ErrKanbanProjectSlugExists) {
+				if existing, ok := kanban.GetKanbanProject(firstNonEmpty(stringArg(input.Arguments, "slug"), stringArg(input.Arguments, "name"))); ok {
+					project = existing
+					alreadyExists = true
+					err = nil
+				}
+			}
+			if err != nil {
+				return map[string]any{"ok": false, "error": err.Error()}, "kanban project creation failed", "", "", map[string]any{"status": "not_attempted", "reason": "validation_failed"}, http.StatusBadRequest, err
+			}
+		}
+		output := map[string]any{"ok": true, "project": project, "already_exists": alreadyExists}
+		sourceRef := "kanban:" + project.ID
+		summary := "created Kanban project " + project.Slug
+		if alreadyExists {
+			summary = "loaded existing Kanban project " + project.Slug
+		}
+		return output, summary, sourceRef, "", map[string]any{"status": "not_applicable"}, http.StatusOK, nil
+	case "list_project_routes":
+		projectID := ""
+		projectRef := firstNonEmpty(stringArg(input.Arguments, "project_id"), stringArg(input.Arguments, "project_slug"), stringArg(input.Arguments, "project_ref"))
+		if projectRef != "" {
+			project, ok := kanban.GetKanbanProject(projectRef)
+			if !ok {
+				return map[string]any{"ok": false, "error": "kanban project not found"}, "kanban project route listing failed", "", "", map[string]any{"status": "not_attempted", "reason": "project_not_found"}, http.StatusBadRequest, fmt.Errorf("kanban project %s was not found", projectRef)
+			}
+			projectID = project.ID
+		}
+		routes := kanban.ListKanbanSlackProjectRoutes(projectID)
+		routes = nativeKanbanFilterProjectRoutes(routes, input, claims, projectRef == "")
+		return map[string]any{"ok": true, "routes": routes}, fmt.Sprintf("listed %d Kanban project route(s)", len(routes)), "kanban:routes", "", map[string]any{"status": "not_applicable"}, http.StatusOK, nil
+	case "set_project_slack_route":
+		projectRef := firstNonEmpty(stringArg(input.Arguments, "project_id"), stringArg(input.Arguments, "project_slug"), input.TargetRef)
+		project, ok := kanban.GetKanbanProject(projectRef)
+		if !ok {
+			return map[string]any{"ok": false, "error": "kanban project not found"}, "kanban project route failed", "", "", map[string]any{"status": "not_attempted", "reason": "project_not_found"}, http.StatusBadRequest, fmt.Errorf("kanban project %s was not found", projectRef)
+		}
+		route, status, err := nativeKanbanSetProjectSlackRoute(kanban, claims, input, project.ID)
+		if err != nil {
+			return map[string]any{"ok": false, "project": project, "error": err.Error()}, "kanban project route failed", "kanban:" + project.ID, "", map[string]any{"status": "not_attempted", "reason": "validation_failed"}, status, err
+		}
+		return map[string]any{"ok": true, "project": project, "route": route}, "bound Slack route to Kanban project " + project.Slug, "kanban:" + project.ID, "", map[string]any{"status": "not_applicable"}, http.StatusOK, nil
 	case "list_tickets":
 		project, status, err := resolveKanbanProjectForNativeTool(kanban, claims, input, true)
 		if err != nil {
@@ -96,6 +159,52 @@ func executeKanbanNativeToolAction(ctx context.Context, repo storepkg.Repository
 	default:
 		return nil, "", "", "", map[string]any{"status": "not_attempted", "reason": "unknown_operation"}, http.StatusBadRequest, fmt.Errorf("unknown kanban operation %s", input.Operation)
 	}
+}
+
+func nativeKanbanFilterProjectRoutes(routes []storepkg.KanbanProjectSlackRoute, input nativeToolActionRequest, claims nativeToolClaims, includeSlackClaimContext bool) []storepkg.KanbanProjectSlackRoute {
+	teamID := firstNonEmpty(stringArg(input.Arguments, "team_id"), stringArg(input.Arguments, "workspace_id"))
+	channelID := stringArg(input.Arguments, "channel_id")
+	threadTS := stringArg(input.Arguments, "thread_ts")
+	if includeSlackClaimContext {
+		channelID = firstNonEmpty(channelID, claims.SlackChannelID)
+		threadTS = firstNonEmpty(threadTS, claims.SlackThreadTS)
+	}
+	teamID = strings.TrimSpace(teamID)
+	channelID = strings.TrimSpace(channelID)
+	threadTS = strings.TrimSpace(threadTS)
+	if teamID == "" && channelID == "" && threadTS == "" {
+		return routes
+	}
+	out := make([]storepkg.KanbanProjectSlackRoute, 0, len(routes))
+	for _, route := range routes {
+		if teamID != "" && route.TeamID != teamID {
+			continue
+		}
+		if channelID != "" && route.ChannelID != channelID {
+			continue
+		}
+		if threadTS != "" && route.ThreadTS != "" && route.ThreadTS != threadTS {
+			continue
+		}
+		out = append(out, route)
+	}
+	return out
+}
+
+func nativeKanbanSetProjectSlackRoute(kanban storepkg.KanbanStore, claims nativeToolClaims, input nativeToolActionRequest, projectID string) (storepkg.KanbanProjectSlackRoute, int, error) {
+	channelID := firstNonEmpty(stringArg(input.Arguments, "channel_id"), claims.SlackChannelID)
+	threadTS := firstNonEmpty(stringArg(input.Arguments, "thread_ts"), claims.SlackThreadTS)
+	route, err := kanban.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+		ProjectID: strings.TrimSpace(projectID),
+		TeamID:    firstNonEmpty(stringArg(input.Arguments, "team_id"), stringArg(input.Arguments, "workspace_id")),
+		ChannelID: channelID,
+		ThreadTS:  threadTS,
+		Actor:     nativeKanbanActor(claims),
+	}, time.Now().UTC())
+	if err != nil {
+		return storepkg.KanbanProjectSlackRoute{}, http.StatusBadRequest, err
+	}
+	return route, http.StatusOK, nil
 }
 
 func resolveKanbanProjectForNativeTool(kanban storepkg.KanbanStore, claims nativeToolClaims, input nativeToolActionRequest, allowSlackDefault bool) (storepkg.KanbanProject, int, error) {

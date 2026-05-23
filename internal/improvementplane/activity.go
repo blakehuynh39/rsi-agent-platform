@@ -617,30 +617,43 @@ func traceActivityKanbanSummary(group *traceActivityToolGroup, details map[strin
 	op := strings.TrimPrefix(group.name, "rsi_kanban.")
 	projectID := traceActivityStringFromGroup(group, "project_id", "project")
 	projectSlug := traceActivityStringFromGroup(group, "project_slug")
+	channelID := traceActivityStringFromGroup(group, "channel_id")
+	threadTS := traceActivityStringFromGroup(group, "thread_ts")
 	ticketID := traceActivityStringFromGroup(group, "ticket_id", "target_ref")
 	title := traceActivityStringFromGroup(group, "title")
 	status := traceActivityStringFromGroup(group, "status")
-	if ticket, ok := group.result["ticket"].(map[string]any); ok {
+	result := traceActivityNestedOutputMap(group.result)
+	if ticket, ok := result["ticket"].(map[string]any); ok {
 		ticketID = firstNonEmptyString(ticketID, stringValue(ticket["id"]))
 		title = firstNonEmptyString(title, stringValue(ticket["title"]))
 		status = firstNonEmptyString(status, stringValue(ticket["status"]))
 		projectID = firstNonEmptyString(projectID, stringValue(ticket["project_id"]))
 	}
-	if project, ok := group.result["project"].(map[string]any); ok {
+	if project, ok := result["project"].(map[string]any); ok {
 		projectID = firstNonEmptyString(projectID, stringValue(project["id"]))
 		projectSlug = firstNonEmptyString(projectSlug, stringValue(project["slug"]))
+		title = firstNonEmptyString(title, stringValue(project["name"]))
 	}
-	count := traceActivityCountFromResult(group.result, "tickets")
+	if route, ok := result["route"].(map[string]any); ok {
+		channelID = firstNonEmptyString(channelID, stringValue(route["channel_id"]))
+		threadTS = firstNonEmptyString(threadTS, stringValue(route["thread_ts"]))
+		projectID = firstNonEmptyString(projectID, stringValue(route["project_id"]))
+	}
+	count := traceActivityCountFromResult(result, "projects", "routes", "tickets")
 	if count >= 0 {
 		details["result_count"] = count
 	}
 	traceActivitySetDetailString(details, "project_id", projectID, 160)
 	traceActivitySetDetailString(details, "project_slug", projectSlug, 160)
+	traceActivitySetDetailString(details, "channel_id", channelID, 160)
+	traceActivitySetDetailString(details, "thread_ts", threadTS, 160)
 	traceActivitySetDetailString(details, "ticket_id", ticketID, 160)
 	traceActivitySetDetailString(details, "title", title, 300)
 	traceActivitySetDetailString(details, "status", status, 80)
 	targetSummary := traceActivityTargetSummary(
 		traceActivityLabelValue("project", firstNonEmptyString(projectSlug, projectID)),
+		traceActivityLabelValue("channel", channelID),
+		traceActivityLabelValue("thread", threadTS),
 		traceActivityLabelValue("ticket", ticketID),
 		traceActivityLabelValue("title", title),
 		traceActivityLabelValue("status", status),
@@ -1072,6 +1085,10 @@ func canonicalTraceActivityToolName(name string) string {
 		"rsi_sentry_issue_view":                "rsi_sentry.issue_view",
 		"rsi_sentry_issue_events":              "rsi_sentry.issue_events",
 		"rsi_sentry_releases_list":             "rsi_sentry.releases_list",
+		"rsi_kanban_list_projects":             "rsi_kanban.list_projects",
+		"rsi_kanban_create_project":            "rsi_kanban.create_project",
+		"rsi_kanban_list_project_routes":       "rsi_kanban.list_project_routes",
+		"rsi_kanban_set_project_slack_route":   "rsi_kanban.set_project_slack_route",
 		"rsi_kanban_create_ticket":             "rsi_kanban.create_ticket",
 		"rsi_kanban_update_ticket":             "rsi_kanban.update_ticket",
 		"rsi_kanban_list_tickets":              "rsi_kanban.list_tickets",
@@ -1421,6 +1438,26 @@ func traceActivityCountFromResult(result map[string]any, keys ...string) int {
 		return traceActivityCountFromResult(output, keys...)
 	}
 	return -1
+}
+
+func traceActivityNestedOutputMap(result map[string]any) map[string]any {
+	current := result
+	for i := 0; i < 3; i++ {
+		if len(current) == 0 {
+			return current
+		}
+		for _, key := range []string{"project", "ticket", "route", "projects", "tickets", "routes"} {
+			if _, ok := current[key]; ok {
+				return current
+			}
+		}
+		next, ok := current["output"].(map[string]any)
+		if !ok {
+			return current
+		}
+		current = next
+	}
+	return current
 }
 
 func traceActivityStringFromGroup(group *traceActivityToolGroup, keys ...string) string {

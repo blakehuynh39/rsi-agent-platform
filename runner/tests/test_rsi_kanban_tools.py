@@ -11,8 +11,13 @@ class RSIKanbanToolsTest(unittest.TestCase):
         definitions = rsi_plugin_toolset_definitions()
         by_canonical = {item["canonical_name"]: item for item in definitions}
 
+        self.assertIn("rsi_kanban.list_projects", by_canonical)
+        self.assertIn("rsi_kanban.create_project", by_canonical)
+        self.assertIn("rsi_kanban.set_project_slack_route", by_canonical)
         self.assertIn("rsi_kanban.create_ticket", by_canonical)
+        self.assertEqual(by_canonical["rsi_kanban.create_project"]["toolset"], "rsi-kanban")
         self.assertEqual(by_canonical["rsi_kanban.create_ticket"]["toolset"], "rsi-kanban")
+        self.assertEqual(transport_tool_schema("rsi_kanban.create_project")["name"], "rsi_kanban_create_project")
         self.assertEqual(transport_tool_schema("rsi_kanban.create_ticket")["name"], "rsi_kanban_create_ticket")
         self.assertNotIn(
             "status",

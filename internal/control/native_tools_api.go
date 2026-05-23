@@ -40,6 +40,7 @@ var nativeToolWriteOps = map[string]map[string]bool{
 		"wiki_edit_propose": true, "wiki_edit_apply": true,
 	},
 	"kanban": {
+		"create_project": true, "set_project_slack_route": true,
 		"create_ticket": true, "update_ticket": true, "comment_ticket": true, "link_ticket": true,
 	},
 }
@@ -62,7 +63,7 @@ var nativeToolReadOps = map[string]map[string]bool{
 		"issue_events": true, "releases_list": true,
 	},
 	"kanban": {
-		"list_tickets": true,
+		"list_projects": true, "list_project_routes": true, "list_tickets": true,
 	},
 }
 
@@ -1337,6 +1338,8 @@ func nativeToolTargetRef(args map[string]any) string {
 		"block_id",
 		"source_ref",
 		"page_ref",
+		"project_id",
+		"project_slug",
 		"slug",
 		"issue",
 		"issue_ref",

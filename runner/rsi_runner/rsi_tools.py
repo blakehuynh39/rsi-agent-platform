@@ -397,6 +397,45 @@ _SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 }
 
 _KANBAN_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "rsi_kanban.list_projects": _schema(
+        "rsi_kanban.list_projects",
+        "List RSI-native Kanban projects and optionally Slack project routes.",
+        {
+            "include_routes": {"type": "boolean"},
+        },
+    ),
+    "rsi_kanban.create_project": _write_schema(
+        "rsi_kanban.create_project",
+        "Create an RSI-native Kanban project. Project creation also creates its default board.",
+        {
+            "slug": {"type": "string", "description": "Stable URL-safe project slug, for example numo or trace."},
+            "name": {"type": "string", "description": "Human-readable project name."},
+            "description": {"type": "string"},
+            "summary": {"type": "string"},
+            "metadata": _JSON_OBJECT_SCHEMA,
+        },
+        required=["name"],
+    ),
+    "rsi_kanban.list_project_routes": _schema(
+        "rsi_kanban.list_project_routes",
+        "List Slack route bindings for RSI-native Kanban projects.",
+        {
+            "project_id": {"type": "string"},
+            "project_slug": {"type": "string"},
+        },
+    ),
+    "rsi_kanban.set_project_slack_route": _write_schema(
+        "rsi_kanban.set_project_slack_route",
+        "Bind a Slack channel or thread to an RSI-native Kanban project for future project resolution.",
+        {
+            "project_id": {"type": "string"},
+            "project_slug": {"type": "string"},
+            "channel_id": {"type": "string"},
+            "thread_ts": {"type": "string"},
+            "team_id": {"type": "string"},
+        },
+        required=["channel_id"],
+    ),
     "rsi_kanban.create_ticket": _write_schema(
         "rsi_kanban.create_ticket",
         "Create an internal RSI Kanban ticket. Include project_id or project_slug unless the Slack channel has an unambiguous project default.",
