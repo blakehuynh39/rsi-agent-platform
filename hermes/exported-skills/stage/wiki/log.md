@@ -23570,3 +23570,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_594016b3975c92a030e173ff3b08c5df
 - summary: Internal guide for dogfooding the Numo 1.1 release, covering resume upload and Stripe payments setup.
 
+## [2026-05-23T04:30:36Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_1488a4e4615b9b24850affc17308d6d1
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_9de302ba33b400dfd6c33a463a8e64fb
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
