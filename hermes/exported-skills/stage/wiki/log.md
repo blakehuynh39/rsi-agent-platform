@@ -23563,3 +23563,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_96ae05b408d6a3261349f7e1b85ca9ee
 - summary: Source: [Notion source](https://www.notion.so/Numo-1-1-Dogfooding-Guide-a28051299a5483aea76e01ba0a8d0fac)
 
+## [2026-05-23T00:48:51Z] synthesis | Numo 1.1 Dogfooding Guide
+
+- status: published
+- slug: runbooks/numo-1-1-dogfooding-guide
+- wiki_revision_id: wikirev_594016b3975c92a030e173ff3b08c5df
+- summary: Internal guide for dogfooding the Numo 1.1 release, covering resume upload and Stripe payments setup.
+
