@@ -633,6 +633,9 @@ func TestCompanyWikiDashboardRoutesReadIndexAndFiles(t *testing.T) {
 		if !strings.Contains(rec.Body.String(), tc.want) {
 			t.Fatalf("%s missing %q in %s", tc.path, tc.want, rec.Body.String())
 		}
+		if got := rec.Header().Get("Cache-Control"); !strings.Contains(got, "max-age=30") {
+			t.Fatalf("%s Cache-Control = %q, want short private wiki cache", tc.path, got)
+		}
 	}
 }
 
@@ -679,6 +682,19 @@ func TestCompanyWikiDashboardFileFallsBackToStoreWhenFileMissing(t *testing.T) {
 	}
 	if !strings.Contains(rec.Body.String(), "Poseidon Processing Pipeline with Numo") {
 		t.Fatalf("fallback body missing page content: %s", rec.Body.String())
+	}
+
+	searchReq := httptest.NewRequest(http.MethodGet, "/api/company-wiki/search?query=Poseidon&limit=5", nil)
+	searchRec := httptest.NewRecorder()
+	router.ServeHTTP(searchRec, searchReq)
+	if searchRec.Code != http.StatusOK {
+		t.Fatalf("search status = %d body=%s", searchRec.Code, searchRec.Body.String())
+	}
+	if !strings.Contains(searchRec.Body.String(), "integrate-poseidon-processing-pipeline-with-numo") {
+		t.Fatalf("search body missing wiki page: %s", searchRec.Body.String())
+	}
+	if got := searchRec.Header().Get("Cache-Control"); !strings.Contains(got, "max-age=15") {
+		t.Fatalf("search Cache-Control = %q, want short private search cache", got)
 	}
 }
 

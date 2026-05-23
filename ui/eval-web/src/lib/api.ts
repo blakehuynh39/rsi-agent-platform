@@ -201,17 +201,19 @@ export const api = {
   getToolsets: () => fetchJSON<ToolsetInfo[]>("/api/tools/toolsets"),
 
   // Company wiki
-  getCompanyWikiIndex: () =>
-    fetchJSON<CompanyWikiMarkdownRead>("/api/company-wiki/index"),
-  getCompanyWikiLog: (limit = 25) =>
-    fetchJSON<CompanyWikiMarkdownRead>(`/api/company-wiki/log?limit=${limit}`),
-  getCompanyWikiFile: (path: string) =>
+  getCompanyWikiIndex: (signal?: AbortSignal) =>
+    fetchJSON<CompanyWikiMarkdownRead>("/api/company-wiki/index", { signal }),
+  getCompanyWikiLog: (limit = 25, signal?: AbortSignal) =>
+    fetchJSON<CompanyWikiMarkdownRead>(`/api/company-wiki/log?limit=${limit}`, { signal }),
+  getCompanyWikiFile: (path: string, signal?: AbortSignal) =>
     fetchJSON<CompanyWikiMarkdownRead>(
       `/api/company-wiki/file?path=${encodeURIComponent(path)}`,
+      { signal },
     ),
-  searchCompanyWiki: (query: string, limit = 20) =>
+  searchCompanyWiki: (query: string, limit = 20, signal?: AbortSignal) =>
     fetchJSON<CompanyWikiSearchResponse>(
       `/api/company-wiki/search?query=${encodeURIComponent(query)}&limit=${limit}`,
+      { signal },
     ),
 
   // Kanban
