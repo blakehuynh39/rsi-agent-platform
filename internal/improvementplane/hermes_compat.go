@@ -1762,6 +1762,27 @@ func streamHermesSessionEvents(w http.ResponseWriter, r *http.Request, store sto
 					}
 				}
 				items = items[resumeIndex+1:]
+			} else {
+				// Resume ID not in latest page; fetch all events to find it
+				allItems := hermesLedgerStreamEvents(store, traceID)
+				foundIndex := -1
+				for index, item := range allItems {
+					if item.ID == lastEventID {
+						foundIndex = index
+						break
+					}
+				}
+				if foundIndex >= 0 {
+					// Mark all events up to and including the resume point as sent
+					for _, item := range allItems[:foundIndex+1] {
+						if item.ID != "" {
+							sent[item.ID] = true
+						}
+					}
+					// Send all events after the resume point
+					items = allItems[foundIndex+1:]
+				}
+				// If resume ID not found anywhere, send the full latest page
 			}
 		}
 		for _, item := range items {
