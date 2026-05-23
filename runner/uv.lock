@@ -888,7 +888,7 @@ wheels = [
 [[package]]
 name = "hermes-agent"
 version = "0.14.0"
-source = { git = "https://github.com/blakehuynh39/hermes-agent.git?rev=629740ef109eea3b19c1ff2ae496aa16ff8f0cc9#629740ef109eea3b19c1ff2ae496aa16ff8f0cc9" }
+source = { git = "https://github.com/blakehuynh39/hermes-agent.git?rev=0f5b11c7a8ab04df03304fffebebcd44f2a16d1e#0f5b11c7a8ab04df03304fffebebcd44f2a16d1e" }
 dependencies = [
     { name = "croniter" },
     { name = "fire" },
@@ -2452,7 +2452,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "hermes-agent", extras = ["honcho", "mcp", "messaging"], git = "https://github.com/blakehuynh39/hermes-agent.git?rev=629740ef109eea3b19c1ff2ae496aa16ff8f0cc9" },
+    { name = "hermes-agent", extras = ["honcho", "mcp", "messaging"], git = "https://github.com/blakehuynh39/hermes-agent.git?rev=0f5b11c7a8ab04df03304fffebebcd44f2a16d1e" },
     { name = "matplotlib", specifier = ">=3.9,<4" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.8,<3" },
 ]

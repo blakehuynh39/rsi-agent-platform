@@ -69,6 +69,17 @@ func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
 	}
 }
 
+func TestLoadDefaultsNativeToolSurfacesIncludeKanban(t *testing.T) {
+	t.Setenv("RSI_NATIVE_TOOLS_SURFACES", "")
+
+	cfg := Load("control-plane")
+
+	want := []string{"slack", "notion", "knowledge", "sentry", "kanban"}
+	if !reflect.DeepEqual(cfg.NativeToolsSurfaces, want) {
+		t.Fatalf("NativeToolsSurfaces = %#v, want %#v", cfg.NativeToolsSurfaces, want)
+	}
+}
+
 func TestLoadDefaultsWorkflowRunnerRepairAttemptsToTwo(t *testing.T) {
 	t.Setenv("RSI_WORKFLOW_RUNNER_REPAIR_ATTEMPTS", "")
 

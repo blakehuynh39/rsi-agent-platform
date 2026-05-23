@@ -293,7 +293,7 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", true),
 		NativeToolsClientToken:               stringEnv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", ""),
-		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry"}),
+		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry", "kanban"}),
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
 		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),

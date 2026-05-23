@@ -82,7 +82,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
-        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry",
+        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry,kanban",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENROUTER_API_KEY": "openrouter-test-key",
         "SLACK_BOT_TOKEN": "xoxb-test",
@@ -6854,6 +6854,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(claims["slack_thread_ts"], "171000001.000100")
         self.assertEqual(claims["slack_delivery_scope"], "bound_thread")
         self.assertIn("sentry", claims["surfaces"])
+        self.assertIn("kanban", claims["surfaces"])
 
     def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
         definitions = rsi_plugin_toolset_definitions()
