@@ -2023,6 +2023,67 @@ func TestHermesCompatibilitySessionStreamUsesHermesEventsAndResume(t *testing.T)
 	}
 }
 
+func TestHermesCompatibilitySessionStreamHonorsLimit(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-hermes-limit-1",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "running",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "oldest"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-hermes-limit-2",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "running",
+			Seq:         2,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "middle"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-hermes-limit-3",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "complete",
+			Seq:         3,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "latest"},
+			RecordedAt:  now.Add(2 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions/"+traceID+"/stream?limit=2", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if strings.Contains(body, "oldest") {
+		t.Fatalf("expected limited Hermes stream to omit oldest event, got %q", body)
+	}
+	if !strings.Contains(body, "middle") || !strings.Contains(body, "latest") {
+		t.Fatalf("expected limited Hermes stream to include latest events, got %q", body)
+	}
+}
+
 func TestTraceStreamBackfillsAllEventsWhenResumeIDIsMissing(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID

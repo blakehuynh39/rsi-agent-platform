@@ -591,18 +591,7 @@ func nextTraceActivitySyntheticRefresh(snapshot TraceActivitySnapshot, latest ev
 }
 
 func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string, limit int) []events.ExecutionLedgerEvent {
-	normalized := strings.TrimSpace(strings.ToLower(scope))
-	items := []events.ExecutionLedgerEvent{}
-	for _, item := range store.ListExecutionLedgerEventsByTrace(traceID) {
-		if !storepkg.LedgerEventMatchesScope(item, normalized) {
-			continue
-		}
-		items = append(items, item)
-	}
-	if limit > 0 && len(items) > limit {
-		items = items[len(items)-limit:]
-	}
-	return items
+	return traceLedgerEventPage(store, traceID, scope, limit, "").Events
 }
 
 type executionLedgerPager interface {

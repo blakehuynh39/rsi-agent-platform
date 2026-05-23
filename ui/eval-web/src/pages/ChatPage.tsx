@@ -19,7 +19,6 @@
 import { FitAddon } from "@xterm/addon-fit";
 import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
-import { WebglAddon } from "@xterm/addon-webgl";
 import { Terminal } from "@xterm/xterm";
 import "@xterm/xterm/css/xterm.css";
 import { Button } from "@nous-research/ui/ui/components/button";
@@ -298,7 +297,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
           // original keydown event's activation. Log to aid debugging.
           console.warn("[dashboard clipboard] OSC 52 write failed:", err.message);
         });
-      } catch (e) {
+      } catch {
         console.warn("[dashboard clipboard] malformed OSC 52 payload");
       }
       return true;
@@ -370,18 +369,30 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
     // than `fontSize` suggests — users see "huge" text even at 7–9px settings.
     // The canvas/DOM renderer tracks `fontSize` faithfully; use it for narrow
     // hosts.  Wide layouts still get WebGL for crisp box-drawing.
+    let webglLoadCancelled = false;
     const useWebgl = terminalTierWidthPx(host) >= 768;
     if (useWebgl) {
-      try {
-        const webgl = new WebglAddon();
-        webgl.onContextLoss(() => webgl.dispose());
-        term.loadAddon(webgl);
-      } catch (err) {
-        console.warn(
-          "[hermes-chat] WebGL renderer unavailable; falling back to default",
-          err,
-        );
-      }
+      void import("@xterm/addon-webgl")
+        .then(({ WebglAddon }) => {
+          if (webglLoadCancelled || termRef.current !== term) return;
+          try {
+            const webgl = new WebglAddon();
+            webgl.onContextLoss(() => webgl.dispose());
+            term.loadAddon(webgl);
+          } catch (err) {
+            console.warn(
+              "[hermes-chat] WebGL renderer unavailable; falling back to default",
+              err,
+            );
+          }
+        })
+        .catch((err) => {
+          if (webglLoadCancelled) return;
+          console.warn(
+            "[hermes-chat] WebGL renderer failed to load; falling back to default",
+            err,
+          );
+        });
     }
 
     // Initial fit + resize observer.  fit.fit() reads the container's
@@ -592,6 +603,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
 
     return () => {
       unmounting = true;
+      webglLoadCancelled = true;
       syncMetricsRef.current = null;
       onDataDisposable.dispose();
       onResizeDisposable.dispose();
