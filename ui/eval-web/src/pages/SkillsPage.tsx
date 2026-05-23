@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { PluginSlot } from "@/plugins";
-import { Markdown } from "@/components/Markdown";
+import { LazyMarkdown } from "@/components/LazyMarkdown";
 
 /* ------------------------------------------------------------------ */
 /*  Types & helpers                                                    */
@@ -673,7 +673,7 @@ function SkillDetailCard({
           </div>
         ) : content.trim() ? (
           <article className="max-w-none">
-            <Markdown content={content} />
+            <LazyMarkdown content={content} />
           </article>
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">

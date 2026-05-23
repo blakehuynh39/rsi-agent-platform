@@ -861,12 +861,12 @@ set wiki_page_id = excluded.wiki_page_id,
 }
 
 func (p *PostgresStore) SearchCompanyWikiPages(query string, limit int) ([]CompanyWikiSearchResult, error) {
-	query = strings.ToLower(strings.TrimSpace(query))
-	query = escapeLikePattern(query)
+	rawQuery := strings.TrimSpace(query)
 	if limit <= 0 || limit > 50 {
 		limit = 10
 	}
-	rows, err := p.db.Query(`
+	if rawQuery == "" {
+		rows, err := p.db.Query(`
 select p.id, p.slug, p.title, r.path, r.id, r.body_sha256,
        left(regexp_replace(r.body, '\s+', ' ', 'g'), 500) as snippet,
        r.published_at,
@@ -874,15 +874,60 @@ select p.id, p.slug, p.title, r.path, r.id, r.body_sha256,
        left(r.body, 1000) as body_prefix
 from company_wiki_page p
 join company_wiki_revision r on r.id = p.current_revision_id
-where $1 = ''
-   or lower(p.slug) like '%' || $1 || '%' escape '\'
-   or lower(p.title) like '%' || $1 || '%' escape '\'
-   or lower(r.body) like '%' || $1 || '%' escape '\'
 order by r.published_at desc
-limit $2`, query, limit)
+limit $1`, limit)
+		if err != nil {
+			return nil, err
+		}
+		return scanCompanyWikiSearchResults(rows)
+	}
+
+	likeQuery := escapeLikePattern(strings.ToLower(rawQuery))
+	rows, err := p.db.Query(`
+with search as (
+  select plainto_tsquery('english', $1) as query
+)
+select p.id, p.slug, p.title, r.path, r.id, r.body_sha256,
+       case
+         when numnode(search.query) > 0 then
+           left(regexp_replace(ts_headline('english', r.body, search.query, 'MaxWords=35,MinWords=10,MaxFragments=2'), '\s+', ' ', 'g'), 500)
+         else left(regexp_replace(r.body, '\s+', ' ', 'g'), 500)
+       end as snippet,
+       r.published_at,
+       r.metadata,
+       left(r.body, 1000) as body_prefix
+from company_wiki_page p
+join company_wiki_revision r on r.id = p.current_revision_id
+cross join search
+where lower(p.slug) like '%' || $2 || '%' escape '\'
+   or lower(p.title) like '%' || $2 || '%' escape '\'
+   or lower(r.path) like '%' || $2 || '%' escape '\'
+   or (
+     numnode(search.query) > 0
+     and (
+       to_tsvector('english', coalesce(p.slug, '') || ' ' || coalesce(p.title, '')) @@ search.query
+       or to_tsvector('english', coalesce(r.body, '')) @@ search.query
+     )
+   )
+order by
+  case
+    when numnode(search.query) > 0 then
+      ts_rank_cd(
+        setweight(to_tsvector('english', coalesce(p.title, '') || ' ' || coalesce(p.slug, '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(r.body, '')), 'B'),
+        search.query
+      )
+    else 0
+  end desc,
+  r.published_at desc
+limit $3`, rawQuery, likeQuery, limit)
 	if err != nil {
 		return nil, err
 	}
+	return scanCompanyWikiSearchResults(rows)
+}
+
+func scanCompanyWikiSearchResults(rows *sql.Rows) ([]CompanyWikiSearchResult, error) {
 	defer rows.Close()
 	out := []CompanyWikiSearchResult{}
 	for rows.Next() {

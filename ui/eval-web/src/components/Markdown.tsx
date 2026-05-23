@@ -18,15 +18,17 @@ import { cn } from "@/lib/utils";
  * and autolink literals. Element overrides keep the output aligned with the
  * dashboard's dense, mono-forward visual system instead of browser defaults.
  */
+export interface MarkdownProps {
+  content: string;
+  highlightTerms?: string[];
+  streaming?: boolean;
+}
+
 export function Markdown({
   content,
   highlightTerms,
   streaming,
-}: {
-  content: string;
-  highlightTerms?: string[];
-  streaming?: boolean;
-}) {
+}: MarkdownProps) {
   const terms = useMemo(
     () =>
       (highlightTerms ?? [])

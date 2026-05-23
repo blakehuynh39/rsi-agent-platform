@@ -3,14 +3,20 @@ import {
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   type MouseEvent,
 } from "react";
 import { FileText, RefreshCw, Search } from "lucide-react";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
-import { Markdown } from "@/components/Markdown";
+import { LazyMarkdown } from "@/components/LazyMarkdown";
+import { preloadMarkdown } from "@/components/markdown-loader";
 import { usePageHeader } from "@/contexts/usePageHeader";
-import { api, type CompanyWikiSearchResult } from "@/lib/api";
+import {
+  api,
+  type CompanyWikiMarkdownRead,
+  type CompanyWikiSearchResult,
+} from "@/lib/api";
 import { cn, stripFrontmatter } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
@@ -34,30 +40,61 @@ export default function DocsPage() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileCacheRef = useRef(new Map<string, CompanyWikiMarkdownRead>());
+  const searchCacheRef = useRef(new Map<string, CompanyWikiSearchResult[]>());
+  const fileAbortRef = useRef<AbortController | null>(null);
+  const searchAbortRef = useRef<AbortController | null>(null);
 
-  const loadFile = useCallback(async (path: string) => {
-    const normalized = normalizeWikiPath(path) || INDEX_PATH;
-    setLoading(true);
-    setError(null);
-    try {
-      const read =
-        normalized === INDEX_PATH
-          ? await api.getCompanyWikiIndex()
-          : await api.getCompanyWikiFile(normalized);
-      setCurrentPath(read.path || normalized);
-      setCurrentContent(read.content || "");
-      if (normalized === INDEX_PATH) {
-        setIndexContent(read.content || "");
+  const loadFile = useCallback(
+    async (path: string, options?: { refresh?: boolean }) => {
+      const normalized = normalizeWikiPath(path) || INDEX_PATH;
+      const cached = options?.refresh
+        ? undefined
+        : fileCacheRef.current.get(normalized);
+      setLoading(!cached);
+      setError(null);
+      if (cached) {
+        setCurrentPath(cached.path || normalized);
+        setCurrentContent(cached.content || "");
+        if (normalized === INDEX_PATH) {
+          setIndexContent(cached.content || "");
+        }
+        return;
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      fileAbortRef.current?.abort();
+      const controller = new AbortController();
+      fileAbortRef.current = controller;
+      try {
+        const read =
+          normalized === INDEX_PATH
+            ? await api.getCompanyWikiIndex(controller.signal)
+            : await api.getCompanyWikiFile(normalized, controller.signal);
+        if (controller.signal.aborted) {
+          return;
+        }
+        fileCacheRef.current.set(normalized, read);
+        setCurrentPath(read.path || normalized);
+        setCurrentContent(read.content || "");
+        if (normalized === INDEX_PATH) {
+          setIndexContent(read.content || "");
+        }
+      } catch (err) {
+        if (controller.signal.aborted) {
+          return;
+        }
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (fileAbortRef.current === controller) {
+          fileAbortRef.current = null;
+          setLoading(false);
+        }
+      }
+    },
+    [],
+  );
 
   const refresh = useCallback(() => {
-    void loadFile(currentPath || INDEX_PATH);
+    void loadFile(currentPath || INDEX_PATH, { refresh: true });
   }, [currentPath, loadFile]);
 
   useLayoutEffect(() => {
@@ -73,9 +110,14 @@ export default function DocsPage() {
   }, [refresh, setEnd]);
 
   useEffect(() => {
+    preloadMarkdown();
     queueMicrotask(() => {
       void loadFile(INDEX_PATH);
     });
+    return () => {
+      fileAbortRef.current?.abort();
+      searchAbortRef.current?.abort();
+    };
   }, [loadFile]);
 
   const visibleContent = useMemo(
@@ -100,19 +142,49 @@ export default function DocsPage() {
   const runSearch = useCallback(async () => {
     const trimmed = query.trim();
     if (!trimmed) {
+      searchAbortRef.current?.abort();
+      searchAbortRef.current = null;
+      setSearching(false);
       setResults([]);
       void loadFile(INDEX_PATH);
       return;
     }
+    const cacheKey = trimmed.toLowerCase();
+    const cached = searchCacheRef.current.get(cacheKey);
+    if (cached) {
+      searchAbortRef.current?.abort();
+      searchAbortRef.current = null;
+      setSearching(false);
+      setResults(cached);
+      return;
+    }
+    searchAbortRef.current?.abort();
+    const controller = new AbortController();
+    searchAbortRef.current = controller;
     setSearching(true);
     setError(null);
     try {
-      const response = await api.searchCompanyWiki(trimmed, 25);
-      setResults(response.results ?? []);
+      const response = await api.searchCompanyWiki(
+        trimmed,
+        25,
+        controller.signal,
+      );
+      if (controller.signal.aborted) {
+        return;
+      }
+      const nextResults = response.results ?? [];
+      searchCacheRef.current.set(cacheKey, nextResults);
+      setResults(nextResults);
     } catch (err) {
+      if (controller.signal.aborted) {
+        return;
+      }
       setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setSearching(false);
+      if (searchAbortRef.current === controller) {
+        searchAbortRef.current = null;
+        setSearching(false);
+      }
     }
   }, [loadFile, query]);
 
@@ -153,7 +225,10 @@ export default function DocsPage() {
         <button
           type="button"
           className={DS_BUTTON_CN}
-          onClick={() => void loadFile(INDEX_PATH)}
+          onClick={() => {
+            setResults([]);
+            void loadFile(INDEX_PATH);
+          }}
         >
           <FileText className="size-3.5" />
           Index
@@ -169,7 +244,7 @@ export default function DocsPage() {
             <SearchResults results={results} loadFile={loadFile} />
           ) : (
             <div onClick={handleIndexWikiLinkClick}>
-              <Markdown content={stripIndexMetadata(indexContent)} />
+              <LazyMarkdown content={stripIndexMetadata(indexContent)} />
             </div>
           )}
         </aside>
@@ -194,7 +269,7 @@ export default function DocsPage() {
               className="wiki-markdown max-w-5xl"
               onClick={handleCurrentWikiLinkClick}
             >
-              <Markdown content={visibleContent} />
+              <LazyMarkdown content={visibleContent} />
             </article>
           )}
         </main>

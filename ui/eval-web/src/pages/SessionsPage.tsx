@@ -38,7 +38,7 @@ import type {
   TraceLedgerResponse,
 } from "@/lib/api";
 import { cn, timeAgo } from "@/lib/utils";
-import { Markdown } from "@/components/Markdown";
+import { LazyMarkdown } from "@/components/LazyMarkdown";
 import { Button } from "@nous-research/ui/ui/components/button";
 import { ListItem } from "@nous-research/ui/ui/components/list-item";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
@@ -385,7 +385,7 @@ function MessageBubble({
             {msg.content}
           </div>
         ) : (
-          <Markdown content={msg.content} highlightTerms={highlightTerms} />
+          <LazyMarkdown content={msg.content} highlightTerms={highlightTerms} />
         ))}
       {msg.tool_calls && msg.tool_calls.length > 0 && (
         <div className="mt-1">

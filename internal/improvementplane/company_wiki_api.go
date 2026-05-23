@@ -2,6 +2,7 @@ package improvementplane
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -36,7 +37,7 @@ func registerCompanyWikiRoutes(r chi.Router, cfg config.Config, repo storepkg.Re
 			app.WriteError(w, http.StatusInternalServerError, err)
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, companyWikiSearchResponse{
+		writeCompanyWikiCachedJSON(w, http.StatusOK, 15, companyWikiSearchResponse{
 			OK:      true,
 			Query:   strings.TrimSpace(r.URL.Query().Get("query")),
 			Results: results,
@@ -45,7 +46,7 @@ func registerCompanyWikiRoutes(r chi.Router, cfg config.Config, repo storepkg.Re
 	r.Get("/api/company-wiki/index", func(w http.ResponseWriter, r *http.Request) {
 		read, err := companyknowledge.ReadIndexFile(cfg.CompanyWikiRoot)
 		if err == nil {
-			app.WriteJSON(w, http.StatusOK, read)
+			writeCompanyWikiCachedJSON(w, http.StatusOK, 30, read)
 			return
 		}
 		if !errors.Is(err, os.ErrNotExist) {
@@ -57,17 +58,17 @@ func registerCompanyWikiRoutes(r chi.Router, cfg config.Config, repo storepkg.Re
 			app.WriteError(w, http.StatusInternalServerError, fallbackErr)
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, companyknowledge.WikiMarkdownRead{OK: true, Path: "index.md", Content: body})
+		writeCompanyWikiCachedJSON(w, http.StatusOK, 30, companyknowledge.WikiMarkdownRead{OK: true, Path: "index.md", Content: body})
 	})
 	r.Get("/api/company-wiki/log", func(w http.ResponseWriter, r *http.Request) {
 		limit := parsePositiveIntQuery(r.URL.Query().Get("limit"), 0)
 		read, err := companyknowledge.ReadLogFile(cfg.CompanyWikiRoot, limit)
 		if err == nil {
-			app.WriteJSON(w, http.StatusOK, read)
+			writeCompanyWikiCachedJSON(w, http.StatusOK, 30, read)
 			return
 		}
 		if errors.Is(err, os.ErrNotExist) && companyWikiDashboardManifestEmpty(repo) {
-			app.WriteJSON(w, http.StatusOK, companyknowledge.WikiMarkdownRead{OK: true, Path: "log.md", Content: "# Company Wiki Log\n\n_No wiki log entries yet._\n"})
+			writeCompanyWikiCachedJSON(w, http.StatusOK, 30, companyknowledge.WikiMarkdownRead{OK: true, Path: "log.md", Content: "# Company Wiki Log\n\n_No wiki log entries yet._\n"})
 			return
 		}
 		app.WriteError(w, http.StatusNotFound, err)
@@ -86,15 +87,25 @@ func registerCompanyWikiRoutes(r chi.Router, cfg config.Config, repo storepkg.Re
 					return
 				}
 				if found {
-					app.WriteJSON(w, http.StatusOK, fallback)
+					writeCompanyWikiCachedJSON(w, http.StatusOK, 30, fallback)
 					return
 				}
 			}
 			app.WriteError(w, http.StatusNotFound, err)
 			return
 		}
-		app.WriteJSON(w, http.StatusOK, read)
+		writeCompanyWikiCachedJSON(w, http.StatusOK, 30, read)
 	})
+}
+
+func writeCompanyWikiCachedJSON(w http.ResponseWriter, status int, maxAgeSeconds int, payload any) {
+	if maxAgeSeconds > 0 {
+		w.Header().Set(
+			"Cache-Control",
+			fmt.Sprintf("private, max-age=%d, stale-while-revalidate=%d", maxAgeSeconds, maxAgeSeconds*4),
+		)
+	}
+	app.WriteJSON(w, status, payload)
 }
 
 func companyWikiDashboardIndexFallback(repo storepkg.Repository) (string, error) {

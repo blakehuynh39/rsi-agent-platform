@@ -2438,6 +2438,16 @@ create index if not exists company_wiki_page_metadata_gin_idx
 create index if not exists company_wiki_revision_metadata_gin_idx
   on company_wiki_revision using gin (metadata);
 
+create index if not exists company_wiki_page_search_tsv_idx
+  on company_wiki_page using gin (
+    to_tsvector('english', coalesce(slug, '') || ' ' || coalesce(title, ''))
+  );
+
+create index if not exists company_wiki_revision_body_search_tsv_idx
+  on company_wiki_revision using gin (
+    to_tsvector('english', coalesce(body, ''))
+  );
+
 create index if not exists trace_summary_started_idx
   on trace_summary (started_at desc, trace_id asc);
 
