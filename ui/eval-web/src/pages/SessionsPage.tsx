@@ -1264,7 +1264,9 @@ function SessionTranscript({
     let closed = false;
     let refreshTimer: number | undefined;
     const abortController = new AbortController();
-    const source = new EventSource(api.getSessionStreamURL(sessionId));
+    const source = new EventSource(
+      api.getSessionStreamURL(sessionId, { limit: 100 }),
+    );
     const scheduleRefresh = () => {
       if (closed || refreshTimer !== undefined) return;
       refreshTimer = window.setTimeout(() => {

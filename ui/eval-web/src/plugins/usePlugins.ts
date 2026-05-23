@@ -11,6 +11,7 @@ import { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
 import type { PluginManifest, RegisteredPlugin } from "./types";
 import {
+  ensurePluginSDK,
   getPluginComponent,
   onPluginRegistered,
   notifyPluginRegistry,
@@ -38,57 +39,69 @@ export function usePlugins() {
   useEffect(() => {
     if (manifests.length === 0) return;
 
+    let cancelled = false;
     const injectedScripts: HTMLScriptElement[] = [];
+    let timeout: ReturnType<typeof setTimeout> | undefined;
 
-    for (const manifest of manifests) {
-      // Inject CSS if specified.
-      if (manifest.css) {
-        const cssUrl = `/dashboard-plugins/${manifest.name}/${manifest.css}`;
-        if (!document.querySelector(`link[href="${cssUrl}"]`)) {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = cssUrl;
-          document.head.appendChild(link);
+    void ensurePluginSDK()
+      .then(() => {
+        if (cancelled) return;
+
+        for (const manifest of manifests) {
+          // Inject CSS if specified.
+          if (manifest.css) {
+            const cssUrl = `/dashboard-plugins/${manifest.name}/${manifest.css}`;
+            if (!document.querySelector(`link[href="${cssUrl}"]`)) {
+              const link = document.createElement("link");
+              link.rel = "stylesheet";
+              link.href = cssUrl;
+              document.head.appendChild(link);
+            }
+          }
+
+          // Load JS bundle. In dev, cache-bust so Vite HMR can clear the
+          // in-memory registry while the browser would otherwise never
+          // re-execute a previously cached <script> URL.
+          const baseUrl = `/dashboard-plugins/${manifest.name}/${manifest.entry}`;
+          const scriptSrc = import.meta.env.DEV
+            ? `${baseUrl}?hermes_dv=${Date.now()}`
+            : baseUrl;
+          if (!import.meta.env.DEV) {
+            if (loadedScripts.current.has(baseUrl)) continue;
+            loadedScripts.current.add(baseUrl);
+          }
+
+          const script = document.createElement("script");
+          script.setAttribute("data-hermes-plugin", manifest.name);
+          script.src = scriptSrc;
+          script.async = true;
+          script.onerror = () => {
+            setPluginLoadError(manifest.name, "LOAD_FAILED");
+            console.warn(
+              `[plugins] Failed to load ${manifest.name} from ${scriptSrc} (open Network tab)`,
+            );
+          };
+          script.onload = () => {
+            notifyPluginRegistry();
+            queueMicrotask(() => {
+              if (getPluginComponent(manifest.name)) return;
+              setPluginLoadError(manifest.name, "NO_REGISTER");
+            });
+          };
+          document.body.appendChild(script);
+          injectedScripts.push(script);
         }
-      }
 
-      // Load JS bundle. In dev, cache-bust so Vite HMR can clear the
-      // in-memory registry while the browser would otherwise never
-      // re-execute a previously cached <script> URL.
-      const baseUrl = `/dashboard-plugins/${manifest.name}/${manifest.entry}`;
-      const scriptSrc = import.meta.env.DEV
-        ? `${baseUrl}?hermes_dv=${Date.now()}`
-        : baseUrl;
-      if (!import.meta.env.DEV) {
-        if (loadedScripts.current.has(baseUrl)) continue;
-        loadedScripts.current.add(baseUrl);
-      }
+        // Give plugins a moment to load and register, then stop loading state.
+        timeout = setTimeout(() => setLoading(false), 2000);
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-      const script = document.createElement("script");
-      script.setAttribute("data-hermes-plugin", manifest.name);
-      script.src = scriptSrc;
-      script.async = true;
-      script.onerror = () => {
-        setPluginLoadError(manifest.name, "LOAD_FAILED");
-        console.warn(
-          `[plugins] Failed to load ${manifest.name} from ${scriptSrc} (open Network tab)`,
-        );
-      };
-      script.onload = () => {
-        notifyPluginRegistry();
-        queueMicrotask(() => {
-          if (getPluginComponent(manifest.name)) return;
-          setPluginLoadError(manifest.name, "NO_REGISTER");
-        });
-      };
-      document.body.appendChild(script);
-      injectedScripts.push(script);
-    }
-
-    // Give plugins a moment to load and register, then stop loading state.
-    const timeout = setTimeout(() => setLoading(false), 2000);
     return () => {
-      clearTimeout(timeout);
+      cancelled = true;
+      if (timeout) clearTimeout(timeout);
       if (import.meta.env.DEV) {
         for (const el of injectedScripts) {
           el.remove();

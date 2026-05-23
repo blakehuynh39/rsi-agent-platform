@@ -1743,9 +1743,10 @@ func streamHermesSessionEvents(w http.ResponseWriter, r *http.Request, store sto
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 
+	limit := streamLimitFromRequest(r)
 	sent := map[string]bool{}
 	sendBatch := func(backfill bool) {
-		items := hermesLedgerStreamEvents(store, traceID)
+		items := hermesLedgerStreamEventPage(store, traceID, limit)
 		if backfill && lastEventID != "" {
 			resumeIndex := -1
 			for index, item := range items {
@@ -1761,6 +1762,27 @@ func streamHermesSessionEvents(w http.ResponseWriter, r *http.Request, store sto
 					}
 				}
 				items = items[resumeIndex+1:]
+			} else {
+				// Resume ID not in latest page; fetch all events to find it
+				allItems := hermesLedgerStreamEvents(store, traceID)
+				foundIndex := -1
+				for index, item := range allItems {
+					if item.ID == lastEventID {
+						foundIndex = index
+						break
+					}
+				}
+				if foundIndex >= 0 {
+					// Mark all events up to and including the resume point as sent
+					for _, item := range allItems[:foundIndex+1] {
+						if item.ID != "" {
+							sent[item.ID] = true
+						}
+					}
+					// Send all events after the resume point
+					items = allItems[foundIndex+1:]
+				}
+				// If resume ID not found anywhere, send the full latest page
 			}
 		}
 		for _, item := range items {
@@ -1789,6 +1811,10 @@ func streamHermesSessionEvents(w http.ResponseWriter, r *http.Request, store sto
 			flusher.Flush()
 		}
 	}
+}
+
+func hermesLedgerStreamEventPage(store storepkg.Repository, traceID string, limit int) []events.ExecutionLedgerEvent {
+	return traceLedgerEventPage(store, traceID, "all", limit, "").Events
 }
 
 func hermesLedgerStreamEvents(store storepkg.Repository, traceID string) []events.ExecutionLedgerEvent {

@@ -2023,6 +2023,67 @@ func TestHermesCompatibilitySessionStreamUsesHermesEventsAndResume(t *testing.T)
 	}
 }
 
+func TestHermesCompatibilitySessionStreamHonorsLimit(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-hermes-limit-1",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "running",
+			Seq:         1,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "oldest"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-hermes-limit-2",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "running",
+			Seq:         2,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "middle"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-hermes-limit-3",
+			ExecutionID: "hexec-hermes-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-hermes-limit",
+			Kind:        "tool.call",
+			Status:      "complete",
+			Seq:         3,
+			Payload:     map[string]any{"tool_name": "repo.search", "summary": "latest"},
+			RecordedAt:  now.Add(2 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/sessions/"+traceID+"/stream?limit=2", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if strings.Contains(body, "oldest") {
+		t.Fatalf("expected limited Hermes stream to omit oldest event, got %q", body)
+	}
+	if !strings.Contains(body, "middle") || !strings.Contains(body, "latest") {
+		t.Fatalf("expected limited Hermes stream to include latest events, got %q", body)
+	}
+}
+
 func TestTraceStreamBackfillsAllEventsWhenResumeIDIsMissing(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	traceID := store.ListTraces()[0].TraceID
@@ -2129,6 +2190,79 @@ func TestTraceStreamBackfillHonorsLimit(t *testing.T) {
 	}
 	if !strings.Contains(body, "middle") || !strings.Contains(body, "latest") {
 		t.Fatalf("expected initial stream backfill to include latest limited events, got %q", body)
+	}
+}
+
+func TestTraceStreamResumeFindsEventOutsideLimit(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	traceID := store.ListTraces()[0].TraceID
+	now := time.Now().UTC()
+	if err := store.RecordExecutionLedgerEvents([]events.ExecutionLedgerEvent{
+		{
+			ID:          "xled-resume-limit-1",
+			ExecutionID: "hexec-resume-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-resume-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         1,
+			Payload:     map[string]any{"role": "prod", "delta": "oldest"},
+			RecordedAt:  now,
+		},
+		{
+			ID:          "xled-resume-limit-2",
+			ExecutionID: "hexec-resume-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-resume-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         2,
+			Payload:     map[string]any{"role": "prod", "delta": "second"},
+			RecordedAt:  now.Add(time.Millisecond),
+		},
+		{
+			ID:          "xled-resume-limit-3",
+			ExecutionID: "hexec-resume-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-resume-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         3,
+			Payload:     map[string]any{"role": "prod", "delta": "third"},
+			RecordedAt:  now.Add(2 * time.Millisecond),
+		},
+		{
+			ID:          "xled-resume-limit-4",
+			ExecutionID: "hexec-resume-limit",
+			TraceID:     traceID,
+			WorkflowID:  "workflow-resume-limit",
+			Kind:        "model.output.delta",
+			Status:      "streaming",
+			Seq:         4,
+			Payload:     map[string]any{"role": "prod", "delta": "latest"},
+			RecordedAt:  now.Add(3 * time.Millisecond),
+		},
+	}); err != nil {
+		t.Fatalf("RecordExecutionLedgerEvents() error = %v", err)
+	}
+	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req := httptest.NewRequest(http.MethodGet, "/api/traces/"+traceID+"/stream?scope=main&limit=2", nil).WithContext(ctx)
+	req.Header.Set("Last-Event-ID", "xled-resume-limit-1")
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("stream status = %d body=%s", rec.Code, rec.Body.String())
+	}
+	body := rec.Body.String()
+	if strings.Contains(body, "oldest") || strings.Contains(body, "xled-resume-limit-1") {
+		t.Fatalf("expected resume to skip already seen event, got %q", body)
+	}
+	if !strings.Contains(body, "second") || !strings.Contains(body, "third") || !strings.Contains(body, "latest") {
+		t.Fatalf("expected resume to send all events after cursor outside limited page, got %q", body)
 	}
 }
 

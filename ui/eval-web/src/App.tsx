@@ -1,9 +1,12 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
   useState,
   type ComponentType,
+  type LazyExoticComponent,
   type ReactNode,
 } from "react";
 import {
@@ -50,14 +53,6 @@ import { Backdrop } from "@/components/Backdrop";
 import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
-import DocsPage from "@/pages/DocsPage";
-import KanbanPage from "@/pages/KanbanPage";
-import SessionsPage from "@/pages/SessionsPage";
-import LogsPage from "@/pages/LogsPage";
-import AnalyticsPage from "@/pages/AnalyticsPage";
-import CronPage from "@/pages/CronPage";
-import SkillsPage from "@/pages/SkillsPage";
-import ChatPage from "@/pages/ChatPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -66,6 +61,17 @@ import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
 import type { PluginManifest } from "@/plugins";
 import { useTheme } from "@/themes";
 import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
+
+type AppRouteComponent = ComponentType | LazyExoticComponent<ComponentType>;
+
+const DocsPage = lazy(() => import("@/pages/DocsPage"));
+const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
+const SessionsPage = lazy(() => import("@/pages/SessionsPage"));
+const LogsPage = lazy(() => import("@/pages/LogsPage"));
+const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
+const CronPage = lazy(() => import("@/pages/CronPage"));
+const SkillsPage = lazy(() => import("@/pages/SkillsPage"));
+const ChatPage = lazy(() => import("@/pages/ChatPage"));
 
 function RootRedirect() {
   const { search } = useLocation();
@@ -88,7 +94,7 @@ const CHAT_NAV_ITEM: NavItem = {
  * Routing still owns the URL so /chat deep-links, browser back/forward,
  * and nav highlight keep working.
  */
-const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
+const BUILTIN_ROUTES_CORE: Record<string, AppRouteComponent> = {
   "/": RootRedirect,
   "/sessions": SessionsPage,
   "/kanban": KanbanPage,
@@ -103,6 +109,25 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/env": EnvUnsupportedPage,
   "/docs": DocsPage,
 };
+
+function RouteLoading({ label = "Loading..." }: { label?: string }) {
+  return (
+    <div
+      className="flex min-h-[14rem] min-w-0 items-center justify-center"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Spinner />
+        <span>{label}</span>
+      </div>
+    </div>
+  );
+}
+
+function RouteSuspense({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<RouteLoading />}>{children}</Suspense>;
+}
 
 // Route placeholder for /chat.  The persistent ChatPage host (rendered
 // outside <Routes> when embedded chat is on) paints on top; this empty
@@ -298,7 +323,7 @@ function partitionSidebarNav(
 }
 
 function buildRoutes(
-  builtinRoutes: Record<string, ComponentType>,
+  builtinRoutes: Record<string, AppRouteComponent>,
   manifests: PluginManifest[],
 ): Array<{
   key: string;
@@ -331,7 +356,15 @@ function buildRoutes(
         element: <PluginPage name={om.name} />,
       });
     } else {
-      routes.push({ key: `builtin:${path}`, path, element: <Component /> });
+      routes.push({
+        key: `builtin:${path}`,
+        path,
+        element: (
+          <RouteSuspense>
+            <Component />
+          </RouteSuspense>
+        ),
+      });
     }
   }
 
@@ -681,7 +714,11 @@ export default function App() {
                       )}
                       aria-hidden={!isChatRoute}
                     >
-                      <ChatPage isActive={isChatRoute} />
+                      <Suspense
+                        fallback={<RouteLoading label="Loading chat..." />}
+                      >
+                        <ChatPage isActive={isChatRoute} />
+                      </Suspense>
                     </div>
                   ))}
               </div>

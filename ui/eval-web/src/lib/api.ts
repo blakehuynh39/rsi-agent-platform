@@ -26,8 +26,13 @@ export const api = {
     fetchJSON<SessionInfo>(`/api/sessions/${encodeURIComponent(id)}`),
   getSessionMessages: (id: string, signal?: AbortSignal) =>
     fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`, { signal }),
-  getSessionStreamURL: (id: string) =>
-    `${BASE}/api/sessions/${encodeURIComponent(id)}/stream`,
+  getSessionStreamURL: (id: string, params?: { limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.limit) qs.set("limit", String(params.limit));
+    const query = qs.toString();
+    const suffix = query ? `?${query}` : "";
+    return `${BASE}/api/sessions/${encodeURIComponent(id)}/stream${suffix}`;
+  },
   getTraceActivity: (traceId: string, params?: { mode?: "clean" | "detailed"; scope?: string; limit?: number; cursor?: string }, signal?: AbortSignal) => {
     const qs = new URLSearchParams();
     qs.set("mode", params?.mode ?? "clean");

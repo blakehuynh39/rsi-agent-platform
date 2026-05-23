@@ -443,6 +443,23 @@ func streamTraceLedgerEvents(w http.ResponseWriter, r *http.Request, store store
 					}
 				}
 				items = items[resumeIndex+1:]
+			} else {
+				allItems := traceLedgerStreamBackfillEvents(store, traceID, scope)
+				foundIndex := -1
+				for index, item := range allItems {
+					if item.ID == lastEventID {
+						foundIndex = index
+						break
+					}
+				}
+				if foundIndex >= 0 {
+					for _, item := range allItems[:foundIndex+1] {
+						if item.ID != "" {
+							sent[item.ID] = true
+						}
+					}
+					items = allItems[foundIndex+1:]
+				}
 			}
 		}
 		for _, item := range items {
@@ -591,6 +608,10 @@ func nextTraceActivitySyntheticRefresh(snapshot TraceActivitySnapshot, latest ev
 }
 
 func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope string, limit int) []events.ExecutionLedgerEvent {
+	return traceLedgerEventPage(store, traceID, scope, limit, "").Events
+}
+
+func traceLedgerStreamBackfillEvents(store storepkg.Repository, traceID string, scope string) []events.ExecutionLedgerEvent {
 	normalized := strings.TrimSpace(strings.ToLower(scope))
 	items := []events.ExecutionLedgerEvent{}
 	for _, item := range store.ListExecutionLedgerEventsByTrace(traceID) {
@@ -598,9 +619,6 @@ func traceLedgerStreamEvents(store storepkg.Repository, traceID string, scope st
 			continue
 		}
 		items = append(items, item)
-	}
-	if limit > 0 && len(items) > limit {
-		items = items[len(items)-limit:]
 	}
 	return items
 }
