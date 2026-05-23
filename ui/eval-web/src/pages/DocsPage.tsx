@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  memo,
   useMemo,
   useRef,
   useState,
@@ -35,7 +36,6 @@ export default function DocsPage() {
   const [indexContent, setIndexContent] = useState("");
   const [currentPath, setCurrentPath] = useState(INDEX_PATH);
   const [currentContent, setCurrentContent] = useState("");
-  const [query, setQuery] = useState("");
   const [results, setResults] = useState<CompanyWikiSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
@@ -139,7 +139,7 @@ export default function DocsPage() {
     [loadFile],
   );
 
-  const runSearch = useCallback(async () => {
+  const runSearch = useCallback(async (query: string) => {
     const trimmed = query.trim();
     if (!trimmed) {
       searchAbortRef.current?.abort();
@@ -186,42 +186,14 @@ export default function DocsPage() {
         setSearching(false);
       }
     }
-  }, [loadFile, query]);
+  }, [loadFile]);
 
   return (
     <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col pt-1 sm:pt-2">
       <PluginSlot name="docs:top" />
 
       <div className="mb-3 flex flex-col gap-2 border-b border-current/15 pb-3 sm:flex-row sm:items-center">
-        <form
-          className="flex min-w-0 flex-1 items-center gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void runSearch();
-          }}
-        >
-          <label className="sr-only" htmlFor="company-wiki-search">
-            Search company wiki
-          </label>
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              id="company-wiki-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search company wiki..."
-              className={cn(
-                "h-10 w-full border border-current/25 bg-background pl-9 pr-3",
-                "font-mono-ui text-sm text-foreground outline-none",
-                "focus:border-primary",
-              )}
-            />
-          </div>
-          <button type="submit" className={DS_BUTTON_CN} disabled={searching}>
-            {searching ? <Spinner /> : <Search className="size-3.5" />}
-            Search
-          </button>
-        </form>
+        <CompanyWikiSearchForm onSearch={runSearch} searching={searching} />
         <button
           type="button"
           className={DS_BUTTON_CN}
@@ -279,6 +251,48 @@ export default function DocsPage() {
     </div>
   );
 }
+
+const CompanyWikiSearchForm = memo(function CompanyWikiSearchForm({
+  onSearch,
+  searching,
+}: {
+  onSearch: (query: string) => void | Promise<void>;
+  searching: boolean;
+}) {
+  const [query, setQuery] = useState("");
+
+  return (
+    <form
+      className="flex min-w-0 flex-1 items-center gap-2"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void onSearch(query);
+      }}
+    >
+      <label className="sr-only" htmlFor="company-wiki-search">
+        Search company wiki
+      </label>
+      <div className="relative min-w-0 flex-1">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <input
+          id="company-wiki-search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search company wiki..."
+          className={cn(
+            "h-10 w-full border border-current/25 bg-background pl-9 pr-3",
+            "font-mono-ui text-sm text-foreground outline-none",
+            "focus:border-primary",
+          )}
+        />
+      </div>
+      <button type="submit" className={DS_BUTTON_CN} disabled={searching}>
+        {searching ? <Spinner /> : <Search className="size-3.5" />}
+        Search
+      </button>
+    </form>
+  );
+});
 
 function SearchResults({
   results,
