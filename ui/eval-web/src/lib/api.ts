@@ -209,6 +209,64 @@ export const api = {
       `/api/company-wiki/search?query=${encodeURIComponent(query)}&limit=${limit}`,
     ),
 
+  // Kanban
+  getKanbanProjects: () =>
+    fetchJSON<KanbanProjectsResponse>("/api/kanban/projects"),
+  createKanbanProject: (body: KanbanProjectWriteRequest) =>
+    fetchJSON<{ project: KanbanProject }>("/api/kanban/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  getKanbanBoard: (projectId: string, signal?: AbortSignal) =>
+    fetchJSON<KanbanBoardSnapshot>(
+      `/api/kanban/projects/${encodeURIComponent(projectId)}/board`,
+      { signal },
+    ),
+  getKanbanSlackRoutes: (projectId: string) =>
+    fetchJSON<KanbanSlackRoutesResponse>(
+      `/api/kanban/projects/${encodeURIComponent(projectId)}/slack-routes`,
+    ),
+  setKanbanSlackRoute: (projectId: string, body: KanbanSlackRouteWriteRequest) =>
+    fetchJSON<{ route: KanbanProjectSlackRoute }>(
+      `/api/kanban/projects/${encodeURIComponent(projectId)}/slack-routes`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    ),
+  createKanbanTicket: (body: KanbanTicketCreateRequest) =>
+    fetchJSON<{ ticket: KanbanTicket }>("/api/kanban/tickets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  updateKanbanTicket: (ticketId: string, body: KanbanTicketPatchRequest) =>
+    fetchJSON<{ ticket: KanbanTicket }>(
+      `/api/kanban/tickets/${encodeURIComponent(ticketId)}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    ),
+  commentKanbanTicket: (ticketId: string, body: { body: string }) =>
+    fetchJSON<{ comment: KanbanTicketComment }>(
+      `/api/kanban/tickets/${encodeURIComponent(ticketId)}/comments`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    ),
+  getKanbanStreamURL: (projectId: string, after?: string) => {
+    const qs = new URLSearchParams();
+    qs.set("project_id", projectId);
+    if (after) qs.set("after", after);
+    return `${BASE}/api/kanban/stream?${qs.toString()}`;
+  },
+
   // Session search (FTS5)
   searchSessions: (q: string) =>
     fetchJSON<SessionSearchResponse>(`/api/sessions/search?q=${encodeURIComponent(q)}`),
@@ -889,4 +947,161 @@ export interface CompanyWikiSearchResponse {
   ok: boolean;
   query: string;
   results: CompanyWikiSearchResult[];
+}
+
+export type KanbanTicketStatus =
+  | "triage"
+  | "todo"
+  | "in_progress"
+  | "blocked"
+  | "done"
+  | "archived";
+
+export interface KanbanProject {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  state: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KanbanBoard {
+  id: string;
+  project_id: string;
+  slug: string;
+  name: string;
+  is_default: boolean;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KanbanTicket {
+  id: string;
+  project_id: string;
+  board_id: string;
+  title: string;
+  description?: string;
+  status: KanbanTicketStatus;
+  priority?: string;
+  assignee?: string;
+  created_by: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+  archived_at?: string;
+}
+
+export interface KanbanTicketComment {
+  id: string;
+  project_id: string;
+  ticket_id: string;
+  body: string;
+  actor_type: string;
+  actor_id: string;
+  actor_display?: string;
+  source_surface?: string;
+  created_at: string;
+}
+
+export interface KanbanTicketSourceRef {
+  id: string;
+  project_id: string;
+  ticket_id: string;
+  source_type: string;
+  action_kind: string;
+  team_id?: string;
+  channel_id?: string;
+  thread_ts?: string;
+  message_ts?: string;
+  permalink?: string;
+  conversation_id?: string;
+  trace_id?: string;
+  workflow_id?: string;
+  proposal_id?: string;
+  created_at: string;
+}
+
+export interface KanbanTicketLink {
+  id: string;
+  project_id: string;
+  from_ticket_id: string;
+  to_ticket_id: string;
+  link_type: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface KanbanTicketEvent {
+  id: string;
+  project_id: string;
+  ticket_id?: string;
+  event_type: string;
+  actor_type: string;
+  actor_id: string;
+  actor_display?: string;
+  source_surface?: string;
+  payload?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface KanbanProjectSlackRoute {
+  id: string;
+  project_id: string;
+  team_id?: string;
+  channel_id: string;
+  thread_ts?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KanbanBoardSnapshot {
+  project: KanbanProject;
+  board: KanbanBoard;
+  tickets: KanbanTicket[];
+  comments?: KanbanTicketComment[];
+  links?: KanbanTicketLink[];
+  source_refs?: KanbanTicketSourceRef[];
+  events?: KanbanTicketEvent[];
+}
+
+export interface KanbanProjectsResponse {
+  projects: KanbanProject[];
+}
+
+export interface KanbanSlackRoutesResponse {
+  routes: KanbanProjectSlackRoute[];
+}
+
+export interface KanbanProjectWriteRequest {
+  slug?: string;
+  name: string;
+  description?: string;
+}
+
+export interface KanbanSlackRouteWriteRequest {
+  team_id?: string;
+  channel_id: string;
+  thread_ts?: string;
+}
+
+export interface KanbanTicketCreateRequest {
+  project_id?: string;
+  project_slug?: string;
+  title: string;
+  description?: string;
+  priority?: string;
+  assignee?: string;
+}
+
+export interface KanbanTicketPatchRequest {
+  title?: string;
+  description?: string;
+  status?: KanbanTicketStatus;
+  priority?: string;
+  assignee?: string;
 }

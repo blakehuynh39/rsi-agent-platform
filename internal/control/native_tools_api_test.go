@@ -131,6 +131,239 @@ func TestNativeToolsIdempotentReplayConflictAndFailureAudit(t *testing.T) {
 	}
 }
 
+func TestNativeKanbanCreateTicketRequiresProjectSelectionAsFailedNonMutation(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_ticket",
+		IdempotencyKey: "kanban-missing-project",
+		Reason:         "user asked RSI to create a ticket",
+		Arguments: map[string]any{
+			"title":      "Create the Kanban board",
+			"channel_id": "C123",
+			"message_ts": "171000001.000200",
+		},
+	})
+	if err == nil || status != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d err=%v resp=%#v, want 422 needs_project_selection", status, err, resp)
+	}
+	if resp.OK || resp.Action.State != storepkg.ExternalToolActionStateFailed {
+		t.Fatalf("missing project should be failed/non-mutating, got %#v", resp)
+	}
+	output, ok := resp.Output.(map[string]any)
+	if !ok {
+		t.Fatalf("output type = %T, want map", resp.Output)
+	}
+	if reason, _ := output["reason"].(string); reason != "needs_project_selection" {
+		t.Fatalf("output reason=%q, want needs_project_selection", reason)
+	}
+	if len(state.ListKanbanTickets("")) != 0 {
+		t.Fatalf("missing project should not create tickets")
+	}
+}
+
+func TestNativeKanbanCreateTicketWithProject(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "platform", Name: "Platform"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_ticket",
+		IdempotencyKey: "kanban-create-project",
+		Reason:         "track user request",
+		Arguments: map[string]any{
+			"project_id": project.ID,
+			"title":      "Ship Kanban",
+			"message_ts": "171000001.000200",
+		},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d err=%v resp=%#v", status, err, resp)
+	}
+	if len(state.ListKanbanTickets(project.ID)) != 1 {
+		t.Fatalf("expected one project ticket, got %d", len(state.ListKanbanTickets(project.ID)))
+	}
+}
+
+func TestNativeKanbanCreateTicketUsesSlackChannelDefault(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "platform", Name: "Platform"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	if _, err := state.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+		ProjectID: project.ID,
+		TeamID:    "T123",
+		ChannelID: "C123",
+		Actor:     storepkg.KanbanActor{Type: "test", ID: "tester"},
+	}, time.Now().UTC()); err != nil {
+		t.Fatalf("set slack route: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_ticket",
+		IdempotencyKey: "kanban-create-from-slack-route",
+		Reason:         "track slack request",
+		Arguments: map[string]any{
+			"team_id":    "T123",
+			"channel_id": "C123",
+			"title":      "Route-created ticket",
+			"message_ts": "171000001.000200",
+		},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d err=%v resp=%#v", status, err, resp)
+	}
+	if len(state.ListKanbanTickets(project.ID)) != 1 {
+		t.Fatalf("expected one project ticket, got %d", len(state.ListKanbanTickets(project.ID)))
+	}
+	sourceRefs := 0
+	snapshot, ok := state.GetKanbanBoardSnapshot(project.ID)
+	if ok {
+		sourceRefs = len(snapshot.SourceRefs)
+	}
+	if sourceRefs != 1 {
+		t.Fatalf("expected one Slack source ref, got %d", sourceRefs)
+	}
+}
+
+func TestNativeKanbanCreateTicketUsesUniqueTeamScopedSlackDefaultWithoutTeamArg(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "platform", Name: "Platform"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	if _, err := state.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+		ProjectID: project.ID,
+		TeamID:    "T123",
+		ChannelID: "C123",
+		Actor:     storepkg.KanbanActor{Type: "test", ID: "tester"},
+	}, time.Now().UTC()); err != nil {
+		t.Fatalf("set slack route: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	claims.SlackChannelID = "C123"
+	claims.SlackThreadTS = "171000001.000100"
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_ticket",
+		IdempotencyKey: "kanban-create-unique-team-route",
+		Reason:         "track slack request",
+		Arguments: map[string]any{
+			"title":      "Route-created ticket",
+			"message_ts": "171000001.000200",
+		},
+	})
+	if err != nil || status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d err=%v resp=%#v", status, err, resp)
+	}
+	if len(state.ListKanbanTickets(project.ID)) != 1 {
+		t.Fatalf("expected one project ticket, got %d", len(state.ListKanbanTickets(project.ID)))
+	}
+}
+
+func TestNativeKanbanCreateTicketRejectsAmbiguousTeamScopedSlackDefaultWithoutTeamArg(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	first, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "first", Name: "First"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create first project: %v", err)
+	}
+	second, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "second", Name: "Second"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create second project: %v", err)
+	}
+	for _, route := range []struct {
+		projectID string
+		teamID    string
+	}{
+		{first.ID, "T123"},
+		{second.ID, "T999"},
+	} {
+		if _, err := state.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+			ProjectID: route.projectID,
+			TeamID:    route.teamID,
+			ChannelID: "C123",
+			Actor:     storepkg.KanbanActor{Type: "test", ID: "tester"},
+		}, time.Now().UTC()); err != nil {
+			t.Fatalf("set slack route: %v", err)
+		}
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	claims.SlackChannelID = "C123"
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+		Surface:        "kanban",
+		Operation:      "create_ticket",
+		IdempotencyKey: "kanban-create-ambiguous-team-route",
+		Reason:         "track slack request",
+		Arguments: map[string]any{
+			"title":      "Ambiguous route ticket",
+			"message_ts": "171000001.000200",
+		},
+	})
+	if err == nil || status != http.StatusUnprocessableEntity {
+		t.Fatalf("status=%d err=%v resp=%#v, want 422", status, err, resp)
+	}
+	if resp.OK || resp.Action.State != storepkg.ExternalToolActionStateFailed {
+		t.Fatalf("ambiguous route should be failed/non-mutating, got %#v", resp)
+	}
+	if got := len(state.ListKanbanTickets("")); got != 0 {
+		t.Fatalf("ambiguous route should not create tickets, got %d", got)
+	}
+}
+
+func TestNativeKanbanCreateTicketWithoutExactSlackMessageDoesNotCollapseThread(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	state := storepkg.NewMemoryStore()
+	project, err := state.CreateKanbanProject(storepkg.KanbanProjectCreateInput{Slug: "platform", Name: "Platform"}, time.Now().UTC())
+	if err != nil {
+		t.Fatalf("create project: %v", err)
+	}
+	if _, err := state.SetKanbanSlackProjectRoute(storepkg.KanbanProjectSlackRouteInput{
+		ProjectID: project.ID,
+		ChannelID: "C123",
+		Actor:     storepkg.KanbanActor{Type: "test", ID: "tester"},
+	}, time.Now().UTC()); err != nil {
+		t.Fatalf("set slack route: %v", err)
+	}
+	claims := nativeToolsValidClaims(time.Now().UTC(), "kanban")
+	claims.SlackThreadTS = "171000001.000100"
+	for i, title := range []string{"First ticket", "Second ticket"} {
+		resp, status, err := handleNativeToolAction(context.Background(), cfg, state, claims, nativeToolActionRequest{
+			Surface:        "kanban",
+			Operation:      "create_ticket",
+			IdempotencyKey: "kanban-thread-create-" + title,
+			Reason:         "track slack request",
+			Arguments: map[string]any{
+				"channel_id": "C123",
+				"title":      title,
+			},
+		})
+		if err != nil || status != http.StatusOK || !resp.OK {
+			t.Fatalf("call %d status=%d err=%v resp=%#v", i, status, err, resp)
+		}
+	}
+	snapshot, ok := state.GetKanbanBoardSnapshot(project.ID)
+	if !ok {
+		t.Fatalf("missing board snapshot")
+	}
+	if len(snapshot.Tickets) != 2 {
+		t.Fatalf("expected two distinct tickets, got %d", len(snapshot.Tickets))
+	}
+	if len(snapshot.SourceRefs) != 0 {
+		t.Fatalf("without exact message_ts, source refs should not be created; got %d", len(snapshot.SourceRefs))
+	}
+}
+
 func TestNativeToolReplayReturnsPersistedResultPayload(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	store := storepkg.NewMemoryStore()

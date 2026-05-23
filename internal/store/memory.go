@@ -35,6 +35,7 @@ const (
 type Store interface {
 	CompanyWikiStore
 	ExternalToolActionStore
+	KanbanStore
 	ListEvents() []ingestion.EventEnvelope
 	ListConversations() []conversation.Conversation
 	GetConversation(conversationID string) (conversation.Conversation, bool)
@@ -183,6 +184,18 @@ type MemoryStore struct {
 	actionResults                     map[string][]action.Result
 	externalToolActions               map[string]ExternalToolAction
 	externalToolActionByIdempotency   map[string]string
+	kanbanProjects                    map[string]KanbanProject
+	kanbanProjectBySlug               map[string]string
+	kanbanBoards                      map[string]KanbanBoard
+	kanbanDefaultBoardByProject       map[string]string
+	kanbanTickets                     map[string]KanbanTicket
+	kanbanComments                    map[string]KanbanTicketComment
+	kanbanLinks                       map[string]KanbanTicketLink
+	kanbanSourceRefs                  map[string]KanbanTicketSourceRef
+	kanbanSlackSourceRefByKey         map[string]string
+	kanbanEvents                      []KanbanTicketEvent
+	kanbanSlackRoutes                 map[string]KanbanProjectSlackRoute
+	kanbanSlackProjectRoutes          map[string]string
 	dbReadRequests                    map[string]DBReadRequest
 	dbReadRequestByIdempotencyKey     map[string]string
 	dbReadValidationAttempts          map[string][]DBReadValidationAttempt
@@ -255,6 +268,18 @@ func (s *MemoryStore) ResetAppData() (AppDataResetResult, error) {
 	s.actionResults = replacement.actionResults
 	s.externalToolActions = replacement.externalToolActions
 	s.externalToolActionByIdempotency = replacement.externalToolActionByIdempotency
+	s.kanbanProjects = replacement.kanbanProjects
+	s.kanbanProjectBySlug = replacement.kanbanProjectBySlug
+	s.kanbanBoards = replacement.kanbanBoards
+	s.kanbanDefaultBoardByProject = replacement.kanbanDefaultBoardByProject
+	s.kanbanTickets = replacement.kanbanTickets
+	s.kanbanComments = replacement.kanbanComments
+	s.kanbanLinks = replacement.kanbanLinks
+	s.kanbanSourceRefs = replacement.kanbanSourceRefs
+	s.kanbanSlackSourceRefByKey = replacement.kanbanSlackSourceRefByKey
+	s.kanbanEvents = replacement.kanbanEvents
+	s.kanbanSlackRoutes = replacement.kanbanSlackRoutes
+	s.kanbanSlackProjectRoutes = replacement.kanbanSlackProjectRoutes
 	s.dbReadRequests = replacement.dbReadRequests
 	s.dbReadRequestByIdempotencyKey = replacement.dbReadRequestByIdempotencyKey
 	s.dbReadValidationAttempts = replacement.dbReadValidationAttempts

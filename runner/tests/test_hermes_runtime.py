@@ -7118,6 +7118,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "rsi-notion",
                 "rsi-knowledge",
                 "rsi-sentry",
+                "rsi-kanban",
                 "rsi-artifacts",
                 "mcp-rsi-task-trace-workflow-123-0-context-abc",
             ],

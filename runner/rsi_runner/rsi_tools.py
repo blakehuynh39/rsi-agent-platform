@@ -12,6 +12,7 @@ HERMES_RSI_SLACK_TOOLSET = "rsi-slack"
 HERMES_RSI_NOTION_TOOLSET = "rsi-notion"
 HERMES_RSI_KNOWLEDGE_TOOLSET = "rsi-knowledge"
 HERMES_RSI_SENTRY_TOOLSET = "rsi-sentry"
+HERMES_RSI_KANBAN_TOOLSET = "rsi-kanban"
 HERMES_RSI_OBSERVABILITY_TOOLSET = "rsi-observability"
 
 _JSON_OBJECT_SCHEMA: JsonObject = {"type": "object"}
@@ -395,6 +396,70 @@ _SENTRY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
 }
 
+_KANBAN_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "rsi_kanban.create_ticket": _write_schema(
+        "rsi_kanban.create_ticket",
+        "Create an internal RSI Kanban ticket. Include project_id or project_slug unless the Slack channel has an unambiguous project default.",
+        {
+            "project_id": {"type": "string"},
+            "project_slug": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
+            "priority": {"type": "string"},
+            "assignee": {"type": "string"},
+            "channel_id": {"type": "string"},
+            "thread_ts": {"type": "string"},
+            "message_ts": {"type": "string"},
+            "team_id": {"type": "string"},
+            "permalink": {"type": "string"},
+            "metadata": _JSON_OBJECT_SCHEMA,
+        },
+        required=["title"],
+    ),
+    "rsi_kanban.update_ticket": _write_schema(
+        "rsi_kanban.update_ticket",
+        "Update an internal RSI Kanban ticket status or fields.",
+        {
+            "ticket_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
+            "status": {"type": "string", "enum": ["triage", "todo", "in_progress", "blocked", "done", "archived"]},
+            "priority": {"type": "string"},
+            "assignee": {"type": "string"},
+            "metadata": _JSON_OBJECT_SCHEMA,
+        },
+        required=["ticket_id"],
+    ),
+    "rsi_kanban.list_tickets": _schema(
+        "rsi_kanban.list_tickets",
+        "List internal RSI Kanban tickets for a project.",
+        {
+            "project_id": {"type": "string"},
+            "project_slug": {"type": "string"},
+            "channel_id": {"type": "string"},
+            "thread_ts": {"type": "string"},
+        },
+    ),
+    "rsi_kanban.comment_ticket": _write_schema(
+        "rsi_kanban.comment_ticket",
+        "Add a comment to an internal RSI Kanban ticket.",
+        {"ticket_id": {"type": "string"}, "body": {"type": "string"}, "metadata": _JSON_OBJECT_SCHEMA},
+        required=["ticket_id", "body"],
+    ),
+    "rsi_kanban.link_ticket": _write_schema(
+        "rsi_kanban.link_ticket",
+        "Create an informational link between two RSI Kanban tickets.",
+        {
+            "from_ticket_id": {"type": "string"},
+            "ticket_id": {"type": "string"},
+            "to_ticket_id": {"type": "string"},
+            "link_type": {"type": "string"},
+            "metadata": _JSON_OBJECT_SCHEMA,
+        },
+        required=["to_ticket_id"],
+    ),
+}
+
 _OBSERVABILITY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "rsi_observability.datasources": _schema(
         "rsi_observability.datasources",
@@ -524,6 +589,7 @@ _TOOL_SCHEMAS = {
     **_NOTION_TOOL_SCHEMAS,
     **_KNOWLEDGE_TOOL_SCHEMAS,
     **_SENTRY_TOOL_SCHEMAS,
+    **_KANBAN_TOOL_SCHEMAS,
     **_OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TOOLSET_SCHEMAS = {
@@ -533,6 +599,7 @@ _TOOLSET_SCHEMAS = {
     HERMES_RSI_NOTION_TOOLSET: _NOTION_TOOL_SCHEMAS,
     HERMES_RSI_KNOWLEDGE_TOOLSET: _KNOWLEDGE_TOOL_SCHEMAS,
     HERMES_RSI_SENTRY_TOOLSET: _SENTRY_TOOL_SCHEMAS,
+    HERMES_RSI_KANBAN_TOOLSET: _KANBAN_TOOL_SCHEMAS,
     HERMES_RSI_OBSERVABILITY_TOOLSET: _OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")

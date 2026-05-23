@@ -31,6 +31,7 @@ func newRouterWithTranscriptResolver(cfg config.Config, store storepkg.Repositor
 	r := app.NewBaseRouter(cfg)
 	registerHermesCompatibilityRoutes(r, cfg, store)
 	registerCompanyWikiRoutes(r, cfg, store)
+	registerKanbanRoutes(r, store)
 	r.Get("/api/conversations", func(w http.ResponseWriter, r *http.Request) {
 		app.WriteJSON(w, http.StatusOK, map[string]interface{}{"conversations": buildConversationList(store)})
 	})

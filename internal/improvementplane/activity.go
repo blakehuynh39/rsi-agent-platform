@@ -454,6 +454,8 @@ func (p traceActivityProjector) summarizeToolGroup(group *traceActivityToolGroup
 		return traceActivityKnowledgeSummary(group, details)
 	case strings.HasPrefix(group.name, "rsi_sentry."):
 		return traceActivitySentrySummary(group, details)
+	case strings.HasPrefix(group.name, "rsi_kanban."):
+		return traceActivityKanbanSummary(group, details)
 	case strings.HasPrefix(group.name, "rsi_observability."):
 		return traceActivityObservabilitySummary(group, details)
 	case strings.HasPrefix(group.name, "db_read."):
@@ -609,6 +611,41 @@ func traceActivitySentrySummary(group *traceActivityToolGroup, details map[strin
 		details["result_count"] = count
 	}
 	return "Sentry " + strings.ReplaceAll(op, "_", " "), firstNonEmptyString(group.summary, traceActivityCountSummary("Sentry", op, count)), details
+}
+
+func traceActivityKanbanSummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
+	op := strings.TrimPrefix(group.name, "rsi_kanban.")
+	projectID := traceActivityStringFromGroup(group, "project_id", "project")
+	projectSlug := traceActivityStringFromGroup(group, "project_slug")
+	ticketID := traceActivityStringFromGroup(group, "ticket_id", "target_ref")
+	title := traceActivityStringFromGroup(group, "title")
+	status := traceActivityStringFromGroup(group, "status")
+	if ticket, ok := group.result["ticket"].(map[string]any); ok {
+		ticketID = firstNonEmptyString(ticketID, stringValue(ticket["id"]))
+		title = firstNonEmptyString(title, stringValue(ticket["title"]))
+		status = firstNonEmptyString(status, stringValue(ticket["status"]))
+		projectID = firstNonEmptyString(projectID, stringValue(ticket["project_id"]))
+	}
+	if project, ok := group.result["project"].(map[string]any); ok {
+		projectID = firstNonEmptyString(projectID, stringValue(project["id"]))
+		projectSlug = firstNonEmptyString(projectSlug, stringValue(project["slug"]))
+	}
+	count := traceActivityCountFromResult(group.result, "tickets")
+	if count >= 0 {
+		details["result_count"] = count
+	}
+	traceActivitySetDetailString(details, "project_id", projectID, 160)
+	traceActivitySetDetailString(details, "project_slug", projectSlug, 160)
+	traceActivitySetDetailString(details, "ticket_id", ticketID, 160)
+	traceActivitySetDetailString(details, "title", title, 300)
+	traceActivitySetDetailString(details, "status", status, 80)
+	targetSummary := traceActivityTargetSummary(
+		traceActivityLabelValue("project", firstNonEmptyString(projectSlug, projectID)),
+		traceActivityLabelValue("ticket", ticketID),
+		traceActivityLabelValue("title", title),
+		traceActivityLabelValue("status", status),
+	)
+	return "Kanban " + strings.ReplaceAll(op, "_", " "), traceActivityPreferredSummary(group.summary, targetSummary, traceActivityCountSummary("Kanban", op, count)), details
 }
 
 func traceActivityObservabilitySummary(group *traceActivityToolGroup, details map[string]any) (string, string, map[string]any) {
@@ -1035,6 +1072,11 @@ func canonicalTraceActivityToolName(name string) string {
 		"rsi_sentry_issue_view":                "rsi_sentry.issue_view",
 		"rsi_sentry_issue_events":              "rsi_sentry.issue_events",
 		"rsi_sentry_releases_list":             "rsi_sentry.releases_list",
+		"rsi_kanban_create_ticket":             "rsi_kanban.create_ticket",
+		"rsi_kanban_update_ticket":             "rsi_kanban.update_ticket",
+		"rsi_kanban_list_tickets":              "rsi_kanban.list_tickets",
+		"rsi_kanban_comment_ticket":            "rsi_kanban.comment_ticket",
+		"rsi_kanban_link_ticket":               "rsi_kanban.link_ticket",
 		"rsi_observability_datasources":        "rsi_observability.datasources",
 		"rsi_observability_metrics_query":      "rsi_observability.metrics_query",
 		"rsi_observability_logs_query":         "rsi_observability.logs_query",
@@ -1047,7 +1089,7 @@ func canonicalTraceActivityToolName(name string) string {
 	if mapped, ok := explicit[name]; ok {
 		return mapped
 	}
-	prefixes := []string{"rsi_notion", "rsi_knowledge", "rsi_sentry", "rsi_observability", "rsi_slack", "db_read"}
+	prefixes := []string{"rsi_notion", "rsi_knowledge", "rsi_sentry", "rsi_kanban", "rsi_observability", "rsi_slack", "db_read"}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(name, prefix+"_") {
 			return prefix + "." + strings.TrimPrefix(name, prefix+"_")
@@ -1328,6 +1370,8 @@ func traceActivityDetailType(toolName string) string {
 		return "knowledge"
 	case strings.HasPrefix(toolName, "rsi_sentry."):
 		return "sentry"
+	case strings.HasPrefix(toolName, "rsi_kanban."):
+		return "kanban"
 	case strings.HasPrefix(toolName, "rsi_observability."):
 		return "observability"
 	case strings.HasPrefix(toolName, "db_read."):

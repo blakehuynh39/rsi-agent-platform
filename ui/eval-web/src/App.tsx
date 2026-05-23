@@ -19,6 +19,7 @@ import {
   BookOpen,
   Clock,
   Code,
+  Columns3,
   Cpu,
   Database,
   Eye,
@@ -50,6 +51,7 @@ import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import DocsPage from "@/pages/DocsPage";
+import KanbanPage from "@/pages/KanbanPage";
 import SessionsPage from "@/pages/SessionsPage";
 import LogsPage from "@/pages/LogsPage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
@@ -89,6 +91,7 @@ const CHAT_NAV_ITEM: NavItem = {
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/sessions": SessionsPage,
+  "/kanban": KanbanPage,
   "/analytics": AnalyticsPage,
   "/models": ModelsUnsupportedPage,
   "/logs": LogsPage,
@@ -188,6 +191,11 @@ const BUILTIN_NAV_REST: NavItem[] = [
     icon: BarChart3,
   },
   {
+    path: "/kanban",
+    label: "Kanban",
+    icon: Columns3,
+  },
+  {
     path: "/models",
     labelKey: "models",
     label: "Models",
@@ -230,6 +238,7 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Heart,
   Star,
   Code,
+  Columns3,
   Eye,
 };
 

@@ -300,6 +300,52 @@ func TestPostgresResetAppDataTruncatesPublicAndHonchoTables(t *testing.T) {
 	}
 }
 
+func TestPostgresKanbanEventsRejectCrossProjectCursor(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Now().UTC()
+	left, err := store.CreateKanbanProject(KanbanProjectCreateInput{Slug: "left", Name: "Left"}, now)
+	if err != nil {
+		t.Fatalf("create left project: %v", err)
+	}
+	right, err := store.CreateKanbanProject(KanbanProjectCreateInput{Slug: "right", Name: "Right"}, now)
+	if err != nil {
+		t.Fatalf("create right project: %v", err)
+	}
+	if _, err := store.CreateKanbanTicket(KanbanTicketCreateInput{ProjectID: right.ID, Title: "Right ticket"}, now.Add(time.Second)); err != nil {
+		t.Fatalf("create right ticket: %v", err)
+	}
+	rightCursor := store.LatestKanbanEventID(right.ID)
+	if rightCursor == "" {
+		t.Fatalf("missing right cursor")
+	}
+	if _, err := store.CreateKanbanTicket(KanbanTicketCreateInput{ProjectID: left.ID, Title: "Left later ticket"}, now.Add(2*time.Second)); err != nil {
+		t.Fatalf("create later left ticket: %v", err)
+	}
+	if events := store.ListKanbanEvents(left.ID, rightCursor, 10); len(events) != 0 {
+		t.Fatalf("cross-project cursor returned %d left event(s): %#v", len(events), events)
+	}
+}
+
 func openTempPostgresURL(t *testing.T) (string, func()) {
 	t.Helper()
 	baseURL := strings.TrimSpace(os.Getenv("RSI_TEST_POSTGRES_URL"))

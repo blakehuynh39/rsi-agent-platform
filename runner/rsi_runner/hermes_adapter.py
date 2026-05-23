@@ -75,7 +75,7 @@ _OBSERVABILITY_CANONICAL_NAMES = {
     "rsi_observability.alert_rule_get",
     "rsi_observability.active_alerts",
 }
-_NATIVE_CANONICAL_PREFIXES = ("rsi_slack.", "rsi_notion.", "rsi_knowledge.", "rsi_sentry.")
+_NATIVE_CANONICAL_PREFIXES = ("rsi_slack.", "rsi_notion.", "rsi_knowledge.", "rsi_sentry.", "rsi_kanban.")
 
 
 def _runtime_root() -> Path:
@@ -195,6 +195,8 @@ def _native_surface_and_operation(canonical_name: str) -> tuple[str, str]:
         return "knowledge", canonical_name.split(".", 1)[1]
     if canonical_name.startswith("rsi_sentry."):
         return "sentry", canonical_name.split(".", 1)[1]
+    if canonical_name.startswith("rsi_kanban."):
+        return "kanban", canonical_name.split(".", 1)[1]
     raise ValueError(f"unknown native RSI tool {canonical_name!r}")
 
 

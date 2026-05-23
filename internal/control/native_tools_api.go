@@ -39,6 +39,9 @@ var nativeToolWriteOps = map[string]map[string]bool{
 	"knowledge": {
 		"wiki_edit_propose": true, "wiki_edit_apply": true,
 	},
+	"kanban": {
+		"create_ticket": true, "update_ticket": true, "comment_ticket": true, "link_ticket": true,
+	},
 }
 
 var nativeToolReadOps = map[string]map[string]bool{
@@ -57,6 +60,9 @@ var nativeToolReadOps = map[string]map[string]bool{
 	"sentry": {
 		"projects_list": true, "issues_list": true, "issue_view": true,
 		"issue_events": true, "releases_list": true,
+	},
+	"kanban": {
+		"list_tickets": true,
 	},
 }
 
@@ -274,6 +280,9 @@ func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storep
 	}
 	if input.Surface == "sentry" {
 		return executeSentryNativeToolAction(ctx, cfg, input)
+	}
+	if input.Surface == "kanban" {
+		return executeKanbanNativeToolAction(ctx, repo, claims, input)
 	}
 	if input.Surface == "knowledge" {
 		switch input.Operation {

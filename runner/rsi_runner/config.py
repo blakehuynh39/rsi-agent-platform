@@ -181,7 +181,9 @@ class RunnerConfig:
         hermes_artifact_root = optional_env("RSI_HERMES_ARTIFACT_ROOT") or path_join(hermes_computer_root, "artifacts")
         company_wiki_root = optional_env("RSI_COMPANY_WIKI_ROOT") or path_join(hermes_computer_root, "wiki")
         hermes_native_terminal_enabled = parse_bool(optional_env("RSI_HERMES_NATIVE_TERMINAL_ENABLED") or "false", "RSI_HERMES_NATIVE_TERMINAL_ENABLED")
-        hermes_native_toolsets = parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file,company_knowledge")
+        hermes_native_toolsets = filter_hermes_native_toolsets(
+            parse_csv_list(optional_env("RSI_HERMES_NATIVE_TOOLSETS") or "terminal,file,company_knowledge")
+        )
         hermes_terminal_env = optional_env("TERMINAL_ENV") or "local"
         hermes_terminal_cwd = optional_env("TERMINAL_CWD") or hermes_computer_root
         hermes_terminal_timeout_seconds = parse_positive_int(optional_env("TERMINAL_TIMEOUT") or "180", "TERMINAL_TIMEOUT")
@@ -218,7 +220,7 @@ class RunnerConfig:
         native_tools_client_token = optional_env("RSI_NATIVE_TOOLS_CLIENT_TOKEN")
         if not native_tools_client_token:
             raise RunnerConfigError("RSI_NATIVE_TOOLS_CLIENT_TOKEN is required; RSI native tools are the canonical tool path")
-        native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge,sentry")
+        native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge,sentry,kanban")
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"
@@ -604,6 +606,10 @@ def parse_csv_list(raw: str) -> list[str]:
         seen.add(value)
         out.append(value)
     return out
+
+
+def filter_hermes_native_toolsets(toolsets: list[str]) -> list[str]:
+    return [item for item in toolsets if item.strip() != "kanban"]
 
 
 def parse_openrouter_provider_routing() -> dict[str, object]:

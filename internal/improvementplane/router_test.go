@@ -716,6 +716,69 @@ func TestHermesCompatibilityEndpointsExposePlatformState(t *testing.T) {
 	}
 }
 
+func TestKanbanRoutesCreateProjectTicketAndKeepHermesPluginDisabled(t *testing.T) {
+	state := storepkg.NewMemoryStore()
+	router := NewRouter(config.Config{ServiceName: "improvement-plane"}, state)
+
+	projectReq := httptest.NewRequest(http.MethodPost, "/api/kanban/projects", strings.NewReader(`{"name":"Project Data Audit","slug":"project-data-audit"}`))
+	projectRec := httptest.NewRecorder()
+	router.ServeHTTP(projectRec, projectReq)
+	if projectRec.Code != http.StatusCreated {
+		t.Fatalf("create project status=%d body=%s", projectRec.Code, projectRec.Body.String())
+	}
+	var projectPayload struct {
+		Project storepkg.KanbanProject `json:"project"`
+	}
+	if err := json.Unmarshal(projectRec.Body.Bytes(), &projectPayload); err != nil {
+		t.Fatalf("decode project: %v", err)
+	}
+
+	routeReq := httptest.NewRequest(http.MethodPost, "/api/kanban/projects/"+projectPayload.Project.ID+"/slack-routes", strings.NewReader(`{"team_id":"T123","channel_id":"C123"}`))
+	routeRec := httptest.NewRecorder()
+	router.ServeHTTP(routeRec, routeReq)
+	if routeRec.Code != http.StatusCreated {
+		t.Fatalf("create slack route status=%d body=%s", routeRec.Code, routeRec.Body.String())
+	}
+
+	ticketReq := httptest.NewRequest(http.MethodPost, "/api/kanban/tickets", strings.NewReader(`{"project_id":"`+projectPayload.Project.ID+`","title":"Audit Slack ticket creation","description":"Track the V1 workflow."}`))
+	ticketRec := httptest.NewRecorder()
+	router.ServeHTTP(ticketRec, ticketReq)
+	if ticketRec.Code != http.StatusCreated {
+		t.Fatalf("create ticket status=%d body=%s", ticketRec.Code, ticketRec.Body.String())
+	}
+
+	statusReq := httptest.NewRequest(http.MethodPost, "/api/kanban/tickets", strings.NewReader(`{"project_id":"`+projectPayload.Project.ID+`","title":"Bypass triage","status":"todo"}`))
+	statusRec := httptest.NewRecorder()
+	router.ServeHTTP(statusRec, statusReq)
+	if statusRec.Code != http.StatusBadRequest {
+		t.Fatalf("create ticket with status = %d, want 400 body=%s", statusRec.Code, statusRec.Body.String())
+	}
+	if !strings.Contains(statusRec.Body.String(), "start in triage") {
+		t.Fatalf("create ticket with status error missing triage guidance: %s", statusRec.Body.String())
+	}
+
+	boardReq := httptest.NewRequest(http.MethodGet, "/api/kanban/projects/"+projectPayload.Project.ID+"/board", nil)
+	boardRec := httptest.NewRecorder()
+	router.ServeHTTP(boardRec, boardReq)
+	if boardRec.Code != http.StatusOK || !strings.Contains(boardRec.Body.String(), "Audit Slack ticket creation") {
+		t.Fatalf("board response status=%d body=%s", boardRec.Code, boardRec.Body.String())
+	}
+	latestEventID := state.LatestKanbanEventID(projectPayload.Project.ID)
+	if got := kanbanStreamStartCursor(state, projectPayload.Project.ID, "", false); got != latestEventID {
+		t.Fatalf("empty stream cursor = %q, want latest %q", got, latestEventID)
+	}
+	if got := kanbanStreamStartCursor(state, projectPayload.Project.ID, "missing-event", true); got != "" {
+		t.Fatalf("explicit stale stream cursor = %q, want backfill from start", got)
+	}
+
+	pluginReq := httptest.NewRequest(http.MethodGet, "/api/plugins/kanban/board", nil)
+	pluginRec := httptest.NewRecorder()
+	router.ServeHTTP(pluginRec, pluginReq)
+	if pluginRec.Code != http.StatusNotFound {
+		t.Fatalf("Hermes kanban plugin route status=%d, want 404", pluginRec.Code)
+	}
+}
+
 func TestHermesCompatibilitySkillsIncludeExportedHermesCatalog(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{PublicBaseURL: "http://example.test"}, store)
