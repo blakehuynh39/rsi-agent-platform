@@ -2,6 +2,7 @@ package improvementplane
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -681,6 +682,36 @@ func TestCompanyWikiDashboardFileFallsBackToStoreWhenFileMissing(t *testing.T) {
 	}
 }
 
+func TestKanbanDashboardActorFromCloudflareAccessIdentity(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/kanban/projects", nil)
+	req.Header.Set("Cf-Access-Authenticated-User-Email", "blake.huynh@piplabs.xyz")
+	actor, ok := kanbanDashboardActorFromHeaders(req, "dashboard")
+	if !ok {
+		t.Fatal("Cloudflare Access piplabs email was not resolved")
+	}
+	if actor.ID != "blake.huynh@piplabs.xyz" || actor.Display != "Blake Huynh" || actor.Surface != "dashboard" {
+		t.Fatalf("actor = %+v, want piplabs email display attribution", actor)
+	}
+
+	jwt := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"none"}`)) + "." +
+		base64.RawURLEncoding.EncodeToString([]byte(`{"email":"ada.lovelace@piplabs.xyz","name":"Ada Lovelace"}`)) + "."
+	req = httptest.NewRequest(http.MethodGet, "/api/kanban/projects", nil)
+	req.Header.Set("Cf-Access-Jwt-Assertion", jwt)
+	actor, ok = kanbanDashboardActorFromHeaders(req, "dashboard")
+	if !ok {
+		t.Fatal("Cloudflare Access JWT piplabs email was not resolved")
+	}
+	if actor.ID != "ada.lovelace@piplabs.xyz" || actor.Display != "Ada Lovelace" {
+		t.Fatalf("JWT actor = %+v, want Ada Lovelace", actor)
+	}
+
+	req = httptest.NewRequest(http.MethodGet, "/api/kanban/projects", nil)
+	req.Header.Set("Cf-Access-Authenticated-User-Email", "mallory@example.com")
+	if actor, ok := kanbanDashboardActorFromHeaders(req, "dashboard"); ok {
+		t.Fatalf("non-company Access email resolved as actor: %+v", actor)
+	}
+}
+
 func TestHermesCompatibilityEndpointsExposePlatformState(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	router := NewRouter(config.Config{
@@ -745,6 +776,35 @@ func TestKanbanRoutesCreateProjectTicketAndKeepHermesPluginDisabled(t *testing.T
 	router.ServeHTTP(ticketRec, ticketReq)
 	if ticketRec.Code != http.StatusCreated {
 		t.Fatalf("create ticket status=%d body=%s", ticketRec.Code, ticketRec.Body.String())
+	}
+	var ticketPayload struct {
+		Ticket storepkg.KanbanTicket `json:"ticket"`
+	}
+	if err := json.Unmarshal(ticketRec.Body.Bytes(), &ticketPayload); err != nil {
+		t.Fatalf("decode ticket: %v", err)
+	}
+
+	commentReq := httptest.NewRequest(http.MethodPost, "/api/kanban/tickets/"+ticketPayload.Ticket.ID+"/comments", strings.NewReader(`{"body":"Dashboard follow-up"}`))
+	commentReq.Header.Set("Cf-Access-Authenticated-User-Email", "blake.huynh@piplabs.xyz")
+	commentRec := httptest.NewRecorder()
+	router.ServeHTTP(commentRec, commentReq)
+	if commentRec.Code != http.StatusCreated {
+		t.Fatalf("create comment status=%d body=%s", commentRec.Code, commentRec.Body.String())
+	}
+	var commentPayload struct {
+		Comment storepkg.KanbanTicketComment `json:"comment"`
+	}
+	if err := json.Unmarshal(commentRec.Body.Bytes(), &commentPayload); err != nil {
+		t.Fatalf("decode comment: %v", err)
+	}
+	if commentPayload.Comment.ActorID != "blake.huynh@piplabs.xyz" {
+		t.Fatalf("comment actor_id = %q, want piplabs email", commentPayload.Comment.ActorID)
+	}
+	if commentPayload.Comment.ActorDisplay != "Blake Huynh" {
+		t.Fatalf("comment actor_display = %q, want Blake Huynh", commentPayload.Comment.ActorDisplay)
+	}
+	if commentPayload.Comment.SourceSurface != "dashboard" {
+		t.Fatalf("comment source_surface = %q, want dashboard", commentPayload.Comment.SourceSurface)
 	}
 
 	statusReq := httptest.NewRequest(http.MethodPost, "/api/kanban/tickets", strings.NewReader(`{"project_id":"`+projectPayload.Project.ID+`","title":"Bypass triage","status":"todo"}`))

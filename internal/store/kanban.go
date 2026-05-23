@@ -352,7 +352,7 @@ func KanbanStatusTransitionAllowed(from KanbanTicketStatus, to KanbanTicketStatu
 	case KanbanStatusTodo:
 		return to == KanbanStatusInProgress
 	case KanbanStatusInProgress:
-		return to == KanbanStatusBlocked || to == KanbanStatusDone
+		return to == KanbanStatusTodo || to == KanbanStatusBlocked || to == KanbanStatusDone
 	case KanbanStatusBlocked:
 		return to == KanbanStatusTodo || to == KanbanStatusInProgress
 	case KanbanStatusDone:

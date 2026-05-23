@@ -56,7 +56,7 @@ func executeKanbanNativeToolAction(ctx context.Context, repo storepkg.Repository
 		return output, summary, sourceRef, "", map[string]any{"status": "not_applicable"}, http.StatusOK, nil
 	case "list_project_routes":
 		projectID := ""
-		projectRef := firstNonEmpty(stringArg(input.Arguments, "project_id"), stringArg(input.Arguments, "project_slug"), stringArg(input.Arguments, "project_ref"))
+		projectRef := firstNonEmpty(stringArg(input.Arguments, "project_id"), stringArg(input.Arguments, "project_slug"))
 		if projectRef != "" {
 			project, ok := kanban.GetKanbanProject(projectRef)
 			if !ok {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Archive,
+  ChevronDown,
   Circle,
   CircleCheck,
   CircleDashed,
@@ -55,7 +56,7 @@ function isStatusTransitionAllowed(
     case "todo":
       return to === "in_progress";
     case "in_progress":
-      return to === "blocked" || to === "done";
+      return to === "todo" || to === "blocked" || to === "done";
     case "blocked":
       return to === "todo" || to === "in_progress";
     case "done":
@@ -243,17 +244,20 @@ export default function KanbanPage() {
           </div>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <select
-            className="h-9 border border-border bg-background px-2 text-sm text-foreground"
-            value={projectID}
-            onChange={(event) => setProjectID(event.target.value)}
-          >
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              className="h-9 min-w-[10rem] appearance-none border border-border bg-background px-2 pr-8 text-sm text-foreground"
+              value={projectID}
+              onChange={(event) => setProjectID(event.target.value)}
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground" />
+          </div>
           <Button size="sm" onClick={() => setCreatingProject(true)}>
             <Plus className="mr-1 h-4 w-4" />
             Project

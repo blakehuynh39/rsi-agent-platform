@@ -76,6 +76,9 @@ func TestKanbanStatusTransitionRules(t *testing.T) {
 	if !KanbanStatusTransitionAllowed(KanbanStatusBlocked, KanbanStatusInProgress) {
 		t.Fatalf("blocked -> in_progress should be allowed")
 	}
+	if !KanbanStatusTransitionAllowed(KanbanStatusInProgress, KanbanStatusTodo) {
+		t.Fatalf("in_progress -> todo should be allowed")
+	}
 	if !KanbanStatusTransitionAllowed(KanbanStatusDone, KanbanStatusTodo) {
 		t.Fatalf("done -> todo reopen should be allowed")
 	}
