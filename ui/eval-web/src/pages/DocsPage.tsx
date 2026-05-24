@@ -22,6 +22,9 @@ import { cn, stripFrontmatter } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
 const INDEX_PATH = "index.md";
+const WIKI_INDEX_FALLBACK_SECTION = "pages";
+const WIKI_INDEX_NAV_PREVIEW_LIMIT = 6;
+const WIKI_INDEX_SECTION_PREVIEW_LIMIT = 12;
 
 const DS_BUTTON_CN = cn(
   "inline-flex items-center justify-center gap-2",
@@ -44,6 +47,8 @@ export default function DocsPage() {
   const searchCacheRef = useRef(new Map<string, CompanyWikiSearchResult[]>());
   const fileAbortRef = useRef<AbortController | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
+  const indexData = useMemo(() => parseWikiIndex(indexContent), [indexContent]);
+  const viewingIndex = currentPath === INDEX_PATH;
 
   const loadFile = useCallback(
     async (path: string, options?: { refresh?: boolean }) => {
@@ -121,8 +126,8 @@ export default function DocsPage() {
   }, [loadFile]);
 
   const visibleContent = useMemo(
-    () => stripFrontmatter(currentContent),
-    [currentContent],
+    () => (viewingIndex ? "" : stripFrontmatter(currentContent)),
+    [currentContent, viewingIndex],
   );
 
   const handleCurrentWikiLinkClick = useCallback(
@@ -130,13 +135,6 @@ export default function DocsPage() {
       handleWikiLinkClick(event, currentPath, loadFile);
     },
     [currentPath, loadFile],
-  );
-
-  const handleIndexWikiLinkClick = useCallback(
-    (event: MouseEvent<HTMLElement>) => {
-      handleWikiLinkClick(event, INDEX_PATH, loadFile);
-    },
-    [loadFile],
   );
 
   const runSearch = useCallback(async (query: string) => {
@@ -215,9 +213,7 @@ export default function DocsPage() {
           {results.length > 0 ? (
             <SearchResults results={results} loadFile={loadFile} />
           ) : (
-            <div onClick={handleIndexWikiLinkClick}>
-              <LazyMarkdown content={stripIndexMetadata(indexContent)} />
-            </div>
+            <WikiIndexNav index={indexData} loadFile={loadFile} />
           )}
         </aside>
 
@@ -236,6 +232,8 @@ export default function DocsPage() {
             <div className="border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
               {error}
             </div>
+          ) : viewingIndex ? (
+            <WikiIndexOverview index={indexData} loadFile={loadFile} />
           ) : (
             <article
               className="wiki-markdown max-w-5xl"
@@ -330,6 +328,178 @@ function SearchResults({
   );
 }
 
+interface WikiIndexEntry {
+  title: string;
+  path: string;
+  summary: string;
+}
+
+interface WikiIndexSection {
+  title: string;
+  entries: WikiIndexEntry[];
+}
+
+interface WikiIndexData {
+  description: string;
+  sections: WikiIndexSection[];
+}
+
+function WikiIndexNav({
+  index,
+  loadFile,
+}: {
+  index: WikiIndexData;
+  loadFile: (path: string) => void | Promise<void>;
+}) {
+  const total = countWikiIndexEntries(index);
+
+  if (total === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No published wiki pages yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {index.sections.map((section) => (
+        <section key={section.title}>
+          <h2 className="mb-1.5 font-mono-ui text-xs font-bold uppercase text-muted-foreground">
+            {section.title}
+            <span className="ml-1 font-normal normal-case">
+              ({section.entries.length})
+            </span>
+          </h2>
+          <div className="space-y-1">
+            {section.entries
+              .slice(0, WIKI_INDEX_NAV_PREVIEW_LIMIT)
+              .map((entry) => (
+                <button
+                  key={entry.path}
+                  type="button"
+                  onClick={() => void loadFile(entry.path)}
+                  className="block w-full border border-current/10 px-2 py-1.5 text-left transition-colors hover:bg-current/10"
+                >
+                  <span className="block truncate text-sm font-medium text-foreground">
+                    {entry.title}
+                  </span>
+                  <span className="mt-0.5 block truncate font-mono-ui text-[0.66rem] text-muted-foreground">
+                    {entry.path}
+                  </span>
+                </button>
+              ))}
+            {section.entries.length > WIKI_INDEX_NAV_PREVIEW_LIMIT ? (
+              <div className="px-2 pt-1 font-mono-ui text-[0.66rem] text-muted-foreground">
+                +{section.entries.length - WIKI_INDEX_NAV_PREVIEW_LIMIT} more
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function WikiIndexOverview({
+  index,
+  loadFile,
+}: {
+  index: WikiIndexData;
+  loadFile: (path: string) => void | Promise<void>;
+}) {
+  const total = countWikiIndexEntries(index);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const toggleSection = useCallback((sectionTitle: string) => {
+    setExpandedSections((current) => {
+      const next = new Set(current);
+      if (next.has(sectionTitle)) {
+        next.delete(sectionTitle);
+      } else {
+        next.add(sectionTitle);
+      }
+      return next;
+    });
+  }, []);
+
+  return (
+    <div className="max-w-6xl">
+      <div className="mb-4 border-b border-current/10 pb-3">
+        <h1 className="font-expanded text-lg font-bold uppercase text-foreground">
+          Company Wiki Index
+        </h1>
+        <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+          {index.description ||
+            "Browse the generated company wiki catalog and open a page to render its full markdown."}
+        </p>
+        <div className="mt-2 font-mono-ui text-xs text-muted-foreground">
+          {total} page{total === 1 ? "" : "s"}
+        </div>
+      </div>
+
+      {total === 0 ? (
+        <div className="border border-current/15 bg-muted/20 p-3 text-sm text-muted-foreground">
+          No published wiki pages yet.
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {index.sections.map((section) => (
+            <section key={section.title}>
+              <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
+                <h2 className="font-mono-ui text-xs font-bold uppercase text-muted-foreground">
+                  {section.title}
+                  <span className="ml-1 font-normal normal-case">
+                    ({section.entries.length})
+                  </span>
+                </h2>
+                {section.entries.length > WIKI_INDEX_SECTION_PREVIEW_LIMIT ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.title)}
+                    className="font-mono-ui text-xs text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary/70"
+                  >
+                    {expandedSections.has(section.title)
+                      ? "Show fewer"
+                      : `Show all ${section.entries.length}`}
+                  </button>
+                ) : null}
+              </div>
+              <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                {(expandedSections.has(section.title)
+                  ? section.entries
+                  : section.entries.slice(0, WIKI_INDEX_SECTION_PREVIEW_LIMIT)
+                ).map((entry) => (
+                  <button
+                    key={entry.path}
+                    type="button"
+                    onClick={() => void loadFile(entry.path)}
+                    className="min-h-24 border border-current/15 bg-background/70 p-3 text-left transition-colors hover:bg-current/10"
+                  >
+                    <span className="block text-sm font-semibold text-foreground">
+                      {entry.title}
+                    </span>
+                    <span className="mt-1 block truncate font-mono-ui text-[0.68rem] text-muted-foreground">
+                      {entry.path}
+                    </span>
+                    {entry.summary ? (
+                      <span className="mt-2 line-clamp-2 block text-xs leading-relaxed text-muted-foreground">
+                        {entry.summary}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function resolveWikiHref(href: string, currentPath: string): string {
   href = href.trim();
   if (!href || href.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(href)) {
@@ -394,4 +564,70 @@ function normalizeWikiPath(path: string): string {
 
 function stripIndexMetadata(content: string): string {
   return content.replace(/ `updated=[^`]+`/g, "");
+}
+
+function parseWikiIndex(content: string): WikiIndexData {
+  const sections: WikiIndexSection[] = [];
+  const descriptionLines: string[] = [];
+  let currentSection: WikiIndexSection | null = null;
+
+  for (const line of stripFrontmatter(content).split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("# Company Wiki Index")) {
+      continue;
+    }
+
+    const heading = trimmed.match(/^##\s+(.+)$/);
+    if (heading) {
+      currentSection = { title: heading[1].trim(), entries: [] };
+      sections.push(currentSection);
+      continue;
+    }
+
+    const entry = parseWikiIndexEntry(trimmed);
+    if (entry) {
+      if (!currentSection) {
+        currentSection = { title: WIKI_INDEX_FALLBACK_SECTION, entries: [] };
+        sections.push(currentSection);
+      }
+      currentSection.entries.push(entry);
+      continue;
+    }
+
+    if (!currentSection && !trimmed.startsWith("#")) {
+      descriptionLines.push(trimmed);
+    }
+  }
+
+  return {
+    description: descriptionLines.join(" ").trim(),
+    sections: sections.filter((section) => section.entries.length > 0),
+  };
+}
+
+function parseWikiIndexEntry(line: string): WikiIndexEntry | null {
+  const match = line.match(/^- \[([^\]]+)\]\(([^)]+)\)(?:\s+[—-]\s+(.+))?$/);
+  if (!match) {
+    return null;
+  }
+  const path = normalizeWikiPath(match[2]);
+  if (!path || path === INDEX_PATH) {
+    return null;
+  }
+  return {
+    title: unescapeMarkdownText(match[1]),
+    path,
+    summary: stripIndexMetadata(match[3] ?? "").trim(),
+  };
+}
+
+function unescapeMarkdownText(value: string): string {
+  return value.replace(/\\([\\[\]])/g, "$1");
+}
+
+function countWikiIndexEntries(index: WikiIndexData): number {
+  return index.sections.reduce(
+    (total, section) => total + section.entries.length,
+    0,
+  );
 }
