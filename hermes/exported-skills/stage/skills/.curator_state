@@ -1,9 +1,9 @@
 {
-  "last_report_path": "/var/lib/hermes/logs/curator/20260518-090106",
-  "last_run_at": "2026-05-18T09:01:06.652220+00:00",
-  "last_run_duration_seconds": 66.701656,
-  "last_run_summary": "auto: no changes; llm: ## Curation Pass Results\n\n### Skills examined: 3 (all agent-created, none pinned)\n\n| Skill | Domain | Assessment |\n|---|---|---|\n| `state-machine-design-review` | software-development | Class-level umbrella — general methodology for analyzi…",
+  "last_report_path": "/var/lib/hermes/logs/curator/20260525-090043",
+  "last_run_at": "2026-05-25T09:00:43.487990+00:00",
+  "last_run_duration_seconds": 11.491386,
+  "last_run_summary": "auto: no changes; llm: error: Provider 'deepseek' is set in config.yaml but no API key was found. Set the DEEPSEEK_API_KEY environment variable, or switch to a different provider with `hermes model`.",
   "last_run_summary_shown_at": null,
   "paused": false,
-  "run_count": 2
+  "run_count": 3
 }
