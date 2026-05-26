@@ -23668,3 +23668,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8c3fbc0eb96eaaab756cdc719528357e
 - summary: Phased launch plan for Numo beginning May 28, 2026, detailing weekly feature releases, tasks, messaging, and action items across four milestones.
 
+## [2026-05-26T22:00:47Z] ingest | Story → Data Rebrand: Migration Plan
+
+- status: published
+- slug: notion_document/story-data-rebrand-migration-plan-acea517c
+- wiki_revision_id: wikirev_8d8cb6dde1194d2a22c0e18c954d9549
+- source_document_id: srcdoc_968b131229778649c9ec4971acea517c
+- source_revision_id: srcrev_e8f8f64ac77a70465ff9282517f19732
+- summary: Source: [Notion source](https://www.notion.so/Story-Data-Rebrand-Migration-Plan-36c051299a5481f1895ac1408fe3d846)
+
