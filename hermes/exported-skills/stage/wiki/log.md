@@ -23739,3 +23739,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4fc2eece8dd3078e2d7fd00a07be7e21
 - summary: The two-month plan for the Tiger Team outlines assignments and goals for building DePIN apps and ecosystem foundation. Month 1 aims to ship 3 usable first-party apps with shared in...
 
+## [2026-05-26T23:45:20Z] ingest | Slack thread C0AKH5SNGKH 1779838767.390249
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1779838767-390249-1ddd62f5
+- wiki_revision_id: wikirev_e341affaab25b7edfec064f61629acfd
+- source_document_id: srcdoc_532f48af41a2e842c2bc7fbe1ddd62f5
+- source_revision_id: srcrev_eebdaeaf46cf5e2da32498f4d472a698
+- summary: <@U04L0DD6B6F> <@U05A515NBFC> Right now file upload tasks also have language tags. Do we want to create more separate tasks for different languages, or instead support a multilingu...
+
