@@ -23661,3 +23661,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6d92eb768d3781f819e129466039b9ac
 - summary: Phased launch plan for Numo beginning May 28, 2026, detailing feature releases, tasks, messaging, and action items across four weekly milestones.
 
+## [2026-05-26T19:18:45Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_8c3fbc0eb96eaaab756cdc719528357e
+- summary: Phased launch plan for Numo beginning May 28, 2026, detailing weekly feature releases, tasks, messaging, and action items across four milestones.
+
