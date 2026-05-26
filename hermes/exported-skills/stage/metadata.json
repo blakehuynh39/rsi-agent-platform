@@ -3226,13 +3226,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "84d1a22c2d771dfe49db3812730a506e110386d917b6d0d25b420f2241d16d40",
-        "size": 599948
+        "sha256": "c9990a405889842435d3fcc84a1d53af134e8a38125257e950a22cc5aadc9fd7",
+        "size": 600298
       },
       {
         "path": "log.md",
-        "sha256": "20a7e43b6e96608bec1a0a1ace94dbca4cb2013936c22d27cedb81893fe1d593",
-        "size": 1135547
+        "sha256": "48239d73b60ba595f96d246ac92e712c6a22ad697ada6f9addc9dce9a585b120",
+        "size": 1135909
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6295,6 +6295,11 @@
         "size": 1377
       },
       {
+        "path": "pages/systems/kled-trace-api.md",
+        "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
+        "size": 9118
+      },
+      {
         "path": "pages/systems/kms-coordinator.md",
         "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
         "size": 2649
@@ -6574,8 +6579,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-26T22:33:45Z",
-  "file_count": 1313,
+  "exported_at": "2026-05-26T22:40:07Z",
+  "file_count": 1314,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9797,7 +9802,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-696467nfx5l",
-  "previous_tree_hash": "434d65fb7cd7c074c3da39fa8fae76645e90211832c137a41cb34f437aa69240",
+  "previous_tree_hash": "b916dad7b6e07422dab9ac28fb0216f946fd5e7c5c97b30bcf01d0ee7bd0811c",
   "schema_version": 1,
   "skill_file_count": 643,
   "skill_manage_sessions": [
@@ -9810,14 +9815,14 @@
   ],
   "skill_tree_hash": "52e206706957bb79b06b7699f1e749de85906e1b8b5df0b4474178e1432a315b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b916dad7b6e07422dab9ac28fb0216f946fd5e7c5c97b30bcf01d0ee7bd0811c",
+  "tree_hash": "fe2832cc95a033444f35e81bf596abe3c0c176ed8f417eeff9b9871c5ef9d251",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 670,
+  "wiki_file_count": 671,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9826,13 +9831,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "84d1a22c2d771dfe49db3812730a506e110386d917b6d0d25b420f2241d16d40",
-      "size": 599948
+      "sha256": "c9990a405889842435d3fcc84a1d53af134e8a38125257e950a22cc5aadc9fd7",
+      "size": 600298
     },
     {
       "path": "log.md",
-      "sha256": "20a7e43b6e96608bec1a0a1ace94dbca4cb2013936c22d27cedb81893fe1d593",
-      "size": 1135547
+      "sha256": "48239d73b60ba595f96d246ac92e712c6a22ad697ada6f9addc9dce9a585b120",
+      "size": 1135909
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12895,6 +12900,11 @@
       "size": 1377
     },
     {
+      "path": "pages/systems/kled-trace-api.md",
+      "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
+      "size": 9118
+    },
+    {
       "path": "pages/systems/kms-coordinator.md",
       "sha256": "861f1392983f3626984b04985206d4612d80de15f9342542d3f8a848b5846242",
       "size": 2649
@@ -13171,5 +13181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e8140b055eb640aa825d3ecb8f79400fa49a28ac8ceed54e42361c96c4b93c7d"
+  "wiki_tree_hash": "d80ca840fb1ab74c8679f4b899ab4f95e2c745e8d07a773ceade0cb4a4357b30"
 }

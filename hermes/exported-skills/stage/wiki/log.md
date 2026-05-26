@@ -23702,3 +23702,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_dbcb471c659c564a8ce104cd6ca05a4a
 - summary: Source: [Notion source](https://www.notion.so/Kled-Trace-API-36c051299a5480b7b6c4e7609b6d4857)
 
+## [2026-05-26T22:36:41Z] synthesis | Kled Trace API
+
+- status: published
+- slug: systems/kled-trace-api
+- wiki_revision_id: wikirev_6c9b48b003852f61e7981d3d3cb9d621
+- summary: Staging V1 of the Kled Trace API is deployed and load-tested as of May 21, 2026. It standardizes provider payloads into the Trace Schema v1.0 and provides webhook batch endpoints f...
+
