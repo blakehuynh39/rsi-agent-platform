@@ -23627,3 +23627,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_40bbef6193b23219d338e3ac16e66ffe
 - summary: Phased launch plan for the Numo product beginning May 28, 2026, covering feature releases, associated tasks, and messaging across four weekly milestones.
 
+## [2026-05-26T17:00:19Z] ingest | Slack thread C0AKH5SNGKH 1779809647.870289
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1779809647-870289-336d0175
+- wiki_revision_id: wikirev_c6a33a5e7673249319ca8c2884866f14
+- source_document_id: srcdoc_116250dd79ad592f9dbbddcf336d0175
+- source_revision_id: srcrev_a0dbd6ef59f6694690691b136ec482f1
+- summary: hey <@U04L0DD6B6F> <@U08951K4SRY> I've updated the resume and linkedin UI, both are found through the card on the tasks page which has updated copy, the page route is now `/build-y...
+
