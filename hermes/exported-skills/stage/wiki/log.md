@@ -23636,3 +23636,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a0dbd6ef59f6694690691b136ec482f1
 - summary: hey <@U04L0DD6B6F> <@U08951K4SRY> I've updated the resume and linkedin UI, both are found through the card on the tasks page which has updated copy, the page route is now `/build-y...
 
+## [2026-05-26T17:04:16Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_5c1f723501f44dae2c229cf6cf4d9a8e
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_9cd7113f04a228c545e285c3bee282a6
+- summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
