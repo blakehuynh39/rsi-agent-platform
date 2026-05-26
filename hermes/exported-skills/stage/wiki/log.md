@@ -23718,3 +23718,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d81a1c5615546c90ad47dde3ad7705bc
 - summary: Source: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34)
 
+## [2026-05-26T23:35:22Z] synthesis | Aura
+
+- status: published
+- slug: projects/aura
+- wiki_revision_id: wikirev_0ce42142ce8005188fec16d3a710778a
+- summary: Aura is an application owned by the Tiger Team, with a deployed frontend on Vercel and source code hosted on GitHub.
+
+## [2026-05-26T23:35:23Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_7f39c8cfec3eba658eb133208dd974af
+- summary: The Tiger Team is a cross-functional group focused on building DePIN apps, expanding the data ecosystem, and developing voice-related features. The team maintains a set of active a...
+
+## [2026-05-26T23:35:23Z] synthesis | Two-month plan
+
+- status: published
+- slug: projects/tiger-team/two-month-plan
+- wiki_revision_id: wikirev_4fc2eece8dd3078e2d7fd00a07be7e21
+- summary: The two-month plan for the Tiger Team outlines assignments and goals for building DePIN apps and ecosystem foundation. Month 1 aims to ship 3 usable first-party apps with shared in...
+

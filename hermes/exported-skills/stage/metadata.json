@@ -3226,13 +3226,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6c438aa0d56f5e64955eec1d9247d8aad5bef6428824772c2606b9ddc76a04e0",
+        "sha256": "a9723f2ac24c529a84145bdf2f5dd305d2099aa0db3a55fe72c3af723ca2b581",
         "size": 600298
       },
       {
         "path": "log.md",
-        "sha256": "d98a76398b87d57707603f5e952ed8fec9535bcf2f589a54629c7f3472689f57",
-        "size": 1136308
+        "sha256": "dbafc86de0297b89acc852b1dcf10f79a3d7d22616156174dfb5c963bc1e82e8",
+        "size": 1137313
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4806,8 +4806,8 @@
       },
       {
         "path": "pages/projects/aura.md",
-        "sha256": "9e7221252f8c671515a02fb45226a6b98fe49710fbdd2b3e4071708bfc829680",
-        "size": 2201
+        "sha256": "6d8f78da528aaf9d30854ecae2a2cd5f792f11c4e058eea08a1609f0e4548ac0",
+        "size": 3669
       },
       {
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
@@ -5696,13 +5696,13 @@
       },
       {
         "path": "pages/projects/tiger-team/two-month-plan.md",
-        "sha256": "19d117499c316a1cba42b8b7116943180e63503cf0f7a249484134791aa0571e",
-        "size": 3299
+        "sha256": "58bc74ef173a847b75d5c871c3dff4008fad32accb4118a27ace65f9f637be2e",
+        "size": 5770
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "8ea86e89008cc3d0ef5e322acf49df8439b7b19aac4db053eb3c35cab61d0b01",
-        "size": 13846
+        "sha256": "c5c5ce005a5f1e13e3e0e0f52ff88cffe598159080830df06bc584e0a2f325c7",
+        "size": 26362
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6579,7 +6579,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-05-26T23:01:45Z",
+  "exported_at": "2026-05-26T23:38:34Z",
   "file_count": 1314,
   "files": [
     {
@@ -9802,7 +9802,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-696467nfx5l",
-  "previous_tree_hash": "fe2832cc95a033444f35e81bf596abe3c0c176ed8f417eeff9b9871c5ef9d251",
+  "previous_tree_hash": "1fd1440e27fa4044d734c4f04e72d71289eadf7d04777795291ac510a64e4690",
   "schema_version": 1,
   "skill_file_count": 643,
   "skill_manage_sessions": [
@@ -9815,7 +9815,7 @@
   ],
   "skill_tree_hash": "52e206706957bb79b06b7699f1e749de85906e1b8b5df0b4474178e1432a315b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1fd1440e27fa4044d734c4f04e72d71289eadf7d04777795291ac510a64e4690",
+  "tree_hash": "e29b9eff87b0e1d065e871ee514bf6fa64422fb0cd6b89ad7e823c79b95eb7ad",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9831,13 +9831,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6c438aa0d56f5e64955eec1d9247d8aad5bef6428824772c2606b9ddc76a04e0",
+      "sha256": "a9723f2ac24c529a84145bdf2f5dd305d2099aa0db3a55fe72c3af723ca2b581",
       "size": 600298
     },
     {
       "path": "log.md",
-      "sha256": "d98a76398b87d57707603f5e952ed8fec9535bcf2f589a54629c7f3472689f57",
-      "size": 1136308
+      "sha256": "dbafc86de0297b89acc852b1dcf10f79a3d7d22616156174dfb5c963bc1e82e8",
+      "size": 1137313
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11411,8 +11411,8 @@
     },
     {
       "path": "pages/projects/aura.md",
-      "sha256": "9e7221252f8c671515a02fb45226a6b98fe49710fbdd2b3e4071708bfc829680",
-      "size": 2201
+      "sha256": "6d8f78da528aaf9d30854ecae2a2cd5f792f11c4e058eea08a1609f0e4548ac0",
+      "size": 3669
     },
     {
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
@@ -12301,13 +12301,13 @@
     },
     {
       "path": "pages/projects/tiger-team/two-month-plan.md",
-      "sha256": "19d117499c316a1cba42b8b7116943180e63503cf0f7a249484134791aa0571e",
-      "size": 3299
+      "sha256": "58bc74ef173a847b75d5c871c3dff4008fad32accb4118a27ace65f9f637be2e",
+      "size": 5770
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "8ea86e89008cc3d0ef5e322acf49df8439b7b19aac4db053eb3c35cab61d0b01",
-      "size": 13846
+      "sha256": "c5c5ce005a5f1e13e3e0e0f52ff88cffe598159080830df06bc584e0a2f325c7",
+      "size": 26362
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -13181,5 +13181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "19c80547d9ddbfbe7c34136e763253fdb3e8dd7d97907b2d7df9bb6637bebc4b"
+  "wiki_tree_hash": "cf63e9fceb219d7fbf8f50931ebb5fe0dac934fcb5b4783f85c8e34908d505fe"
 }
