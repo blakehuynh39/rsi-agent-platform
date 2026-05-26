@@ -23677,3 +23677,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e8f8f64ac77a70465ff9282517f19732
 - summary: Source: [Notion source](https://www.notion.so/Story-Data-Rebrand-Migration-Plan-36c051299a5481f1895ac1408fe3d846)
 
+## [2026-05-26T22:16:51Z] synthesis | Story → Data Rebrand: Migration Plan
+
+- status: published
+- slug: projects/story-to-data-rebrand-migration-plan
+- wiki_revision_id: wikirev_8189d13b54c0e2b763a7130388ff8b67
+- summary: Comprehensive migration plan to rebrand Story Foundation to Data Foundation and the gas token IP to DATA across all APIs, frontends, SDKs, and supporting infrastructure. Smart-cont...
+
