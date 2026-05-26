@@ -2,11 +2,15 @@
 title: "Numo Launch Roadmap"
 type: "project"
 slug: "projects/numo-launch-roadmap"
-freshness: "2026-05-26T16:29:00Z"
-tags: []
+freshness: "2026-05-26T17:25:00Z"
+tags:
+  - "launch"
+  - "product"
+  - "roadmap"
 owners: []
 source_revision_ids:
   - "srcrev_1aad37fe2161138f76374883377624ac"
+  - "srcrev_50e97ba98651f9a8e6417719d57bcce0"
   - "srcrev_7a408a249557b0bde8423c20ccf2025e"
   - "srcrev_fdaea1ddc432a125dfa7fa0c9403da12"
 conflict_state: "none"
@@ -16,10 +20,36 @@ conflict_state: "none"
 
 ## Summary
 
-Phased launch plan for the Numo product beginning May 28, 2026, covering feature releases, associated tasks, and messaging across four weekly milestones.
+Phased launch plan for Numo beginning May 28, 2026, detailing feature releases, tasks, messaging, and action items across four weekly milestones.
 
 ## Claims
 
+- Week 1 (starting May 28, 2026) feature release: Upload PDF Document, completed. `claim:wk1_feature` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 1 tasks: Upload CV / Résumé (tested/dogfooded, 1 time), Upload Professional Certificate - Bachelor’s Diploma (1 time), Upload Professional Certificate - Master’s Diploma (1 time), Upload Professional Certificate - PhD Diploma (1 time), Upload Professional Certificate - Online Coursework (1 time). `claim:wk1_tasks` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 1 main messaging: Build your profile. `claim:wk1_messaging` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 1 TODOs: Provide cover images (user 348d872b-594c-81af-a453-000245ae8d91), merge LinkedIn feature with CV upload (done, user fbfcfcc8-1369-415f-9d72-043b5771184c), add functionality to limit lifetime uploads (user 190d872b-594c-81b2-ae3e-00022b3fb85c), admin/DB setup, finish QA testing (user 17ed872b-594c-8152-a6aa-0002de26e9d0). `claim:wk1_todos` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 2 (starting June 3, 2026) feature release: Seed Phrase, completed. `claim:wk2_feature` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 2 tasks (still finalizing): Filipino Language Task (P1), Indonesian Language Task (P1), Malay Language Task (P2), Cantonese Language Task (P2). `claim:wk2_tasks` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 2 main messaging: Launching new localized tasks in X region. `claim:wk2_messaging` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 2 TODOs: Provide transcripts by May 28 (at least one) and all by May 29 (user 2c5d872b-594c-8132-ade5-0002ddbb5cb6), provide cover images before May 29 (user 348d872b-594c-81af-a453-000245ae8d91), upload transcripts (user 190d872b-594c-81b2-ae3e-00022b3fb85c), create seedphrase words by May 29 (user 1fbd872b-594c-81a3-99b9-00022b038f3b), add UI translations/update settings-onboarding (user fbfcfcc8-1369-415f-9d72-043b5771184c), QA testing (user 17ed872b-594c-8152-a6aa-0002de26e9d0). `claim:wk2_todos` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 3 (starting June 10, 2026) feature release: Stripe Payments and internal W8-BEN form (IRS). `claim:wk3_feature` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 3 task release: Withdraw Funds. `claim:wk3_task` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 3 main messaging: Cash out on your earned rewards (exact language TBD) and complete your W-8 BEN Tax Form to withdraw. `claim:wk3_messaging` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 3 TODOs: Confirm tax implications on W8-BEN (user 33ad872b-594c-8175-893d-0002a46bdc23 to talk to user 18ed872b-594c-81a1-a672-0002a4628d41), follow up with Stripe/other providers on W8-BEN (user 29ad872b-594c-8155-a60a-0002827a5f49), work on feature to collect W8 from users (user fbfcfcc8-1369-415f-9d72-043b5771184c). `claim:wk3_todos` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
+- Week 4 (starting June 17, 2026): Feature release TBD (possibly Mobile App), task release TBD, focus on Language Documents (reference internal Notion page 358051299a5480e5b2a0cf06b9f978b0), messaging TBD. `claim:wk4_overview` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_50e97ba98651f9a8e6417719d57bcce0` `chunk_id=srcchunk_059b4585c9313daf041ea21474770e12` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T17:25:00Z`
 - Week 1 (May 28, 2026) feature release: Upload PDF Document, completed. `claim:c1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7) `source_document_id=srcdoc_de4df82bd031aa412ec4a2f4dc6c988f` `source_revision_id=srcrev_7a408a249557b0bde8423c20ccf2025e` `chunk_id=srcchunk_93fa46df122848f83857b32e243b2a7f` `native_locator=https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7` `source_timestamp=2026-05-26T16:29:00Z`
 - Week 1 tasks: Upload CV / Résumé (tested/dogfooded, 1 time), Upload Professional Certificate - Bachelor’s Diploma (1 time), Upload Professional Certificate - Master’s Diploma (1 time), Upload Professional Certificate - PhD Diploma (1 time), Upload Professional Certificate - Online Coursework (1 time). `claim:c2` `confidence:1.00`
@@ -64,5 +94,5 @@ Phased launch plan for the Numo product beginning May 28, 2026, covering feature
 ## Sources
 
 - `source_document_id`: `srcdoc_de4df82bd031aa412ec4a2f4dc6c988f`
-- `source_revision_id`: `srcrev_7a408a249557b0bde8423c20ccf2025e`
+- `source_revision_id`: `srcrev_50e97ba98651f9a8e6417719d57bcce0`
 - `source_url`: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
