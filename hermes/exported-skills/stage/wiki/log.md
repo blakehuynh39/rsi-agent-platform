@@ -23709,3 +23709,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6c9b48b003852f61e7981d3d3cb9d621
 - summary: Staging V1 of the Kled Trace API is deployed and load-tested as of May 21, 2026. It standardizes provider payloads into the Trace Schema v1.0 and provides webhook batch endpoints f...
 
+## [2026-05-26T23:00:25Z] ingest | Tiger Team
+
+- status: published
+- slug: notion_document/tiger-team-35b64fb7
+- wiki_revision_id: wikirev_dc7fb35ee8eec14a8af18132f4b3bbcd
+- source_document_id: srcdoc_914a6de252419d2b91b13f9535b64fb7
+- source_revision_id: srcrev_d81a1c5615546c90ad47dde3ad7705bc
+- summary: Source: [Notion source](https://www.notion.so/Tiger-Team-325051299a5480ba82baf2b41d01da34)
+
