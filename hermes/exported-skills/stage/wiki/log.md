@@ -23816,3 +23816,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a7ca29714eb4981f57c750a2db63d72a
 - summary: The Data Broadcaster is a backend service that reads audit events from Story DynamoDB, broadcasts them onchain, and persists transaction status in its own Postgres database.
 
+## [2026-05-27T23:36:22Z] synthesis | Data Broadcaster
+
+- status: published
+- slug: systems/data-broadcaster
+- wiki_revision_id: wikirev_8d7d1c5c5bc55a8047c294e1bba3efa9
+- summary: A backend service that reads audit events from Story DynamoDB, broadcasts them onchain via `registerBatch` transactions, and persists transaction status in a broadcaster-owned Post...
+
