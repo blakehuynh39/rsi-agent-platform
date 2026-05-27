@@ -10,7 +10,7 @@ commit in the user fork:
 
 - source repo: `https://github.com/blakehuynh39/honcho`
 - source branch: `main`
-- source commit: `76ccfee9f3642c5263c89370081123d6c52e962e`
+- source commit: `4a711b5d69136797dfb3ef53e0738c88751c3463`
 - upstream base repo: `https://github.com/plastic-labs/honcho`
 
 The current build path is:
@@ -31,6 +31,8 @@ available from a piplabs-owned fork or an upstream release, including:
   queries directly
 - DeepSeek V4 `reasoning_content` replay across OpenAI-compatible tool-call
   turns, which direct DeepSeek thinking mode requires
+- DeepSeek V4 thinking-mode tool calls without the unsupported OpenAI
+  `tool_choice` parameter
 - a controlled pinned source of truth in the fork while RSI continues to ship
   and validate Honcho updates independently of upstream release timing
 

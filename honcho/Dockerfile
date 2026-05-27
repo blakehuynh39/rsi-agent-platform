@@ -3,7 +3,7 @@ FROM python:3.13-slim-bookworm
 
 ARG HONCHO_SOURCE_REPO=https://github.com/blakehuynh39/honcho.git
 ARG HONCHO_SOURCE_BRANCH=main
-ARG HONCHO_SOURCE_COMMIT=76ccfee9f3642c5263c89370081123d6c52e962e
+ARG HONCHO_SOURCE_COMMIT=4a711b5d69136797dfb3ef53e0738c88751c3463
 ARG HONCHO_UPSTREAM_REPO=https://github.com/plastic-labs/honcho.git
 
 LABEL org.opencontainers.image.title="rsi-agent-platform-honcho" \
