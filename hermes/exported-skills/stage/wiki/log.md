@@ -23764,3 +23764,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3194a3920ecd23d01fdb03dca573757d
 - summary: Project to re-add support for English, Korean, Vietnamese, and Philippine languages, including legal review, timeline planning, and FAQ updates.
 
+## [2026-05-27T22:30:35Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_5d82c09a029c6556673cd9a9a4bba689
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_07e988da254ae39d58b3ed400b7c6ed3
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-27T22:30:37Z] ingest | Data Broadcaster - High Level Design
+
+- status: published
+- slug: notion_document/data-broadcaster---high-level-design-87bf8841
+- wiki_revision_id: wikirev_1590f27a47a302d294c8ed7f265cd84d
+- source_document_id: srcdoc_49ee8c02d32f092f540db43787bf8841
+- source_revision_id: srcrev_4ac9e688e69d75d66e7cb4dd3ec83433
+- summary: Source: [Notion source](https://www.notion.so/Data-Broadcaster-High-Level-Design-36d051299a54809d8deee22c8388a2dc)
+
