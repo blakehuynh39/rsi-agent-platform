@@ -23757,3 +23757,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_2d05d21ac20c55d2b88995810dacdbcd
 - summary: Source: [Notion source](https://www.notion.so/Add-back-En-Kr-Vn-Ph-352051299a5480b89c80df17352bb4e9)
 
+## [2026-05-27T12:19:08Z] synthesis | Add back En / Kr / Vn / Ph
+
+- status: published
+- slug: projects/add-back-en-kr-vn-ph
+- wiki_revision_id: wikirev_3194a3920ecd23d01fdb03dca573757d
+- summary: Project to re-add support for English, Korean, Vietnamese, and Philippine languages, including legal review, timeline planning, and FAQ updates.
+
