@@ -23809,3 +23809,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f8afd4edd37f43ede55b8f302d72ce09
 - summary: Tracking this RSI run: <https://staging-rsi-platform.storyprotocol.net/sessions?conversation=conv-680a77299b324fa4af455b3974e12af0&amp;tab=conversations&amp;trace=trace-eed3cf9ccf5...
 
+## [2026-05-27T23:23:08Z] synthesis | Data Broadcaster
+
+- status: published
+- slug: systems/data-broadcaster
+- wiki_revision_id: wikirev_a7ca29714eb4981f57c750a2db63d72a
+- summary: The Data Broadcaster is a backend service that reads audit events from Story DynamoDB, broadcasts them onchain, and persists transaction status in its own Postgres database.
+
