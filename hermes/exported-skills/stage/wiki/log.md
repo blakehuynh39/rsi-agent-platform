@@ -23782,3 +23782,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_4ac9e688e69d75d66e7cb4dd3ec83433
 - summary: Source: [Notion source](https://www.notion.so/Data-Broadcaster-High-Level-Design-36d051299a54809d8deee22c8388a2dc)
 
+## [2026-05-27T23:00:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_349d263f926f23d8e3e40c0742685fd4
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_3cd05d6f4ef087c4abe22557bf81e735
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-05-27T23:00:35Z] ingest | Data Broadcaster Design
+
+- status: published
+- slug: notion_document/data-broadcaster-design-87bf8841
+- wiki_revision_id: wikirev_63d77d17aa40372c26931179ef917479
+- source_document_id: srcdoc_49ee8c02d32f092f540db43787bf8841
+- source_revision_id: srcrev_41419f35f81d8994463b51129d16e317
+- summary: Source: [Notion source](https://www.notion.so/Data-Broadcaster-Design-36d051299a54809d8deee22c8388a2dc)
+
