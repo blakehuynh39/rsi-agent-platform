@@ -23748,3 +23748,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_eebdaeaf46cf5e2da32498f4d472a698
 - summary: <@U04L0DD6B6F> <@U05A515NBFC> Right now file upload tasks also have language tags. Do we want to create more separate tasks for different languages, or instead support a multilingu...
 
+## [2026-05-27T11:30:38Z] ingest | Add back En / Kr / Vn / Ph
+
+- status: published
+- slug: notion_document/add-back-en-/-kr-/-vn-/-ph-0fedb58a
+- wiki_revision_id: wikirev_3b1ed3de46239de1ba787a4437e11665
+- source_document_id: srcdoc_3ae8b358c77e22ca9a45c7f00fedb58a
+- source_revision_id: srcrev_2d05d21ac20c55d2b88995810dacdbcd
+- summary: Source: [Notion source](https://www.notion.so/Add-back-En-Kr-Vn-Ph-352051299a5480b89c80df17352bb4e9)
+
