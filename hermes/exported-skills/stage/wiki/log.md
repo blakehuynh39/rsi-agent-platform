@@ -23823,3 +23823,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d7d1c5c5bc55a8047c294e1bba3efa9
 - summary: A backend service that reads audit events from Story DynamoDB, broadcasts them onchain via `registerBatch` transactions, and persists transaction status in a broadcaster-owned Post...
 
+## [2026-05-28T17:45:19Z] ingest | Slack thread C0AKH5SNGKH 1779989758.348499
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1779989758-348499-7bb4fe8c
+- wiki_revision_id: wikirev_d3c5fce5331e90f62179725fe3176e8d
+- source_document_id: srcdoc_cf6418e32166a876c3e2ef5a7bb4fe8c
+- source_revision_id: srcrev_5178804435bdaafed9baec2589f14b28
+- summary: also sam <@U05A515NBFC>
+
