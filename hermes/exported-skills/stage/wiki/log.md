@@ -23855,3 +23855,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b1a85feca10916b669fff5c06edfa3f0
 - summary: The normalized Trace Schema v1.0 that Story uses to standardize provider data, with sections for file, user, app, timestamps, attestation, and provider payload.
 
+## [2026-05-29T06:30:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_21c1c11c68e38d4b929340690afb4690
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_ae9d0a9d2835a169948da44f6f7cdd9f
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
