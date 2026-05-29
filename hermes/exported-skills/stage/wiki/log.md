@@ -23864,3 +23864,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ae9d0a9d2835a169948da44f6f7cdd9f
 - summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-05-29T07:04:35Z] synthesis | Trace Backend Architecture
+
+- status: published
+- slug: systems/trace-backend-architecture
+- wiki_revision_id: wikirev_7e90f9b60424ad6632d31ce03d6b47ad
+- summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, and current limitations.
+

@@ -3,12 +3,7 @@ title: "Trace Backend Architecture"
 type: "system"
 slug: "systems/trace-backend-architecture"
 freshness: "2026-05-29T06:00:00Z"
-tags:
-  - "architecture"
-  - "audit"
-  - "backend"
-  - "ingestion"
-  - "trace"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_613dddbdd8eb04e21da6d97960bbd4f3"
@@ -38,21 +33,8 @@ Overview of the Trace backend system architecture, including staging deployment,
 - 202 Accepted response means story-api validated the request and SQS accepted the message, but persistence is asynchronous. `claim:claim_1_7` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_613dddbdd8eb04e21da6d97960bbd4f3` `chunk_id=srcchunk_795ffb50742f330b5b46c6d7f565dff3` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-05-29T06:00:00Z`
 
-## Open Questions
-
-- Does the system support full-text or semantic search? (currently only exact-match indexes)
-- Does V1 support binary file transfer? (currently out of scope)
-- Is on-chain anchoring implemented? (future)
-- Is there automatic DLQ replay tooling? (currently manual)
-- What total counts and percentage stats are needed for the frontend? (total receipts, KYC/TOS status, media type breakdowns, etc.)
-- Will the frontend receive a livestream/webhook for new receipts?
-
-## Related Pages
-
-- `trace-schema-v1-0`
-
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_613dddbdd8eb04e21da6d97960bbd4f3`
+- `source_revision_id`: `srcrev_ae9d0a9d2835a169948da44f6f7cdd9f`
 - `source_url`: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
