@@ -2820,6 +2820,47 @@ func (p *PostgresStore) ListWorkflowsByStatus(status string) []Workflow {
 	return store.workflows
 }
 
+func (p *PostgresStore) GetWorkflowByIngestionID(ingestionID string) (Workflow, bool) {
+	ingestionID = strings.TrimSpace(ingestionID)
+	if ingestionID == "" {
+		return Workflow{}, false
+	}
+	row := p.db.QueryRow(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow where ingestion_id = $1 limit 1`, ingestionID)
+	var item Workflow
+	var ingestionIDCol, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastVerdict, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	var runnerDiagnostics []byte
+	if err := row.Scan(&item.ID, &item.Version, &ingestionIDCol, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastVerdict, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &runnerDiagnostics, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return Workflow{}, false
+		}
+		return Workflow{}, false
+	}
+	item.IngestionID = ingestionIDCol.String
+	item.TraceID = traceID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Intent = intent.String
+	item.ApprovalMode = approvalMode.String
+	item.ResponseMode = responseMode.String
+	item.LastVerdict = lastVerdict.String
+	item.LastError = lastError.String
+	item.ParentWorkflowID = parentWorkflowID.String
+	item.FailureClass = failureClass.String
+	item.FailureSummary = failureSummary.String
+	item.RetryDecision = retryDecision.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
+	item.RunnerDiagnostics = decodeJSON(runnerDiagnostics, map[string]any{})
+	if completedAt.Valid {
+		t := completedAt.Time
+		item.CompletedAt = &t
+	}
+	return item, true
+}
+
 func (p *PostgresStore) ListAssignments() []Assignment {
 	store, err := p.readStore()
 	if err != nil {

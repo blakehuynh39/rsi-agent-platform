@@ -142,6 +142,10 @@ type Store interface {
 	ResetAppData() (AppDataResetResult, error)
 }
 
+type DirectSlackIngressStore interface {
+	CreateSlackIngestionDirect(ctx context.Context, envelope slack.SlackEnvelope) (slack.Ingestion, error)
+}
+
 type MemoryStore struct {
 	mu                                contextRWMutex
 	events                            []ingestion.EventEnvelope
@@ -1365,6 +1369,21 @@ func (s *MemoryStore) ListWorkflowsByStatus(status string) []Workflow {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
 	return out
+}
+
+func (s *MemoryStore) GetWorkflowByIngestionID(ingestionID string) (Workflow, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	ingestionID = strings.TrimSpace(ingestionID)
+	if ingestionID == "" {
+		return Workflow{}, false
+	}
+	for _, workflow := range s.workflows {
+		if strings.TrimSpace(workflow.IngestionID) == ingestionID {
+			return workflow, true
+		}
+	}
+	return Workflow{}, false
 }
 
 func (s *MemoryStore) ListAssignments() []Assignment {

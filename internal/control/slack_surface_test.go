@@ -32,6 +32,27 @@ type fakeSurfaceHonchoCorpus struct {
 	createCalls int
 }
 
+type directIngressMemoryStore struct {
+	*storepkg.MemoryStore
+	called      bool
+	sawDeadline bool
+}
+
+func (s *directIngressMemoryStore) CreateSlackIngestionDirect(ctx context.Context, envelope slackpkg.SlackEnvelope) (slackpkg.Ingestion, error) {
+	s.called = true
+	_, s.sawDeadline = ctx.Deadline()
+	return slackpkg.Ingestion{
+		ID:        "ing-direct",
+		EventID:   "evt-direct",
+		ThreadKey: "slack:thread:" + envelope.ChannelID + ":" + envelope.ThreadTS,
+		ThreadTS:  envelope.ThreadTS,
+		ChannelID: envelope.ChannelID,
+		UserID:    envelope.UserID,
+		Text:      envelope.Text,
+		CreatedAt: envelope.CreatedAt,
+	}, nil
+}
+
 func (f *fakeSurfaceHonchoCorpus) EnsureWorkspace(id string, metadata map[string]any) (clients.HonchoWorkspace, error) {
 	return clients.HonchoWorkspace{ID: id, Metadata: metadata}, nil
 }
@@ -475,6 +496,36 @@ func TestSlackSurfaceIngressContextOnlyUsesTimeoutForDurableAckMode(t *testing.T
 	case <-ctx.Done():
 	case <-time.After(time.Second):
 		t.Fatal("durable ack mode should inherit parent cancellation before Slack is acknowledged")
+	}
+}
+
+func TestSlackSurfaceUsesDirectIngressStoreWhenAvailable(t *testing.T) {
+	store := &directIngressMemoryStore{MemoryStore: storepkg.NewMemoryStore()}
+	runtime := newSlackSurfaceRuntime(config.Config{
+		ServiceName:                   "control-plane-slack-rsi",
+		SlackAckAfterDurableIngress:   true,
+		SlackDurableIngressAckTimeout: time.Second,
+	}, store)
+	now := time.Now().UTC()
+	created, direct, err := runtime.ingestSlackEnvelopeWithAckBudget(context.Background(), slackpkg.SlackEnvelope{
+		ChannelID: "C123",
+		ThreadTS:  "171000001.000100",
+		UserID:    "U123",
+		Text:      "<@U0ASDQKU3UL> hello",
+		TS:        "171000001.000100",
+		CreatedAt: now,
+	}, now)
+	if err != nil {
+		t.Fatalf("ingestSlackEnvelopeWithAckBudget() error = %v", err)
+	}
+	if !direct || !store.called {
+		t.Fatalf("expected direct ingress path, direct=%v called=%v", direct, store.called)
+	}
+	if !store.sawDeadline {
+		t.Fatal("direct ingress should still inherit durable ack deadline")
+	}
+	if created.ID != "ing-direct" {
+		t.Fatalf("created ingestion = %+v", created)
 	}
 }
 

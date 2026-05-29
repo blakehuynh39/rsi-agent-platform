@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -14,6 +15,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/policy"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
 	"github.com/piplabs/rsi-agent-platform/internal/slack"
+	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
 func proposalDecisionIdempotencyKey(proposalID string, decision string, scope review.ProposalFeedbackScope) string {
@@ -337,37 +339,54 @@ func selectCaseByIDTx(tx *sql.Tx, caseID string, forUpdate bool) (conversation.C
 	return item, true, nil
 }
 
-func selectWorkflowByCaseTx(tx *sql.Tx, caseID string, forUpdate bool) (Workflow, bool, error) {
-	query := `select id, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_error, created_at, updated_at, completed_at from workflow where case_id = $1 order by created_at asc limit 1`
+func selectWorkflowLineByCaseTx(tx *sql.Tx, caseID string, forUpdate bool) (WorkflowLine, bool, error) {
+	query := `select case_id, conversation_id, status, current_workflow_id, latest_workflow_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, retry_after, line_stop_reason, version, created_at, updated_at, completed_at from workflow_line where case_id = $1`
 	if forUpdate {
 		query += ` for update`
 	}
-	var item Workflow
-	var ingestionID, traceID, conversationID, intent, approvalMode, responseMode, lastError sql.NullString
-	var completedAt sql.NullTime
-	err := tx.QueryRow(query, caseID).Scan(&item.ID, &ingestionID, &traceID, &conversationID, &item.CaseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastError, &item.CreatedAt, &item.UpdatedAt, &completedAt)
+	var item WorkflowLine
+	var currentWorkflowID, latestWorkflowID, lastFailureClass, nextRetryAction, lineStopReason sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	err := tx.QueryRow(query, caseID).Scan(&item.CaseID, &item.ConversationID, &item.Status, &currentWorkflowID, &latestWorkflowID, &item.AttemptCount, &item.AutoRetryBudgetRemaining, &lastFailureClass, &nextRetryAction, &retryAfter, &lineStopReason, &item.Version, &item.CreatedAt, &item.UpdatedAt, &completedAt)
 	if err == sql.ErrNoRows {
-		return Workflow{}, false, nil
+		return WorkflowLine{}, false, nil
 	}
 	if err != nil {
-		return Workflow{}, false, err
+		return WorkflowLine{}, false, err
 	}
-	item.IngestionID = ingestionID.String
-	item.TraceID = traceID.String
-	item.ConversationID = conversationID.String
-	item.Intent = intent.String
-	item.ApprovalMode = approvalMode.String
-	item.ResponseMode = responseMode.String
-	item.LastError = lastError.String
+	item.CurrentWorkflowID = currentWorkflowID.String
+	item.LatestWorkflowID = latestWorkflowID.String
+	item.LastFailureClass = lastFailureClass.String
+	item.NextRetryAction = nextRetryAction.String
+	item.LineStopReason = lineStopReason.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
 	if completedAt.Valid {
-		item.CompletedAt = &completedAt.Time
+		t := completedAt.Time
+		item.CompletedAt = &t
 	}
-	return item, true, nil
+	return normalizeWorkflowLine(item), true, nil
+}
+
+func (p *PostgresStore) CreateSlackIngestionDirect(ctx context.Context, envelope slack.SlackEnvelope) (slack.Ingestion, error) {
+	return p.createIngestionDirectContext(ctx, envelope)
 }
 
 func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (created slack.Ingestion, err error) {
+	return p.createIngestionDirectContext(context.Background(), envelope)
+}
+
+func (p *PostgresStore) createIngestionDirectContext(ctx context.Context, envelope slack.SlackEnvelope) (created slack.Ingestion, err error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	event := buildSlackEventEnvelope(envelope)
-	err = p.withTx(func(tx *sql.Tx) error {
+	err = p.withTxContext(ctx, func(tx *sql.Tx) error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		existingEvent, ok, err := selectEventBySourceDedupeTx(tx, event.Source, event.DedupeKey)
 		if err != nil {
 			return err
@@ -389,6 +408,9 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			return err
 		}
 		createdAt := event.CreatedAt
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		intent := intentForWorkflowHint(event.WorkflowHint)
 		assignedBot := assignedBotFor(event.WorkflowHint)
 		channelID := stringFromMetadata(event.Metadata, "channel_id")
@@ -486,36 +508,50 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			return err
 		}
 
-		workflow, hasWorkflow, err := selectWorkflowByCaseTx(tx, caseRecord.ID, true)
+		line, hasLine, err := selectWorkflowLineByCaseTx(tx, caseRecord.ID, true)
 		if err != nil {
 			return err
 		}
-		if hasWorkflow {
-			workflow.ConversationID = caseRecord.ConversationID
-			workflow.CaseID = caseRecord.ID
-			workflow.ThreadKey = conversationKeyForCase(caseRecord, map[string]conversation.Conversation{conv.ID: conv})
-			workflow.Kind = caseRecord.Kind
-			workflow.Intent = caseRecord.Intent
-			workflow.AssignedBot = caseRecord.AssignedBot
-			workflow.ApprovalMode = caseRecord.ApprovalMode
-			workflow.ResponseMode = caseRecord.ResponseMode
-			workflow.Status = "queued"
-			workflow.UpdatedAt = createdAt
-		} else {
-			workflow = Workflow{
-				ID:             nextID("wf", 0),
-				ConversationID: caseRecord.ConversationID,
-				CaseID:         caseRecord.ID,
-				ThreadKey:      conversationKeyForCase(caseRecord, map[string]conversation.Conversation{conv.ID: conv}),
-				Kind:           caseRecord.Kind,
-				Intent:         caseRecord.Intent,
-				AssignedBot:    caseRecord.AssignedBot,
-				ApprovalMode:   caseRecord.ApprovalMode,
-				ResponseMode:   caseRecord.ResponseMode,
-				Status:         "queued",
-				CreatedAt:      createdAt,
-				UpdatedAt:      createdAt,
+		if hasLine {
+			line.ConversationID = firstNonEmpty(caseRecord.ConversationID, line.ConversationID)
+			if strings.TrimSpace(line.Status) == "" {
+				line.Status = workflowLineStatusFromState(transition.WorkflowLineStateActive)
 			}
+			if line.Version == 0 {
+				line.Version = 1
+			}
+			if line.CreatedAt.IsZero() {
+				line.CreatedAt = createdAt
+			}
+			line.UpdatedAt = createdAt
+		} else {
+			line = WorkflowLine{
+				CaseID:                   caseRecord.ID,
+				ConversationID:           caseRecord.ConversationID,
+				Status:                   workflowLineStatusFromState(transition.WorkflowLineStateActive),
+				AutoRetryBudgetRemaining: workflowLineRetryBudgetRemaining(0),
+				Version:                  1,
+				CreatedAt:                createdAt,
+				UpdatedAt:                createdAt,
+			}
+		}
+		parentWorkflowID := firstNonEmpty(line.CurrentWorkflowID, line.LatestWorkflowID)
+		workflow := Workflow{
+			ID:               nextID("wf", 0),
+			ConversationID:   caseRecord.ConversationID,
+			CaseID:           caseRecord.ID,
+			ThreadKey:        conversationKeyForCase(caseRecord, map[string]conversation.Conversation{conv.ID: conv}),
+			Kind:             caseRecord.Kind,
+			Intent:           caseRecord.Intent,
+			AssignedBot:      caseRecord.AssignedBot,
+			ApprovalMode:     caseRecord.ApprovalMode,
+			ResponseMode:     caseRecord.ResponseMode,
+			Status:           "queued",
+			AttemptNumber:    line.AttemptCount + 1,
+			ParentWorkflowID: parentWorkflowID,
+			Version:          1,
+			CreatedAt:        createdAt,
+			UpdatedAt:        createdAt,
 		}
 
 		ingestionID := nextID("ing", 0)
@@ -534,6 +570,7 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 			UserID:         userID,
 			Text:           event.NormalizedProblemStatement,
 			EntityRefs:     slack.EntityRefsFromValue(event.Metadata["entity_refs"]),
+			Prompt:         slack.PromptEnvelopeFromValue(event.Metadata["prompt_envelope"]),
 			CreatedAt:      createdAt,
 		}
 		temp = newSubsetStore()
@@ -655,6 +692,23 @@ func (p *PostgresStore) createIngestionDirect(envelope slack.SlackEnvelope) (cre
 		temp = newSubsetStore()
 		temp.workflows = append(temp.workflows, workflow)
 		if err := persistWorkflows(tx, temp); err != nil {
+			return err
+		}
+
+		line.Status = workflowLineStatusFromState(transition.WorkflowLineStateActive)
+		line.CurrentWorkflowID = workflow.ID
+		line.LatestWorkflowID = workflow.ID
+		line.AttemptCount++
+		line.AutoRetryBudgetRemaining = workflowLineRetryBudgetRemaining(line.AttemptCount)
+		line.LastFailureClass = ""
+		line.NextRetryAction = ""
+		line.RetryAfter = nil
+		line.LineStopReason = ""
+		line.UpdatedAt = createdAt
+		line.CompletedAt = nil
+		temp = newSubsetStore()
+		temp.workflowLines[line.CaseID] = line
+		if err := persistWorkflowLines(tx, temp); err != nil {
 			return err
 		}
 

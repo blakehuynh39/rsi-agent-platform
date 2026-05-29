@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"testing"
@@ -9,10 +10,12 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/action"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
 	"github.com/piplabs/rsi-agent-platform/internal/harness"
 	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
 	"github.com/piplabs/rsi-agent-platform/internal/outcome"
 	"github.com/piplabs/rsi-agent-platform/internal/review"
+	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
 )
 
@@ -159,6 +162,83 @@ func TestPostgresGitHubEventPersistsProposalOutcome(t *testing.T) {
 	}
 	if !proposalUpdated {
 		t.Fatalf("expected proposal %s to remain queryable", proposal.ID)
+	}
+}
+
+func TestPostgresCreateSlackIngestionDirectPersistsScopedWorkflow(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		t.Fatalf("apply migrations: %v", err)
+	}
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Now().UTC()
+	ingestion, err := store.CreateSlackIngestionDirect(context.Background(), slackpkg.SlackEnvelope{
+		BotRole:   slackpkg.BotOrchestrator,
+		TeamID:    "T123",
+		ChannelID: "C123",
+		ThreadTS:  "171000001.000100",
+		UserID:    "U123",
+		Text:      "<@U0ASDQKU3UL> summarize the incident",
+		TS:        "171000001.000100",
+		CreatedAt: now,
+	})
+	if err != nil {
+		t.Fatalf("CreateSlackIngestionDirect() error = %v", err)
+	}
+	if ingestion.ID == "" || ingestion.EventID == "" || ingestion.ThreadKey == "" {
+		t.Fatalf("unexpected ingestion: %+v", ingestion)
+	}
+	again, err := store.CreateSlackIngestionDirect(context.Background(), slackpkg.SlackEnvelope{
+		BotRole:   slackpkg.BotOrchestrator,
+		TeamID:    "T123",
+		ChannelID: "C123",
+		ThreadTS:  "171000001.000100",
+		UserID:    "U123",
+		Text:      "<@U0ASDQKU3UL> summarize the incident",
+		TS:        "171000001.000100",
+		CreatedAt: now,
+	})
+	if err != nil {
+		t.Fatalf("second CreateSlackIngestionDirect() error = %v", err)
+	}
+	if again.ID != ingestion.ID {
+		t.Fatalf("direct ingress should be idempotent, first=%s second=%s", ingestion.ID, again.ID)
+	}
+	foundWorkflow := false
+	for _, workflow := range store.ListWorkflows() {
+		if workflow.IngestionID == ingestion.ID && workflow.Status == "queued" {
+			foundWorkflow = true
+			break
+		}
+	}
+	if !foundWorkflow {
+		t.Fatalf("expected queued workflow for ingestion %s", ingestion.ID)
+	}
+	foundTrace := false
+	for _, trace := range store.ListTraces() {
+		if trace.IngestionID == ingestion.ID && trace.Status == events.StatusQueued {
+			foundTrace = true
+			break
+		}
+	}
+	if !foundTrace {
+		t.Fatalf("expected queued trace for ingestion %s", ingestion.ID)
 	}
 }
 

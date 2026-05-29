@@ -23,6 +23,7 @@ import (
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	"github.com/piplabs/rsi-agent-platform/internal/debuglog"
 	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/queue"
 	slackpkg "github.com/piplabs/rsi-agent-platform/internal/slack"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 	"github.com/piplabs/rsi-agent-platform/internal/transition"
@@ -326,17 +327,15 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
 		}
-		receipt, err := s.submitIngressSlackCommandWithAckBudget(ctx, envelope, createdAt)
+		created, direct, err := s.ingestSlackEnvelopeWithAckBudget(ctx, envelope, createdAt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
 			return false
 		}
-		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
-		if err != nil {
-			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
-		} else {
-			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
-			go s.postOperatorTraceACK(context.Background(), created)
+		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+		go s.postOperatorTraceACK(context.Background(), created)
+		if direct {
+			go s.startDirectSlackWorkflow(context.Background(), created)
 		}
 		return true
 	case *slackevents.MessageEvent:
@@ -360,17 +359,15 @@ func (s *slackSurfaceRuntime) handleEventsAPIEvent(ctx context.Context, eventsAP
 		if createdAt.IsZero() {
 			createdAt = time.Now().UTC()
 		}
-		receipt, err := s.submitIngressSlackCommandWithAckBudget(ctx, envelope, createdAt)
+		created, direct, err := s.ingestSlackEnvelopeWithAckBudget(ctx, envelope, createdAt)
 		if err != nil {
 			log.Printf("slack-surface identity=%s ingestion error=%v", s.cfg.SlackAppIdentity, err)
 			return false
 		}
-		created, err := loadSlackIngestionFromReceipt(s.store, receipt)
-		if err != nil {
-			log.Printf("slack-surface identity=%s ingestion load error=%v", s.cfg.SlackAppIdentity, err)
-		} else {
-			log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
-			go s.postOperatorTraceACK(context.Background(), created)
+		log.Printf("slack-surface identity=%s ingested thread=%s ingestion=%s", s.cfg.SlackAppIdentity, created.ThreadKey, created.ID)
+		go s.postOperatorTraceACK(context.Background(), created)
+		if direct {
+			go s.startDirectSlackWorkflow(context.Background(), created)
 		}
 		return true
 	default:
@@ -742,9 +739,13 @@ func operatorTraceACKBody(traceURL string) string {
 	return fmt.Sprintf("Tracking this RSI run: <%s|open trace>", traceURL)
 }
 
-func (s *slackSurfaceRuntime) submitIngressSlackCommandWithAckBudget(parentCtx context.Context, envelope slackpkg.SlackEnvelope, createdAt time.Time) (transition.CommandReceipt, error) {
+func (s *slackSurfaceRuntime) ingestSlackEnvelopeWithAckBudget(parentCtx context.Context, envelope slackpkg.SlackEnvelope, createdAt time.Time) (slackpkg.Ingestion, bool, error) {
 	ctx, cancel, _ := s.ingressContext(parentCtx)
 	defer cancel()
+	if direct, ok := s.store.(storepkg.DirectSlackIngressStore); ok {
+		created, err := direct.CreateSlackIngestionDirect(ctx, envelope)
+		return created, true, err
+	}
 	receipt, err := submitIngressSlackCommand(
 		ctx,
 		s.cfg,
@@ -755,9 +756,58 @@ func (s *slackSurfaceRuntime) submitIngressSlackCommandWithAckBudget(parentCtx c
 		"cmd-ingress:slack:"+ingressAggregateID("slack", firstNonEmpty(envelope.TS, envelope.ThreadTS, envelope.ChannelID)),
 	)
 	if err != nil {
-		return transition.CommandReceipt{}, err
+		return slackpkg.Ingestion{}, false, err
 	}
-	return receipt, nil
+	created, err := loadSlackIngestionFromReceipt(s.store, receipt)
+	if err != nil {
+		log.Printf("slack-surface identity=%s ingestion read-back failed after successful write ingestion=%s error=%v", s.cfg.SlackAppIdentity, receipt.ResultRef, err)
+		return slackpkg.Ingestion{ID: receipt.ResultRef}, false, nil
+	}
+	return created, false, nil
+}
+
+func (s *slackSurfaceRuntime) startDirectSlackWorkflow(parentCtx context.Context, ingestion slackpkg.Ingestion) {
+	if parentCtx == nil {
+		parentCtx = context.Background()
+	}
+	select {
+	case <-parentCtx.Done():
+		return
+	default:
+	}
+	workflow, ok := workflowForIngestion(s.store, ingestion)
+	if !ok {
+		log.Printf("slack-surface identity=%s direct_ingress workflow_start skipped ingestion=%s reason=workflow_not_found", s.cfg.SlackAppIdentity, ingestion.ID)
+		return
+	}
+	if strings.TrimSpace(workflow.Status) != "queued" {
+		return
+	}
+	startedAt := ingestion.CreatedAt
+	if startedAt.IsZero() {
+		startedAt = time.Now().UTC()
+	}
+	if err := startWorkflowViaCommand(s.cfg, s.store, workflow.ID, startedAt, queue.WorkflowQueue); err != nil {
+		log.Printf("slack-surface identity=%s direct_ingress workflow_start error ingestion=%s workflow=%s error=%v", s.cfg.SlackAppIdentity, ingestion.ID, workflow.ID, err)
+	}
+}
+
+func workflowForIngestion(store storepkg.Store, ingestion slackpkg.Ingestion) (storepkg.Workflow, bool) {
+	ingestionID := strings.TrimSpace(ingestion.ID)
+	if ingestionID == "" {
+		return storepkg.Workflow{}, false
+	}
+	if getter, ok := store.(interface {
+		GetWorkflowByIngestionID(string) (storepkg.Workflow, bool)
+	}); ok {
+		return getter.GetWorkflowByIngestionID(ingestionID)
+	}
+	for _, workflow := range store.ListWorkflows() {
+		if strings.TrimSpace(workflow.IngestionID) == ingestionID {
+			return workflow, true
+		}
+	}
+	return storepkg.Workflow{}, false
 }
 
 func (s *slackSurfaceRuntime) ingressContext(parentCtx context.Context) (context.Context, context.CancelFunc, time.Duration) {

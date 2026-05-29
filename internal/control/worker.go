@@ -84,6 +84,7 @@ func RunWorker(cfg config.Config, store storepkg.Store) error {
 			if err := activateDueWorkflowLineRetries(cfg, store, time.Now().UTC()); err != nil {
 				return err
 			}
+			activateQueuedDirectIngressWorkflows(cfg, store, time.Now().UTC())
 			time.Sleep(cfg.WorkerPollInterval)
 			continue
 		}
@@ -135,6 +136,33 @@ func startWorkflowViaCommand(cfg config.Config, store storepkg.Store, workflowID
 		"resume_queue":         string(resumeQueue),
 	})
 	return err
+}
+
+func activateQueuedDirectIngressWorkflows(cfg config.Config, store storepkg.Store, now time.Time) {
+	workflows := []storepkg.Workflow{}
+	if reader, ok := store.(interface {
+		ListWorkflowsByStatus(string) []storepkg.Workflow
+	}); ok {
+		workflows = reader.ListWorkflowsByStatus("queued")
+	} else {
+		for _, workflow := range store.ListWorkflows() {
+			if strings.TrimSpace(workflow.Status) == "queued" {
+				workflows = append(workflows, workflow)
+			}
+		}
+	}
+	for _, workflow := range workflows {
+		if strings.TrimSpace(workflow.IngestionID) == "" {
+			continue
+		}
+		startCommandID := fmt.Sprintf("cmd-workflow:%s:%s", strings.TrimSpace(workflow.ID), string(transition.CommandWorkflowStarted))
+		if _, exists := store.GetCommandReceipt(startCommandID); exists {
+			continue
+		}
+		if err := startWorkflowViaCommand(cfg, store, workflow.ID, now, queue.WorkflowQueue); err != nil {
+			log.Printf("control-plane worker queued_workflow_start workflow=%s ingestion=%s error=%v", workflow.ID, workflow.IngestionID, err)
+		}
+	}
 }
 
 func finalizeWorkflowFailure(cfg config.Config, store storepkg.Store, workflow workflowLocator, procErr error) error {
