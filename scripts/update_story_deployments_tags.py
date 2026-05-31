@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import re
+from pathlib import Path
+
+
+LINE_RE = re.compile(r"^(\s*)([A-Za-z0-9_]+):(?:\s*(.*))?$")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Update RSI image tags in story-deployments values.")
+    parser.add_argument("--file", required=True, help="Path to the story-deployments values file.")
+    parser.add_argument("--control-plane-tag", required=True)
+    parser.add_argument("--improvement-plane-tag", required=True)
+    parser.add_argument("--hermes-executor-tag", required=True)
+    parser.add_argument("--hermes-skill-exporter-tag", required=True)
+    parser.add_argument("--hermes-skill-installer-tag", required=True)
+    parser.add_argument("--hermes-skill-installer-source-ref", default="")
+    parser.add_argument("--hermes-pin", required=True)
+    parser.add_argument("--honcho-tag", required=True)
+    return parser.parse_args()
+
+
+def is_mapping_start(value: str) -> bool:
+    stripped = value.strip()
+    return stripped == "" or stripped.startswith("&")
+
+
+def update_tags(
+    path: Path,
+    updates: dict[tuple[str, ...], str | bool],
+    alternative_updates: dict[tuple[tuple[str, ...], ...], str | bool] | None = None,
+) -> None:
+    alternative_updates = alternative_updates or {}
+    all_updates = dict(updates)
+    for alternatives, update_value in alternative_updates.items():
+        for update_path in alternatives:
+            all_updates[update_path] = update_value
+
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    stack: list[tuple[int, str]] = []
+    seen: set[tuple[str, ...]] = set()
+
+    for index, line in enumerate(lines):
+        stripped = line.lstrip()
+        if stripped.startswith("- "):
+            continue
+
+        match = LINE_RE.match(line)
+        if not match:
+            continue
+
+        indent = len(match.group(1))
+        key = match.group(2)
+        value = match.group(3) or ""
+
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+
+        current_path = tuple([item[1] for item in stack] + [key])
+        if current_path in all_updates:
+            prefix = line[: len(line) - len(stripped)]
+            update_value = all_updates[current_path]
+            if isinstance(update_value, bool):
+                rendered_value = "true" if update_value else "false"
+            else:
+                rendered_value = f'"{update_value}"'
+            lines[index] = f"{prefix}{key}: {rendered_value}\n"
+            seen.add(current_path)
+            value = str(update_value)
+
+        if is_mapping_start(value):
+            stack.append((indent, key))
+
+    missing = sorted(path_key for path_key in updates if path_key not in seen)
+    if missing:
+        joined = ", ".join(".".join(item) for item in missing)
+        raise SystemExit(f"Failed to update expected tag paths: {joined}")
+
+    missing_alternatives = sorted(
+        alternatives for alternatives in alternative_updates if not any(update_path in seen for update_path in alternatives)
+    )
+    if missing_alternatives:
+        joined = ", ".join(" or ".join(".".join(item) for item in alternatives) for alternatives in missing_alternatives)
+        raise SystemExit(f"Failed to update expected tag paths: {joined}")
+
+    path.write_text("".join(lines), encoding="utf-8")
+
+
+def main() -> None:
+    args = parse_args()
+    updates: dict[tuple[str, ...], str | bool] = {
+        ("controlPlane", "image", "tag"): args.control_plane_tag,
+        ("improvementPlane", "image", "tag"): args.improvement_plane_tag,
+        ("hermesExecutor", "image", "tag"): args.hermes_executor_tag,
+        ("hermesSkillExporter", "image", "tag"): args.hermes_skill_exporter_tag,
+        ("hermesSkillInstaller", "image", "tag"): args.hermes_skill_installer_tag,
+        ("honcho", "image", "tag"): args.honcho_tag,
+    }
+    if args.hermes_skill_installer_source_ref:
+        updates[("hermesSkillInstaller", "enabled")] = True
+        alternative_updates = {
+            (
+                ("hermesSkillInstaller", "config", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"),
+                ("hermesSkillInstallerCommonConfig", "RSI_HERMES_SKILL_INSTALLER_SOURCE_REF"),
+            ): args.hermes_skill_installer_source_ref
+        }
+    else:
+        alternative_updates = {}
+    alternative_updates[
+        (
+            ("runnerCommonConfig", "RSI_HERMES_PIN"),
+            ("globalEnv", "RSI_HERMES_PIN"),
+        )
+    ] = args.hermes_pin
+    update_tags(Path(args.file), updates, alternative_updates)
+
+
+if __name__ == "__main__":
+    main()

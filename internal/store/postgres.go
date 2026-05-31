@@ -1,0 +1,3308 @@
+package store
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"slices"
+	"strconv"
+	"strings"
+	"time"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/piplabs/rsi-agent-platform/internal/action"
+	"github.com/piplabs/rsi-agent-platform/internal/config"
+	"github.com/piplabs/rsi-agent-platform/internal/conversation"
+	platformdb "github.com/piplabs/rsi-agent-platform/internal/db"
+	"github.com/piplabs/rsi-agent-platform/internal/evals"
+	"github.com/piplabs/rsi-agent-platform/internal/events"
+	"github.com/piplabs/rsi-agent-platform/internal/harness"
+	"github.com/piplabs/rsi-agent-platform/internal/improvement"
+	"github.com/piplabs/rsi-agent-platform/internal/ingestion"
+	"github.com/piplabs/rsi-agent-platform/internal/knowledge"
+	"github.com/piplabs/rsi-agent-platform/internal/outcome"
+	"github.com/piplabs/rsi-agent-platform/internal/policy"
+	"github.com/piplabs/rsi-agent-platform/internal/registry"
+	"github.com/piplabs/rsi-agent-platform/internal/review"
+	"github.com/piplabs/rsi-agent-platform/internal/slack"
+)
+
+type PostgresStore struct {
+	db           *sql.DB
+	schemaStatus platformdb.SchemaStatus
+}
+
+type sqlReader interface {
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+}
+
+const resettableAppTablesQuery = `
+select schemaname, tablename
+from pg_tables
+where schemaname in ('public', 'honcho')
+  and not (schemaname = 'public' and tablename = 'rsi_schema_migrations')
+  and not (schemaname = 'honcho' and tablename = 'alembic_version')
+order by schemaname, tablename`
+
+var preservedAppTables = []string{
+	"public.rsi_schema_migrations",
+	"honcho.alembic_version",
+}
+
+type appTableRef struct {
+	Schema string
+	Name   string
+}
+
+func (t appTableRef) String() string {
+	return t.Schema + "." + t.Name
+}
+
+func (t appTableRef) SQL() string {
+	return postgresQualifiedIdent(t.Schema, t.Name)
+}
+
+func OpenStore(cfg config.Config) (Store, error) {
+	switch strings.TrimSpace(cfg.StoreBackend) {
+	case "postgres":
+		return NewPostgresStore(cfg)
+	case "memory":
+		return NewMemoryStore(), nil
+	default:
+		return nil, fmt.Errorf("unsupported RSI_STORE_BACKEND %q", cfg.StoreBackend)
+	}
+}
+
+func MustOpenStore(cfg config.Config) Store {
+	store, err := OpenStore(cfg)
+	if err != nil {
+		panic(err)
+	}
+	return store
+}
+
+func OpenSourceMirrorWriteStore(cfg config.Config) (SourceMirrorWriteStore, error) {
+	switch strings.TrimSpace(cfg.StoreBackend) {
+	case "postgres":
+		return NewPostgresSourceMirrorWriteStore(cfg)
+	case "memory":
+		return NewMemoryStore(), nil
+	default:
+		return nil, fmt.Errorf("unsupported RSI_STORE_BACKEND %q", cfg.StoreBackend)
+	}
+}
+
+func NewPostgresStore(cfg config.Config) (*PostgresStore, error) {
+	db, err := platformdb.OpenPostgres(cfg.PostgresURL)
+	if err != nil {
+		return nil, err
+	}
+	status, err := platformdb.VerifyCompatible(db)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	store := &PostgresStore{db: db, schemaStatus: status}
+	if err := store.ensureSeed(cfg); err != nil {
+		return nil, err
+	}
+	return store, nil
+}
+
+func NewPostgresSourceMirrorWriteStore(cfg config.Config) (*PostgresStore, error) {
+	db, err := platformdb.OpenPostgres(cfg.PostgresURL)
+	if err != nil {
+		return nil, err
+	}
+	status, err := platformdb.VerifyAtLeast(db, SourceMirrorMinimumSchemaVersion)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	return &PostgresStore{db: db, schemaStatus: status}, nil
+}
+
+func (p *PostgresStore) ResetAppData() (AppDataResetResult, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return AppDataResetResult{}, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	tables, err := loadResettableAppTables(tx)
+	if err != nil {
+		return AppDataResetResult{}, err
+	}
+	if len(tables) > 0 {
+		sqlTables := make([]string, 0, len(tables))
+		resultTables := make([]string, 0, len(tables))
+		for _, table := range tables {
+			sqlTables = append(sqlTables, table.SQL())
+			resultTables = append(resultTables, table.String())
+		}
+		if _, err := tx.Exec(`TRUNCATE TABLE ` + strings.Join(sqlTables, ", ") + ` RESTART IDENTITY CASCADE`); err != nil {
+			return AppDataResetResult{}, fmt.Errorf("truncate app data: %w", err)
+		}
+		if err := tx.Commit(); err != nil {
+			return AppDataResetResult{}, err
+		}
+		return AppDataResetResult{
+			Backend:         "postgres",
+			ResetAt:         time.Now().UTC(),
+			TruncatedTables: resultTables,
+			PreservedTables: append([]string(nil), preservedAppTables...),
+		}, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		return AppDataResetResult{}, err
+	}
+	return AppDataResetResult{
+		Backend:         "postgres",
+		ResetAt:         time.Now().UTC(),
+		TruncatedTables: []string{},
+		PreservedTables: append([]string(nil), preservedAppTables...),
+	}, nil
+}
+
+func (p *PostgresStore) SchemaStatus() platformdb.SchemaStatus {
+	return p.schemaStatus
+}
+
+func loadResettableAppTables(tx *sql.Tx) ([]appTableRef, error) {
+	rows, err := tx.Query(resettableAppTablesQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make([]appTableRef, 0)
+	for rows.Next() {
+		var item appTableRef
+		if err := rows.Scan(&item.Schema, &item.Name); err != nil {
+			return nil, err
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func postgresQualifiedIdent(parts ...string) string {
+	quoted := make([]string, 0, len(parts))
+	for _, part := range parts {
+		quoted = append(quoted, `"`+strings.ReplaceAll(part, `"`, `""`)+`"`)
+	}
+	return strings.Join(quoted, ".")
+}
+
+func (p *PostgresStore) ensureSeed(cfg config.Config) error {
+	var count int
+	if err := p.db.QueryRow(`select count(*) from event_envelope`).Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
+
+	tx, err := p.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	bootstrap := newEmptyMemoryStore()
+	if cfg.DefaultProposalCap > 0 {
+		bootstrap.settings.ActiveProposalCap = cfg.DefaultProposalCap
+	}
+	if err := persistStore(tx, bootstrap); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func (p *PostgresStore) readStore() (*MemoryStore, error) {
+	return loadStore(p.db)
+}
+
+func (p *PostgresStore) mutate(fn func(*MemoryStore) error) error {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	store, err := loadStore(tx)
+	if err != nil {
+		return err
+	}
+	if err := fn(store); err != nil {
+		return err
+	}
+	if err := persistStore(tx, store); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func loadStore(r sqlReader) (*MemoryStore, error) {
+	store := newEmptyMemoryStore()
+
+	if err := loadThreadPolicies(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadChannelPolicies(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadOwnership(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadCapabilities(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadTemplates(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadExperiments(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadEvents(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadConversations(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadConversationEntries(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadCases(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadActionIntents(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadActionResults(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadOutcomes(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeEntries(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeEvidence(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadKnowledgeReviews(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadIngestions(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadWorkflowLines(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadWorkflows(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadAssignments(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadTraces(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadRatings(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadNotes(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadFeedback(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadEvalSuites(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadEvalRuns(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadEvalJudgments(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadSettings(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadCandidates(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadRuntimeDiagnoses(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadProposals(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadChangeAttempts(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadAttemptWorkspaces(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadProposalReviews(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadProposalMemory(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadRepoChangeJobs(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadPRAttempts(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadPostMergeReplays(r, store); err != nil {
+		return nil, err
+	}
+	if err := loadCronLeases(r, store); err != nil {
+		return nil, err
+	}
+
+	if len(store.events) == 0 && len(store.workflows) == 0 && len(store.conversations) == 0 {
+		return store, nil
+	}
+	return store, nil
+}
+
+func persistStore(tx *sql.Tx, store *MemoryStore) error {
+	for _, table := range []string{
+		"proposal_review",
+		"proposal_memory",
+		"pr_attempt",
+		"repo_change_job",
+		"post_merge_replay",
+		"knowledge_review",
+		"knowledge_evidence_link",
+		"knowledge_entry",
+		"outcome_record",
+		"action_result",
+		"action_intent",
+		"cron_lease",
+		"slack_action_record",
+		"tool_call_record",
+		"reasoning_step",
+		"feedback_record",
+		"improvement_settings",
+		"proposal",
+		"runtime_diagnosis",
+		"improvement_candidate",
+		"eval_judgment",
+		"eval_run",
+		"eval_suite",
+		"improvement_note",
+		"human_rating",
+		"artifact",
+		"trace_event",
+		"trace_summary",
+		"assignment",
+		"workflow_line",
+		"workflow",
+		"ingestion",
+		"case_record",
+		"conversation_entry",
+		"conversation",
+		"event_envelope",
+		"experiment_registry",
+		"workflow_templates",
+		"capability_registry",
+		"ownership_registry",
+		"channel_policy",
+		"thread_policy",
+	} {
+		if _, err := tx.Exec(`delete from ` + table); err != nil {
+			return err
+		}
+	}
+
+	if err := persistThreadPolicies(tx, store); err != nil {
+		return err
+	}
+	if err := persistChannelPolicies(tx, store); err != nil {
+		return err
+	}
+	if err := persistOwnership(tx, store); err != nil {
+		return err
+	}
+	if err := persistCapabilities(tx, store); err != nil {
+		return err
+	}
+	if err := persistTemplates(tx, store); err != nil {
+		return err
+	}
+	if err := persistExperiments(tx, store); err != nil {
+		return err
+	}
+	if err := persistEvents(tx, store); err != nil {
+		return err
+	}
+	if err := persistConversations(tx, store); err != nil {
+		return err
+	}
+	if err := persistConversationEntries(tx, store); err != nil {
+		return err
+	}
+	if err := persistCases(tx, store); err != nil {
+		return err
+	}
+	if err := persistWorkflowLines(tx, store); err != nil {
+		return err
+	}
+	if err := persistActionIntents(tx, store); err != nil {
+		return err
+	}
+	if err := persistActionResults(tx, store); err != nil {
+		return err
+	}
+	if err := persistOutcomes(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeEntries(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeEvidence(tx, store); err != nil {
+		return err
+	}
+	if err := persistKnowledgeReviews(tx, store); err != nil {
+		return err
+	}
+	if err := persistIngestions(tx, store); err != nil {
+		return err
+	}
+	if err := persistWorkflows(tx, store); err != nil {
+		return err
+	}
+	if err := persistAssignments(tx, store); err != nil {
+		return err
+	}
+	if err := persistTraces(tx, store); err != nil {
+		return err
+	}
+	if err := persistRatings(tx, store); err != nil {
+		return err
+	}
+	if err := persistNotes(tx, store); err != nil {
+		return err
+	}
+	if err := persistFeedback(tx, store); err != nil {
+		return err
+	}
+	if err := persistEvalSuites(tx, store); err != nil {
+		return err
+	}
+	if err := persistEvalRuns(tx, store); err != nil {
+		return err
+	}
+	if err := persistEvalJudgments(tx, store); err != nil {
+		return err
+	}
+	if err := persistSettings(tx, store); err != nil {
+		return err
+	}
+	if err := persistCandidates(tx, store); err != nil {
+		return err
+	}
+	if err := persistRuntimeDiagnoses(tx, store); err != nil {
+		return err
+	}
+	if err := persistProposals(tx, store); err != nil {
+		return err
+	}
+	if err := persistChangeAttempts(tx, store); err != nil {
+		return err
+	}
+	if err := persistAttemptWorkspaces(tx, store); err != nil {
+		return err
+	}
+	if err := persistProposalReviews(tx, store); err != nil {
+		return err
+	}
+	if err := persistProposalMemory(tx, store); err != nil {
+		return err
+	}
+	if err := persistRepoChangeJobs(tx, store); err != nil {
+		return err
+	}
+	if err := persistPRAttempts(tx, store); err != nil {
+		return err
+	}
+	if err := persistPostMergeReplays(tx, store); err != nil {
+		return err
+	}
+	return persistCronLeases(tx, store)
+}
+
+func loadThreadPolicies(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select thread_key, state, owner_bot, muted, close_reason, last_policy_version, updated_at from thread_policy order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item policy.ThreadPolicy
+		var state string
+		var closeReason sql.NullString
+		if err := rows.Scan(&item.ThreadKey, &state, &item.OwnerBot, &item.Muted, &closeReason, &item.LastPolicyVersion, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.State = policy.ThreadState(state)
+		item.CloseReason = closeReason.String
+		store.threadPolicies[item.ThreadKey] = item
+	}
+	return rows.Err()
+}
+
+func loadChannelPolicies(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select channel_id, proactive_enabled, auto_post_allowed, allowed_workflow_kinds, updated_at from channel_policy order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item policy.ChannelPolicy
+		var raw []byte
+		if err := rows.Scan(&item.ChannelID, &item.ProactiveEnabled, &item.AutoPostAllowed, &raw, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.AllowedWorkflowKinds = decodeJSON(raw, []string{})
+		store.channelPolicy = append(store.channelPolicy, item)
+	}
+	return rows.Err()
+}
+
+func loadOwnership(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select domain, owner_team, escalation_slack from ownership_registry order by domain`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item registry.OwnershipRecord
+		if err := rows.Scan(&item.Domain, &item.OwnerTeam, &item.EscalationSlack); err != nil {
+			return err
+		}
+		store.ownership = append(store.ownership, item)
+	}
+	return rows.Err()
+}
+
+func loadCapabilities(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select name, kind, allowed_bots, approval_needed from capability_registry order by name`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item registry.CapabilityRecord
+		var raw []byte
+		if err := rows.Scan(&item.Name, &item.Kind, &raw, &item.ApprovalNeeded); err != nil {
+			return err
+		}
+		item.AllowedBots = decodeJSON(raw, []string{})
+		store.capabilities = append(store.capabilities, item)
+	}
+	return rows.Err()
+}
+
+func loadTemplates(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select name, kind, description, steps from workflow_templates order by name`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item registry.WorkflowTemplate
+		var raw []byte
+		if err := rows.Scan(&item.Name, &item.Kind, &item.Description, &raw); err != nil {
+			return err
+		}
+		item.Steps = decodeJSON(raw, []string{})
+		store.templates = append(store.templates, item)
+	}
+	return rows.Err()
+}
+
+func loadExperiments(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select name, candidate, baseline, state, reviewed_by from experiment_registry order by name`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item registry.ExperimentRecord
+		var reviewedBy sql.NullString
+		if err := rows.Scan(&item.Name, &item.Candidate, &item.Baseline, &item.State, &reviewedBy); err != nil {
+			return err
+		}
+		item.ReviewedBy = reviewedBy.String
+		store.experiments = append(store.experiments, item)
+	}
+	return rows.Err()
+}
+
+func loadEvents(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at from event_envelope order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
+			return err
+		}
+		store.events = append(store.events, item)
+	}
+	return rows.Err()
+}
+
+func scanEventEnvelope(scanner interface{ Scan(dest ...any) error }) (ingestion.EventEnvelope, error) {
+	var item ingestion.EventEnvelope
+	var threadKey, incidentKey, ownershipHint, rawPayloadRef, workflowHint sql.NullString
+	var raw []byte
+	var source, severity string
+	if err := scanner.Scan(&item.ID, &source, &item.SourceEventID, &threadKey, &incidentKey, &item.DedupeKey, &severity, &item.NormalizedProblemStatement, &ownershipHint, &rawPayloadRef, &workflowHint, &raw, &item.CreatedAt); err != nil {
+		return ingestion.EventEnvelope{}, err
+	}
+	item.Source = ingestion.Source(source)
+	item.ThreadKey = threadKey.String
+	item.IncidentKey = incidentKey.String
+	item.Severity = ingestion.Severity(severity)
+	item.OwnershipHint = ownershipHint.String
+	item.RawPayloadRef = rawPayloadRef.String
+	item.WorkflowHint = workflowHint.String
+	item.Metadata = decodeJSON(raw, map[string]interface{}{})
+	return item, nil
+}
+
+func loadConversations(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at from conversation order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item conversation.Conversation
+		var source, status string
+		var participantIDs []byte
+		var activeCaseID, latestEventID sql.NullString
+		if err := rows.Scan(&item.ID, &source, &item.ExternalKey, &item.ExternalConversation, &item.Title, &status, &participantIDs, &activeCaseID, &latestEventID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.Source = ingestion.Source(source)
+		item.Status = conversation.Status(status)
+		item.ParticipantIDs = decodeJSON(participantIDs, []string{})
+		item.ActiveCaseID = activeCaseID.String
+		item.LatestEventID = latestEventID.String
+		store.conversations[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadConversationEntries(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at from conversation_entry order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item conversation.Entry
+		var eventID, traceID, actorID, actorType sql.NullString
+		var source string
+		var metadata []byte
+		if err := rows.Scan(&item.ID, &item.ConversationID, &eventID, &traceID, &source, &item.SourceEventID, &item.EntryType, &actorID, &actorType, &item.Body, &metadata, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.EventID = eventID.String
+		item.TraceID = traceID.String
+		item.Source = ingestion.Source(source)
+		item.ActorID = actorID.String
+		item.ActorType = actorType.String
+		item.Metadata = decodeJSON(metadata, map[string]interface{}{})
+		store.conversationEntries = append(store.conversationEntries, item)
+	}
+	return rows.Err()
+}
+
+func loadCases(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select ` + caseColumns + ` from case_record order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanCaseRecord(rows)
+		if err != nil {
+			return err
+		}
+		store.cases[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadActionIntents(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select ` + actionIntentColumns + ` from action_intent order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanActionIntentRecord(rows)
+		if err != nil {
+			return err
+		}
+		store.actionIntents[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadActionResults(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, operation_id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at from action_result order by action_intent_id asc, attempt_number asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item action.Result
+		var operationID sql.NullString
+		var attemptID, provider, providerRef, requestArtifactID, responseArtifactID, errorCode, errorMessage sql.NullString
+		var status string
+		if err := rows.Scan(&item.ID, &operationID, &item.ActionIntentID, &attemptID, &item.AttemptNumber, &item.Executor, &provider, &providerRef, &requestArtifactID, &responseArtifactID, &status, &errorCode, &errorMessage, &item.StartedAt, &item.CompletedAt); err != nil {
+			return err
+		}
+		item.OperationID = operationID.String
+		item.AttemptID = attemptID.String
+		item.Provider = provider.String
+		item.ProviderRef = providerRef.String
+		item.RequestArtifactID = requestArtifactID.String
+		item.ResponseArtifactID = responseArtifactID.String
+		item.Status = action.Status(status)
+		item.ErrorCode = errorCode.String
+		item.ErrorMessage = errorMessage.String
+		store.actionResults[item.ActionIntentID] = append(store.actionResults[item.ActionIntentID], item)
+	}
+	return rows.Err()
+}
+
+func loadOutcomes(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select ` + outcomeColumns + ` from outcome_record order by recorded_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanOutcomeRecord(rows)
+		if err != nil {
+			return err
+		}
+		store.outcomes[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeEntries(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at from knowledge_entry order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.Entry
+		var scopeID, summary, body, supersedesEntryID, contradictedByEntryID sql.NullString
+		var structuredFacts []byte
+		var freshUntil sql.NullTime
+		var tier, kind, scopeType, status, sourceType string
+		if err := rows.Scan(&item.ID, &tier, &kind, &scopeType, &scopeID, &item.Title, &summary, &body, &structuredFacts, &status, &item.Confidence, &freshUntil, &sourceType, &supersedesEntryID, &contradictedByEntryID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.Tier = knowledge.Tier(tier)
+		item.Kind = knowledge.Kind(kind)
+		item.ScopeType = knowledge.ScopeType(scopeType)
+		item.ScopeID = scopeID.String
+		item.Summary = summary.String
+		item.Body = body.String
+		item.StructuredFacts = decodeJSON(structuredFacts, map[string]any{})
+		item.Status = knowledge.Status(status)
+		if freshUntil.Valid {
+			t := freshUntil.Time
+			item.FreshUntil = &t
+		}
+		item.SourceType = knowledge.SourceType(sourceType)
+		item.SupersedesEntryID = supersedesEntryID.String
+		item.ContradictedByEntryID = contradictedByEntryID.String
+		store.knowledgeEntries[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeEvidence(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select knowledge_entry_id, evidence_type, evidence_id, relevance_summary, evidence_ref from knowledge_evidence_link order by knowledge_entry_id asc, id asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.EvidenceLink
+		var relevance sql.NullString
+		var evidenceRef []byte
+		if err := rows.Scan(&item.KnowledgeEntryID, &item.EvidenceType, &item.EvidenceID, &relevance, &evidenceRef); err != nil {
+			return err
+		}
+		item.RelevanceSummary = relevance.String
+		item.EvidenceRef = decodeJSON(evidenceRef, events.EvidenceRef{})
+		store.knowledgeEvidence[item.KnowledgeEntryID] = append(store.knowledgeEvidence[item.KnowledgeEntryID], item)
+	}
+	return rows.Err()
+}
+
+func loadKnowledgeReviews(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, knowledge_entry_id, decision, reviewer_id, rationale, created_at from knowledge_review order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item knowledge.Review
+		var rationale sql.NullString
+		if err := rows.Scan(&item.ID, &item.KnowledgeEntryID, &item.Decision, &item.ReviewerID, &rationale, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.Rationale = rationale.String
+		store.knowledgeReviews[item.KnowledgeEntryID] = append(store.knowledgeReviews[item.KnowledgeEntryID], item)
+	}
+	return rows.Err()
+}
+
+func loadIngestions(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, prompt_envelope, created_at from ingestion order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item slack.Ingestion
+		var eventID, conversationID, caseID, threadTS, intent, botRole sql.NullString
+		var entityRefs, promptEnvelope []byte
+		if err := rows.Scan(&item.ID, &eventID, &conversationID, &caseID, &item.ThreadKey, &threadTS, &item.WorkflowHint, &intent, &botRole, &item.Source, &item.ChannelID, &item.UserID, &item.Text, &entityRefs, &promptEnvelope, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.EventID = eventID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.ThreadTS = threadTS.String
+		item.Intent = intent.String
+		item.BotRole = slack.BotRole(botRole.String)
+		item.EntityRefs = decodeJSON(entityRefs, []slack.EntityRef{})
+		item.Prompt = decodeJSON(promptEnvelope, slack.SlackPromptEnvelope{})
+		store.ingestions = append(store.ingestions, item)
+	}
+	return rows.Err()
+}
+
+func scanWorkflowRow(rows *sql.Rows) (Workflow, error) {
+	var item Workflow
+	var ingestionID, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastVerdict, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	var runnerDiagnostics []byte
+	if err := rows.Scan(&item.ID, &item.Version, &ingestionID, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastVerdict, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &runnerDiagnostics, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		return item, err
+	}
+	item.IngestionID = ingestionID.String
+	item.TraceID = traceID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Intent = intent.String
+	item.ApprovalMode = approvalMode.String
+	item.ResponseMode = responseMode.String
+	item.LastVerdict = lastVerdict.String
+	item.LastError = lastError.String
+	item.ParentWorkflowID = parentWorkflowID.String
+	item.FailureClass = failureClass.String
+	item.FailureSummary = failureSummary.String
+	item.RetryDecision = retryDecision.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
+	item.RunnerDiagnostics = decodeJSON(runnerDiagnostics, map[string]any{})
+	if completedAt.Valid {
+		t := completedAt.Time
+		item.CompletedAt = &t
+	}
+	return item, nil
+}
+
+func loadWorkflows(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanWorkflowRow(rows)
+		if err != nil {
+			return err
+		}
+		store.workflows = append(store.workflows, item)
+	}
+	return rows.Err()
+}
+
+func loadWorkflowsByStatus(r sqlReader, store *MemoryStore, status string) error {
+	rows, err := r.Query(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow where status = $1 order by created_at desc`, status)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanWorkflowRow(rows)
+		if err != nil {
+			return err
+		}
+		store.workflows = append(store.workflows, item)
+	}
+	return rows.Err()
+}
+
+func loadAssignments(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at from assignment order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item Assignment
+		var conversationID, caseID sql.NullString
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &item.ThreadKey, &item.AssignedBot, &item.Confidence, &item.Rationale, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		store.assignments = append(store.assignments, item)
+	}
+	return rows.Err()
+}
+
+func loadTraces(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary order by started_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var summary events.TraceSummary
+		var status string
+		var conversationID, caseID, triggerEventID, supersedesTraceID, lastVerdict sql.NullString
+		if err := rows.Scan(&summary.TraceID, &summary.IngestionID, &summary.WorkflowID, &conversationID, &caseID, &triggerEventID, &supersedesTraceID, &summary.ThreadKey, &summary.WorkflowKind, &status, &lastVerdict, &summary.StartedAt, &summary.EndedAt, &summary.EventCount, &summary.ArtifactCount, &summary.ReasoningStepCount, &summary.ToolCallCount, &summary.SlackActionCount); err != nil {
+			return err
+		}
+		summary.ConversationID = conversationID.String
+		summary.CaseID = caseID.String
+		summary.TriggerEventID = triggerEventID.String
+		summary.SupersedesTraceID = supersedesTraceID.String
+		summary.Status = events.Status(status)
+		summary.LastVerdict = lastVerdict.String
+		store.traces[summary.TraceID] = events.Trace{Summary: summary}
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	rows, err = r.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description from trace_event order by started_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item events.TraceEvent
+		var status string
+		var conversationID, caseID, triggerEventID, parentEvent, payloadRef, artifactRef, description sql.NullString
+		var endedAt sql.NullTime
+		if err := rows.Scan(&item.TraceID, &item.IngestionID, &item.WorkflowID, &conversationID, &caseID, &triggerEventID, &parentEvent, &item.Plane, &item.Service, &item.Actor, &item.EventType, &status, &item.StartedAt, &endedAt, &payloadRef, &artifactRef, &item.CostTokens, &item.LatencyMs, &description); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TriggerEventID = triggerEventID.String
+		item.Status = events.Status(status)
+		item.ParentEvent = parentEvent.String
+		item.PayloadRef = payloadRef.String
+		item.ArtifactRef = artifactRef.String
+		item.Description = description.String
+		if endedAt.Valid {
+			t := endedAt.Time
+			item.EndedAt = &t
+		}
+		trace := store.traces[item.TraceID]
+		trace.Events = append(trace.Events, item)
+		store.traces[item.TraceID] = trace
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	rows, err = r.Query(`select id, trace_id, kind, content_type, url, size_bytes, source from artifact order by trace_id, id`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item events.Artifact
+		if err := rows.Scan(&item.ID, &item.TraceID, &item.Kind, &item.ContentType, &item.URL, &item.SizeBytes, &item.Source); err != nil {
+			return err
+		}
+		trace := store.traces[item.TraceID]
+		trace.Artifacts = append(trace.Artifacts, item)
+		store.traces[item.TraceID] = trace
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
+			return err
+		}
+		trace := store.traces[item.TraceID]
+		trace.Reasoning = append(trace.Reasoning, item)
+		store.traces[item.TraceID] = trace
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at from tool_call_record order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item events.ToolCallRecord
+		var workflowID, conversationID, caseID, summary, approvalState, interpretationSummary, status sql.NullString
+		var request, rawArtifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.ToolName, &item.ToolCallID, &request, &summary, &rawArtifactRefs, &approvalState, &interpretationSummary, &status, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.Request = decodeJSON(request, map[string]interface{}{})
+		item.Summary = summary.String
+		item.RawArtifactRefs = decodeJSON(rawArtifactRefs, []string{})
+		item.ApprovalState = approvalState.String
+		item.InterpretationSummary = interpretationSummary.String
+		item.Status = status.String
+		trace := store.traces[item.TraceID]
+		trace.ToolCalls = append(trace.ToolCalls, item)
+		store.traces[item.TraceID] = trace
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	rows, err = r.Query(`select id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at from slack_action_record order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item events.SlackActionRecord
+		var workflowID, conversationID, caseID, channelID, threadTS, draftBody, finalBody, policyVerdict, sendStatus sql.NullString
+		var artifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &channelID, &threadTS, &item.IdempotencyKey, &draftBody, &finalBody, &policyVerdict, &sendStatus, &artifactRefs, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.ChannelID = channelID.String
+		item.ThreadTS = threadTS.String
+		item.DraftBody = draftBody.String
+		item.FinalBody = finalBody.String
+		item.PolicyVerdict = policyVerdict.String
+		item.SendStatus = sendStatus.String
+		item.ArtifactRefs = decodeJSON(artifactRefs, []string{})
+		trace := store.traces[item.TraceID]
+		trace.SlackActions = append(trace.SlackActions, item)
+		store.traces[item.TraceID] = trace
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	for traceID, trace := range store.traces {
+		recomputeTraceSummary(&trace)
+		store.traces[traceID] = trace
+	}
+	return nil
+}
+
+func loadRatings(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select trace_id, score, verdict, labels, notes, reviewer_id, created_at from human_rating order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.HumanRating
+		var raw []byte
+		var notes sql.NullString
+		if err := rows.Scan(&item.TraceID, &item.Score, &item.Verdict, &raw, &notes, &item.ReviewerID, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.Labels = decodeJSON(raw, []string{})
+		item.Notes = notes.String
+		store.ratings[item.TraceID] = append(store.ratings[item.TraceID], item)
+	}
+	return rows.Err()
+}
+
+func loadNotes(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select trace_id, category, note, suggested_owner, created_by, created_at from improvement_note order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.ImprovementNote
+		var suggestedOwner sql.NullString
+		if err := rows.Scan(&item.TraceID, &item.Category, &item.Note, &suggestedOwner, &item.CreatedBy, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.SuggestedOwner = suggestedOwner.String
+		store.notes[item.TraceID] = append(store.notes[item.TraceID], item)
+	}
+	return rows.Err()
+}
+
+func loadFeedback(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at from feedback_record order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.FeedbackRecord
+		var conversationID, caseID, traceID, verdict, notes sql.NullString
+		var labels []byte
+		var targetType string
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &traceID, &targetType, &item.TargetID, &item.Score, &verdict, &labels, &notes, &item.ReviewerID, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceID.String
+		item.TargetType = review.FeedbackTargetType(targetType)
+		item.Verdict = verdict.String
+		item.Labels = decodeJSON(labels, []string{})
+		item.Notes = notes.String
+		store.feedbackRecords[item.TraceID] = append(store.feedbackRecords[item.TraceID], item)
+	}
+	return rows.Err()
+}
+
+func loadEvalSuites(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select name, description, event_kinds, layers from eval_suite order by name`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item evals.Suite
+		var eventKinds, layers []byte
+		if err := rows.Scan(&item.Name, &item.Description, &eventKinds, &layers); err != nil {
+			return err
+		}
+		item.EventKinds = decodeJSON(eventKinds, []string{})
+		item.Layers = decodeJSON(layers, []evals.Layer{})
+		store.evalSuites = append(store.evalSuites, item)
+	}
+	return rows.Err()
+}
+
+func loadEvalRuns(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, trace_id, event_id, suite_name, status, trigger, overall_score, overall_verdict, created_at, completed_at from eval_run order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item evals.Run
+		var eventID sql.NullString
+		var status string
+		var completedAt sql.NullTime
+		if err := rows.Scan(&item.ID, &item.TraceID, &eventID, &item.SuiteName, &status, &item.Trigger, &item.OverallScore, &item.OverallVerdict, &item.CreatedAt, &completedAt); err != nil {
+			return err
+		}
+		item.EventID = eventID.String
+		item.Status = evals.Status(status)
+		if completedAt.Valid {
+			item.CompletedAt = completedAt.Time
+		}
+		store.evalRuns[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadEvalJudgments(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, eval_run_id, layer, category, score, passed, rationale, created_at from eval_judgment order by created_at asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item evals.Judgment
+		var layer string
+		if err := rows.Scan(&item.ID, &item.EvalRunID, &layer, &item.Category, &item.Score, &item.Passed, &item.Rationale, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.Layer = evals.Layer(layer)
+		store.evalJudgments[item.EvalRunID] = append(store.evalJudgments[item.EvalRunID], item)
+	}
+	return rows.Err()
+}
+
+func loadSettings(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select key, active_proposal_cap, updated_at from improvement_settings`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var key string
+		var item improvement.Settings
+		if err := rows.Scan(&key, &item.ActiveProposalCap, &item.UpdatedAt); err != nil {
+			return err
+		}
+		if key == "default" {
+			store.settings = item
+		}
+	}
+	store.settings = normalizedSettings(store.settings)
+	return rows.Err()
+}
+
+func loadCandidates(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select ` + candidateColumns + ` from improvement_candidate order by updated_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanCandidateRecord(rows)
+		if err != nil {
+			return err
+		}
+		store.candidates[item.CandidateKey] = item
+	}
+	return rows.Err()
+}
+
+func loadProposals(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select ` + proposalColumns + ` from proposal order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		item, err := scanProposalRecord(rows)
+		if err != nil {
+			return err
+		}
+		store.proposals[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadChangeAttempts(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, version, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at from change_attempt order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.ChangeAttempt
+		var targetLayer, trigger, state string
+		var retryAfter sql.NullTime
+		var targetKind, targetRef, attemptTraceID, parentAttemptID, branchName, prURL, headSHA, failureClass, failureSummary, retryDecision, diffSummary, validationSummary, changePlan, repoPatch, validationPlan, retryAssessment, hypothesisDelta sql.NullString
+		var changedFiles, overlayPayload []byte
+		if err := rows.Scan(&item.ID, &item.Version, &item.ProposalID, &item.CandidateKey, &item.AttemptNumber, &targetLayer, &targetKind, &targetRef, &trigger, &state, &attemptTraceID, &parentAttemptID, &branchName, &prURL, &headSHA, &failureClass, &failureSummary, &retryDecision, &retryAfter, &item.MaterialHypothesisChange, &diffSummary, &changedFiles, &validationSummary, &changePlan, &repoPatch, &validationPlan, &retryAssessment, &hypothesisDelta, &overlayPayload, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.TargetLayer = harness.TargetLayer(targetLayer)
+		item.TargetKind = targetKind.String
+		item.TargetRef = targetRef.String
+		item.Trigger = improvement.ChangeAttemptTrigger(trigger)
+		item.State = improvement.ChangeAttemptState(state)
+		item.AttemptTraceID = attemptTraceID.String
+		item.ParentAttemptID = parentAttemptID.String
+		item.BranchName = branchName.String
+		item.PRURL = prURL.String
+		item.HeadSHA = headSHA.String
+		item.FailureClass = failureClass.String
+		item.FailureSummary = failureSummary.String
+		item.RetryDecision = retryDecision.String
+		if retryAfter.Valid {
+			t := retryAfter.Time
+			item.RetryAfter = &t
+		}
+		item.DiffSummary = diffSummary.String
+		item.ChangedFiles = decodeJSON(changedFiles, []string{})
+		item.ValidationSummary = validationSummary.String
+		item.ChangePlan = changePlan.String
+		item.RepoPatch = repoPatch.String
+		item.ValidationPlan = validationPlan.String
+		item.RetryAssessment = retryAssessment.String
+		item.HypothesisDelta = hypothesisDelta.String
+		item.OverlayPayload = decodeJSON(overlayPayload, map[string]any{})
+		store.changeAttempts[item.ID] = normalizeChangeAttempt(item)
+	}
+	return rows.Err()
+}
+
+func loadProposalReviews(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, proposal_id, idempotency_key, decision, scope, rationale, reviewer_id, failure_class, failure_classes, created_at from proposal_review order by created_at asc, id asc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.ProposalReview
+		var idempotencyKey, scope sql.NullString
+		var failureClass sql.NullString
+		var failureClasses []byte
+		if err := rows.Scan(&item.ID, &item.ProposalID, &idempotencyKey, &item.Decision, &scope, &item.Rationale, &item.ReviewerID, &failureClass, &failureClasses, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.IdempotencyKey = idempotencyKey.String
+		item.Scope = review.ProposalFeedbackScope(firstNonEmpty(scope.String, string(review.FeedbackScopeLine)))
+		item.FailureClass = failureClass.String
+		item.FailureClasses = decodeJSON(failureClasses, []string{})
+		proposal := store.proposals[item.ProposalID]
+		proposal.Reviews = append(proposal.Reviews, item)
+		store.proposals[item.ProposalID] = proposal
+	}
+	return rows.Err()
+}
+
+func loadProposalMemory(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, review_id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at from proposal_memory order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item review.ProposalMemory
+		var disposition string
+		var reviewID sql.NullInt64
+		var conversationID, caseID, originTraceID, dispositionReason, failureClass sql.NullString
+		var evidenceTraceIDs, failureClasses, sourceEvalIDs, linkedArtifactIDs, linkedProposalIDs []byte
+		if err := rows.Scan(&item.ID, &reviewID, &item.ProposalID, &item.CandidateKey, &conversationID, &caseID, &originTraceID, &evidenceTraceIDs, &item.Hypothesis, &item.DiffSummary, &item.ReviewRationale, &disposition, &dispositionReason, &failureClass, &failureClasses, &sourceEvalIDs, &linkedArtifactIDs, &linkedProposalIDs, &item.CreatedAt); err != nil {
+			return err
+		}
+		if reviewID.Valid {
+			item.ReviewID = reviewID.Int64
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.EvidenceTraceIDs = decodeJSON(evidenceTraceIDs, []string{})
+		item.Disposition = review.ProposalStatus(disposition)
+		item.DispositionReason = dispositionReason.String
+		item.FailureClass = failureClass.String
+		item.FailureClasses = decodeJSON(failureClasses, []string{})
+		item.SourceEvalIDs = decodeJSON(sourceEvalIDs, []string{})
+		item.LinkedArtifactIDs = decodeJSON(linkedArtifactIDs, []string{})
+		item.LinkedProposalIDs = decodeJSON(linkedProposalIDs, []string{})
+		store.proposalMemory = append(store.proposalMemory, item)
+	}
+	return rows.Err()
+}
+
+func loadRepoChangeJobs(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at from repo_change_job order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.RepoChangeJob
+		var attemptID, conversationID, caseID, originTraceID, sandboxNamespace, sandboxJobName, sandboxPodName, validationError, validationRef, logArtifactID sql.NullString
+		var allowed []byte
+		if err := rows.Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.CandidateKey, &item.Status, &item.Repo, &item.BaseRef, &item.BranchName, &allowed, &item.ContextSummary, &sandboxNamespace, &sandboxJobName, &sandboxPodName, &validationError, &validationRef, &logArtifactID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+			return err
+		}
+		item.AttemptID = attemptID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.AllowedPathGlobs = decodeJSON(allowed, []string{})
+		item.SandboxNamespace = sandboxNamespace.String
+		item.SandboxJobName = sandboxJobName.String
+		item.SandboxPodName = sandboxPodName.String
+		item.ValidationError = validationError.String
+		item.ValidationRef = validationRef.String
+		item.LogArtifactID = logArtifactID.String
+		store.repoChangeJobs[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadPRAttempts(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, head_sha, status, validation_status, created_at from pr_attempt order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.PRAttempt
+		var attemptID, conversationID, caseID, originTraceID, prURL, headSHA sql.NullString
+		if err := rows.Scan(&item.ID, &item.ProposalID, &attemptID, &conversationID, &caseID, &originTraceID, &item.Repo, &item.BranchName, &prURL, &headSHA, &item.Status, &item.ValidationStatus, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.AttemptID = attemptID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.OriginTraceID = originTraceID.String
+		item.PRURL = prURL.String
+		item.HeadSHA = headSHA.String
+		store.prAttempts[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadPostMergeReplays(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at from post_merge_replay order by created_at desc`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.PostMergeReplay
+		var conversationID, caseID sql.NullString
+		if err := rows.Scan(&item.ID, &item.ProposalID, &item.TraceID, &conversationID, &caseID, &item.BaselineScore, &item.CandidateScore, &item.Improved, &item.CreatedAt); err != nil {
+			return err
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		store.postMergeReplay[item.ID] = item
+	}
+	return rows.Err()
+}
+
+func loadCronLeases(r sqlReader, store *MemoryStore) error {
+	rows, err := r.Query(`select name, holder, expires_at from cron_lease`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var item improvement.CronLease
+		if err := rows.Scan(&item.Name, &item.Holder, &item.ExpiresAt); err != nil {
+			return err
+		}
+		store.cronLeases[item.Name] = item
+	}
+	return rows.Err()
+}
+
+func persistThreadPolicies(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.threadPolicies)
+	for _, key := range keys {
+		item := store.threadPolicies[key]
+		if _, err := tx.Exec(`insert into thread_policy (thread_key, state, owner_bot, muted, close_reason, last_policy_version, updated_at) values ($1,$2,$3,$4,$5,$6,$7)
+			on conflict (thread_key) do update set
+				state = excluded.state,
+				owner_bot = excluded.owner_bot,
+				muted = excluded.muted,
+				close_reason = excluded.close_reason,
+				last_policy_version = excluded.last_policy_version,
+				updated_at = excluded.updated_at`,
+			item.ThreadKey, string(item.State), item.OwnerBot, item.Muted, nullString(item.CloseReason), item.LastPolicyVersion, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistChannelPolicies(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.channelPolicy {
+		if _, err := tx.Exec(`insert into channel_policy (channel_id, proactive_enabled, auto_post_allowed, allowed_workflow_kinds, updated_at) values ($1,$2,$3,$4::jsonb,$5)`,
+			item.ChannelID, item.ProactiveEnabled, item.AutoPostAllowed, jsonString(item.AllowedWorkflowKinds), item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistOwnership(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.ownership {
+		if _, err := tx.Exec(`insert into ownership_registry (domain, owner_team, escalation_slack) values ($1,$2,$3)`,
+			item.Domain, item.OwnerTeam, item.EscalationSlack,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistCapabilities(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.capabilities {
+		if _, err := tx.Exec(`insert into capability_registry (name, kind, allowed_bots, approval_needed) values ($1,$2,$3::jsonb,$4)`,
+			item.Name, item.Kind, jsonString(item.AllowedBots), item.ApprovalNeeded,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistTemplates(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.templates {
+		if _, err := tx.Exec(`insert into workflow_templates (name, kind, description, steps) values ($1,$2,$3,$4::jsonb)`,
+			item.Name, item.Kind, item.Description, jsonString(item.Steps),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistExperiments(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.experiments {
+		if _, err := tx.Exec(`insert into experiment_registry (name, candidate, baseline, state, reviewed_by) values ($1,$2,$3,$4,$5)`,
+			item.Name, item.Candidate, item.Baseline, item.State, nullString(item.ReviewedBy),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistEvents(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.events {
+		if _, err := tx.Exec(`insert into event_envelope (id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13)
+			on conflict (id) do update set
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				thread_key = excluded.thread_key,
+				incident_key = excluded.incident_key,
+				dedupe_key = excluded.dedupe_key,
+				severity = excluded.severity,
+				normalized_problem_statement = excluded.normalized_problem_statement,
+				ownership_hint = excluded.ownership_hint,
+				raw_payload_ref = excluded.raw_payload_ref,
+				workflow_hint = excluded.workflow_hint,
+				metadata = excluded.metadata,
+				created_at = excluded.created_at`,
+			item.ID, string(item.Source), item.SourceEventID, nullString(item.ThreadKey), nullString(item.IncidentKey), item.DedupeKey, string(item.Severity), item.NormalizedProblemStatement, nullString(item.OwnershipHint), nullString(item.RawPayloadRef), nullString(item.WorkflowHint), jsonString(item.Metadata), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistConversations(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.conversations)
+	for _, key := range keys {
+		item := store.conversations[key]
+		if _, err := tx.Exec(`insert into conversation (id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11)
+			on conflict (id) do update set
+				source = excluded.source,
+				external_key = excluded.external_key,
+				external_conversation = excluded.external_conversation,
+				title = excluded.title,
+				status = excluded.status,
+				participant_ids = excluded.participant_ids,
+				active_case_id = excluded.active_case_id,
+				latest_event_id = excluded.latest_event_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, string(item.Source), item.ExternalKey, item.ExternalConversation, item.Title, string(item.Status), jsonString(item.ParticipantIDs), nullString(item.ActiveCaseID), nullString(item.LatestEventID), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistConversationEntries(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.conversationEntries {
+		if _, err := tx.Exec(`insert into conversation_entry (id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				event_id = excluded.event_id,
+				trace_id = excluded.trace_id,
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				entry_type = excluded.entry_type,
+				actor_id = excluded.actor_id,
+				actor_type = excluded.actor_type,
+				body = excluded.body,
+				metadata = excluded.metadata,
+				created_at = excluded.created_at`,
+			item.ID, item.ConversationID, nullString(item.EventID), nullString(item.TraceID), string(item.Source), item.SourceEventID, item.EntryType, nullString(item.ActorID), nullString(item.ActorType), item.Body, jsonString(item.Metadata), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistCases(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.cases)
+	for _, key := range keys {
+		item := store.cases[key]
+		if _, err := tx.Exec(`insert into case_record (id, conversation_id, kind, intent, title, summary, status, approval_mode, response_mode, assigned_bot, opened_by_event_id, closed_by_event_id, latest_trace_id, resolution_state, resolved_at, latest_outcome_id, outcome_score, superseded_by_case_id, created_at, updated_at, closed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				kind = excluded.kind,
+				intent = excluded.intent,
+				title = excluded.title,
+				summary = excluded.summary,
+				status = excluded.status,
+				approval_mode = excluded.approval_mode,
+				response_mode = excluded.response_mode,
+				assigned_bot = excluded.assigned_bot,
+				opened_by_event_id = excluded.opened_by_event_id,
+				closed_by_event_id = excluded.closed_by_event_id,
+				latest_trace_id = excluded.latest_trace_id,
+				resolution_state = excluded.resolution_state,
+				resolved_at = excluded.resolved_at,
+				latest_outcome_id = excluded.latest_outcome_id,
+				outcome_score = excluded.outcome_score,
+				superseded_by_case_id = excluded.superseded_by_case_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at,
+				closed_at = excluded.closed_at`,
+			item.ID, item.ConversationID, item.Kind, item.Intent, item.Title, item.Summary, string(item.Status), nullString(item.ApprovalMode), nullString(item.ResponseMode), item.AssignedBot, nullString(item.OpenedByEventID), nullString(item.ClosedByEventID), nullString(item.LatestTraceID), string(item.ResolutionState), nullTime(item.ResolvedAt), nullString(item.LatestOutcomeID), item.OutcomeScore, nullString(item.SupersededByCaseID), item.CreatedAt, item.UpdatedAt, nullTime(item.ClosedAt),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistActionIntents(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.actionIntents)
+	for _, key := range keys {
+		item := store.actionIntents[key]
+		if _, err := tx.Exec(`insert into action_intent (id, operation_id, owner_plane, conversation_id, case_id, trace_id, proposal_id, attempt_id, kind, phase_key, target_ref, request_payload, idempotency_key, approval_mode, approval_state, policy_verdict, status, superseded_by_action_id, requested_by, rationale, evidence_refs, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21::jsonb,$22,$23)
+			on conflict (id) do update set
+				operation_id = excluded.operation_id,
+				owner_plane = excluded.owner_plane,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trace_id = excluded.trace_id,
+				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
+				kind = excluded.kind,
+				phase_key = excluded.phase_key,
+				target_ref = excluded.target_ref,
+				request_payload = excluded.request_payload,
+				idempotency_key = excluded.idempotency_key,
+				approval_mode = excluded.approval_mode,
+				approval_state = excluded.approval_state,
+				policy_verdict = excluded.policy_verdict,
+				status = excluded.status,
+				superseded_by_action_id = excluded.superseded_by_action_id,
+				requested_by = excluded.requested_by,
+				rationale = excluded.rationale,
+				evidence_refs = excluded.evidence_refs,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, firstNonEmpty(item.OperationID), item.OwnerPlane, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), firstNonEmpty(item.AttemptID), string(item.Kind), nullString(item.PhaseKey), nullString(item.TargetRef), jsonString(item.RequestPayload), nullString(item.IdempotencyKey), nullString(item.ApprovalMode), nullString(item.ApprovalState), nullString(item.PolicyVerdict), string(item.Status), nullString(item.SupersededByActionID), nullString(item.RequestedBy), nullString(item.Rationale), jsonString(item.EvidenceRefs), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistActionResults(tx *sql.Tx, store *MemoryStore) error {
+	intentKeys := sortedMapKeys(store.actionResults)
+	for _, key := range intentKeys {
+		for _, item := range store.actionResults[key] {
+			if _, err := tx.Exec(`insert into action_result (id, operation_id, action_intent_id, attempt_id, attempt_number, executor, provider, provider_ref, request_artifact_id, response_artifact_id, status, error_code, error_message, started_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+				on conflict (id) do update set
+					operation_id = excluded.operation_id,
+					action_intent_id = excluded.action_intent_id,
+					attempt_id = excluded.attempt_id,
+					attempt_number = excluded.attempt_number,
+					executor = excluded.executor,
+					provider = excluded.provider,
+					provider_ref = excluded.provider_ref,
+					request_artifact_id = excluded.request_artifact_id,
+					response_artifact_id = excluded.response_artifact_id,
+					status = excluded.status,
+					error_code = excluded.error_code,
+					error_message = excluded.error_message,
+					started_at = excluded.started_at,
+					completed_at = excluded.completed_at`,
+				item.ID, firstNonEmpty(item.OperationID), item.ActionIntentID, firstNonEmpty(item.AttemptID), item.AttemptNumber, item.Executor, nullString(item.Provider), nullString(item.ProviderRef), nullString(item.RequestArtifactID), nullString(item.ResponseArtifactID), string(item.Status), nullString(item.ErrorCode), nullString(item.ErrorMessage), item.StartedAt, item.CompletedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistOutcomes(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.outcomes)
+	for _, key := range keys {
+		item := store.outcomes[key]
+		if _, err := tx.Exec(`insert into outcome_record (id, operation_id, source, source_event_id, conversation_id, case_id, trace_id, proposal_id, attempt_id, outcome_type, verdict, score, summary, details, external_ref, recorded_by, recorded_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+			on conflict (id) do update set
+				operation_id = excluded.operation_id,
+				source = excluded.source,
+				source_event_id = excluded.source_event_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trace_id = excluded.trace_id,
+				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
+				outcome_type = excluded.outcome_type,
+				verdict = excluded.verdict,
+				score = excluded.score,
+				summary = excluded.summary,
+				details = excluded.details,
+				external_ref = excluded.external_ref,
+				recorded_by = excluded.recorded_by,
+				recorded_at = excluded.recorded_at`,
+			item.ID, firstNonEmpty(item.OperationID), item.Source, nullString(item.SourceEventID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), nullString(item.ProposalID), firstNonEmpty(item.AttemptID), string(item.OutcomeType), string(item.Verdict), item.Score, nullString(item.Summary), nullString(item.Details), nullString(item.ExternalRef), nullString(item.RecordedBy), item.RecordedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeEntries(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeEntries)
+	for _, key := range keys {
+		item := store.knowledgeEntries[key]
+		if _, err := tx.Exec(`insert into knowledge_entry (id, tier, kind, scope_type, scope_id, title, summary, body, structured_facts, status, confidence, fresh_until, source_type, supersedes_entry_id, contradicted_by_entry_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12,$13,$14,$15,$16,$17)
+			on conflict (id) do update set
+				tier = excluded.tier,
+				kind = excluded.kind,
+				scope_type = excluded.scope_type,
+				scope_id = excluded.scope_id,
+				title = excluded.title,
+				summary = excluded.summary,
+				body = excluded.body,
+				structured_facts = excluded.structured_facts,
+				status = excluded.status,
+				confidence = excluded.confidence,
+				fresh_until = excluded.fresh_until,
+				source_type = excluded.source_type,
+				supersedes_entry_id = excluded.supersedes_entry_id,
+				contradicted_by_entry_id = excluded.contradicted_by_entry_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, string(item.Tier), string(item.Kind), string(item.ScopeType), nullString(item.ScopeID), item.Title, nullString(item.Summary), nullString(item.Body), jsonString(item.StructuredFacts), string(item.Status), item.Confidence, nullTime(item.FreshUntil), string(item.SourceType), nullString(item.SupersedesEntryID), nullString(item.ContradictedByEntryID), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeEvidence(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeEvidence)
+	for _, key := range keys {
+		for _, item := range store.knowledgeEvidence[key] {
+			if _, err := tx.Exec(`insert into knowledge_evidence_link (knowledge_entry_id, evidence_type, evidence_id, relevance_summary, evidence_ref) values ($1,$2,$3,$4,$5::jsonb)`,
+				item.KnowledgeEntryID, item.EvidenceType, item.EvidenceID, nullString(item.RelevanceSummary), jsonString(item.EvidenceRef),
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistKnowledgeReviews(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.knowledgeReviews)
+	for _, key := range keys {
+		for _, item := range store.knowledgeReviews[key] {
+			if _, err := tx.Exec(`insert into knowledge_review (id, knowledge_entry_id, decision, reviewer_id, rationale, created_at) values ($1,$2,$3,$4,$5,$6)`,
+				item.ID, item.KnowledgeEntryID, item.Decision, item.ReviewerID, nullString(item.Rationale), item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistIngestions(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.ingestions {
+		if _, err := tx.Exec(`insert into ingestion (id, event_id, conversation_id, case_id, thread_key, thread_ts, workflow_hint, intent, bot_role, source, channel_id, user_id, text, entity_refs, prompt_envelope, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16)
+			on conflict (id) do update set
+				event_id = excluded.event_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				thread_ts = excluded.thread_ts,
+				workflow_hint = excluded.workflow_hint,
+				intent = excluded.intent,
+				bot_role = excluded.bot_role,
+				source = excluded.source,
+				channel_id = excluded.channel_id,
+				user_id = excluded.user_id,
+				text = excluded.text,
+				entity_refs = excluded.entity_refs,
+				prompt_envelope = excluded.prompt_envelope,
+				created_at = excluded.created_at`,
+			item.ID, nullString(item.EventID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, nullString(item.ThreadTS), item.WorkflowHint, nullString(item.Intent), nullString(string(item.BotRole)), item.Source, item.ChannelID, item.UserID, item.Text, jsonString(item.EntityRefs), jsonString(item.Prompt), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistWorkflows(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.workflows {
+		runnerDiagnostics := item.RunnerDiagnostics
+		if runnerDiagnostics == nil {
+			runnerDiagnostics = map[string]any{}
+		}
+		if _, err := tx.Exec(`insert into workflow (id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23,$24,$25,$26,$27)
+			on conflict (id) do update set
+				version = excluded.version,
+				ingestion_id = excluded.ingestion_id,
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				kind = excluded.kind,
+				intent = excluded.intent,
+				assigned_bot = excluded.assigned_bot,
+				approval_mode = excluded.approval_mode,
+				response_mode = excluded.response_mode,
+				status = excluded.status,
+				last_verdict = excluded.last_verdict,
+				last_error = excluded.last_error,
+				attempt_number = excluded.attempt_number,
+				parent_workflow_id = excluded.parent_workflow_id,
+				failure_class = excluded.failure_class,
+				failure_summary = excluded.failure_summary,
+				retry_decision = excluded.retry_decision,
+				retry_after = excluded.retry_after,
+				runner_diagnostics = excluded.runner_diagnostics,
+				repair_attempted = excluded.repair_attempted,
+				repair_succeeded = excluded.repair_succeeded,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at,
+				completed_at = excluded.completed_at`,
+			item.ID, item.Version, nullString(item.IngestionID), nullString(item.TraceID), nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.Kind, nullString(item.Intent), item.AssignedBot, nullString(item.ApprovalMode), nullString(item.ResponseMode), item.Status, item.LastVerdict, nullString(item.LastError), item.AttemptNumber, nullString(item.ParentWorkflowID), nullString(item.FailureClass), nullString(item.FailureSummary), nullString(item.RetryDecision), nullTime(item.RetryAfter), runnerDiagnostics, item.RepairAttempted, item.RepairSucceeded, item.CreatedAt, item.UpdatedAt, nullTime(item.CompletedAt),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistAssignments(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.assignments {
+		if _, err := tx.Exec(`insert into assignment (id, conversation_id, case_id, thread_key, assigned_bot, confidence, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)
+			on conflict (id) do update set
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				thread_key = excluded.thread_key,
+				assigned_bot = excluded.assigned_bot,
+				confidence = excluded.confidence,
+				rationale = excluded.rationale,
+				created_at = excluded.created_at`,
+			item.ID, nullString(item.ConversationID), nullString(item.CaseID), item.ThreadKey, item.AssignedBot, item.Confidence, item.Rationale, item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistTraces(tx *sql.Tx, store *MemoryStore) error {
+	traceIDs := sortedMapKeys(store.traces)
+	for _, traceID := range traceIDs {
+		trace := store.traces[traceID]
+		if _, err := tx.Exec(`insert into trace_summary (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+			on conflict (trace_id) do update set
+				ingestion_id = excluded.ingestion_id,
+				workflow_id = excluded.workflow_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				trigger_event_id = excluded.trigger_event_id,
+				supersedes_trace_id = excluded.supersedes_trace_id,
+				thread_key = excluded.thread_key,
+				workflow_kind = excluded.workflow_kind,
+				status = excluded.status,
+				last_verdict = excluded.last_verdict,
+				started_at = excluded.started_at,
+				ended_at = excluded.ended_at,
+				event_count = excluded.event_count,
+				artifact_count = excluded.artifact_count,
+				reasoning_step_count = excluded.reasoning_step_count,
+				tool_call_count = excluded.tool_call_count,
+				slack_action_count = excluded.slack_action_count`,
+			trace.Summary.TraceID, trace.Summary.IngestionID, trace.Summary.WorkflowID, nullString(trace.Summary.ConversationID), nullString(trace.Summary.CaseID), nullString(trace.Summary.TriggerEventID), nullString(trace.Summary.SupersedesTraceID), trace.Summary.ThreadKey, trace.Summary.WorkflowKind, string(trace.Summary.Status), nullString(trace.Summary.LastVerdict), trace.Summary.StartedAt, trace.Summary.EndedAt, trace.Summary.EventCount, trace.Summary.ArtifactCount, trace.Summary.ReasoningStepCount, trace.Summary.ToolCallCount, trace.Summary.SlackActionCount,
+		); err != nil {
+			return err
+		}
+		for _, event := range trace.Events {
+			if _, err := tx.Exec(`insert into trace_event (trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+				event.TraceID, event.IngestionID, event.WorkflowID, nullString(event.ConversationID), nullString(event.CaseID), nullString(event.TriggerEventID), nullString(event.ParentEvent), event.Plane, event.Service, event.Actor, event.EventType, string(event.Status), event.StartedAt, nullTime(event.EndedAt), nullString(event.PayloadRef), nullString(event.ArtifactRef), event.CostTokens, event.LatencyMs, nullString(event.Description),
+			); err != nil {
+				return err
+			}
+		}
+		for _, artifact := range trace.Artifacts {
+			if _, err := tx.Exec(`insert into artifact (id, trace_id, kind, content_type, url, size_bytes, source) values ($1,$2,$3,$4,$5,$6,$7)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					kind = excluded.kind,
+					content_type = excluded.content_type,
+					url = excluded.url,
+					size_bytes = excluded.size_bytes,
+					source = excluded.source`,
+				artifact.ID, artifact.TraceID, artifact.Kind, artifact.ContentType, artifact.URL, artifact.SizeBytes, artifact.Source,
+			); err != nil {
+				return err
+			}
+		}
+		for _, item := range trace.Reasoning {
+			if _, err := tx.Exec(`insert into reasoning_step (id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10,$11,$12)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					step_type = excluded.step_type,
+					summary = excluded.summary,
+					evidence_refs = excluded.evidence_refs,
+					alternatives = excluded.alternatives,
+					confidence = excluded.confidence,
+					decision = excluded.decision,
+					created_at = excluded.created_at`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.StepType, item.Summary, jsonString(item.EvidenceRefs), jsonString(item.Alternatives), item.Confidence, nullString(item.Decision), item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+		for _, item := range trace.ToolCalls {
+			if _, err := tx.Exec(`insert into tool_call_record (id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11,$12,$13,$14)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					tool_name = excluded.tool_name,
+					tool_call_id = excluded.tool_call_id,
+					request = excluded.request,
+					summary = excluded.summary,
+					raw_artifact_refs = excluded.raw_artifact_refs,
+					approval_state = excluded.approval_state,
+					interpretation_summary = excluded.interpretation_summary,
+					status = excluded.status,
+					created_at = excluded.created_at`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), item.ToolName, item.ToolCallID, jsonString(item.Request), nullString(item.Summary), jsonString(item.RawArtifactRefs), nullString(item.ApprovalState), nullString(item.InterpretationSummary), nullString(item.Status), item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+		for _, item := range trace.SlackActions {
+			if _, err := tx.Exec(`insert into slack_action_record (id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)
+				on conflict (id) do update set
+					trace_id = excluded.trace_id,
+					workflow_id = excluded.workflow_id,
+					conversation_id = excluded.conversation_id,
+					case_id = excluded.case_id,
+					channel_id = excluded.channel_id,
+					thread_ts = excluded.thread_ts,
+					idempotency_key = excluded.idempotency_key,
+					draft_body = excluded.draft_body,
+					final_body = excluded.final_body,
+					policy_verdict = excluded.policy_verdict,
+					send_status = excluded.send_status,
+					artifact_refs = excluded.artifact_refs,
+					created_at = excluded.created_at`,
+				item.ID, item.TraceID, nullString(item.WorkflowID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.ChannelID), nullString(item.ThreadTS), item.IdempotencyKey, nullString(item.DraftBody), nullString(item.FinalBody), nullString(item.PolicyVerdict), nullString(item.SendStatus), jsonString(item.ArtifactRefs), item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistRatings(tx *sql.Tx, store *MemoryStore) error {
+	traceIDs := sortedMapKeys(store.ratings)
+	for _, traceID := range traceIDs {
+		for _, item := range store.ratings[traceID] {
+			if _, err := tx.Exec(`insert into human_rating (trace_id, score, verdict, labels, notes, reviewer_id, created_at) values ($1,$2,$3,$4::jsonb,$5,$6,$7)`,
+				item.TraceID, item.Score, item.Verdict, jsonString(item.Labels), nullString(item.Notes), item.ReviewerID, item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistNotes(tx *sql.Tx, store *MemoryStore) error {
+	traceIDs := sortedMapKeys(store.notes)
+	for _, traceID := range traceIDs {
+		for _, item := range store.notes[traceID] {
+			if _, err := tx.Exec(`insert into improvement_note (trace_id, category, note, suggested_owner, created_by, created_at) values ($1,$2,$3,$4,$5,$6)`,
+				item.TraceID, item.Category, item.Note, nullString(item.SuggestedOwner), item.CreatedBy, item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistFeedback(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.feedbackRecords)
+	for _, key := range keys {
+		for _, item := range store.feedbackRecords[key] {
+			if _, err := tx.Exec(`insert into feedback_record (id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11,$12)`,
+				item.ID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.TraceID), string(item.TargetType), item.TargetID, item.Score, nullString(item.Verdict), jsonString(item.Labels), nullString(item.Notes), item.ReviewerID, item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistEvalSuites(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.evalSuites {
+		if _, err := tx.Exec(`insert into eval_suite (name, description, event_kinds, layers) values ($1,$2,$3::jsonb,$4::jsonb)`,
+			item.Name, item.Description, jsonString(item.EventKinds), jsonString(item.Layers),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistEvalRuns(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.evalRuns)
+	for _, key := range keys {
+		item := store.evalRuns[key]
+		if _, err := tx.Exec(`insert into eval_run (id, trace_id, event_id, suite_name, status, trigger, overall_score, overall_verdict, created_at, completed_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+			on conflict (id) do update set
+				trace_id = excluded.trace_id,
+				event_id = excluded.event_id,
+				suite_name = excluded.suite_name,
+				status = excluded.status,
+				trigger = excluded.trigger,
+				overall_score = excluded.overall_score,
+				overall_verdict = excluded.overall_verdict,
+				created_at = excluded.created_at,
+				completed_at = excluded.completed_at`,
+			item.ID, item.TraceID, nullString(item.EventID), item.SuiteName, string(item.Status), item.Trigger, item.OverallScore, item.OverallVerdict, item.CreatedAt, nullTimeValue(item.CompletedAt),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistEvalJudgments(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.evalJudgments)
+	for _, key := range keys {
+		for _, item := range store.evalJudgments[key] {
+			if _, err := tx.Exec(`insert into eval_judgment (id, eval_run_id, layer, category, score, passed, rationale, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8)
+				on conflict (id) do update set
+					eval_run_id = excluded.eval_run_id,
+					layer = excluded.layer,
+					category = excluded.category,
+					score = excluded.score,
+					passed = excluded.passed,
+					rationale = excluded.rationale,
+					created_at = excluded.created_at`,
+				item.ID, item.EvalRunID, string(item.Layer), item.Category, item.Score, item.Passed, item.Rationale, item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistCandidates(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.candidates)
+	for _, key := range keys {
+		item := normalizeCandidateTargetFields(store.candidates[key])
+		if item.LineStatus == "" {
+			item.LineStatus = improvement.LineStatus(item.Status)
+		}
+		if strings.TrimSpace(string(item.CurrentTargetLayer)) == "" {
+			item.CurrentTargetLayer = item.TargetLayer
+		}
+		if _, err := tx.Exec(`insert into improvement_candidate (id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, subsystem, failure_mode, intervention_type, target_layer, target_kind, target_ref, status, severity, recurrence_count, expected_impact, novelty_score, confidence_score, freshness_score, priority_score, risk_tier, hypothesis, proposed_scope, latest_trace_id, source_eval_ids, evidence_artifact_ids, prior_similar_proposal_ids, new_evidence_since_last_rejection, line_status, retryable_failure_class, last_attempt_id, attempt_count, auto_retry_budget_remaining, current_target_layer, last_evaluated_at, created_at, updated_at) values ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb,$26::jsonb,$27::jsonb,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
+			on conflict (id) do update set
+				candidate_key = excluded.candidate_key,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				subsystem = excluded.subsystem,
+				failure_mode = excluded.failure_mode,
+				intervention_type = excluded.intervention_type,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
+				status = excluded.status,
+				severity = excluded.severity,
+				recurrence_count = excluded.recurrence_count,
+				expected_impact = excluded.expected_impact,
+				novelty_score = excluded.novelty_score,
+				confidence_score = excluded.confidence_score,
+				freshness_score = excluded.freshness_score,
+				priority_score = excluded.priority_score,
+				risk_tier = excluded.risk_tier,
+				hypothesis = excluded.hypothesis,
+				proposed_scope = excluded.proposed_scope,
+				latest_trace_id = excluded.latest_trace_id,
+				source_eval_ids = excluded.source_eval_ids,
+				evidence_artifact_ids = excluded.evidence_artifact_ids,
+				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
+				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				line_status = excluded.line_status,
+				retryable_failure_class = excluded.retryable_failure_class,
+				last_attempt_id = excluded.last_attempt_id,
+				attempt_count = excluded.attempt_count,
+				auto_retry_budget_remaining = excluded.auto_retry_budget_remaining,
+				current_target_layer = excluded.current_target_layer,
+				last_evaluated_at = excluded.last_evaluated_at,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Subsystem, item.FailureMode, item.InterventionType, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), string(item.Status), item.Severity, item.RecurrenceCount, item.ExpectedImpact, item.NoveltyScore, item.ConfidenceScore, item.FreshnessScore, item.PriorityScore, string(item.RiskTier), item.Hypothesis, item.ProposedScope, nullString(item.LatestTraceID), jsonString(item.SourceEvalIDs), jsonString(item.EvidenceArtifactIDs), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, string(item.LineStatus), firstNonEmpty(item.RetryableFailureClass), firstNonEmpty(item.LastAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, string(item.CurrentTargetLayer), nullTimeValue(item.LastEvaluatedAt), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistProposals(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.proposals)
+	for _, key := range keys {
+		item := normalizeProposalTargetFields(store.proposals[key])
+		if item.AutoRetryBudgetRemaining == 0 && review.ConsumesActiveProposalSlot(item.Status) {
+			item.AutoRetryBudgetRemaining = defaultProposalRetryBudget
+		}
+		if _, err := tx.Exec(`insert into proposal (id, version, trace_id, conversation_id, case_id, origin_trace_id, evidence_trace_ids, title, category, summary, status, reviewer, candidate_key, target_layer, target_kind, target_ref, source_eval_ids, risk_tier, proposed_scope, evidence_artifact_ids, active_slot_consuming, review_deadline, prior_similar_proposal_ids, new_evidence_since_last_rejection, current_attempt_id, attempt_count, auto_retry_budget_remaining, last_failure_class, next_retry_action, line_stopped_by, line_stop_reason, line_stopped_at, recommended_intervention_kind, recommended_intervention_rationale, target_surface, touched_files, validation_plan, material_risk_summary, recommended_disposition, created_at) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17::jsonb,$18,$19,$20::jsonb,$21,$22,$23::jsonb,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36::jsonb,$37,$38,$39,$40)
+			on conflict (id) do update set
+				version = excluded.version,
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				title = excluded.title,
+				category = excluded.category,
+				summary = excluded.summary,
+				status = excluded.status,
+				reviewer = excluded.reviewer,
+				candidate_key = excluded.candidate_key,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
+				source_eval_ids = excluded.source_eval_ids,
+				risk_tier = excluded.risk_tier,
+				proposed_scope = excluded.proposed_scope,
+				evidence_artifact_ids = excluded.evidence_artifact_ids,
+				active_slot_consuming = excluded.active_slot_consuming,
+				review_deadline = excluded.review_deadline,
+				prior_similar_proposal_ids = excluded.prior_similar_proposal_ids,
+				new_evidence_since_last_rejection = excluded.new_evidence_since_last_rejection,
+				current_attempt_id = excluded.current_attempt_id,
+				attempt_count = excluded.attempt_count,
+				auto_retry_budget_remaining = excluded.auto_retry_budget_remaining,
+				last_failure_class = excluded.last_failure_class,
+				next_retry_action = excluded.next_retry_action,
+				line_stopped_by = excluded.line_stopped_by,
+				line_stop_reason = excluded.line_stop_reason,
+				line_stopped_at = excluded.line_stopped_at,
+				recommended_intervention_kind = excluded.recommended_intervention_kind,
+				recommended_intervention_rationale = excluded.recommended_intervention_rationale,
+				target_surface = excluded.target_surface,
+				touched_files = excluded.touched_files,
+				validation_plan = excluded.validation_plan,
+				material_risk_summary = excluded.material_risk_summary,
+				recommended_disposition = excluded.recommended_disposition,
+				created_at = excluded.created_at`,
+			item.ID, item.Version, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Title, item.Category, item.Summary, string(item.Status), nullString(item.Reviewer), item.CandidateKey, string(item.TargetLayer), nullString(item.TargetKind), nullString(item.TargetRef), jsonString(item.SourceEvalIDs), item.RiskTier, item.ProposedScope, jsonString(item.EvidenceArtifactIDs), item.ActiveSlotConsuming, nullTimeValue(item.ReviewDeadline), jsonString(item.PriorSimilarProposalIDs), item.NewEvidenceSinceLastRejection, firstNonEmpty(item.CurrentAttemptID), item.AttemptCount, item.AutoRetryBudgetRemaining, firstNonEmpty(item.LastFailureClass), firstNonEmpty(item.NextRetryAction), firstNonEmpty(item.LineStoppedBy), firstNonEmpty(item.LineStopReason), nullTime(item.LineStoppedAt), string(item.RecommendedInterventionKind), firstNonEmpty(item.RecommendedInterventionRationale), firstNonEmpty(item.TargetSurface), jsonString(item.TouchedFiles), firstNonEmpty(item.ValidationPlan), firstNonEmpty(item.MaterialRiskSummary), firstNonEmpty(item.RecommendedDisposition), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func normalizeCandidateTargetFields(item improvement.Candidate) improvement.Candidate {
+	if strings.TrimSpace(string(item.TargetLayer)) == "" {
+		item.TargetLayer = deriveCandidateTargetLayer(item)
+	}
+	if strings.TrimSpace(item.TargetKind) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetKind = "runner_role"
+		} else {
+			item.TargetKind = "repo"
+		}
+	}
+	if strings.TrimSpace(item.TargetRef) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetRef = "prod"
+		} else {
+			item.TargetRef = "rsi-agent-platform"
+		}
+	}
+	item.RetryableFailureClass = firstNonEmpty(item.RetryableFailureClass)
+	item.LastAttemptID = firstNonEmpty(item.LastAttemptID)
+	return item
+}
+
+func normalizeProposalTargetFields(item review.Proposal) review.Proposal {
+	if strings.TrimSpace(string(item.TargetLayer)) == "" {
+		item.TargetLayer = deriveProposalTargetLayer(item)
+	}
+	if strings.TrimSpace(item.TargetKind) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetKind = "runner_role"
+		} else {
+			item.TargetKind = "repo"
+		}
+	}
+	if strings.TrimSpace(item.TargetRef) == "" {
+		if item.TargetLayer == harness.TargetLayerHarnessOverlay {
+			item.TargetRef = "prod"
+		} else {
+			item.TargetRef = "rsi-agent-platform"
+		}
+	}
+	item.CurrentAttemptID = firstNonEmpty(item.CurrentAttemptID)
+	item.LastFailureClass = firstNonEmpty(item.LastFailureClass)
+	item.NextRetryAction = firstNonEmpty(item.NextRetryAction)
+	item.LineStoppedBy = firstNonEmpty(item.LineStoppedBy)
+	item.LineStopReason = firstNonEmpty(item.LineStopReason)
+	return review.NormalizeProposalInterventionFields(item)
+}
+
+func deriveCandidateTargetLayer(item improvement.Candidate) harness.TargetLayer {
+	lowerFailure := strings.ToLower(strings.TrimSpace(item.FailureMode))
+	lowerIntervention := strings.ToLower(strings.TrimSpace(item.InterventionType))
+	switch {
+	case strings.Contains(lowerFailure, "memory"),
+		strings.Contains(lowerFailure, "prompt"),
+		strings.Contains(lowerFailure, "tool_selection"),
+		strings.Contains(lowerFailure, "behavioral"):
+		return harness.TargetLayerHarnessOverlay
+	case strings.Contains(lowerIntervention, "overlay"),
+		strings.Contains(lowerIntervention, "prompt"),
+		strings.Contains(lowerIntervention, "behavior"):
+		return harness.TargetLayerHarnessOverlay
+	default:
+		return harness.TargetLayerRepoChange
+	}
+}
+
+func deriveProposalTargetLayer(item review.Proposal) harness.TargetLayer {
+	if strings.TrimSpace(string(item.TargetLayer)) != "" {
+		return item.TargetLayer
+	}
+	switch {
+	case strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "memory"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "prompt"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.CandidateKey)), "behavioral"),
+		strings.Contains(strings.ToLower(strings.TrimSpace(item.Category)), "overlay"):
+		return harness.TargetLayerHarnessOverlay
+	default:
+		return harness.TargetLayerRepoChange
+	}
+}
+
+func persistProposalReviews(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.proposals)
+	for _, key := range keys {
+		for _, item := range store.proposals[key].Reviews {
+			if _, err := tx.Exec(`insert into proposal_review (id, proposal_id, idempotency_key, decision, scope, rationale, reviewer_id, failure_class, failure_classes, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)
+				on conflict (id) do update set
+					proposal_id = excluded.proposal_id,
+					idempotency_key = excluded.idempotency_key,
+					decision = excluded.decision,
+					scope = excluded.scope,
+					rationale = excluded.rationale,
+					reviewer_id = excluded.reviewer_id,
+					failure_class = excluded.failure_class,
+					failure_classes = excluded.failure_classes,
+					created_at = excluded.created_at`,
+				item.ID, item.ProposalID, nullString(item.IdempotencyKey), item.Decision, firstNonEmpty(string(item.Scope), string(review.FeedbackScopeLine)), item.Rationale, item.ReviewerID, nullString(item.FailureClass), jsonString(item.FailureClasses), item.CreatedAt,
+			); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func persistProposalMemory(tx *sql.Tx, store *MemoryStore) error {
+	for _, item := range store.proposalMemory {
+		if _, err := tx.Exec(`insert into proposal_memory (id, review_id, proposal_id, candidate_key, conversation_id, case_id, origin_trace_id, evidence_trace_ids, hypothesis, diff_summary, review_rationale, disposition, disposition_reason, failure_class, failure_classes, source_eval_ids, linked_artifact_ids, linked_proposal_ids, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12,$13,$14,$15::jsonb,$16::jsonb,$17::jsonb,$18::jsonb,$19)
+			on conflict (id) do update set
+				review_id = excluded.review_id,
+				proposal_id = excluded.proposal_id,
+				candidate_key = excluded.candidate_key,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				evidence_trace_ids = excluded.evidence_trace_ids,
+				hypothesis = excluded.hypothesis,
+				diff_summary = excluded.diff_summary,
+				review_rationale = excluded.review_rationale,
+				disposition = excluded.disposition,
+				disposition_reason = excluded.disposition_reason,
+				failure_class = excluded.failure_class,
+				failure_classes = excluded.failure_classes,
+				source_eval_ids = excluded.source_eval_ids,
+				linked_artifact_ids = excluded.linked_artifact_ids,
+				linked_proposal_ids = excluded.linked_proposal_ids,
+				created_at = excluded.created_at`,
+			item.ID, nullInt64(item.ReviewID), item.ProposalID, item.CandidateKey, nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), jsonString(item.EvidenceTraceIDs), item.Hypothesis, item.DiffSummary, item.ReviewRationale, string(item.Disposition), nullString(item.DispositionReason), nullString(item.FailureClass), jsonString(item.FailureClasses), jsonString(item.SourceEvalIDs), jsonString(item.LinkedArtifactIDs), jsonString(item.LinkedProposalIDs), item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistChangeAttempts(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.changeAttempts)
+	for _, key := range keys {
+		item := normalizeChangeAttempt(store.changeAttempts[key])
+		if _, err := tx.Exec(`insert into change_attempt (id, version, proposal_id, candidate_key, attempt_number, target_layer, target_kind, target_ref, trigger, state, attempt_trace_id, parent_attempt_id, branch_name, pr_url, head_sha, failure_class, failure_summary, retry_decision, retry_after, material_hypothesis_change, diff_summary, changed_files, validation_summary, change_plan, repo_patch, validation_plan, retry_assessment, hypothesis_delta, overlay_payload, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23,$24,$25,$26,$27,$28,$29::jsonb,$30,$31)
+			on conflict (id) do update set
+				version = excluded.version,
+				proposal_id = excluded.proposal_id,
+				candidate_key = excluded.candidate_key,
+				attempt_number = excluded.attempt_number,
+				target_layer = excluded.target_layer,
+				target_kind = excluded.target_kind,
+				target_ref = excluded.target_ref,
+				trigger = excluded.trigger,
+				state = excluded.state,
+				attempt_trace_id = excluded.attempt_trace_id,
+				parent_attempt_id = excluded.parent_attempt_id,
+				branch_name = excluded.branch_name,
+				pr_url = excluded.pr_url,
+				head_sha = excluded.head_sha,
+				failure_class = excluded.failure_class,
+				failure_summary = excluded.failure_summary,
+				retry_decision = excluded.retry_decision,
+				retry_after = excluded.retry_after,
+				material_hypothesis_change = excluded.material_hypothesis_change,
+				diff_summary = excluded.diff_summary,
+				changed_files = excluded.changed_files,
+				validation_summary = excluded.validation_summary,
+				change_plan = excluded.change_plan,
+				repo_patch = excluded.repo_patch,
+				validation_plan = excluded.validation_plan,
+				retry_assessment = excluded.retry_assessment,
+				hypothesis_delta = excluded.hypothesis_delta,
+				overlay_payload = excluded.overlay_payload,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, item.Version, item.ProposalID, item.CandidateKey, item.AttemptNumber, string(item.TargetLayer), item.TargetKind, item.TargetRef, string(item.Trigger), string(item.State), item.AttemptTraceID, item.ParentAttemptID, item.BranchName, item.PRURL, item.HeadSHA, item.FailureClass, item.FailureSummary, item.RetryDecision, nullTime(item.RetryAfter), item.MaterialHypothesisChange, item.DiffSummary, jsonString(item.ChangedFiles), item.ValidationSummary, item.ChangePlan, item.RepoPatch, item.ValidationPlan, item.RetryAssessment, item.HypothesisDelta, jsonString(item.OverlayPayload), item.CreatedAt, item.UpdatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistSettings(tx *sql.Tx, store *MemoryStore) error {
+	item := normalizedSettings(store.settings)
+	if _, err := tx.Exec(`insert into improvement_settings (key, active_proposal_cap, updated_at) values ($1,$2,$3)
+		on conflict (key) do update set
+			active_proposal_cap = excluded.active_proposal_cap,
+			updated_at = excluded.updated_at`,
+		"default", item.ActiveProposalCap, item.UpdatedAt,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+func persistRepoChangeJobs(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.repoChangeJobs)
+	for _, key := range keys {
+		item := store.repoChangeJobs[key]
+		if _, err := tx.Exec(`insert into repo_change_job (id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, candidate_key, status, repo, base_ref, branch_name, allowed_path_globs, context_summary, sandbox_namespace, sandbox_job_name, sandbox_pod_name, validation_error, validation_ref, log_artifact_id, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				candidate_key = excluded.candidate_key,
+				status = excluded.status,
+				repo = excluded.repo,
+				base_ref = excluded.base_ref,
+				branch_name = excluded.branch_name,
+				allowed_path_globs = excluded.allowed_path_globs,
+				context_summary = excluded.context_summary,
+				sandbox_namespace = excluded.sandbox_namespace,
+				sandbox_job_name = excluded.sandbox_job_name,
+				sandbox_pod_name = excluded.sandbox_pod_name,
+				validation_error = excluded.validation_error,
+				validation_ref = excluded.validation_ref,
+				log_artifact_id = excluded.log_artifact_id,
+				created_at = excluded.created_at,
+				updated_at = excluded.updated_at`,
+			item.ID, item.ProposalID, firstNonEmpty(item.AttemptID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.CandidateKey, item.Status, item.Repo, item.BaseRef, item.BranchName, jsonString(item.AllowedPathGlobs), item.ContextSummary, nullString(item.SandboxNamespace), nullString(item.SandboxJobName), nullString(item.SandboxPodName), nullString(item.ValidationError), nullString(item.ValidationRef), nullString(item.LogArtifactID), item.CreatedAt, nullTimeValue(item.UpdatedAt),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistPRAttempts(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.prAttempts)
+	for _, key := range keys {
+		item := store.prAttempts[key]
+		if _, err := tx.Exec(`insert into pr_attempt (id, proposal_id, attempt_id, conversation_id, case_id, origin_trace_id, repo, branch_name, pr_url, head_sha, status, validation_status, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				attempt_id = excluded.attempt_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				origin_trace_id = excluded.origin_trace_id,
+				repo = excluded.repo,
+				branch_name = excluded.branch_name,
+				pr_url = excluded.pr_url,
+				head_sha = excluded.head_sha,
+				status = excluded.status,
+				validation_status = excluded.validation_status,
+				created_at = excluded.created_at`,
+			item.ID, item.ProposalID, firstNonEmpty(item.AttemptID), nullString(item.ConversationID), nullString(item.CaseID), nullString(item.OriginTraceID), item.Repo, item.BranchName, nullString(item.PRURL), firstNonEmpty(item.HeadSHA), item.Status, item.ValidationStatus, item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistPostMergeReplays(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.postMergeReplay)
+	for _, key := range keys {
+		item := store.postMergeReplay[key]
+		if _, err := tx.Exec(`insert into post_merge_replay (id, proposal_id, trace_id, conversation_id, case_id, baseline_score, candidate_score, improved, created_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+			on conflict (id) do update set
+				proposal_id = excluded.proposal_id,
+				trace_id = excluded.trace_id,
+				conversation_id = excluded.conversation_id,
+				case_id = excluded.case_id,
+				baseline_score = excluded.baseline_score,
+				candidate_score = excluded.candidate_score,
+				improved = excluded.improved,
+				created_at = excluded.created_at`,
+			item.ID, item.ProposalID, item.TraceID, nullString(item.ConversationID), nullString(item.CaseID), item.BaselineScore, item.CandidateScore, item.Improved, item.CreatedAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func persistCronLeases(tx *sql.Tx, store *MemoryStore) error {
+	keys := sortedMapKeys(store.cronLeases)
+	for _, key := range keys {
+		item := store.cronLeases[key]
+		if _, err := tx.Exec(`insert into cron_lease (name, holder, expires_at) values ($1,$2,$3)
+			on conflict (name) do update set
+				holder = excluded.holder,
+				expires_at = excluded.expires_at`,
+			item.Name, item.Holder, item.ExpiresAt,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func decodeJSON[T any](raw []byte, fallback T) T {
+	if len(raw) == 0 {
+		return fallback
+	}
+	var out T
+	if err := json.Unmarshal(raw, &out); err != nil {
+		return fallback
+	}
+	return out
+}
+
+func jsonString(value any) string {
+	data, err := json.Marshal(value)
+	if err != nil {
+		panic(fmt.Errorf("marshal postgres json value: %w", err))
+	}
+	return string(data)
+}
+
+func nullString(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
+}
+
+func nullTime(value *time.Time) any {
+	if value == nil || value.IsZero() {
+		return nil
+	}
+	return *value
+}
+
+func nullTimeValue(value time.Time) any {
+	if value.IsZero() {
+		return nil
+	}
+	return value
+}
+
+func nullInt64(value int64) any {
+	if value == 0 {
+		return nil
+	}
+	return value
+}
+
+func sortedMapKeys[V any](items map[string]V) []string {
+	keys := make([]string, 0, len(items))
+	for key := range items {
+		keys = append(keys, key)
+	}
+	slices.Sort(keys)
+	return keys
+}
+
+func (p *PostgresStore) ListEvents() []ingestion.EventEnvelope {
+	rows, err := p.db.Query(`select id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at from event_envelope order by created_at desc`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []ingestion.EventEnvelope{}
+	for rows.Next() {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func (p *PostgresStore) ListEventsByIDs(ids []string) []ingestion.EventEnvelope {
+	ids = compactStrings(ids)
+	if len(ids) == 0 {
+		return nil
+	}
+	query := `select id, source, source_event_id, thread_key, incident_key, dedupe_key, severity, normalized_problem_statement, ownership_hint, raw_payload_ref, workflow_hint, metadata, created_at from event_envelope where id in (` + sqlPlaceholders(len(ids), 1) + `) order by created_at desc`
+	rows, err := p.db.Query(query, stringsToAny(ids)...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []ingestion.EventEnvelope{}
+	for rows.Next() {
+		item, err := scanEventEnvelope(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func (p *PostgresStore) ListConversations() []conversation.Conversation {
+	store := newEmptyMemoryStore()
+	if err := loadConversations(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListConversations()
+}
+
+func (p *PostgresStore) GetConversation(conversationID string) (conversation.Conversation, bool) {
+	row := p.db.QueryRow(`select id, source, external_key, external_conversation, title, status, participant_ids, active_case_id, latest_event_id, created_at, updated_at from conversation where id = $1`, conversationID)
+	var item conversation.Conversation
+	var source, status string
+	var participantIDs []byte
+	var activeCaseID, latestEventID sql.NullString
+	if err := row.Scan(&item.ID, &source, &item.ExternalKey, &item.ExternalConversation, &item.Title, &status, &participantIDs, &activeCaseID, &latestEventID, &item.CreatedAt, &item.UpdatedAt); err != nil {
+		return conversation.Conversation{}, false
+	}
+	item.Source = ingestion.Source(source)
+	item.Status = conversation.Status(status)
+	item.ParticipantIDs = decodeJSON(participantIDs, []string{})
+	item.ActiveCaseID = activeCaseID.String
+	item.LatestEventID = latestEventID.String
+	return item, true
+}
+
+func (p *PostgresStore) ListConversationEntries(conversationID string) []conversation.Entry {
+	rows, err := p.db.Query(`select id, conversation_id, event_id, trace_id, source, source_event_id, entry_type, actor_id, actor_type, body, metadata, created_at
+from conversation_entry
+where conversation_id = $1
+order by created_at asc, id asc`, conversationID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	entries := []conversation.Entry{}
+	for rows.Next() {
+		item, scanErr := scanConversationEntry(rows)
+		if scanErr != nil {
+			return nil
+		}
+		entries = append(entries, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return entries
+}
+
+func (p *PostgresStore) ListCases() []conversation.Case {
+	store := newEmptyMemoryStore()
+	if err := loadCases(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListCases()
+}
+
+func (p *PostgresStore) GetCase(caseID string) (conversation.Case, bool) {
+	row := p.db.QueryRow(`select `+caseColumns+` from case_record where id = $1`, caseID)
+	item, err := scanCaseRecord(row)
+	if err != nil {
+		return conversation.Case{}, false
+	}
+	return item, true
+}
+
+func (p *PostgresStore) ListActionIntents() []action.Intent {
+	store := newEmptyMemoryStore()
+	if err := loadActionIntents(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListActionIntents()
+}
+
+func (p *PostgresStore) GetActionIntent(actionID string) (action.Intent, bool) {
+	store := newEmptyMemoryStore()
+	if err := loadActionIntents(p.db, store); err != nil {
+		return action.Intent{}, false
+	}
+	return store.GetActionIntent(actionID)
+}
+
+func (p *PostgresStore) ListActionResults(actionIntentID string) []action.Result {
+	store := newEmptyMemoryStore()
+	if err := loadActionResults(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListActionResults(actionIntentID)
+}
+
+func (p *PostgresStore) ListOutcomes() []outcome.Record {
+	store := newEmptyMemoryStore()
+	if err := loadOutcomes(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListOutcomes()
+}
+
+func (p *PostgresStore) ListKnowledgeEntries() []knowledge.Entry {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEntries(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListKnowledgeEntries()
+}
+
+func (p *PostgresStore) GetKnowledgeEntry(knowledgeID string) (knowledge.Entry, bool) {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEntries(p.db, store); err != nil {
+		return knowledge.Entry{}, false
+	}
+	return store.GetKnowledgeEntry(knowledgeID)
+}
+
+func (p *PostgresStore) ListKnowledgeEvidenceLinks(knowledgeID string) []knowledge.EvidenceLink {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeEvidence(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListKnowledgeEvidenceLinks(knowledgeID)
+}
+
+func (p *PostgresStore) ListKnowledgeReviews(knowledgeID string) []knowledge.Review {
+	store := newEmptyMemoryStore()
+	if err := loadKnowledgeReviews(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListKnowledgeReviews(knowledgeID)
+}
+
+func (p *PostgresStore) ListIngestions() []slack.Ingestion {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListIngestions()
+}
+
+func (p *PostgresStore) ListWorkflows() []Workflow {
+	store := newEmptyMemoryStore()
+	if err := loadWorkflows(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListWorkflows()
+}
+
+func (p *PostgresStore) ListWorkflowsByStatus(status string) []Workflow {
+	store := newEmptyMemoryStore()
+	if err := loadWorkflowsByStatus(p.db, store, status); err != nil {
+		return nil
+	}
+	return store.workflows
+}
+
+func (p *PostgresStore) GetWorkflowByIngestionID(ingestionID string) (Workflow, bool) {
+	ingestionID = strings.TrimSpace(ingestionID)
+	if ingestionID == "" {
+		return Workflow{}, false
+	}
+	row := p.db.QueryRow(`select id, version, ingestion_id, trace_id, conversation_id, case_id, thread_key, kind, intent, assigned_bot, approval_mode, response_mode, status, last_verdict, last_error, attempt_number, parent_workflow_id, failure_class, failure_summary, retry_decision, retry_after, runner_diagnostics, repair_attempted, repair_succeeded, created_at, updated_at, completed_at from workflow where ingestion_id = $1 limit 1`, ingestionID)
+	var item Workflow
+	var ingestionIDCol, traceID, conversationID, caseID, intent, approvalMode, responseMode, lastVerdict, lastError, parentWorkflowID, failureClass, failureSummary, retryDecision sql.NullString
+	var retryAfter, completedAt sql.NullTime
+	var runnerDiagnostics []byte
+	if err := row.Scan(&item.ID, &item.Version, &ingestionIDCol, &traceID, &conversationID, &caseID, &item.ThreadKey, &item.Kind, &intent, &item.AssignedBot, &approvalMode, &responseMode, &item.Status, &lastVerdict, &lastError, &item.AttemptNumber, &parentWorkflowID, &failureClass, &failureSummary, &retryDecision, &retryAfter, &runnerDiagnostics, &item.RepairAttempted, &item.RepairSucceeded, &item.CreatedAt, &item.UpdatedAt, &completedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return Workflow{}, false
+		}
+		return Workflow{}, false
+	}
+	item.IngestionID = ingestionIDCol.String
+	item.TraceID = traceID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Intent = intent.String
+	item.ApprovalMode = approvalMode.String
+	item.ResponseMode = responseMode.String
+	item.LastVerdict = lastVerdict.String
+	item.LastError = lastError.String
+	item.ParentWorkflowID = parentWorkflowID.String
+	item.FailureClass = failureClass.String
+	item.FailureSummary = failureSummary.String
+	item.RetryDecision = retryDecision.String
+	if retryAfter.Valid {
+		t := retryAfter.Time
+		item.RetryAfter = &t
+	}
+	item.RunnerDiagnostics = decodeJSON(runnerDiagnostics, map[string]any{})
+	if completedAt.Valid {
+		t := completedAt.Time
+		item.CompletedAt = &t
+	}
+	return item, true
+}
+
+func (p *PostgresStore) ListAssignments() []Assignment {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListAssignments()
+}
+
+func (p *PostgresStore) ListThreadPolicies() []policy.ThreadPolicy {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListThreadPolicies()
+}
+
+func (p *PostgresStore) ListChannelPolicies() []policy.ChannelPolicy {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListChannelPolicies()
+}
+
+func (p *PostgresStore) ListOwnershipRecords() []registry.OwnershipRecord {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListOwnershipRecords()
+}
+
+func (p *PostgresStore) ListCapabilities() []registry.CapabilityRecord {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListCapabilities()
+}
+
+func (p *PostgresStore) ListTemplates() []registry.WorkflowTemplate {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListTemplates()
+}
+
+func (p *PostgresStore) ListExperiments() []registry.ExperimentRecord {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListExperiments()
+}
+
+func (p *PostgresStore) ListTraces() []events.TraceSummary {
+	rows, err := p.db.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary order by started_at desc`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []events.TraceSummary{}
+	for rows.Next() {
+		summary, err := scanTraceSummary(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, summary)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func (p *PostgresStore) GetTrace(traceID string) (events.Trace, bool) {
+	summary, ok := p.getTraceSummary(traceID)
+	if !ok {
+		return events.Trace{}, false
+	}
+	trace := events.Trace{Summary: summary}
+	trace.Events = p.listTraceEventsByTrace(traceID)
+	trace.Artifacts = p.listArtifactsByTrace(traceID)
+	trace.Reasoning = p.listReasoningStepsByTrace(traceID)
+	trace.ToolCalls = p.listToolCallsByTrace(traceID)
+	trace.SlackActions = p.listSlackActionsByTrace(traceID)
+	recomputeTraceSummary(&trace)
+	return trace, true
+}
+
+func (p *PostgresStore) getTraceSummary(traceID string) (events.TraceSummary, bool) {
+	row := p.db.QueryRow(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, supersedes_trace_id, thread_key, workflow_kind, status, last_verdict, started_at, ended_at, event_count, artifact_count, reasoning_step_count, tool_call_count, slack_action_count from trace_summary where trace_id = $1`, traceID)
+	summary, err := scanTraceSummary(row)
+	if err != nil {
+		return events.TraceSummary{}, false
+	}
+	return summary, true
+}
+
+type traceSummaryScanner interface {
+	Scan(dest ...any) error
+}
+
+func scanTraceSummary(row traceSummaryScanner) (events.TraceSummary, error) {
+	var summary events.TraceSummary
+	var status string
+	var conversationID, caseID, triggerEventID, supersedesTraceID, lastVerdict sql.NullString
+	if err := row.Scan(&summary.TraceID, &summary.IngestionID, &summary.WorkflowID, &conversationID, &caseID, &triggerEventID, &supersedesTraceID, &summary.ThreadKey, &summary.WorkflowKind, &status, &lastVerdict, &summary.StartedAt, &summary.EndedAt, &summary.EventCount, &summary.ArtifactCount, &summary.ReasoningStepCount, &summary.ToolCallCount, &summary.SlackActionCount); err != nil {
+		return events.TraceSummary{}, err
+	}
+	summary.ConversationID = conversationID.String
+	summary.CaseID = caseID.String
+	summary.TriggerEventID = triggerEventID.String
+	summary.SupersedesTraceID = supersedesTraceID.String
+	summary.Status = events.Status(status)
+	summary.LastVerdict = lastVerdict.String
+	return summary, nil
+}
+
+func (p *PostgresStore) listTraceEventsByTrace(traceID string) []events.TraceEvent {
+	rows, err := p.db.Query(`select trace_id, ingestion_id, workflow_id, conversation_id, case_id, trigger_event_id, parent_event_id, plane, service, actor, event_type, status, started_at, ended_at, payload_ref, artifact_ref, cost_tokens, latency_ms, description from trace_event where trace_id = $1 order by started_at asc`, traceID)
+	if err != nil {
+		return []events.TraceEvent{}
+	}
+	defer rows.Close()
+	out := []events.TraceEvent{}
+	for rows.Next() {
+		var item events.TraceEvent
+		var status string
+		var conversationID, caseID, triggerEventID, parentEvent, payloadRef, artifactRef, description sql.NullString
+		var endedAt sql.NullTime
+		if err := rows.Scan(&item.TraceID, &item.IngestionID, &item.WorkflowID, &conversationID, &caseID, &triggerEventID, &parentEvent, &item.Plane, &item.Service, &item.Actor, &item.EventType, &status, &item.StartedAt, &endedAt, &payloadRef, &artifactRef, &item.CostTokens, &item.LatencyMs, &description); err != nil {
+			return []events.TraceEvent{}
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TriggerEventID = triggerEventID.String
+		item.Status = events.Status(status)
+		item.ParentEvent = parentEvent.String
+		item.PayloadRef = payloadRef.String
+		item.ArtifactRef = artifactRef.String
+		item.Description = description.String
+		if endedAt.Valid {
+			t := endedAt.Time
+			item.EndedAt = &t
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listArtifactsByTrace(traceID string) []events.Artifact {
+	rows, err := p.db.Query(`select id, trace_id, kind, content_type, url, size_bytes, source from artifact where trace_id = $1 order by id`, traceID)
+	if err != nil {
+		return []events.Artifact{}
+	}
+	defer rows.Close()
+	out := []events.Artifact{}
+	for rows.Next() {
+		var item events.Artifact
+		if err := rows.Scan(&item.ID, &item.TraceID, &item.Kind, &item.ContentType, &item.URL, &item.SizeBytes, &item.Source); err != nil {
+			return []events.Artifact{}
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listReasoningStepsByTrace(traceID string) []events.ReasoningStep {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.ReasoningStep{}
+	}
+	defer rows.Close()
+	out := []events.ReasoningStep{}
+	for rows.Next() {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
+			return []events.ReasoningStep{}
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) ListReasoningStepsByTraceIDsAndType(traceIDs []string, stepType string) []events.ReasoningStep {
+	traceIDs = compactStrings(traceIDs)
+	stepType = strings.TrimSpace(stepType)
+	if len(traceIDs) == 0 || stepType == "" {
+		return nil
+	}
+	args := append(stringsToAny(traceIDs), stepType)
+	query := `select id, trace_id, workflow_id, conversation_id, case_id, step_type, summary, evidence_refs, alternatives, confidence, decision, created_at from reasoning_step where trace_id in (` + sqlPlaceholders(len(traceIDs), 1) + `) and lower(step_type) = lower($` + strconv.Itoa(len(traceIDs)+1) + `) order by trace_id asc, created_at desc, id desc`
+	rows, err := p.db.Query(query, args...)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []events.ReasoningStep{}
+	for rows.Next() {
+		item, err := scanReasoningStep(rows)
+		if err != nil {
+			return nil
+		}
+		out = append(out, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil
+	}
+	return out
+}
+
+func scanReasoningStep(scanner interface{ Scan(dest ...any) error }) (events.ReasoningStep, error) {
+	var item events.ReasoningStep
+	var workflowID, conversationID, caseID, decision sql.NullString
+	var evidenceRefs, alternatives []byte
+	if err := scanner.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.StepType, &item.Summary, &evidenceRefs, &alternatives, &item.Confidence, &decision, &item.CreatedAt); err != nil {
+		return events.ReasoningStep{}, err
+	}
+	item.WorkflowID = workflowID.String
+	item.ConversationID = conversationID.String
+	item.CaseID = caseID.String
+	item.Decision = decision.String
+	item.EvidenceRefs = decodeJSON(evidenceRefs, []events.EvidenceRef{})
+	item.Alternatives = decodeJSON(alternatives, []string{})
+	return item, nil
+}
+
+func (p *PostgresStore) listToolCallsByTrace(traceID string) []events.ToolCallRecord {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, tool_name, tool_call_id, request, summary, raw_artifact_refs, approval_state, interpretation_summary, status, created_at from tool_call_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.ToolCallRecord{}
+	}
+	defer rows.Close()
+	out := []events.ToolCallRecord{}
+	for rows.Next() {
+		var item events.ToolCallRecord
+		var workflowID, conversationID, caseID, summary, approvalState, interpretationSummary, status sql.NullString
+		var request, rawArtifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &item.ToolName, &item.ToolCallID, &request, &summary, &rawArtifactRefs, &approvalState, &interpretationSummary, &status, &item.CreatedAt); err != nil {
+			return []events.ToolCallRecord{}
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.Request = decodeJSON(request, map[string]interface{}{})
+		item.Summary = summary.String
+		item.RawArtifactRefs = decodeJSON(rawArtifactRefs, []string{})
+		item.ApprovalState = approvalState.String
+		item.InterpretationSummary = interpretationSummary.String
+		item.Status = status.String
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) listSlackActionsByTrace(traceID string) []events.SlackActionRecord {
+	rows, err := p.db.Query(`select id, trace_id, workflow_id, conversation_id, case_id, channel_id, thread_ts, idempotency_key, draft_body, final_body, policy_verdict, send_status, artifact_refs, created_at from slack_action_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []events.SlackActionRecord{}
+	}
+	defer rows.Close()
+	out := []events.SlackActionRecord{}
+	for rows.Next() {
+		var item events.SlackActionRecord
+		var workflowID, conversationID, caseID, channelID, threadTS, draftBody, finalBody, policyVerdict, sendStatus sql.NullString
+		var artifactRefs []byte
+		if err := rows.Scan(&item.ID, &item.TraceID, &workflowID, &conversationID, &caseID, &channelID, &threadTS, &item.IdempotencyKey, &draftBody, &finalBody, &policyVerdict, &sendStatus, &artifactRefs, &item.CreatedAt); err != nil {
+			return []events.SlackActionRecord{}
+		}
+		item.WorkflowID = workflowID.String
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.ChannelID = channelID.String
+		item.ThreadTS = threadTS.String
+		item.DraftBody = draftBody.String
+		item.FinalBody = finalBody.String
+		item.PolicyVerdict = policyVerdict.String
+		item.SendStatus = sendStatus.String
+		item.ArtifactRefs = decodeJSON(artifactRefs, []string{})
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) TraceExists(traceID string) bool {
+	var exists bool
+	if err := p.db.QueryRow(`select exists (select 1 from trace_summary where trace_id = $1)`, traceID).Scan(&exists); err != nil {
+		return false
+	}
+	return exists
+}
+
+func (p *PostgresStore) ListRatings(traceID string) []review.HumanRating {
+	store, err := p.readStore()
+	if err != nil {
+		return []review.HumanRating{}
+	}
+	return store.ListRatings(traceID)
+}
+
+func (p *PostgresStore) ListImprovementNotes(traceID string) []review.ImprovementNote {
+	store, err := p.readStore()
+	if err != nil {
+		return []review.ImprovementNote{}
+	}
+	return store.ListImprovementNotes(traceID)
+}
+
+func (p *PostgresStore) ListFeedback(traceID string) []review.FeedbackRecord {
+	rows, err := p.db.Query(`select id, conversation_id, case_id, trace_id, target_type, target_id, score, verdict, labels, notes, reviewer_id, created_at from feedback_record where trace_id = $1 order by created_at asc`, traceID)
+	if err != nil {
+		return []review.FeedbackRecord{}
+	}
+	defer rows.Close()
+	out := []review.FeedbackRecord{}
+	for rows.Next() {
+		var item review.FeedbackRecord
+		var conversationID, caseID, traceIDValue, verdict, notes sql.NullString
+		var labels []byte
+		var targetType string
+		if err := rows.Scan(&item.ID, &conversationID, &caseID, &traceIDValue, &targetType, &item.TargetID, &item.Score, &verdict, &labels, &notes, &item.ReviewerID, &item.CreatedAt); err != nil {
+			return []review.FeedbackRecord{}
+		}
+		item.ConversationID = conversationID.String
+		item.CaseID = caseID.String
+		item.TraceID = traceIDValue.String
+		item.TargetType = review.FeedbackTargetType(targetType)
+		item.Verdict = verdict.String
+		item.Labels = decodeJSON(labels, []string{})
+		item.Notes = notes.String
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) ListEvalSuites() []evals.Suite {
+	store, err := p.readStore()
+	if err != nil {
+		return nil
+	}
+	return store.ListEvalSuites()
+}
+
+func (p *PostgresStore) ListEvalRuns() []evals.Run {
+	store := newEmptyMemoryStore()
+	if err := loadEvalRuns(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListEvalRuns()
+}
+
+func (p *PostgresStore) ListEvalJudgments(evalRunID string) []evals.Judgment {
+	rows, err := p.db.Query(`select id, eval_run_id, layer, category, score, passed, rationale, created_at from eval_judgment where eval_run_id = $1 order by created_at asc`, evalRunID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	out := []evals.Judgment{}
+	for rows.Next() {
+		var item evals.Judgment
+		var layer string
+		if err := rows.Scan(&item.ID, &item.EvalRunID, &layer, &item.Category, &item.Score, &item.Passed, &item.Rationale, &item.CreatedAt); err != nil {
+			return nil
+		}
+		item.Layer = evals.Layer(layer)
+		out = append(out, item)
+	}
+	return out
+}
+
+func (p *PostgresStore) GetSettings() improvement.Settings {
+	store := newEmptyMemoryStore()
+	if err := loadSettings(p.db, store); err != nil {
+		return improvement.Settings{ActiveProposalCap: defaultProposalSlotCap}
+	}
+	return store.GetSettings()
+}
+
+func (p *PostgresStore) ListCandidates() []improvement.Candidate {
+	store := newEmptyMemoryStore()
+	if err := loadCandidates(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListCandidates()
+}
+
+func (p *PostgresStore) ListProposalMemories() []review.ProposalMemory {
+	store := newEmptyMemoryStore()
+	if err := loadProposalMemory(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListProposalMemories()
+}
+
+func (p *PostgresStore) GetProposalSlots() ProposalSlotState {
+	store := newEmptyMemoryStore()
+	if err := loadProposals(p.db, store); err != nil {
+		return ProposalSlotState{Cap: defaultProposalSlotCap}
+	}
+	if err := loadSettings(p.db, store); err != nil {
+		return ProposalSlotState{Cap: defaultProposalSlotCap}
+	}
+	return store.GetProposalSlots()
+}
+
+func (p *PostgresStore) ListProposals() []review.Proposal {
+	store := newEmptyMemoryStore()
+	if err := loadProposals(p.db, store); err != nil {
+		return nil
+	}
+	if err := loadProposalReviews(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListProposals()
+}
+
+func (p *PostgresStore) ListRepoChangeJobs() []improvement.RepoChangeJob {
+	store := newEmptyMemoryStore()
+	if err := loadRepoChangeJobs(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListRepoChangeJobs()
+}
+
+func (p *PostgresStore) ListPRAttempts() []improvement.PRAttempt {
+	store := newEmptyMemoryStore()
+	if err := loadPRAttempts(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListPRAttempts()
+}
+
+func (p *PostgresStore) RecordPRAttempt(attempt improvement.PRAttempt) (item improvement.PRAttempt, err error) {
+	return p.recordPRAttemptDirect(attempt)
+}
+
+func (p *PostgresStore) ListPostMergeReplays() []improvement.PostMergeReplay {
+	store := newEmptyMemoryStore()
+	if err := loadPostMergeReplays(p.db, store); err != nil {
+		return nil
+	}
+	return store.ListPostMergeReplays()
+}

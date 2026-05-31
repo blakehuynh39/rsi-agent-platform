@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "name": "executor-cli-tools",
+      "type": "cli",
+      "source_of_truth": "runner/Dockerfile.hermes-executor",
+      "runtime_surface": "Hermes executor terminal"
+    },
+    {
+      "name": "executor-mcp-servers",
+      "type": "mcp",
+      "source_of_truth": "story-deployments rsi-platform/rsi-agent-platform values",
+      "runtime_surface": "Hermes native mcp_servers configuration"
+    },
+    {
+      "name": "executor-api-credentials",
+      "type": "credential",
+      "source_of_truth": "story-infra-aws Vault/IRSA wiring",
+      "runtime_surface": "executor pod environment or mounted files"
+    },
+    {
+      "name": "prod-depin-admin-read",
+      "type": "credential",
+      "source_of_truth": "prod depin Vault value copied into stage RSI Vault, story-deployments executor env wiring, and the depin admin read validation hook",
+      "runtime_surface": "DEPIN_ADMIN_BASE_URL, DEPIN_ADMIN_READ_API_KEY_HEADER, DEPIN_ADMIN_READ_API_KEY"
+    },
+    {
+      "name": "prod-depin-api-context",
+      "type": "api_contract",
+      "source_of_truth": "piplabs/depin-backend source and checked-in API docs, piplabs/cloudflare routing, production OpenAPI only for public client route context",
+      "runtime_surface": "depin-prod-admin-read Hermes skill"
+    },
+    {
+      "name": "story-company-skills",
+      "type": "skill",
+      "source_of_truth": "$HERMES_HOME/skills/story-company on the Hermes executor PVC",
+      "runtime_surface": "$HERMES_HOME/skills/story-company",
+      "bootstrap_seed": "hermes/skills/story-company",
+      "observability_surface": "hermes/exported-skills/stage"
+    }
+  ]
+}

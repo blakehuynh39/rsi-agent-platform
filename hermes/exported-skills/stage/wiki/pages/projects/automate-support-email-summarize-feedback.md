@@ -1,0 +1,28 @@
+---
+title: "Automate support email to summarize feedback emails"
+type: "project"
+slug: "projects/automate-support-email-summarize-feedback"
+freshness: "2026-05-04T16:11:00Z"
+tags: []
+owners: []
+source_revision_ids:
+  - "srcrev_844da14f24df349ff78ffde57631985e"
+conflict_state: "none"
+---
+
+# Automate support email to summarize feedback emails
+
+## Summary
+
+Project to automate support email processing to summarize feedback emails.
+
+## Claims
+
+- There is a project to automate support email to summarize feedback emails. `claim:claim_1_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Automate-support-email-to-summarize-feedback-emails-356051299a5480f88b97cae343e1a658) `source_document_id=srcdoc_601aa721c65fb49fe7a173d805f28b85` `source_revision_id=srcrev_844da14f24df349ff78ffde57631985e` `chunk_id=srcchunk_77f8c65631a44a38acb404c0abbe03a3` `native_locator=https://www.notion.so/Automate-support-email-to-summarize-feedback-emails-356051299a5480f88b97cae343e1a658` `source_timestamp=2026-05-04T16:11:00Z`
+
+## Sources
+
+- `source_document_id`: `srcdoc_601aa721c65fb49fe7a173d805f28b85`
+- `source_revision_id`: `srcrev_7703ad5e707d7a9abf41665192058fe5`
+- `source_url`: [Notion source](https://www.notion.so/Automate-support-email-to-summarize-feedback-emails-356051299a5480f88b97cae343e1a658)
