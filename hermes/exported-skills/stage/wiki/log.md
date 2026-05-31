@@ -23896,3 +23896,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f427295638bfeb976fc2fc338a187281
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-05-31T15:30:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_8884a9a8e2aae60814cbcb073f06dcf0
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_f535af3fd97a9c22f9d2014d3a1627ed
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
