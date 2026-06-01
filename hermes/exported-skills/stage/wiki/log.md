@@ -23964,3 +23964,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_faf38cf8629e1c58049ca4937b456130
 - summary: Checklist for onboarding the Jed Korean team, covering operational access (Slack, Github, AWS, mobile dev accounts) and third-party service accounts (CloudFlare, Dynamic, Elevenlab...
 
+## [2026-06-01T18:18:45Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_70c73208f0789ad21fefaa0089d88504
+- summary: Phased launch plan beginning May 28, 2026, with weekly feature releases, tasks, messaging, and action items.
+
