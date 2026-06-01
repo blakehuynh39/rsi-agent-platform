@@ -23989,3 +23989,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_ae2efd07b235a2d7838e5dbd6dc4bfc9
 - summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-06-01T21:00:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_d146421ec5e8f9806f03d8c186d519e4
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_92211b3e48a69c6c1b61d5fcaee008c2
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-01T21:01:27Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_36921bf9dc19ef57a2321c7526e349d5
+- summary: Phased launch plan beginning May 28, 2026, with weekly feature releases, tasks, messaging, and action items.
+
