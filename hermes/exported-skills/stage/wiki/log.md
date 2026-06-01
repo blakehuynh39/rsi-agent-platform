@@ -23939,3 +23939,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_2908aff648c14b5a3a7a0f29bad1c960
 - summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-06-01T17:00:32Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_1c731e5db66a1df66e58881a80c9f022
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_25047d2a7b39d439759f550d5e592e32
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-01T17:00:35Z] ingest | Jed (Korean Team): Onboarding Checklist / Credential access
+
+- status: published
+- slug: notion_document/jed-korean-team-onboarding-checklist-/-credential-access-f59b24b0
+- wiki_revision_id: wikirev_387b159fae803bd85c9fcb841ec62864
+- source_document_id: srcdoc_ce1a55a90dee195a07491dc0f59b24b0
+- source_revision_id: srcrev_eeb9d6d3e15c2c9e9e3529df379492e8
+- summary: Source: [Notion source](https://www.notion.so/Jed-Korean-Team-Onboarding-Checklist-Credential-access-372051299a5480dc8322d95db444fd91)
+
