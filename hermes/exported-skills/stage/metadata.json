@@ -3226,13 +3226,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f2a6b7ff565ea942eae5a570d0fb22bd0194a6bd2820e898399ec6da6261e8f6",
-        "size": 603454
+        "sha256": "b9430d8d43fb0de3ffe5717f453c5b05191dbb5a5d68854435f2f10c6f567ed8",
+        "size": 603772
       },
       {
         "path": "log.md",
-        "sha256": "6b40543b60956e11d4c8bde35b015a928555a64065806e73dbc57e01b4b60047",
-        "size": 1146701
+        "sha256": "71be49ec0cb15e4e3e2b99deef0d3582351940206acbf60fc3dd6df49ba1bd24",
+        "size": 1147031
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5950,6 +5950,11 @@
         "size": 5237
       },
       {
+        "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
+        "sha256": "b093d50b8c78d13fb8671c4a79b17f85912f7b6d11f34005e5e552c06f704137",
+        "size": 9404
+      },
+      {
         "path": "pages/runbooks/june-devnet-retro.md",
         "sha256": "0b68aabe50d43293ed5a8022c562903e878e226d7b333fde8427e194e5834aa2",
         "size": 6694
@@ -6594,8 +6599,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-01T05:04:02Z",
-  "file_count": 1317,
+  "exported_at": "2026-06-01T05:20:38Z",
+  "file_count": 1318,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9817,7 +9822,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5fnjqn",
-  "previous_tree_hash": "3fc79245fb8db51dd1520e2ba6ed0981c855fb16aecb26f2e192436c8c2c37d5",
+  "previous_tree_hash": "20576ca51a553c5f5da773fffb6e9681c1b64cddad1d634e3019aafd4fe4fb77",
   "schema_version": 1,
   "skill_file_count": 643,
   "skill_manage_sessions": [
@@ -9830,14 +9835,14 @@
   ],
   "skill_tree_hash": "52e206706957bb79b06b7699f1e749de85906e1b8b5df0b4474178e1432a315b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "20576ca51a553c5f5da773fffb6e9681c1b64cddad1d634e3019aafd4fe4fb77",
+  "tree_hash": "d8a3460af504e6983618f547d4037d468988549c782c8379f2cacfd9a99bd9a3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 674,
+  "wiki_file_count": 675,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9846,13 +9851,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f2a6b7ff565ea942eae5a570d0fb22bd0194a6bd2820e898399ec6da6261e8f6",
-      "size": 603454
+      "sha256": "b9430d8d43fb0de3ffe5717f453c5b05191dbb5a5d68854435f2f10c6f567ed8",
+      "size": 603772
     },
     {
       "path": "log.md",
-      "sha256": "6b40543b60956e11d4c8bde35b015a928555a64065806e73dbc57e01b4b60047",
-      "size": 1146701
+      "sha256": "71be49ec0cb15e4e3e2b99deef0d3582351940206acbf60fc3dd6df49ba1bd24",
+      "size": 1147031
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12570,6 +12575,11 @@
       "size": 5237
     },
     {
+      "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
+      "sha256": "b093d50b8c78d13fb8671c4a79b17f85912f7b6d11f34005e5e552c06f704137",
+      "size": 9404
+    },
+    {
       "path": "pages/runbooks/june-devnet-retro.md",
       "sha256": "0b68aabe50d43293ed5a8022c562903e878e226d7b333fde8427e194e5834aa2",
       "size": 6694
@@ -13211,5 +13221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8fd1748ac3ad92cb8775227236072c1e9ce04fd1a0ba57dc54392949f5ff947c"
+  "wiki_tree_hash": "5896ecd3814c1a5bfe673027bc2b9aa187f99d1c419540b7bdde9e602ca8ce7f"
 }

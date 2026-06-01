@@ -23923,3 +23923,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_cca69afd900a9372aa8d6328743f93ea
 - summary: Source: [Notion source](https://www.notion.so/Jed-Korean-Team-Onboarding-Checklist-Credential-access-372051299a5480dc8322d95db444fd91)
 
+## [2026-06-01T05:20:31Z] synthesis | Jed Korean Team Onboarding Checklist
+
+- status: published
+- slug: runbooks/jed-korean-team-onboarding-checklist
+- wiki_revision_id: wikirev_8b6a9121f5aa5110dc4857d60fce39dd
+- summary: Checklist for operational and third-party access required when onboarding a new member to the Korean team.
+
