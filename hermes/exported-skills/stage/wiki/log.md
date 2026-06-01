@@ -23930,3 +23930,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8b6a9121f5aa5110dc4857d60fce39dd
 - summary: Checklist for operational and third-party access required when onboarding a new member to the Korean team.
 
+## [2026-06-01T16:30:39Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_b4db9060ddd685a6349a10ed6facd3d4
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_2908aff648c14b5a3a7a0f29bad1c960
+- summary: Source: [Notion source](https://www.notion.so/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
