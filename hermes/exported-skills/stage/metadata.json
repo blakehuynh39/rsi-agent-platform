@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1fb98629c04933d08f853dc29980813dd8dcd9f21c5ff55a58a16e393fd10549",
-        "size": 603814
+        "sha256": "0b4f85a81c2619d8409b6ee87ca0c21c5f34a3a32a1144e6a1de1bb904d0010a",
+        "size": 604068
       },
       {
         "path": "log.md",
-        "sha256": "69b44ecc5475cad50e7c2f3ea8907160ff22001fdf55575341ff8d12f8977fed",
-        "size": 1149149
+        "sha256": "d3e7676855d917450a59fadd3a46e192e5d3112bce411fb3272aad8ba0d3b62c",
+        "size": 1149542
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6609,7 +6609,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-01T18:21:03Z",
+  "exported_at": "2026-06-01T20:19:06Z",
   "file_count": 1320,
   "files": [
     {
@@ -9842,7 +9842,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5wgqhw",
-  "previous_tree_hash": "7a28d25db484568c082e7bf242d6ea85a9ba33c457d0b77c27da5241357e30cf",
+  "previous_tree_hash": "dbdc9b0316bac32ebe81688d9aa16aacffb44bc98425cbddf80ff9897f07a861",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9855,7 +9855,7 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "dbdc9b0316bac32ebe81688d9aa16aacffb44bc98425cbddf80ff9897f07a861",
+  "tree_hash": "542f2b33e086458a4d515246125de4425fb2757d987d6aac5d1b130d6564beec",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9871,13 +9871,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1fb98629c04933d08f853dc29980813dd8dcd9f21c5ff55a58a16e393fd10549",
-      "size": 603814
+      "sha256": "0b4f85a81c2619d8409b6ee87ca0c21c5f34a3a32a1144e6a1de1bb904d0010a",
+      "size": 604068
     },
     {
       "path": "log.md",
-      "sha256": "69b44ecc5475cad50e7c2f3ea8907160ff22001fdf55575341ff8d12f8977fed",
-      "size": 1149149
+      "sha256": "d3e7676855d917450a59fadd3a46e192e5d3112bce411fb3272aad8ba0d3b62c",
+      "size": 1149542
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13241,5 +13241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0f264866c706a65b6594b5ce8df823af68fa242f9bdee034fec82a182542755a"
+  "wiki_tree_hash": "fd090e9497fb681702feb6fa6566f15a74df6433a68e3f760bf313ac9d941f18"
 }

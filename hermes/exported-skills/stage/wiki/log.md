@@ -23971,3 +23971,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_70c73208f0789ad21fefaa0089d88504
 - summary: Phased launch plan beginning May 28, 2026, with weekly feature releases, tasks, messaging, and action items.
 
+## [2026-06-01T20:15:23Z] ingest | Slack thread C0AKH5SNGKH 1780344442.336849
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1780344442-336849-c5fe38f2
+- wiki_revision_id: wikirev_1eaae8f920c253c981dc9726326e6999
+- source_document_id: srcdoc_eba247312fb7c3f30d3819bec5fe38f2
+- source_revision_id: srcrev_e4302de6ca28865e33aff330b3d3a738
+- summary: Slack file attachment:
+
