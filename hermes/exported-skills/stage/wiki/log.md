@@ -24032,3 +24032,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a3a0162a08fde83900774154b5dd5d41
 - summary: Slack file attachment:
 
+## [2026-06-01T23:02:10Z] synthesis | Audit Event
+
+- status: published
+- slug: concepts/audit-event
+- wiki_revision_id: wikirev_89be7a2e74d62e6c6e422abe5142b1d4
+- summary: Structure, identity, and hash computation of an on-chain audit event.
+

@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7a49d25ec175f55fd83b46b2e88bbf3712f7ac0ae057cccda2d34fe7a7084ba6",
-        "size": 604623
+        "sha256": "4a215f798bf99370d9dd2befc96c8d2043dc8d72e392ba85bc8334b874fa8192",
+        "size": 604854
       },
       {
         "path": "log.md",
-        "sha256": "caf516eaf2d129d5a94d42d0cbee484726f5b71f0efb4ee222e3a4698ed50e95",
-        "size": 1151994
+        "sha256": "6128d4724cd88ead20422b324e28793c64dcb0f64423376eae5682ae26a4038d",
+        "size": 1152237
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3293,6 +3293,11 @@
         "path": "pages/concepts/alpha-beta-goals.md",
         "sha256": "91f1c6965ef35959621d735f982e137f2aeaee4b8e9f479c3d1f2e5ea1e4ca12",
         "size": 4496
+      },
+      {
+        "path": "pages/concepts/audit-event.md",
+        "sha256": "0b1ebfc64c7d0ee52f138793886a6c9dcf20bf8914c5c77796a3e29f2cd1db27",
+        "size": 6833
       },
       {
         "path": "pages/concepts/beta-protocol-interface.md",
@@ -6609,8 +6614,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-01T22:46:37Z",
-  "file_count": 1320,
+  "exported_at": "2026-06-01T23:03:08Z",
+  "file_count": 1321,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9842,7 +9847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5wgqhw",
-  "previous_tree_hash": "d8cc686b660e63c7637aab6a7de3ca0ec2b41a9e1f7a4ce119fb4d03984079e8",
+  "previous_tree_hash": "2f8807d03a2aac4b24fee20579b1b88ff16ba244653e136158d77e31d2db5da1",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9855,14 +9860,14 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2f8807d03a2aac4b24fee20579b1b88ff16ba244653e136158d77e31d2db5da1",
+  "tree_hash": "9afee3ea0506a0b4d91422ef9bace121fe1c86011bbc2b05b5c715067e1f7b19",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 675,
+  "wiki_file_count": 676,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9871,13 +9876,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7a49d25ec175f55fd83b46b2e88bbf3712f7ac0ae057cccda2d34fe7a7084ba6",
-      "size": 604623
+      "sha256": "4a215f798bf99370d9dd2befc96c8d2043dc8d72e392ba85bc8334b874fa8192",
+      "size": 604854
     },
     {
       "path": "log.md",
-      "sha256": "caf516eaf2d129d5a94d42d0cbee484726f5b71f0efb4ee222e3a4698ed50e95",
-      "size": 1151994
+      "sha256": "6128d4724cd88ead20422b324e28793c64dcb0f64423376eae5682ae26a4038d",
+      "size": 1152237
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -9928,6 +9933,11 @@
       "path": "pages/concepts/alpha-beta-goals.md",
       "sha256": "91f1c6965ef35959621d735f982e137f2aeaee4b8e9f479c3d1f2e5ea1e4ca12",
       "size": 4496
+    },
+    {
+      "path": "pages/concepts/audit-event.md",
+      "sha256": "0b1ebfc64c7d0ee52f138793886a6c9dcf20bf8914c5c77796a3e29f2cd1db27",
+      "size": 6833
     },
     {
       "path": "pages/concepts/beta-protocol-interface.md",
@@ -13241,5 +13251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2814349e3904d4c4465158c771d8f410de3fd45facfdfb4c6af8123f69b9fa4d"
+  "wiki_tree_hash": "a61abaf54059564e1e69082957d8b82d1297aae30d123a7e57e8cf6e8be41b0a"
 }
