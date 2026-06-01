@@ -24005,3 +24005,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36921bf9dc19ef57a2321c7526e349d5
 - summary: Phased launch plan beginning May 28, 2026, with weekly feature releases, tasks, messaging, and action items.
 
+## [2026-06-01T22:30:32Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_764e3732e13637fbb92e4efcdca409fb
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_477ef7506fb4a8a80b510892acbb7f16
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-01T22:30:34Z] ingest | Contract Design Proposal
+
+- status: published
+- slug: notion_document/contract-design-proposal-271294fd
+- wiki_revision_id: wikirev_a876509177fcf18cc813902c0e345601
+- source_document_id: srcdoc_746fbb670e36fdd39d970096271294fd
+- source_revision_id: srcrev_06ab24663fb480b2559cdd1aa60f66a5
+- summary: Source: [Notion source](https://www.notion.so/Contract-Design-Proposal-372051299a54808da119e78b1759d244)
+
