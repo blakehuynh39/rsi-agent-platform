@@ -2,16 +2,12 @@
 title: "Trace Backend Architecture"
 type: "system"
 slug: "systems/trace-backend-architecture"
-freshness: "2026-05-29T14:22:00Z"
-tags:
-  - "architecture"
-  - "audit"
-  - "backend"
-  - "ingestion"
-  - "trace"
+freshness: "2026-06-02T20:51:00Z"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_51ed2f05c5df01838126408740121818"
+  - "srcrev_7052a20e8c08b528dd8cc66f90a0f6ed"
 conflict_state: "none"
 ---
 
@@ -19,10 +15,42 @@ conflict_state: "none"
 
 ## Summary
 
-Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, and current limitations.
+Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 alignment and Staging V1 status as of June 2, 2026.
 
 ## Claims
 
+- Staging V1 is deployed and load-tested, last updated June 2, 2026. `claim:claim_1` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- Story owns the global data_id UUID and normalized Trace Schema v1.0. `claim:claim_2` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- The write path flows: provider clients → Cloudflare (staging-api.storyprotocol.net) → story-api webhook → SQS Standard → data-audit-ingestor → durable data audit store with explicit index rows, then story-api serves reads for the Trace frontend. `claim:claim_3` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- SQS is at-least-once; duplicates are handled idempotently, and messages are deleted only after successful persistence, idempotent skip, or explicit rejection. `claim:claim_4` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- The staging queue has a DLQ for conflict and poison messages, but no automatic replay is implemented. `claim:claim_5` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- Kled should retry transient 502, 503, 504, 429, and network failures with the same request body and X-Batch-Id. `claim:claim_6` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- 202 Accepted response means story-api validated the request and SQS accepted the message, but persistence is asynchronous. `claim:claim_7` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- Kled v1.1 schema feedback has been folded into Trace v1.0; accepted fields include user.kyc_country, split user acceptance vs active app policy, attestation.signed_at_utc, attestation.key_url, file.behavior, file_specific.base.motion, and app.legal_entity. `claim:claim_8` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_57920c08cbbdd4e91c01eeeb5cd6b319` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-06-02T20:51:00Z`
+- Search indexes in V0 are exact-match only and cover provider, source_record_id/media_id_public, file.content_sha256, file.mime_type, file.media_category, user.source_user_id, user.kyc_status, user.kyc_country, app.platform_name, and file.hashes.phash64. `claim:claim_9` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_fed2a2348955d966e24d3f275ec60550` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2` `source_timestamp=2026-06-02T20:51:00Z`
+- Metadata update cap is 100 per data_id; providers should coalesce multiple related mutable-field changes into one update. `claim:claim_10` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_fed2a2348955d966e24d3f275ec60550` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2` `source_timestamp=2026-06-02T20:51:00Z`
+- Attestation signature is optional on staging, but production verification should include payload_hash, signature, key_id, key_url, and signed_at_utc. `claim:claim_11` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_fed2a2348955d966e24d3f275ec60550` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2` `source_timestamp=2026-06-02T20:51:00Z`
+- Read APIs are API-key protected but not provider-scoped; provider is optional as a filter/search field. `claim:claim_12` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_fed2a2348955d966e24d3f275ec60550` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2` `source_timestamp=2026-06-02T20:51:00Z`
+- Batch endpoints for NDJSON are available at /webhook/v1/data-audit/data-ids:batch-ndjson and /webhook/v1/data-audit/metadata-updates:batch-ndjson, supporting gzip-compressed NDJSON. `claim:claim_13` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_fed2a2348955d966e24d3f275ec60550` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-2` `source_timestamp=2026-06-02T20:51:00Z`
+- Story canonicalizes metadata JSON before computing internal event hashes, ensuring object key order does not affect idempotency or conflict detection. `claim:claim_14` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_647db62548f1d894c03bbae466fe3cbd` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3` `source_timestamp=2026-06-02T20:51:00Z`
+- The write path is idempotent for the same data_id, event key, and canonical event hash; a different canonical hash with the same data_id and event key is rejected as a conflict. `claim:claim_15` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_647db62548f1d894c03bbae466fe3cbd` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3` `source_timestamp=2026-06-02T20:51:00Z`
+- Latest staging run (5-minute) achieved 500 records/sec target, 14,999 accepted requests / 149,990 records, zero DLQ messages, zero durable store throttles, and queue drain lag of 23 seconds. `claim:claim_16` `confidence:1.00`
+  - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_7052a20e8c08b528dd8cc66f90a0f6ed` `chunk_id=srcchunk_647db62548f1d894c03bbae466fe3cbd` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-3` `source_timestamp=2026-06-02T20:51:00Z`
 - Staging V1 of Trace backend is deployed and load-tested, last updated May 21, 2026. `claim:claim_1_1` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_51ed2f05c5df01838126408740121818` `chunk_id=srcchunk_26eaf12c4cdb5ba9fb4b3d3c63cac37b` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-05-29T14:22:00Z`
 - Story owns the global data_id UUID and normalized Trace Schema v1.0. `claim:claim_1_2` `confidence:1.00`
@@ -38,22 +66,8 @@ Overview of the Trace backend system architecture, including staging deployment,
 - 202 Accepted response means story-api validated the request and SQS accepted the message, but persistence is asynchronous. `claim:claim_1_7` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_51ed2f05c5df01838126408740121818` `chunk_id=srcchunk_26eaf12c4cdb5ba9fb4b3d3c63cac37b` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-05-29T14:22:00Z`
 
-## Open Questions
-
-- Confirm JSON canonicalization standard for deterministic payload_hash.
-- Confirm payload size tests against the 350 KiB serialized record limit.
-- Confirm provider-side revision semantics and monotonic seq for mutable fields.
-- Confirm signature contract: exact bytes/hash signed, key ID format, and verification method.
-- Confirm whether Kled needs direct read API access on staging.
-- Finalize public stable ID format and provide exact sample values.
-
-## Related Pages
-
-- `contract-design-proposal`
-- `data-broadcaster-design`
-
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_477ef7506fb4a8a80b510892acbb7f16`
+- `source_revision_id`: `srcrev_7052a20e8c08b528dd8cc66f90a0f6ed`
 - `source_url`: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
