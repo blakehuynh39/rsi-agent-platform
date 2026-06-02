@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4a215f798bf99370d9dd2befc96c8d2043dc8d72e392ba85bc8334b874fa8192",
+        "sha256": "99789b96551fb49986e5bfc24506d2e854b116d15748d3e70f3bc678a92ad7cc",
         "size": 604854
       },
       {
         "path": "log.md",
-        "sha256": "6128d4724cd88ead20422b324e28793c64dcb0f64423376eae5682ae26a4038d",
-        "size": 1152237
+        "sha256": "70b0325538fc61a8dd81cd14123ebd10a80098c582fe4fb06d80a36b8a377e65",
+        "size": 1152584
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6581,8 +6581,8 @@
       },
       {
         "path": "pages/systems/trace-backend-architecture.md",
-        "sha256": "fd5d6114c9586f884090ccbe640d0355f4e87f9c447d1cbdf8ddba393d70d68e",
-        "size": 4886
+        "sha256": "ecc35f0961f92e1a0d4f21a5a07f6dac433b9b6237b2dd9aeddd990590cfc3c4",
+        "size": 5507
       },
       {
         "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -6614,7 +6614,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-01T23:03:08Z",
+  "exported_at": "2026-06-02T00:20:33Z",
   "file_count": 1321,
   "files": [
     {
@@ -9847,7 +9847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5wgqhw",
-  "previous_tree_hash": "2f8807d03a2aac4b24fee20579b1b88ff16ba244653e136158d77e31d2db5da1",
+  "previous_tree_hash": "9afee3ea0506a0b4d91422ef9bace121fe1c86011bbc2b05b5c715067e1f7b19",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9860,7 +9860,7 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9afee3ea0506a0b4d91422ef9bace121fe1c86011bbc2b05b5c715067e1f7b19",
+  "tree_hash": "769573158e85fa79937505b756710e426958c83a5780f4b123c9910be8d37d99",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9876,13 +9876,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4a215f798bf99370d9dd2befc96c8d2043dc8d72e392ba85bc8334b874fa8192",
+      "sha256": "99789b96551fb49986e5bfc24506d2e854b116d15748d3e70f3bc678a92ad7cc",
       "size": 604854
     },
     {
       "path": "log.md",
-      "sha256": "6128d4724cd88ead20422b324e28793c64dcb0f64423376eae5682ae26a4038d",
-      "size": 1152237
+      "sha256": "70b0325538fc61a8dd81cd14123ebd10a80098c582fe4fb06d80a36b8a377e65",
+      "size": 1152584
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13221,8 +13221,8 @@
     },
     {
       "path": "pages/systems/trace-backend-architecture.md",
-      "sha256": "fd5d6114c9586f884090ccbe640d0355f4e87f9c447d1cbdf8ddba393d70d68e",
-      "size": 4886
+      "sha256": "ecc35f0961f92e1a0d4f21a5a07f6dac433b9b6237b2dd9aeddd990590cfc3c4",
+      "size": 5507
     },
     {
       "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -13251,5 +13251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a61abaf54059564e1e69082957d8b82d1297aae30d123a7e57e8cf6e8be41b0a"
+  "wiki_tree_hash": "0852a422c35a5aed1c5b59c86e58823f75f4eed1a75c2c56fd193a486337b478"
 }

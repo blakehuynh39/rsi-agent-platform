@@ -24039,3 +24039,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_89be7a2e74d62e6c6e422abe5142b1d4
 - summary: Structure, identity, and hash computation of an on-chain audit event.
 
+## [2026-06-02T00:19:11Z] synthesis | Trace Backend Architecture
+
+- status: published
+- slug: systems/trace-backend-architecture
+- wiki_revision_id: wikirev_816d42e7df17cbd1e804215c21b68385
+- summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, and current limitations.
+

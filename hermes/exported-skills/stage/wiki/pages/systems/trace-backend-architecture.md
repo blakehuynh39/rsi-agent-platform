@@ -3,7 +3,12 @@ title: "Trace Backend Architecture"
 type: "system"
 slug: "systems/trace-backend-architecture"
 freshness: "2026-05-29T14:22:00Z"
-tags: []
+tags:
+  - "architecture"
+  - "audit"
+  - "backend"
+  - "ingestion"
+  - "trace"
 owners: []
 source_revision_ids:
   - "srcrev_51ed2f05c5df01838126408740121818"
@@ -33,8 +38,22 @@ Overview of the Trace backend system architecture, including staging deployment,
 - 202 Accepted response means story-api validated the request and SQS accepted the message, but persistence is asynchronous. `claim:claim_1_7` `confidence:1.00`
   - citation: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1) `source_document_id=srcdoc_f33f716b82984e27937f90590ba0afd6` `source_revision_id=srcrev_51ed2f05c5df01838126408740121818` `chunk_id=srcchunk_26eaf12c4cdb5ba9fb4b3d3c63cac37b` `native_locator=https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914#chunk-1` `source_timestamp=2026-05-29T14:22:00Z`
 
+## Open Questions
+
+- Confirm JSON canonicalization standard for deterministic payload_hash.
+- Confirm payload size tests against the 350 KiB serialized record limit.
+- Confirm provider-side revision semantics and monotonic seq for mutable fields.
+- Confirm signature contract: exact bytes/hash signed, key ID format, and verification method.
+- Confirm whether Kled needs direct read API access on staging.
+- Finalize public stable ID format and provide exact sample values.
+
+## Related Pages
+
+- `contract-design-proposal`
+- `data-broadcaster-design`
+
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_51ed2f05c5df01838126408740121818`
+- `source_revision_id`: `srcrev_477ef7506fb4a8a80b510892acbb7f16`
 - `source_url`: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
