@@ -24046,3 +24046,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_816d42e7df17cbd1e804215c21b68385
 - summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, and current limitations.
 
+## [2026-06-02T00:30:45Z] ingest | Numo Jed Onboarding
+
+- status: published
+- slug: notion_document/numo-jed-onboarding-45dfbcd4
+- wiki_revision_id: wikirev_2a5352e7a1f75489e22dd414103ec531
+- source_document_id: srcdoc_5b2f0266ee274de6a7ca742845dfbcd4
+- source_revision_id: srcrev_f4f0737c3faeb96f40356202cf217726
+- summary: Source: [Notion source](https://www.notion.so/Numo-Jed-Onboarding-364051299a5480e89387ce3d9cc535d3)
+
