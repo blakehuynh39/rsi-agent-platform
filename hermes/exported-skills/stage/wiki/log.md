@@ -24055,3 +24055,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f4f0737c3faeb96f40356202cf217726
 - summary: Source: [Notion source](https://www.notion.so/Numo-Jed-Onboarding-364051299a5480e89387ce3d9cc535d3)
 
+## [2026-06-02T01:04:58Z] synthesis | Numo Platform Overview
+
+- status: published
+- slug: systems/numo-platform-overview
+- wiki_revision_id: wikirev_9f0fbfc9d39e38f05839eba0d25b5078
+- summary: Numo is a contributor platform for collecting training data (audio, multimodal) with rewards. It consists of a monorepo with four apps and a separate backend.
+
+## [2026-06-02T01:04:58Z] synthesis | Numo Architecture
+
+- status: published
+- slug: systems/numo-architecture
+- wiki_revision_id: wikirev_597a3a73f75e5c7f6e8c55a6f83552ab
+- summary: High-level architecture diagrams and component descriptions for the Numo platform, including system context, backend services, and deployment topology.
+
+## [2026-06-02T01:04:58Z] synthesis | Numo Rewards System
+
+- status: published
+- slug: systems/numo-rewards-system
+- wiki_revision_id: wikirev_baff7e2b447e3c150140f1d7c3126952
+- summary: Numo's reward mechanism includes points, USD payouts, a multiplier system, leaderboard, and wallet with Stripe Connect withdrawals.
+
+## [2026-06-02T01:04:59Z] synthesis | Numo Onboarding Guide
+
+- status: published
+- slug: runbooks/numo-onboarding-guide
+- wiki_revision_id: wikirev_5cc67382a14b5832168d0b13eb91707e
+- summary: Step-by-step guide for new team members to set up the Numo development environment, including repository cloning, environment configuration, and key documentation.
+
+## [2026-06-02T01:04:59Z] synthesis | Numo Feature Flags
+
+- status: published
+- slug: systems/numo-feature-flags
+- wiki_revision_id: wikirev_027f06b7468b03d7ea730163f3631496
+- summary: Current feature flags used in the Numo platform, gating features like professional multimodal, voice phrase, and locale support.
+
+## [2026-06-02T01:04:59Z] synthesis | Numo Internationalization (i18n)
+
+- status: published
+- slug: systems/numo-i18n
+- wiki_revision_id: wikirev_d725a41513190f213b339dcc9e1667b4
+- summary: Supported languages and i18n tooling for the Numo web and React Native apps.
+

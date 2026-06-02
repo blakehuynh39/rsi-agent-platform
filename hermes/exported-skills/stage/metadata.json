@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a0923c4e48cf4839363f8ec7fd3b1acfbafe024d3775b63b96143e07547c4953",
-        "size": 604854
+        "sha256": "5d3c89411f7da6e19df19185e4875bb5364c66d3ea61c77f2b88adfa08ee2f02",
+        "size": 606731
       },
       {
         "path": "log.md",
-        "sha256": "1bc7337fcf6fd36b0d61b343c4bcf0234d9617aee28d2b94f4dd5515543ff8e9",
-        "size": 1153010
+        "sha256": "f60a162168b93ae005dca24fe5a2e7be7c0e35a0ce7393bb3378cdbc5a5e1eb5",
+        "size": 1154959
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6025,6 +6025,11 @@
         "size": 8202
       },
       {
+        "path": "pages/runbooks/numo-onboarding-guide.md",
+        "sha256": "e53fd1fe783b36e99d6b5615ef748f5fb70c12769328b9f1f74352d72e1314f5",
+        "size": 3907
+      },
+      {
         "path": "pages/runbooks/odyssey-devnet-runbook.md",
         "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
         "size": 6053
@@ -6390,9 +6395,34 @@
         "size": 4007
       },
       {
+        "path": "pages/systems/numo-architecture.md",
+        "sha256": "823858345cdd4266aa225e1d3fcc3c4c0027ac143f6705fc6c858d9754b9dd7b",
+        "size": 3330
+      },
+      {
+        "path": "pages/systems/numo-feature-flags.md",
+        "sha256": "e89b9198c5564e5ea41cdddaa3fe9ae38d38a036c82abf18cfd2c2ffcfdf2d1a",
+        "size": 3740
+      },
+      {
+        "path": "pages/systems/numo-i18n.md",
+        "sha256": "6a3bbb8422da964683b481e5fca080ddea3420a51716871fdaea3ff08fc3ade2",
+        "size": 2624
+      },
+      {
+        "path": "pages/systems/numo-platform-overview.md",
+        "sha256": "971f43644dac3dc45f0782176f8a6087d56961a502a0900aa45f2a9286f9f202",
+        "size": 2609
+      },
+      {
         "path": "pages/systems/numo-product-backlog.md",
         "sha256": "9d06c4786249a69e646af52b79537209f5375c475b726878736e14a590967e15",
         "size": 1728
+      },
+      {
+        "path": "pages/systems/numo-rewards-system.md",
+        "sha256": "48bcb186a6773e6eb95f6430d88b67e7685b043d1ad95353a35c4bf3a37e22bc",
+        "size": 4105
       },
       {
         "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
@@ -6614,8 +6644,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-02T00:32:01Z",
-  "file_count": 1321,
+  "exported_at": "2026-06-02T01:08:50Z",
+  "file_count": 1327,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9847,7 +9877,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5wgqhw",
-  "previous_tree_hash": "769573158e85fa79937505b756710e426958c83a5780f4b123c9910be8d37d99",
+  "previous_tree_hash": "89af618472cee7c0407b4e3095897cc44fac5d190d58c2e6abbe480768b6e050",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9860,14 +9890,14 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "89af618472cee7c0407b4e3095897cc44fac5d190d58c2e6abbe480768b6e050",
+  "tree_hash": "1019cd2938ca1e54c6b7abdd73a18c2175ed66440a956a186521539830a65cc1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 676,
+  "wiki_file_count": 682,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9876,13 +9906,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a0923c4e48cf4839363f8ec7fd3b1acfbafe024d3775b63b96143e07547c4953",
-      "size": 604854
+      "sha256": "5d3c89411f7da6e19df19185e4875bb5364c66d3ea61c77f2b88adfa08ee2f02",
+      "size": 606731
     },
     {
       "path": "log.md",
-      "sha256": "1bc7337fcf6fd36b0d61b343c4bcf0234d9617aee28d2b94f4dd5515543ff8e9",
-      "size": 1153010
+      "sha256": "f60a162168b93ae005dca24fe5a2e7be7c0e35a0ce7393bb3378cdbc5a5e1eb5",
+      "size": 1154959
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12665,6 +12695,11 @@
       "size": 8202
     },
     {
+      "path": "pages/runbooks/numo-onboarding-guide.md",
+      "sha256": "e53fd1fe783b36e99d6b5615ef748f5fb70c12769328b9f1f74352d72e1314f5",
+      "size": 3907
+    },
+    {
       "path": "pages/runbooks/odyssey-devnet-runbook.md",
       "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
       "size": 6053
@@ -13030,9 +13065,34 @@
       "size": 4007
     },
     {
+      "path": "pages/systems/numo-architecture.md",
+      "sha256": "823858345cdd4266aa225e1d3fcc3c4c0027ac143f6705fc6c858d9754b9dd7b",
+      "size": 3330
+    },
+    {
+      "path": "pages/systems/numo-feature-flags.md",
+      "sha256": "e89b9198c5564e5ea41cdddaa3fe9ae38d38a036c82abf18cfd2c2ffcfdf2d1a",
+      "size": 3740
+    },
+    {
+      "path": "pages/systems/numo-i18n.md",
+      "sha256": "6a3bbb8422da964683b481e5fca080ddea3420a51716871fdaea3ff08fc3ade2",
+      "size": 2624
+    },
+    {
+      "path": "pages/systems/numo-platform-overview.md",
+      "sha256": "971f43644dac3dc45f0782176f8a6087d56961a502a0900aa45f2a9286f9f202",
+      "size": 2609
+    },
+    {
       "path": "pages/systems/numo-product-backlog.md",
       "sha256": "9d06c4786249a69e646af52b79537209f5375c475b726878736e14a590967e15",
       "size": 1728
+    },
+    {
+      "path": "pages/systems/numo-rewards-system.md",
+      "sha256": "48bcb186a6773e6eb95f6430d88b67e7685b043d1ad95353a35c4bf3a37e22bc",
+      "size": 4105
     },
     {
       "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
@@ -13251,5 +13311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fe3a217a6e0d325f0fde7d17551239db94a602d5a818ccc92f49083709d9ac27"
+  "wiki_tree_hash": "f1fcea90bedc5d721faaea906c7fbc24766554861e4bf2e7447f58fe2b8fe9f4"
 }
