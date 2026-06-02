@@ -3236,12 +3236,12 @@
       },
       {
         "path": "index.md",
-        "sha256": "630368d3f498261fad183f12c8290cd48bcf4f9a630b13bf5203bdeeed18369a",
+        "sha256": "d3bb42d958723fb54e014ecb6199e238f5262f5441bcb32286bb19b7d636f234",
         "size": 607816
       },
       {
         "path": "log.md",
-        "sha256": "5673daaad75e79492c6780bdfe829d28e01b555be0e26e32e7b0d7bff9ecfd72",
+        "sha256": "05b6196d18201188ca5efb79ed90294d0a3d5ccc96c5c537ce079ad264652223",
         "size": 1158540
       },
       {
@@ -6649,7 +6649,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-02T22:03:20Z",
+  "exported_at": "2026-06-02T22:30:38Z",
   "file_count": 1328,
   "files": [
     {
@@ -9882,7 +9882,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
-  "previous_tree_hash": "ed6d982cb98019c2d6cf6d1288fcac14027fd04100a83418ed9a69376ae10a89",
+  "previous_tree_hash": "dd286a51e8aa5402e855920530d187739470b46f252b2f81226ea13abd8cc724",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9895,7 +9895,7 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "dd286a51e8aa5402e855920530d187739470b46f252b2f81226ea13abd8cc724",
+  "tree_hash": "f81831e9816c4cbb48607c324bd18741ecc17e5c93c021fd35c19b10d9d17e72",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9911,12 +9911,12 @@
     },
     {
       "path": "index.md",
-      "sha256": "630368d3f498261fad183f12c8290cd48bcf4f9a630b13bf5203bdeeed18369a",
+      "sha256": "d3bb42d958723fb54e014ecb6199e238f5262f5441bcb32286bb19b7d636f234",
       "size": 607816
     },
     {
       "path": "log.md",
-      "sha256": "5673daaad75e79492c6780bdfe829d28e01b555be0e26e32e7b0d7bff9ecfd72",
+      "sha256": "05b6196d18201188ca5efb79ed90294d0a3d5ccc96c5c537ce079ad264652223",
       "size": 1158540
     },
     {
@@ -13321,5 +13321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d3af2ac67f639f51abed6973eb39c5c664f82b543aaafcd93790bedf1adbf1f0"
+  "wiki_tree_hash": "68ba7087f896f5b1e024eb8022df03b487ae709c0e3270343d7d640522f7c3c0"
 }
