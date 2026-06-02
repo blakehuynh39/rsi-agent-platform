@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a20d2a7059a675e393b0ee13fce68ee8ff40c3c320094e06bb58c7cd69c81e4a",
-        "size": 607816
+        "sha256": "f696aa817b674f0f3ae0805dcb891c872cc2046ad3c189c71947a2910bf3c26f",
+        "size": 609121
       },
       {
         "path": "log.md",
-        "sha256": "7262b6706ca0ba0245531e1209918b8079e09f3af06098c4ffc9760c1e9d1349",
-        "size": 1159947
+        "sha256": "b1e424da60b58fb46a43f15a2e90185bf8a3d94614025ce45560348b9af2a1a6",
+        "size": 1161300
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4825,6 +4825,11 @@
         "size": 4802
       },
       {
+        "path": "pages/projects/atlas.md",
+        "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
+        "size": 1596
+      },
+      {
         "path": "pages/projects/aura.md",
         "sha256": "6d8f78da528aaf9d30854ecae2a2cd5f792f11c4e058eea08a1609f0e4548ac0",
         "size": 3669
@@ -5355,6 +5360,11 @@
         "size": 8955
       },
       {
+        "path": "pages/projects/numo-transition-plan.md",
+        "sha256": "07ba2275161e85154bd203898bf1edae69b6c4e7efb48d1977c386be11cb4bdd",
+        "size": 7300
+      },
+      {
         "path": "pages/projects/odyssey-testnet.md",
         "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
         "size": 10782
@@ -5748,6 +5758,11 @@
         "path": "pages/projects/trace-v1-product-requirements.md",
         "sha256": "94b8ae8db6bba32e1187b83e0762adfbead164fdd20c53aa6dc953650b407d00",
         "size": 9303
+      },
+      {
+        "path": "pages/projects/trace.md",
+        "sha256": "fdf4c66a9227f79a48bdeb7b89a126b9b0f9537bc573f7a321595f5a672573b6",
+        "size": 1407
       },
       {
         "path": "pages/projects/trident-v0-1-0.md",
@@ -6555,6 +6570,11 @@
         "size": 3173
       },
       {
+        "path": "pages/systems/shared-poseidon-infrastructure.md",
+        "sha256": "5fd4cc96f1f1d85bd48b2ccdef0eebd16ecb7b1f83c146dfcdc9c292a944a85c",
+        "size": 3033
+      },
+      {
         "path": "pages/systems/story-network-testnet.md",
         "sha256": "1c0439577131eb1668b58780cd178a08361715e3bbbe45dc6b70aebf1e6f0a6c",
         "size": 10081
@@ -6649,8 +6669,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-02T23:04:52Z",
-  "file_count": 1328,
+  "exported_at": "2026-06-02T23:37:20Z",
+  "file_count": 1332,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9882,7 +9902,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
-  "previous_tree_hash": "7f429a45290ef9fdefd97e0b2f99a2123237de05e5bf8fcdfac06b9165caf12c",
+  "previous_tree_hash": "74fc4bdfe77130324948b7ed69312c6ebae38471ae283b2fa6fe60cd49ad0e19",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9895,14 +9915,14 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "74fc4bdfe77130324948b7ed69312c6ebae38471ae283b2fa6fe60cd49ad0e19",
+  "tree_hash": "5072e1423ed0824e0023d27470585e9fb531b37e81a6d43fbd7d3e4e59ca34fe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 683,
+  "wiki_file_count": 687,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9911,13 +9931,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a20d2a7059a675e393b0ee13fce68ee8ff40c3c320094e06bb58c7cd69c81e4a",
-      "size": 607816
+      "sha256": "f696aa817b674f0f3ae0805dcb891c872cc2046ad3c189c71947a2910bf3c26f",
+      "size": 609121
     },
     {
       "path": "log.md",
-      "sha256": "7262b6706ca0ba0245531e1209918b8079e09f3af06098c4ffc9760c1e9d1349",
-      "size": 1159947
+      "sha256": "b1e424da60b58fb46a43f15a2e90185bf8a3d94614025ce45560348b9af2a1a6",
+      "size": 1161300
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11500,6 +11520,11 @@
       "size": 4802
     },
     {
+      "path": "pages/projects/atlas.md",
+      "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
+      "size": 1596
+    },
+    {
       "path": "pages/projects/aura.md",
       "sha256": "6d8f78da528aaf9d30854ecae2a2cd5f792f11c4e058eea08a1609f0e4548ac0",
       "size": 3669
@@ -12030,6 +12055,11 @@
       "size": 8955
     },
     {
+      "path": "pages/projects/numo-transition-plan.md",
+      "sha256": "07ba2275161e85154bd203898bf1edae69b6c4e7efb48d1977c386be11cb4bdd",
+      "size": 7300
+    },
+    {
       "path": "pages/projects/odyssey-testnet.md",
       "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
       "size": 10782
@@ -12423,6 +12453,11 @@
       "path": "pages/projects/trace-v1-product-requirements.md",
       "sha256": "94b8ae8db6bba32e1187b83e0762adfbead164fdd20c53aa6dc953650b407d00",
       "size": 9303
+    },
+    {
+      "path": "pages/projects/trace.md",
+      "sha256": "fdf4c66a9227f79a48bdeb7b89a126b9b0f9537bc573f7a321595f5a672573b6",
+      "size": 1407
     },
     {
       "path": "pages/projects/trident-v0-1-0.md",
@@ -13230,6 +13265,11 @@
       "size": 3173
     },
     {
+      "path": "pages/systems/shared-poseidon-infrastructure.md",
+      "sha256": "5fd4cc96f1f1d85bd48b2ccdef0eebd16ecb7b1f83c146dfcdc9c292a944a85c",
+      "size": 3033
+    },
+    {
       "path": "pages/systems/story-network-testnet.md",
       "sha256": "1c0439577131eb1668b58780cd178a08361715e3bbbe45dc6b70aebf1e6f0a6c",
       "size": 10081
@@ -13321,5 +13361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "18531b56c4b36480b8a72fda0dda651bda405718bafd34ad4edafb4dc618e2f8"
+  "wiki_tree_hash": "019e4b37b6b8087ee8b7c7fd8b67b14b7a059c7163f479c4254b88bfdcf7bbd2"
 }

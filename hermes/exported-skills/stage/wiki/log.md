@@ -24192,3 +24192,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_67f836ab23d5a6d4bbb05496c2d6a8fb
 - summary: Source: [Notion source](https://www.notion.so/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
 
+## [2026-06-02T23:33:31Z] synthesis | Numo Transition Plan
+
+- status: published
+- slug: projects/numo-transition-plan
+- wiki_revision_id: wikirev_f59dfe81b74a5f80f24423e05c2c9598
+- summary: Ownership of Numo transitions to the Korea team with a target of delivering a production-ready mobile app by June 30, 2026. Focus includes mobile app development, growth hacking, a...
+
+## [2026-06-02T23:35:05Z] synthesis | Shared Poseidon Infrastructure
+
+- status: published
+- slug: systems/shared-poseidon-infrastructure
+- wiki_revision_id: wikirev_c092c1d424f6cdedb8ce9f1f773de11a
+- summary: Cross-product user layer including shared identity, reputation, trust, verification, and portability across the Poseidon ecosystem.
+
+## [2026-06-02T23:35:05Z] synthesis | Trace
+
+- status: published
+- slug: projects/trace
+- wiki_revision_id: wikirev_ed97561c9c98831e33346aba206a0f40
+- summary: Trace is a project owned by the Tiger Team, focusing on product strategy, engineering execution, launch, and ongoing development.
+
+## [2026-06-02T23:35:05Z] synthesis | Atlas
+
+- status: published
+- slug: projects/atlas
+- wiki_revision_id: wikirev_d4d11670f829b875320de1014f0289c0
+- summary: Poseidon Expert / Evaluation Platform (Codename: Atlas) is a desktop platform owned by Allen and Sasi (TBD), focusing on expert marketplace, evaluation workflows, and reputation sy...
+
