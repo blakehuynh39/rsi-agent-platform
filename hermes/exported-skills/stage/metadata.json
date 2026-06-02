@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "33005bf0508c5d1cf29e755d1185efe4445f399550cc30c9229db929b7e0c44a",
-        "size": 607378
+        "sha256": "6307a6514459fbc443d54436c71531ad1f72aa5585f514a2c023ef325681ff61",
+        "size": 607777
       },
       {
         "path": "log.md",
-        "sha256": "11467833d6fd46c301bb68eb3b77df3693ee1218d97eefbc2325278a86e8cf4c",
-        "size": 1156849
+        "sha256": "f649927742418c8a69b73afa70f909daa13e36c311faca965754fb05cd7b1152",
+        "size": 1157260
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5350,6 +5350,11 @@
         "size": 35962
       },
       {
+        "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
+        "sha256": "1214c8906d1f62b98b664acfe1ebc0d44a98228c0b691afb0fa28947aaf97115",
+        "size": 8955
+      },
+      {
         "path": "pages/projects/odyssey-testnet.md",
         "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
         "size": 10782
@@ -6644,8 +6649,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-02T16:02:16Z",
-  "file_count": 1327,
+  "exported_at": "2026-06-02T16:49:45Z",
+  "file_count": 1328,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9876,8 +9881,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd5tknj8",
-  "previous_tree_hash": "d2b73cbb245b63d1f7ef205654112f41f917562fb8ef9394aee4a5ebbdbc781d",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
+  "previous_tree_hash": "97e6799c662ddff9c8065f5f3dfe05a32022d1c2a62ee6ff4f8179528f033c1d",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9890,14 +9895,14 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "97e6799c662ddff9c8065f5f3dfe05a32022d1c2a62ee6ff4f8179528f033c1d",
+  "tree_hash": "9d3e7a5e30a3715397a9148a4c632f2fec34188bb50cbd3e1d13d3dc963ca471",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 682,
+  "wiki_file_count": 683,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9906,13 +9911,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "33005bf0508c5d1cf29e755d1185efe4445f399550cc30c9229db929b7e0c44a",
-      "size": 607378
+      "sha256": "6307a6514459fbc443d54436c71531ad1f72aa5585f514a2c023ef325681ff61",
+      "size": 607777
     },
     {
       "path": "log.md",
-      "sha256": "11467833d6fd46c301bb68eb3b77df3693ee1218d97eefbc2325278a86e8cf4c",
-      "size": 1156849
+      "sha256": "f649927742418c8a69b73afa70f909daa13e36c311faca965754fb05cd7b1152",
+      "size": 1157260
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12020,6 +12025,11 @@
       "size": 35962
     },
     {
+      "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
+      "sha256": "1214c8906d1f62b98b664acfe1ebc0d44a98228c0b691afb0fa28947aaf97115",
+      "size": 8955
+    },
+    {
       "path": "pages/projects/odyssey-testnet.md",
       "sha256": "d75c1a77b6b9b10491a81d6b615c82e5e11722e5efaeea2fb4e9f9769bc3ac66",
       "size": 10782
@@ -13311,5 +13321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4494ce1f35fae240fd9cd6b718be3d8c19471d05fe276a4faee7d4eb6c67c402"
+  "wiki_tree_hash": "93723a8b3e1450b50b4d0677895ab9f1531a0c61d8fb8be6e2816a036caf6c57"
 }
