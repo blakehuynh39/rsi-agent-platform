@@ -24156,3 +24156,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_06c61afc75f6dcf11b6eda129c71c545
 - summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 al...
 
+## [2026-06-02T22:00:31Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_c709d3dea1034bc15454b042b8507f88
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_b31cb88fdbf63edcf2c41481e5d541bd
+- summary: Source: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
