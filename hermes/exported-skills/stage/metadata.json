@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8daadec8af6fb1019eece8a0ebf99e6ff20abc11ef267d2459618db9fe7efc26",
+        "sha256": "665a21c594319777dd062df229bc0615cd7145da25ee6b5d037bdaac5aafe5b0",
         "size": 609767
       },
       {
         "path": "log.md",
-        "sha256": "f55c33fc494779aeefbad0ffa8b71c8b978ec7b67f69287321455384c87cfa9a",
-        "size": 1163789
+        "sha256": "53b70dad03881d6c3d37e7fc3503a3f9ccc00dfc3798240a2d693c80c9aeba11",
+        "size": 1164161
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5441,8 +5441,8 @@
       },
       {
         "path": "pages/projects/poseidon-atlas.md",
-        "sha256": "00a1e25d6586bcc909bf66a0e47f45edf252b3ca5fa95a80f86159d3935f4085",
-        "size": 9252
+        "sha256": "1115a632b5c668d2560ba4be45361db1293285485c510fd5b700b78fa9a0ed42",
+        "size": 9278
       },
       {
         "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -6674,7 +6674,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-03T06:34:16Z",
+  "exported_at": "2026-06-03T06:41:10Z",
   "file_count": 1333,
   "files": [
     {
@@ -9907,7 +9907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
-  "previous_tree_hash": "19a2953f6d24dfb44bdc34a232c460b655239e5fffd570a3056005b82c62909c",
+  "previous_tree_hash": "af3cd474f8ef95e085f60e0facc5576beb6fadd54f501cc5b90344b06712522e",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9920,7 +9920,7 @@
   ],
   "skill_tree_hash": "24ff1acae36104d7b56e01550103f5da41c658692e263aa8bd48728e0e0d9d79",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "af3cd474f8ef95e085f60e0facc5576beb6fadd54f501cc5b90344b06712522e",
+  "tree_hash": "3bc9387fe227ba69b041bc2a8bc0715418dc7e338502068ae2db5ae411a69721",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9936,13 +9936,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8daadec8af6fb1019eece8a0ebf99e6ff20abc11ef267d2459618db9fe7efc26",
+      "sha256": "665a21c594319777dd062df229bc0615cd7145da25ee6b5d037bdaac5aafe5b0",
       "size": 609767
     },
     {
       "path": "log.md",
-      "sha256": "f55c33fc494779aeefbad0ffa8b71c8b978ec7b67f69287321455384c87cfa9a",
-      "size": 1163789
+      "sha256": "53b70dad03881d6c3d37e7fc3503a3f9ccc00dfc3798240a2d693c80c9aeba11",
+      "size": 1164161
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12141,8 +12141,8 @@
     },
     {
       "path": "pages/projects/poseidon-atlas.md",
-      "sha256": "00a1e25d6586bcc909bf66a0e47f45edf252b3ca5fa95a80f86159d3935f4085",
-      "size": 9252
+      "sha256": "1115a632b5c668d2560ba4be45361db1293285485c510fd5b700b78fa9a0ed42",
+      "size": 9278
     },
     {
       "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -13371,5 +13371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9d21b8c8fce2fdf9db1ef51a0c424597ac0f0eeb9c0498c019ca0c798d73959e"
+  "wiki_tree_hash": "c8a5f0d50812168588f800b6201a8be88ac0347cf9c1f0061107569a1796aaf3"
 }

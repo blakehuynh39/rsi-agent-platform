@@ -4,14 +4,14 @@ type: "project"
 slug: "projects/poseidon-atlas"
 freshness: "2026-06-03T04:30:00Z"
 tags:
-  - "AI-data"
+  - "ai-annotation"
+  - "atlas"
   - "expert-evaluation"
   - "marketplace"
   - "multilingual"
-  - "Numo"
-  - "Poseidon"
+  - "poseidon"
 owners:
-  - "Product DRI (proposal author)"
+  - "Product DRI"
 source_revision_ids:
   - "srcrev_d7464f44c2f7c6da501931752ab8455e"
 conflict_state: "none"
@@ -21,7 +21,7 @@ conflict_state: "none"
 
 ## Summary
 
-Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It aims to fill the gap in Poseidon's stack by productizing the expert evaluation layer, leveraging existing supply (Numo) and refinery (Pipeline/Subnets) infrastructure, and targeting global, non-US markets where the dominant US-centric incumbent (Mercor) is weak.
+Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It aims to own the human intelligence layer by leveraging existing Poseidon infrastructure (Numo supply, Pipeline/Subnets refinery, SONAR scoring) and targets cross-lingual, low-resource evaluation where incumbents like Mercor have a gap. The plan outlines a phased rollout from audio validation to complex computer-use tasks, with milestones through Q4 2026 and KPIs covering demand, supply, quality, and profitability.
 
 ## Claims
 
@@ -50,20 +50,16 @@ Atlas is a proposed demand-side marketplace within Poseidon that curates a vette
 - Atlas KPIs cover demand (lab buyers, revenue per accepted task, repeat rate), supply (vetted experts, languages, active rate), quality (buyer acceptance rate, SONAR score vs. baseline), and profitability (cost per sellable eval-hour, margin, revenue vs. subsidy). `claim:claim_1_12` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947#chunk-4) `source_document_id=srcdoc_846aa29fa13ddc3c098759f83995edb5` `source_revision_id=srcrev_d7464f44c2f7c6da501931752ab8455e` `chunk_id=srcchunk_31f575afa697e307426e101c11bb4ee2` `native_locator=https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947#chunk-4` `source_timestamp=2026-06-03T04:30:00Z`
 
-## Open Questions
-
-- How will the Indeed partnership be structured to onboard qualified users onto Atlas?
-- Which lab will be the first paid pilot partner?
-
 ## Related Pages
 
-- `mercor`
-- `numo-supply`
-- `poseidon-pipeline-and-subnets`
-- `sonar-evaluations`
+- `projects/poseidon-numo`
+- `projects/poseidon-pipeline`
+- `projects/poseidon-sonar`
+- `systems/cpvss`
+- `systems/trace`
 
 ## Sources
 
 - `source_document_id`: `srcdoc_846aa29fa13ddc3c098759f83995edb5`
-- `source_revision_id`: `srcrev_d7464f44c2f7c6da501931752ab8455e`
+- `source_revision_id`: `srcrev_cfa08ace0cb4b17ccab754e4c9a2f491`
 - `source_url`: [source](https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947)
