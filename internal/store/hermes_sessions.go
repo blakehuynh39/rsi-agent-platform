@@ -101,48 +101,56 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 					trace_id asc
 				limit $3
 			),
-			trace_candidate_ids as (
-				select trace_id from base_trace_candidates
-				union
-				select trace_id from ledger_trace_candidates
-			),
-			trace_ranked as (
-				select
-					t.trace_id as id,
-					'trace'::text as session_type,
-					'trace'::text as source,
-				coalesce(nullif(t.workflow_kind, ''), 'rsi-trace') as model,
-				coalesce(nullif(e.normalized_problem_statement, ''), nullif(t.workflow_kind, ''), t.trace_id) as raw_title,
-				coalesce(e.normalized_problem_statement, '') as trigger_title,
-				t.trace_id as title_trace_id,
-					t.started_at as started_at,
-					case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then null else t.ended_at end as ended_at,
-					greatest(
-						case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end,
-						coalesce(l.recorded_at, timestamptz '0001-01-01 00:00:00+00')
-					) as last_active,
-					coalesce(t.conversation_id, '') as conversation_id,
-					t.trace_id as trace_id,
-					coalesce(t.conversation_id, '') as parent_session_id,
-				coalesce(t.case_id, '') as case_id,
-				coalesce(t.trigger_event_id, '') as trigger_event_id,
-				t.thread_key as thread_key,
-				t.workflow_kind as workflow_kind,
-				t.status as status,
-				coalesce(t.last_verdict, '') as last_verdict,
-				(t.event_count + t.reasoning_step_count + t.tool_call_count)::int as message_count,
-				t.tool_call_count::int as tool_call_count,
-				0::int as trace_count,
-				0::int as open_trace_count,
-					0::int as proposal_count,
-					''::text as active_case_summary
-				from trace_candidate_ids ci
-				join trace_summary t on t.trace_id = ci.trace_id
-				left join event_envelope e on e.id = t.trigger_event_id
-				left join ledger_trace_candidates l on l.trace_id = t.trace_id
-				order by last_active desc, t.trace_id asc
-				limit $3
-			),
+		trace_candidate_ids as (
+			select trace_id from base_trace_candidates
+			union
+			select trace_id from ledger_trace_candidates
+		),
+		actual_ledger_times as (
+			select distinct on (e.trace_id)
+				e.trace_id,
+				e.recorded_at
+			from trace_candidate_ids ci
+			join execution_ledger_event e on e.trace_id = ci.trace_id
+			order by e.trace_id asc, e.recorded_at desc, e.execution_id desc, e.seq desc, e.id desc
+		),
+		trace_ranked as (
+			select
+				t.trace_id as id,
+				'trace'::text as session_type,
+				'trace'::text as source,
+			coalesce(nullif(t.workflow_kind, ''), 'rsi-trace') as model,
+			coalesce(nullif(e.normalized_problem_statement, ''), nullif(t.workflow_kind, ''), t.trace_id) as raw_title,
+			coalesce(e.normalized_problem_statement, '') as trigger_title,
+			t.trace_id as title_trace_id,
+				t.started_at as started_at,
+				case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then null else t.ended_at end as ended_at,
+				greatest(
+					case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end,
+					coalesce(l.recorded_at, timestamptz '0001-01-01 00:00:00+00')
+				) as last_active,
+				coalesce(t.conversation_id, '') as conversation_id,
+				t.trace_id as trace_id,
+				coalesce(t.conversation_id, '') as parent_session_id,
+			coalesce(t.case_id, '') as case_id,
+			coalesce(t.trigger_event_id, '') as trigger_event_id,
+			t.thread_key as thread_key,
+			t.workflow_kind as workflow_kind,
+			t.status as status,
+			coalesce(t.last_verdict, '') as last_verdict,
+			(t.event_count + t.reasoning_step_count + t.tool_call_count)::int as message_count,
+			t.tool_call_count::int as tool_call_count,
+			0::int as trace_count,
+			0::int as open_trace_count,
+				0::int as proposal_count,
+				''::text as active_case_summary
+			from trace_candidate_ids ci
+			join trace_summary t on t.trace_id = ci.trace_id
+			left join event_envelope e on e.id = t.trigger_event_id
+			left join actual_ledger_times l on l.trace_id = t.trace_id
+			order by last_active desc, t.trace_id asc
+			limit $3
+		),
 		recent_trace_parents as (
 			select conversation_id, max(last_active) as latest_trace_at
 			from trace_ranked
