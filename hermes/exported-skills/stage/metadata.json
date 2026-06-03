@@ -3236,13 +3236,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f696aa817b674f0f3ae0805dcb891c872cc2046ad3c189c71947a2910bf3c26f",
+        "sha256": "74f0091d9105f65bd2033319d727e0a071f720211d234398f1fa08afad57d0ad",
         "size": 609121
       },
       {
         "path": "log.md",
-        "sha256": "b1e424da60b58fb46a43f15a2e90185bf8a3d94614025ce45560348b9af2a1a6",
-        "size": 1161300
+        "sha256": "fe5b2fcc27f2b65a4de6ebc9ba3327a5799ead8073381a7c4a6abe017abc09ba",
+        "size": 1161711
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5356,8 +5356,8 @@
       },
       {
         "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
-        "sha256": "1214c8906d1f62b98b664acfe1ebc0d44a98228c0b691afb0fa28947aaf97115",
-        "size": 8955
+        "sha256": "177a2d455f0e1e9a6852e236f862764893e4ab70804df1a0c5f311181788214c",
+        "size": 8762
       },
       {
         "path": "pages/projects/numo-transition-plan.md",
@@ -6669,7 +6669,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-02T23:37:20Z",
+  "exported_at": "2026-06-03T00:04:42Z",
   "file_count": 1332,
   "files": [
     {
@@ -9902,7 +9902,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
-  "previous_tree_hash": "74fc4bdfe77130324948b7ed69312c6ebae38471ae283b2fa6fe60cd49ad0e19",
+  "previous_tree_hash": "5072e1423ed0824e0023d27470585e9fb531b37e81a6d43fbd7d3e4e59ca34fe",
   "schema_version": 1,
   "skill_file_count": 645,
   "skill_manage_sessions": [
@@ -9915,7 +9915,7 @@
   ],
   "skill_tree_hash": "1d8b7279957ca8fcb9492fdeff19108414056bf8fe7913909dba3c38eae0f973",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5072e1423ed0824e0023d27470585e9fb531b37e81a6d43fbd7d3e4e59ca34fe",
+  "tree_hash": "11dc915e8b676930ddad31136f67010ea7dd82050a6aa1fc95b449fab8dd65d2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9931,13 +9931,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f696aa817b674f0f3ae0805dcb891c872cc2046ad3c189c71947a2910bf3c26f",
+      "sha256": "74f0091d9105f65bd2033319d727e0a071f720211d234398f1fa08afad57d0ad",
       "size": 609121
     },
     {
       "path": "log.md",
-      "sha256": "b1e424da60b58fb46a43f15a2e90185bf8a3d94614025ce45560348b9af2a1a6",
-      "size": 1161300
+      "sha256": "fe5b2fcc27f2b65a4de6ebc9ba3327a5799ead8073381a7c4a6abe017abc09ba",
+      "size": 1161711
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12051,8 +12051,8 @@
     },
     {
       "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
-      "sha256": "1214c8906d1f62b98b664acfe1ebc0d44a98228c0b691afb0fa28947aaf97115",
-      "size": 8955
+      "sha256": "177a2d455f0e1e9a6852e236f862764893e4ab70804df1a0c5f311181788214c",
+      "size": 8762
     },
     {
       "path": "pages/projects/numo-transition-plan.md",
@@ -13361,5 +13361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "019e4b37b6b8087ee8b7c7fd8b67b14b7a059c7163f479c4254b88bfdcf7bbd2"
+  "wiki_tree_hash": "93dc8aba156a1a3812eddcec59d55e2bfdeae4a9e8814a026dddaf2a4d4d104c"
 }

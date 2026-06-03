@@ -24220,3 +24220,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d4d11670f829b875320de1014f0289c0
 - summary: Poseidon Expert / Evaluation Platform (Codename: Atlas) is a desktop platform owned by Allen and Sasi (TBD), focusing on expert marketplace, evaluation workflows, and reputation sy...
 
+## [2026-06-03T00:01:24Z] synthesis | Numo Transition Plan & Korea Team Goals
+
+- status: published
+- slug: projects/numo-transition-plan-korea-team-goals
+- wiki_revision_id: wikirev_10c2f0253b3eb8fb049c38c541035493
+- summary: Transition plan for Numo ownership to the Korea team with target launch by end of June 2026. Covers mobile app development, growth hacking, Toss Mini App strategy, post-handoff res...
+
