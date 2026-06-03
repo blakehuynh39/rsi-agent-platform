@@ -24261,3 +24261,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f40c44c6fb1c95f6206c124131fa358c
 - summary: Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It ai...
 
+## [2026-06-03T06:30:36Z] ingest | Poseidon Atlas Proposal
+
+- status: published
+- slug: notion_document/poseidon-atlas-proposal-3995edb5
+- wiki_revision_id: wikirev_ef23472f9357728bb3e8d3207a08c689
+- source_document_id: srcdoc_846aa29fa13ddc3c098759f83995edb5
+- source_revision_id: srcrev_cfa08ace0cb4b17ccab754e4c9a2f491
+- summary: Source: [source](https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947)
+
