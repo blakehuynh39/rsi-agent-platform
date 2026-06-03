@@ -1,13 +1,13 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST."
-version: 1.3.0
+version: 2.0.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality]
-    related_skills: [github-auth, github-pr-workflow]
+    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality, Idempotency, N+1, Deep-Correctness]
+    related_skills: [github-auth, github-pr-workflow, destructive-migration-safety]
 ---
 
 # GitHub Code Review
@@ -354,6 +354,16 @@ When performing a code review (local or PR), systematically check:
 - Edge cases handled (empty inputs, nulls, large data, concurrent access)?
 - Error paths handled gracefully?
 
+**Deep Correctness — go beyond surface-level checks:**
+
+- **Race conditions:** In concurrent code (async Rust, Go goroutines, JS Promise chains, multi-threaded Java), check: shared mutable state protected by locks/channels/atomics? Lock ordering consistent to prevent deadlocks? `SELECT ... FOR UPDATE` used where read-then-write must be atomic?
+- **Transaction boundaries:** Database operations that must be atomic — are they wrapped in a transaction? If multiple rows in different tables must be updated together, is there a single `BEGIN...COMMIT`? Watch for `COMMIT` inside loops (should be batched).
+- **Error propagation:** Are errors from library calls or sub-functions actually checked and propagated? In Rust: no `unwrap()` or `expect()` in production code without justification. In Go: no bare `_` discarding errors. In TypeScript: `.catch()` blocks that just `console.error` without recovery.
+- **Partial failure handling:** If step A succeeds and step B fails, what state is left behind? Is cleanup (rollback, compensating action) needed? Look for patterns like "update user, then call Stripe" — if Stripe fails, the user record is inconsistent.
+- **Ordering dependencies:** Does the code assume a particular execution order that isn't guaranteed? (e.g., async tasks spawned but not awaited before reading results, event handler registration after event might have fired).
+- **Off-by-one / boundary errors:** Check loop bounds: `<` vs `<=`, zero-index confusion, empty collections, single-element edge case, integer overflow at MAX/MIN values.
+- **Time & timezone correctness:** `SystemTime::now()` vs monotonic clocks for durations. UTC storage vs local display. Daylight saving boundary handling. Leap seconds.
+
 ### Security
 - No hardcoded secrets, credentials, or API keys
 - Input validation on user-facing inputs
@@ -376,10 +386,75 @@ When performing a code review (local or PR), systematically check:
 - Appropriate caching where beneficial
 - No blocking operations in async code paths
 
+**N+1 Query Detection — the silent performance killer:**
+
+The N+1 problem: executing 1 query to fetch N records, then N additional queries to fetch related data for each record. Total: N+1 queries instead of 2.
+
+**Patterns to flag (by language/ORM):**
+
+- **Rust (SQLx / Diesel):** `.fetch()` or `query_as()` called inside a `for` loop that iterates over results of a prior query. Look for `for row in rows { ... sqlx::query_as!(...) ... }`.
+- **Rust (SeaORM):** `find_related()` without `.find_with_related()` — loading related entities one at a time.
+- **TypeScript/JS (Prisma):** `prisma.user.findMany()` without `include:` — then iterating and calling `prisma.post.findMany({ where: { authorId: user.id } })` per user.
+- **TypeScript/JS (Drizzle):** Querying inside `.map()` or `for...of` without using Drizzle's relational queries or `inArray`.
+- **TypeScript/JS (Knex/Kysely):** `for (const item of items) { await db.select().from('related').where('id', item.relId) }` — use `WHERE IN` with a single query instead.
+- **Java (JPA/Hibernate):** `@OneToMany(fetch = FetchType.LAZY)` accessed in a loop without `JOIN FETCH` or `@EntityGraph`. Default lazy loading triggers N additional SELECTs.
+- **Python (SQLAlchemy):** `relationship(lazy='select')` or accessing `.children` on each parent in a loop without `joinedload()` or `selectinload()`.
+- **Go (sqlx / GORM):** `db.Select(&items, "SELECT * FROM parent")` followed by `for _, item := range items { db.Get(&child, "SELECT * FROM child WHERE parent_id = $1", item.ID) }`.
+
+**Detection workflow during review:**
+1. Scan for loops (`for`, `.map()`, `.forEach()`, `for...of`, `while`) that contain database calls.
+2. Check if the loop iterates over results from a previous database query.
+3. If yes → it's likely N+1. Verify: count the queries. If one query returns N rows and a second query is executed N times inside the loop, flag it.
+4. Suggested fix: eager loading (`include`, `JOIN`, `prefetch_related`, `selectinload`), batch loading (`WHERE IN` with collected IDs), or DataLoader pattern for GraphQL.
+
+**PITFALL:** N+1 queries often don't show in local dev with small datasets. A 10ms query run 100 times = 1 second — invisible locally. But 10,000 records = 100 seconds in production. Always flag N+1 patterns even if the dataset is currently small.
+
+**PITFALL:** ORM "magic" hides queries. In JPA, `entity.getChildren().size()` triggers a SELECT you never wrote. In Django, accessing `parent.child_set.all()` in a template loop fires N queries. Look at the rendered SQL, not just the application code.
+
 ### Documentation
 - Public APIs documented
 - Non-obvious logic has comments explaining "why"
 - README updated if behavior changed
+
+### Idempotency & Safe Retries
+
+Idempotency is the property that an operation can be applied multiple times without changing the result beyond the first application. This is critical in distributed systems where network failures, timeouts, and retries are inevitable.
+
+**API Endpoints:**
+
+- **GET, HEAD, PUT, DELETE (not PATCH):** Must be idempotent by HTTP spec. HTTP GET must never have side effects. HTTP PUT must produce the same result whether called once or N times.
+- **POST (non-idempotent by default):** Check if the endpoint needs idempotency keys. For payment endpoints, order creation, or any mutation where a retry would duplicate the effect — require an `Idempotency-Key` header with server-side deduplication (store key → result mapping, return cached result on replay).
+- **PATCH:** Generally not idempotent. Flag partial updates that don't use optimistic locking (e.g., `UPDATE ... WHERE version = $1`).
+
+**Database Operations:**
+
+- **INSERT:** `INSERT INTO ... ON CONFLICT DO NOTHING` or `ON CONFLICT DO UPDATE` for upserts. Plain `INSERT` without conflict handling will fail on retry or produce duplicates.
+- **DELETE:** `DELETE FROM ... WHERE id = $1` is idempotent (deleting a deleted row is a no-op). But `DELETE FROM ... ORDER BY ... LIMIT N` is NOT idempotent — flag for review.
+- **UPDATE:** `UPDATE ... SET counter = counter + 1` is NOT idempotent — each retry increments again. Use `UPDATE ... SET counter = $new_value WHERE version = $old_version` with optimistic locking, or `INSERT ... ON CONFLICT` for upserts.
+- **Idempotency key pattern:** For multi-step operations, store the idempotency key in a transaction alongside the operation. If the key already exists (previous attempt), return the stored result without re-executing.
+
+**Background Jobs:**
+
+- **Every-pod jobs (depin-backend pattern):** Each pod runs the same job independently. Every operation in the job MUST be idempotent. Use `INSERT ... ON CONFLICT DO UPDATE`, `UPDATE ... WHERE state != 'done'`, or `pg_try_advisory_lock` to prevent duplicate work.
+- **Scheduled tasks:** If a cron-like task can overlap with itself (slow run exceeds interval), ensure it uses a lock or checks for an existing run before starting.
+- **Event-driven handlers:** If the handler might receive duplicate events (at-least-once delivery), it must be idempotent. Store processed event IDs and skip replays.
+
+**External API Calls:**
+
+- **Stripe / payment providers:** Use idempotency keys for payment creation. A network timeout doesn't mean the payment wasn't processed — retrying without a key can double-charge.
+- **Email / notifications:** Flag code that sends emails inside loops or retry logic without deduplication. A retry storm can send hundreds of duplicate emails.
+- **Webhook delivery:** Outgoing webhooks should include an idempotency key so the receiver can deduplicate.
+
+**Detection workflow during review:**
+1. Identify every mutation operation (INSERT, UPDATE, DELETE, POST, external API call).
+2. For each: ask "what happens if this runs twice?" If the answer is "duplicate/bad state" → flag it.
+3. Check: does the surrounding code have retry logic? If yes, idempotency is mandatory for every operation inside the retry loop.
+4. For REST endpoints: check HTTP method semantics. POST that reads like PUT (e.g., "create-or-update") is a design smell — use PUT instead.
+5. For depin-backend specifically: every background job must pass the "2-pod test" — if two pods run this simultaneously, the result must be correct.
+
+**PITFALL:** "We'll never retry this" is always wrong in production. Network blips, deployment rollovers, and DB connection pool exhaustion all cause retries. Assume every operation will be retried at least once.
+
+**PITFALL:** Idempotency keys stored without TTL/cleanup grow unbounded. Flag idempotency key tables that lack a `created_at` column and a cleanup job (see `idempotency_cleanup` in depin-backend for reference pattern).
 
 ### Multi-Pod / Distributed Deployment (for services with >1 replica)
 
@@ -402,6 +477,48 @@ When reviewing PRs for services deployed with multiple replicas (e.g., Kubernete
 - Always check K8s deployment state during review — replica count may have changed since last review
 
 **PITFALL:** Reviewing code as if it runs in a single process. A `refresh_all()` that scans the full users table is fine in local dev but runs N× concurrently in production. Always multiply the cost by the replica count when assessing DB load.
+
+---
+
+## 3c. Severity Classification
+
+Every finding must carry a severity label. This drives the approve-vs-request-changes decision (Section 7) and helps the author triage.
+
+| Label | Meaning | Blocks Merge? |
+|---|---|---|
+| 🔴 **CRITICAL** | Security vulnerability, data loss/corruption, crash, double-charge, PII leak | ALWAYS |
+| 🟠 **HIGH** | Core logic bug, data integrity risk, missing cross-repo pair, N+1 on hot path, non-idempotent mutation on retry path | ALWAYS |
+| 🟡 **MEDIUM** | Performance concern on non-hot path, missing error handling, incomplete test coverage, unclear naming that could cause bugs | No (but strong recommendation) |
+| 🔵 **LOW** | Style inconsistency, minor DRY opportunity, outdated comment, suggestion for cleaner approach | No |
+| 💡 **SUGGESTION** | Optional improvement worth considering — alternative approach, future-proofing, educational note | No |
+| 🌟 **PRAISE** | Well-designed abstraction, thorough edge-case handling, clear documentation, clever but readable solution | No (celebrate it!) |
+
+**Decision rule (HARD):**
+- Any 🔴 CRITICAL or 🟠 HIGH → **REQUEST_CHANGES**
+- Only 🟡 MEDIUM / 🔵 LOW / 💡 SUGGESTION → **APPROVE** (or **COMMENT** if you want the author to see notes before merging)
+- All clear with no findings → **APPROVE**
+
+## 3d. Collaborative Review Tone
+
+Take the **question approach** — frame issues as inquiries rather than commands. This is borrowed from Cursor's and the Claude Code review skill's best practices:
+
+```markdown
+❌ "This will fail if the list is empty."
+✅ "What happens if `items` is an empty array?"
+
+❌ "You need error handling here."
+✅ "How should this behave if the API call fails?"
+
+❌ "Extract this into a function."
+✅ "This logic appears in 3 places. Would it make sense to extract it?"
+
+❌ "Use async/await here."
+✅ "Suggestion: async/await might make this more readable. What do you think?"
+```
+
+**When to be direct (not collaborative):** Security vulnerabilities (SQL injection, hardcoded secrets, PII exposure). These are not suggestions — they are blocking. Use direct language: "This is a SQL injection vulnerability. User input is concatenated into the query string. Use parameterized queries."
+
+**Always include PRAISE when warranted.** Code review isn't just finding problems — it's recognizing good work. If the PR has a well-designed API, thorough test coverage, or clean error handling, call it out explicitly with 🌟 PRAISE.
 
 ---
 
@@ -661,13 +778,15 @@ git branch -D pr-$PR_NUMBER
 
 ### Decision: Approve vs Request Changes vs Comment
 
-- **Approve** — zero CRITICAL issues AND zero HIGH issues. Only MEDIUM, LOW, or suggestions at most. All clear is also fine.
-- **Request Changes** — any CRITICAL or HIGH issue exists. These are always blocking.
+See Section 3c for the full severity classification framework.
+
+- **Approve** — zero 🔴 CRITICAL issues AND zero 🟠 HIGH issues. Only 🟡 MEDIUM, 🔵 LOW, or 💡 SUGGESTION at most. All clear is also fine. Always include 🌟 PRAISE when you see good work.
+- **Request Changes** — any 🔴 CRITICAL or 🟠 HIGH issue exists. These are always blocking.
 - **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
 
 **🚫 HARD RULE: NEVER approve a PR that has CRITICAL or HIGH-severity issues.** This rule has no exceptions — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If you find CRITICAL or HIGH issues, the verdict is always REQUEST_CHANGES. If the author argues the issues are acceptable, they can override the bot — but RSI must never be the one to approve through them.
 
-Rationale: CRITICAL issues represent security vulnerabilities, data corruption, or crashes. HIGH issues represent bugs in core logic, data integrity risks, or missing cross-repo coordination that could cause production incidents. Feature gates degrade, configs get toggled, and "follow-up PRs" get deprioritized — the only safe merge is one without known severe issues.
+Rationale: CRITICAL issues represent security vulnerabilities, data corruption, or crashes. HIGH issues represent bugs in core logic, data integrity risks, N+1 on hot paths, non-idempotent mutations, or missing cross-repo coordination that could cause production incidents. Feature gates degrade, configs get toggled, and "follow-up PRs" get deprioritized — the only safe merge is one without known severe issues.
 
 ---
 
