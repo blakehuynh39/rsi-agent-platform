@@ -4,14 +4,12 @@ type: "project"
 slug: "projects/poseidon-atlas"
 freshness: "2026-06-03T04:30:00Z"
 tags:
-  - "ai-annotation"
   - "atlas"
+  - "data-annotation"
   - "expert-evaluation"
   - "marketplace"
-  - "multilingual"
   - "poseidon"
-owners:
-  - "Product DRI"
+owners: []
 source_revision_ids:
   - "srcrev_d7464f44c2f7c6da501931752ab8455e"
 conflict_state: "none"
@@ -21,7 +19,7 @@ conflict_state: "none"
 
 ## Summary
 
-Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It aims to own the human intelligence layer by leveraging existing Poseidon infrastructure (Numo supply, Pipeline/Subnets refinery, SONAR scoring) and targets cross-lingual, low-resource evaluation where incumbents like Mercor have a gap. The plan outlines a phased rollout from audio validation to complex computer-use tasks, with milestones through Q4 2026 and KPIs covering demand, supply, quality, and profitability.
+Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It aims to monetize the highest-value layer of Poseidon's data supply chain by connecting AI labs with expert human judgment, leveraging existing infrastructure (Numo, Pipeline, Subnets, SONAR).
 
 ## Claims
 
@@ -52,14 +50,14 @@ Atlas is a proposed demand-side marketplace within Poseidon that curates a vette
 
 ## Related Pages
 
-- `projects/poseidon-numo`
-- `projects/poseidon-pipeline`
-- `projects/poseidon-sonar`
-- `systems/cpvss`
-- `systems/trace`
+- `projects/numo`
+- `projects/pipeline-subnets`
+- `projects/poseidon`
+- `projects/sonar`
+- `projects/trace`
 
 ## Sources
 
 - `source_document_id`: `srcdoc_846aa29fa13ddc3c098759f83995edb5`
-- `source_revision_id`: `srcrev_cfa08ace0cb4b17ccab754e4c9a2f491`
+- `source_revision_id`: `srcrev_c4b60542a790e3481e9bccdf09d6842a`
 - `source_url`: [source](https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947)
