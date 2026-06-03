@@ -24227,3 +24227,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_10c2f0253b3eb8fb049c38c541035493
 - summary: Transition plan for Numo ownership to the Korea team with target launch by end of June 2026. Covers mobile app development, growth hacking, Toss Mini App strategy, post-handoff res...
 
+## [2026-06-03T01:00:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_78badb7a71c54c8926e2d9e3ef2e8224
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_b56375df2eb63216232683eec3900b38
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
