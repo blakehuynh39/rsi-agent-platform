@@ -346,6 +346,97 @@ func TestPostgresKanbanEventsRejectCrossProjectCursor(t *testing.T) {
 	}
 }
 
+func TestPostgresHermesSessionsPageIncludesLedgerRecentTrace(t *testing.T) {
+	postgresURL, cleanup := openTempPostgresURL(t)
+	defer cleanup()
+
+	db, err := platformdb.OpenPostgres(postgresURL)
+	if err != nil {
+		t.Fatalf("open postgres: %v", err)
+	}
+	if _, err := platformdb.ApplyMigrations(db); err != nil {
+		_ = db.Close()
+		t.Fatalf("ApplyMigrations() error = %v", err)
+	}
+	_ = db.Close()
+
+	store, err := NewPostgresStore(config.Config{
+		StoreBackend: "postgres",
+		PostgresURL:  postgresURL,
+	})
+	if err != nil {
+		t.Fatalf("NewPostgresStore() error = %v", err)
+	}
+	defer store.db.Close()
+
+	now := time.Date(2026, 6, 3, 16, 0, 0, 0, time.UTC)
+	old := now.Add(-30 * 24 * time.Hour)
+	if _, err := store.db.Exec(`
+		insert into conversation (id, source, external_key, external_conversation, title, status, created_at, updated_at)
+		values ($1, 'test', $2, $2, 'Ledger-hot conversation', 'active', $3, $3)
+	`, "conv-ledger-hot", "thread-ledger-hot", old); err != nil {
+		t.Fatalf("insert ledger-hot conversation: %v", err)
+	}
+	if _, err := store.db.Exec(`
+		insert into trace_summary (
+			trace_id, ingestion_id, workflow_id, thread_key, workflow_kind, status,
+			started_at, ended_at, event_count, reasoning_step_count, tool_call_count,
+			conversation_id
+		)
+		values ($1, 'ing-ledger-hot', 'wf-ledger-hot', 'thread-ledger-hot', 'feature-request', 'needs-human',
+			$2, $2, 1, 0, 0, 'conv-ledger-hot')
+	`, "trace-ledger-hot", old); err != nil {
+		t.Fatalf("insert ledger-hot trace: %v", err)
+	}
+	if _, err := store.db.Exec(`
+		insert into execution_ledger_event (
+			id, execution_id, trace_id, workflow_id, kind, status, seq, recorded_at
+		)
+		values ('xled-ledger-hot', 'exec-ledger-hot', 'trace-ledger-hot', 'wf-ledger-hot', 'terminal.output', 'streaming', 1, $1)
+	`, now); err != nil {
+		t.Fatalf("insert ledger-hot event: %v", err)
+	}
+
+	for i := 0; i < 10; i++ {
+		traceID := fmt.Sprintf("trace-recent-%02d", i)
+		conversationID := fmt.Sprintf("conv-recent-%02d", i)
+		threadKey := fmt.Sprintf("thread-recent-%02d", i)
+		activeAt := now.Add(-time.Duration(i+1) * time.Hour)
+		if _, err := store.db.Exec(`
+			insert into conversation (id, source, external_key, external_conversation, title, status, created_at, updated_at)
+			values ($1, 'test', $2, $2, $3, 'active', $4, $4)
+		`, conversationID, threadKey, "Recent conversation", activeAt); err != nil {
+			t.Fatalf("insert recent conversation %d: %v", i, err)
+		}
+		if _, err := store.db.Exec(`
+			insert into trace_summary (
+				trace_id, ingestion_id, workflow_id, thread_key, workflow_kind, status,
+				started_at, ended_at, event_count, reasoning_step_count, tool_call_count,
+				conversation_id
+			)
+			values ($1, $2, $3, $4, 'feature-request', 'completed',
+				$5, $5, 1, 0, 0, $6)
+		`, traceID, "ing-"+traceID, "wf-"+traceID, threadKey, activeAt, conversationID); err != nil {
+			t.Fatalf("insert recent trace %d: %v", i, err)
+		}
+	}
+
+	page := store.ListHermesSessionsPage(5, 0)
+	var found *HermesSessionListItem
+	for i := range page.Items {
+		if page.Items[i].TraceID == "trace-ledger-hot" {
+			found = &page.Items[i]
+			break
+		}
+	}
+	if found == nil {
+		t.Fatalf("ledger-hot trace missing from first page: %+v", page.Items)
+	}
+	if !found.LastActive.Equal(now) {
+		t.Fatalf("ledger-hot last_active=%s, want %s", found.LastActive, now)
+	}
+}
+
 func openTempPostgresURL(t *testing.T) (string, func()) {
 	t.Helper()
 	baseURL := strings.TrimSpace(os.Getenv("RSI_TEST_POSTGRES_URL"))

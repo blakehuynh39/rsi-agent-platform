@@ -2,13 +2,14 @@ package store
 
 import (
 	"database/sql"
+	"encoding/json"
 	"strings"
 	"time"
 )
 
 type HermesSessionListPage struct {
-	Items                []HermesSessionListItem
-	Total                int
+	Items                 []HermesSessionListItem
+	Total                 int
 	LedgerActivityByTrace map[string]HermesLedgerActivity
 }
 
@@ -56,6 +57,11 @@ type HermesLedgerActivity struct {
 	RecordedAt     time.Time
 }
 
+type hermesLedgerTraceCandidate struct {
+	TraceID    string
+	RecordedAt time.Time
+}
+
 func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSessionListPage {
 	if limit <= 0 {
 		limit = 20
@@ -71,33 +77,53 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 		window = limit
 	}
 
+	// A top-N trace by max(trace base activity, ledger activity) must be in the
+	// top-N set for at least one side, so the page can be composed from bounded
+	// trace-summary and ledger-recency candidates instead of a global ledger CTE.
+	ledgerTraceCandidates := p.recentHermesLedgerTraceCandidates(window)
+	ledgerCandidateJSON := hermesLedgerTraceCandidatesJSON(ledgerTraceCandidates)
+
 	rows, err := p.db.Query(`
-		with latest_trace_ledger as (
-			select distinct on (trace_id)
-				trace_id,
-				recorded_at
-			from execution_ledger_event
-			where trace_id <> ''
-			order by trace_id asc, recorded_at desc, execution_id desc, seq desc, id desc
-		),
-		trace_ranked as (
-			select
-				t.trace_id as id,
-				'trace'::text as session_type,
-				'trace'::text as source,
+			with ledger_trace_candidates as (
+				select trace_id, recorded_at
+				from jsonb_to_recordset($4::jsonb) as c(trace_id text, recorded_at timestamptz)
+				where trace_id <> '' and recorded_at is not null
+			),
+			base_trace_candidates as (
+				select trace_id
+				from trace_summary
+				order by
+					(case
+						when ended_at is null or ended_at <= timestamptz '0001-01-02 00:00:00+00'
+						then started_at
+						else ended_at
+					end) desc,
+					trace_id asc
+				limit $3
+			),
+			trace_candidate_ids as (
+				select trace_id from base_trace_candidates
+				union
+				select trace_id from ledger_trace_candidates
+			),
+			trace_ranked as (
+				select
+					t.trace_id as id,
+					'trace'::text as session_type,
+					'trace'::text as source,
 				coalesce(nullif(t.workflow_kind, ''), 'rsi-trace') as model,
 				coalesce(nullif(e.normalized_problem_statement, ''), nullif(t.workflow_kind, ''), t.trace_id) as raw_title,
 				coalesce(e.normalized_problem_statement, '') as trigger_title,
 				t.trace_id as title_trace_id,
-				t.started_at as started_at,
-				case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then null else t.ended_at end as ended_at,
-				greatest(
-					case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end,
-					coalesce(l.recorded_at, timestamptz '0001-01-01 00:00:00+00')
-				) as last_active,
-				coalesce(t.conversation_id, '') as conversation_id,
-				t.trace_id as trace_id,
-				coalesce(t.conversation_id, '') as parent_session_id,
+					t.started_at as started_at,
+					case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then null else t.ended_at end as ended_at,
+					greatest(
+						case when t.ended_at is null or t.ended_at <= timestamptz '0001-01-02 00:00:00+00' then t.started_at else t.ended_at end,
+						coalesce(l.recorded_at, timestamptz '0001-01-01 00:00:00+00')
+					) as last_active,
+					coalesce(t.conversation_id, '') as conversation_id,
+					t.trace_id as trace_id,
+					coalesce(t.conversation_id, '') as parent_session_id,
 				coalesce(t.case_id, '') as case_id,
 				coalesce(t.trigger_event_id, '') as trigger_event_id,
 				t.thread_key as thread_key,
@@ -108,14 +134,15 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 				t.tool_call_count::int as tool_call_count,
 				0::int as trace_count,
 				0::int as open_trace_count,
-				0::int as proposal_count,
-				''::text as active_case_summary
-			from trace_summary t
-			left join event_envelope e on e.id = t.trigger_event_id
-			left join latest_trace_ledger l on l.trace_id = t.trace_id
-			order by last_active desc, t.trace_id asc
-			limit $3
-		),
+					0::int as proposal_count,
+					''::text as active_case_summary
+				from trace_candidate_ids ci
+				join trace_summary t on t.trace_id = ci.trace_id
+				left join event_envelope e on e.id = t.trigger_event_id
+				left join ledger_trace_candidates l on l.trace_id = t.trace_id
+				order by last_active desc, t.trace_id asc
+				limit $3
+			),
 		recent_trace_parents as (
 			select conversation_id, max(last_active) as latest_trace_at
 			from trace_ranked
@@ -186,10 +213,10 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 		tool_call_count, trace_count, open_trace_count, proposal_count, active_case_summary,
 		totals.total
 	from session_rows
-	cross join totals
-	order by last_active desc, id asc
-	limit $1 offset $2
-	`, limit, offset, window)
+		cross join totals
+		order by last_active desc, id asc
+		limit $1 offset $2
+		`, limit, offset, window, ledgerCandidateJSON)
 	if err != nil {
 		return HermesSessionListPage{}
 	}
@@ -288,6 +315,130 @@ func (p *PostgresStore) hermesSessionTotal() int {
 		return 0
 	}
 	return total
+}
+
+func (p *PostgresStore) recentHermesLedgerTraceCandidates(limit int) []hermesLedgerTraceCandidate {
+	if limit <= 0 {
+		return nil
+	}
+	pageSize := limit * 8
+	if pageSize < 512 {
+		pageSize = 512
+	}
+	if pageSize > 5000 {
+		pageSize = 5000
+	}
+
+	seen := map[string]bool{}
+	out := make([]hermesLedgerTraceCandidate, 0, limit)
+	var cursor hermesLedgerTraceCursor
+	for len(out) < limit {
+		items, nextCursor, ok := p.scanRecentHermesLedgerTraceCandidatesPage(pageSize, cursor)
+		if !ok || len(items) == 0 {
+			break
+		}
+		for _, item := range items {
+			traceID := strings.TrimSpace(item.traceID)
+			if traceID == "" || seen[traceID] {
+				continue
+			}
+			seen[traceID] = true
+			out = append(out, hermesLedgerTraceCandidate{
+				TraceID:    traceID,
+				RecordedAt: item.recordedAt,
+			})
+			if len(out) >= limit {
+				return out
+			}
+		}
+		if len(items) < pageSize {
+			break
+		}
+		cursor = nextCursor
+	}
+	return out
+}
+
+type hermesLedgerTraceCursor struct {
+	valid       bool
+	traceID     string
+	executionID string
+	id          string
+	seq         int
+	recordedAt  time.Time
+}
+
+func (p *PostgresStore) scanRecentHermesLedgerTraceCandidatesPage(limit int, cursor hermesLedgerTraceCursor) ([]hermesLedgerTraceCursor, hermesLedgerTraceCursor, bool) {
+	if limit <= 0 {
+		return nil, hermesLedgerTraceCursor{}, true
+	}
+	rows, err := p.db.Query(`
+		select trace_id, execution_id, seq, id, recorded_at
+		from execution_ledger_event
+		where trace_id <> ''
+			and (
+				$1 = false
+				or recorded_at < $2
+				or (recorded_at = $2 and trace_id > $3)
+				or (recorded_at = $2 and trace_id = $3 and execution_id < $4)
+				or (recorded_at = $2 and trace_id = $3 and execution_id = $4 and seq < $5)
+				or (recorded_at = $2 and trace_id = $3 and execution_id = $4 and seq = $5 and id < $6)
+			)
+		order by recorded_at desc, trace_id asc, execution_id desc, seq desc, id desc
+		limit $7
+	`, cursor.valid, cursor.recordedAt, cursor.traceID, cursor.executionID, cursor.seq, cursor.id, limit)
+	if err != nil {
+		return nil, hermesLedgerTraceCursor{}, false
+	}
+	defer rows.Close()
+
+	items := []hermesLedgerTraceCursor{}
+	nextCursor := hermesLedgerTraceCursor{}
+	for rows.Next() {
+		var item hermesLedgerTraceCursor
+		if err := rows.Scan(&item.traceID, &item.executionID, &item.seq, &item.id, &item.recordedAt); err != nil {
+			return nil, hermesLedgerTraceCursor{}, false
+		}
+		item.valid = true
+		item.traceID = strings.TrimSpace(item.traceID)
+		item.executionID = strings.TrimSpace(item.executionID)
+		item.id = strings.TrimSpace(item.id)
+		items = append(items, item)
+		nextCursor = item
+	}
+	if err := rows.Err(); err != nil {
+		return nil, hermesLedgerTraceCursor{}, false
+	}
+	return items, nextCursor, true
+}
+
+func hermesLedgerTraceCandidatesJSON(items []hermesLedgerTraceCandidate) string {
+	if len(items) == 0 {
+		return "[]"
+	}
+	type candidateRow struct {
+		TraceID    string    `json:"trace_id"`
+		RecordedAt time.Time `json:"recorded_at"`
+	}
+	rows := make([]candidateRow, 0, len(items))
+	for _, item := range items {
+		traceID := strings.TrimSpace(item.TraceID)
+		if traceID == "" || item.RecordedAt.IsZero() {
+			continue
+		}
+		rows = append(rows, candidateRow{
+			TraceID:    traceID,
+			RecordedAt: item.RecordedAt,
+		})
+	}
+	if len(rows) == 0 {
+		return "[]"
+	}
+	raw, err := json.Marshal(rows)
+	if err != nil {
+		return "[]"
+	}
+	return string(raw)
 }
 
 func scanHermesSessionListItem(scanner interface{ Scan(dest ...any) error }) (HermesSessionListItem, string, int, error) {
