@@ -2480,6 +2480,10 @@ create index if not exists execution_ledger_event_latest_by_trace_idx
   on execution_ledger_event (trace_id asc, recorded_at desc, execution_id desc, seq desc, id desc)
   where trace_id <> '';
 
+create index if not exists execution_ledger_event_session_recency_idx
+  on execution_ledger_event (recorded_at desc, trace_id asc, execution_id desc, seq desc, id desc)
+  where trace_id <> '';
+
 create table if not exists db_read_request (
   id text primary key,
   idempotency_key text not null unique,
