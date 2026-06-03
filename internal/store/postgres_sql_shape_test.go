@@ -88,10 +88,15 @@ func TestHermesSessionsPageAvoidsGlobalLatestLedgerCTE(t *testing.T) {
 	if strings.Contains(source, "latest_trace_ledger") {
 		t.Fatal("sessions page query must not rebuild a global latest_trace_ledger CTE")
 	}
+	if strings.Contains(source, "actual_ledger_times") {
+		t.Fatal("sessions page query must use indexed latest-row probes instead of materializing ledger rows per candidate")
+	}
 	for _, pattern := range []string{
 		"recentHermesLedgerTraceCandidates(window)",
 		"jsonb_to_recordset($4::jsonb)",
 		"base_trace_candidates",
+		"left join lateral",
+		"limit 1",
 	} {
 		if !strings.Contains(source, pattern) {
 			t.Fatalf("sessions page query missing bounded candidate pattern %q", pattern)

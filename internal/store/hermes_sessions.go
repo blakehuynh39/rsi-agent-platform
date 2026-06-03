@@ -106,14 +106,6 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 			union
 			select trace_id from ledger_trace_candidates
 		),
-		actual_ledger_times as (
-			select distinct on (e.trace_id)
-				e.trace_id,
-				e.recorded_at
-			from trace_candidate_ids ci
-			join execution_ledger_event e on e.trace_id = ci.trace_id
-			order by e.trace_id asc, e.recorded_at desc, e.execution_id desc, e.seq desc, e.id desc
-		),
 		trace_ranked as (
 			select
 				t.trace_id as id,
@@ -147,7 +139,13 @@ func (p *PostgresStore) ListHermesSessionsPage(limit int, offset int) HermesSess
 			from trace_candidate_ids ci
 			join trace_summary t on t.trace_id = ci.trace_id
 			left join event_envelope e on e.id = t.trigger_event_id
-			left join actual_ledger_times l on l.trace_id = t.trace_id
+			left join lateral (
+				select le.recorded_at
+				from execution_ledger_event le
+				where le.trace_id = t.trace_id
+				order by le.recorded_at desc, le.execution_id desc, le.seq desc, le.id desc
+				limit 1
+			) l on true
 			order by last_active desc, t.trace_id asc
 			limit $3
 		),
