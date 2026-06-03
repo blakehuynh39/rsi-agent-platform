@@ -49,8 +49,8 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "ccb35e00274a417d58738657de961f2e07eb7d34b03c6b878294fea7d057f365",
-        "size": 2861
+        "sha256": "216d1407cf99474781be747ed052c4cdb2bd7c57160e1d0d0a1c0b752c9c67c7",
+        "size": 3244
       },
       {
         "path": ".usage.json.lock",
@@ -69,8 +69,8 @@
       },
       {
         "path": "apple/apple-reminders/SKILL.md",
-        "sha256": "7ed9206a4df2739d41818a17de1b5ff79e7b24cdb5de9c2e74247c8835bcb515",
-        "size": 2530
+        "sha256": "ee5084f2d7ec196488bef2c74248fb3d8328d1b2e3277ddda3f0de9da6fc7131",
+        "size": 3606
       },
       {
         "path": "apple/findmy/SKILL.md",
@@ -104,8 +104,8 @@
       },
       {
         "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-        "sha256": "2e4ce50d64e58e853b8c55336e4babee0f0e791d257a32dfd4b1b36e2c649bdc",
-        "size": 46167
+        "sha256": "1c22e11474c8b5123c28eac993605924f4b98f3e365e57e8b4f744b0b9bffc70",
+        "size": 46320
       },
       {
         "path": "autonomous-ai-agents/kanban-codex-lane/SKILL.md",
@@ -834,8 +834,8 @@
       },
       {
         "path": "creative/comfyui/scripts/fetch_logs.py",
-        "sha256": "dd8c6e48feb0c54207276c35bdbbfbeefe035fcc364798f4a0aec7d831e5e5d9",
-        "size": 5702
+        "sha256": "3bc3b537a72f3a825001e9c91486e7a5acc58fa6d955ff737d8505907933cdfc",
+        "size": 5690
       },
       {
         "path": "creative/comfyui/scripts/hardware_check.py",
@@ -889,18 +889,18 @@
       },
       {
         "path": "creative/comfyui/tests/test_common.py",
-        "sha256": "bb6b3ae0ff1c3afefb7fe151250f18de483434353cdb5b1353d8008ec6aa93f2",
-        "size": 16433
+        "sha256": "f86e2a0bb260aa00dfe35d6935d23cb7ae65e02ce78096bb77a377f6be1ace1c",
+        "size": 16337
       },
       {
         "path": "creative/comfyui/tests/test_extract_schema.py",
-        "sha256": "b7dc9bb41a5f69b5fa67bd952dd0a863c173e6517d4e08ad3a82ee5789a9d3f8",
-        "size": 7986
+        "sha256": "d5624eaf8cf912d094a108188475de82bd4ae834597fc275a32f8082e6cce898",
+        "size": 7972
       },
       {
         "path": "creative/comfyui/tests/test_run_workflow.py",
-        "sha256": "5b2e79537f136a9c15bda215e4ec5b09c914e75105e263c80d0342684e3904e6",
-        "size": 8746
+        "sha256": "9d4b169afcc8a12ddb24a6d890a8b9c2c43a48df6926a3be1844217b84dc9f00",
+        "size": 8708
       },
       {
         "path": "creative/comfyui/workflows/README.md",
@@ -1644,13 +1644,13 @@
       },
       {
         "path": "devops/kanban-orchestrator/SKILL.md",
-        "sha256": "c60c7fcfb64157d76b6a266bbcf568a677a91bc7b1ce0763ebeeeb1c33a491ea",
-        "size": 14105
+        "sha256": "7701634fb6117722ea38d7a2fac40655095f3d43112684fc087b1775902422a8",
+        "size": 15808
       },
       {
         "path": "devops/kanban-worker/SKILL.md",
-        "sha256": "1a4324dc156cd65bf38fc02c97d344983f3d09cf135fd09561622e725fc4b3a1",
-        "size": 10500
+        "sha256": "a29ff8d929ceabb8970729c0727325ebfdc701a58702ceaf47558d3a9e9f473c",
+        "size": 10956
       },
       {
         "path": "devops/webhook-subscriptions/SKILL.md",
@@ -1689,8 +1689,8 @@
       },
       {
         "path": "email/himalaya/SKILL.md",
-        "sha256": "d8830e10696feefd54a846cf07e9f0c1bc205febe79b8086e2c6b0267afda2fc",
-        "size": 6902
+        "sha256": "4410c2e6fce5c2416201e855098cd0c181ce07feb44f8ac6cc6eb54fa8ed6d62",
+        "size": 7164
       },
       {
         "path": "email/himalaya/references/configuration.md",
@@ -2259,8 +2259,8 @@
       },
       {
         "path": "productivity/google-workspace/scripts/google_api.py",
-        "sha256": "0adc3e1b8ddc359e76ed95520e09cae923f35e79bdc519b31a2f67d4acae2b7c",
-        "size": 43428
+        "sha256": "1e9997a0cdbc5668ea5caa0bd8cfa09e33bb467b9f5df8cf962bab5ff3b20543",
+        "size": 43483
       },
       {
         "path": "productivity/google-workspace/scripts/gws_bridge.py",
@@ -2289,8 +2289,8 @@
       },
       {
         "path": "productivity/maps/scripts/maps_client.py",
-        "sha256": "5aa054efd2e29ae6e758344990ed9436d62fcda421972b93edec1aa27b071027",
-        "size": 46688
+        "sha256": "94960e451d549766070c999f4979bd69ea956381b40c4d5b05bfa6c0501e7ffb",
+        "size": 46678
       },
       {
         "path": "productivity/nano-pdf/SKILL.md",
@@ -2769,7 +2769,7 @@
       },
       {
         "path": "research/research-paper-writing/templates/acl/acl_lualatex.tex",
-        "sha256": "0d9987ba833331a996f9abcd1a03eebba7d7ae331145793e7ddb6b5ae8db27b3",
+        "sha256": "c0bf91f00ecbf962d36dae7a302e577d61fbac00feee93946e869db09d2f8188",
         "size": 3050
       },
       {
@@ -2959,8 +2959,8 @@
       },
       {
         "path": "social-media/xurl/SKILL.md",
-        "sha256": "46a50c6f6d3fd233d5eaa8af829d5f78f81ad97472571fde7f233e069485a611",
-        "size": 13993
+        "sha256": "53f67241ec0f605115029fbe3e1e0669f8f0f35baf6efff8ac62d64fde5a4099",
+        "size": 14977
       },
       {
         "path": "software-development/debugging-hermes-tui-commands/SKILL.md",
@@ -2971,6 +2971,11 @@
         "path": "software-development/hermes-agent-skill-authoring/SKILL.md",
         "sha256": "4b564cbaf9f6ed6fad90a294f9855aa9d0f5398d48f51a6619d6790147192c6f",
         "size": 7618
+      },
+      {
+        "path": "software-development/hermes-s6-container-supervision/SKILL.md",
+        "sha256": "14d42314746571421ff7ca90cbc2cb34b428a09a6d4424fa942bc2ff79e344f2",
+        "size": 11474
       },
       {
         "path": "software-development/node-inspect-debugger/SKILL.md",
@@ -6674,8 +6679,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-03T16:46:37Z",
-  "file_count": 1333,
+  "exported_at": "2026-06-03T20:31:01Z",
+  "file_count": 1334,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6724,8 +6729,8 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "ccb35e00274a417d58738657de961f2e07eb7d34b03c6b878294fea7d057f365",
-      "size": 2861
+      "sha256": "216d1407cf99474781be747ed052c4cdb2bd7c57160e1d0d0a1c0b752c9c67c7",
+      "size": 3244
     },
     {
       "path": ".usage.json.lock",
@@ -6744,8 +6749,8 @@
     },
     {
       "path": "apple/apple-reminders/SKILL.md",
-      "sha256": "7ed9206a4df2739d41818a17de1b5ff79e7b24cdb5de9c2e74247c8835bcb515",
-      "size": 2530
+      "sha256": "ee5084f2d7ec196488bef2c74248fb3d8328d1b2e3277ddda3f0de9da6fc7131",
+      "size": 3606
     },
     {
       "path": "apple/findmy/SKILL.md",
@@ -6779,8 +6784,8 @@
     },
     {
       "path": "autonomous-ai-agents/hermes-agent/SKILL.md",
-      "sha256": "2e4ce50d64e58e853b8c55336e4babee0f0e791d257a32dfd4b1b36e2c649bdc",
-      "size": 46167
+      "sha256": "1c22e11474c8b5123c28eac993605924f4b98f3e365e57e8b4f744b0b9bffc70",
+      "size": 46320
     },
     {
       "path": "autonomous-ai-agents/kanban-codex-lane/SKILL.md",
@@ -7509,8 +7514,8 @@
     },
     {
       "path": "creative/comfyui/scripts/fetch_logs.py",
-      "sha256": "dd8c6e48feb0c54207276c35bdbbfbeefe035fcc364798f4a0aec7d831e5e5d9",
-      "size": 5702
+      "sha256": "3bc3b537a72f3a825001e9c91486e7a5acc58fa6d955ff737d8505907933cdfc",
+      "size": 5690
     },
     {
       "path": "creative/comfyui/scripts/hardware_check.py",
@@ -7564,18 +7569,18 @@
     },
     {
       "path": "creative/comfyui/tests/test_common.py",
-      "sha256": "bb6b3ae0ff1c3afefb7fe151250f18de483434353cdb5b1353d8008ec6aa93f2",
-      "size": 16433
+      "sha256": "f86e2a0bb260aa00dfe35d6935d23cb7ae65e02ce78096bb77a377f6be1ace1c",
+      "size": 16337
     },
     {
       "path": "creative/comfyui/tests/test_extract_schema.py",
-      "sha256": "b7dc9bb41a5f69b5fa67bd952dd0a863c173e6517d4e08ad3a82ee5789a9d3f8",
-      "size": 7986
+      "sha256": "d5624eaf8cf912d094a108188475de82bd4ae834597fc275a32f8082e6cce898",
+      "size": 7972
     },
     {
       "path": "creative/comfyui/tests/test_run_workflow.py",
-      "sha256": "5b2e79537f136a9c15bda215e4ec5b09c914e75105e263c80d0342684e3904e6",
-      "size": 8746
+      "sha256": "9d4b169afcc8a12ddb24a6d890a8b9c2c43a48df6926a3be1844217b84dc9f00",
+      "size": 8708
     },
     {
       "path": "creative/comfyui/workflows/README.md",
@@ -8319,13 +8324,13 @@
     },
     {
       "path": "devops/kanban-orchestrator/SKILL.md",
-      "sha256": "c60c7fcfb64157d76b6a266bbcf568a677a91bc7b1ce0763ebeeeb1c33a491ea",
-      "size": 14105
+      "sha256": "7701634fb6117722ea38d7a2fac40655095f3d43112684fc087b1775902422a8",
+      "size": 15808
     },
     {
       "path": "devops/kanban-worker/SKILL.md",
-      "sha256": "1a4324dc156cd65bf38fc02c97d344983f3d09cf135fd09561622e725fc4b3a1",
-      "size": 10500
+      "sha256": "a29ff8d929ceabb8970729c0727325ebfdc701a58702ceaf47558d3a9e9f473c",
+      "size": 10956
     },
     {
       "path": "devops/webhook-subscriptions/SKILL.md",
@@ -8364,8 +8369,8 @@
     },
     {
       "path": "email/himalaya/SKILL.md",
-      "sha256": "d8830e10696feefd54a846cf07e9f0c1bc205febe79b8086e2c6b0267afda2fc",
-      "size": 6902
+      "sha256": "4410c2e6fce5c2416201e855098cd0c181ce07feb44f8ac6cc6eb54fa8ed6d62",
+      "size": 7164
     },
     {
       "path": "email/himalaya/references/configuration.md",
@@ -8934,8 +8939,8 @@
     },
     {
       "path": "productivity/google-workspace/scripts/google_api.py",
-      "sha256": "0adc3e1b8ddc359e76ed95520e09cae923f35e79bdc519b31a2f67d4acae2b7c",
-      "size": 43428
+      "sha256": "1e9997a0cdbc5668ea5caa0bd8cfa09e33bb467b9f5df8cf962bab5ff3b20543",
+      "size": 43483
     },
     {
       "path": "productivity/google-workspace/scripts/gws_bridge.py",
@@ -8964,8 +8969,8 @@
     },
     {
       "path": "productivity/maps/scripts/maps_client.py",
-      "sha256": "5aa054efd2e29ae6e758344990ed9436d62fcda421972b93edec1aa27b071027",
-      "size": 46688
+      "sha256": "94960e451d549766070c999f4979bd69ea956381b40c4d5b05bfa6c0501e7ffb",
+      "size": 46678
     },
     {
       "path": "productivity/nano-pdf/SKILL.md",
@@ -9444,7 +9449,7 @@
     },
     {
       "path": "research/research-paper-writing/templates/acl/acl_lualatex.tex",
-      "sha256": "0d9987ba833331a996f9abcd1a03eebba7d7ae331145793e7ddb6b5ae8db27b3",
+      "sha256": "c0bf91f00ecbf962d36dae7a302e577d61fbac00feee93946e869db09d2f8188",
       "size": 3050
     },
     {
@@ -9634,8 +9639,8 @@
     },
     {
       "path": "social-media/xurl/SKILL.md",
-      "sha256": "46a50c6f6d3fd233d5eaa8af829d5f78f81ad97472571fde7f233e069485a611",
-      "size": 13993
+      "sha256": "53f67241ec0f605115029fbe3e1e0669f8f0f35baf6efff8ac62d64fde5a4099",
+      "size": 14977
     },
     {
       "path": "software-development/debugging-hermes-tui-commands/SKILL.md",
@@ -9646,6 +9651,11 @@
       "path": "software-development/hermes-agent-skill-authoring/SKILL.md",
       "sha256": "4b564cbaf9f6ed6fad90a294f9855aa9d0f5398d48f51a6619d6790147192c6f",
       "size": 7618
+    },
+    {
+      "path": "software-development/hermes-s6-container-supervision/SKILL.md",
+      "sha256": "14d42314746571421ff7ca90cbc2cb34b428a09a6d4424fa942bc2ff79e344f2",
+      "size": 11474
     },
     {
       "path": "software-development/node-inspect-debugger/SKILL.md",
@@ -9906,10 +9916,10 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c6bfd589gmf",
-  "previous_tree_hash": "8b05d375a030accdc2f933683ee63351256bcb8a4205df48f01c31f23a235b68",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-68f48ck9kwh",
+  "previous_tree_hash": "bafc8300914ced95b1bc2a66ee997eb6f0bfd5527ba0230d5bb966d32978d60f",
   "schema_version": 1,
-  "skill_file_count": 645,
+  "skill_file_count": 646,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -9918,9 +9928,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "9d300e5dace513ca41c62bb60783a28f4650ca51d45dcc13b52683d630a0e312",
+  "skill_tree_hash": "c4385944bbb3dbec055833bcb0b564a6ff5100c549ea9fd75548020e767f7df6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bafc8300914ced95b1bc2a66ee997eb6f0bfd5527ba0230d5bb966d32978d60f",
+  "tree_hash": "7cdfab55952c9163a20db0868bc634314cdffd703650b62ad0bfb3f9d6307bdf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
