@@ -1,12 +1,12 @@
 ---
 name: github-code-review
-description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks."
-version: 2.1.0
+description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks. Fresh subagent per review pass for anti-bias."
+version: 2.2.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality, Idempotency, N+1, Deep-Correctness, Architecture, Thermo-Nuclear]
+    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality, Idempotency, N+1, Deep-Correctness, Architecture, Thermo-Nuclear, Anti-Bias]
     related_skills: [github-auth, github-pr-workflow, destructive-migration-safety]
 ---
 
@@ -963,3 +963,94 @@ gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | bas
    - CI status update
    - Remaining items (if any) with severity and whether they were downgraded
    - Verdict
+
+**CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.
+
+---
+
+## 5d. Fresh Subagent Per Review Pass (Anti-Bias Protocol)
+
+**Core principle:** No agent should review the same PR twice. The agent that performed Review Round 1 has accumulated opinions, assumptions, and blind spots about the code. These pollute Review Round 2, Round 3, and beyond.
+
+### Why This Matters
+
+In a multi-turn review flow (`review → fix → re-review → fix → re-review`), the parent agent accumulates context that creates systematic bias:
+
+| Bias | Example |
+|---|---|
+| **Anchoring bias** | "I flagged auth.ts:45 as the problem last time, so let me focus there." — misses new issues elsewhere. |
+| **Confirmation bias** | "They said they fixed the N+1, and the ORM call looks different, so it's probably fine." — accepts incomplete fixes. |
+| **Familiarity blindness** | "I already reviewed auth.ts in Round 1 and it was clean." — skips re-reading, misses new SQL injection introduced by the fix commit. |
+| **Leniency drift** | After 3 rounds of back-and-forth, the reviewer wants to be "done" and lowers the bar. Fresh eyes don't have fatigue. |
+| **Assumption propagation** | Round 1 found issue X but not issue Y. Round 2 subagent inherits the parent's blind spots about Y because the parent's context omitted it. |
+
+All of these are eliminated by spinning off a **fresh subagent** that has never seen this PR before.
+
+### Protocol
+
+**For EVERY review pass (initial + all re-reviews), the parent agent does NOT review code directly.** Instead:
+
+1. **Parent gathers raw inputs** — PR number, repo URL, branch names, `gh pr diff` output, repo conventions
+2. **Parent spawns a fresh subagent** via `delegate_task` with ONLY these inputs
+3. **Subagent produces findings** — file+line+severity per Section 3e
+4. **Parent verifies subagent findings** — spot-check 2-3 critical findings against the diff
+5. **Parent merges and delivers** the review to Slack/GitHub
+
+### What to Pass to the Subagent
+
+```
+REQUIRED (pass every time):
+- PR number and repo URL
+- Branch names (head + base)
+- Full git diff output (gh pr diff N)
+- Review checklist from Section 3 (all categories)
+- Repo-specific conventions (base branch, cross-repo contract, deployment topology)
+
+FOR RE-REVIEWS ONLY (pass additionally):
+- Structured previous-issues list as a verification checklist:
+  [
+    {"file": "src/auth.ts", "line": 45, "issue": "SQL injection risk", "expected_fix": "Parameterized query using ? placeholder"},
+    {"file": "src/worker.rs", "line": 120, "issue": "Non-idempotent INSERT", "expected_fix": "INSERT ... ON CONFLICT DO NOTHING"}
+  ]
+- "DO NOT RE-FLAG" list for issues the author explicitly pushed back on:
+  [
+    {"file": "src/config.rs", "line": 12, "reason": "Accepted: debug logging is intentional for staging"}
+  ]
+```
+
+### What NOT to Pass (the bias vector)
+
+```
+NEVER pass these to the subagent:
+- ❌ Parent agent's opinions ("I thought this looked clean")
+- ❌ Previous review body text (the full markdown comment)
+- ❌ Parent's reasoning about why something is or isn't an issue
+- ❌ Conversation history from prior review turns
+- ❌ "I already checked X and it's fine" claims
+- ❌ Any natural-language summary of the PR's quality
+```
+
+The subagent should get ONLY: raw diff data + checklist rules + structural metadata. It must form its own opinions.
+
+### Anti-Bias Verification
+
+After the subagent returns findings, the parent must actively check for bias:
+
+1. **Did the subagent flag issues in files that were "clean" in previous rounds?** If not, the subagent may have inherited an implicit scope. Check: diff stat shows changes in file X, but no findings for file X → suspicion.
+2. **Did the subagent miss issues the parent expected?** If Round 1 found an N+1 at line 50 and Round 2 subagent doesn't mention it, verify: was it actually fixed, or did the subagent just miss it?
+3. **Are all findings file+line specific?** Vague findings ("the error handling could be better") suggest the subagent phoned it in. Re-spawn with stricter instructions.
+
+### Exception: Trivial Delta Reviews
+
+For re-reviews where the fix is a **single-line change** (e.g., fixing a typo, changing one variable name) and the parent can verify the fix by reading exactly one line, the parent may do a direct delta review without spawning a subagent. The threshold: the fix must be verifiable by reading ≤3 lines across ≤1 file. Anything larger gets a fresh subagent.
+
+### Integration with Parallel Subagent Review (Section 5b)
+
+For large PRs where you're already using parallel subagents (DB reviewer, Security reviewer, Core logic reviewer), the fresh-subagent-per-pass protocol applies orthogonally:
+- Round 1: Spawn 3 fresh subagents in parallel
+- Round 2 (re-review): Spawn 3 NEW fresh subagents in parallel (not the same ones from Round 1)
+- Each round's subagents are independent — they don't share context across rounds
+
+### PITFALL: Subagent timeout causes false sense of completeness
+
+If a subagent times out during a re-review pass, the parent may be tempted to "fill in" from its own memory. **Don't.** A timed-out subagent means that review pass didn't happen. Re-spawn with a narrower scope (fewer files, shorter timeout) rather than filling in from memory.
