@@ -1,12 +1,12 @@
 ---
 name: github-code-review
-description: "Review PRs: diffs, inline comments via gh or REST."
-version: 2.0.0
+description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks."
+version: 2.1.0
 author: Hermes Agent
 license: MIT
 metadata:
   hermes:
-    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality, Idempotency, N+1, Deep-Correctness]
+    tags: [GitHub, Code-Review, Pull-Requests, Git, Quality, Idempotency, N+1, Deep-Correctness, Architecture, Thermo-Nuclear]
     related_skills: [github-auth, github-pr-workflow, destructive-migration-safety]
 ---
 
@@ -376,10 +376,30 @@ When performing a code review (local or PR), systematically check:
 - DRY — no duplicated logic that should be extracted
 - Functions are focused (single responsibility)
 
+### Architecture Review
+
+Pull back from line-level concerns and assess the *shape* of the change. This is the "thermo nuclear" layer — structural issues that cause death by a thousand cuts.
+
+- **Boundary drift:** Where did the seam between layers move? Did UI code start reaching into the database? Did domain types start importing transport types? Check: `import` statements that cross established layer boundaries.
+- **Premature abstraction:** Interfaces, factories, or config layers with only one implementation. These are debt — they make the code harder to understand without providing flexibility. Flag any abstraction that serves only one concrete case.
+- **Coupling:** New utilities importing from feature modules. Shared mutable state being introduced. A change in module A forcing a change in module B when they should be independent. Look for bidirectional imports between modules.
+- **Scalability:** If this code path goes 10x in volume, what breaks first? Are there unbounded collections? Missing pagination? Single-threaded bottlenecks?
+- **Reversibility:** If this turns out wrong in a month, how hard is the rollback? One-way doors (database migrations, API contract changes, data format changes) should be called out explicitly.
+- **Naming at the architecture level:** Types/functions named for the implementation (`UserManagerImplV2`) rather than the role (`UserDirectory`). Names should reflect what, not how.
+
 ### Testing
 - New code paths tested?
 - Happy path and error cases covered?
 - Tests readable and maintainable?
+
+**Deep Test Quality — a test that exists ≠ a test that catches regressions:**
+
+- **Assertion strength:** Are assertions specific enough to catch bugs? `assert(result != null)` passes for wrong results. `assert(result.count === 3)` catches actual deviations. Flag tests that only check truthiness, existence, or "doesn't crash."
+- **Mocking discipline:** Mocks that don't fail when the real interface changes are worse than no tests — they create false confidence. Check: does the mock verify the same contract the real implementation provides? Over-mocking (mocking everything except the function under test) produces tests that only test the mocks.
+- **Determinism:** Date/time/random/network calls must be stubbed. A test that passes today and fails tomorrow (or passes on one machine but flakes on CI) is broken. Flag `new Date()`, `Math.random()`, `Date.now()`, `uuid()` in test code without seeding/stubbing.
+- **Edge cases tested:** Empty input, null/undefined, boundary values (max int, zero, negative), errors thrown by dependencies. One happy-path test is not coverage.
+- **Test names:** Names that describe behavior, not implementation. `it('returns 403 when user lacks admin role')` beats `it('test auth middleware #3')`. If you can't tell what failed from the test name alone, flag it.
+- **Snapshot testing discipline:** Snapshots that are too large (entire page renders, full API responses) are brittle. Snapshots without human review (auto-accepted on update) are useless. Flag snapshot files over ~50 lines that weren't explicitly reviewed.
 
 ### Performance
 - No N+1 queries or unnecessary loops
@@ -519,6 +539,45 @@ Take the **question approach** — frame issues as inquiries rather than command
 **When to be direct (not collaborative):** Security vulnerabilities (SQL injection, hardcoded secrets, PII exposure). These are not suggestions — they are blocking. Use direct language: "This is a SQL injection vulnerability. User input is concatenated into the query string. Use parameterized queries."
 
 **Always include PRAISE when warranted.** Code review isn't just finding problems — it's recognizing good work. If the PR has a well-designed API, thorough test coverage, or clean error handling, call it out explicitly with 🌟 PRAISE.
+
+## 3e. Output Discipline
+
+Every finding must be **specific and actionable**. Vague feedback is noise.
+
+**MANDATORY for every finding:**
+- 📁 **File path** (e.g., `src/auth/login.py`)
+- 📍 **Line number** (e.g., line 45)
+- 🏷️ **Severity label** (🔴 CRITICAL / 🟠 HIGH / 🟡 MEDIUM / 🔵 LOW / 💡 SUGGESTION)
+- 📝 **What's wrong** — one sentence
+- ✅ **Suggested fix** — one sentence with code sketch if helpful
+
+**Example:**
+```
+🔴 CRITICAL | src/auth/login.py:45
+User input concatenated into SQL query string. SQL injection risk.
+→ Use parameterized query: cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+```
+
+**Anti-patterns to avoid:**
+- ❌ "This looks risky" — what specifically is risky? Which line?
+- ❌ "Consider refactoring" — what pattern should be used instead?
+- ❌ "This could be better" — better how? By what metric?
+- ❌ Findings without line citations — "somewhere in auth.ts" is not a finding
+
+## 3f. Multi-Angle Review Approach
+
+For non-trivial PRs (>10 files or >500 lines), perform **separate review passes** for each concern area. Don't try to check everything in one pass — context switching causes missed issues.
+
+**Recommended passes (order matters):**
+1. **Security pass** — auth/authz, input validation, injection, secrets, data exposure. Read ONLY with security eyes. Skip style and performance.
+2. **Correctness pass** — logic, edge cases, error handling, race conditions, transaction boundaries. Read ONLY for bugs.
+3. **Architecture pass** — boundary drift, coupling, naming, reversibility. Pull back from line-level.
+4. **Performance pass** — N+1, allocations, async patterns, caching. Read ONLY for performance.
+5. **Tests pass** — assertion strength, mocking, determinism, coverage gaps. Read ONLY test files.
+
+This is the "thermo nuclear" approach adapted from Cursor's pr-review prompt: four focused angles, each with dedicated attention, producing a comprehensive review that leaves no stone unturned.
+
+For small PRs (1-10 files, <500 lines), a single combined pass is fine — but still mentally separate security from style.
 
 ---
 
