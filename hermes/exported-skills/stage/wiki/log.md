@@ -24293,3 +24293,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4337d4e68194b73064c6bb76d6557174
 - summary: Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It ai...
 
+## [2026-06-04T04:00:34Z] ingest | Numo Transition Plan & Korea TeamGoals
+
+- status: published
+- slug: notion_document/numo-transition-plan-korea-teamgoals-1db78b80
+- wiki_revision_id: wikirev_d3361ec22ffcb9cb0a0afd3f7b49bba0
+- source_document_id: srcdoc_14b9675d3b89ce8eb59e4ff11db78b80
+- source_revision_id: srcrev_b665f85b254986043802e77af4f9a92b
+- summary: Source: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
+
