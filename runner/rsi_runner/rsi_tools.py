@@ -710,7 +710,7 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             "task_queue": {"type": "string"},
             "args": {"type": "array"},
         },
-        required=["environment", "target", "workflow_id", "workflow_type", "task_queue"],
+        required=["environment", "target", "workflow_id", "new_workflow_id", "workflow_type", "task_queue"],
     ),
 }
 

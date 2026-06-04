@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	enumspb "go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	temporalclient "go.temporal.io/sdk/client"
 
@@ -112,6 +113,81 @@ func TestNativeTemporalStopUsesGracefulCancel(t *testing.T) {
 	}
 }
 
+func TestNativeTemporalRestartRequiresReplacementWorkflowID(t *testing.T) {
+	cfg := nativeTemporalTestConfig()
+	previous := newTemporalClient
+	newTemporalClient = func(context.Context, config.TemporalTarget) (temporalOpsClient, error) {
+		t.Fatal("same-ID restart should not connect to Temporal")
+		return &fakeTemporalOpsClient{}, nil
+	}
+	t.Cleanup(func() { newTemporalClient = previous })
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "temporal"), nativeToolActionRequest{
+		Surface:        "temporal",
+		Operation:      "restart_workflow",
+		IdempotencyKey: "temporal-restart-same-id",
+		Reason:         "test same-id restart guard",
+		Arguments: map[string]any{
+			"environment":     "stage",
+			"target":          "royalty-graph-v2",
+			"workflow_id":     "royalty-graph-manager",
+			"new_workflow_id": "royalty-graph-manager",
+			"workflow_type":   "RoyaltyGraphManagerWorkflow",
+			"task_queue":      "ROYALTY_GRAPH_TASK_QUEUE",
+			"confirm":         true,
+		},
+	})
+
+	if err == nil {
+		t.Fatal("expected same-ID restart error")
+	}
+	if status != http.StatusBadRequest || resp.OK {
+		t.Fatalf("status/ok = %d/%v, want 400/false: %#v", status, resp.OK, resp)
+	}
+}
+
+func TestNativeTemporalRestartStartsReplacementWithoutTerminateExisting(t *testing.T) {
+	cfg := nativeTemporalTestConfig()
+	fake := &fakeTemporalOpsClient{}
+	previous := newTemporalClient
+	newTemporalClient = func(context.Context, config.TemporalTarget) (temporalOpsClient, error) {
+		return fake, nil
+	}
+	t.Cleanup(func() { newTemporalClient = previous })
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "temporal"), nativeToolActionRequest{
+		Surface:        "temporal",
+		Operation:      "restart_workflow",
+		IdempotencyKey: "temporal-restart-replacement",
+		Reason:         "test restart replacement",
+		Arguments: map[string]any{
+			"environment":     "stage",
+			"target":          "royalty-graph-v2",
+			"workflow_id":     "royalty-graph-manager",
+			"new_workflow_id": "royalty-graph-manager-replacement",
+			"workflow_type":   "RoyaltyGraphManagerWorkflow",
+			"task_queue":      "ROYALTY_GRAPH_TASK_QUEUE",
+			"confirm":         true,
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("handleNativeToolAction() error = %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status/ok = %d/%v, want 200/true: %#v", status, resp.OK, resp)
+	}
+	if fake.cancelWorkflowID != "royalty-graph-manager" {
+		t.Fatalf("CancelWorkflow workflow id = %q, want royalty-graph-manager", fake.cancelWorkflowID)
+	}
+	if fake.startOptions.WorkflowIDConflictPolicy != enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL {
+		t.Fatalf("WorkflowIDConflictPolicy = %v, want FAIL", fake.startOptions.WorkflowIDConflictPolicy)
+	}
+	if fake.startOptions.ID != "royalty-graph-manager-replacement" {
+		t.Fatalf("started workflow id = %q, want royalty-graph-manager-replacement", fake.startOptions.ID)
+	}
+}
+
 func nativeTemporalTestConfig() config.Config {
 	cfg := nativeToolsTestConfig()
 	cfg.TemporalControlEnabled = true
@@ -132,6 +208,7 @@ func nativeTemporalTestConfig() config.Config {
 
 type fakeTemporalOpsClient struct {
 	cancelWorkflowID string
+	startOptions     temporalclient.StartWorkflowOptions
 }
 
 func (f *fakeTemporalOpsClient) Close() {}
@@ -173,7 +250,8 @@ func (f *fakeTemporalOpsClient) CancelWorkflow(_ context.Context, workflowID str
 	return nil
 }
 
-func (f *fakeTemporalOpsClient) StartWorkflow(context.Context, temporalclient.StartWorkflowOptions, string, []any) (temporalWorkflowRun, error) {
+func (f *fakeTemporalOpsClient) StartWorkflow(_ context.Context, options temporalclient.StartWorkflowOptions, _ string, _ []any) (temporalWorkflowRun, error) {
+	f.startOptions = options
 	return fakeTemporalWorkflowRun{id: "started", runID: "run-1"}, nil
 }
 

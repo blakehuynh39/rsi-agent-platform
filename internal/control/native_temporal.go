@@ -256,6 +256,9 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		if newWorkflowID == "" {
 			return withTemporalError(output, "missing_new_workflow_id"), "", sourceRef, "", mirrorEffect, http.StatusBadRequest, errors.New("workflow_id or new_workflow_id is required for Temporal workflow start/restart")
 		}
+		if operation == "restart_workflow" && newWorkflowID == workflowID {
+			return withTemporalError(output, "replacement_workflow_id_required"), "", sourceRef, "", mirrorEffect, http.StatusBadRequest, errors.New("restart_workflow requires a distinct new_workflow_id so the existing workflow is not terminated or raced")
+		}
 		if !temporalAllowed(newWorkflowID, target.AllowedWorkflowIDs, target.AllowedWorkflowIDPrefixes) {
 			return withTemporalError(output, "new_workflow_not_allowed"), "", sourceRef, "", mirrorEffect, http.StatusForbidden, errors.New("new_workflow_id is outside the configured Temporal allowlist")
 		}
@@ -372,7 +375,7 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		output["after"] = temporalWorkflowDescriptionOutput(after)
 		return output, "requested graceful cancellation for Temporal workflow " + workflowID, sourceRef + ":workflow:" + workflowID, "", mirrorEffect, http.StatusOK, nil
 	case "start_workflow":
-		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue, false), workflowType, workflowArgs)
+		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue), workflowType, workflowArgs)
 		if err != nil {
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
@@ -387,7 +390,7 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		if err := client.CancelWorkflow(callCtx, workflowID, runID); err != nil {
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
-		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue, true), workflowType, workflowArgs)
+		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue), workflowType, workflowArgs)
 		if err != nil {
 			output["before"] = temporalWorkflowDescriptionOutput(before)
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), errors.New("cancellation was requested but starting replacement workflow failed: " + err.Error())
@@ -477,15 +480,11 @@ func temporalWorkflowStartOperation(operation string) bool {
 	return operation == "start_workflow" || operation == "restart_workflow"
 }
 
-func temporalStartOptions(workflowID string, taskQueue string, terminateExisting bool) temporalclient.StartWorkflowOptions {
-	conflictPolicy := enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL
-	if terminateExisting {
-		conflictPolicy = enumspb.WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING
-	}
+func temporalStartOptions(workflowID string, taskQueue string) temporalclient.StartWorkflowOptions {
 	return temporalclient.StartWorkflowOptions{
 		ID:                       workflowID,
 		TaskQueue:                taskQueue,
-		WorkflowIDConflictPolicy: conflictPolicy,
+		WorkflowIDConflictPolicy: enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL,
 		WorkflowIDReusePolicy:    enumspb.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 }
