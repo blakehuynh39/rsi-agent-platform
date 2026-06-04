@@ -24327,3 +24327,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_281231becaae9a3329d7c1a104452955
 - summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-06-04T05:30:37Z] ingest | Jed (Korean Team): Onboarding Checklist / Credential access
+
+- status: published
+- slug: notion_document/jed-korean-team-onboarding-checklist-/-credential-access-f59b24b0
+- wiki_revision_id: wikirev_0f99ddce78d7821a944ffe7d9726189b
+- source_document_id: srcdoc_ce1a55a90dee195a07491dc0f59b24b0
+- source_revision_id: srcrev_0fc8bce47ae9e56667725f603ee3d846
+- summary: Source: [source](https://app.notion.com/p/Jed-Korean-Team-Onboarding-Checklist-Credential-access-372051299a5480dc8322d95db444fd91)
+
+## [2026-06-04T05:30:38Z] ingest | Numo Transition Plan & Korea TeamGoals
+
+- status: published
+- slug: notion_document/numo-transition-plan-korea-teamgoals-1db78b80
+- wiki_revision_id: wikirev_56cac622eb253886972dba4c5428e6ff
+- source_document_id: srcdoc_14b9675d3b89ce8eb59e4ff11db78b80
+- source_revision_id: srcrev_acda2b520bb5a2afa04bdfd71de9dd01
+- summary: Source: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
+
