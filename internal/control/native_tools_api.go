@@ -16,6 +16,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	slackapi "github.com/slack-go/slack"
+	"go.temporal.io/api/serviceerror"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
@@ -43,6 +44,10 @@ var nativeToolWriteOps = map[string]map[string]bool{
 		"create_project": true, "set_project_slack_route": true,
 		"create_ticket": true, "update_ticket": true, "comment_ticket": true, "link_ticket": true,
 	},
+	"temporal": {
+		"pause_schedule": true, "unpause_schedule": true, "trigger_schedule": true,
+		"start_workflow": true, "stop_workflow": true, "restart_workflow": true,
+	},
 }
 
 var nativeToolReadOps = map[string]map[string]bool{
@@ -64,6 +69,10 @@ var nativeToolReadOps = map[string]map[string]bool{
 	},
 	"kanban": {
 		"list_projects": true, "list_project_routes": true, "list_tickets": true,
+	},
+	"temporal": {
+		"list_schedules": true, "describe_schedule": true,
+		"list_workflows": true, "count_workflows": true, "describe_workflow": true,
 	},
 }
 
@@ -284,6 +293,9 @@ func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storep
 	}
 	if input.Surface == "kanban" {
 		return executeKanbanNativeToolAction(ctx, repo, claims, input)
+	}
+	if input.Surface == "temporal" {
+		return executeTemporalNativeToolAction(ctx, cfg, input)
 	}
 	if input.Surface == "knowledge" {
 		switch input.Operation {
@@ -1544,10 +1556,22 @@ func boolArg(args map[string]any, key string, fallback bool) bool {
 }
 
 func statusFromErr(err error) int {
-	if err != nil {
-		return http.StatusBadGateway
+	if err == nil {
+		return http.StatusOK
 	}
-	return http.StatusOK
+	var notFound *serviceerror.NotFound
+	if errors.As(err, &notFound) {
+		return http.StatusNotFound
+	}
+	var invalidArg *serviceerror.InvalidArgument
+	if errors.As(err, &invalidArg) {
+		return http.StatusBadRequest
+	}
+	var alreadyExists *serviceerror.AlreadyExists
+	if errors.As(err, &alreadyExists) {
+		return http.StatusConflict
+	}
+	return http.StatusBadGateway
 }
 
 func slackMessagePostOptions(args map[string]any) ([]slackapi.MsgOption, error) {

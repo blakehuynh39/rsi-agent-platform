@@ -13,11 +13,21 @@ HERMES_RSI_NOTION_TOOLSET = "rsi-notion"
 HERMES_RSI_KNOWLEDGE_TOOLSET = "rsi-knowledge"
 HERMES_RSI_SENTRY_TOOLSET = "rsi-sentry"
 HERMES_RSI_KANBAN_TOOLSET = "rsi-kanban"
+HERMES_RSI_TEMPORAL_TOOLSET = "rsi-temporal"
 HERMES_RSI_OBSERVABILITY_TOOLSET = "rsi-observability"
 
 _JSON_OBJECT_SCHEMA: JsonObject = {"type": "object"}
 _JSON_ARRAY_SCHEMA: JsonObject = {"type": "array"}
 _STRING_ARRAY_SCHEMA: JsonObject = {"type": "array", "items": {"type": "string"}}
+_TEMPORAL_TARGET_PROPERTIES: JsonObject = {
+    "environment": {"type": "string", "enum": ["stage", "prod"]},
+    "target": {"type": "string", "description": "Configured Temporal target name such as royalty-graph-v2 or indexer."},
+}
+_TEMPORAL_MUTATION_PROPERTIES: JsonObject = {
+    **_TEMPORAL_TARGET_PROPERTIES,
+    "confirm": {"type": "boolean", "description": "Must be true after explicit operator authorization for live mutations."},
+    "dry_run": {"type": "boolean", "description": "Validate policy and report what would be executed without connecting to Temporal."},
+}
 _SLACK_REPORT_COLUMN_SCHEMA: JsonObject = {
     "type": "object",
     "properties": {
@@ -589,6 +599,121 @@ _OBSERVABILITY_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
 }
 
+_TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "rsi_temporal.list_schedules": _schema(
+        "rsi_temporal.list_schedules",
+        "List Temporal schedules for a configured target using Temporal visibility APIs.",
+        {
+            **_TEMPORAL_TARGET_PROPERTIES,
+            "query": {"type": "string"},
+            "limit": {"type": "integer"},
+        },
+        ["environment", "target"],
+    ),
+    "rsi_temporal.describe_schedule": _schema(
+        "rsi_temporal.describe_schedule",
+        "Describe one Temporal schedule for debugging or status checks.",
+        {
+            **_TEMPORAL_TARGET_PROPERTIES,
+            "schedule_id": {"type": "string"},
+        },
+        ["environment", "target", "schedule_id"],
+    ),
+    "rsi_temporal.list_workflows": _schema(
+        "rsi_temporal.list_workflows",
+        "List Temporal workflow executions for a configured target using Temporal visibility query syntax.",
+        {
+            **_TEMPORAL_TARGET_PROPERTIES,
+            "query": {"type": "string"},
+            "limit": {"type": "integer"},
+        },
+        ["environment", "target"],
+    ),
+    "rsi_temporal.count_workflows": _schema(
+        "rsi_temporal.count_workflows",
+        "Count Temporal workflow executions for a configured target using Temporal visibility query syntax.",
+        {
+            **_TEMPORAL_TARGET_PROPERTIES,
+            "query": {"type": "string"},
+        },
+        ["environment", "target"],
+    ),
+    "rsi_temporal.describe_workflow": _schema(
+        "rsi_temporal.describe_workflow",
+        "Describe one Temporal workflow execution for debugging or status checks.",
+        {
+            **_TEMPORAL_TARGET_PROPERTIES,
+            "workflow_id": {"type": "string"},
+            "run_id": {"type": "string"},
+        },
+        ["environment", "target", "workflow_id"],
+    ),
+    "rsi_temporal.pause_schedule": _write_schema(
+        "rsi_temporal.pause_schedule",
+        "Pause one allowlisted Temporal schedule. Requires confirm=true unless dry_run=true.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "schedule_id": {"type": "string"},
+        },
+        required=["environment", "target", "schedule_id"],
+    ),
+    "rsi_temporal.unpause_schedule": _write_schema(
+        "rsi_temporal.unpause_schedule",
+        "Unpause one allowlisted Temporal schedule. Requires confirm=true unless dry_run=true.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "schedule_id": {"type": "string"},
+        },
+        required=["environment", "target", "schedule_id"],
+    ),
+    "rsi_temporal.trigger_schedule": _write_schema(
+        "rsi_temporal.trigger_schedule",
+        "Start one action from an allowlisted Temporal schedule immediately. Requires confirm=true unless dry_run=true.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "schedule_id": {"type": "string"},
+        },
+        required=["environment", "target", "schedule_id"],
+    ),
+    "rsi_temporal.start_workflow": _write_schema(
+        "rsi_temporal.start_workflow",
+        "Start one allowlisted Temporal workflow type on an allowlisted task queue. Existing workflow IDs fail closed.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "workflow_id": {"type": "string"},
+            "new_workflow_id": {"type": "string"},
+            "workflow_type": {"type": "string"},
+            "task_queue": {"type": "string"},
+            "args": {"type": "array"},
+        },
+        required=["environment", "target", "workflow_type", "task_queue"],
+    ),
+    "rsi_temporal.stop_workflow": _write_schema(
+        "rsi_temporal.stop_workflow",
+        "Request graceful cancellation for one allowlisted Temporal workflow. This does not terminate or delete history.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "workflow_id": {"type": "string"},
+            "run_id": {"type": "string"},
+        },
+        required=["environment", "target", "workflow_id"],
+    ),
+    "rsi_temporal.restart_workflow": _write_schema(
+        "rsi_temporal.restart_workflow",
+        "Request graceful cancellation for one allowlisted Temporal workflow and start a replacement workflow.",
+        {
+            **_TEMPORAL_MUTATION_PROPERTIES,
+            "workflow_id": {"type": "string"},
+            "run_id": {"type": "string"},
+            "new_workflow_id": {"type": "string"},
+            "workflow_type": {"type": "string"},
+            "task_queue": {"type": "string"},
+            "args": {"type": "array"},
+        },
+        required=["environment", "target", "workflow_id", "new_workflow_id", "workflow_type", "task_queue"],
+    ),
+}
+
 _DB_READ_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "db_read.sources": _schema(
         "db_read.sources",
@@ -629,6 +754,7 @@ _TOOL_SCHEMAS = {
     **_KNOWLEDGE_TOOL_SCHEMAS,
     **_SENTRY_TOOL_SCHEMAS,
     **_KANBAN_TOOL_SCHEMAS,
+    **_TEMPORAL_TOOL_SCHEMAS,
     **_OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TOOLSET_SCHEMAS = {
@@ -639,6 +765,7 @@ _TOOLSET_SCHEMAS = {
     HERMES_RSI_KNOWLEDGE_TOOLSET: _KNOWLEDGE_TOOL_SCHEMAS,
     HERMES_RSI_SENTRY_TOOLSET: _SENTRY_TOOL_SCHEMAS,
     HERMES_RSI_KANBAN_TOOLSET: _KANBAN_TOOL_SCHEMAS,
+    HERMES_RSI_TEMPORAL_TOOLSET: _TEMPORAL_TOOL_SCHEMAS,
     HERMES_RSI_OBSERVABILITY_TOOLSET: _OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")

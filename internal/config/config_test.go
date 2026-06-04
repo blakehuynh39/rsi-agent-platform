@@ -69,12 +69,12 @@ func TestLoadReadsVerboseTraceLoggingEnv(t *testing.T) {
 	}
 }
 
-func TestLoadDefaultsNativeToolSurfacesIncludeKanban(t *testing.T) {
+func TestLoadDefaultsNativeToolSurfacesIncludeKanbanAndTemporal(t *testing.T) {
 	t.Setenv("RSI_NATIVE_TOOLS_SURFACES", "")
 
 	cfg := Load("control-plane")
 
-	want := []string{"slack", "notion", "knowledge", "sentry", "kanban"}
+	want := []string{"slack", "notion", "knowledge", "sentry", "kanban", "temporal"}
 	if !reflect.DeepEqual(cfg.NativeToolsSurfaces, want) {
 		t.Fatalf("NativeToolsSurfaces = %#v, want %#v", cfg.NativeToolsSurfaces, want)
 	}

@@ -220,7 +220,7 @@ class RunnerConfig:
         native_tools_client_token = optional_env("RSI_NATIVE_TOOLS_CLIENT_TOKEN")
         if not native_tools_client_token:
             raise RunnerConfigError("RSI_NATIVE_TOOLS_CLIENT_TOKEN is required; RSI native tools are the canonical tool path")
-        native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge,sentry,kanban")
+        native_tools_surfaces = parse_csv_list(optional_env("RSI_NATIVE_TOOLS_SURFACES") or "slack,notion,knowledge,sentry,kanban,temporal")
         execution_envelope_v1_enabled = parse_bool(optional_env("RSI_EXECUTION_ENVELOPE_V1_ENABLED") or "true", "RSI_EXECUTION_ENVELOPE_V1_ENABLED")
         execution_ledger_first_projection_enabled = parse_bool(optional_env("RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED") or "false", "RSI_EXECUTION_LEDGER_FIRST_PROJECTION_ENABLED")
         runner_planner_mode = optional_env("RSI_RUNNER_PLANNER_MODE") or "runner_first"

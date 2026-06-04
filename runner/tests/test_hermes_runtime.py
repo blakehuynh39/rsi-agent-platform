@@ -82,7 +82,7 @@ def runner_env(role: str = "prod") -> dict[str, str]:
         "RSI_RUNNER_PROPOSAL_TIMEOUT": "450s",
         "RSI_RUNNER_NATIVE_MAX_OUTPUT_TOKENS": "15000",
         "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
-        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry,kanban",
+        "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry,kanban,temporal",
         "HONCHO_API_KEY": "honcho-test-key",
         "OPENROUTER_API_KEY": "openrouter-test-key",
         "SLACK_BOT_TOKEN": "xoxb-test",
@@ -6855,6 +6855,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(claims["slack_delivery_scope"], "bound_thread")
         self.assertIn("sentry", claims["surfaces"])
         self.assertIn("kanban", claims["surfaces"])
+        self.assertIn("temporal", claims["surfaces"])
 
     def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
         definitions = rsi_plugin_toolset_definitions()
@@ -6876,6 +6877,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi_observability.alert_rules_search", by_toolset["rsi-observability"])
         self.assertIn("rsi_observability.alert_rule_get", by_toolset["rsi-observability"])
         self.assertIn("rsi_observability.active_alerts", by_toolset["rsi-observability"])
+        self.assertIn("rsi_temporal.describe_workflow", by_toolset["rsi-temporal"])
+        self.assertIn("rsi_temporal.stop_workflow", by_toolset["rsi-temporal"])
         self.assertIn("db_read.query", by_toolset["rsi-db-read"])
 
         message_post = transport_tool_schema("rsi_slack.message_post")
@@ -7047,6 +7050,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("tables", slack_report_post["parameters"]["properties"])
         self.assertIn("reason", slack_report_post["parameters"]["required"])
         self.assertIn("idempotency_key", slack_report_post["parameters"]["required"])
+        temporal_stop = transport_tool_schema("rsi_temporal.stop_workflow")
+        self.assertEqual(temporal_stop["name"], "rsi_temporal_stop_workflow")
+        self.assertIn("confirm", temporal_stop["parameters"]["properties"])
+        self.assertNotIn("confirm_destroy", temporal_stop["parameters"]["properties"])
+        self.assertIn("reason", temporal_stop["parameters"]["required"])
+        self.assertIn("idempotency_key", temporal_stop["parameters"]["required"])
 
         invalid: dict[str, list[str]] = {}
         from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions
@@ -7120,6 +7129,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "rsi-knowledge",
                 "rsi-sentry",
                 "rsi-kanban",
+                "rsi-temporal",
                 "rsi-artifacts",
                 "mcp-rsi-task-trace-workflow-123-0-context-abc",
             ],
