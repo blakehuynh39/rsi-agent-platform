@@ -16,6 +16,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	slackapi "github.com/slack-go/slack"
+	"go.temporal.io/api/serviceerror"
 
 	"github.com/piplabs/rsi-agent-platform/internal/app"
 	"github.com/piplabs/rsi-agent-platform/internal/clients"
@@ -1555,10 +1556,22 @@ func boolArg(args map[string]any, key string, fallback bool) bool {
 }
 
 func statusFromErr(err error) int {
-	if err != nil {
-		return http.StatusBadGateway
+	if err == nil {
+		return http.StatusOK
 	}
-	return http.StatusOK
+	var notFound *serviceerror.NotFound
+	if errors.As(err, &notFound) {
+		return http.StatusNotFound
+	}
+	var invalidArg *serviceerror.InvalidArgument
+	if errors.As(err, &invalidArg) {
+		return http.StatusBadRequest
+	}
+	var alreadyExists *serviceerror.AlreadyExists
+	if errors.As(err, &alreadyExists) {
+		return http.StatusConflict
+	}
+	return http.StatusBadGateway
 }
 
 func slackMessagePostOptions(args map[string]any) ([]slackapi.MsgOption, error) {

@@ -13,6 +13,7 @@ import (
 
 	commonpb "go.temporal.io/api/common/v1"
 	enumspb "go.temporal.io/api/enums/v1"
+	"go.temporal.io/api/serviceerror"
 	workflowpb "go.temporal.io/api/workflow/v1"
 	workflowservice "go.temporal.io/api/workflowservice/v1"
 	temporalclient "go.temporal.io/sdk/client"
@@ -387,18 +388,21 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		if err != nil {
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
-		if err := client.CancelWorkflow(callCtx, workflowID, runID); err != nil {
-			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
-		}
 		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue), workflowType, workflowArgs)
 		if err != nil {
 			output["before"] = temporalWorkflowDescriptionOutput(before)
-			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), errors.New("cancellation was requested but starting replacement workflow failed: " + err.Error())
+			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
+		}
+		if err := client.CancelWorkflow(callCtx, workflowID, runID); err != nil {
+			output["before"] = temporalWorkflowDescriptionOutput(before)
+			output["started_workflow_id"] = run.GetID()
+			output["started_run_id"] = run.GetRunID()
+			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), errors.New("started replacement workflow " + run.GetID() + " but cancellation request failed: " + err.Error())
 		}
 		output["before"] = temporalWorkflowDescriptionOutput(before)
 		output["started_workflow_id"] = run.GetID()
 		output["started_run_id"] = run.GetRunID()
-		return output, "requested graceful cancellation and started replacement Temporal workflow " + run.GetID(), sourceRef + ":workflow:" + workflowID, "", mirrorEffect, http.StatusOK, nil
+		return output, "started replacement Temporal workflow " + run.GetID() + " and requested graceful cancellation of " + workflowID, sourceRef + ":workflow:" + workflowID, "", mirrorEffect, http.StatusOK, nil
 	default:
 		return withTemporalError(output, "invalid_operation"), "", sourceRef, "", mirrorEffect, http.StatusBadRequest, errors.New("unsupported Temporal operation")
 	}
