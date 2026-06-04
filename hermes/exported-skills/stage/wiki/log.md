@@ -24455,3 +24455,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_94444f7b9fd6dbfa0f1593632b2ba796
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-04T23:17:48Z] synthesis | Story Rebrand to Data Network
+
+- status: published
+- slug: decisions/story-rebrand-to-data-network
+- wiki_revision_id: wikirev_7a47f3de60678f2a9a40f5eef0029825
+- summary: Story protocol rebrands to Data, renaming the foundation, L1 chain, and token, while maintaining continuity without a hardfork.
+
