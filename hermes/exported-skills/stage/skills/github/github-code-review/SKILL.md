@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks. Fresh subagent per review pass for anti-bias."
-version: 2.2.0
+version: 2.3.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -114,10 +114,6 @@ When reviewing local changes, present findings in this structure:
 ### Suggestions
 - **src/utils/helpers.py:8** — Duplicates logic in `src/core/utils.py:34`. Consolidate.
 - **tests/test_auth.py** — Missing edge case: expired token test.
-
-### Looks Good
-- Clean separation of concerns in the middleware layer
-- Good test coverage for the happy path
 ```
 
 ---
@@ -502,21 +498,22 @@ When reviewing PRs for services deployed with multiple replicas (e.g., Kubernete
 
 ## 3c. Severity Classification
 
-Every finding must carry a severity label. This drives the approve-vs-request-changes decision (Section 7) and helps the author triage.
+Every finding must carry a severity label. This helps the author triage. **All severities must be addressed** — either fixed or pushback-commented (see decision rule below).
 
-| Label | Meaning | Blocks Merge? |
+| Label | Meaning | Must Be Addressed? |
 |---|---|---|
-| 🔴 **CRITICAL** | Security vulnerability, data loss/corruption, crash, double-charge, PII leak | ALWAYS |
-| 🟠 **HIGH** | Core logic bug, data integrity risk, missing cross-repo pair, N+1 on hot path, non-idempotent mutation on retry path | ALWAYS |
-| 🟡 **MEDIUM** | Performance concern on non-hot path, missing error handling, incomplete test coverage, unclear naming that could cause bugs | No (but strong recommendation) |
-| 🔵 **LOW** | Style inconsistency, minor DRY opportunity, outdated comment, suggestion for cleaner approach | No |
-| 💡 **SUGGESTION** | Optional improvement worth considering — alternative approach, future-proofing, educational note | No |
-| 🌟 **PRAISE** | Well-designed abstraction, thorough edge-case handling, clear documentation, clever but readable solution | No (celebrate it!) |
+| 🔴 **CRITICAL** | Security vulnerability, data loss/corruption, crash, double-charge, PII leak | YES — fix or pushback comment |
+| 🟠 **HIGH** | Core logic bug, data integrity risk, missing cross-repo pair, N+1 on hot path, non-idempotent mutation on retry path | YES — fix or pushback comment |
+| 🟡 **MEDIUM** | Performance concern on non-hot path, missing error handling, incomplete test coverage, unclear naming that could cause bugs | YES — fix or pushback comment |
+| 🔵 **LOW** | Style inconsistency, minor DRY opportunity, outdated comment, suggestion for cleaner approach | YES — fix or pushback comment |
+| 💡 **SUGGESTION** | Optional improvement worth considering — alternative approach, future-proofing, educational note | YES — fix or pushback comment |
 
 **Decision rule (HARD):**
-- Any 🔴 CRITICAL or 🟠 HIGH → **REQUEST_CHANGES**
-- Only 🟡 MEDIUM / 🔵 LOW / 💡 SUGGESTION → **APPROVE** (or **COMMENT** if you want the author to see notes before merging)
+- Any unresolved finding (any severity) → **REQUEST_CHANGES** — the author must either fix the issue or add a comment explaining why a pushback is necessary
+- All findings resolved (fixed or pushback-commented) → **APPROVE**
 - All clear with no findings → **APPROVE**
+
+**Pushback comments** are valid resolutions: if the author believes a finding is not worth fixing (e.g., intentional design choice, out of scope, would introduce more risk), they must add a comment on the finding explaining their reasoning. Once pushback-commented, that finding is considered resolved for review purposes. Do not re-flag resolved findings on re-review unless the pushback rationale is demonstrably wrong.
 
 ## 3d. Collaborative Review Tone
 
@@ -537,8 +534,6 @@ Take the **question approach** — frame issues as inquiries rather than command
 ```
 
 **When to be direct (not collaborative):** Security vulnerabilities (SQL injection, hardcoded secrets, PII exposure). These are not suggestions — they are blocking. Use direct language: "This is a SQL injection vulnerability. User input is concatenated into the query string. Use parameterized queries."
-
-**Always include PRAISE when warranted.** Code review isn't just finding problems — it's recognizing good work. If the PR has a well-designed API, thorough test coverage, or clean error handling, call it out explicitly with 🌟 PRAISE.
 
 ## 3e. Output Discipline
 
@@ -589,7 +584,7 @@ When the user asks you to "review the code" or "check before pushing":
 2. `git diff main...HEAD` — read the full diff
 3. For each changed file, use `read_file` if you need more context
 4. Apply the checklist above
-5. Present findings in the structured format (Critical / Warnings / Suggestions / Looks Good)
+5. Present findings in the structured format (Critical / Warnings / Suggestions)
 6. If critical issues found, offer to fix them before the user pushes
 
 ---
@@ -818,10 +813,6 @@ gh pr comment $PR_NUMBER --body "$(cat <<'EOF'
 ### 💡 Suggestions
 - **src/utils.py:8** — Duplicated logic, consider consolidating
 
-### ✅ Looks Good
-- Clean API design
-- Good error handling in the middleware layer
-
 ---
 *Reviewed by Hermes Agent*
 EOF
@@ -839,13 +830,13 @@ git branch -D pr-$PR_NUMBER
 
 See Section 3c for the full severity classification framework.
 
-- **Approve** — zero 🔴 CRITICAL issues AND zero 🟠 HIGH issues. Only 🟡 MEDIUM, 🔵 LOW, or 💡 SUGGESTION at most. All clear is also fine. Always include 🌟 PRAISE when you see good work.
-- **Request Changes** — any 🔴 CRITICAL or 🟠 HIGH issue exists. These are always blocking.
+- **Approve** — all findings are resolved (fixed or pushback-commented). All clear with no findings is also fine.
+- **Request Changes** — any unresolved finding exists (any severity). Findings are only resolved when the author has either fixed the code or added a comment explaining why a pushback is necessary.
 - **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
 
-**🚫 HARD RULE: NEVER approve a PR that has CRITICAL or HIGH-severity issues.** This rule has no exceptions — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If you find CRITICAL or HIGH issues, the verdict is always REQUEST_CHANGES. If the author argues the issues are acceptable, they can override the bot — but RSI must never be the one to approve through them.
+**🚫 HARD RULE: NEVER approve a PR that has unresolved issues of ANY severity.** Every finding must be either fixed by the author or pushed back on with a comment explaining why the fix isn't necessary. Unresolved findings mean REQUEST_CHANGES regardless of severity label. This rule has no exceptions — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If the author argues the issues are acceptable, they can override the bot with a pushback comment — but RSI must never be the one to approve through unresolved findings.
 
-Rationale: CRITICAL issues represent security vulnerabilities, data corruption, or crashes. HIGH issues represent bugs in core logic, data integrity risks, N+1 on hot paths, non-idempotent mutations, or missing cross-repo coordination that could cause production incidents. Feature gates degrade, configs get toggled, and "follow-up PRs" get deprioritized — the only safe merge is one without known severe issues.
+Rationale: Every review finding, regardless of severity, represents a potential improvement identified by an independent reviewer. Skipping low-severity findings accumulates technical debt and erodes codebase quality over time. The pushback mechanism gives authors a lightweight way to disagree without blocking the review — but the burden is on the author to explicitly decline a fix, not on the reviewer to silently drop findings.
 
 ---
 
@@ -898,7 +889,7 @@ After all subagents complete:
 1. Collect findings from each subagent
 2. **Verify subagent findings before re-reporting** — subagents frequently produce false positives and false negatives, especially on cross-repo alignment checks. A subagent scanning a 699-line `api-client.ts` may miss `adminApi.withdrawals.*` and report an entire API surface as "uncovered" when it exists. Before reporting any CRITICAL or HIGH finding from a subagent, spot-check 2-3 key files yourself to confirm. If a subagent timed out, re-run a narrower version focused on the files that matter most.
 3. Deduplicate (same issue found by multiple reviewers)
-4. Classify into the standard output format: Critical → Warnings → Suggestions → Looks Good
+4. Classify into the standard output format: Critical → Warnings → Suggestions
 5. Add a Verdict section at the bottom
 6. Deliver the merged review as a single Slack message or GitHub comment
 
