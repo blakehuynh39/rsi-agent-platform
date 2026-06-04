@@ -24380,3 +24380,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_34afe7778f315d91531895a49cf6e5f4
 - summary: Ownership of the Numo project transitions to the Korea team, with a target production-ready app by June 30, 2026. Intensive onboarding week (June 3-10), primary ownership from June...
 
+## [2026-06-04T16:00:20Z] ingest | Slack thread C0AKH5SNGKH channel
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-channel-53ca9dcc
+- wiki_revision_id: wikirev_8fd721a7dac993a58989eb0207cb60d5
+- source_document_id: srcdoc_b8c049e55a95dd9144c9ede553ca9dcc
+- source_revision_id: srcrev_8f057868ce97d4aeb3aed213da1468ca
+- summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
+
