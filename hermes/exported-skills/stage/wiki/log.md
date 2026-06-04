@@ -24407,3 +24407,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e061b4726eada35108c97b099ef13f6b
 - summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
 
+## [2026-06-04T20:30:36Z] synthesis | $DATA Migration handbook (external)
+
+- status: published
+- slug: runbooks/data-migration-handbook-external
+- wiki_revision_id: wikirev_70ca39ba5763c66a9855fe8b9ddf3942
+- summary: An external handbook covering data migration processes.
+
