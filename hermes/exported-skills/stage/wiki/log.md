@@ -24309,3 +24309,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_679055684ae341a59ffdf44fdb3f3fd4
 - summary: The Numo project ownership is transitioning to the Korea team with a target production-ready app by June 30, 2026. The Korea team will lead mobile app development, growth hacking, ...
 
+## [2026-06-04T05:00:34Z] ingest | Numo Transition Plan & Korea TeamGoals
+
+- status: published
+- slug: notion_document/numo-transition-plan-korea-teamgoals-1db78b80
+- wiki_revision_id: wikirev_415396430f45c270032a30a18eabf317
+- source_document_id: srcdoc_14b9675d3b89ce8eb59e4ff11db78b80
+- source_revision_id: srcrev_fae4aaa88423ef099b6b85df1ecf74f0
+- summary: Source: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
+
+## [2026-06-04T05:00:36Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_1807318eefa89bc042a6026046618223
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_281231becaae9a3329d7c1a104452955
+- summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
