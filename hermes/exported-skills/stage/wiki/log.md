@@ -24302,3 +24302,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b665f85b254986043802e77af4f9a92b
 - summary: Source: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
 
+## [2026-06-04T04:20:45Z] synthesis | Numo Transition Plan
+
+- status: published
+- slug: decisions/numo-transition-to-korea-team
+- wiki_revision_id: wikirev_679055684ae341a59ffdf44fdb3f3fd4
+- summary: The Numo project ownership is transitioning to the Korea team with a target production-ready app by June 30, 2026. The Korea team will lead mobile app development, growth hacking, ...
+

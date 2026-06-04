@@ -3241,13 +3241,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0f5f7094bf7f17a8bdb3c1b52f2321ce025a58be21ccc84a6085f22fc404b70a",
-        "size": 609763
+        "sha256": "b0fa662b2dc0a48bfc8d892e90715842f88552f409a3ea1a682438361c84ef1c",
+        "size": 610136
       },
       {
         "path": "log.md",
-        "sha256": "48ccbe648ec81b57c1de46f74cabea9875afd1bb1d980b0da884ca1f5abe956d",
-        "size": 1165443
+        "sha256": "ebf35622a8ced78b7a7088459085f6d7c8a97d31aedea50eb6e15d23ffd220f7",
+        "size": 1165828
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4383,6 +4383,11 @@
         "path": "pages/decisions/new-ci-process.md",
         "sha256": "7c295e8823ded9df913128b6eb489d089aa8b5ec693bfb908ba1f45a5b62314f",
         "size": 5856
+      },
+      {
+        "path": "pages/decisions/numo-transition-to-korea-team.md",
+        "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
+        "size": 5098
       },
       {
         "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -6679,8 +6684,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-04T04:04:58Z",
-  "file_count": 1334,
+  "exported_at": "2026-06-04T04:21:35Z",
+  "file_count": 1335,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9917,7 +9922,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c474cn7r8t",
-  "previous_tree_hash": "7cdfab55952c9163a20db0868bc634314cdffd703650b62ad0bfb3f9d6307bdf",
+  "previous_tree_hash": "07b14ddfb80a94fdf858b9aa0ff0bffdda3025ef79c9e9a215c04f8a9f1c1bc5",
   "schema_version": 1,
   "skill_file_count": 646,
   "skill_manage_sessions": [
@@ -9930,14 +9935,14 @@
   ],
   "skill_tree_hash": "c4385944bbb3dbec055833bcb0b564a6ff5100c549ea9fd75548020e767f7df6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "07b14ddfb80a94fdf858b9aa0ff0bffdda3025ef79c9e9a215c04f8a9f1c1bc5",
+  "tree_hash": "0a26049b3aca273594cee75ec9b815d896fbe1ba0ee798cef3672874a91ff504",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 688,
+  "wiki_file_count": 689,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9946,13 +9951,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0f5f7094bf7f17a8bdb3c1b52f2321ce025a58be21ccc84a6085f22fc404b70a",
-      "size": 609763
+      "sha256": "b0fa662b2dc0a48bfc8d892e90715842f88552f409a3ea1a682438361c84ef1c",
+      "size": 610136
     },
     {
       "path": "log.md",
-      "sha256": "48ccbe648ec81b57c1de46f74cabea9875afd1bb1d980b0da884ca1f5abe956d",
-      "size": 1165443
+      "sha256": "ebf35622a8ced78b7a7088459085f6d7c8a97d31aedea50eb6e15d23ffd220f7",
+      "size": 1165828
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11088,6 +11093,11 @@
       "path": "pages/decisions/new-ci-process.md",
       "sha256": "7c295e8823ded9df913128b6eb489d089aa8b5ec693bfb908ba1f45a5b62314f",
       "size": 5856
+    },
+    {
+      "path": "pages/decisions/numo-transition-to-korea-team.md",
+      "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
+      "size": 5098
     },
     {
       "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -13381,5 +13391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1335a6d2887351487bb711bd9cbab2635de5d09b32cf983951329809a78cd8cd"
+  "wiki_tree_hash": "d09bf9224b641259e8efebc8e4e9796763109f9f7270c78db6770c06fd76c53a"
 }
