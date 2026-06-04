@@ -372,7 +372,7 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		output["after"] = temporalWorkflowDescriptionOutput(after)
 		return output, "requested graceful cancellation for Temporal workflow " + workflowID, sourceRef + ":workflow:" + workflowID, "", mirrorEffect, http.StatusOK, nil
 	case "start_workflow":
-		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue), workflowType, workflowArgs)
+		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue, false), workflowType, workflowArgs)
 		if err != nil {
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
@@ -387,7 +387,7 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		if err := client.CancelWorkflow(callCtx, workflowID, runID); err != nil {
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
-		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue), workflowType, workflowArgs)
+		run, err := client.StartWorkflow(callCtx, temporalStartOptions(newWorkflowID, taskQueue, true), workflowType, workflowArgs)
 		if err != nil {
 			output["before"] = temporalWorkflowDescriptionOutput(before)
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), errors.New("cancellation was requested but starting replacement workflow failed: " + err.Error())
@@ -477,11 +477,15 @@ func temporalWorkflowStartOperation(operation string) bool {
 	return operation == "start_workflow" || operation == "restart_workflow"
 }
 
-func temporalStartOptions(workflowID string, taskQueue string) temporalclient.StartWorkflowOptions {
+func temporalStartOptions(workflowID string, taskQueue string, terminateExisting bool) temporalclient.StartWorkflowOptions {
+	conflictPolicy := enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL
+	if terminateExisting {
+		conflictPolicy = enumspb.WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING
+	}
 	return temporalclient.StartWorkflowOptions{
 		ID:                       workflowID,
 		TaskQueue:                taskQueue,
-		WorkflowIDConflictPolicy: enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL,
+		WorkflowIDConflictPolicy: conflictPolicy,
 		WorkflowIDReusePolicy:    enumspb.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 }
