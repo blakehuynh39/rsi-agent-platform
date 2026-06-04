@@ -80,6 +80,8 @@ type Config struct {
 	NativeToolsEnabled                   bool
 	NativeToolsClientToken               string
 	NativeToolsSurfaces                  []string
+	TemporalControlEnabled               bool
+	TemporalTargets                      []TemporalTarget
 	DBReadEnabled                        bool
 	DBReadTargetsJSON                    string
 	DBReadClientToken                    string
@@ -293,7 +295,9 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", true),
 		NativeToolsClientToken:               stringEnv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", ""),
-		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry", "kanban"}),
+		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry", "kanban", "temporal"}),
+		TemporalControlEnabled:               boolEnv("RSI_TEMPORAL_CONTROL_ENABLED", false),
+		TemporalTargets:                      temporalTargetsEnv("RSI_TEMPORAL_TARGETS_JSON"),
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),
 		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),

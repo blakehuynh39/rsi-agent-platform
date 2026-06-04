@@ -44,6 +44,7 @@ from .rsi_tools import (
     HERMES_RSI_OBSERVABILITY_TOOLSET,
     HERMES_RSI_SENTRY_TOOLSET,
     HERMES_RSI_SLACK_TOOLSET,
+    HERMES_RSI_TEMPORAL_TOOLSET,
     canonical_tool_name,
     normalize_tool_names,
 )
@@ -65,6 +66,7 @@ RSI_NATIVE_TOOLSETS = (
     HERMES_RSI_KNOWLEDGE_TOOLSET,
     HERMES_RSI_SENTRY_TOOLSET,
     HERMES_RSI_KANBAN_TOOLSET,
+    HERMES_RSI_TEMPORAL_TOOLSET,
 )
 PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
@@ -3368,7 +3370,7 @@ class HermesRuntime:
             "workflow_id": first_non_empty(task.workflow_id, task.trace_id, task.execution_id, "workflow"),
             "conversation_id": first_non_empty(task.conversation_id, task.session_scope_id, task.channel_id, "conversation"),
             "actor": first_non_empty(task.user_peer_id, task.assistant_peer_id, "hermes"),
-            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge", "sentry", "kanban"]),
+            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge", "sentry", "kanban", "temporal"]),
             "slack_channel_id": task.channel_id or "",
             "slack_thread_ts": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
             "slack_delivery_scope": "bound_thread" if task.channel_id else "",
@@ -7952,6 +7954,13 @@ if __name__ == "__main__":
                     "Approval is bound to the exact target and SQL hash; do not bypass this native tool with raw "
                     "control-plane curl or any legacy `rsi-db` executable from agent code."
                 )
+            parts.append(
+                "Temporal workflow operations are available through native `rsi_temporal.*` tools in the "
+                "`rsi-temporal` toolset. Use visibility reads for debugging; live lifecycle changes are limited "
+                "to start, pause/unpause, schedule trigger, stop by graceful cancellation, and restart with an "
+                "explicit replacement workflow. Mutations require reason, idempotency_key, and confirm=true "
+                "unless dry_run=true."
+            )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:
                 parts.append(repo_guidance)

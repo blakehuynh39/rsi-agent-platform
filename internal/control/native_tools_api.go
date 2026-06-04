@@ -43,6 +43,10 @@ var nativeToolWriteOps = map[string]map[string]bool{
 		"create_project": true, "set_project_slack_route": true,
 		"create_ticket": true, "update_ticket": true, "comment_ticket": true, "link_ticket": true,
 	},
+	"temporal": {
+		"pause_schedule": true, "unpause_schedule": true, "trigger_schedule": true,
+		"start_workflow": true, "stop_workflow": true, "restart_workflow": true,
+	},
 }
 
 var nativeToolReadOps = map[string]map[string]bool{
@@ -64,6 +68,10 @@ var nativeToolReadOps = map[string]map[string]bool{
 	},
 	"kanban": {
 		"list_projects": true, "list_project_routes": true, "list_tickets": true,
+	},
+	"temporal": {
+		"list_schedules": true, "describe_schedule": true,
+		"list_workflows": true, "count_workflows": true, "describe_workflow": true,
 	},
 }
 
@@ -284,6 +292,9 @@ func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storep
 	}
 	if input.Surface == "kanban" {
 		return executeKanbanNativeToolAction(ctx, repo, claims, input)
+	}
+	if input.Surface == "temporal" {
+		return executeTemporalNativeToolAction(ctx, cfg, input)
 	}
 	if input.Surface == "knowledge" {
 		switch input.Operation {

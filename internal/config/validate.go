@@ -125,6 +125,7 @@ func (c Config) validateControlPlane(issues *[]string) {
 	}
 	addRequiredString(issues, "RSI_NATIVE_TOOLS_CLIENT_TOKEN", c.NativeToolsClientToken)
 	addRequiredList(issues, "RSI_NATIVE_TOOLS_SURFACES", c.NativeToolsSurfaces)
+	c.validateTemporalTargets(issues)
 	if c.RuntimeMode == "slack-surface" {
 		addRequiredString(issues, "RSI_SLACK_APP_IDENTITY", c.SlackAppIdentity)
 		if !c.SlackSocketModeEnabled {

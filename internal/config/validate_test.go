@@ -79,6 +79,39 @@ func TestControlPlaneValidationAllowsHermesExecutorPoolWithoutLegacyRunnerURLs(t
 	}
 }
 
+func TestControlPlaneValidationRequiresTemporalTargetsWhenEnabled(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.TemporalControlEnabled = true
+
+	_, err := cfg.ValidatedFor("control-plane", "serve")
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+	if !strings.Contains(err.Error(), "RSI_TEMPORAL_TARGETS_JSON must include at least one target") {
+		t.Fatalf("unexpected validation error: %v", err)
+	}
+}
+
+func TestControlPlaneValidationAcceptsTemporalTargetWithPEMEnvRefs(t *testing.T) {
+	cfg := validControlPlaneConfig()
+	cfg.TemporalControlEnabled = true
+	cfg.TemporalTargets = []TemporalTarget{{
+		Environment:          "stage",
+		Name:                 "royalty-graph-v2",
+		HostPort:             "royalty-graph-v2-staging.koyiy.tmprl.cloud:7233",
+		Namespace:            "royalty-graph-v2-staging.koyiy",
+		CertPEMEnv:           "TEMPORAL_CERT",
+		KeyPEMEnv:            "TEMPORAL_KEY",
+		AllowedScheduleIDs:   []string{"royalty-graph-schedule-v2"},
+		AllowedWorkflowTypes: []string{"RoyaltyGraphManagerWorkflow"},
+		AllowedTaskQueues:    []string{"ROYALTY_GRAPH_TASK_QUEUE"},
+	}}
+
+	if _, err := cfg.ValidatedFor("control-plane", "serve"); err != nil {
+		t.Fatalf("ValidatedFor() error = %v", err)
+	}
+}
+
 func TestSlackSurfaceValidationRequiresSlackContract(t *testing.T) {
 	cfg := validControlPlaneConfig()
 
