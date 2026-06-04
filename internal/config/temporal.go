@@ -41,6 +41,10 @@ func temporalTargetsEnv(name string) []TemporalTarget {
 	if err := json.Unmarshal([]byte(raw), &targets); err == nil {
 		return normalizeTemporalTargets(targets)
 	}
+	var single TemporalTarget
+	if err := json.Unmarshal([]byte(raw), &single); err == nil {
+		return normalizeTemporalTargets([]TemporalTarget{single})
+	}
 	return nil
 }
 

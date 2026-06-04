@@ -500,11 +500,14 @@ func normalizeTemporalEnv(value string) string {
 func findTemporalTarget(targets []config.TemporalTarget, environment string, name string) (config.TemporalTarget, bool) {
 	environment = normalizeTemporalEnv(environment)
 	name = strings.ToLower(strings.TrimSpace(name))
+	if name == "" {
+		return config.TemporalTarget{}, false
+	}
 	for _, target := range targets {
 		if normalizeTemporalEnv(target.Environment) != environment {
 			continue
 		}
-		if name == "" || name == strings.ToLower(target.Name) || name == strings.ToLower(target.Namespace) {
+		if name == strings.ToLower(target.Name) || name == strings.ToLower(target.Namespace) {
 			return target, true
 		}
 	}
@@ -530,7 +533,7 @@ func temporalAllowed(value string, exact []string, prefixes []string) bool {
 		return false
 	}
 	if len(exact) == 0 && len(prefixes) == 0 {
-		return true
+		return false
 	}
 	for _, item := range exact {
 		if strings.TrimSpace(item) == value {
