@@ -24345,3 +24345,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_acda2b520bb5a2afa04bdfd71de9dd01
 - summary: Source: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
 
+## [2026-06-04T05:47:06Z] synthesis | Numo
+
+- status: published
+- slug: projects/numo
+- wiki_revision_id: wikirev_7ec8c763af0e78945497b07e32a16f5b
+- summary: Numo is a mobile application within the Poseidon ecosystem that leverages user reputation and identity systems. Ownership has transitioned to the Korea team, which is responsible f...
+
+## [2026-06-04T05:47:06Z] synthesis | Poseidon Reputation and Identity Infrastructure
+
+- status: published
+- slug: systems/poseidon-reputation-infrastructure
+- wiki_revision_id: wikirev_1692006ec7f2e98505fa75429ab044b9
+- summary: Shared infrastructure for user identity, reputation scoring, trust mechanisms, and cross-product portability, intended to compound across the Poseidon ecosystem including Numo, Tra...
+
+## [2026-06-04T05:48:36Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_cbc54648db24367816f2a6724bde3f70
+- summary: Phased launch plan beginning May 28, 2026 with weekly feature releases, tasks, messaging, and action items.
+

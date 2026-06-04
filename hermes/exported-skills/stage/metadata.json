@@ -3241,13 +3241,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b72233174258dd46c0cb9a92db6ea1624c9ccbef543faf458ac74199feaf872b",
-        "size": 610129
+        "sha256": "0c639da3e2c8e87a17e4cea2a8aac7113043dbcdacdb7a8b06221589592695e7",
+        "size": 610862
       },
       {
         "path": "log.md",
-        "sha256": "2543fafe23c9d8d5df21e43e89ed63e5f72f821761e8e87b9283123e8fe4ebef",
-        "size": 1167736
+        "sha256": "e08322e1e83169a28f30d6cd28c6cb4f7281f3ada6438d5c332c8bb46c2eeb84",
+        "size": 1168791
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5361,8 +5361,8 @@
       },
       {
         "path": "pages/projects/numo-launch-roadmap.md",
-        "sha256": "bd270ac15bcabd47bc6a9451d85a9e0dce88af450f943afeeea23da77e075201",
-        "size": 35962
+        "sha256": "c775aeb3b5349caed6693e86aef6328f96a4dfa7d97aca00422b709c2bf217bc",
+        "size": 35415
       },
       {
         "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
@@ -5373,6 +5373,11 @@
         "path": "pages/projects/numo-transition-plan.md",
         "sha256": "07ba2275161e85154bd203898bf1edae69b6c4e7efb48d1977c386be11cb4bdd",
         "size": 7300
+      },
+      {
+        "path": "pages/projects/numo.md",
+        "sha256": "bec85fab7c13406ae4cf186c21f1677ba67bf6918606d8706ffa25e355b0d43e",
+        "size": 5668
       },
       {
         "path": "pages/projects/odyssey-testnet.md",
@@ -6490,6 +6495,11 @@
         "size": 13715
       },
       {
+        "path": "pages/systems/poseidon-reputation-infrastructure.md",
+        "sha256": "a193288897b5a62f217bfa287389a0ee73755585bbd017affa2b487a3873e7ec",
+        "size": 4389
+      },
+      {
         "path": "pages/systems/poseidon-s3-compatible-apis.md",
         "sha256": "1f624ba1c870ed92ade001e4ef3aafebcf8ac29e10bd452448dfb9cd56ab5a1d",
         "size": 1383
@@ -6684,8 +6694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-04T05:35:30Z",
-  "file_count": 1335,
+  "exported_at": "2026-06-04T05:52:11Z",
+  "file_count": 1337,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9922,7 +9932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c474cn7r8t",
-  "previous_tree_hash": "94824e08d2a78e0672974177da6b34ffa87f562746c912a1d2aa669b826517f3",
+  "previous_tree_hash": "4fb4cb3cd9030c9f5668dea641a1305214f44117426aea91b37048b3e2d350c1",
   "schema_version": 1,
   "skill_file_count": 646,
   "skill_manage_sessions": [
@@ -9935,14 +9945,14 @@
   ],
   "skill_tree_hash": "c4385944bbb3dbec055833bcb0b564a6ff5100c549ea9fd75548020e767f7df6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4fb4cb3cd9030c9f5668dea641a1305214f44117426aea91b37048b3e2d350c1",
+  "tree_hash": "c6ad28c189098ef949148b7102d9d3ab2475d4f3d205db2f8157e33b49330498",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 689,
+  "wiki_file_count": 691,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9951,13 +9961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b72233174258dd46c0cb9a92db6ea1624c9ccbef543faf458ac74199feaf872b",
-      "size": 610129
+      "sha256": "0c639da3e2c8e87a17e4cea2a8aac7113043dbcdacdb7a8b06221589592695e7",
+      "size": 610862
     },
     {
       "path": "log.md",
-      "sha256": "2543fafe23c9d8d5df21e43e89ed63e5f72f821761e8e87b9283123e8fe4ebef",
-      "size": 1167736
+      "sha256": "e08322e1e83169a28f30d6cd28c6cb4f7281f3ada6438d5c332c8bb46c2eeb84",
+      "size": 1168791
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12071,8 +12081,8 @@
     },
     {
       "path": "pages/projects/numo-launch-roadmap.md",
-      "sha256": "bd270ac15bcabd47bc6a9451d85a9e0dce88af450f943afeeea23da77e075201",
-      "size": 35962
+      "sha256": "c775aeb3b5349caed6693e86aef6328f96a4dfa7d97aca00422b709c2bf217bc",
+      "size": 35415
     },
     {
       "path": "pages/projects/numo-transition-plan-korea-team-goals.md",
@@ -12083,6 +12093,11 @@
       "path": "pages/projects/numo-transition-plan.md",
       "sha256": "07ba2275161e85154bd203898bf1edae69b6c4e7efb48d1977c386be11cb4bdd",
       "size": 7300
+    },
+    {
+      "path": "pages/projects/numo.md",
+      "sha256": "bec85fab7c13406ae4cf186c21f1677ba67bf6918606d8706ffa25e355b0d43e",
+      "size": 5668
     },
     {
       "path": "pages/projects/odyssey-testnet.md",
@@ -13200,6 +13215,11 @@
       "size": 13715
     },
     {
+      "path": "pages/systems/poseidon-reputation-infrastructure.md",
+      "sha256": "a193288897b5a62f217bfa287389a0ee73755585bbd017affa2b487a3873e7ec",
+      "size": 4389
+    },
+    {
       "path": "pages/systems/poseidon-s3-compatible-apis.md",
       "sha256": "1f624ba1c870ed92ade001e4ef3aafebcf8ac29e10bd452448dfb9cd56ab5a1d",
       "size": 1383
@@ -13391,5 +13411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "674996f9062a6a6cf5c0623e5414955411805f36c08288bdbda5a60b39c552e6"
+  "wiki_tree_hash": "1228d63e4809f5ffe0e4632f633f58fe310709790fc5914c50f334a8e14d5936"
 }
