@@ -24389,3 +24389,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_8f057868ce97d4aeb3aed213da1468ca
 - summary: <@U05A515NBFC> i'm fixing MC for <https://github.com/piplabs/numo-monorepo/pull/139>
 
+## [2026-06-04T20:00:20Z] ingest | $DATA Migration handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-handbook-external--40911f03
+- wiki_revision_id: wikirev_09c7802b871bae5a044acbf4a75d2234
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_5a3b560bc27334d20c910f02bb05598d
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-handbook-external-375051299a54801090a8ca9ab924f893)
+
+## [2026-06-04T20:00:22Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_bab2f3456eb54688a5ff76ba79e7bb10
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_e061b4726eada35108c97b099ef13f6b
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
