@@ -187,7 +187,9 @@ Every finding must be: `{severity} | file:line — issue → fix`. See Section 3
 | 🔵 LOW | Style, minor DRY, outdated comment | Fix or pushback comment |
 | 💡 SUGGESTION | Optional improvement | Fix or pushback comment |
 
-**HARD RULE:** Any unresolved finding (any severity) → **REQUEST_CHANGES**. Author must fix OR add pushback comment explaining why not. All resolved → **APPROVE**.
+**HARD RULE (for PRs targeting `staging` or feature branches):** Any unresolved finding (any severity) → **REQUEST_CHANGES**. Author must fix OR add pushback comment explaining why not. All resolved → **APPROVE**.
+
+**EXCEPTION — Staging→Main Promotion PRs:** When the `headRefName` is a staging branch (e.g., `staging-gcp`, `staging`) and `baseRefName` is `main`, the PR is a staging→main promotion. These should **always be APPROVED** — the code is already reviewed and vetted on staging. Document any findings as follow-up items for a staging fix, but do not block the promotion. The purpose is to keep prod in-line with staging.
 
 ---
 
