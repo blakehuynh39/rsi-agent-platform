@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0eefcf91d80c8ca709e7d34fdac023a2f074300df8d4dd869b9262e6a0efb223",
-        "size": 612886
+        "sha256": "6b4098becf491952d5417d03aa4057a0a065f6bf1b2a38950135cea0748b0dea",
+        "size": 613182
       },
       {
         "path": "log.md",
-        "sha256": "79f8c3c7f7428f422654155e5744994ab24e3a7c9a937784ef94bc295a4b0479",
-        "size": 1173983
+        "sha256": "ac8aa2cbe020c42a5e09cd40eaf4020952c4b720397c97e213c5300d61dcc024",
+        "size": 1174291
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4448,6 +4448,11 @@
         "path": "pages/decisions/story-rebrand-to-data-network.md",
         "sha256": "542be06e19cce97405ad9aa3873f6c218d5b4e53b3844e38fbe66d95a19d64aa",
         "size": 6694
+      },
+      {
+        "path": "pages/decisions/story-to-data-rebranding.md",
+        "sha256": "10def2714dab728fae634f3d4ca912b694a71473f44a38563aff4b89a1ffe87b",
+        "size": 5613
       },
       {
         "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
@@ -6719,8 +6724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-04T23:31:42Z",
-  "file_count": 1342,
+  "exported_at": "2026-06-04T23:49:48Z",
+  "file_count": 1343,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9962,7 +9967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755flnlg",
-  "previous_tree_hash": "dd40d31397a83cc00dc9f6d5b2fefc3e4b6e1c5b935e8cb6357aa56cef138a64",
+  "previous_tree_hash": "449c41c93dee23e44d6b9a0b5523ed60df2ddfabed137fb89ff7aa38abee247f",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9975,14 +9980,14 @@
   ],
   "skill_tree_hash": "a0fb41d58552b5f58d53fcc2863f5ef0aa6bfb5da352ab559965470b17b430fa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "449c41c93dee23e44d6b9a0b5523ed60df2ddfabed137fb89ff7aa38abee247f",
+  "tree_hash": "a3fac02ad2cb01a55d84f068f7b68caf4dab8a8fa05ee7b860b52a3f066289aa",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 695,
+  "wiki_file_count": 696,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9991,13 +9996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0eefcf91d80c8ca709e7d34fdac023a2f074300df8d4dd869b9262e6a0efb223",
-      "size": 612886
+      "sha256": "6b4098becf491952d5417d03aa4057a0a065f6bf1b2a38950135cea0748b0dea",
+      "size": 613182
     },
     {
       "path": "log.md",
-      "sha256": "79f8c3c7f7428f422654155e5744994ab24e3a7c9a937784ef94bc295a4b0479",
-      "size": 1173983
+      "sha256": "ac8aa2cbe020c42a5e09cd40eaf4020952c4b720397c97e213c5300d61dcc024",
+      "size": 1174291
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11193,6 +11198,11 @@
       "path": "pages/decisions/story-rebrand-to-data-network.md",
       "sha256": "542be06e19cce97405ad9aa3873f6c218d5b4e53b3844e38fbe66d95a19d64aa",
       "size": 6694
+    },
+    {
+      "path": "pages/decisions/story-to-data-rebranding.md",
+      "sha256": "10def2714dab728fae634f3d4ca912b694a71473f44a38563aff4b89a1ffe87b",
+      "size": 5613
     },
     {
       "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
@@ -13461,5 +13471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9370fddccaafc1e882350a63915c86363717e71a3bc1552183511cf2fd78489b"
+  "wiki_tree_hash": "34e9293a6ba80a478b124fb76cc7562b85b368dfc2d8c9c9183b4c2f91f24ac1"
 }

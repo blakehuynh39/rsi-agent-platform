@@ -24471,3 +24471,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_67fba4ca3443e802fbe8d4d6be0d42de
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-04T23:47:14Z] synthesis | Story to Data Rebranding
+
+- status: published
+- slug: decisions/story-to-data-rebranding
+- wiki_revision_id: wikirev_cd6e9196dc05ef9afa2a422aaf7062e1
+- summary: Rebranding of Story Protocol to Data, including foundation, chain, token, domains, and GitHub organization.
+
