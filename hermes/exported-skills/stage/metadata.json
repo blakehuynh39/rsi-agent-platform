@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e8eb7252b0e4853e6cc00aea48843fcf900fa35f9a4207724143f74372f0aa0e",
+        "sha256": "6f0ac509677d692ff927cfa799adefa6d85041d5da0dd81cf7cc51aa5304db6a",
         "size": 612171
       },
       {
         "path": "log.md",
-        "sha256": "5b5d0ee9d6f1e45f1ea897fe4dfe65952cdd2050460d369df4d68b7e9acaff4c",
-        "size": 1171573
+        "sha256": "cfd9a066982099ebd9ea1b14ddda98342257b29ccf8112160651c1cab14bb323",
+        "size": 1172346
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5921,8 +5921,8 @@
       },
       {
         "path": "pages/runbooks/data-migration-handbook-external.md",
-        "sha256": "c68ed161a8e7c5764df01c27484f15d38776cc9f5aa54cfea806e6dbe5ac889a",
-        "size": 1243
+        "sha256": "27ccb12f3c2b3f26a97ab0690ba14c48c5211e75848dcdfa7dbe56ef785f0a3c",
+        "size": 3911
       },
       {
         "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
@@ -6714,7 +6714,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-04T21:04:56Z",
+  "exported_at": "2026-06-04T21:31:45Z",
   "file_count": 1341,
   "files": [
     {
@@ -9957,7 +9957,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c474c5b5qq",
-  "previous_tree_hash": "8ca2dd3a003150ed63dba00d55a51415a6405f645ce8cf3f55ee9eed54746360",
+  "previous_tree_hash": "3bcf215e641be17be7d8eb3e5f4441da0b798297e4daf1de806a57e7d4e55b2a",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9970,7 +9970,7 @@
   ],
   "skill_tree_hash": "bd165c5b29831e7b8930cf207d8a3ac70a2c51cfa4771a4e160e5016520d722a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3bcf215e641be17be7d8eb3e5f4441da0b798297e4daf1de806a57e7d4e55b2a",
+  "tree_hash": "5acb62fe79813808bbc00e8fd7ac087187ce50f2dfaac01f058de2cf8b4e908c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -9986,13 +9986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e8eb7252b0e4853e6cc00aea48843fcf900fa35f9a4207724143f74372f0aa0e",
+      "sha256": "6f0ac509677d692ff927cfa799adefa6d85041d5da0dd81cf7cc51aa5304db6a",
       "size": 612171
     },
     {
       "path": "log.md",
-      "sha256": "5b5d0ee9d6f1e45f1ea897fe4dfe65952cdd2050460d369df4d68b7e9acaff4c",
-      "size": 1171573
+      "sha256": "cfd9a066982099ebd9ea1b14ddda98342257b29ccf8112160651c1cab14bb323",
+      "size": 1172346
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12661,8 +12661,8 @@
     },
     {
       "path": "pages/runbooks/data-migration-handbook-external.md",
-      "sha256": "c68ed161a8e7c5764df01c27484f15d38776cc9f5aa54cfea806e6dbe5ac889a",
-      "size": 1243
+      "sha256": "27ccb12f3c2b3f26a97ab0690ba14c48c5211e75848dcdfa7dbe56ef785f0a3c",
+      "size": 3911
     },
     {
       "path": "pages/runbooks/debugging-mint-and-register-ip-with-sig-revert.md",
@@ -13451,5 +13451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b90cec598c5b08e874af1680aa8d6e096475d1732393215a4458f640a6fe0ee6"
+  "wiki_tree_hash": "83793e450a5b6a34402240f41b38ecee49c18ef20f68489048f4e12d6caedd4b"
 }
