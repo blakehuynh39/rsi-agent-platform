@@ -24373,3 +24373,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5c9682103fd3315805a70a73c832fbbe
 - summary: Onboarding access checklist for the Jed Korean team, covering operational and third-party service credentials, with assignments and statuses.
 
+## [2026-06-04T07:05:08Z] synthesis | Numo Transition to Korea Team
+
+- status: published
+- slug: projects/numo-transition-korea-team
+- wiki_revision_id: wikirev_34afe7778f315d91531895a49cf6e5f4
+- summary: Ownership of the Numo project transitions to the Korea team, with a target production-ready app by June 30, 2026. Intensive onboarding week (June 3-10), primary ownership from June...
+
