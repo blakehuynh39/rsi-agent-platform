@@ -24366,3 +24366,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cbc54648db24367816f2a6724bde3f70
 - summary: Phased launch plan beginning May 28, 2026 with weekly feature releases, tasks, messaging, and action items.
 
+## [2026-06-04T06:31:41Z] synthesis | Jed Korean Team Onboarding Access
+
+- status: published
+- slug: policies/jed-korean-team-onboarding-access
+- wiki_revision_id: wikirev_5c9682103fd3315805a70a73c832fbbe
+- summary: Onboarding access checklist for the Jed Korean team, covering operational and third-party service credentials, with assignments and statuses.
+

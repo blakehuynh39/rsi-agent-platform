@@ -3246,8 +3246,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e08322e1e83169a28f30d6cd28c6cb4f7281f3ada6438d5c332c8bb46c2eeb84",
-        "size": 1168791
+        "sha256": "d7e8367b7fa9528c729b8bcd7a101c1ee6f12bcff0aab7edf54672d7589ce9e1",
+        "size": 1169150
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4678,6 +4678,11 @@
         "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
         "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
         "size": 2928
+      },
+      {
+        "path": "pages/policies/jed-korean-team-onboarding-access.md",
+        "sha256": "e1191a014dd767ec1dec1aeb5a6cb16116c02d4953f9972df06c3f537040e7ca",
+        "size": 9116
       },
       {
         "path": "pages/policies/kms-access-control.md",
@@ -6694,8 +6699,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-04T05:52:11Z",
-  "file_count": 1337,
+  "exported_at": "2026-06-04T06:34:26Z",
+  "file_count": 1338,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9932,7 +9937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7c474cn7r8t",
-  "previous_tree_hash": "4fb4cb3cd9030c9f5668dea641a1305214f44117426aea91b37048b3e2d350c1",
+  "previous_tree_hash": "c6ad28c189098ef949148b7102d9d3ab2475d4f3d205db2f8157e33b49330498",
   "schema_version": 1,
   "skill_file_count": 646,
   "skill_manage_sessions": [
@@ -9945,14 +9950,14 @@
   ],
   "skill_tree_hash": "c4385944bbb3dbec055833bcb0b564a6ff5100c549ea9fd75548020e767f7df6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c6ad28c189098ef949148b7102d9d3ab2475d4f3d205db2f8157e33b49330498",
+  "tree_hash": "abdc98f7ef49b41440f553cc2dfffdd62dbd12676db71baf2390069167996bad",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 691,
+  "wiki_file_count": 692,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -9966,8 +9971,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e08322e1e83169a28f30d6cd28c6cb4f7281f3ada6438d5c332c8bb46c2eeb84",
-      "size": 1168791
+      "sha256": "d7e8367b7fa9528c729b8bcd7a101c1ee6f12bcff0aab7edf54672d7589ce9e1",
+      "size": 1169150
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11398,6 +11403,11 @@
       "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
       "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
       "size": 2928
+    },
+    {
+      "path": "pages/policies/jed-korean-team-onboarding-access.md",
+      "sha256": "e1191a014dd767ec1dec1aeb5a6cb16116c02d4953f9972df06c3f537040e7ca",
+      "size": 9116
     },
     {
       "path": "pages/policies/kms-access-control.md",
@@ -13411,5 +13421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1228d63e4809f5ffe0e4632f633f58fe310709790fc5914c50f334a8e14d5936"
+  "wiki_tree_hash": "ecc738b0e6041ed2f544417561fcd489cecf331470d034e017913f074599ae0b"
 }
