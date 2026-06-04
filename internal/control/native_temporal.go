@@ -393,6 +393,7 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 			return withTemporalError(output, err.Error()), "", sourceRef, "", mirrorEffect, statusFromErr(err), err
 		}
 		if err := client.CancelWorkflow(callCtx, workflowID, runID); err != nil {
+			_ = client.CancelWorkflow(callCtx, run.GetID(), run.GetRunID())
 			output["before"] = temporalWorkflowDescriptionOutput(before)
 			output["started_workflow_id"] = run.GetID()
 			output["started_run_id"] = run.GetRunID()
