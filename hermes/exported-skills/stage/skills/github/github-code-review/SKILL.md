@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks. Fresh subagent per review pass for anti-bias."
-version: 2.3.1
+version: 2.3.2
 author: Hermes Agent
 license: MIT
 metadata:
@@ -11,6 +11,14 @@ metadata:
 ---
 
 # GitHub Code Review
+
+## Mandatory Fresh-Subagent Rule
+
+Every PR review and every PR re-review must be performed by a fresh subagent for that review pass.
+
+The parent agent is an orchestrator only: gather raw inputs, call `delegate_task`, verify and format the result, then deliver it. The parent must not directly review a PR or re-review from its own accumulated context.
+
+This applies to first reviews, "review this PR", "re-review", "check the fixes", "can we approve now?", and any Slack follow-up that asks for a new verdict on the PR. If fresh subagent delegation is unavailable, fails, or returns unusable output, report the review as blocked or partial instead of approving, requesting changes, or posting a complete review.
 
 Perform code reviews on local changes before pushing, or review open PRs on GitHub. Most of this skill uses plain `git` — the `gh`/`curl` split only matters for PR-level interactions.
 
