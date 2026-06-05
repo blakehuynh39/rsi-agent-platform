@@ -24704,3 +24704,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e61abb36f687e4580c486cafa57f550
 - summary: Technical migration guide for the Story to Data rebrand. Covers token and domain changes, no-hardfork rationale, and required actions for exchanges and integrations.
 
+## [2026-06-05T23:00:26Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_cd95633f32d5b3beb5a92c6ca65a703a
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_61954d360be86f07c31a7e0ec8639ab4
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
