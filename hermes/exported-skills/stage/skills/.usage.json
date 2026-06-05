@@ -42,13 +42,13 @@
     "created_at": "2026-06-03T20:26:22.716762+00:00",
     "created_by": null,
     "last_patched_at": "2026-06-04T17:15:07.720254+00:00",
-    "last_used_at": "2026-06-05T16:49:54.204917+00:00",
-    "last_viewed_at": "2026-06-05T16:49:54.166665+00:00",
+    "last_used_at": "2026-06-05T19:38:48.339940+00:00",
+    "last_viewed_at": "2026-06-05T19:38:48.292191+00:00",
     "patch_count": 1,
     "pinned": false,
     "state": "active",
-    "use_count": 16,
-    "view_count": 14
+    "use_count": 17,
+    "view_count": 15
   },
   "numo-project-status": {
     "archived_at": null,
@@ -67,13 +67,13 @@
     "created_at": "2026-06-05T14:13:09.737452+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-05T16:49:54.108613+00:00",
-    "last_viewed_at": "2026-06-05T16:49:54.066987+00:00",
+    "last_used_at": "2026-06-05T19:38:48.230653+00:00",
+    "last_viewed_at": "2026-06-05T19:38:48.191001+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 2,
-    "view_count": 2
+    "use_count": 3,
+    "view_count": 3
   },
   "rsi-platform-investigation": {
     "archived_at": null,
