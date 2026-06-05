@@ -24610,3 +24610,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0708bca98edec7bf2aa1c776c34b8de8
 - summary: Rebranding of Story Foundation, L1 chain, and token from $IP to $DATA, with technical migration steps for exchanges and node operators.
 
+## [2026-06-05T20:30:21Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_de84b0a10dac6b0c348138050307f94d
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_e44fda018dcb769685df1dc84fbd0b61
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
