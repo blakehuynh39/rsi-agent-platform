@@ -24569,3 +24569,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c0f51110144c09cf439a556a690ae2d0
 - summary: The Tiger Team is a cross-functional group responsible for building and managing DePIN apps, including Scout Careers, Aura, DePIN Backend, and DePIN Admin. They also plan future ap...
 
+## [2026-06-05T13:45:20Z] ingest | Slack thread C0AKH5SNGKH 1780666309.081609
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1780666309-081609-c96515b5
+- wiki_revision_id: wikirev_09a5674baaa914dcc30b1684683ee63c
+- source_document_id: srcdoc_d60e832089f7501352464dc6c96515b5
+- source_revision_id: srcrev_86e34355f66ad0fab72669a7188196e9
+- summary: Slack file attachment:
+
