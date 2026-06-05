@@ -24587,3 +24587,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_6ad59997abd2501f2acb36de01762132
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-05T18:46:48Z] synthesis | Story to Data Migration
+
+- status: published
+- slug: projects/story-to-data-migration
+- wiki_revision_id: wikirev_78e4fcb5e36a081d638638b1f34ba893
+- summary: The migration plan for rebranding Story to Data, including token changes, domain updates, and technical actions for exchanges and integrations.
+

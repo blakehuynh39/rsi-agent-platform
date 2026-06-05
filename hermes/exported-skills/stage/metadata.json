@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f085dea8d9ee38f45fca3614e5e7cb349e7a8cb9d4812ba763ca9ad3712ef293",
-        "size": 614355
+        "sha256": "24b449507d5d3bc484ce0660e770fe7649ea72ecc76c95e7bc931d0630b4d426",
+        "size": 614684
       },
       {
         "path": "log.md",
-        "sha256": "bcf920cfe2bbc035f540460093742b0fe567a0a5844fe84b5f4b2f992a5c6267",
-        "size": 1179668
+        "sha256": "dbed79121f109673895d29df36b2ea256b2ddd7668f1eb151fcb2ee7d1ec8f62",
+        "size": 1180009
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5730,6 +5730,11 @@
         "size": 12083
       },
       {
+        "path": "pages/projects/story-to-data-migration.md",
+        "sha256": "b585b1b64963865842c33d9ff12a01d7a2a03bee8b2de3454eed3c94d155179a",
+        "size": 7314
+      },
+      {
         "path": "pages/projects/story-to-data-rebrand-migration-plan.md",
         "sha256": "2b4f17033eaf472d1fef12eb52f88b445c4c6c0db0347825e01b4a4fe6024fea",
         "size": 9808
@@ -6734,8 +6739,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-05T18:31:20Z",
-  "file_count": 1345,
+  "exported_at": "2026-06-05T18:47:55Z",
+  "file_count": 1346,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9977,7 +9982,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755qd55d",
-  "previous_tree_hash": "c0012642ef2cb377f7d87f3ab4de0dc23e2a4bb2f7f6cb5c26266431cd0fe7c6",
+  "previous_tree_hash": "b7ee2006525a2dd9c08d1f9c23b06d03734dfcedd8e7a336ffa9a45dbce28e55",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9990,14 +9995,14 @@
   ],
   "skill_tree_hash": "df79ae52eb13a8a395a05e52b885b22dc5c105429b5808462c2c7c67a0e60aea",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b7ee2006525a2dd9c08d1f9c23b06d03734dfcedd8e7a336ffa9a45dbce28e55",
+  "tree_hash": "9e174cc564cd8eccf9b1d7fb9ba1a7a01aaa2eee28ff43cdd8cc32f310fe39bc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 698,
+  "wiki_file_count": 699,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10006,13 +10011,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f085dea8d9ee38f45fca3614e5e7cb349e7a8cb9d4812ba763ca9ad3712ef293",
-      "size": 614355
+      "sha256": "24b449507d5d3bc484ce0660e770fe7649ea72ecc76c95e7bc931d0630b4d426",
+      "size": 614684
     },
     {
       "path": "log.md",
-      "sha256": "bcf920cfe2bbc035f540460093742b0fe567a0a5844fe84b5f4b2f992a5c6267",
-      "size": 1179668
+      "sha256": "dbed79121f109673895d29df36b2ea256b2ddd7668f1eb151fcb2ee7d1ec8f62",
+      "size": 1180009
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12490,6 +12495,11 @@
       "size": 12083
     },
     {
+      "path": "pages/projects/story-to-data-migration.md",
+      "sha256": "b585b1b64963865842c33d9ff12a01d7a2a03bee8b2de3454eed3c94d155179a",
+      "size": 7314
+    },
+    {
       "path": "pages/projects/story-to-data-rebrand-migration-plan.md",
       "sha256": "2b4f17033eaf472d1fef12eb52f88b445c4c6c0db0347825e01b4a4fe6024fea",
       "size": 9808
@@ -13491,5 +13501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "65f2eedfc4a0f8b76aeabc3be62401de369657ce4a888de4fcfdd4ccdc9faa41"
+  "wiki_tree_hash": "e06f8af747c9b0064b8e526cb6ca2c7294c525d3c6c1515ecdafcab47b092a60"
 }
