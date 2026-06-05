@@ -24651,3 +24651,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c676274c1426febdbe8707fb9e64e59
 - summary: Story has rebranded to Data, including the L1 chain (Data Network), token ($DATA), foundation, domains, and GitHub repositories. No hardfork is required; chain ID remains 1514. WDA...
 
+## [2026-06-05T22:00:23Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_9b17ddc0a10750c620a237db0f574544
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_387e1c774ce3439b600a5ab109f7d463
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
