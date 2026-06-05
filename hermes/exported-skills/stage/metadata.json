@@ -3251,8 +3251,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ebd2938c82c1f1174c0dc8a63df41c809a421758831e65d1993f0636102326ee",
-        "size": 1175479
+        "sha256": "469cc7135d3cfd291800d43d191a22c14cc6b516b48b690de9fcda0273a83206",
+        "size": 1175839
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6270,6 +6270,11 @@
         "size": 3601
       },
       {
+        "path": "pages/systems/agent-factory.md",
+        "sha256": "5faef30fbb8ec12ee5b7da119ca3b4cdb12129863018022047c3b96eecf22c16",
+        "size": 4563
+      },
+      {
         "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
         "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
         "size": 11422
@@ -6724,8 +6729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-05T00:33:46Z",
-  "file_count": 1343,
+  "exported_at": "2026-06-05T00:50:40Z",
+  "file_count": 1344,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9967,7 +9972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755flnlg",
-  "previous_tree_hash": "408f1dbb8e31299dcd35890625475bca37fe4aec80160f724d00366e3e49b6fe",
+  "previous_tree_hash": "ff194143652d313da7df50f862630d94feec544e2c3c993dc3c5abfb61d89893",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9980,14 +9985,14 @@
   ],
   "skill_tree_hash": "a0fb41d58552b5f58d53fcc2863f5ef0aa6bfb5da352ab559965470b17b430fa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ff194143652d313da7df50f862630d94feec544e2c3c993dc3c5abfb61d89893",
+  "tree_hash": "2f19af7cb775dab428d2839754b08dbf0c1fc2820a82e28b8ed0aba4e5ff93dd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 696,
+  "wiki_file_count": 697,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10001,8 +10006,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ebd2938c82c1f1174c0dc8a63df41c809a421758831e65d1993f0636102326ee",
-      "size": 1175479
+      "sha256": "469cc7135d3cfd291800d43d191a22c14cc6b516b48b690de9fcda0273a83206",
+      "size": 1175839
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13020,6 +13025,11 @@
       "size": 3601
     },
     {
+      "path": "pages/systems/agent-factory.md",
+      "sha256": "5faef30fbb8ec12ee5b7da119ca3b4cdb12129863018022047c3b96eecf22c16",
+      "size": 4563
+    },
+    {
       "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
       "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
       "size": 11422
@@ -13471,5 +13481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "901facee201a301d4f92d3f2424b0d02e20c7424c683912098858d32e80d4ed0"
+  "wiki_tree_hash": "225861f96c65d4a33723047dc2461a845f0edecfaa73100ac71455f2f92732b3"
 }
