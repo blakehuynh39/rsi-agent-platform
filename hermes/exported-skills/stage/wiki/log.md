@@ -24697,3 +24697,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_0b2983847f4ac223e0e2218b198605ca
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-05T22:48:34Z] synthesis | Data Network Rebrand Runbook
+
+- status: published
+- slug: runbooks/data-network-rebrand-runbook
+- wiki_revision_id: wikirev_4e61abb36f687e4580c486cafa57f550
+- summary: Technical migration guide for the Story to Data rebrand. Covers token and domain changes, no-hardfork rationale, and required actions for exchanges and integrations.
+
