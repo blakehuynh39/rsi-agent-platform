@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1f4bde1c3be0dec43406beb387576247d6269bd694b20eb6ae410a59f3d9e48e",
+        "sha256": "7eeae6dd1194c9a08de0e158c497e2a62499ca58ede773f25f07b1a713bae4ff",
         "size": 614101
       },
       {
         "path": "log.md",
-        "sha256": "ff2a443c0a187d0de88aced30ce8f72b931174a3eb665cd1d79f3ae41c0abb47",
-        "size": 1178424
+        "sha256": "b523ba743a6356dcb692169374e3a78c9bbc6bb07b363eab7e228ccb9a837f9f",
+        "size": 1178779
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5781,8 +5781,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "c5c5ce005a5f1e13e3e0e0f52ff88cffe598159080830df06bc584e0a2f325c7",
-        "size": 26362
+        "sha256": "bdb84ff66f24eb0db33cc78334d438e1d700a1c26a6cdeaadb99253c48c4d727",
+        "size": 30773
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6734,7 +6734,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-05T09:33:02Z",
+  "exported_at": "2026-06-05T11:21:37Z",
   "file_count": 1345,
   "files": [
     {
@@ -9977,7 +9977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755flnlg",
-  "previous_tree_hash": "d2599bcaa7999b4c54ed24182b1b1bf5096faa320aba64439d9f5c14425b896a",
+  "previous_tree_hash": "f21512814c93a84c8fd250264d84ea67f35013f297c2cc77ef0aa8e7c8cbf124",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9990,7 +9990,7 @@
   ],
   "skill_tree_hash": "fd80ce71f190b20d3bc453393647c09e89491c157cfde498e6a5ad2ef6c2c98f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f21512814c93a84c8fd250264d84ea67f35013f297c2cc77ef0aa8e7c8cbf124",
+  "tree_hash": "cae8d1a153d85cfcc4f7a1a82c5bebe47d2b69138af62fab5382359b7002403b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10006,13 +10006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1f4bde1c3be0dec43406beb387576247d6269bd694b20eb6ae410a59f3d9e48e",
+      "sha256": "7eeae6dd1194c9a08de0e158c497e2a62499ca58ede773f25f07b1a713bae4ff",
       "size": 614101
     },
     {
       "path": "log.md",
-      "sha256": "ff2a443c0a187d0de88aced30ce8f72b931174a3eb665cd1d79f3ae41c0abb47",
-      "size": 1178424
+      "sha256": "b523ba743a6356dcb692169374e3a78c9bbc6bb07b363eab7e228ccb9a837f9f",
+      "size": 1178779
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12541,8 +12541,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "c5c5ce005a5f1e13e3e0e0f52ff88cffe598159080830df06bc584e0a2f325c7",
-      "size": 26362
+      "sha256": "bdb84ff66f24eb0db33cc78334d438e1d700a1c26a6cdeaadb99253c48c4d727",
+      "size": 30773
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -13491,5 +13491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "321101accd15fe74c1bc1041ed63a650f58b9dcd164758ae9ad031c44ac8f4c9"
+  "wiki_tree_hash": "791c79ddbbf325160b268710247993438a364285a327a5c2ec6150a9898634fb"
 }

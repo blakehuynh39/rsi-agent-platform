@@ -24562,3 +24562,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_32fcbbca3b8424b758c1aeeb97fd3cd7
 - summary: Source: [source](https://app.notion.com/p/Tiger-Team-325051299a5480ba82baf2b41d01da34)
 
+## [2026-06-05T11:19:13Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_c0f51110144c09cf439a556a690ae2d0
+- summary: The Tiger Team is a cross-functional group responsible for building and managing DePIN apps, including Scout Careers, Aura, DePIN Backend, and DePIN Admin. They also plan future ap...
+
