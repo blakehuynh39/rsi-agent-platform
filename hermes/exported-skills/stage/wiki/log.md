@@ -24553,3 +24553,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c83666ea935b63da61f6207ef9653dd3
 - summary: Checklist for operational and third-party service access required to onboard a new member of the Korean team.
 
+## [2026-06-05T09:30:21Z] ingest | Tiger Team
+
+- status: published
+- slug: notion_document/tiger-team-35b64fb7
+- wiki_revision_id: wikirev_7e884512eb52f22d9a997638fa35a23d
+- source_document_id: srcdoc_914a6de252419d2b91b13f9535b64fb7
+- source_revision_id: srcrev_32fcbbca3b8424b758c1aeeb97fd3cd7
+- summary: Source: [source](https://app.notion.com/p/Tiger-Team-325051299a5480ba82baf2b41d01da34)
+
