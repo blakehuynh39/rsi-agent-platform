@@ -24667,3 +24667,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_15ba32cdc56e2734efd3cfa3bcf3ad72
 - summary: Story is rebranding to Data, including renaming the L1 chain to Data Network, token $IP to $DATA, deploying a new ERC20 wrapper $WDATA, transitioning domains, and archiving GitHub ...
 
+## [2026-06-05T22:23:21Z] synthesis | Data Rebranding from Story
+
+- status: published
+- slug: projects/data-rebranding-from-story
+- wiki_revision_id: wikirev_1cb9c110a42a378edafeb8c8de3f68a2
+- summary: Story rebrands to Data: L1 chain becomes Data Network, native token $IP becomes $DATA, new ERC20 wrapper $WDATA deployed, domains and GitHub repos will migrate.
+
+## [2026-06-05T22:23:22Z] synthesis | No Hardfork for Data Rebrand
+
+- status: published
+- slug: decisions/no-hardfork-for-data-rebrand
+- wiki_revision_id: wikirev_3b02b08f1572a972975896828c45d36c
+- summary: A hardfork to change the native token ticker or network name was deprioritized because the EVM client does not reference them, consensus client references have low visibility, and ...
+
+## [2026-06-05T22:23:22Z] synthesis | Centralized Exchange Migration Steps
+
+- status: published
+- slug: runbooks/centralized-exchange-data-migration-runbook
+- wiki_revision_id: wikirev_373e333b26486c062014d4f0251ead45
+- summary: Centralized exchanges should update the token ticker to $DATA, migrate RPC endpoints from storyrpc.io to datanetworkrpc.io, and note that chain ID remains unchanged.
+

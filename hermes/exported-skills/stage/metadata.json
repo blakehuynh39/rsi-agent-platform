@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "adf386eb976fbf5583828a1d6290002e9ebb2dd00f30ca96672ea2de1ba0ccd4",
-        "size": 615789
+        "sha256": "f85d3905c3658e303ae44145c268f38d452cfa6121272dcb3274d7e66c95a78c",
+        "size": 617286
       },
       {
         "path": "log.md",
-        "sha256": "74380b86455acefd832fe8c197ccdeca88e4ce86eb2825516c0ef9f2e49ea8b8",
-        "size": 1184022
+        "sha256": "43e93ec49321062b62595e05e8e7578e07a1c13d64415ee4f2b08252480c5e22",
+        "size": 1185174
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4390,6 +4390,11 @@
         "size": 5856
       },
       {
+        "path": "pages/decisions/no-hardfork-for-data-rebrand.md",
+        "sha256": "d4464ed38c24caf6c6a381c06bb121277748a005b1d42db7173a3c8184e9ef57",
+        "size": 4593
+      },
+      {
         "path": "pages/decisions/numo-transition-to-korea-team.md",
         "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
         "size": 5098
@@ -4943,6 +4948,11 @@
         "path": "pages/projects/data-rebrand-and-migration.md",
         "sha256": "fdf23c0288339bfba8dc5ac75d34542b10552ef741ff22912ef54b0188e8dbbf",
         "size": 6672
+      },
+      {
+        "path": "pages/projects/data-rebranding-from-story.md",
+        "sha256": "613d3f25cf9f42188f2731b1605794ca6cf5f0f512e80863876a7689c262aee8",
+        "size": 4925
       },
       {
         "path": "pages/projects/data-token-rebrand.md",
@@ -5945,6 +5955,11 @@
         "size": 4536
       },
       {
+        "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
+        "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
+        "size": 2578
+      },
+      {
         "path": "pages/runbooks/claim-backend-runbook.md",
         "sha256": "ffc963795729252a8b3c514b412cdf31d36dc837d2babae6036cc7104164414b",
         "size": 7242
@@ -6759,8 +6774,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-05T22:18:52Z",
-  "file_count": 1350,
+  "exported_at": "2026-06-05T22:25:11Z",
+  "file_count": 1353,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10002,7 +10017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755qd55d",
-  "previous_tree_hash": "b75856598a92bca09a0b380d08d2aee4adef2e5aec973a91fab11555e79df3ed",
+  "previous_tree_hash": "572407c070d8f979e7d2caab6e08587693f2ae3e6eeff99638f9ee6689bc376d",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -10015,14 +10030,14 @@
   ],
   "skill_tree_hash": "9d62448d98600a447cad5acc3407a3c13fd1c2338b5c3302f59f2322545b0e14",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "572407c070d8f979e7d2caab6e08587693f2ae3e6eeff99638f9ee6689bc376d",
+  "tree_hash": "4fbad441ba7355eaca5966deabc80be554ebe8d287bafea57347cabf71fcfebb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 703,
+  "wiki_file_count": 706,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10031,13 +10046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "adf386eb976fbf5583828a1d6290002e9ebb2dd00f30ca96672ea2de1ba0ccd4",
-      "size": 615789
+      "sha256": "f85d3905c3658e303ae44145c268f38d452cfa6121272dcb3274d7e66c95a78c",
+      "size": 617286
     },
     {
       "path": "log.md",
-      "sha256": "74380b86455acefd832fe8c197ccdeca88e4ce86eb2825516c0ef9f2e49ea8b8",
-      "size": 1184022
+      "sha256": "43e93ec49321062b62595e05e8e7578e07a1c13d64415ee4f2b08252480c5e22",
+      "size": 1185174
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11175,6 +11190,11 @@
       "size": 5856
     },
     {
+      "path": "pages/decisions/no-hardfork-for-data-rebrand.md",
+      "sha256": "d4464ed38c24caf6c6a381c06bb121277748a005b1d42db7173a3c8184e9ef57",
+      "size": 4593
+    },
+    {
       "path": "pages/decisions/numo-transition-to-korea-team.md",
       "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
       "size": 5098
@@ -11728,6 +11748,11 @@
       "path": "pages/projects/data-rebrand-and-migration.md",
       "sha256": "fdf23c0288339bfba8dc5ac75d34542b10552ef741ff22912ef54b0188e8dbbf",
       "size": 6672
+    },
+    {
+      "path": "pages/projects/data-rebranding-from-story.md",
+      "sha256": "613d3f25cf9f42188f2731b1605794ca6cf5f0f512e80863876a7689c262aee8",
+      "size": 4925
     },
     {
       "path": "pages/projects/data-token-rebrand.md",
@@ -12730,6 +12755,11 @@
       "size": 4536
     },
     {
+      "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
+      "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
+      "size": 2578
+    },
+    {
       "path": "pages/runbooks/claim-backend-runbook.md",
       "sha256": "ffc963795729252a8b3c514b412cdf31d36dc837d2babae6036cc7104164414b",
       "size": 7242
@@ -13541,5 +13571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "27534b39fcdf2d21db1aaee3c2c3e06083b3a8bab7e3d338ba7b900bc2fef396"
+  "wiki_tree_hash": "1e85e8c5b46e968f97845d1b20285649ebb5e2c5cf6cfc4fedad31f7245f1c3b"
 }
