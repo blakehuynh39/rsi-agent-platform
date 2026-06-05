@@ -24546,3 +24546,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_86bee2ac022c4eef5394a962ddc492f9
 - summary: Checklist for operational and third-party access required when onboarding the Jed Korean team. Lists completed items like Slack and Github, pending items like iOS dev account, and ...
 
+## [2026-06-05T03:22:18Z] synthesis | Korean Team Onboarding Checklist
+
+- status: published
+- slug: runbooks/korean-team-onboarding-checklist
+- wiki_revision_id: wikirev_c83666ea935b63da61f6207ef9653dd3
+- summary: Checklist for operational and third-party service access required to onboard a new member of the Korean team.
+
