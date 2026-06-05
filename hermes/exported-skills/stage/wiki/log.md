@@ -24512,3 +24512,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b469835abd9876c9b692459dcd06d8c1
 - summary: Agent Factory is an internal agent management platform created by Jinn. It initially hosted personal agents and is migrating to functional agents. It currently runs agents such as ...
 
+## [2026-06-05T01:00:24Z] ingest | Agent Infra
+
+- status: published
+- slug: notion_document/agent-infra-5a0b621c
+- wiki_revision_id: wikirev_bb11d970c5e885aa7e28561d2f965f25
+- source_document_id: srcdoc_4b6fe06442d3f4f82ad2e8385a0b621c
+- source_revision_id: srcrev_5538ac3dae6316e796145b7021e372e5
+- summary: Source: [source](https://app.notion.com/p/Agent-Infra-368051299a54809d996fc0da9f18ed7d)
+
