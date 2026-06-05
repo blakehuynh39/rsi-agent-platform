@@ -24578,3 +24578,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_86e34355f66ad0fab72669a7188196e9
 - summary: Slack file attachment:
 
+## [2026-06-05T18:30:22Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_3bfb2dfe41a1963b00296f2b9996811f
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_6ad59997abd2501f2acb36de01762132
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
