@@ -24688,3 +24688,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_373e333b26486c062014d4f0251ead45
 - summary: Centralized exchanges should update the token ticker to $DATA, migrate RPC endpoints from storyrpc.io to datanetworkrpc.io, and note that chain ID remains unchanged.
 
+## [2026-06-05T22:30:21Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_69b6cd5ffa29ecd67884130d725feb13
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_0b2983847f4ac223e0e2218b198605ca
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
