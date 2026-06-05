@@ -24478,3 +24478,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cd6e9196dc05ef9afa2a422aaf7062e1
 - summary: Rebranding of Story Protocol to Data, including foundation, chain, token, domains, and GitHub organization.
 
+## [2026-06-05T00:00:21Z] ingest | Agent Infra
+
+- status: published
+- slug: notion_document/agent-infra-5a0b621c
+- wiki_revision_id: wikirev_243cd842dbdbc6280065515a3d316c15
+- source_document_id: srcdoc_4b6fe06442d3f4f82ad2e8385a0b621c
+- source_revision_id: srcrev_a5aa0afbf65f0d6007cb036768037dc2
+- summary: Source: [source](https://app.notion.com/p/Agent-Infra-368051299a54809d996fc0da9f18ed7d)
+
+## [2026-06-05T00:00:23Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_0bdc965d4d9b1c58fb6df208e73b6c54
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_d33203d685c66b584a5f6189400ba945
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
