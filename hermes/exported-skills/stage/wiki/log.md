@@ -24530,3 +24530,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_1a778064f3b79978b9e0f38524e80301
 - summary: Source: [source](https://app.notion.com/p/Jed-Korean-Team-Onboarding-Checklist-Credential-access-372051299a5480dc8322d95db444fd91)
 
+## [2026-06-05T02:30:32Z] ingest | Jed (Korean Team): Onboarding Checklist / Credential access
+
+- status: published
+- slug: notion_document/jed-korean-team-onboarding-checklist-/-credential-access-f59b24b0
+- wiki_revision_id: wikirev_592b5cbb6bbe14cb3e1305337e5a370d
+- source_document_id: srcdoc_ce1a55a90dee195a07491dc0f59b24b0
+- source_revision_id: srcrev_2bb7da2c0cdef92555e6bbf30797148c
+- summary: Source: [source](https://app.notion.com/p/Jed-Korean-Team-Onboarding-Checklist-Credential-access-372051299a5480dc8322d95db444fd91)
+
+## [2026-06-05T02:33:28Z] synthesis | Korean Team Onboarding Checklist
+
+- status: published
+- slug: runbooks/korean-team-onboarding-checklist
+- wiki_revision_id: wikirev_86bee2ac022c4eef5394a962ddc492f9
+- summary: Checklist for operational and third-party access required when onboarding the Jed Korean team. Lists completed items like Slack and Github, pending items like iOS dev account, and ...
+

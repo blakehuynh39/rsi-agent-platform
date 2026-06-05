@@ -3246,13 +3246,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "654530ec27962f65f8f37ddc06b05342a919be9d8e90f058e6f2626f02758daf",
+        "sha256": "d187c86c3edf696f0838500113e9ab60a6a71a25b5fc0afd9d1b8335c5134f15",
         "size": 613788
       },
       {
         "path": "log.md",
-        "sha256": "32eee84ae33135f3eae3dc00ccd63680c493007d675e9d42ab29960330a18e21",
-        "size": 1176771
+        "sha256": "0215f7d9a9e25fff5af77dc277054792d3d07be27dc4aab1f51a67212864ee10",
+        "size": 1177704
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6045,6 +6045,11 @@
         "size": 6694
       },
       {
+        "path": "pages/runbooks/korean-team-onboarding-checklist.md",
+        "sha256": "4e0cc3d1f3a5ba43fe42062a0b247f72793d318a07ce540b4f0bd7dd6b31ec55",
+        "size": 3536
+      },
+      {
         "path": "pages/runbooks/kubernetes-setup-and-operations.md",
         "sha256": "311f0e7b7ce75421a33fc9a75c322d099143b263d4f0f09d29e8f39cff6f8fe5",
         "size": 7100
@@ -6729,8 +6734,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-05T02:01:23Z",
-  "file_count": 1344,
+  "exported_at": "2026-06-05T02:33:34Z",
+  "file_count": 1345,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -9972,7 +9977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755flnlg",
-  "previous_tree_hash": "3d12d8db6bf7168611a3950bdaec51db45dadb1170f02cae89ece47ecec2e1b4",
+  "previous_tree_hash": "a65a0171e64fafe9999a4dd71a6ac3eb25fa26933e00c15a7ee9cf940a5604a6",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -9985,14 +9990,14 @@
   ],
   "skill_tree_hash": "a0fb41d58552b5f58d53fcc2863f5ef0aa6bfb5da352ab559965470b17b430fa",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a65a0171e64fafe9999a4dd71a6ac3eb25fa26933e00c15a7ee9cf940a5604a6",
+  "tree_hash": "0e9c158e8e3c08764d3d0a3fae41c4b29b706438ad0e83a71ee24f7eae840253",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 697,
+  "wiki_file_count": 698,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10001,13 +10006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "654530ec27962f65f8f37ddc06b05342a919be9d8e90f058e6f2626f02758daf",
+      "sha256": "d187c86c3edf696f0838500113e9ab60a6a71a25b5fc0afd9d1b8335c5134f15",
       "size": 613788
     },
     {
       "path": "log.md",
-      "sha256": "32eee84ae33135f3eae3dc00ccd63680c493007d675e9d42ab29960330a18e21",
-      "size": 1176771
+      "sha256": "0215f7d9a9e25fff5af77dc277054792d3d07be27dc4aab1f51a67212864ee10",
+      "size": 1177704
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12800,6 +12805,11 @@
       "size": 6694
     },
     {
+      "path": "pages/runbooks/korean-team-onboarding-checklist.md",
+      "sha256": "4e0cc3d1f3a5ba43fe42062a0b247f72793d318a07ce540b4f0bd7dd6b31ec55",
+      "size": 3536
+    },
+    {
       "path": "pages/runbooks/kubernetes-setup-and-operations.md",
       "sha256": "311f0e7b7ce75421a33fc9a75c322d099143b263d4f0f09d29e8f39cff6f8fe5",
       "size": 7100
@@ -13481,5 +13491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3829bed0a441be763785ef01bacde9792a631ca2f5c1cccb3b6d3882a2a75558"
+  "wiki_tree_hash": "9449893db2b4b6c2ade9ded4c62421cc7d7a1559f3139db72a83c2a2b6a3462d"
 }
