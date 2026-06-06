@@ -42,13 +42,13 @@
     "created_at": "2026-06-03T20:26:22.716762+00:00",
     "created_by": null,
     "last_patched_at": "2026-06-06T00:38:31.890877+00:00",
-    "last_used_at": "2026-06-06T00:38:40.274482+00:00",
-    "last_viewed_at": "2026-06-06T00:38:40.240597+00:00",
+    "last_used_at": "2026-06-06T01:00:17.731833+00:00",
+    "last_viewed_at": "2026-06-06T01:00:17.698747+00:00",
     "patch_count": 12,
     "pinned": false,
     "state": "active",
-    "use_count": 33,
-    "view_count": 31
+    "use_count": 34,
+    "view_count": 32
   },
   "github-pr-workflow": {
     "archived_at": null,
@@ -80,13 +80,13 @@
     "created_at": "2026-06-05T14:13:09.737452+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-05T20:08:11.885628+00:00",
-    "last_viewed_at": "2026-06-05T20:08:11.818674+00:00",
+    "last_used_at": "2026-06-06T01:00:17.641713+00:00",
+    "last_viewed_at": "2026-06-06T01:00:17.604197+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 4,
-    "view_count": 4
+    "use_count": 5,
+    "view_count": 5
   },
   "rsi-platform-investigation": {
     "archived_at": null,
