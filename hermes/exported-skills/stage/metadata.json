@@ -49,7 +49,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "a4b336d984950b21e7a2555df56513485f51f3152ad230ab799b191be564ff34",
+        "sha256": "c9ddbd04a3713d77e539aa5c56a1da892b5f0e7864fe701acd92a811a05215b0",
         "size": 4049
       },
       {
@@ -1744,8 +1744,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "708943a49fcb5fd00f3162138d3fef350b1238bf1bb9a8c147bc47ab6da9ac27",
-        "size": 63354
+        "sha256": "3970cf947f15be3c766257396573ba4537a46e05291606085be7e61d97122053",
+        "size": 65744
       },
       {
         "path": "github/github-code-review/SKILL.md.v3.0.0-backup-20260604115024",
@@ -1754,8 +1754,8 @@
       },
       {
         "path": "github/github-code-review/references/cross-repo-check-trace.md",
-        "sha256": "d69ba3072a7a7e7e2a342dbb757586e4bcd63d0535540ca7702e1bff9e65d5d7",
-        "size": 1622
+        "sha256": "6af4a888c93b8df93610a2392bd2b4f3672fb55fda5a1757563908be0ceccc94",
+        "size": 2693
       },
       {
         "path": "github/github-code-review/references/cross-repo-fe-pr-search.md",
@@ -6784,7 +6784,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-06T00:05:11Z",
+  "exported_at": "2026-06-06T00:11:30Z",
   "file_count": 1355,
   "files": [
     {
@@ -6834,7 +6834,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "a4b336d984950b21e7a2555df56513485f51f3152ad230ab799b191be564ff34",
+      "sha256": "c9ddbd04a3713d77e539aa5c56a1da892b5f0e7864fe701acd92a811a05215b0",
       "size": 4049
     },
     {
@@ -8529,8 +8529,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "708943a49fcb5fd00f3162138d3fef350b1238bf1bb9a8c147bc47ab6da9ac27",
-      "size": 63354
+      "sha256": "3970cf947f15be3c766257396573ba4537a46e05291606085be7e61d97122053",
+      "size": 65744
     },
     {
       "path": "github/github-code-review/SKILL.md.v3.0.0-backup-20260604115024",
@@ -8539,8 +8539,8 @@
     },
     {
       "path": "github/github-code-review/references/cross-repo-check-trace.md",
-      "sha256": "d69ba3072a7a7e7e2a342dbb757586e4bcd63d0535540ca7702e1bff9e65d5d7",
-      "size": 1622
+      "sha256": "6af4a888c93b8df93610a2392bd2b4f3672fb55fda5a1757563908be0ceccc94",
+      "size": 2693
     },
     {
       "path": "github/github-code-review/references/cross-repo-fe-pr-search.md",
@@ -10027,7 +10027,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755qd55d",
-  "previous_tree_hash": "8566eb6079923f814e9b488d75cbcf683ad3332a8fc7969f81b712dc15cd540a",
+  "previous_tree_hash": "c6b2bf3377ad6670d3bc4cb6008e898e6a55228c9a40f697b875fb46fa7cb700",
   "schema_version": 1,
   "skill_file_count": 647,
   "skill_manage_sessions": [
@@ -10038,9 +10038,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "c34c06668a8d97d1a5dec02f7273ca8e21b2982dece2463f11a3cc0e1ee6420c",
+  "skill_tree_hash": "2dbeb665ca52d6dcc6bfa28371b54a8dac5d7d1cafa8652e0e1a29e805996fa8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c6b2bf3377ad6670d3bc4cb6008e898e6a55228c9a40f697b875fb46fa7cb700",
+  "tree_hash": "29a0f63cfd1f4d7f7d4bcb5c4c54000cfc45d1256c05cc2c0275b4c472fd0651",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",

@@ -312,6 +312,7 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - [ ] CI green on both repos
 - [ ] BE PR description links to FE PR and vice versa
 - [ ] **Merge order**: BE merges to `staging` before FE merges to `develop`. If FE is already merged but BE is still open, flag it. See `references/cross-repo-check-trace.md` for examples.
+- [ ] **Config-driven allowlists match**: When BE adds entries to a config-driven allowlist (e.g., `stripe_connect_allowed_countries` in `base.toml` or a runtime env-var list that gets served via `/countries` endpoint), the FE must add the same country/item entries to its static `CONNECT_COUNTRIES` or equivalent constant list. The static list is a fallback while the API is loading and the authoritative source of labels — drift between the two causes the picker to show different options during loading vs after the API resolves. Check both the BE config file AND the FE constants.
 
 ### Cross-Repo Contract: depin-backend ↔ numo-monorepo
 
@@ -367,6 +368,7 @@ When performing a code review (local or PR), systematically check:
 - **Ordering dependencies:** Does the code assume a particular execution order that isn't guaranteed? (e.g., async tasks spawned but not awaited before reading results, event handler registration after event might have fired).
 - **Off-by-one / boundary errors:** Check loop bounds: `<` vs `<=`, zero-index confusion, empty collections, single-element edge case, integer overflow at MAX/MIN values.
 - **Time & timezone correctness:** `SystemTime::now()` vs monotonic clocks for durations. UTC storage vs local display. Daylight saving boundary handling. Leap seconds.
+- **Optional-chaining with method calls (JS/TS):** `x?.foo.includes(y)` does NOT protect the `.includes()` call — `?.` only short-circuits one level of property access. When `x` is null, `x?.foo` returns `undefined`, then `.includes(y)` throws `TypeError`. Use `x?.foo?.includes(y)` instead. Flag functions whose type signature accepts `null | undefined` but whose implementation would crash on null because the `?.` doesn't cover the full call chain — especially exported public helpers whose contract (the type signature) promises null-safety that the body doesn't deliver. The fix is always one extra `?.` on the method call.
 
 ### Security
 - No hardcoded secrets, credentials, or API keys
@@ -435,10 +437,16 @@ The N+1 problem: executing 1 query to fetch N records, then N additional queries
 
 **PITFALL:** ORM "magic" hides queries. In JPA, `entity.getChildren().size()` triggers a SELECT you never wrote. In Django, accessing `parent.child_set.all()` in a template loop fires N queries. Look at the rendered SQL, not just the application code.
 
-### Documentation
+### Documentation & i18n
 - Public APIs documented
 - Non-obvious logic has comments explaining "why"
 - README updated if behavior changed
+- **Lingui i18n catalog completeness (TS/JS monorepos with Lingui):** Every new `t\`...\`` macro or `<Trans>` JSX usage must have a corresponding `msgid` entry in EVERY locale's `.po` file. Missing entries render as the raw English message ID in all locales — functional but broken for i18n. Detection workflow:
+  1. Scan the diff for new `t\`...\``, `msg\`...\``, or `<Trans>` additions.
+  2. Search the locale catalogs (`src/locales/*/messages.po` or `locales/*/messages.po`) for each new string.
+  3. If any string is absent from the catalogs → flag it as MEDIUM (i18n gap). The fix is `pnpm lingui extract` followed by translation and `pnpm lingui compile`.
+  4. Do NOT flag the absence of translations in non-English catalogs if the `msgstr` is empty — empty translations are acceptable for newly-extracted strings; they'll fall back to English. The blocking gap is the `msgid` not appearing at all.
+  **PITFALL:** A string using the `t\`...\`` macro will compile fine locally but will render as its English message ID in production for non-English locales if the `msgid` hasn't been extracted. The runtime doesn't throw — it silently degrades i18n.
 
 ### Idempotency & Safe Retries
 
