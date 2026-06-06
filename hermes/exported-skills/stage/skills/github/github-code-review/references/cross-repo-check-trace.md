@@ -23,3 +23,9 @@ Sharpens future reviews — patterns repeat.
 When a cross-repo pair is detected, always check:
 - [ ] If FE is already merged, verify BE merged first. If not, flag it.
 - [ ] If BE is already merged, verify FE is still open or was merged after BE.
+
+## 2026-06-05: depin-backend#519 ↔ numo-monorepo#373
+
+- **BE PR #519** (`feat/aiwei-agent/stripe-connect-id-bd-pk`) added `connect_ready_for_withdrawal()` gating that requires `stripe_connect_payout_method_id` for v2 users. BE's `get_payout_setup_status` propagates `stripe_ready` into `block_reasons` (incl. `stripe_not_connected`).
+- **FE PR #373** (`feat/aiwei-agent/stripe-connect-country-labels`) introduced `isStripeConnectReady()` helper that checks `block_reasons.includes("stripe_not_connected")` from the setup-status response, then falls back to `connectStatus.payouts_enabled` while loading.
+- **Lesson:** When BE changes how a gating boolean is computed and the FE reads it through `block_reasons` (not a direct API field), verify the full chain: BE compute function → `stripe_ready` → `block_reasons` array → FE helper reads array. A break at any link causes silent gating mismatches. The `block_reasons` enum tokens (`stripe_not_connected`, `tax_form_required`, etc.) form an implicit contract between repos — changing them requires both sides.

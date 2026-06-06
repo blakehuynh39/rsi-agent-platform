@@ -480,6 +480,10 @@ Idempotency is the property that an operation can be applied multiple times with
 
 **PITFALL:** Idempotency keys stored without TTL/cleanup grow unbounded. Flag idempotency key tables that lack a `created_at` column and a cleanup job (see `idempotency_cleanup` in depin-backend for reference pattern).
 
+**PITFALL (Rust/sqlx):** Declaring a struct field as `bool` (non-optional) when the corresponding DB column can be `NULL` causes a runtime `UnexpectedNull` panic on deserialization. Always check whether a column has a `NOT NULL DEFAULT` constraint before using a non-optional type. When a column was added via migration after rows exist, it may be `NULL` for historical rows. Flag any struct field where the type is `bool`/`i32`/`f64` (non-`Option`) but the DB column is not verifiably `NOT NULL`. Use `Option<bool>` and `.unwrap_or(false)` as the safe pattern.
+
+**PITFALL (webhook state without timestamps):** Webhook-driven state updates (e.g., processing Stripe `account.updated` events to persist `stripe_connect_payouts_enabled`) that use plain `UPDATE ... SET col = $val WHERE id = $id` without comparing timestamps or version numbers are vulnerable to out-of-order delivery. If webhook A (older state: active but no payout method) arrives after webhook B (newer state: active with payout method), the older data overwrites the newer. Flag webhook handlers that lack an `updated_at` comparison or optimistic version check — especially when the persisted boolean depends on multiple independent conditions that can change independently, widening the race window.
+
 ### Multi-Pod / Distributed Deployment (for services with >1 replica)
 
 When reviewing PRs for services deployed with multiple replicas (e.g., Kubernetes Deployments with `replicas > 1` backed by a single shared database), every change must be evaluated through the lens of **N pods sharing one durable source of truth**. This is NOT just a single-repo code review — the deployment topology is part of the review surface.
@@ -501,6 +505,8 @@ When reviewing PRs for services deployed with multiple replicas (e.g., Kubernete
 - Always check K8s deployment state during review — replica count may have changed since last review
 
 **PITFALL:** Reviewing code as if it runs in a single process. A `refresh_all()` that scans the full users table is fine in local dev but runs N× concurrently in production. Always multiply the cost by the replica count when assessing DB load.
+
+**PITFALL (column semantic drift):** When a PR changes what a DB column's value represents (e.g., `details_submitted_at` changed from "account became active" to "account became payout-ready"), downstream consumers that read that column silently break. Analytics queries, admin dashboards, operational metrics, and even other API endpoints may depend on the old semantics. Flag any change in column meaning — ask: "if column X now means Y instead of Z, what else reads X and expects Z?" The fix is either a two-phase change (new column with new semantics, migrate consumers, then repurpose old column) or explicit verification that no consumers depend on the old meaning.
 
 ---
 
