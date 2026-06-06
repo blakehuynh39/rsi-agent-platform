@@ -949,7 +949,16 @@ git fetch origin pull/<N>/head:pr-<N> && git checkout pr-<N>
 gh pr view <N> --json statusCheckRollup --jq '[.statusCheckRollup[] | {name, conclusion}]'
 ```
 
-3. **Inspect the fix commit(s) without checkout** — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
+3. **Verify fix commits are ON the PR branch FIRST** — before inspecting any fix commit's contents, confirm it's an actual ancestor of the PR branch. Fix commits can exist on remote branches that haven't been merged or pushed to the PR. Inspecting their diffs and reporting fixes as "applied" when the PR branch doesn't actually contain them is a false-positive review:
+
+```bash
+# Confirm the fix commit is an ancestor of the PR branch
+git fetch origin && git merge-base --is-ancestor <fix-sha> <pr-branch> && echo "ON BRANCH" || echo "NOT ON BRANCH — fixes NOT applied"
+```
+
+If the fix commit is NOT an ancestor, stop here — report all previously-flagged issues as NOT FIXED with the note that the fix commit exists but hasn't been applied to the PR branch. Do NOT inspect the fix commit's content and report fixes as applied if the branch doesn't carry them.
+
+**Once verified as an ancestor**, inspect the fix commit(s) — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
 
 ```bash
 # List commits since your review to find the fix commit(s)
@@ -964,6 +973,16 @@ gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filenam
 
 **PITFALL:** Don't re-clone or re-diff the entire branch. The `gh api` commit-inspection pattern above tells you exactly what changed in the fix commit without a local checkout — use it to verify each flagged issue individually.
 
+**PITFALL (fix commit SHA not found):** When the author references fix commits (e.g., "fixed in `af9c6982` and `ae29ad55`"), the referenced SHAs may not exist in the local clone — they may have been squashed, rebased, or rewritten. A missing SHA is NOT a blocker. Fall back to:
+```bash
+# Diff the entire PR branch against its merge-base
+git diff $(git merge-base HEAD origin/main)...HEAD -- <paths-of-interest>
+
+# Or list all commits on the branch to find the fix
+git log --oneline <base>..HEAD | grep -i "fix\|harden\|address"
+```
+Then verify findings against the current branch state — the fix may have been absorbed into a differently-named commit. Report the actual commit(s) you verified against, not the expected ones.
+
 4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes). See `references/remote-file-inspection.md` for the full pattern set.
 
 ```bash
@@ -972,9 +991,12 @@ gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | bas
 ```
 
 5. **Report only the delta** — the re-review message should focus on what changed. Structure:
-   - "Previous blocking issues" table: each issue with FIXED / NOT FIXED / N/A status
+   - "Previous blocking issues" table: each issue with FIXED / PARTIAL / NOT FIXED status
+   - **Evidence per finding:** every status must cite the exact code location (file:line) and what changed — NOT just a verdict. For "NOT FIXED," point to the specific lines that still have the issue. For "PARTIAL," explain what was addressed and what remains.
+   - **Fix-commit-not-on-branch section:** when fix commits exist (e.g., on a remote feature branch) but are NOT ancestors of the PR branch, add a dedicated "Fix Commit Analysis" subsection after the status table. Verify the fix commit's content addresses each finding, note any gaps in the fix itself, and make clear that the fixes are NOT yet applied to the PR branch.
    - CI status update
    - Remaining items (if any) with severity and whether they were downgraded
+   - **Documentation-code drift check:** when the fix touches config-driven values (allowed countries, feature flags, thresholds), verify that documentation files (runbooks, `docs/api-workflows.md`, plan docs) were updated to match. Config in code and prose in docs are a common drift point — if the PR adds countries to `stripe_connect_allowed_countries` but docs still say "India only," flag it.
    - Verdict
 
 **CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.

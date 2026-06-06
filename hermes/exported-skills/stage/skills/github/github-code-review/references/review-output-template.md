@@ -72,6 +72,44 @@ Prefix inline comments with the severity icon so they're scannable:
 ✅ **Nice:** Good use of context manager here — ensures cleanup on exceptions.
 ```
 
+## For Re-Review (Delta Review) Summary
+
+When re-reviewing after fixes, use this structure instead of the full review format:
+
+```markdown
+## RE-REVIEW STATUS: [repo]#[N]
+
+**Delta review of fix commits** <code>[\`sha1\`, \`sha2\`]</code> against previous findings.
+
+### Finding 1 — 🟡 MEDIUM: [title]
+
+**Status: [FIXED ✅ | PARTIAL 🟡 | NOT FIXED 🔴]**
+
+**What was expected:** [expected fix]
+
+**What was delivered:** [actual changes in fix commits]
+
+**What's missing:** [remaining gap, if any]
+
+**Evidence:** <code>path/to/file.rs:123-145</code> — [specific code or diff showing status]
+
+### Finding 2 — ...
+
+### Summary Table
+
+| # | Finding | Status | Key Evidence |
+|---|---------|--------|-------------|
+| 1 | [title] | **FIXED** | [one-liner] |
+| 2 | [title] | **PARTIAL** | [one-liner] |
+...
+
+### New Findings
+
+[List any new issues introduced by the fix commits, or "None"]
+```
+
+Every finding status MUST cite exact code locations and git evidence (commit SHA, diff line, or file:line). Do not report "FIXED" without showing what changed. Do not report "NOT FIXED" without pointing to the specific lines that still have the issue.
+
 ## For Local (Pre-Push) Review
 
 When reviewing locally before push, use the same structure but present it as a message to the user instead of a PR comment. Skip the PR metadata header and just start with the severity sections.
