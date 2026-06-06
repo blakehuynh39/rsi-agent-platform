@@ -24720,3 +24720,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c5cf74ef3b075c34d4d957c8d652d62a
 - summary: The Story ecosystem is rebranding to Data, with the L1 chain becoming Data Network, token $IP becoming $DATA, and a new ERC20 wrapper $WDATA deployed. RPC and other infrastructure ...
 
+## [2026-06-06T15:00:21Z] ingest | Agent Infra
+
+- status: published
+- slug: notion_document/agent-infra-5a0b621c
+- wiki_revision_id: wikirev_79a04ed155afc6aef665f4f6ef29598d
+- source_document_id: srcdoc_4b6fe06442d3f4f82ad2e8385a0b621c
+- source_revision_id: srcrev_259c5957099b1ed5a7a6788cb970a017
+- summary: Source: [source](https://app.notion.com/p/Agent-Infra-368051299a54809d996fc0da9f18ed7d)
+
