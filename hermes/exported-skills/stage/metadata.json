@@ -3261,13 +3261,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f2cb664b3b6942f70ed8a304ef393c830ad6a54fbd920717d8c6feb0c70439ac",
-        "size": 619239
+        "sha256": "256d11a0a65933bf87eb16adb049c80bf26b313ab10c2bc5060c1dce18f68933",
+        "size": 619252
       },
       {
         "path": "log.md",
-        "sha256": "1d2d7205e0384558a77b38014e21fc9f4c54305e8f057bb6dd5acddf9485820a",
-        "size": 1190601
+        "sha256": "5a05d621a3d92659f2b742fe1fb906e901428438c593f26b229681778dcb6973",
+        "size": 1190954
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5366,8 +5366,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "c34e1bc232a9c99c97bfa1d9424f6f788e3cb3cade363e8b262579f86331cce7",
-        "size": 2675
+        "sha256": "c8e79af616efc0fc6d66ae56fe297e70986a89c733cafe3959404a5d9d87eb59",
+        "size": 6496
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -6814,7 +6814,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-08T22:31:07Z",
+  "exported_at": "2026-06-08T22:47:50Z",
   "file_count": 1361,
   "files": [
     {
@@ -10071,8 +10071,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7875b94b58z",
-  "previous_tree_hash": "e47012068e2f64e39427eec3beb9125294c980cc299de53a10483aadd9613049",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d96897vjfgb",
+  "previous_tree_hash": "2969a7dc2d851ea6eb4a68bba0578124e8031d91b551c410878750e9391c7a44",
   "schema_version": 1,
   "skill_file_count": 650,
   "skill_manage_sessions": [
@@ -10085,7 +10085,7 @@
   ],
   "skill_tree_hash": "ba4bdab6205346d6306dd0e122af047cadc9db7289ae0e9c0c4569bc72e76a35",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2969a7dc2d851ea6eb4a68bba0578124e8031d91b551c410878750e9391c7a44",
+  "tree_hash": "6180d85d250728685541b0345a6e6207bd9ca2c0ee1aa350bbcd4b44f33933a8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10101,13 +10101,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f2cb664b3b6942f70ed8a304ef393c830ad6a54fbd920717d8c6feb0c70439ac",
-      "size": 619239
+      "sha256": "256d11a0a65933bf87eb16adb049c80bf26b313ab10c2bc5060c1dce18f68933",
+      "size": 619252
     },
     {
       "path": "log.md",
-      "sha256": "1d2d7205e0384558a77b38014e21fc9f4c54305e8f057bb6dd5acddf9485820a",
-      "size": 1190601
+      "sha256": "5a05d621a3d92659f2b742fe1fb906e901428438c593f26b229681778dcb6973",
+      "size": 1190954
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12206,8 +12206,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "c34e1bc232a9c99c97bfa1d9424f6f788e3cb3cade363e8b262579f86331cce7",
-      "size": 2675
+      "sha256": "c8e79af616efc0fc6d66ae56fe297e70986a89c733cafe3959404a5d9d87eb59",
+      "size": 6496
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -13651,5 +13651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "400b2b5c02596ff64966313f3a822b28fecb0a4bc7d89a5130e9c8320e119970"
+  "wiki_tree_hash": "a4ceba03dc099b56d5f98949eb773bf74e98f651eacbef2c427113bf26812b00"
 }

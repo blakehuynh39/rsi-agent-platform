@@ -24795,3 +24795,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_98cc2d4d728d0cd0c0a95e92dac8523a
 - summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
 
+## [2026-06-08T22:46:59Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_5f5faf767075b0e1be9194472f01beb4
+- summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
+
