@@ -3256,13 +3256,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cc9a2041feddf46637649b930ff08e1741be779e247527d6e352474eb9f9308e",
-        "size": 618294
+        "sha256": "7f6cc5b75a8d9a7f181877a361437c85a2e04107ac9da7000200c9a762fd152a",
+        "size": 618669
       },
       {
         "path": "log.md",
-        "sha256": "cb8d5f0a07450eded26420ada1f921b98551f486282396e2875903eda8b4cded",
-        "size": 1188732
+        "sha256": "eef4d0ad2ea645965c3d7c8daf2ec0b1c3b969be2e28facd0c7858196783189e",
+        "size": 1189119
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4953,6 +4953,11 @@
         "path": "pages/projects/data-layer-subnetwork-proposal.md",
         "sha256": "79a84a67db21d150851109684fb01ca8ca86b00b01ceab73867a5cf10fc40ba3",
         "size": 3923
+      },
+      {
+        "path": "pages/projects/data-network-rebrand.md",
+        "sha256": "941d2f575d99bb7ae23bd9aed976fae833cbc5fd3c7b5b89bded6a6e100eec0b",
+        "size": 10211
       },
       {
         "path": "pages/projects/data-rebrand-and-migration.md",
@@ -6794,8 +6799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-08T19:15:43Z",
-  "file_count": 1357,
+  "exported_at": "2026-06-08T19:37:27Z",
+  "file_count": 1358,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10047,7 +10052,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755qd55d",
-  "previous_tree_hash": "7e54dcb2e27eb4445878474a72c0bf74a7f956ce52416c27cbe8cd886931984a",
+  "previous_tree_hash": "c331ebcb9f007f15236ff716072b1a2c4d774abeccc115b078333d9396c4630e",
   "schema_version": 1,
   "skill_file_count": 649,
   "skill_manage_sessions": [
@@ -10060,14 +10065,14 @@
   ],
   "skill_tree_hash": "fa7025ee2ecb6793f5dd0ad78c17b25cb7cbb68e325e960b10de040a9c92866f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c331ebcb9f007f15236ff716072b1a2c4d774abeccc115b078333d9396c4630e",
+  "tree_hash": "8b0e179f3229f1b3dda9a617af392d722672250a01f5910426fc8a414ba0c9d7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 708,
+  "wiki_file_count": 709,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10076,13 +10081,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cc9a2041feddf46637649b930ff08e1741be779e247527d6e352474eb9f9308e",
-      "size": 618294
+      "sha256": "7f6cc5b75a8d9a7f181877a361437c85a2e04107ac9da7000200c9a762fd152a",
+      "size": 618669
     },
     {
       "path": "log.md",
-      "sha256": "cb8d5f0a07450eded26420ada1f921b98551f486282396e2875903eda8b4cded",
-      "size": 1188732
+      "sha256": "eef4d0ad2ea645965c3d7c8daf2ec0b1c3b969be2e28facd0c7858196783189e",
+      "size": 1189119
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11773,6 +11778,11 @@
       "path": "pages/projects/data-layer-subnetwork-proposal.md",
       "sha256": "79a84a67db21d150851109684fb01ca8ca86b00b01ceab73867a5cf10fc40ba3",
       "size": 3923
+    },
+    {
+      "path": "pages/projects/data-network-rebrand.md",
+      "sha256": "941d2f575d99bb7ae23bd9aed976fae833cbc5fd3c7b5b89bded6a6e100eec0b",
+      "size": 10211
     },
     {
       "path": "pages/projects/data-rebrand-and-migration.md",
@@ -13611,5 +13621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1825e9219f9a8796db8cca48ebdab2874a6dc5912ed0a5ce72907f24809acc74"
+  "wiki_tree_hash": "0e492ee2483c1d9dadb6a4c3a8aa42528b53b038c6ec06ed1f9e81e8b8a845c2"
 }
