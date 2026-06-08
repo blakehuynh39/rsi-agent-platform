@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks. Fresh subagent per review pass for anti-bias."
-version: 2.3.2
+version: 2.3.3
 author: Hermes Agent
 license: MIT
 metadata:
@@ -19,6 +19,8 @@ Every PR review and every PR re-review must be performed by a fresh subagent for
 The parent agent is an orchestrator only: gather raw inputs, call `delegate_task`, verify and format the result, then deliver it. The parent must not directly review a PR or re-review from its own accumulated context.
 
 This applies to first reviews, "review this PR", "re-review", "check the fixes", "can we approve now?", and any Slack follow-up that asks for a new verdict on the PR. If fresh subagent delegation is unavailable, fails, or returns unusable output, report the review as blocked or partial instead of approving, requesting changes, or posting a complete review.
+
+On RSI, approval is also enforced by a platform hook: a PR approval or Slack approval report is blocked unless the current session has a matching fresh `delegate_task` result whose summary ends with `RSI_PR_REVIEW_VERDICT` JSON showing `approval_safe=true`, `blocking_findings=0`, and `verdict="approve"`.
 
 Perform code reviews on local changes before pushing, or review open PRs on GitHub. Most of this skill uses plain `git` — the `gh`/`curl` split only matters for PR-level interactions.
 
@@ -312,7 +314,6 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 - [ ] CI green on both repos
 - [ ] BE PR description links to FE PR and vice versa
 - [ ] **Merge order**: BE merges to `staging` before FE merges to `develop`. If FE is already merged but BE is still open, flag it. See `references/cross-repo-check-trace.md` for examples.
-- [ ] **Config-driven allowlists match**: When BE adds entries to a config-driven allowlist (e.g., `stripe_connect_allowed_countries` in `base.toml` or a runtime env-var list that gets served via `/countries` endpoint), the FE must add the same country/item entries to its static `CONNECT_COUNTRIES` or equivalent constant list. The static list is a fallback while the API is loading and the authoritative source of labels — drift between the two causes the picker to show different options during loading vs after the API resolves. Check both the BE config file AND the FE constants.
 
 ### Cross-Repo Contract: depin-backend ↔ numo-monorepo
 
@@ -368,7 +369,6 @@ When performing a code review (local or PR), systematically check:
 - **Ordering dependencies:** Does the code assume a particular execution order that isn't guaranteed? (e.g., async tasks spawned but not awaited before reading results, event handler registration after event might have fired).
 - **Off-by-one / boundary errors:** Check loop bounds: `<` vs `<=`, zero-index confusion, empty collections, single-element edge case, integer overflow at MAX/MIN values.
 - **Time & timezone correctness:** `SystemTime::now()` vs monotonic clocks for durations. UTC storage vs local display. Daylight saving boundary handling. Leap seconds.
-- **Optional-chaining with method calls (JS/TS):** `x?.foo.includes(y)` does NOT protect the `.includes()` call — `?.` only short-circuits one level of property access. When `x` is null, `x?.foo` returns `undefined`, then `.includes(y)` throws `TypeError`. Use `x?.foo?.includes(y)` instead. Flag functions whose type signature accepts `null | undefined` but whose implementation would crash on null because the `?.` doesn't cover the full call chain — especially exported public helpers whose contract (the type signature) promises null-safety that the body doesn't deliver. The fix is always one extra `?.` on the method call.
 
 ### Security
 - No hardcoded secrets, credentials, or API keys
@@ -437,16 +437,10 @@ The N+1 problem: executing 1 query to fetch N records, then N additional queries
 
 **PITFALL:** ORM "magic" hides queries. In JPA, `entity.getChildren().size()` triggers a SELECT you never wrote. In Django, accessing `parent.child_set.all()` in a template loop fires N queries. Look at the rendered SQL, not just the application code.
 
-### Documentation & i18n
+### Documentation
 - Public APIs documented
 - Non-obvious logic has comments explaining "why"
 - README updated if behavior changed
-- **Lingui i18n catalog completeness (TS/JS monorepos with Lingui):** Every new `t\`...\`` macro or `<Trans>` JSX usage must have a corresponding `msgid` entry in EVERY locale's `.po` file. Missing entries render as the raw English message ID in all locales — functional but broken for i18n. Detection workflow:
-  1. Scan the diff for new `t\`...\``, `msg\`...\``, or `<Trans>` additions.
-  2. Search the locale catalogs (`src/locales/*/messages.po` or `locales/*/messages.po`) for each new string.
-  3. If any string is absent from the catalogs → flag it as MEDIUM (i18n gap). The fix is `pnpm lingui extract` followed by translation and `pnpm lingui compile`.
-  4. Do NOT flag the absence of translations in non-English catalogs if the `msgstr` is empty — empty translations are acceptable for newly-extracted strings; they'll fall back to English. The blocking gap is the `msgid` not appearing at all.
-  **PITFALL:** A string using the `t\`...\`` macro will compile fine locally but will render as its English message ID in production for non-English locales if the `msgid` hasn't been extracted. The runtime doesn't throw — it silently degrades i18n.
 
 ### Idempotency & Safe Retries
 
@@ -488,10 +482,6 @@ Idempotency is the property that an operation can be applied multiple times with
 
 **PITFALL:** Idempotency keys stored without TTL/cleanup grow unbounded. Flag idempotency key tables that lack a `created_at` column and a cleanup job (see `idempotency_cleanup` in depin-backend for reference pattern).
 
-**PITFALL (Rust/sqlx):** Declaring a struct field as `bool` (non-optional) when the corresponding DB column can be `NULL` causes a runtime `UnexpectedNull` panic on deserialization. Always check whether a column has a `NOT NULL DEFAULT` constraint before using a non-optional type. When a column was added via migration after rows exist, it may be `NULL` for historical rows. Flag any struct field where the type is `bool`/`i32`/`f64` (non-`Option`) but the DB column is not verifiably `NOT NULL`. Use `Option<bool>` and `.unwrap_or(false)` as the safe pattern.
-
-**PITFALL (webhook state without timestamps):** Webhook-driven state updates (e.g., processing Stripe `account.updated` events to persist `stripe_connect_payouts_enabled`) that use plain `UPDATE ... SET col = $val WHERE id = $id` without comparing timestamps or version numbers are vulnerable to out-of-order delivery. If webhook A (older state: active but no payout method) arrives after webhook B (newer state: active with payout method), the older data overwrites the newer. Flag webhook handlers that lack an `updated_at` comparison or optimistic version check — especially when the persisted boolean depends on multiple independent conditions that can change independently, widening the race window.
-
 ### Multi-Pod / Distributed Deployment (for services with >1 replica)
 
 When reviewing PRs for services deployed with multiple replicas (e.g., Kubernetes Deployments with `replicas > 1` backed by a single shared database), every change must be evaluated through the lens of **N pods sharing one durable source of truth**. This is NOT just a single-repo code review — the deployment topology is part of the review surface.
@@ -513,8 +503,6 @@ When reviewing PRs for services deployed with multiple replicas (e.g., Kubernete
 - Always check K8s deployment state during review — replica count may have changed since last review
 
 **PITFALL:** Reviewing code as if it runs in a single process. A `refresh_all()` that scans the full users table is fine in local dev but runs N× concurrently in production. Always multiply the cost by the replica count when assessing DB load.
-
-**PITFALL (column semantic drift):** When a PR changes what a DB column's value represents (e.g., `details_submitted_at` changed from "account became active" to "account became payout-ready"), downstream consumers that read that column silently break. Analytics queries, admin dashboards, operational metrics, and even other API endpoints may depend on the old semantics. Flag any change in column meaning — ask: "if column X now means Y instead of Z, what else reads X and expects Z?" The fix is either a two-phase change (new column with new semantics, migrate consumers, then repurpose old column) or explicit verification that no consumers depend on the old meaning.
 
 ---
 
@@ -899,8 +887,6 @@ gh search prs --repo=piplabs/numo-monorepo --head feat/fraud
 **PITFALL:** `gh search prs` has a narrower `--json` field set than `gh pr list`/`gh pr view`. It does NOT support `headRefName`, `baseRefName`, `mergeable`, `reviews`, `statusCheckRollup`, or `changedFiles`. When you need those fields, use `gh pr list` with `--search` instead. For branch-prefix matching specifically, `gh search prs --head <prefix>` works fine as a filter (no `--json` needed).
 
 **PITFALL:** A cross-repo partner PR (e.g., story-deployments) may return 404 from `gh pr view` or `gh api`. This is often because the GitHub App token isn't installed on that repo, not because the PR doesn't exist. Run `gh api /installation/repositories --jq '.repositories[].full_name'` to see the token's actual scope. If the target repo isn't listed, ask the repo admin to install the GitHub App on it. See `rsi-platform-investigation` skill, Section 7, for detailed diagnosis. The review should still proceed on the accessible PRs — just flag the inaccessible one rather than blocking.
-
-**PITFALL (gh search prs vs gh api — silent failure on inaccessible repos):** When searching for partner PRs on a private repo the token can't access, `gh search prs --repo=<owner>/<repo>` returns **empty output with exit code 0** — no error, no indication of inaccessibility. This looks identical to "no PRs match the query" and can mislead you into concluding a partner PR doesn't exist. In contrast, `gh api /search/issues -f q='repo:<owner>/<repo> ...'` returns a clear **HTTP 404** ("Not Found") when the repo is inaccessible, and returns valid JSON (possibly with `total_count: 0`) when the repo IS accessible but has no matching issues. **Always validate search results with `gh api` if `gh search prs` returns empty** — the API call is the authoritative signal. Empty `gh search prs` output on an inaccessible repo is a false negative, not proof of absence.
 ```
 
 When a BE PR claims a linked FE PR exists but provides no URL, use the thorough 4-step search procedure in `references/cross-repo-fe-pr-search.md`. A `gh search prs --head` alone is not sufficient to prove a PR doesn't exist — always run the full checklist before flagging `missing-cross-repo-pair`.
@@ -951,16 +937,7 @@ git fetch origin pull/<N>/head:pr-<N> && git checkout pr-<N>
 gh pr view <N> --json statusCheckRollup --jq '[.statusCheckRollup[] | {name, conclusion}]'
 ```
 
-3. **Verify fix commits are ON the PR branch FIRST** — before inspecting any fix commit's contents, confirm it's an actual ancestor of the PR branch. Fix commits can exist on remote branches that haven't been merged or pushed to the PR. Inspecting their diffs and reporting fixes as "applied" when the PR branch doesn't actually contain them is a false-positive review:
-
-```bash
-# Confirm the fix commit is an ancestor of the PR branch
-git fetch origin && git merge-base --is-ancestor <fix-sha> <pr-branch> && echo "ON BRANCH" || echo "NOT ON BRANCH — fixes NOT applied"
-```
-
-If the fix commit is NOT an ancestor, stop here — report all previously-flagged issues as NOT FIXED with the note that the fix commit exists but hasn't been applied to the PR branch. Do NOT inspect the fix commit's content and report fixes as applied if the branch doesn't carry them.
-
-**Once verified as an ancestor**, inspect the fix commit(s) — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
+3. **Inspect the fix commit(s) without checkout** — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
 
 ```bash
 # List commits since your review to find the fix commit(s)
@@ -975,16 +952,6 @@ gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filenam
 
 **PITFALL:** Don't re-clone or re-diff the entire branch. The `gh api` commit-inspection pattern above tells you exactly what changed in the fix commit without a local checkout — use it to verify each flagged issue individually.
 
-**PITFALL (fix commit SHA not found):** When the author references fix commits (e.g., "fixed in `af9c6982` and `ae29ad55`"), the referenced SHAs may not exist in the local clone — they may have been squashed, rebased, or rewritten. A missing SHA is NOT a blocker. Fall back to:
-```bash
-# Diff the entire PR branch against its merge-base
-git diff $(git merge-base HEAD origin/main)...HEAD -- <paths-of-interest>
-
-# Or list all commits on the branch to find the fix
-git log --oneline <base>..HEAD | grep -i "fix\|harden\|address"
-```
-Then verify findings against the current branch state — the fix may have been absorbed into a differently-named commit. Report the actual commit(s) you verified against, not the expected ones.
-
 4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes). See `references/remote-file-inspection.md` for the full pattern set.
 
 ```bash
@@ -993,12 +960,9 @@ gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | bas
 ```
 
 5. **Report only the delta** — the re-review message should focus on what changed. Structure:
-   - "Previous blocking issues" table: each issue with FIXED / PARTIAL / NOT FIXED status
-   - **Evidence per finding:** every status must cite the exact code location (file:line) and what changed — NOT just a verdict. For "NOT FIXED," point to the specific lines that still have the issue. For "PARTIAL," explain what was addressed and what remains.
-   - **Fix-commit-not-on-branch section:** when fix commits exist (e.g., on a remote feature branch) but are NOT ancestors of the PR branch, add a dedicated "Fix Commit Analysis" subsection after the status table. Verify the fix commit's content addresses each finding, note any gaps in the fix itself, and make clear that the fixes are NOT yet applied to the PR branch.
+   - "Previous blocking issues" table: each issue with FIXED / NOT FIXED / N/A status
    - CI status update
    - Remaining items (if any) with severity and whether they were downgraded
-   - **Documentation-code drift check:** when the fix touches config-driven values (allowed countries, feature flags, thresholds), verify that documentation files (runbooks, `docs/api-workflows.md`, plan docs) were updated to match. Config in code and prose in docs are a common drift point — if the PR adds countries to `stripe_connect_allowed_countries` but docs still say "India only," flag it.
    - Verdict
 
 **CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.
@@ -1071,6 +1035,8 @@ Output:
 - Previous-finding status table for re-reviews
 - Explicit "no findings" statement only if no actionable issues remain
 - Confidence notes and test gaps
+- Final machine-readable verdict line:
+  `RSI_PR_REVIEW_VERDICT {"pr_number":123,"approval_safe":true,"blocking_findings":0,"verdict":"approve"}`
 ```
 
 ### Hard Gate Before Posting
@@ -1078,6 +1044,10 @@ Output:
 Do not call `gh pr review`, `gh pr comment`, Slack posting tools, `send_message`, or any other external delivery tool until a fresh subagent has completed for the current review pass.
 
 If `delegate_task` is unavailable, fails, or returns unusable output, the review is blocked or partial. Say that clearly on the requested delivery surface. Do not approve, request changes, or present a parent-only review as complete.
+
+If the subagent reaches `max_iterations`, times out, or omits the `RSI_PR_REVIEW_VERDICT` line, the current pass is not approvable. Run a fresh bounded subagent pass or report the review as blocked/partial.
+
+For local inspection, use GitHub reads pinned to the PR head SHA or create temporary clones/worktrees under the PR review workspace root injected by RSI context. Do not reuse a mutable checkout that may be on another PR branch. RSI cleans the injected PR review workspace root after the session.
 
 When the review request originated in Slack, the Slack thread is the first-class delivery surface. The final harness response may summarize or point to the Slack answer, but the actual review verdict and findings should be delivered to Slack after the fresh-subagent gate is satisfied.
 
