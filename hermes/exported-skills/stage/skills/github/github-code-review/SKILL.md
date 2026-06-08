@@ -1006,7 +1006,6 @@ REQUIRED (pass every time):
 - Full git diff output (gh pr diff N)
 - Review checklist from Section 3 (all categories)
 - Repo-specific conventions (base branch, cross-repo contract, deployment topology)
-- On RSI, the injected PR review isolated workspace root. Any mutable git or file-write work must happen only under that root, never in shared `/workspace/company/*` checkouts.
 
 FOR RE-REVIEWS ONLY (pass additionally):
 - Previous review findings, including severity, file/line, expected fix, and current claimed status if known
@@ -1026,7 +1025,6 @@ Goal: Independent PR review for <repo>#<number>.
 Context:
 - Review pass: initial | re-review
 - Repo URL, PR number, base branch, head branch
-- PR review isolated workspace root; clone/worktree/edit only under this root if local checkout is needed
 - Full current PR diff
 - Applicable review checklist from Section 3
 - Repo-specific contracts and deployment topology
