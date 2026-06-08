@@ -626,6 +626,8 @@ Look for failures — CI is the fastest signal. If any required check is failing
 
 **PITFALL:** `gh pr checks` does NOT support `--json` — it only outputs a human-readable table. When you need structured CI status (e.g., to filter by check name or programmatically check conclusions), use `gh pr view N --json statusCheckRollup --jq '...'` instead.
 
+**PITFALL: CONFLICTING PRs may silently drop code from main.** When `mergeable` is `CONFLICTING`, the PR branch was forked before another PR merged to the base branch. The GitHub PR diff only shows changes against the merge base — code that was added to main after the fork point is at risk of being dropped. Always compare `git diff pr-N..origin/main` (PR branch vs tip of main) to detect code that would be lost. See `references/merge-conflict-detection.md` for the full detection workflow and examples.
+
 **Step A3: Read the full diff**
 
 ```bash

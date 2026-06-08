@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "cfeb0747b3b50f54b348aee3da0090db2a0a15017899a5c09463c14d2d602c93",
+        "sha256": "7671fa60b41a773728bd1a84c4b16e432938d4373f56c924e2a9ac3fad4f54f6",
         "size": 31799
       },
       {
@@ -1754,8 +1754,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "c294ba3bf69d430c332e36ceb167516031408a515a3108137b9509f6987ab3bd",
-        "size": 62367
+        "sha256": "14b09ed2e6c340fef5d68557ce99ae9ac0da904ef2eb42ffef79d4c012fff7c8",
+        "size": 62876
       },
       {
         "path": "github/github-code-review/SKILL.md.v3.0.0-backup-20260604115024",
@@ -1786,6 +1786,11 @@
         "path": "github/github-code-review/references/lingui-po-merge-conflicts.md",
         "sha256": "5c0b111b3c3e0594981f2b8fa222e0212679557d26d41e0c8f1ceb1044ee4b74",
         "size": 4813
+      },
+      {
+        "path": "github/github-code-review/references/merge-conflict-detection.md",
+        "sha256": "0343822adfc0ad1a55c15c4e9a162c1a008119fede0a945a39d5fbff8993fa30",
+        "size": 4899
       },
       {
         "path": "github/github-code-review/references/po-file-merge-conflicts.md",
@@ -6809,8 +6814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-08T21:27:34Z",
-  "file_count": 1360,
+  "exported_at": "2026-06-08T21:34:04Z",
+  "file_count": 1361,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -6869,7 +6874,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "cfeb0747b3b50f54b348aee3da0090db2a0a15017899a5c09463c14d2d602c93",
+      "sha256": "7671fa60b41a773728bd1a84c4b16e432938d4373f56c924e2a9ac3fad4f54f6",
       "size": 31799
     },
     {
@@ -8564,8 +8569,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "c294ba3bf69d430c332e36ceb167516031408a515a3108137b9509f6987ab3bd",
-      "size": 62367
+      "sha256": "14b09ed2e6c340fef5d68557ce99ae9ac0da904ef2eb42ffef79d4c012fff7c8",
+      "size": 62876
     },
     {
       "path": "github/github-code-review/SKILL.md.v3.0.0-backup-20260604115024",
@@ -8596,6 +8601,11 @@
       "path": "github/github-code-review/references/lingui-po-merge-conflicts.md",
       "sha256": "5c0b111b3c3e0594981f2b8fa222e0212679557d26d41e0c8f1ceb1044ee4b74",
       "size": 4813
+    },
+    {
+      "path": "github/github-code-review/references/merge-conflict-detection.md",
+      "sha256": "0343822adfc0ad1a55c15c4e9a162c1a008119fede0a945a39d5fbff8993fa30",
+      "size": 4899
     },
     {
       "path": "github/github-code-review/references/po-file-merge-conflicts.md",
@@ -10062,9 +10072,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-85bffcgmg46",
-  "previous_tree_hash": "c1484574794e7f7b911bcde6fe3d47f72c86c90dc25e441f6890fb3bb3bdb214",
+  "previous_tree_hash": "b3d848c6922616cbbd1239a0751c43d4d6fa65063b864626debe1555a1153644",
   "schema_version": 1,
-  "skill_file_count": 649,
+  "skill_file_count": 650,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -10073,9 +10083,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ca0222bdd4c0ccafca6e2e4f34897b844dfe89509c50e60456222105a3314b6d",
+  "skill_tree_hash": "b4596efb4b44954c25406b484456b592bb73ce39e9d52103fc244b6a35c3aebb",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b3d848c6922616cbbd1239a0751c43d4d6fa65063b864626debe1555a1153644",
+  "tree_hash": "92fd646981a9bb2d826e94b60a76c6670e6e181736adfec81cb35f39f0761d7e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
