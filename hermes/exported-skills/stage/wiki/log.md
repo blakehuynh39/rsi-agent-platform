@@ -24763,3 +24763,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fbf8fb3d3b4524759af0f31528ebd163
 - summary: In June 2026, Story rebranded to Data Network. The L1 chain, native token, and all associated domains and repositories were renamed. $IP becomes $DATA, a new wrapped ERC20 token $W...
 
+## [2026-06-08T20:00:26Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_adf2c17dafd9c2549fa8e285105c48f8
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_b726db414a9997815e82b5779965f8e9
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
