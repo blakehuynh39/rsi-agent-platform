@@ -24786,3 +24786,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c0aa32e3b28f9eb5f852fcabfab84e9a
 - summary: Technical steps required for exchanges, wallets, and integrations during the Data rebranding.
 
+## [2026-06-08T22:30:23Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_cff73d17432e4471aa3e43f15cdf5ebd
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_98cc2d4d728d0cd0c0a95e92dac8523a
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
