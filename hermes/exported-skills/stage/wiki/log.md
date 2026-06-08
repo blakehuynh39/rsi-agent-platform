@@ -24772,3 +24772,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b726db414a9997815e82b5779965f8e9
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-08T20:16:24Z] synthesis | Rebranding to Data
+
+- status: published
+- slug: decisions/rebranding-to-data
+- wiki_revision_id: wikirev_955eebf2b9d1f43d5b5d0f9bf01aa3fb
+- summary: Overview of Story's rebranding to Data, including name changes for chain, foundation, and token.
+
+## [2026-06-08T20:16:24Z] synthesis | Data Migration Technical Runbook
+
+- status: published
+- slug: runbooks/data-migration-technical-runbook
+- wiki_revision_id: wikirev_c0aa32e3b28f9eb5f852fcabfab84e9a
+- summary: Technical steps required for exchanges, wallets, and integrations during the Data rebranding.
+

@@ -3256,13 +3256,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b7d344b1d5573f1dbd44a30b7597bab32156c456434388d903a066e227a3fe04",
-        "size": 618669
+        "sha256": "e651a69b3ca80714da34a330389fd6039771da2929c0e6cedc94c93df7bbf00e",
+        "size": 619239
       },
       {
         "path": "log.md",
-        "sha256": "e323652229c4065e94c96d5fa5fbd4a1e05ad3e5d2c6953989baa83975f13c85",
-        "size": 1189615
+        "sha256": "6204550b35f1ff63641cdb17f4f93aa1ac3aee3f05857aff6d20bc652a4b2bb1",
+        "size": 1190209
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4443,6 +4443,11 @@
         "path": "pages/decisions/protocol-fee-switch-configuration.md",
         "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
         "size": 2337
+      },
+      {
+        "path": "pages/decisions/rebranding-to-data.md",
+        "sha256": "5af4d11b764865f28e74958a57afec63949a861084a4a037edd1276509536ba1",
+        "size": 5747
       },
       {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
@@ -5990,6 +5995,11 @@
         "size": 3917
       },
       {
+        "path": "pages/runbooks/data-migration-technical-runbook.md",
+        "sha256": "a2c4180b20d9b16a2b9a878482c406f2b5bffb1a335b572611e44fdc443a2ae1",
+        "size": 7045
+      },
+      {
         "path": "pages/runbooks/data-network-rebrand-runbook.md",
         "sha256": "c8a9f2a3190fe90d354c1a67b522ca101e6119a52692bdb78f0b07e151f34a3b",
         "size": 8931
@@ -6799,8 +6809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-08T20:05:32Z",
-  "file_count": 1358,
+  "exported_at": "2026-06-08T20:17:07Z",
+  "file_count": 1360,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10052,7 +10062,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-858755qd55d",
-  "previous_tree_hash": "83bf7a0471911f7435daa60c48208f7cc0c7c19c203717078e75929753888f28",
+  "previous_tree_hash": "884ec0e8d82ede54bebe1189af78a404ae44d5ed4cb175eb13fe3cf30dc03bf1",
   "schema_version": 1,
   "skill_file_count": 649,
   "skill_manage_sessions": [
@@ -10065,14 +10075,14 @@
   ],
   "skill_tree_hash": "6b73ef4f881375c29fb3a0fbad6763d5030207b40a13b3a56b37529a694e19a5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "884ec0e8d82ede54bebe1189af78a404ae44d5ed4cb175eb13fe3cf30dc03bf1",
+  "tree_hash": "91b38bc2ac01294645ac7d0df596df6e463ef03b566b9532296d4d307619a9cf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 709,
+  "wiki_file_count": 711,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10081,13 +10091,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b7d344b1d5573f1dbd44a30b7597bab32156c456434388d903a066e227a3fe04",
-      "size": 618669
+      "sha256": "e651a69b3ca80714da34a330389fd6039771da2929c0e6cedc94c93df7bbf00e",
+      "size": 619239
     },
     {
       "path": "log.md",
-      "sha256": "e323652229c4065e94c96d5fa5fbd4a1e05ad3e5d2c6953989baa83975f13c85",
-      "size": 1189615
+      "sha256": "6204550b35f1ff63641cdb17f4f93aa1ac3aee3f05857aff6d20bc652a4b2bb1",
+      "size": 1190209
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11268,6 +11278,11 @@
       "path": "pages/decisions/protocol-fee-switch-configuration.md",
       "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
       "size": 2337
+    },
+    {
+      "path": "pages/decisions/rebranding-to-data.md",
+      "sha256": "5af4d11b764865f28e74958a57afec63949a861084a4a037edd1276509536ba1",
+      "size": 5747
     },
     {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
@@ -12815,6 +12830,11 @@
       "size": 3917
     },
     {
+      "path": "pages/runbooks/data-migration-technical-runbook.md",
+      "sha256": "a2c4180b20d9b16a2b9a878482c406f2b5bffb1a335b572611e44fdc443a2ae1",
+      "size": 7045
+    },
+    {
       "path": "pages/runbooks/data-network-rebrand-runbook.md",
       "sha256": "c8a9f2a3190fe90d354c1a67b522ca101e6119a52692bdb78f0b07e151f34a3b",
       "size": 8931
@@ -13621,5 +13641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c51fda5ab83caac1f746619a9116d6793903d65508d982ca5d41c473e19e17a4"
+  "wiki_tree_hash": "5eeb0dbf571a1dde3896a5f32f3cf861a209684f6b9c49bfa36c919abcfa8460"
 }
