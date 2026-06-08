@@ -1510,11 +1510,44 @@ class HermesRuntimeTests(unittest.TestCase):
 
             blocked = namespace["pre_tool_call"](
                 "terminal",
-                {"cmd": "cd /workspace/company/rsi-agent-platform && git worktree list && git stash list"},
+                {"cmd": "cd /workspace/company/rsi-agent-platform && git worktree list && git stash list && git Stash list"},
                 task_id=session_id,
             )
 
         self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_blocks_capitalized_mutating_worktree_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-capitalized-worktree"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": f"cd {workspace_root / 'checkout'} && git Worktree add /workspace/company/rsi-agent-platform main"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("target path", blocked["message"])
+        self.assertIn("outside PR-review workspace root", blocked["message"])
 
     def test_pr_review_workspace_guard_allows_mutating_git_under_root(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):

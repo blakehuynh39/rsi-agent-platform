@@ -845,7 +845,7 @@ def _git_subcommand_target_paths(subcommand: str, remaining: list[str], cwd: Pat
     return _generic_git_target_paths(remaining, cwd)
 
 
-def _parse_git_segment(segment: list[str], cwd: Path | None) -> tuple[str, Path | None, list[Path | None]]:
+def _parse_git_segment(segment: list[str], cwd: Path | None) -> tuple[str, Path | None, list[Path | None], list[str]]:
     git_cwd = cwd
     target_paths: list[Path | None] = []
     index = 0
@@ -856,7 +856,7 @@ def _parse_git_segment(segment: list[str], cwd: Path | None) -> tuple[str, Path 
             continue
         if token == "-C":
             if index + 1 >= len(segment):
-                return "", git_cwd, target_paths
+                return "", git_cwd, target_paths, []
             git_cwd = _resolve_shell_path(segment[index + 1], git_cwd)
             index += 2
             continue
@@ -879,8 +879,9 @@ def _parse_git_segment(segment: list[str], cwd: Path | None) -> tuple[str, Path 
             index += 1
             continue
         subcommand = token.lower()
-        return subcommand, git_cwd, [*target_paths, *_git_subcommand_target_paths(subcommand, segment[index + 1 :], git_cwd)]
-    return "", git_cwd, target_paths
+        remaining = segment[index + 1 :]
+        return subcommand, git_cwd, [*target_paths, *_git_subcommand_target_paths(subcommand, remaining, git_cwd)], remaining
+    return "", git_cwd, target_paths, []
 
 
 def _mutating_git_locations(command: str, *, initial_cwd: Path | None = None) -> list[tuple[str, Path | None, list[Path | None]]]:
@@ -915,8 +916,7 @@ def _mutating_git_locations(command: str, *, initial_cwd: Path | None = None) ->
             while end < len(tokens) and not _is_command_separator(tokens[end]):
                 end += 1
             segment = tokens[index + 1 : end]
-            subcommand, git_cwd, target_paths = _parse_git_segment(segment, cwd)
-            remaining = segment[segment.index(subcommand) + 1 :] if subcommand in segment else []
+            subcommand, git_cwd, target_paths, remaining = _parse_git_segment(segment, cwd)
             if _git_subcommand_is_mutating(subcommand, remaining):
                 findings.append((f"git {subcommand}", git_cwd, target_paths))
             index = end
