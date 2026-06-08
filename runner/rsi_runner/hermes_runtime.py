@@ -949,6 +949,29 @@ def _normalize_skill_identifier(value: JsonValue | None) -> str:
     return ""
 
 
+def _task_requests_github_pr_review(task: "RunnerTaskRequest") -> bool:
+    text = "\n".join(
+        part
+        for part in (
+            _string_or_json(task.prompt),
+            _string_or_json(task.context_summary),
+        )
+        if part
+    )
+    if re.search(r"(?i)(?:^|[\s(])/github[-_]code[-_]review\b", text):
+        return True
+    if re.search(r"(?i)\bgithub[-_]code[-_]review\b", text):
+        return True
+
+    pr_ref = r"(?:https://github\.com/\S+/\S+/pull/\d+|#\d+\b|\b(?:PR|pull request)\s*#?\s*\d+\b)"
+    direct_review_patterns = (
+        rf"\b(?:review|re-review|rereview)\s+(?:the\s+)?{pr_ref}",
+        rf"\b(?:PR|pull request)\s+review\s+(?:for\s+)?{pr_ref}",
+        rf"{pr_ref}\s+(?:for\s+)?(?:review|re-review|rereview)\b",
+    )
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in direct_review_patterns)
+
+
 def _required_string(value: JsonValue | None, default: str) -> str:
     if value is None:
         return default
@@ -6199,6 +6222,7 @@ if __name__ == "__main__":
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "pr_review_approval_gate": True,
+            "pr_review_workspace_guard": _task_requests_github_pr_review(task),
             "pr_review_workspace_root": str(
                 Path(self._config.hermes_run_root).expanduser() / "pr-review-worktrees" / session_id
             ),
@@ -8034,8 +8058,8 @@ if __name__ == "__main__":
             "For GitHub PR review and PR re-review tasks, use fresh delegate_task subagents for the current review pass. "
             "A PR approval or Slack approval report is allowed only after the matching subagent result ends cleanly and its summary includes "
             "RSI_PR_REVIEW_VERDICT JSON with pr_number, approval_safe=true, blocking_findings=0, and verdict=approve. "
-            "Use GitHub reads pinned to the PR head SHA or temporary clones/worktrees under the PR review workspace root injected by the RSI context engine; "
-            "that temporary root is cleaned after the session."
+            "Pass the injected PR review workspace root into each delegate_task prompt. Use GitHub reads pinned to the PR head SHA or temporary clones/worktrees "
+            "under that root; mutable git and file-write operations outside that root are blocked, and the root is cleaned after the session."
         )
         parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through native Hermes tools inside the bound workspace; it must not merge code, launch privileged jobs, or post to Slack unless the task contract explicitly allows it.")
         if execution_mode == "diagnose":

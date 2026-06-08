@@ -26,6 +26,50 @@ _APPROVAL_DELIVERY_TOOL_NAMES = {
     "rsi_slack_report_post",
     "rsi_slack_message_post",
 }
+_PR_REVIEW_MUTATING_GIT_SUBCOMMANDS = {
+    "add",
+    "apply",
+    "checkout",
+    "cherry-pick",
+    "clean",
+    "clone",
+    "commit",
+    "fetch",
+    "merge",
+    "mv",
+    "pull",
+    "rebase",
+    "reset",
+    "restore",
+    "rm",
+    "switch",
+}
+_PR_REVIEW_MUTATING_GIT_STASH_ACTIONS = {"apply", "branch", "clear", "create", "drop", "pop", "push", "save", "store"}
+_PR_REVIEW_MUTATING_GIT_WORKTREE_ACTIONS = {"add", "lock", "move", "prune", "remove", "repair", "rm", "unlock"}
+_PR_REVIEW_FILE_WRITE_TOOL_NAMES = {
+    "edit_file",
+    "patch",
+    "replace_file",
+    "write_file",
+    "workspace_write_file",
+}
+_PATH_ARG_KEYS = {
+    "abs_path",
+    "cwd",
+    "dest",
+    "destination",
+    "file",
+    "file_path",
+    "filepath",
+    "filename",
+    "output",
+    "output_path",
+    "path",
+    "target",
+    "target_path",
+    "workdir",
+}
+_PATCH_TEXT_ARG_KEYS = {"diff", "patch", "patch_text", "unified_diff"}
 
 
 def render_pr_review_context_sections(payload: JsonObject) -> list[str]:
@@ -38,11 +82,12 @@ def render_pr_review_context_sections(payload: JsonObject) -> list[str]:
             "are not approvable."
         )
     review_workspace_root = str(payload.get("pr_review_workspace_root", "") or "").strip()
-    if review_workspace_root:
+    if review_workspace_root and payload.get("pr_review_workspace_guard"):
         parts.append(
             "PR review isolated workspace root: "
             + review_workspace_root
-            + ". Put any temporary PR-review clones or worktrees under this directory; RSI cleans it at session end."
+            + ". Put any temporary PR-review clones or worktrees under this directory; RSI cleans it at session end. "
+            + "Mutable git and file-write operations for PR review must stay under this root, not in shared /workspace/company checkouts."
         )
     return parts
 
@@ -90,6 +135,11 @@ def pre_tool_call_guard(
         return None
 
     payload = _load_context(runtime_root, resolved_session_id)
+
+    workspace_block = _pr_review_workspace_mutation_block(runtime_root, resolved_session_id, payload, tool_name, safe_args, command)
+    if workspace_block:
+        return workspace_block
+
     if "pr_review_approval_gate" not in payload:
         if is_gh_approval:
             return _block_pr_approval(
@@ -168,6 +218,106 @@ def _is_approval_delivery_tool(tool_name: str) -> bool:
         return False
     approval_names = {_normalized_tool_name(name) for name in _APPROVAL_DELIVERY_TOOL_NAMES}
     return normalized in approval_names or any(normalized.endswith(f"_{name}") for name in approval_names)
+
+
+def _pr_review_workspace_mutation_block(
+    runtime_root: Path,
+    session_id: str,
+    payload: JsonObject,
+    tool_name: str,
+    args: JsonObject,
+    command: str,
+) -> JsonObject | None:
+    if not payload.get("pr_review_workspace_guard"):
+        return None
+
+    target, reason = _safe_pr_review_workspace_root(payload, session_id)
+    if target is None:
+        if command and _mutating_git_subcommands(command):
+            return _block_pr_review_workspace_mutation(
+                runtime_root,
+                session_id,
+                tool_name,
+                f"mutable git command blocked because the PR-review workspace root is unavailable: {reason}",
+            )
+        if _is_pr_review_file_write_tool(tool_name):
+            return _block_pr_review_workspace_mutation(
+                runtime_root,
+                session_id,
+                tool_name,
+                f"file-write tool blocked because the PR-review workspace root is unavailable: {reason}",
+            )
+        return None
+
+    if command:
+        issue = _mutating_git_workspace_issue(command, target, initial_cwd=_terminal_initial_cwd(tool_name, args))
+        if issue:
+            return _block_pr_review_workspace_mutation(runtime_root, session_id, tool_name, issue)
+
+    if _is_pr_review_file_write_tool(tool_name):
+        issue = _file_write_workspace_issue(args, target)
+        if issue:
+            return _block_pr_review_workspace_mutation(runtime_root, session_id, tool_name, issue)
+    return None
+
+
+def _block_pr_review_workspace_mutation(runtime_root: Path, session_id: str, tool_name: str, reason: str) -> JsonObject:
+    _append_event(
+        runtime_root,
+        session_id,
+        "pr_review.workspace_mutation.blocked",
+        {
+            "event_type": "pr_review.workspace_mutation.blocked",
+            "status": "blocked",
+            "tool_name": tool_name,
+            "reason": reason,
+        },
+    )
+    return {"action": "block", "message": f"RSI blocked PR-review workspace mutation: {reason}"}
+
+
+def _is_pr_review_file_write_tool(tool_name: str) -> bool:
+    normalized = _normalized_tool_name(tool_name)
+    if not normalized:
+        return False
+    write_names = {_normalized_tool_name(name) for name in _PR_REVIEW_FILE_WRITE_TOOL_NAMES}
+    return normalized in write_names or any(normalized.endswith(f"_{name}") for name in write_names)
+
+
+def _mutating_git_workspace_issue(command: str, workspace_root: Path, *, initial_cwd: Path | None = None) -> str:
+    findings = _mutating_git_locations(command, initial_cwd=initial_cwd) + _mutating_gh_locations(command, initial_cwd=initial_cwd)
+    for operation, cwd, target_paths in findings:
+        if cwd is None:
+            return (
+                f"{operation} must run with an explicit `cd` or `git -C` under PR-review workspace root "
+                f"{workspace_root}"
+            )
+        if not _path_is_within(cwd, workspace_root):
+            return f"{operation} targets {cwd}, outside PR-review workspace root {workspace_root}"
+        for target_path in target_paths:
+            if target_path is None:
+                return f"{operation} target path must resolve under PR-review workspace root {workspace_root}"
+            if not _path_is_within(target_path, workspace_root):
+                return f"{operation} target path {target_path} is outside PR-review workspace root {workspace_root}"
+
+    if not findings and _mutating_git_subcommands(command):
+        return f"mutable git command must run under PR-review workspace root {workspace_root}"
+    return ""
+
+
+def _file_write_workspace_issue(args: JsonObject, workspace_root: Path) -> str:
+    base_cwd = _write_tool_base_cwd(args)
+    write_paths = _write_tool_paths(args)
+    if not write_paths:
+        return f"file-write tool must include an explicit path under PR-review workspace root {workspace_root}"
+
+    for raw_path in write_paths:
+        resolved = _resolve_shell_path(raw_path, base_cwd)
+        if resolved is None:
+            return f"file-write path {raw_path!r} must be absolute or relative to an explicit cwd under {workspace_root}"
+        if not _path_is_within(resolved, workspace_root):
+            return f"file-write path {resolved} is outside PR-review workspace root {workspace_root}"
+    return ""
 
 
 def cleanup_pr_review_workspace(runtime_root: Path, session_id: str) -> None:
@@ -510,11 +660,333 @@ def _shell_tokens(command: str) -> list[str]:
         return command.split()
 
 
+def _shell_tokens_with_punctuation(command: str) -> list[str]:
+    try:
+        lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
+        lexer.whitespace_split = True
+        return list(lexer)
+    except (TypeError, ValueError):
+        return _shell_tokens(command)
+
+
 def _is_gh_token(token: str) -> bool:
     cleaned = str(token or "").strip().strip("\"'")
     if not cleaned:
         return False
     return cleaned.rstrip("/").rsplit("/", 1)[-1] == "gh"
+
+
+def _is_git_token(token: str) -> bool:
+    cleaned = str(token or "").strip().strip("\"'")
+    if not cleaned:
+        return False
+    return cleaned.rstrip("/").rsplit("/", 1)[-1] == "git"
+
+
+def _is_shell_token(token: str) -> bool:
+    cleaned = str(token or "").strip().strip("\"'")
+    if not cleaned:
+        return False
+    return cleaned.rstrip("/").rsplit("/", 1)[-1] in {"bash", "sh", "zsh"}
+
+
+def _is_command_separator(token: str) -> bool:
+    return str(token or "") in {"&&", "||", ";", "|", "&"}
+
+
+def _path_is_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def _resolve_shell_path(raw_path: str, cwd: Path | None) -> Path | None:
+    text = str(raw_path or "").strip().strip("\"'")
+    if not text or "$" in text:
+        return None
+    path = Path(text).expanduser()
+    if path.is_absolute():
+        return path.resolve()
+    if cwd is None:
+        return None
+    return (cwd / path).resolve()
+
+
+def _command_operands(tokens: list[str], options_with_values: set[str]) -> list[str]:
+    operands: list[str] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "--":
+            operands.extend(tokens[index + 1 :])
+            break
+        if token in options_with_values:
+            index += 2
+            continue
+        if any(token.startswith(f"{option}=") for option in options_with_values if option.startswith("--")):
+            index += 1
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        operands.append(token)
+        index += 1
+    return operands
+
+
+def _looks_like_path_operand(token: str) -> bool:
+    text = str(token or "").strip().strip("\"'")
+    if not text or "://" in text:
+        return False
+    return text.startswith(("/", "~", ".", "a/", "b/")) or "/" in text
+
+
+def _generic_git_target_paths(remaining: list[str], cwd: Path | None) -> list[Path | None]:
+    operands = _command_operands(
+        remaining,
+        {
+            "-b",
+            "-B",
+            "-c",
+            "-C",
+            "-m",
+            "-S",
+            "--author",
+            "--branch",
+            "--config",
+            "--date",
+            "--depth",
+            "--filter",
+            "--message",
+            "--reference",
+            "--reference-if-able",
+            "--shallow-exclude",
+            "--shallow-since",
+            "--template",
+            "--upload-pack",
+        },
+    )
+    return [_resolve_shell_path(operand, cwd) for operand in operands if _looks_like_path_operand(operand)]
+
+
+def _git_subcommand_is_mutating(subcommand: str, remaining: list[str]) -> bool:
+    if subcommand == "stash":
+        operands = _command_operands(remaining, set())
+        action = operands[0].lower() if operands else "push"
+        return action in _PR_REVIEW_MUTATING_GIT_STASH_ACTIONS
+    if subcommand == "worktree":
+        operands = _command_operands(
+            remaining,
+            {
+                "-b",
+                "-B",
+                "--lock",
+                "--orphan",
+                "--reason",
+            },
+        )
+        action = operands[0].lower() if operands else "list"
+        return action in _PR_REVIEW_MUTATING_GIT_WORKTREE_ACTIONS
+    return subcommand in _PR_REVIEW_MUTATING_GIT_SUBCOMMANDS
+
+
+def _git_subcommand_target_paths(subcommand: str, remaining: list[str], cwd: Path | None) -> list[Path | None]:
+    if subcommand == "clone":
+        targets: list[Path | None] = []
+        operands = _command_operands(
+            remaining,
+            {
+                "-b",
+                "-c",
+                "-j",
+                "-o",
+                "-u",
+                "--branch",
+                "--config",
+                "--depth",
+                "--filter",
+                "--jobs",
+                "--origin",
+                "--reference",
+                "--reference-if-able",
+                "--separate-git-dir",
+                "--shallow-exclude",
+                "--shallow-since",
+                "--template",
+                "--upload-pack",
+            },
+        )
+        if len(operands) >= 2:
+            targets.append(_resolve_shell_path(operands[-1], cwd))
+        if "--separate-git-dir" in remaining:
+            index = remaining.index("--separate-git-dir")
+            if index + 1 < len(remaining):
+                targets.append(_resolve_shell_path(remaining[index + 1], cwd))
+        for token in remaining:
+            if token.startswith("--separate-git-dir="):
+                targets.append(_resolve_shell_path(token.split("=", 1)[1], cwd))
+        return targets
+
+    if subcommand == "worktree" and remaining[:1] == ["add"]:
+        operands = _command_operands(
+            remaining[1:],
+            {
+                "-b",
+                "-B",
+                "--lock",
+                "--orphan",
+                "--reason",
+            },
+        )
+        return [_resolve_shell_path(operands[0], cwd) if operands else None]
+
+    return _generic_git_target_paths(remaining, cwd)
+
+
+def _parse_git_segment(segment: list[str], cwd: Path | None) -> tuple[str, Path | None, list[Path | None]]:
+    git_cwd = cwd
+    target_paths: list[Path | None] = []
+    index = 0
+    while index < len(segment):
+        token = segment[index]
+        if not token:
+            index += 1
+            continue
+        if token == "-C":
+            if index + 1 >= len(segment):
+                return "", git_cwd, target_paths
+            git_cwd = _resolve_shell_path(segment[index + 1], git_cwd)
+            index += 2
+            continue
+        if token in {"--git-dir", "--work-tree"}:
+            if index + 1 < len(segment):
+                target_paths.append(_resolve_shell_path(segment[index + 1], git_cwd))
+            index += 2
+            continue
+        if token in {"-c", "--namespace"}:
+            index += 2
+            continue
+        if token.startswith("--git-dir=") or token.startswith("--work-tree="):
+            target_paths.append(_resolve_shell_path(token.split("=", 1)[1], git_cwd))
+            index += 1
+            continue
+        if token.startswith("--namespace="):
+            index += 1
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        subcommand = token.lower()
+        return subcommand, git_cwd, [*target_paths, *_git_subcommand_target_paths(subcommand, segment[index + 1 :], git_cwd)]
+    return "", git_cwd, target_paths
+
+
+def _mutating_git_locations(command: str, *, initial_cwd: Path | None = None) -> list[tuple[str, Path | None, list[Path | None]]]:
+    tokens = _shell_tokens_with_punctuation(command)
+    findings: list[tuple[str, Path | None, list[Path | None]]] = []
+    cwd = initial_cwd
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if _is_command_separator(token):
+            index += 1
+            continue
+        if token == "cd" and index + 1 < len(tokens):
+            cwd = _resolve_shell_path(tokens[index + 1], cwd)
+            index += 2
+            continue
+        if _is_shell_token(token):
+            nested_index = index + 1
+            while nested_index < len(tokens) and tokens[nested_index].startswith("-"):
+                option = tokens[nested_index].lstrip("-")
+                is_c_flag = option == "c" or (tokens[nested_index].startswith("-") and not tokens[nested_index].startswith("--") and option.endswith("c"))
+                if is_c_flag and nested_index + 1 < len(tokens):
+                    findings.extend(_mutating_git_locations(tokens[nested_index + 1], initial_cwd=cwd))
+                    index = nested_index + 2
+                    break
+                nested_index += 1
+            else:
+                index += 1
+            continue
+        if _is_git_token(token):
+            end = index + 1
+            while end < len(tokens) and not _is_command_separator(tokens[end]):
+                end += 1
+            segment = tokens[index + 1 : end]
+            subcommand, git_cwd, target_paths = _parse_git_segment(segment, cwd)
+            remaining = segment[segment.index(subcommand) + 1 :] if subcommand in segment else []
+            if _git_subcommand_is_mutating(subcommand, remaining):
+                findings.append((f"git {subcommand}", git_cwd, target_paths))
+            index = end
+            continue
+        index += 1
+    return findings
+
+
+def _gh_repo_clone_targets(segment: list[str], cwd: Path | None) -> list[Path | None]:
+    operands = _command_operands(
+        segment[2:],
+        {
+            "-b",
+            "-u",
+            "--branch",
+            "--upstream-remote-name",
+        },
+    )
+    if len(operands) >= 2:
+        return [_resolve_shell_path(operands[-1], cwd)]
+    return []
+
+
+def _mutating_gh_locations(command: str, *, initial_cwd: Path | None = None) -> list[tuple[str, Path | None, list[Path | None]]]:
+    tokens = _shell_tokens_with_punctuation(command)
+    findings: list[tuple[str, Path | None, list[Path | None]]] = []
+    cwd = initial_cwd
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if _is_command_separator(token):
+            index += 1
+            continue
+        if token == "cd" and index + 1 < len(tokens):
+            cwd = _resolve_shell_path(tokens[index + 1], cwd)
+            index += 2
+            continue
+        if _is_shell_token(token):
+            nested_index = index + 1
+            while nested_index < len(tokens) and tokens[nested_index].startswith("-"):
+                option = tokens[nested_index].lstrip("-")
+                is_c_flag = option == "c" or (tokens[nested_index].startswith("-") and not tokens[nested_index].startswith("--") and option.endswith("c"))
+                if is_c_flag and nested_index + 1 < len(tokens):
+                    findings.extend(_mutating_gh_locations(tokens[nested_index + 1], initial_cwd=cwd))
+                    index = nested_index + 2
+                    break
+                nested_index += 1
+            else:
+                index += 1
+            continue
+        if _is_gh_token(token):
+            end = index + 1
+            while end < len(tokens) and not _is_command_separator(tokens[end]):
+                end += 1
+            segment = tokens[index + 1 : end]
+            if len(segment) >= 2 and segment[0:2] == ["pr", "checkout"]:
+                findings.append(("gh pr checkout", cwd, []))
+            elif len(segment) >= 2 and segment[0:2] == ["repo", "clone"]:
+                findings.append(("gh repo clone", cwd, _gh_repo_clone_targets(segment, cwd)))
+            index = end
+            continue
+        index += 1
+    return findings
+
+
+def _mutating_git_subcommands(command: str) -> list[str]:
+    return [
+        subcommand
+        for subcommand, _cwd, _targets in [*_mutating_git_locations(command), *_mutating_gh_locations(command)]
+    ]
 
 
 def _extract_gh_pr_review_approval_prs(command: str) -> tuple[bool, list[int]]:
@@ -586,6 +1058,17 @@ def _extract_terminal_command(tool_name: str, args: JsonObject) -> str:
     return ""
 
 
+def _terminal_initial_cwd(tool_name: str, args: JsonObject) -> Path | None:
+    normalized = str(tool_name or "").strip()
+    if normalized not in {"terminal", "execute_code", "shell", "bash"}:
+        return None
+    for key in ("cwd", "workdir"):
+        value = args.get(key)
+        if isinstance(value, str) and value.strip():
+            return _resolve_shell_path(value, None)
+    return None
+
+
 def _strings_from_value(value: Any) -> list[str]:
     if isinstance(value, str):
         return [value]
@@ -600,6 +1083,70 @@ def _strings_from_value(value: Any) -> list[str]:
             out.extend(_strings_from_value(item))
         return out
     return []
+
+
+def _write_tool_base_cwd(args: JsonObject) -> Path | None:
+    for key in ("cwd", "workdir"):
+        value = args.get(key)
+        if isinstance(value, str) and value.strip():
+            return _resolve_shell_path(value, None)
+    return None
+
+
+def _clean_patch_path(raw_path: str) -> str:
+    text = str(raw_path or "").strip().strip("\"'")
+    if "\t" in text:
+        text = text.split("\t", 1)[0].strip()
+    if text.startswith("a/") or text.startswith("b/"):
+        text = text[2:]
+    return text
+
+
+def _paths_from_patch_text(text: str) -> list[str]:
+    if "*** " not in text and "+++" not in text and "---" not in text:
+        return []
+    out: list[str] = []
+    for line in text.splitlines():
+        match = re.match(r"\s*\*\*\*\s+(?:Add|Update|Delete)\s+File:\s+(.+?)\s*$", line)
+        if not match:
+            match = re.match(r"\s*(?:---|\+\+\+)\s+(.+?)\s*$", line)
+        if not match:
+            continue
+        path = _clean_patch_path(match.group(1))
+        if path and path != "/dev/null":
+            out.append(path)
+    return out
+
+
+def _write_tool_paths(args: JsonObject) -> list[str]:
+    out: list[str] = []
+
+    def walk(value: Any, key: str = "") -> None:
+        normalized_key = str(key or "").strip().lower()
+        if isinstance(value, str):
+            if normalized_key in _PATH_ARG_KEYS and normalized_key not in {"cwd", "workdir"}:
+                out.append(value)
+                return
+            if normalized_key in _PATCH_TEXT_ARG_KEYS:
+                out.extend(_paths_from_patch_text(value))
+            return
+        if isinstance(value, dict):
+            for item_key, item_value in value.items():
+                walk(item_value, str(item_key))
+            return
+        if isinstance(value, list):
+            for item in value:
+                walk(item, key)
+
+    walk(args)
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for path in out:
+        cleaned = _clean_patch_path(path)
+        if cleaned and cleaned not in seen:
+            seen.add(cleaned)
+            deduped.append(cleaned)
+    return deduped
 
 
 def _approval_delivery_text(args: JsonObject) -> str:

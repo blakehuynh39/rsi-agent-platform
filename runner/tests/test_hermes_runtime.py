@@ -1339,6 +1339,439 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(workspace_root.exists())
         self.assertIn("pr_review.workspace_cleanup.completed", {event["event"] for event in events})
 
+    def test_pr_review_workspace_guard_blocks_mutating_git_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-git-block"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "cd /workspace/company/rsi-agent-platform && git stash && git checkout main"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("workspace mutation", blocked["message"])
+        self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_blocks_shell_c_mutating_git_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-shell-git-block"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            commands = [
+                "bash -lc 'cd /workspace/company/rsi-agent-platform && git checkout main'",
+                "bash --noprofile -c 'cd /workspace/company/rsi-agent-platform && git checkout main'",
+                "bash --nocolor -c 'cd /workspace/company/rsi-agent-platform && git checkout main'",
+            ]
+            blocked_results = [
+                namespace["pre_tool_call"]("terminal", {"cmd": command}, task_id=session_id)
+                for command in commands
+            ]
+
+        for blocked in blocked_results:
+            with self.subTest(blocked=blocked):
+                self.assertIsInstance(blocked, dict)
+                self.assertEqual(blocked["action"], "block")
+                self.assertIn("workspace mutation", blocked["message"])
+                self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_blocks_gh_checkout_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-gh-block"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "cd /workspace/company/rsi-agent-platform && gh pr checkout 1416"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("gh pr checkout", blocked["message"])
+        self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_blocks_mutation_targets_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-target-block"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            commands = [
+                f"cd {workspace_root / 'checkout'} && git clone https://github.com/piplabs/rsi-agent-platform /workspace/company/rsi-agent-platform",
+                f"cd {workspace_root / 'checkout'} && git worktree add /workspace/company/rsi-agent-platform main",
+                f"cd {workspace_root / 'checkout'} && gh repo clone piplabs/rsi-agent-platform /workspace/company/rsi-agent-platform",
+                f"git -C {workspace_root / 'checkout'} --work-tree /workspace/company/rsi-agent-platform checkout main",
+                f"cd {workspace_root / 'checkout'} && git add /workspace/company/rsi-agent-platform/README.md",
+                f"git -C {workspace_root / 'checkout'} checkout main -- /workspace/company/rsi-agent-platform/README.md",
+            ]
+            blocked_results = [
+                namespace["pre_tool_call"]("terminal", {"cmd": command}, task_id=session_id)
+                for command in commands
+            ]
+
+        for blocked in blocked_results:
+            with self.subTest(blocked=blocked):
+                self.assertIsInstance(blocked, dict)
+                self.assertEqual(blocked["action"], "block")
+                self.assertIn("target path", blocked["message"])
+                self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_allows_read_only_worktree_and_stash_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-readonly-git-subcommands"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "cd /workspace/company/rsi-agent-platform && git worktree list && git stash list"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_allows_mutating_git_under_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-git-allow"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": f"cd {workspace_root / 'checkout'} && git fetch origin && git checkout pr-head"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_uses_terminal_cwd_for_git_scope(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-terminal-cwd"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            allowed = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "git fetch origin && git checkout pr-head", "cwd": str(workspace_root / "checkout")},
+                task_id=session_id,
+            )
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "git fetch origin && git checkout main", "cwd": "/workspace/company/rsi-agent-platform"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(allowed)
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_allows_read_only_pr_commands_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-readonly"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "cd /workspace/company/rsi-agent-platform && gh pr diff 1416 && git diff origin/main -- runner/rsi_runner/pr_review_gate.py"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_blocks_file_write_outside_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-write-block"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "write_file",
+                {"path": "/workspace/company/rsi-agent-platform/review-notes.md", "content": "Review notes for PR #1416."},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("file-write path", blocked["message"])
+        self.assertIn("outside PR-review workspace root", blocked["message"])
+
+    def test_pr_review_workspace_guard_allows_file_write_under_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-write-allow"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "write_file",
+                {"path": str(workspace_root / "review-notes.md"), "content": "Review notes for PR #1416."},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_blocks_file_write_when_root_is_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-invalid-root-write"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = Path(hermes_home, "outside-pr-review-root")
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "write_file",
+                {"path": "/workspace/company/rsi-agent-platform/review-notes.md", "content": "Review notes for PR #1416."},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("workspace root is unavailable", blocked["message"])
+
+    def test_pr_review_workspace_guard_ignores_diff_text_in_safe_file_write_content(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-workspace-write-diff-content"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #1416.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "write_file",
+                {
+                    "path": str(workspace_root / "review-notes.md"),
+                    "content": "Quoted diff only:\n--- a/runner/rsi_runner/pr_review_gate.py\n+++ b/runner/rsi_runner/pr_review_gate.py",
+                },
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_workspace_guard_does_not_block_non_pr_file_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-non-pr-workspace-write"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Write an architecture diagram artifact.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_guard": False,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "write_file",
+                {"path": "/workspace/company/rsi-agent-platform/diagram.html", "content": "<html></html>"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
     def test_stage_task_context_includes_pr_review_gate_and_cleanup_root(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
             os.environ,
@@ -1367,10 +1800,71 @@ class HermesRuntimeTests(unittest.TestCase):
             )
 
         self.assertTrue(payload["pr_review_approval_gate"])
+        self.assertTrue(payload["pr_review_workspace_guard"])
         self.assertEqual(
             payload["pr_review_workspace_root"],
             str(Path(payload["hermes_run_root"]) / "pr-review-worktrees" / session_id),
         )
+
+    def test_stage_task_context_does_not_enable_workspace_guard_for_plain_pr_mentions(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "rsi-agent-platform",
+                        "prompt": "Implement the follow-up from PR #1416 in the local workspace.",
+                    }
+                }
+            )
+            session_id = "sess-stage-pr-mention"
+
+            runtime._stage_task_context(session_id, task)
+            payload = json.loads(
+                Path(hermes_home, "rsi_runtime", "context", f"{session_id}.json").read_text(encoding="utf-8")
+            )
+
+        self.assertTrue(payload["pr_review_approval_gate"])
+        self.assertFalse(payload["pr_review_workspace_guard"])
+
+    def test_stage_task_context_does_not_enable_workspace_guard_for_code_review_followups(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "rsi-agent-platform",
+                        "prompt": "Implement the code review follow-up from PR #1416 in the local workspace.",
+                    }
+                }
+            )
+            session_id = "sess-stage-code-review-followup"
+
+            runtime._stage_task_context(session_id, task)
+            payload = json.loads(
+                Path(hermes_home, "rsi_runtime", "context", f"{session_id}.json").read_text(encoding="utf-8")
+            )
+
+        self.assertTrue(payload["pr_review_approval_gate"])
+        self.assertFalse(payload["pr_review_workspace_guard"])
 
     def test_github_repo_activity_default_payload_ignores_context_windows(self) -> None:
         namespace: dict[str, object] = {}
