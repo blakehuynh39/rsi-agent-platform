@@ -5015,6 +5015,110 @@ func TestBuildRunnerTaskUsesPromptEnvelopeWithoutArtifactDetection(t *testing.T)
 	}
 }
 
+func TestBuildRunnerTaskIsolatesGithubCodeReviewSession(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatalf("expected trace %s", workflowItem.traceID)
+	}
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatalf("expected workflow %s", workflowItem.workflowID)
+	}
+	ingestion, ok := findIngestion(store.ListIngestions(), workflowItem.ingestionID)
+	if !ok {
+		t.Fatalf("expected ingestion %s", workflowItem.ingestionID)
+	}
+	ingestion.Text = "/github-code-review review https://github.com/piplabs/rsi-agent-platform/pull/1416"
+	ingestion.Prompt = slackpkg.SlackPromptEnvelope{
+		RawText:      ingestion.Text,
+		RenderedText: ingestion.Text,
+	}
+
+	task := buildRunnerTask(config.Config{
+		Environment:               "stage",
+		DefaultRepo:               "rsi-agent-platform",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		DefaultReasoningVerbosity: "verbose",
+	}, store, "prod", trace, workflow, ingestion, "context", nil)
+
+	if task.SessionScopeKind != "trace" || task.SessionScopeID != trace.Summary.TraceID {
+		t.Fatalf("expected trace-scoped PR review task, got %s:%s", task.SessionScopeKind, task.SessionScopeID)
+	}
+	if task.ParentSessionScopeKind != "conversation" || task.ParentSessionScopeID != trace.Summary.ConversationID {
+		t.Fatalf("expected conversation parent scope, got %s:%s", task.ParentSessionScopeKind, task.ParentSessionScopeID)
+	}
+	if !strings.Contains(task.Prompt, "GitHub PR review isolation") {
+		t.Fatalf("expected PR review isolation instruction, got %q", task.Prompt)
+	}
+	if !strings.Contains(task.Prompt, "Do not pass previous Slack bot review summaries") {
+		t.Fatalf("expected initial review to forbid prior bot summaries, got %q", task.Prompt)
+	}
+	if strings.Contains(task.Prompt, "review-vs-re-review") || strings.Contains(task.Prompt, "classifier") {
+		t.Fatalf("expected prompt guard not to contain platform review/re-review classifier guidance, got %q", task.Prompt)
+	}
+}
+
+func TestRecentConversationEntriesForGithubCodeReviewFiltersPriorBotReviewSummaries(t *testing.T) {
+	now := time.Now().UTC()
+	items := []conversation.Entry{
+		{
+			ID:        "entry-user-1",
+			EntryType: "external_event",
+			ActorID:   "U1",
+			ActorType: "user",
+			Body:      "/github-code-review review https://github.com/piplabs/rsi-agent-platform/pull/1416",
+			CreatedAt: now.Add(-3 * time.Minute),
+		},
+		{
+			ID:        "entry-bot-review",
+			EntryType: "slack_action",
+			ActorID:   "C1",
+			ActorType: "bot",
+			Body:      "Fresh subagent review of PR #1416 -- verdict: Request Changes. Prior blocking finding.",
+			CreatedAt: now.Add(-2 * time.Minute),
+		},
+		{
+			ID:        "entry-user-2",
+			EntryType: "external_event",
+			ActorID:   "U1",
+			ActorType: "user",
+			Body:      "/github-code-review review https://github.com/piplabs/rsi-agent-platform/pull/1416 again",
+			CreatedAt: now.Add(-1 * time.Minute),
+		},
+	}
+
+	got := recentConversationEntriesForWorkflow(items, true)
+	for _, entry := range got {
+		if entry.ID == "entry-bot-review" || strings.Contains(entry.Body, "Prior blocking finding") {
+			t.Fatalf("GitHub review recent entries leaked prior bot review summary: %#v", got)
+		}
+	}
+	if len(got) != 2 {
+		t.Fatalf("expected only user entries after filtering prior bot summaries, got %#v", got)
+	}
+}
+
+func TestExplicitGithubCodeReviewRequestedOnlyMatchesSlashSkill(t *testing.T) {
+	cases := []struct {
+		name string
+		text string
+		want bool
+	}{
+		{name: "hyphen slash", text: "/github-code-review review https://github.com/piplabs/rsi-agent-platform/pull/1416", want: true},
+		{name: "underscore slash", text: "/github_code_review review https://github.com/piplabs/rsi-agent-platform/pull/1416", want: true},
+		{name: "natural language review", text: "please review https://github.com/piplabs/rsi-agent-platform/pull/1416", want: false},
+	}
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := explicitGithubCodeReviewRequested(tt.text); got != tt.want {
+				t.Fatalf("explicitGithubCodeReviewRequested(%q) = %v, want %v", tt.text, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestBuildRunnerTaskKeepsBoundThreadContextWithoutArtifactDetection(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")

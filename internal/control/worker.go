@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -40,7 +41,10 @@ const (
 	hermesExecutionRecoveryPollDelay       = 15 * time.Second
 )
 
-var errHermesExecutionStillRunning = errors.New("existing Hermes execution is still running")
+var (
+	errHermesExecutionStillRunning = errors.New("existing Hermes execution is still running")
+	explicitSkillTokenPattern      = regexp.MustCompile(`(?:^|[\s(])/([A-Za-z0-9][A-Za-z0-9_-]*)\b`)
+)
 
 type workflowContext struct {
 	trace     events.Trace
@@ -1466,10 +1470,14 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 			LatestTraceID:  caseRecord.LatestTraceID,
 		}
 	}
-	recentEntries := recentConversationEntries(store.ListConversationEntries(trace.Summary.ConversationID))
+	resolvedIntent := resolveWorkflowIntent(ingestion, contextRefs, nil)
+	githubCodeReviewRequested := explicitGithubCodeReviewRequested(resolvedIntent.UserRequest)
+	recentEntries := recentConversationEntriesForWorkflow(store.ListConversationEntries(trace.Summary.ConversationID), githubCodeReviewRequested)
 	priorTraceRefs := priorTraceRefsForCase(store.ListTraces(), trace.Summary.CaseID, trace.Summary.TraceID)
-	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScope(trace, workflow)
-	resolvedIntent := resolveWorkflowIntent(ingestion, contextRefs, recentEntries)
+	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID := workflowSessionScopeForTask(trace, workflow, githubCodeReviewRequested)
+	resolvedIntent = resolveWorkflowIntent(ingestion, contextRefs, recentEntries)
+	githubCodeReviewRequested = explicitGithubCodeReviewRequested(resolvedIntent.UserRequest)
+	sessionScopeKind, sessionScopeID, parentScopeKind, parentScopeID = workflowSessionScopeForTask(trace, workflow, githubCodeReviewRequested)
 	liveHints := workflowplan.BuildLiveHints(workflowplan.RuntimeConfig{
 		DefaultRepo:      cfg.DefaultRepo,
 		AllowedRepos:     append([]string(nil), cfg.AllowedTargetRepos...),
@@ -1505,6 +1513,9 @@ func buildRunnerTask(cfg config.Config, store storepkg.Store, role string, trace
 	}
 	if hasAttachedBoundSlackThreadContext(contextRefs, ingestion) {
 		promptParts = append(promptParts, "Bound Slack thread context is attached in the task evidence. Recover the main request from that thread context before answering, and treat the latest inbound message as a follow-up within that thread.")
+	}
+	if githubCodeReviewRequested {
+		promptParts = append(promptParts, githubCodeReviewIsolationInstruction())
 	}
 	promptParts = append(promptParts, "Investigate with native Hermes tools and the company-computer terminal. Start with the attached persisted evidence and context, then expand with tools as needed. Cite concrete evidence when possible. Default any Slack reply to the ingress thread.")
 	prompt := strings.Join(promptParts, "\n\n")
@@ -1678,6 +1689,30 @@ func workflowSessionScope(trace events.Trace, workflow storepkg.Workflow) (strin
 		return "case", trace.Summary.CaseID, "conversation", trace.Summary.ConversationID
 	}
 	return "conversation", trace.Summary.ConversationID, "", ""
+}
+
+func explicitGithubCodeReviewRequested(userRequest string) bool {
+	for _, match := range explicitSkillTokenPattern.FindAllStringSubmatch(userRequest, -1) {
+		if len(match) < 2 {
+			continue
+		}
+		skill := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(match[1]), "_", "-"))
+		if skill == "github-code-review" {
+			return true
+		}
+	}
+	return false
+}
+
+func workflowSessionScopeForTask(trace events.Trace, workflow storepkg.Workflow, githubCodeReviewRequested bool) (string, string, string, string) {
+	if githubCodeReviewRequested {
+		return "trace", trace.Summary.TraceID, "conversation", trace.Summary.ConversationID
+	}
+	return workflowSessionScope(trace, workflow)
+}
+
+func githubCodeReviewIsolationInstruction() string {
+	return "GitHub PR review isolation: treat this Slack thread as the delivery surface, not as the reviewing context. Before producing any review verdict, call a fresh delegate_task subagent for this review pass. Do not pass previous Slack bot review summaries, prior review findings, or earlier verdicts into the delegated task as seeded conclusions. Pass only raw PR metadata, current PR diff/check status, repo conventions, review checklist, and directly requested user instructions."
 }
 
 func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID string) string {
@@ -2230,6 +2265,20 @@ func recentConversationEntries(items []conversation.Entry) []clients.RunnerConve
 		})
 	}
 	return out
+}
+
+func recentConversationEntriesForWorkflow(items []conversation.Entry, githubCodeReviewRequested bool) []clients.RunnerConversationEntry {
+	if !githubCodeReviewRequested {
+		return recentConversationEntries(items)
+	}
+	filtered := make([]conversation.Entry, 0, len(items))
+	for _, item := range items {
+		if strings.EqualFold(strings.TrimSpace(item.EntryType), "slack_action") && strings.EqualFold(strings.TrimSpace(item.ActorType), "bot") {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+	return recentConversationEntries(filtered)
 }
 
 func priorTraceRefsForCase(items []events.TraceSummary, caseID string, currentTraceID string) []clients.RunnerTraceRef {
