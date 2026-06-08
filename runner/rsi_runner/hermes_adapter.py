@@ -24,6 +24,7 @@ version: "1.2.0"
 description: "RSI context injection and lifecycle capture"
 provides_hooks:
   - pre_llm_call
+  - pre_tool_call
   - on_session_start
   - on_session_end
 capabilities:
@@ -52,6 +53,11 @@ from rsi_runner.grafana_observability import (
     loki_log_lines as grafana_loki_log_lines,
     logs_query as grafana_logs_query,
     metrics_query as grafana_metrics_query,
+)
+from rsi_runner.pr_review_gate import (
+    cleanup_pr_review_workspace,
+    pre_tool_call_guard,
+    render_pr_review_context_sections,
 )
 from rsi_runner.slack_uploads import prepare_local_slack_upload_payload
 
@@ -1335,6 +1341,7 @@ def _render_context(payload: JsonObject) -> str:
     refs = payload.get("context_refs") or []
     if refs:
         parts.append(_json_block("Context refs", refs))
+    parts.extend(render_pr_review_context_sections(payload))
     execution_mode = str(payload.get("execution_mode", "") or "").strip()
     if execution_mode:
         parts.append("Execution mode: " + execution_mode)
@@ -1381,6 +1388,7 @@ def on_session_start(session_id: str, **kwargs):
 
 
 def on_session_end(session_id: str, **kwargs):
+    cleanup_pr_review_workspace(_runtime_root(), session_id)
     _append_event(
         session_id,
         "on_session_end",
@@ -1390,6 +1398,26 @@ def on_session_end(session_id: str, **kwargs):
             "model": kwargs.get("model", ""),
             "platform": kwargs.get("platform", ""),
         },
+    )
+
+
+def pre_tool_call(
+    tool_name: str,
+    args: JsonObject | None = None,
+    task_id: str = "",
+    session_id: str = "",
+    tool_call_id: str = "",
+    **kwargs,
+):
+    safe_args = args if isinstance(args, dict) else {}
+    return pre_tool_call_guard(
+        _runtime_root(),
+        tool_name,
+        safe_args,
+        task_id=task_id,
+        session_id=session_id,
+        tool_call_id=tool_call_id,
+        **kwargs,
     )
 
 
@@ -1406,6 +1434,7 @@ def register(ctx):
             external_pause=canonical_name == "db_read.query",
         )
     ctx.register_hook("pre_llm_call", pre_llm_call)
+    ctx.register_hook("pre_tool_call", pre_tool_call)
     ctx.register_hook("on_session_start", on_session_start)
     ctx.register_hook("on_session_end", on_session_end)
 """

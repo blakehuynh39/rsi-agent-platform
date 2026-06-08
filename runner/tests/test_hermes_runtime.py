@@ -37,6 +37,7 @@ from rsi_runner.hermes_runtime import (
     _redact_subprocess_output,
 )
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
+from rsi_runner.pr_review_gate import PR_REVIEW_VERDICT_MARKER
 from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions, transport_tool_schema
 from rsi_runner.session_manager import MemoryTracker, SessionManager
 
@@ -747,6 +748,629 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("artifact_write_file", source)
         self.assertIn("db_read_query", source)
         self.assertIn("external_tool.pending", source)
+        self.assertIn("pre_tool_call", source)
+        self.assertIn("rsi_runner.pr_review_gate", source)
+        self.assertEqual(PR_REVIEW_VERDICT_MARKER, "RSI_PR_REVIEW_VERDICT")
+
+    def test_pr_review_approval_gate_blocks_partial_subagent_approval(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Re-review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_root": str(Path(hermes_home, "runs", "pr-review-worktrees", session_id)),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lifecycle_dir = Path(hermes_home, "rsi_runtime", "lifecycle")
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_dir.joinpath(f"{session_id}.jsonl").write_text(
+                "\n".join(
+                    json.dumps(item)
+                    for item in [
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh re-review for PR #380"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "max_iterations",
+                                                "summary": (
+                                                    "Reviewed PR #380.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":380,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 380 --repo piplabs/numo-monorepo --approve --body 'approved'"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("max_iterations", blocked["message"])
+
+    def test_pr_review_approval_gate_allows_clean_subagent_verdict(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-clean"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #377.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lifecycle_dir = Path(hermes_home, "rsi_runtime", "lifecycle")
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_dir.joinpath(f"{session_id}.jsonl").write_text(
+                "\n".join(
+                    json.dumps(item)
+                    for item in [
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh PR #377 review"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "completed",
+                                                "summary": (
+                                                    "No blocking findings for PR #377.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":377,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 377 --repo piplabs/numo-monorepo --approve --body 'approved'"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_approval_gate_blocks_slack_approval_without_verdict(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-slack"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Re-review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "send_message",
+                {"text": "PR #380 approved and ready to merge."},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("no current-session fresh delegate_task result", blocked["message"])
+
+    def test_pr_review_approval_gate_blocks_prefixed_slack_mcp_approval_without_verdict(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-prefixed-slack"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "mcp__slack__slack_send_message",
+                {"text": "PR #380 approved and ready to merge."},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("no current-session fresh delegate_task result", blocked["message"])
+
+    def test_pr_review_approval_gate_uses_latest_matching_subagent_result(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-latest"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Re-review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lifecycle_dir = Path(hermes_home, "rsi_runtime", "lifecycle")
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_dir.joinpath(f"{session_id}.jsonl").write_text(
+                "\n".join(
+                    json.dumps(item)
+                    for item in [
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate-clean",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh review for PR #380"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate-clean",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "completed",
+                                                "summary": (
+                                                    "No blocking findings for PR #380.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":380,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate-partial",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh re-review for PR #380"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate-partial",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "max_iterations",
+                                                "summary": (
+                                                    "Partial re-review for PR #380.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":380,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body 'approved'"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("max_iterations", blocked["message"])
+
+    def test_pr_review_approval_gate_skips_terminal_approval_when_gate_disabled(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-disabled"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": False,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body 'approved'"},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_approval_gate_blocks_approval_when_context_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body 'approved'"},
+                task_id="sess-pr-review-missing-context",
+            )
+
+        self.assertIsInstance(blocked, dict)
+        self.assertEqual(blocked["action"], "block")
+        self.assertIn("without staged PR-review gate context", blocked["message"])
+
+    def test_pr_review_approval_gate_blocks_wrapped_gh_approval_without_verdict(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-wrapped-gh"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            bash_blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "bash -c \"gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body approved\""},
+                task_id=session_id,
+            )
+            path_blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "/usr/bin/gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body approved"},
+                task_id=session_id,
+            )
+
+        self.assertIsInstance(bash_blocked, dict)
+        self.assertEqual(bash_blocked["action"], "block")
+        self.assertIn("no current-session fresh delegate_task result", bash_blocked["message"])
+        self.assertIsInstance(path_blocked, dict)
+        self.assertEqual(path_blocked["action"], "block")
+        self.assertIn("no current-session fresh delegate_task result", path_blocked["message"])
+
+    def test_pr_review_approval_gate_uses_runtime_context_path_for_verdict_and_cleanup(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home:
+            context_path = Path(hermes_home, "context", "executions", "ctx.json")
+            context_path.parent.mkdir(parents=True, exist_ok=True)
+            session_id = "sess-pr-review-runtime-context"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            workspace_root.mkdir(parents=True)
+            workspace_root.joinpath("checkout").mkdir()
+            context_path.write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review PR #380.",
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lifecycle_dir = Path(hermes_home, "rsi_runtime", "lifecycle")
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_dir.joinpath(f"{session_id}.jsonl").write_text(
+                "\n".join(
+                    json.dumps(item)
+                    for item in [
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh review for PR #380"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "completed",
+                                                "summary": (
+                                                    "No blocking findings for PR #380.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":380,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            with mock.patch.dict(
+                os.environ,
+                {"HERMES_HOME": hermes_home, "RSI_RUNTIME_CONTEXT_PATH": str(context_path), "RSI_EXECUTION_ID": "hexec-380"},
+                clear=True,
+            ):
+                namespace: dict[str, object] = {}
+                exec(_build_plugin_module(), namespace)
+
+                blocked = namespace["pre_tool_call"](
+                    "terminal",
+                    {"cmd": "gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body approved"},
+                    task_id=session_id,
+                )
+                namespace["on_session_end"](session_id, completed=True)
+
+        self.assertIsNone(blocked)
+        self.assertFalse(workspace_root.exists())
+
+    def test_pr_review_approval_gate_uses_summary_pr_for_slack_approval(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-summary-slack"
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "task_prompt": "Review requested.",
+                        "context_summary": "This review is for PR #380.",
+                        "hermes_run_root": str(Path(hermes_home, "runs")),
+                        "pr_review_approval_gate": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            lifecycle_dir = Path(hermes_home, "rsi_runtime", "lifecycle")
+            lifecycle_dir.mkdir(parents=True, exist_ok=True)
+            lifecycle_dir.joinpath(f"{session_id}.jsonl").write_text(
+                "\n".join(
+                    json.dumps(item)
+                    for item in [
+                        {
+                            "event": "tool.call.started",
+                            "event_type": "tool.call.started",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "args": {"tasks": [{"goal": "Fresh review for PR #380"}]},
+                            },
+                        },
+                        {
+                            "event": "tool.call.completed",
+                            "event_type": "tool.call.completed",
+                            "payload": {
+                                "tool_call_id": "call-delegate",
+                                "tool_name": "delegate_task",
+                                "result": json.dumps(
+                                    {
+                                        "results": [
+                                            {
+                                                "task_index": 0,
+                                                "status": "completed",
+                                                "exit_reason": "completed",
+                                                "summary": (
+                                                    "No blocking findings for PR #380.\n"
+                                                    'RSI_PR_REVIEW_VERDICT {"pr_number":380,"approval_safe":true,'
+                                                    '"blocking_findings":0,"verdict":"approve"}'
+                                                ),
+                                            }
+                                        ]
+                                    }
+                                ),
+                            },
+                        },
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            blocked = namespace["pre_tool_call"](
+                "rsi_slack_report_post",
+                {"summary": "Approved and ready to merge."},
+                task_id=session_id,
+            )
+
+        self.assertIsNone(blocked)
+
+    def test_pr_review_approval_gate_blocks_approval_when_session_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            terminal_blocked = namespace["pre_tool_call"](
+                "terminal",
+                {"cmd": "gh pr review 380 --repo piplabs/rsi-agent-platform --approve --body 'approved'"},
+            )
+            slack_blocked = namespace["pre_tool_call"](
+                "mcp__slack__post_message",
+                {"text": "PR #380 approved and ready to merge."},
+            )
+
+        self.assertIsInstance(terminal_blocked, dict)
+        self.assertEqual(terminal_blocked["action"], "block")
+        self.assertIn("without a session id", terminal_blocked["message"])
+        self.assertIsInstance(slack_blocked, dict)
+        self.assertEqual(slack_blocked["action"], "block")
+        self.assertIn("without a session id", slack_blocked["message"])
+
+    def test_pr_review_workspace_cleanup_removes_staged_worktree_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            session_id = "sess-pr-review-cleanup"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            workspace_root.mkdir(parents=True)
+            workspace_root.joinpath("checkout", "README.md").parent.mkdir()
+            workspace_root.joinpath("checkout", "README.md").write_text("temp", encoding="utf-8")
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            namespace["on_session_end"](session_id, completed=True)
+            events = [
+                json.loads(line)
+                for line in Path(hermes_home, "rsi_runtime", "lifecycle", f"{session_id}.jsonl").read_text(encoding="utf-8").splitlines()
+            ]
+
+        self.assertFalse(workspace_root.exists())
+        self.assertIn("pr_review.workspace_cleanup.completed", {event["event"] for event in events})
+
+    def test_stage_task_context_includes_pr_review_gate_and_cleanup_root(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "numo-monorepo",
+                        "prompt": "Re-review PR #380.",
+                    }
+                }
+            )
+            session_id = "sess-stage-pr-review"
+
+            runtime._stage_task_context(session_id, task)
+            payload = json.loads(
+                Path(hermes_home, "rsi_runtime", "context", f"{session_id}.json").read_text(encoding="utf-8")
+            )
+
+        self.assertTrue(payload["pr_review_approval_gate"])
+        self.assertEqual(
+            payload["pr_review_workspace_root"],
+            str(Path(payload["hermes_run_root"]) / "pr-review-worktrees" / session_id),
+        )
 
     def test_github_repo_activity_default_payload_ignores_context_windows(self) -> None:
         namespace: dict[str, object] = {}
