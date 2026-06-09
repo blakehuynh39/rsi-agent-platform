@@ -8056,6 +8056,7 @@ if __name__ == "__main__":
             parts.append("Hermes native terminal tools are not enabled for this runner.")
         parts.append(
             "For GitHub PR review and PR re-review tasks, use fresh delegate_task subagents for the current review pass. "
+            "For PR re-review tasks, the delegated task must perform a full blind current review of the PR diff and changed-file context, then separately reconcile previous findings; it must not be delta-only. "
             "A PR approval or Slack approval report is allowed only after the matching subagent result ends cleanly and its summary includes "
             "RSI_PR_REVIEW_VERDICT JSON with pr_number, approval_safe=true, blocking_findings=0, and verdict=approve. "
             "Pass the injected PR review workspace root into each delegate_task prompt. Use GitHub reads pinned to the PR head SHA or temporary clones/worktrees "

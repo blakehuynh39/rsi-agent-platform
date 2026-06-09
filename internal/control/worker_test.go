@@ -5052,15 +5052,21 @@ func TestBuildRunnerTaskIsolatesGithubCodeReviewSession(t *testing.T) {
 	if !strings.Contains(task.Prompt, "GitHub PR review isolation") {
 		t.Fatalf("expected PR review isolation instruction, got %q", task.Prompt)
 	}
-	if !strings.Contains(task.Prompt, "Do not pass previous Slack bot review summaries") {
-		t.Fatalf("expected initial review to forbid prior bot summaries, got %q", task.Prompt)
+	if !strings.Contains(task.Prompt, "full blind current review") {
+		t.Fatalf("expected PR review isolation instruction to require full current review, got %q", task.Prompt)
+	}
+	if !strings.Contains(task.Prompt, "previous-finding reconciliation input") {
+		t.Fatalf("expected PR review isolation instruction to allow previous findings only as reconciliation input, got %q", task.Prompt)
+	}
+	if !strings.Contains(task.Prompt, "seeded conclusions") {
+		t.Fatalf("expected PR review isolation instruction to forbid seeded conclusions, got %q", task.Prompt)
 	}
 	if strings.Contains(task.Prompt, "review-vs-re-review") || strings.Contains(task.Prompt, "classifier") {
 		t.Fatalf("expected prompt guard not to contain platform review/re-review classifier guidance, got %q", task.Prompt)
 	}
 }
 
-func TestRecentConversationEntriesForGithubCodeReviewFiltersPriorBotReviewSummaries(t *testing.T) {
+func TestRecentConversationEntriesForGithubCodeReviewKeepsPriorReviewReconciliationEvidence(t *testing.T) {
 	now := time.Now().UTC()
 	items := []conversation.Entry{
 		{
@@ -5090,13 +5096,17 @@ func TestRecentConversationEntriesForGithubCodeReviewFiltersPriorBotReviewSummar
 	}
 
 	got := recentConversationEntriesForWorkflow(items, true)
+	if len(got) != 3 {
+		t.Fatalf("expected user and prior review entries for reconciliation evidence, got %#v", got)
+	}
+	foundPriorReview := false
 	for _, entry := range got {
-		if entry.ID == "entry-bot-review" || strings.Contains(entry.Body, "Prior blocking finding") {
-			t.Fatalf("GitHub review recent entries leaked prior bot review summary: %#v", got)
+		if entry.ID == "entry-bot-review" && strings.Contains(entry.Body, "Prior blocking finding") {
+			foundPriorReview = true
 		}
 	}
-	if len(got) != 2 {
-		t.Fatalf("expected only user entries after filtering prior bot summaries, got %#v", got)
+	if !foundPriorReview {
+		t.Fatalf("expected prior review summary to be preserved for re-review reconciliation evidence, got %#v", got)
 	}
 }
 

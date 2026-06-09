@@ -1712,7 +1712,7 @@ func workflowSessionScopeForTask(trace events.Trace, workflow storepkg.Workflow,
 }
 
 func githubCodeReviewIsolationInstruction() string {
-	return "GitHub PR review isolation: treat this Slack thread as the delivery surface, not as the reviewing context. Before producing any review verdict, call a fresh delegate_task subagent for this review pass. Do not pass previous Slack bot review summaries, prior review findings, or earlier verdicts into the delegated task as seeded conclusions. Pass only raw PR metadata, current PR diff/check status, repo conventions, review checklist, and directly requested user instructions."
+	return "GitHub PR review isolation: treat this Slack thread as the delivery surface and reconciliation evidence, not as the source of the approval verdict. Before producing any review verdict, call a fresh delegate_task subagent for this review pass. The delegated task must perform a full blind current review of the PR diff/check status and changed-file context, then separately reconcile previous findings. Do not pass previous Slack bot review summaries, prior review findings, author responses, or earlier verdicts as seeded conclusions. You may pass them only as a clearly labeled previous-finding reconciliation input, together with raw PR metadata, current PR diff/check status, repo conventions, review checklist, and directly requested user instructions. Require the subagent to report current-pass findings separately from previous-finding status, and do not approve solely because earlier findings appear fixed."
 }
 
 func workflowUserPeerID(entries []conversation.Entry, scopeKind string, scopeID string) string {
@@ -2268,17 +2268,7 @@ func recentConversationEntries(items []conversation.Entry) []clients.RunnerConve
 }
 
 func recentConversationEntriesForWorkflow(items []conversation.Entry, githubCodeReviewRequested bool) []clients.RunnerConversationEntry {
-	if !githubCodeReviewRequested {
-		return recentConversationEntries(items)
-	}
-	filtered := make([]conversation.Entry, 0, len(items))
-	for _, item := range items {
-		if strings.EqualFold(strings.TrimSpace(item.EntryType), "slack_action") && strings.EqualFold(strings.TrimSpace(item.ActorType), "bot") {
-			continue
-		}
-		filtered = append(filtered, item)
-	}
-	return recentConversationEntries(filtered)
+	return recentConversationEntries(items)
 }
 
 func priorTraceRefsForCase(items []events.TraceSummary, caseID string, currentTraceID string) []clients.RunnerTraceRef {
