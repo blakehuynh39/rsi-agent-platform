@@ -24820,3 +24820,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c53b0275c6af1d76934e9690b7f2dce4
 - summary: Slack file attachment:
 
+## [2026-06-09T21:30:34Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_360f519f95717c61b024ae9a3ed11571
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_6ecde354750d9a75c90932ca7161b856
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
