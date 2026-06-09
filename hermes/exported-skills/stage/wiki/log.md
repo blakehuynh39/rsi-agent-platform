@@ -24829,3 +24829,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_6ecde354750d9a75c90932ca7161b856
 - summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-06-09T21:49:16Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_7f0dab40948f4b700fa06709f028327f
+- summary: The Tiger Team is a cross-functional group responsible for building and managing DePIN apps, including Scout Careers, Aura, DePIN Backend, and DePIN Admin. They also plan future ap...
+
+## [2026-06-09T21:49:17Z] synthesis | Trace Backend Architecture
+
+- status: published
+- slug: systems/trace-backend-architecture
+- wiki_revision_id: wikirev_c9ab929498fc5f016b71e82463151734
+- summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 al...
+

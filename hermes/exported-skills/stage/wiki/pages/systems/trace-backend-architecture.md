@@ -15,7 +15,7 @@ conflict_state: "none"
 
 ## Summary
 
-Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 alignment and Staging V1 status as of June 2, 2026.
+Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 alignment, schema feedback, and staging load-test results.
 
 ## Claims
 
@@ -69,5 +69,5 @@ Overview of the Trace backend system architecture, including staging deployment,
 ## Sources
 
 - `source_document_id`: `srcdoc_f33f716b82984e27937f90590ba0afd6`
-- `source_revision_id`: `srcrev_7052a20e8c08b528dd8cc66f90a0f6ed`
-- `source_url`: [Notion source](https://www.notion.so/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+- `source_revision_id`: `srcrev_6ecde354750d9a75c90932ca7161b856`
+- `source_url`: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)

@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "839a8e1ade28e51b46cdd3c5c963fa6149a2aa498bf09fb38259937283ee93e9",
+        "sha256": "c75cb8576230c4bc2358b2d06b13b41a84fa2adb07860a139937ff1ba8621c44",
         "size": 619506
       },
       {
         "path": "log.md",
-        "sha256": "9c6674f2c732030e78c78b49898dc06323d91473120e685cce6cdfb2585b6d50",
-        "size": 1192233
+        "sha256": "7122bb97ebe49e5946ab2a58bf0a73fdcc272d42d593c78ec5462b490bd68ff2",
+        "size": 1192974
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5851,8 +5851,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "bdb84ff66f24eb0db33cc78334d438e1d700a1c26a6cdeaadb99253c48c4d727",
-        "size": 30773
+        "sha256": "02a69c57159c65227a01bfda4f588bb9644ceecdda5870447fdb3e3540e9f87d",
+        "size": 30695
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -6791,8 +6791,8 @@
       },
       {
         "path": "pages/systems/trace-backend-architecture.md",
-        "sha256": "50c07c5b8baee47ad11319d7fdc42830a6c6705cdcef05a19b3ebe96bb77f534",
-        "size": 15165
+        "sha256": "13f5a3c3d4cab8aeca67f988a50ff738a62c3b8413f18e45926d40ee96d99b43",
+        "size": 15168
       },
       {
         "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -6824,7 +6824,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-09T21:35:40Z",
+  "exported_at": "2026-06-09T21:52:29Z",
   "file_count": 1363,
   "files": [
     {
@@ -10092,7 +10092,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c546bb6sh6h",
-  "previous_tree_hash": "4526620d41652d92669a1276afc60e30621abfa77078a5330dfc20aa7febbf53",
+  "previous_tree_hash": "60cc7dadfb522c966dc382c71b5eb02710b44e3f752d28cd635d993f5cd50d15",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10105,7 +10105,7 @@
   ],
   "skill_tree_hash": "1096f05e9f85d678003a25cd484df09a88d770b89a57b5423f503f79091ced67",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "60cc7dadfb522c966dc382c71b5eb02710b44e3f752d28cd635d993f5cd50d15",
+  "tree_hash": "f5b4645dc922ed7f085b7ad4fbba95371c5fcf41a1500c39e0035350a357486c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10121,13 +10121,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "839a8e1ade28e51b46cdd3c5c963fa6149a2aa498bf09fb38259937283ee93e9",
+      "sha256": "c75cb8576230c4bc2358b2d06b13b41a84fa2adb07860a139937ff1ba8621c44",
       "size": 619506
     },
     {
       "path": "log.md",
-      "sha256": "9c6674f2c732030e78c78b49898dc06323d91473120e685cce6cdfb2585b6d50",
-      "size": 1192233
+      "sha256": "7122bb97ebe49e5946ab2a58bf0a73fdcc272d42d593c78ec5462b490bd68ff2",
+      "size": 1192974
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12701,8 +12701,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "bdb84ff66f24eb0db33cc78334d438e1d700a1c26a6cdeaadb99253c48c4d727",
-      "size": 30773
+      "sha256": "02a69c57159c65227a01bfda4f588bb9644ceecdda5870447fdb3e3540e9f87d",
+      "size": 30695
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -13641,8 +13641,8 @@
     },
     {
       "path": "pages/systems/trace-backend-architecture.md",
-      "sha256": "50c07c5b8baee47ad11319d7fdc42830a6c6705cdcef05a19b3ebe96bb77f534",
-      "size": 15165
+      "sha256": "13f5a3c3d4cab8aeca67f988a50ff738a62c3b8413f18e45926d40ee96d99b43",
+      "size": 15168
     },
     {
       "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -13671,5 +13671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7dfc3a600b6c456a828941b3b371d9080bf9214d37f69b4b61beb331d2ddb2e7"
+  "wiki_tree_hash": "1d7bf80abeed29512e42c0deb731e46218529518e465055d3b029ade3da13273"
 }
