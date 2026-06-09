@@ -429,6 +429,57 @@ func TestTraceActivityProjectorSyntheticQuietRowHasStableID(t *testing.T) {
 	}
 }
 
+func TestTraceActivityProjectorClosesSyntheticGenerationWhenPhaseFails(t *testing.T) {
+	start := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: start.Add(30 * time.Second)}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("gen-1", 7, "tool.generation.started", "running", start, map[string]any{
+			"tool_name": "delegate_task",
+		}),
+		ledgerEvent("phase-1", 8, "phase.completed", "failed", start.Add(20*time.Second), map[string]any{
+			"termination_reason": "execution_error",
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1: %#v", len(items), items)
+	}
+	if items[0].Status != "failed" {
+		t.Fatalf("synthetic generation status=%q, want failed", items[0].Status)
+	}
+	if items[0].CompletedAt == nil || !items[0].CompletedAt.Equal(start.Add(20*time.Second)) {
+		t.Fatalf("completed_at=%v, want phase completion", items[0].CompletedAt)
+	}
+	if got := items[0].Details["terminal_phase_reason"]; got != "execution_error" {
+		t.Fatalf("terminal reason=%#v, want execution_error", got)
+	}
+}
+
+func TestTraceActivityProjectorClosesStartedToolWhenPhaseFails(t *testing.T) {
+	start := time.Date(2026, 5, 14, 21, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: start.Add(time.Minute)}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("tool-1", 10, "tool.call.started", "running", start, map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-terminal",
+		}),
+		ledgerEvent("phase-1", 11, "phase.completed", "failed", start.Add(15*time.Second), map[string]any{
+			"failure_class": "runner_non_ok",
+		}),
+	})
+	if len(items) != 1 {
+		t.Fatalf("items len=%d, want 1: %#v", len(items), items)
+	}
+	if items[0].Status != "failed" {
+		t.Fatalf("tool status=%q, want failed", items[0].Status)
+	}
+	if items[0].DurationMS != 15000 {
+		t.Fatalf("duration_ms=%d, want 15000", items[0].DurationMS)
+	}
+	if !containsString(items[0].SourceLedgerIDs, "phase-1") {
+		t.Fatalf("source ledger IDs=%#v, want terminal phase event", items[0].SourceLedgerIDs)
+	}
+}
+
 func TestTraceActivityTruncateKeepsUTF8Valid(t *testing.T) {
 	got := traceActivityTruncate("hello 世界 🚀", 9)
 	if !utf8.ValidString(got) {

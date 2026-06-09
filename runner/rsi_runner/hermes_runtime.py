@@ -29,6 +29,7 @@ from .file_utils import _atomic_write_json
 from .hermes_adapter import HermesAdapter
 from .hermes_agent_adapter import validate_hermes_contract
 from .hermes_mcp_adapter import HermesTaskScopedMCPAdapter, TaskScopedMCPRegistration
+from .pr_review_gate import cleanup_pr_review_workspace
 from .execution_contract import (
     EXECUTION_CONTRACT_VERSION,
     RUNNER_PLANNER_MODE,
@@ -3330,6 +3331,18 @@ class HermesRuntime:
             / f"{self._native_execution_slug(execution_id)}.json"
         ).resolve()
 
+    def _cleanup_native_pr_review_workspace(self, session_id: str, context_path: Path) -> None:
+        runtime_root = Path(self._config.hermes_home).expanduser() / "rsi_runtime"
+        try:
+            cleanup_pr_review_workspace(
+                runtime_root,
+                session_id,
+                context_path=context_path,
+                cleanup_owner="native_runtime",
+            )
+        except Exception as exc:
+            logger.warning("failed to cleanup native PR review workspace for session %s: %s", session_id, exc)
+
     def _db_read_execution_token(self, task: RunnerTaskRequest) -> str:
         secret = os.getenv("RSI_DB_READ_CLIENT_TOKEN", "").strip()
         if not self._config.db_read_gateway_configured or not secret:
@@ -5119,6 +5132,8 @@ if __name__ == "__main__":
             completed_stdout = _suppress_benign_subprocess_output("".join(stdout_chunks))
             completed_stderr = _suppress_benign_subprocess_output("".join(stderr_chunks))
 
+        self._cleanup_native_pr_review_workspace(context.session_id, context_path)
+
         parsed_result: JsonObject = {}
         parse_error = ""
         result_file_present = result_file.exists()
@@ -6226,6 +6241,9 @@ if __name__ == "__main__":
             "pr_review_workspace_root": str(
                 Path(self._config.hermes_run_root).expanduser() / "pr-review-worktrees" / session_id
             ),
+            "pr_review_workspace_cleanup_owner": "native_runtime",
+            "pr_review_workspace_owner_session_id": session_id,
+            "pr_review_workspace_owner_execution_id": task.execution_id or "",
             "hermes_artifact_root": self._config.hermes_artifact_root,
             "hermes_native_terminal_enabled": self._config.hermes_native_terminal_enabled,
             "hermes_native_toolsets": self._hermes_native_toolsets(),

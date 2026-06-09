@@ -1339,6 +1339,85 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertFalse(workspace_root.exists())
         self.assertIn("pr_review.workspace_cleanup.completed", {event["event"] for event in events})
 
+    def test_pr_review_workspace_cleanup_skips_session_hook_when_native_runtime_owns_it(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
+            owner_session_id = "sess-pr-review-owner"
+            child_session_id = "sess-pr-review-child"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / owner_session_id
+            workspace_root.mkdir(parents=True)
+            workspace_root.joinpath("checkout", "README.md").parent.mkdir()
+            workspace_root.joinpath("checkout", "README.md").write_text("temp", encoding="utf-8")
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            context_dir.joinpath(f"{child_session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                        "pr_review_workspace_cleanup_owner": "native_runtime",
+                        "pr_review_workspace_owner_session_id": owner_session_id,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+
+            namespace["on_session_end"](child_session_id, completed=True)
+            workspace_still_exists = workspace_root.exists()
+            events = [
+                json.loads(line)
+                for line in Path(hermes_home, "rsi_runtime", "lifecycle", f"{child_session_id}.jsonl").read_text(encoding="utf-8").splitlines()
+            ]
+
+        self.assertTrue(workspace_still_exists)
+        self.assertIn("pr_review.workspace_cleanup.skipped", {event["event"] for event in events})
+        self.assertIn("native_runtime", events[0]["reason"])
+
+    def test_native_runtime_cleanup_removes_owned_pr_review_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            session_id = "sess-pr-review-runtime-cleanup"
+            run_root = Path(hermes_home, "runs")
+            workspace_root = run_root / "pr-review-worktrees" / session_id
+            workspace_root.mkdir(parents=True)
+            workspace_root.joinpath("checkout", "README.md").parent.mkdir()
+            workspace_root.joinpath("checkout", "README.md").write_text("temp", encoding="utf-8")
+            context_path = Path(hermes_home, "rsi_runtime", "context", "executions", "ctx.json")
+            context_path.parent.mkdir(parents=True, exist_ok=True)
+            context_path.write_text(
+                json.dumps(
+                    {
+                        "hermes_run_root": str(run_root),
+                        "pr_review_approval_gate": True,
+                        "pr_review_workspace_root": str(workspace_root),
+                        "pr_review_workspace_cleanup_owner": "native_runtime",
+                        "pr_review_workspace_owner_session_id": session_id,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            runtime._cleanup_native_pr_review_workspace(session_id, context_path)
+            workspace_still_exists = workspace_root.exists()
+            events = [
+                json.loads(line)
+                for line in Path(hermes_home, "rsi_runtime", "lifecycle", f"{session_id}.jsonl").read_text(encoding="utf-8").splitlines()
+            ]
+
+        self.assertFalse(workspace_still_exists)
+        self.assertIn("pr_review.workspace_cleanup.completed", {event["event"] for event in events})
+
     def test_pr_review_workspace_guard_blocks_mutating_git_outside_root(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(os.environ, {"HERMES_HOME": hermes_home}, clear=True):
             session_id = "sess-pr-review-workspace-git-block"
@@ -1838,6 +1917,9 @@ class HermesRuntimeTests(unittest.TestCase):
             payload["pr_review_workspace_root"],
             str(Path(payload["hermes_run_root"]) / "pr-review-worktrees" / session_id),
         )
+        self.assertEqual(payload["pr_review_workspace_cleanup_owner"], "native_runtime")
+        self.assertEqual(payload["pr_review_workspace_owner_session_id"], session_id)
+        self.assertEqual(payload["pr_review_workspace_owner_execution_id"], "")
 
     def test_stage_task_context_does_not_enable_workspace_guard_for_plain_pr_mentions(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(

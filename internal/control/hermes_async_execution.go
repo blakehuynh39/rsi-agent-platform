@@ -35,15 +35,19 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 		}
 		return hermesExecutionRecovery{}, fmt.Errorf("check Hermes execution status %s: %w", executionID, err)
 	}
+	return recoverHermesExecutionFromStatus(executionID, status), nil
+}
+
+func recoverHermesExecutionFromStatus(executionID string, status clients.HermesExecutionStatus) hermesExecutionRecovery {
 	statusText := strings.ToLower(strings.TrimSpace(status.Status))
 	if status.Result != nil {
-		return hermesExecutionRecovery{response: *status.Result, status: statusText}, nil
+		return hermesExecutionRecovery{response: *status.Result, status: statusText}
 	}
 	switch statusText {
 	case "running", "accepted", "starting", "finalizing", "cancel_requested", "cancelling":
-		return hermesExecutionRecovery{stillRunning: true, status: statusText}, nil
+		return hermesExecutionRecovery{stillRunning: true, status: statusText}
 	case "queued":
-		return hermesExecutionRecovery{stillRunning: true, status: statusText}, nil
+		return hermesExecutionRecovery{stillRunning: true, status: statusText}
 	case "completed", "failed", "cancelled", "orphaned":
 		return hermesExecutionRecovery{
 			response: hermesExecutorRecoveryFailureWithStatus(
@@ -53,7 +57,7 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 				status,
 			),
 			status: statusText,
-		}, nil
+		}
 	default:
 		statusText := strings.TrimSpace(status.Status)
 		return hermesExecutionRecovery{
@@ -64,7 +68,7 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 				statusText,
 			),
 			status: strings.ToLower(statusText),
-		}, nil
+		}
 	}
 }
 
@@ -332,6 +336,16 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			}
 			recovery, err := recoverHermesExecution(recordClient, task.ExecutionID)
 			if err != nil {
+				attemptedBaseURL := ""
+				if recordClient != nil {
+					attemptedBaseURL = recordClient.BaseURL()
+				}
+				if fallbackStatus, fallbackErr := executorPool.statusFromAnyEndpoint(task.ExecutionID, record, attemptedBaseURL); fallbackErr == nil {
+					recovery = recoverHermesExecutionFromStatus(task.ExecutionID, fallbackStatus)
+					err = nil
+				}
+			}
+			if err != nil {
 				failureNow := time.Now().UTC()
 				referenceTime := startFailureReferenceTime
 				if referenceTime.IsZero() {
@@ -526,6 +540,16 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		recordClient = client
 	}
 	status, err := recordClient.HermesExecutionStatus(task.ExecutionID)
+	if err != nil {
+		attemptedBaseURL := ""
+		if recordClient != nil {
+			attemptedBaseURL = recordClient.BaseURL()
+		}
+		if fallbackStatus, fallbackErr := executorPool.statusFromAnyEndpoint(task.ExecutionID, record, attemptedBaseURL); fallbackErr == nil {
+			status = fallbackStatus
+			err = nil
+		}
+	}
 	if err != nil {
 		if strings.Contains(err.Error(), "returned 404") {
 			failureNow := time.Now().UTC()

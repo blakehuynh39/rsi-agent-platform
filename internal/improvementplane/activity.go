@@ -84,6 +84,13 @@ type traceActivityToolGroup struct {
 	error    string
 }
 
+type traceActivityTerminalPhase struct {
+	status      string
+	completedAt time.Time
+	sourceID    string
+	reason      string
+}
+
 func buildTraceActivitySnapshot(store storepkg.Repository, traceID string, scope string, mode string, limit int, cursor string, now time.Time) (TraceActivitySnapshot, bool) {
 	snapshot, _, ok := buildTraceActivitySnapshotWithHighWater(store, traceID, scope, mode, limit, cursor, now)
 	return snapshot, ok
@@ -172,6 +179,7 @@ func (p traceActivityProjector) Project(raw []events.ExecutionLedgerEvent) ([]Tr
 	if final := p.projectFinalResponse(items, mode); final != nil {
 		out = append(out, *final)
 	}
+	p.closeOpenItemsAfterTerminalPhase(items, out)
 	sort.SliceStable(out, func(i, j int) bool {
 		left := activityItemSortTime(out[i])
 		right := activityItemSortTime(out[j])
@@ -181,6 +189,106 @@ func (p traceActivityProjector) Project(raw []events.ExecutionLedgerEvent) ([]Tr
 		return left.Before(right)
 	})
 	return out, len(items)
+}
+
+func (p traceActivityProjector) closeOpenItemsAfterTerminalPhase(events []events.ExecutionLedgerEvent, items []TraceActivityItem) {
+	terminal, ok := traceActivityTerminalPhaseEvent(events)
+	if !ok {
+		return
+	}
+	for idx := range items {
+		if !traceActivityItemOpenAtTraceEnd(items[idx]) {
+			continue
+		}
+		items[idx].Status = terminal.status
+		completedAt := terminal.completedAt.UTC()
+		items[idx].CompletedAt = &completedAt
+		if items[idx].StartedAt != nil {
+			items[idx].DurationMS = completedAt.Sub(*items[idx].StartedAt).Milliseconds()
+		}
+		if terminal.sourceID != "" {
+			items[idx].SourceLedgerIDs = traceActivityUniqueStrings(append(items[idx].SourceLedgerIDs, terminal.sourceID))
+			items[idx].RawEventIDs = traceActivityUniqueStrings(append(items[idx].RawEventIDs, terminal.sourceID))
+		}
+		if items[idx].Details == nil {
+			items[idx].Details = map[string]any{}
+		}
+		items[idx].Details["terminal_phase_status"] = terminal.status
+		if terminal.sourceID != "" {
+			items[idx].Details["terminal_phase_event_id"] = terminal.sourceID
+		}
+		if terminal.reason != "" {
+			items[idx].Details["terminal_phase_reason"] = terminal.reason
+		}
+		items[idx].Revision = traceActivityRevision(items[idx])
+	}
+}
+
+func traceActivityTerminalPhaseEvent(items []events.ExecutionLedgerEvent) (traceActivityTerminalPhase, bool) {
+	var fallback *events.ExecutionLedgerEvent
+	var phase *events.ExecutionLedgerEvent
+	for idx := range items {
+		item := items[idx]
+		kind := strings.ToLower(strings.TrimSpace(item.Kind))
+		switch kind {
+		case "phase.completed":
+			if status := traceActivityTerminalEventStatus(item); status != "" {
+				phase = &items[idx]
+			}
+		case "executor.subprocess.completed":
+			if status := traceActivityTerminalEventStatus(item); status != "" {
+				fallback = &items[idx]
+			}
+		}
+	}
+	if phase != nil {
+		status := traceActivityTerminalEventStatus(*phase)
+		if status == "" {
+			return traceActivityTerminalPhase{}, false
+		}
+		return traceActivityTerminalFromEvent(*phase, status), true
+	}
+	if fallback == nil {
+		return traceActivityTerminalPhase{}, false
+	}
+	status := traceActivityTerminalEventStatus(*fallback)
+	if status == "" {
+		return traceActivityTerminalPhase{}, false
+	}
+	return traceActivityTerminalFromEvent(*fallback, status), true
+}
+
+func traceActivityTerminalEventStatus(item events.ExecutionLedgerEvent) string {
+	status := traceActivityNormalizeStatus(firstNonEmptyString(stringValue(item.Payload["status"]), item.Status))
+	switch status {
+	case "completed", "failed", "cancelled":
+		return status
+	default:
+		return ""
+	}
+}
+
+func traceActivityTerminalFromEvent(item events.ExecutionLedgerEvent, status string) traceActivityTerminalPhase {
+	return traceActivityTerminalPhase{
+		status:      status,
+		completedAt: item.RecordedAt,
+		sourceID:    item.ID,
+		reason: firstNonEmptyString(
+			stringValue(item.Payload["termination_reason"]),
+			stringValue(item.Payload["failure_class"]),
+			stringValue(item.Payload["error"]),
+			stringValue(item.Payload["message"]),
+		),
+	}
+}
+
+func traceActivityItemOpenAtTraceEnd(item TraceActivityItem) bool {
+	switch traceActivityNormalizeStatus(item.Status) {
+	case "running", "pending", "":
+		return true
+	default:
+		return false
+	}
 }
 
 func (p traceActivityProjector) projectToolGroups(items []events.ExecutionLedgerEvent) (map[string]*traceActivityToolGroup, []string, []events.ExecutionLedgerEvent) {

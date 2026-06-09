@@ -63,6 +63,36 @@ func (p hermesExecutorPool) clientForRecord(record storepkg.RunnerExecution) *cl
 	return clients.NewRunnerClientWithTimeout(baseURL, p.cfg.RunnerTimeoutForRole(firstNonEmpty(record.Role, p.role)))
 }
 
+func (p hermesExecutorPool) statusFromAnyEndpoint(executionID string, record storepkg.RunnerExecution, attemptedBaseURL string) (clients.HermesExecutionStatus, error) {
+	skip := map[string]bool{}
+	if value := strings.TrimSpace(attemptedBaseURL); value != "" {
+		skip[value] = true
+	}
+	if value := strings.TrimSpace(record.ExecutorBaseURL); value != "" {
+		skip[value] = true
+	}
+	candidates := p.readyCandidates(executionID)
+	if len(candidates) == 0 {
+		return clients.HermesExecutionStatus{}, errNoReadyHermesExecutorEndpoints
+	}
+	var lastErr error
+	for _, endpoint := range candidates {
+		baseURL := strings.TrimSpace(endpoint.baseURL)
+		if baseURL == "" || skip[baseURL] || endpoint.client == nil {
+			continue
+		}
+		status, err := endpoint.client.HermesExecutionStatus(executionID)
+		if err == nil {
+			return status, nil
+		}
+		lastErr = err
+	}
+	if lastErr == nil {
+		lastErr = errNoReadyHermesExecutorEndpoints
+	}
+	return clients.HermesExecutionStatus{}, lastErr
+}
+
 func (p hermesExecutorPool) startExecution(task clients.RunnerTask) (clients.HermesExecutionStatus, hermesExecutorEndpoint, error) {
 	candidates := p.readyCandidates(task.ExecutionID)
 	if len(candidates) == 0 {

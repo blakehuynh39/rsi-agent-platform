@@ -1830,6 +1830,111 @@ func TestAsyncHermesExecutionStatusTimeoutUsesCreatedAtWithoutHeartbeat(t *testi
 	}
 }
 
+func TestAsyncHermesExecutionPollReadsTerminalStatusFromPeerExecutor(t *testing.T) {
+	executionID := "hexec-peer-terminal"
+	holderStatusCalls := 0
+	holderReadyCalls := 0
+	holder := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/readyz":
+			holderReadyCalls++
+			_ = json.NewEncoder(w).Encode(clients.RuntimeResponse{
+				Status:      "ready",
+				Available:   true,
+				DrainStatus: "",
+			})
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+executionID:
+			holderStatusCalls++
+			http.Error(w, "holder unavailable", http.StatusServiceUnavailable)
+		default:
+			t.Fatalf("unexpected holder call %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer holder.Close()
+
+	peerStatusCalls := 0
+	peerReadyCalls := 0
+	peer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/readyz":
+			peerReadyCalls++
+			_ = json.NewEncoder(w).Encode(clients.RuntimeResponse{
+				Status:             "ready",
+				Available:          true,
+				ExecutorInstanceID: "peer-executor",
+			})
+		case r.Method == http.MethodGet && r.URL.Path == "/internal/hermes-executions/"+executionID:
+			peerStatusCalls++
+			_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+				ExecutionID: executionID,
+				Status:      "failed",
+				Result: &clients.RunnerResponse{
+					OK:       false,
+					Provider: "hermes-executor",
+					Message:  "native Hermes executor exited without a result file",
+					Raw: map[string]any{
+						"failure_class": "runner_non_ok",
+					},
+				},
+			})
+		default:
+			t.Fatalf("unexpected peer call %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer peer.Close()
+
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	heartbeat := now.Add(-5 * time.Minute)
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:     executionID,
+		Status:          "running",
+		Holder:          runnerExecutionHolder(executionID),
+		ExecutorBaseURL: holder.URL,
+		HeartbeatAt:     &heartbeat,
+		CreatedAt:       heartbeat,
+		UpdatedAt:       heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{
+			HermesExecutionHeartbeatTimeout: time.Minute,
+			HermesExecutorPoolURLs:          []string{holder.URL, peer.URL},
+		},
+		store,
+		clients.NewRunnerClient(holder.URL),
+		clients.RunnerTask{ExecutionID: executionID},
+		transition.EffectExecution{ID: "eff-peer-terminal"},
+		"prod",
+		workflowContext{},
+		now,
+	)
+	if err != nil || wait {
+		t.Fatalf("executeOrPollAsyncHermesExecution() = resp=%+v wait=%t err=%v, want terminal response", resp, wait, err)
+	}
+	if resp.OK || resp.Message != "native Hermes executor exited without a result file" {
+		t.Fatalf("response=%+v, want peer terminal failure", resp)
+	}
+	if holderStatusCalls != 1 || peerStatusCalls != 1 {
+		t.Fatalf("status calls holder=%d peer=%d, want 1/1", holderStatusCalls, peerStatusCalls)
+	}
+	if holderReadyCalls == 0 || peerReadyCalls == 0 {
+		t.Fatalf("ready calls holder=%d peer=%d, want both endpoints considered", holderReadyCalls, peerReadyCalls)
+	}
+	record, ok := store.GetRunnerExecution(executionID)
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.FailureClass != "runner_non_ok" {
+		t.Fatalf("runner execution = %+v, want failed runner_non_ok from peer result", record)
+	}
+	if record.Result["message"] != "native Hermes executor exited without a result file" {
+		t.Fatalf("recorded result=%#v, want peer result", record.Result)
+	}
+}
+
 func TestAsyncHermesExecutionPollResultAfterConcurrentCancelIsNonDeliverable(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()

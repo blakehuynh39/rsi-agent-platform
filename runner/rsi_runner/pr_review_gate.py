@@ -320,9 +320,44 @@ def _file_write_workspace_issue(args: JsonObject, workspace_root: Path) -> str:
     return ""
 
 
-def cleanup_pr_review_workspace(runtime_root: Path, session_id: str) -> None:
-    payload = _load_context(runtime_root, session_id)
+def cleanup_pr_review_workspace(
+    runtime_root: Path,
+    session_id: str,
+    *,
+    context_path: Path | None = None,
+    cleanup_owner: str = "session_hook",
+) -> None:
+    payload = _load_context(runtime_root, session_id, context_path=context_path)
     if not payload or (not payload.get("pr_review_approval_gate") and not payload.get("pr_review_workspace_root")):
+        return
+    configured_owner = str(payload.get("pr_review_workspace_cleanup_owner", "") or "").strip()
+    if configured_owner and configured_owner != cleanup_owner:
+        _append_event(
+            runtime_root,
+            session_id,
+            "pr_review.workspace_cleanup.skipped",
+            {
+                "event_type": "pr_review.workspace_cleanup.skipped",
+                "status": "skipped",
+                "reason": f"workspace cleanup owned by {configured_owner}",
+                "cleanup_owner": cleanup_owner,
+            },
+        )
+        return
+    owner_session_id = str(payload.get("pr_review_workspace_owner_session_id", "") or "").strip()
+    if owner_session_id and owner_session_id != session_id:
+        _append_event(
+            runtime_root,
+            session_id,
+            "pr_review.workspace_cleanup.skipped",
+            {
+                "event_type": "pr_review.workspace_cleanup.skipped",
+                "status": "skipped",
+                "reason": "session does not own PR review workspace",
+                "owner_session_id": owner_session_id,
+                "cleanup_session_id": session_id,
+            },
+        )
         return
     target, reason = _safe_pr_review_workspace_root(payload, session_id)
     if target is None:
@@ -365,7 +400,9 @@ def cleanup_pr_review_workspace(runtime_root: Path, session_id: str) -> None:
     )
 
 
-def _context_path(runtime_root: Path, session_id: str) -> Path:
+def _context_path(runtime_root: Path, session_id: str, context_path: Path | None = None) -> Path:
+    if context_path is not None:
+        return context_path.expanduser()
     explicit_path = os.getenv("RSI_RUNTIME_CONTEXT_PATH", "").strip()
     if explicit_path:
         return Path(explicit_path).expanduser()
@@ -388,8 +425,8 @@ def _append_event(runtime_root: Path, session_id: str, event: str, payload: Json
         handle.write(json.dumps(item, sort_keys=True) + "\n")
 
 
-def _load_context(runtime_root: Path, session_id: str) -> JsonObject:
-    path = _context_path(runtime_root, session_id)
+def _load_context(runtime_root: Path, session_id: str, *, context_path: Path | None = None) -> JsonObject:
+    path = _context_path(runtime_root, session_id, context_path=context_path)
     if not path.exists():
         return {}
     try:
