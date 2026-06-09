@@ -24802,3 +24802,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5f5faf767075b0e1be9194472f01beb4
 - summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
 
+## [2026-06-09T04:00:38Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_a67b7b8bc692e03a96a43f2f58a4e7ba
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_c35f6aa215d2f4d9fb675bd1118031eb
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
