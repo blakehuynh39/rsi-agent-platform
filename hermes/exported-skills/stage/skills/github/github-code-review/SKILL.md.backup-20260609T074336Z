@@ -1,7 +1,7 @@
 ---
 name: github-code-review
 description: "Review PRs: diffs, inline comments via gh or REST. Multi-angle thermo-nuclear review with idempotency, N+1, architecture, and deep correctness checks. Fresh subagent per review pass for anti-bias."
-version: 2.3.4
+version: 2.3.3
 author: Hermes Agent
 license: MIT
 metadata:
@@ -915,11 +915,9 @@ After all subagents complete:
 
 ---
 
-## 5c. Re-Review After Fixes (Full Current Review + Previous Finding Reconciliation)
+## 5c. Re-Review After Fixes (Delta Review)
 
-When the author addresses feedback and asks for a re-review, do a full blind review of the current PR state and also reconcile the previous findings. A re-review is not only a delta check. The fresh subagent must read the full current PR diff and changed-file context with the same bug-finding bar as an initial review, then separately verify whether prior findings were fixed, intentionally withdrawn, or remain unresolved.
-
-**Core principle:** the current PR must be safe on its own, not merely changed in the expected places. Previous findings are required reconciliation inputs, not the review scope boundary.
+When the author addresses feedback and asks for a re-review, do NOT re-read the entire diff. Focus on verifying the specific fixes — this is a fraction of the cost of a full review.
 
 **PITFALL (force-push amended commits):** When the author force-pushes an amended commit (common when fixing review feedback), the commit SHA from `gh pr view --json headRefOid` may not be reachable via `gh api /repos/.../commits/<sha>` — the API returns 422 "No commit found". The PR branch ref still points to the correct tree, so fall back to one of:
 - Read individual files remotely: `gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | base64 -d`
@@ -928,7 +926,7 @@ When the author addresses feedback and asks for a re-review, do a full blind rev
 
 ### Workflow
 
-1. **Pull latest commits** on the PR (re-clone if `/tmp/` was cleaned between sessions):
+1. **Pull latest commits** on both PRs (re-clone if `/tmp/` was cleaned between sessions):
 
 ```bash
 cd /tmp/<repo>-review
@@ -941,14 +939,7 @@ git fetch origin pull/<N>/head:pr-<N> && git checkout pr-<N>
 gh pr view <N> --json statusCheckRollup --jq '[.statusCheckRollup[] | {name, conclusion}]'
 ```
 
-3. **Inspect the full current PR diff** — use `gh pr diff N`, then read full changed-file context for files with meaningful behavior changes. Re-review must still catch new or previously missed bugs in the current PR, not only validate the lines touched by the latest fix commit.
-
-```bash
-gh pr diff <N>
-gh pr diff <N> --name-only
-```
-
-4. **Inspect the fix commit(s) as reconciliation inputs** — use `gh api` to see exactly which files were changed after the previous review. This helps map prior findings to fixes, but it does not replace the full current PR review:
+3. **Inspect the fix commit(s) without checkout** — use `gh api` to see exactly which files were changed in the round-2 commit (the one after your original review). This is faster than diffing the full branch:
 
 ```bash
 # List commits since your review to find the fix commit(s)
@@ -961,20 +952,19 @@ gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | "\(.filename): 
 gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filename == "path/to/file.ts") | .patch'
 ```
 
-**PITFALL:** Do not limit the re-review to these fix commits. The `gh api` commit-inspection pattern above tells you exactly what changed for previous-finding reconciliation, but the approval verdict must come from the full current PR diff plus changed-file context.
+**PITFALL:** Don't re-clone or re-diff the entire branch. The `gh api` commit-inspection pattern above tells you exactly what changed in the fix commit without a local checkout — use it to verify each flagged issue individually.
 
-5. **Verify specific previous findings** — check each previously-flagged issue against the current branch state using remote file reads when practical. See `references/remote-file-inspection.md` for the full pattern set.
+4. **Verify specific fixes** — check each previously-flagged issue against the current branch state using remote file reads (no checkout needed for small fixes). See `references/remote-file-inspection.md` for the full pattern set.
 
 ```bash
 # Read a specific file from the PR branch without cloning
 gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | base64 -d | grep -A5 "<pattern>"
 ```
 
-6. **Report the current review result plus reconciliation** — the re-review message should not be delta-only. Structure:
-   - Current-pass findings from the full blind review, ordered by severity
-   - "Previous findings" table: each issue with FIXED / PARTIAL / NOT FIXED / WITHDRAWN status
+5. **Report only the delta** — the re-review message should focus on what changed. Structure:
+   - "Previous blocking issues" table: each issue with FIXED / NOT FIXED / N/A status
    - CI status update
-   - Remaining items and new issues, with severity and evidence
+   - Remaining items (if any) with severity and whether they were downgraded
    - Verdict
 
 **CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.
@@ -1025,9 +1015,6 @@ FOR RE-REVIEWS ONLY (pass additionally):
 - CI/check status before and after the fix commits
 - Author responses, explicit pushback, and any items already accepted as non-issues
 - A "do not re-flag" list for items that were fixed or intentionally withdrawn
-
-Re-review instruction to include verbatim:
-"This is a re-review, but it is not delta-only. First perform a full blind review of the current PR diff and changed-file context as if this were the first review. Then reconcile the previous findings one by one. Report both new/current-pass findings and previous-finding status. Do not approve solely because the previous findings look fixed."
 ```
 
 ### Delegate Task Shape
@@ -1043,11 +1030,11 @@ Context:
 - Full current PR diff
 - Applicable review checklist from Section 3
 - Repo-specific contracts and deployment topology
-- For re-reviews only: previous findings, fix commits, CI deltas, author responses, and the explicit full-review-plus-reconciliation instruction above
+- For re-reviews only: previous findings, fix commits, CI deltas, and author responses
 
 Output:
 - Findings ordered by severity with file, line, evidence, impact, and concrete fix
-- Previous-finding status table for re-reviews, separate from current-pass findings
+- Previous-finding status table for re-reviews
 - Explicit "no findings" statement only if no actionable issues remain
 - Confidence notes and test gaps
 - Final machine-readable verdict line:

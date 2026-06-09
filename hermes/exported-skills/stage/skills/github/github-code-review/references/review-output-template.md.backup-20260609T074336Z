@@ -72,24 +72,16 @@ Prefix inline comments with the severity icon so they're scannable:
 ✅ **Nice:** Good use of context manager here — ensures cleanup on exceptions.
 ```
 
-## For Re-Review (Full Current Review + Previous Finding Reconciliation) Summary
+## For Re-Review (Delta Review) Summary
 
-When re-reviewing after fixes, use this structure in addition to the normal severity-ordered findings format. Re-review is not delta-only: first report actionable findings from the full current PR review, then reconcile previous findings.
+When re-reviewing after fixes, use this structure instead of the full review format:
 
 ```markdown
 ## RE-REVIEW STATUS: [repo]#[N]
 
-**Current-pass review:** full blind review of the current PR diff and changed-file context.
+**Delta review of fix commits** <code>[\`sha1\`, \`sha2\`]</code> against previous findings.
 
-**Previous-finding reconciliation:** fix commits <code>[\`sha1\`, \`sha2\`]</code> checked against prior findings.
-
-### Current-Pass Findings
-
-[Use the normal CRITICAL/HIGH/MEDIUM/LOW ordering. If no actionable current-pass findings remain, say "No actionable current-pass findings."]
-
-### Previous Findings
-
-#### Finding 1 — 🟡 MEDIUM: [title]
+### Finding 1 — 🟡 MEDIUM: [title]
 
 **Status: [FIXED ✅ | PARTIAL 🟡 | NOT FIXED 🔴]**
 
@@ -101,9 +93,9 @@ When re-reviewing after fixes, use this structure in addition to the normal seve
 
 **Evidence:** <code>path/to/file.rs:123-145</code> — [specific code or diff showing status]
 
-#### Finding 2 — ...
+### Finding 2 — ...
 
-### Previous-Finding Summary Table
+### Summary Table
 
 | # | Finding | Status | Key Evidence |
 |---|---------|--------|-------------|
@@ -111,12 +103,12 @@ When re-reviewing after fixes, use this structure in addition to the normal seve
 | 2 | [title] | **PARTIAL** | [one-liner] |
 ...
 
-### Verdict
+### New Findings
 
-[Approve / Comment / Request changes, based on both current-pass findings and previous-finding status.]
+[List any new issues introduced by the fix commits, or "None"]
 ```
 
-Every current-pass finding and every previous-finding status MUST cite exact code locations and git evidence (commit SHA, diff line, or file:line). Do not report "FIXED" without showing what changed. Do not report "NOT FIXED" without pointing to the specific lines that still have the issue. Do not approve solely because previous findings are fixed if the full current review found new blockers.
+Every finding status MUST cite exact code locations and git evidence (commit SHA, diff line, or file:line). Do not report "FIXED" without showing what changed. Do not report "NOT FIXED" without pointing to the specific lines that still have the issue.
 
 ## For Local (Pre-Push) Review
 
