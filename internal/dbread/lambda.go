@@ -21,6 +21,10 @@ const (
 	LambdaPurposeExecute  = "execute"
 )
 
+// AutoApprovalRef is the approval attribution recorded for requests that were
+// auto-approved after read-only validation instead of by a Slack approver.
+const AutoApprovalRef = "auto:read_only_validated"
+
 type LambdaJob struct {
 	Purpose               string                         `json:"purpose"`
 	Target                string                         `json:"target"`
@@ -93,6 +97,13 @@ func (i *LambdaInvoker) Execute(ctx context.Context, target Target, lease storep
 
 func NewLambdaJob(purpose string, lease storepkg.DBReadLease) LambdaJob {
 	request := lease.Request
+	approvedBy := request.ApprovedBySlackUserID
+	// Auto-approved requests carry no Slack approver, but the lambda boundary
+	// refuses execute jobs without approval metadata. Attribute the
+	// auto-approval on the wire while keeping the stored request unattributed.
+	if purpose == LambdaPurposeExecute && strings.TrimSpace(approvedBy) == "" && request.ApprovedAt != nil {
+		approvedBy = AutoApprovalRef
+	}
 	return LambdaJob{
 		Purpose:               purpose,
 		Target:                request.Target,
@@ -104,7 +115,7 @@ func NewLambdaJob(purpose string, lease storepkg.DBReadLease) LambdaJob {
 		Caps:                  request.Caps,
 		Redaction:             request.Redaction,
 		ExpiresAt:             request.ExpiresAt,
-		ApprovedBySlackUserID: request.ApprovedBySlackUserID,
+		ApprovedBySlackUserID: approvedBy,
 		ApprovedAt:            request.ApprovedAt,
 	}
 }

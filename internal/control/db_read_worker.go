@@ -199,7 +199,7 @@ func autoApproveDBReadRequest(ctx context.Context, store storepkg.Store, slackAP
 	if pause, ok := store.GetExternalToolPauseByDBReadRequestID(updated.ID); ok {
 		_, _ = store.UpdateExternalToolPause(pause.ID, func(item *storepkg.ExternalToolPause) error {
 			item.ApprovalStatus = storepkg.ExternalToolApprovalApproved
-			item.ApprovalRef = "auto:read_only_validated"
+			item.ApprovalRef = dbread.AutoApprovalRef
 			return nil
 		})
 	}
