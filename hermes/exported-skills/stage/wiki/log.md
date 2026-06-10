@@ -24964,3 +24964,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_05ced0f070069397def4cdb26e77c105
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-10T20:21:46Z] synthesis | Broadcaster Gas Strategy
+
+- status: published
+- slug: systems/broadcaster-gas-strategy
+- wiki_revision_id: wikirev_80359a7843f80bffea74d21fc72736d4
+- summary: The broadcaster gas strategy aims to spend approximately 12,000 IP per day on 15 million registrations, targeting an effective gas price of ~28 gwei with the base fee at ~27.9 gwei...
+
