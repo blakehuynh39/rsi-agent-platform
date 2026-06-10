@@ -24843,3 +24843,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c9ab929498fc5f016b71e82463151734
 - summary: Overview of the Trace backend system architecture, including staging deployment, write/read paths, SQS-based ingestion, indexing, and current limitations. Updated with Kled v1.1 al...
 
+## [2026-06-10T02:30:51Z] ingest | Aeneid Genesis IP — Allocation, Flow & Staking Snapshot
+
+- status: published
+- slug: notion_document/aeneid-genesis-ip-allocation-flow-staking-snapshot-cc057deb
+- wiki_revision_id: wikirev_80e5edd6c34c384e80bcc47c221ba4da
+- source_document_id: srcdoc_ccb6ef3f6922ad4a55322dedcc057deb
+- source_revision_id: srcrev_40adbdbc7e043cf9a286ddf8c7fa2e63
+- summary: Source: [source](https://app.notion.com/p/Aeneid-Genesis-IP-Allocation-Flow-Staking-Snapshot-37b051299a5481159765ed594e4531d0)
+
