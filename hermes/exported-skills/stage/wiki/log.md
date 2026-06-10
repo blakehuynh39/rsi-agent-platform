@@ -24980,3 +24980,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_00d576c88b8c2103ccc5aecfced90183
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-10T21:20:41Z] synthesis | Broadcaster Gas Strategy
+
+- status: published
+- slug: runbooks/broadcaster-gas-strategy
+- wiki_revision_id: wikirev_48d0224969825765590d441880aa1fa2
+- summary: Controls transaction fees for the broadcaster to burn ~12K IP per day on 15M registrations while keeping priority fee low. Uses EIP-1559 base fee mechanics and configurable thresho...
+

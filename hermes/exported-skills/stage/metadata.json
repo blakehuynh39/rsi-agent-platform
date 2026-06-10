@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3d1e01fba5370e41e7a1113b09d0a45bb1519cd847bdabbffc4cc04171b5e6de",
-        "size": 622888
+        "sha256": "8f9aa8238e0de6cdb03407b78f05993236671154acdda2ec08d267882bf89060",
+        "size": 623259
       },
       {
         "path": "log.md",
-        "sha256": "fd11e41cec237abdac4ca348affc3312e7c7f85ee73b6912b54ebde3e80f68ca",
-        "size": 1200080
+        "sha256": "34c2eabfc745acb6dd94599e3776b498da51853f18c44a5fb3aa85fff765bbb2",
+        "size": 1200463
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5995,6 +5995,11 @@
         "size": 5223
       },
       {
+        "path": "pages/runbooks/broadcaster-gas-strategy.md",
+        "sha256": "5532043a03ec84637d4fc757330d13ff019a64ad9b2d8b11371d057517b9c044",
+        "size": 11528
+      },
+      {
         "path": "pages/runbooks/bug-statesync-iavl-import-race-condition-expansion14.md",
         "sha256": "f650ea3a9dde6db3f09854bf04bb5beb7f6bd3d148c0373003c6fe4c40370ece",
         "size": 10720
@@ -6854,8 +6859,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-10T21:05:42Z",
-  "file_count": 1369,
+  "exported_at": "2026-06-10T21:22:40Z",
+  "file_count": 1370,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10122,7 +10127,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8csz6cs",
-  "previous_tree_hash": "d9b7fb52407d933fafea0ac3b78c4bb856cd435cad29d3222d050843afd59bab",
+  "previous_tree_hash": "abfdfb96d0a5bc87dfbe8e547090a825331ad91999dbc008df14ecf91a4d8083",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10135,14 +10140,14 @@
   ],
   "skill_tree_hash": "3851022477dab79baa575b351ba6cebdcd262c21b719aa488023735efb62b730",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "abfdfb96d0a5bc87dfbe8e547090a825331ad91999dbc008df14ecf91a4d8083",
+  "tree_hash": "1d3323b495f9aac6960060ea1b0408e4178c9719dda6626d615ce417297a85c2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 717,
+  "wiki_file_count": 718,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10151,13 +10156,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3d1e01fba5370e41e7a1113b09d0a45bb1519cd847bdabbffc4cc04171b5e6de",
-      "size": 622888
+      "sha256": "8f9aa8238e0de6cdb03407b78f05993236671154acdda2ec08d267882bf89060",
+      "size": 623259
     },
     {
       "path": "log.md",
-      "sha256": "fd11e41cec237abdac4ca348affc3312e7c7f85ee73b6912b54ebde3e80f68ca",
-      "size": 1200080
+      "sha256": "34c2eabfc745acb6dd94599e3776b498da51853f18c44a5fb3aa85fff765bbb2",
+      "size": 1200463
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12875,6 +12880,11 @@
       "size": 5223
     },
     {
+      "path": "pages/runbooks/broadcaster-gas-strategy.md",
+      "sha256": "5532043a03ec84637d4fc757330d13ff019a64ad9b2d8b11371d057517b9c044",
+      "size": 11528
+    },
+    {
       "path": "pages/runbooks/bug-statesync-iavl-import-race-condition-expansion14.md",
       "sha256": "f650ea3a9dde6db3f09854bf04bb5beb7f6bd3d148c0373003c6fe4c40370ece",
       "size": 10720
@@ -13731,5 +13741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "281fccb0c0e6c2485ceeab7346d0f0d0e8ee78a752f3dd4b2bc71deb835be51f"
+  "wiki_tree_hash": "f7c5644379fdddc3d411891fa7eb1ae0880a54912f5ba7a8cb3feda615c8395d"
 }
