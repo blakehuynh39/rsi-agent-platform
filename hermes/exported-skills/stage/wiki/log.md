@@ -24971,3 +24971,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_80359a7843f80bffea74d21fc72736d4
 - summary: The broadcaster gas strategy aims to spend approximately 12,000 IP per day on 15 million registrations, targeting an effective gas price of ~28 gwei with the base fee at ~27.9 gwei...
 
+## [2026-06-10T21:00:39Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_587c65f19cfb4298b1e639693113aafb
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_00d576c88b8c2103ccc5aecfced90183
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
