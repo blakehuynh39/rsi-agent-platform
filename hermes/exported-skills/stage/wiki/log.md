@@ -24873,3 +24873,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8477f1741fba63dd5ffe26d2158efa69
 - summary: Consolidated token-state table for the eight genesis EOAs, operational wallets, and externally sponsored delegators as of the 2026-06-09 snapshot.
 
+## [2026-06-10T07:30:36Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_0c8089ecc953dbc37aa966d50e50fb1d
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_c6e9abd7a1424f3db9d76a95f16157b0
+- summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
