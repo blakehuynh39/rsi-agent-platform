@@ -24946,3 +24946,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_77e941fa1016e0003274c2a298381627
 - summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
 
+## [2026-06-10T20:00:34Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_e43d35e54b3f8c834b5aa1aba22ac668
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_a941d7521912593a593f27a613d08e92
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-10T20:00:37Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_061cf007ea9d88c54d5dd49ec551c81d
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_05ced0f070069397def4cdb26e77c105
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
