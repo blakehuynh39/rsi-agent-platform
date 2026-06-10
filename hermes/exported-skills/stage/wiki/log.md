@@ -24923,3 +24923,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e655c0034c71086320074fa430833c7a
 - summary: Summary of changes merged or in progress from base v1.7.0 to a feature branch, including retry caps, decrypt queue draining fix, SGX/TDX validation hooks, IAVL bump, and DKG integr...
 
+## [2026-06-10T18:00:30Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_f5223d4ed7f2965153020ca68e522c7d
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_ffe6703323530bf37a5f1fe16ad5f7bf
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
