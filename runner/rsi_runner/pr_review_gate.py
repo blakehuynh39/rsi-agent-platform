@@ -83,12 +83,39 @@ def render_pr_review_context_sections(payload: JsonObject) -> list[str]:
         )
     review_workspace_root = str(payload.get("pr_review_workspace_root", "") or "").strip()
     if review_workspace_root and payload.get("pr_review_workspace_guard"):
+        prepared_repo_path = str(payload.get("pr_review_workspace_repo_path", "") or "").strip()
+        prepared_repo = str(payload.get("pr_review_workspace_repo", "") or "").strip()
+        prepared_ref = str(payload.get("pr_review_workspace_repo_ref", "") or "").strip()
+        prepared_sha = str(payload.get("pr_review_workspace_head_sha", "") or "").strip()
         parts.append(
             "PR review isolated workspace root: "
             + review_workspace_root
             + ". Put any temporary PR-review clones or worktrees under this directory; RSI cleans it at session end. "
             + "Mutable git and file-write operations for PR review must stay under this root, not in shared /workspace/company checkouts."
         )
+        if payload.get("pr_review_workspace_prepared") and prepared_repo_path:
+            repo_label = f" for {prepared_repo}" if prepared_repo else ""
+            ref_label = f" from {prepared_ref}" if prepared_ref else ""
+            sha_label = f" at {prepared_sha}" if prepared_sha else ""
+            parts.append(
+                "PR review prepared repo checkout"
+                + repo_label
+                + ": "
+                + prepared_repo_path
+                + ref_label
+                + sha_label
+                + ". Use this exact path for local inspection and pass this exact path to PR-review delegate_task subagents."
+            )
+        else:
+            status = str(payload.get("pr_review_workspace_status", "") or "unprepared").strip()
+            reason = str(payload.get("pr_review_workspace_prepare_reason", "") or "").strip()
+            detail = f" ({reason})" if reason else ""
+            parts.append(
+                "PR review repo checkout is not pre-created by RSI for this run: "
+                + status
+                + detail
+                + ". Do not tell delegate_task subagents that a repo exists under the workspace root unless you create it first; prefer GitHub reads pinned to the PR head SHA or create a temporary clone/worktree under the isolated root."
+            )
     return parts
 
 

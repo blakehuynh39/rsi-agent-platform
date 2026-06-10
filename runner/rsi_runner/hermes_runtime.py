@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import threading
@@ -1054,6 +1055,13 @@ class PartialReducerAttemptResult:
     structured_output: JsonObject
     error: str
     provider_response_id: str
+
+
+@dataclass(frozen=True)
+class _GitHubPrReviewTarget:
+    repo_full_name: str
+    repo_ref: str
+    pr_number: int
 
 
 @dataclass
@@ -3485,6 +3493,247 @@ class HermesRuntime:
             )
         return root
 
+    def _pr_review_workspace_root(self, session_id: str) -> Path:
+        return (
+            Path(self._config.hermes_run_root).expanduser()
+            / "pr-review-worktrees"
+            / self._native_execution_slug(session_id)
+        ).resolve()
+
+    def _github_pr_review_repo_full_name_from_task(self, task: RunnerTaskRequest) -> str:
+        owner_hint, repo_name = self._github_repo_parts(task.repo)
+        owner = owner_hint or self._github_owner_for_repo(task.repo)
+        if owner and repo_name:
+            return f"{owner}/{repo_name}"
+        return repo_name
+
+    def _github_pr_review_target_from_url(self, text: str) -> _GitHubPrReviewTarget | None:
+        match = re.search(r"https://github\.com/([^/\s]+)/([^/\s]+)/pull/(\d+)", str(text or ""))
+        if match:
+            owner = match.group(1).strip()
+            repo = match.group(2).removesuffix(".git").strip()
+            pr_number = int(match.group(3))
+            if owner and repo and pr_number > 0:
+                return _GitHubPrReviewTarget(
+                    repo_full_name=f"{owner}/{repo}",
+                    repo_ref=f"refs/pull/{pr_number}/head",
+                    pr_number=pr_number,
+                )
+        return None
+
+    def _github_pr_review_number_from_text(self, text: str) -> int:
+        text = str(text or "")
+        patterns = (
+            r"https://github\.com/[^/\s]+/[^/\s]+/pull/(\d+)",
+            r"(?i)\b(?:PR|pull request)\s*#?\s*(\d+)\b",
+            r"(?i)\b(?:review|re-review|rereview|check|verify|approve)\s+(?:the\s+)?#(\d+)\b",
+            r"(?i)#(\d+)\s+(?:for\s+)?(?:review|re-review|rereview|check|verify|approval|approve)\b",
+        )
+        for pattern in patterns:
+            match = re.search(pattern, text)
+            if match:
+                return int(match.group(1))
+        return 0
+
+    def _github_pr_review_number_from_ref(self, ref: str) -> int:
+        match = re.search(r"(?:^|/)pull/(\d+)/(?:head|merge)$", str(ref or "").strip())
+        return int(match.group(1)) if match else 0
+
+    def _github_pr_review_target(self, task: RunnerTaskRequest) -> _GitHubPrReviewTarget:
+        task_repo = self._github_pr_review_repo_full_name_from_task(task)
+        ref = _string_or_json(task.repo_ref).strip()
+        ref_pr_number = self._github_pr_review_number_from_ref(ref)
+        if ref_pr_number > 0:
+            if task_repo:
+                return _GitHubPrReviewTarget(repo_full_name=task_repo, repo_ref=ref, pr_number=ref_pr_number)
+            context_refs = json.dumps(task.context_refs, ensure_ascii=True, sort_keys=True, default=str) if task.context_refs else ""
+            for text in (_string_or_json(task.prompt), _string_or_json(task.context_summary), context_refs):
+                target = self._github_pr_review_target_from_url(text)
+                if target is not None and target.pr_number == ref_pr_number:
+                    return _GitHubPrReviewTarget(
+                        repo_full_name=target.repo_full_name,
+                        repo_ref=ref,
+                        pr_number=ref_pr_number,
+                    )
+            return _GitHubPrReviewTarget(repo_full_name="", repo_ref=ref, pr_number=ref_pr_number)
+
+        for text in (_string_or_json(task.prompt), _string_or_json(task.context_summary)):
+            target = self._github_pr_review_target_from_url(text)
+            if target is not None:
+                return target
+
+        for text in (_string_or_json(task.prompt), _string_or_json(task.context_summary)):
+            pr_number = self._github_pr_review_number_from_text(text)
+            if pr_number > 0:
+                return _GitHubPrReviewTarget(
+                    repo_full_name=task_repo,
+                    repo_ref=f"refs/pull/{pr_number}/head",
+                    pr_number=pr_number,
+                )
+
+        context_refs = json.dumps(task.context_refs, ensure_ascii=True, sort_keys=True, default=str) if task.context_refs else ""
+        target = self._github_pr_review_target_from_url(context_refs)
+        if target is not None:
+            return target
+        pr_number = self._github_pr_review_number_from_text(context_refs)
+        if pr_number > 0:
+            return _GitHubPrReviewTarget(
+                repo_full_name=task_repo,
+                repo_ref=f"refs/pull/{pr_number}/head",
+                pr_number=pr_number,
+            )
+        return _GitHubPrReviewTarget(repo_full_name=task_repo, repo_ref="", pr_number=0)
+
+    def _git_command_for_pr_review_workspace(
+        self,
+        args: list[str],
+        *,
+        cwd: Path,
+        env: dict[str, str],
+        timeout_seconds: int = 120,
+    ) -> subprocess.CompletedProcess[str]:
+        command = ["git", *args]
+        return subprocess.run(
+            command,
+            cwd=str(cwd),
+            env=env,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout_seconds,
+            check=False,
+        )
+
+    def _prepare_pr_review_workspace(
+        self,
+        session_id: str,
+        task: RunnerTaskRequest,
+        *,
+        github_env: dict[str, str],
+        observer: ObservationEmitter | None = None,
+    ) -> JsonObject:
+        workspace_root = self._pr_review_workspace_root(session_id)
+        status: JsonObject = {
+            "enabled": _task_requests_github_pr_review(task),
+            "prepared": False,
+            "status": "disabled",
+            "workspace_root": str(workspace_root),
+            "repo_path": "",
+            "repo": "",
+            "repo_ref": "",
+            "pr_number": 0,
+            "head_sha": "",
+            "reason": "",
+        }
+        if not status["enabled"]:
+            status["reason"] = "not_pr_review"
+            return status
+
+        run_root = Path(self._config.hermes_run_root).expanduser().resolve()
+        try:
+            workspace_root.relative_to(run_root)
+        except ValueError:
+            status.update({"status": "failed", "reason": "workspace_root_outside_run_root"})
+            return status
+
+        try:
+            if workspace_root.exists():
+                if workspace_root.is_symlink():
+                    status.update({"status": "failed", "reason": "workspace_root_is_symlink"})
+                    return status
+                shutil.rmtree(workspace_root)
+            workspace_root.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            status.update({"status": "failed", "reason": f"workspace_root_prepare_failed: {exc}"})
+            return status
+
+        target = self._github_pr_review_target(task)
+        repo_full_name = target.repo_full_name
+        owner, repo_name = self._github_repo_parts(repo_full_name)
+        if not owner or not repo_name:
+            status.update({"status": "skipped", "reason": "missing_github_repo", "repo": repo_full_name})
+            return status
+        status.update({"repo": f"{owner}/{repo_name}", "repo_ref": target.repo_ref, "pr_number": target.pr_number})
+        if not target.repo_ref:
+            status.update({"status": "skipped", "reason": "missing_pr_ref"})
+            return status
+        if not github_env:
+            status.update({"status": "skipped", "reason": "missing_github_credentials"})
+            return status
+
+        repo_path = (workspace_root / self._native_execution_slug(repo_name)).resolve()
+        try:
+            repo_path.relative_to(workspace_root)
+        except ValueError:
+            status.update({"status": "failed", "reason": "repo_path_outside_workspace"})
+            return status
+        status["repo_path"] = str(repo_path)
+
+        env = os.environ.copy()
+        env.update(github_env)
+        env.setdefault("GIT_TERMINAL_PROMPT", "0")
+        secret_values = _sensitive_env_values(env)
+        remote = f"https://github.com/{owner}/{repo_name}.git"
+        commands: list[list[str]] = [
+            ["init", str(repo_path)],
+            ["-C", str(repo_path), "remote", "add", "origin", remote],
+            ["-C", str(repo_path), "fetch", "--depth=200", "origin", target.repo_ref],
+            ["-C", str(repo_path), "checkout", "--detach", "FETCH_HEAD"],
+        ]
+        try:
+            for args in commands:
+                completed = self._git_command_for_pr_review_workspace(args, cwd=workspace_root, env=env)
+                if completed.returncode != 0:
+                    stderr = _redact_subprocess_output(
+                        (completed.stderr or completed.stdout or "").strip(),
+                        secret_values=secret_values,
+                    )
+                    git_operation = args[2] if len(args) > 2 and args[0] == "-C" else args[0]
+                    status.update(
+                        {
+                            "status": "failed",
+                            "reason": f"git_{git_operation.lstrip('-')}_failed",
+                            "error": stderr[:1000],
+                        }
+                    )
+                    return status
+            head = self._git_command_for_pr_review_workspace(
+                ["-C", str(repo_path), "rev-parse", "HEAD"],
+                cwd=workspace_root,
+                env=env,
+            )
+            if head.returncode == 0:
+                status["head_sha"] = (head.stdout or "").strip()
+            if head.returncode != 0 or not status["head_sha"]:
+                stderr = _redact_subprocess_output(
+                    (head.stderr or head.stdout or "").strip(),
+                    secret_values=secret_values,
+                )
+                status.update(
+                    {
+                        "status": "failed",
+                        "reason": "git_rev_parse_failed",
+                        "error": stderr[:1000],
+                    }
+                )
+                return status
+        except subprocess.TimeoutExpired as exc:
+            status.update({"status": "failed", "reason": "git_timeout", "error": str(exc)})
+            return status
+        except OSError as exc:
+            status.update({"status": "failed", "reason": "git_unavailable", "error": str(exc)})
+            return status
+
+        status.update({"prepared": True, "status": "prepared", "reason": "ok"})
+        if observer is not None:
+            observer.emit(
+                phase=self._execution_phase(task),
+                event_type="pr_review.workspace.prepared",
+                status="completed",
+                payload={key: value for key, value in status.items() if key != "error"},
+            )
+        return status
+
     def _native_executor_conversation_history(self, task: RunnerTaskRequest, context: SessionContext) -> list[JsonObject]:
         if self._execution_phase(task) in {"render", "deliver"}:
             return []
@@ -4843,7 +5092,6 @@ if __name__ == "__main__":
         workspace_root = self._stage_native_executor_workspace(task, observer=observer)
         if execution_phase in {"main", "render", "deliver"}:
             task = replace(task, artifact_destination=str(self._native_artifact_destination(task)))
-        self._stage_task_context(context.session_id, task, context_path=context_path, envelope_path=envelope_path)
 
         agentic_mcp_registration = TaskScopedMCPRegistration()
         legacy_mcp_errors = self._legacy_mcp_server_errors(task)
@@ -4960,6 +5208,19 @@ if __name__ == "__main__":
                 message=message,
                 diagnostics={"preflight_failure_class": "github_app_credentials_unavailable", "github_credentials": github_cli_credentials},
             )
+        pr_review_workspace = self._prepare_pr_review_workspace(
+            context.session_id,
+            task,
+            github_env=github_cli_env,
+            observer=observer,
+        )
+        self._stage_task_context(
+            context.session_id,
+            task,
+            context_path=context_path,
+            envelope_path=envelope_path,
+            pr_review_workspace=pr_review_workspace,
+        )
         prompt_skills = self._prompt_skill_mentions(task)
         skill_diagnostics: JsonObject = {
             "prompt_skills": list(prompt_skills),
@@ -6212,8 +6473,12 @@ if __name__ == "__main__":
         *,
         context_path: Path | None = None,
         envelope_path: Path | None = None,
+        pr_review_workspace: JsonObject | None = None,
     ) -> Path:
         query_hints = self._default_query_hints(task)
+        pr_review_enabled = _task_requests_github_pr_review(task)
+        workspace_root = self._pr_review_workspace_root(session_id)
+        pr_review_workspace = dict(pr_review_workspace or {})
         payload = {
             "role": self._role,
             "task_type": task.task_type,
@@ -6237,10 +6502,17 @@ if __name__ == "__main__":
             "hermes_computer_root": self._config.hermes_computer_root,
             "hermes_run_root": self._config.hermes_run_root,
             "pr_review_approval_gate": True,
-            "pr_review_workspace_guard": _task_requests_github_pr_review(task),
-            "pr_review_workspace_root": str(
-                Path(self._config.hermes_run_root).expanduser() / "pr-review-worktrees" / session_id
-            ),
+            "pr_review_workspace_guard": pr_review_enabled,
+            "pr_review_workspace_root": _string_or_json(pr_review_workspace.get("workspace_root")) or str(workspace_root),
+            "pr_review_workspace_prepared": bool(pr_review_workspace.get("prepared")),
+            "pr_review_workspace_status": _string_or_json(pr_review_workspace.get("status")) or ("unprepared" if pr_review_enabled else "disabled"),
+            "pr_review_workspace_repo_path": _string_or_json(pr_review_workspace.get("repo_path")),
+            "pr_review_workspace_repo": _string_or_json(pr_review_workspace.get("repo")),
+            "pr_review_workspace_repo_ref": _string_or_json(pr_review_workspace.get("repo_ref")),
+            "pr_review_workspace_pr_number": _int_or_zero(pr_review_workspace.get("pr_number")),
+            "pr_review_workspace_head_sha": _string_or_json(pr_review_workspace.get("head_sha")),
+            "pr_review_workspace_prepare_reason": _string_or_json(pr_review_workspace.get("reason")),
+            "pr_review_workspace_prepare_error": _string_or_json(pr_review_workspace.get("error")),
             "pr_review_workspace_cleanup_owner": "native_runtime",
             "pr_review_workspace_owner_session_id": session_id,
             "pr_review_workspace_owner_execution_id": task.execution_id or "",
@@ -8077,8 +8349,8 @@ if __name__ == "__main__":
             "For PR re-review tasks, the delegated task must perform a full blind current review of the PR diff and changed-file context, then separately reconcile previous findings; it must not be delta-only. "
             "A PR approval or Slack approval report is allowed only after the matching subagent result ends cleanly and its summary includes "
             "RSI_PR_REVIEW_VERDICT JSON with pr_number, approval_safe=true, blocking_findings=0, and verdict=approve. "
-            "Pass the injected PR review workspace root into each delegate_task prompt. Use GitHub reads pinned to the PR head SHA or temporary clones/worktrees "
-            "under that root; mutable git and file-write operations outside that root are blocked, and the root is cleaned after the session."
+            "Pass the injected PR review workspace root into each delegate_task prompt. If RSI context advertises a prepared repo checkout, pass that exact path; otherwise do not claim a local repo exists until you create it. "
+            "Use GitHub reads pinned to the PR head SHA or temporary clones/worktrees under that root; mutable git and file-write operations outside that root are blocked, and the root is cleaned after the session."
         )
         parts.append("Eval is read-only. Proposal investigate mode is read-only. Proposal diagnose mode is read-only and must stay grounded in persisted evidence before expanding to repo or log reads. Proposal implement mode may mutate only through native Hermes tools inside the bound workspace; it must not merge code, launch privileged jobs, or post to Slack unless the task contract explicitly allows it.")
         if execution_mode == "diagnose":

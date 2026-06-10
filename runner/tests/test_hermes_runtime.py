@@ -37,7 +37,7 @@ from rsi_runner.hermes_runtime import (
     _redact_subprocess_output,
 )
 from rsi_runner.observability import ObservationEmitter, execution_observation_id
-from rsi_runner.pr_review_gate import PR_REVIEW_VERDICT_MARKER
+from rsi_runner.pr_review_gate import PR_REVIEW_VERDICT_MARKER, render_pr_review_context_sections
 from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions, transport_tool_schema
 from rsi_runner.session_manager import MemoryTracker, SessionManager
 
@@ -1915,11 +1915,450 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertTrue(payload["pr_review_workspace_guard"])
         self.assertEqual(
             payload["pr_review_workspace_root"],
-            str(Path(payload["hermes_run_root"]) / "pr-review-worktrees" / session_id),
+            str((Path(payload["hermes_run_root"]) / "pr-review-worktrees" / session_id).resolve()),
         )
         self.assertEqual(payload["pr_review_workspace_cleanup_owner"], "native_runtime")
         self.assertEqual(payload["pr_review_workspace_owner_session_id"], session_id)
         self.assertEqual(payload["pr_review_workspace_owner_execution_id"], "")
+        self.assertFalse(payload["pr_review_workspace_prepared"])
+        self.assertEqual(payload["pr_review_workspace_status"], "unprepared")
+        sections = "\n".join(render_pr_review_context_sections(payload))
+        self.assertIn("repo checkout is not pre-created", sections)
+        self.assertNotIn("Repo cloned at", sections)
+
+    def test_stage_task_context_includes_prepared_pr_review_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "numo-monorepo",
+                        "prompt": "Re-review PR #380.",
+                    }
+                }
+            )
+            session_id = "sess-stage-pr-review"
+            repo_path = str(Path(hermes_home, "runs", "pr-review-worktrees", session_id, "numo-monorepo"))
+
+            runtime._stage_task_context(
+                session_id,
+                task,
+                pr_review_workspace={
+                    "prepared": True,
+                    "status": "prepared",
+                    "workspace_root": str(Path(hermes_home, "runs", "pr-review-worktrees", session_id)),
+                    "repo_path": repo_path,
+                    "repo": "piplabs/numo-monorepo",
+                    "repo_ref": "refs/pull/380/head",
+                    "pr_number": 380,
+                    "head_sha": "abc123",
+                    "reason": "ok",
+                },
+            )
+            payload = json.loads(
+                Path(hermes_home, "rsi_runtime", "context", f"{session_id}.json").read_text(encoding="utf-8")
+            )
+
+        self.assertTrue(payload["pr_review_workspace_prepared"])
+        self.assertEqual(payload["pr_review_workspace_repo_path"], repo_path)
+        self.assertEqual(payload["pr_review_workspace_repo"], "piplabs/numo-monorepo")
+        sections = "\n".join(render_pr_review_context_sections(payload))
+        self.assertIn(f"PR review prepared repo checkout for piplabs/numo-monorepo: {repo_path}", sections)
+        self.assertIn("Use this exact path", sections)
+
+    def test_prepare_pr_review_workspace_fetches_pr_head_without_reset(self) -> None:
+        calls: list[list[str]] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append(args)
+            self.assertEqual(env["GIT_TERMINAL_PROMPT"], "0")
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "prompt": "Re-review PR #380.",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["status"], "prepared")
+        self.assertEqual(status["repo"], "piplabs/numo-monorepo")
+        self.assertEqual(status["repo_ref"], "refs/pull/380/head")
+        self.assertEqual(status["head_sha"], "abc123")
+        self.assertTrue(any(call[:1] == ["init"] for call in calls))
+        self.assertIn(["-C", status["repo_path"], "fetch", "--depth=200", "origin", "refs/pull/380/head"], calls)
+        self.assertFalse(any("reset" in call for call in calls))
+
+    def test_prepare_pr_review_workspace_ignores_unrelated_hash_numbers(self) -> None:
+        fetch_refs: list[str] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if len(args) >= 6 and args[0] == "-C" and args[2:4] == ["fetch", "--depth=200"]:
+                fetch_refs.append(args[-1])
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "prompt": "Ticket #12 has details; please re-review PR #380.",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["pr_number"], 380)
+        self.assertEqual(status["repo_ref"], "refs/pull/380/head")
+        self.assertEqual(fetch_refs, ["refs/pull/380/head"])
+
+    def test_prepare_pr_review_workspace_prefers_prompt_pr_over_generic_repo_ref(self) -> None:
+        fetch_refs: list[str] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if len(args) >= 6 and args[0] == "-C" and args[2:4] == ["fetch", "--depth=200"]:
+                fetch_refs.append(args[-1])
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "repo_ref": "main",
+                        "prompt": "Re-review PR #380.",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["pr_number"], 380)
+        self.assertEqual(status["repo_ref"], "refs/pull/380/head")
+        self.assertEqual(fetch_refs, ["refs/pull/380/head"])
+
+    def test_prepare_pr_review_workspace_prefers_pr_repo_ref_over_context_refs(self) -> None:
+        fetch_refs: list[str] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if len(args) >= 6 and args[0] == "-C" and args[2:4] == ["fetch", "--depth=200"]:
+                fetch_refs.append(args[-1])
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "repo_ref": "refs/pull/380/head",
+                        "prompt": "/github-code-review review this PR.",
+                        "context_refs": [{"kind": "ticket", "summary": "Related issue #12 and PR #12 labels"}],
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["pr_number"], 380)
+        self.assertEqual(status["repo_ref"], "refs/pull/380/head")
+        self.assertEqual(fetch_refs, ["refs/pull/380/head"])
+
+    def test_prepare_pr_review_workspace_pairs_pr_repo_ref_with_task_repo(self) -> None:
+        remotes: list[str] = []
+        fetch_refs: list[str] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if len(args) >= 6 and args[0] == "-C" and args[2:5] == ["remote", "add", "origin"]:
+                remotes.append(args[-1])
+            if len(args) >= 6 and args[0] == "-C" and args[2:4] == ["fetch", "--depth=200"]:
+                fetch_refs.append(args[-1])
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "repo_ref": "refs/pull/380/head",
+                        "prompt": "Re-review PR #380. Related: https://github.com/storyprotocol/story-deployments/pull/376",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["repo"], "piplabs/numo-monorepo")
+        self.assertEqual(status["pr_number"], 380)
+        self.assertEqual(status["repo_ref"], "refs/pull/380/head")
+        self.assertEqual(remotes, ["https://github.com/piplabs/numo-monorepo.git"])
+        self.assertEqual(fetch_refs, ["refs/pull/380/head"])
+
+    def test_prepare_pr_review_workspace_pairs_github_url_repo_and_pr(self) -> None:
+        remotes: list[str] = []
+        fetch_refs: list[str] = []
+
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if len(args) >= 6 and args[0] == "-C" and args[2:5] == ["remote", "add", "origin"]:
+                remotes.append(args[-1])
+            if len(args) >= 6 and args[0] == "-C" and args[2:4] == ["fetch", "--depth=200"]:
+                fetch_refs.append(args[-1])
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 0, stdout="abc123\n", stderr="")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/rsi-agent-platform",
+                        "prompt": "Review https://github.com/storyprotocol/story-deployments/pull/376",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertTrue(status["prepared"])
+        self.assertEqual(status["repo"], "storyprotocol/story-deployments")
+        self.assertEqual(status["pr_number"], 376)
+        self.assertEqual(status["repo_ref"], "refs/pull/376/head")
+        self.assertEqual(remotes, ["https://github.com/storyprotocol/story-deployments.git"])
+        self.assertEqual(fetch_refs, ["refs/pull/376/head"])
+
+    def test_prepare_pr_review_workspace_skips_plain_branch_ref_without_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True) as git_mock:
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "repo_ref": "main",
+                        "prompt": "/github-code-review review this branch.",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertFalse(status["prepared"])
+        self.assertEqual(status["status"], "skipped")
+        self.assertEqual(status["reason"], "missing_pr_ref")
+        self.assertEqual(status["repo_ref"], "")
+        self.assertEqual(status["pr_number"], 0)
+        git_mock.assert_not_called()
+
+    def test_prepare_pr_review_workspace_requires_head_sha(self) -> None:
+        def fake_git(
+            _runtime: HermesRuntime,
+            args: list[str],
+            *,
+            cwd: Path,
+            env: dict[str, str],
+            timeout_seconds: int = 120,
+        ) -> subprocess.CompletedProcess[str]:
+            if args[-2:] == ["rev-parse", "HEAD"]:
+                return subprocess.CompletedProcess(["git", *args], 1, stdout="", stderr="fatal: ambiguous argument HEAD")
+            return subprocess.CompletedProcess(["git", *args], 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": str(Path(hermes_home, "workspace")),
+            },
+            clear=True,
+        ), mock.patch.object(HermesRuntime, "_git_command_for_pr_review_workspace", autospec=True, side_effect=fake_git):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            task = RunnerTaskRequest.from_payload(
+                {
+                    "task": {
+                        "task_type": "workflow",
+                        "repo": "piplabs/numo-monorepo",
+                        "prompt": "Re-review PR #380.",
+                    }
+                }
+            )
+
+            status = runtime._prepare_pr_review_workspace(
+                "sess-stage-pr-review",
+                task,
+                github_env={"GIT_TERMINAL_PROMPT": "0", "GH_TOKEN": "token"},
+            )
+
+        self.assertFalse(status["prepared"])
+        self.assertEqual(status["status"], "failed")
+        self.assertEqual(status["reason"], "git_rev_parse_failed")
+        self.assertEqual(status["head_sha"], "")
 
     def test_stage_task_context_does_not_enable_workspace_guard_for_plain_pr_mentions(self) -> None:
         with tempfile.TemporaryDirectory() as hermes_home, mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
