@@ -734,7 +734,7 @@ _DB_READ_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "db_read.query": _schema(
         "db_read.query",
-        "Submit one Slack-approved read-only SQL query. This pauses Hermes at the tool call; after admin approval and execution, RSI resumes this same session with a sanitized tool result.",
+        "Submit one read-only SQL query. This pauses Hermes at the tool call; after read-only validation (auto-approved, audited in Slack) and execution, RSI resumes this same session with a sanitized tool result.",
         {"target": {"type": "string"}, "sql": {"type": "string"}, "purpose": {"type": "string"}},
         ["target", "sql"],
     ),

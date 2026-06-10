@@ -3,6 +3,8 @@ package control
 import (
 	"context"
 	"errors"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -169,6 +171,135 @@ func TestDBReadWorkerDoesNotExecuteWithoutExternalToolPause(t *testing.T) {
 	}
 	if results := store.ListDBReadExecutionResults(request.ID); len(results) != 0 {
 		t.Fatalf("legacy request should not execute: %#v", results)
+	}
+}
+
+func TestDBReadWorkerAutoApprovesValidatedRequest(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey: "auto-approve",
+		Target:         "depin-stage",
+		Purpose:        "query",
+		SQL:            "select 1",
+		SQLSHA256:      "sha256:abc",
+		Requester:      "user:U123",
+		WorkflowID:     "workflow-1",
+		TraceID:        "trace-1",
+		ChannelID:      "C123",
+		ThreadTS:       "171000001.000100",
+		ExpiresAt:      now.Add(time.Hour),
+		Caps:           storepkg.DBReadCaps{MaxRows: 10, MaxBytes: 1024, TimeoutSeconds: 5},
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pause, _, err := store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-auto-approve",
+		WorkflowID:        request.WorkflowID,
+		TraceID:           request.TraceID,
+		HermesSessionID:   "session-1",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call_db_1",
+		DBReadRequestID:   request.ID,
+		SQLSHA256:         request.SQLSHA256,
+		ExpiresAt:         request.ExpiresAt,
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt, err := store.AppendDBReadValidationAttempt(storepkg.NewDBReadValidationAttempt(request, storepkg.DBReadValidationStatusSucceeded, "target_prepare", "", nil, now))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pending, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected request")
+	}
+	poster := &fakeSlackPoster{}
+
+	if err := autoApproveDBReadRequest(context.Background(), store, poster, pending, attempt, pending.SQL); err != nil {
+		t.Fatal(err)
+	}
+
+	updated, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected request")
+	}
+	if updated.State != storepkg.DBReadStateApproved {
+		t.Fatalf("expected approved state, got %s", updated.State)
+	}
+	if updated.ApprovedAt == nil {
+		t.Fatal("expected ApprovedAt to be set")
+	}
+	if updated.ApprovedBySlackUserID != "" {
+		t.Fatalf("auto-approval must not attribute a Slack approver, got %q", updated.ApprovedBySlackUserID)
+	}
+	if updated.SlackMessageChannelID == "" || updated.SlackMessageTS == "" {
+		t.Fatal("expected audit card Slack coordinates to be recorded")
+	}
+	updatedPause, ok := store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external pause")
+	}
+	if updatedPause.ApprovalStatus != storepkg.ExternalToolApprovalApproved {
+		t.Fatalf("pause approval status = %s, want approved", updatedPause.ApprovalStatus)
+	}
+	if updatedPause.ApprovalRef != "auto:read_only_validated" {
+		t.Fatalf("pause approval ref = %q, want auto:read_only_validated", updatedPause.ApprovalRef)
+	}
+	if len(poster.calls) != 2 {
+		t.Fatalf("expected audit card post and status update, got %d Slack calls", len(poster.calls))
+	}
+	card := poster.calls[0].values.Encode()
+	if strings.Contains(card, dbReadSlackApproveAction) || strings.Contains(card, dbReadSlackDenyAction) {
+		t.Fatalf("audit card must not contain approve/deny buttons: %s", card)
+	}
+	if !strings.Contains(card, "auto-approved") {
+		t.Fatalf("audit card should state auto-approval: %s", card)
+	}
+	update := poster.calls[1].values.Encode()
+	if !strings.Contains(update, url.QueryEscape("queued for execution")) {
+		t.Fatalf("status update should mention queued execution: %s", update)
+	}
+}
+
+func TestDBReadWorkerAutoApproveWithoutSlackChannel(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	request, _, err := store.UpsertDBReadRequest(storepkg.DBReadCreateInput{
+		IdempotencyKey: "auto-approve-no-channel",
+		Target:         "depin-stage",
+		Purpose:        "query",
+		SQL:            "select 1",
+		SQLSHA256:      "sha256:abc",
+		Requester:      "hermes",
+		ExpiresAt:      now.Add(time.Hour),
+		Caps:           storepkg.DBReadCaps{MaxRows: 10, MaxBytes: 1024, TimeoutSeconds: 5},
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	attempt, err := store.AppendDBReadValidationAttempt(storepkg.NewDBReadValidationAttempt(request, storepkg.DBReadValidationStatusSucceeded, "target_prepare", "", nil, now))
+	if err != nil {
+		t.Fatal(err)
+	}
+	pending, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected request")
+	}
+
+	if err := autoApproveDBReadRequest(context.Background(), store, nil, pending, attempt, pending.SQL); err != nil {
+		t.Fatal(err)
+	}
+
+	updated, ok := store.GetDBReadRequest(request.ID)
+	if !ok {
+		t.Fatal("expected request")
+	}
+	if updated.State != storepkg.DBReadStateApproved {
+		t.Fatalf("expected approved state, got %s", updated.State)
 	}
 }
 

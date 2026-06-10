@@ -188,6 +188,19 @@ func TestLoadMergesDBReadApproverEnvWithSourceControlledDefaults(t *testing.T) {
 	}
 }
 
+func TestLoadDBReadAutoApproveDefaultsOnAndCanBeDisabled(t *testing.T) {
+	cfg := Load("control-plane")
+	if !cfg.DBReadAutoApprove {
+		t.Fatal("DBReadAutoApprove should default to true")
+	}
+
+	t.Setenv("RSI_DB_READ_AUTO_APPROVE", "false")
+	cfg = Load("control-plane")
+	if cfg.DBReadAutoApprove {
+		t.Fatal("RSI_DB_READ_AUTO_APPROVE=false should disable auto-approval")
+	}
+}
+
 func TestDefaultDBReadApproversIncludesBlake(t *testing.T) {
 	for _, user := range defaultDBReadApproverSlackUsers {
 		if user.ID == "U0772SH7BRA" && user.Name == "Blake" {

@@ -71,6 +71,41 @@ func TestDBReadApprovalBlocksUseStoredSQLNotValidationPreview(t *testing.T) {
 	}
 }
 
+func TestDBReadAuditBlocksShowExactSQLWithoutButtons(t *testing.T) {
+	sql := "SELECT language_code, COUNT(*) FROM scripts GROUP BY language_code"
+	request := storepkg.DBReadRequest{
+		ID:        "dbread_1",
+		Target:    "depin-prod",
+		Purpose:   "query",
+		SQL:       sql,
+		SQLSHA256: "sha256:1234567890abcdef1234567890abcdef",
+		Requester: "user:U123",
+		ExpiresAt: time.Date(2026, 5, 7, 20, 0, 0, 0, time.UTC),
+		Caps:      storepkg.DBReadCaps{MaxRows: 20, MaxBytes: 4096, TimeoutSeconds: 10},
+	}
+	attempt := storepkg.DBReadValidationAttempt{ID: "dbreadval_1"}
+	raw, err := json.Marshal(dbReadAuditBlocks(request, attempt, sql))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := strings.ReplaceAll(string(raw), "\\u003c", "<")
+	body = strings.ReplaceAll(body, "\\u003e", ">")
+	for _, want := range []string{
+		"auto-approved",
+		"Validated read-only",
+		"Exact SQL to run",
+		sql,
+		"<@U123> via Hermes",
+	} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("audit blocks missing %q in %s", want, body)
+		}
+	}
+	if strings.Contains(body, dbReadSlackApproveAction) || strings.Contains(body, dbReadSlackDenyAction) {
+		t.Fatalf("audit blocks must not contain approve/deny actions: %s", body)
+	}
+}
+
 func TestPostDBReadApprovalCardIsIdempotentWhenSlackMessageExists(t *testing.T) {
 	request := storepkg.DBReadRequest{
 		ID:                    "dbread_1",

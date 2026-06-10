@@ -546,7 +546,7 @@ def _db_read_external_pause_event(payload: JsonObject) -> JsonObject:
         "tool_name": str(pause.get("transport_tool_name") or "db_read_query").strip(),
         "tool_call_id": str(pause.get("tool_call_id") or "").strip(),
         "session_id": str(pause.get("hermes_session_id") or "").strip(),
-        "summary": "DB read request is pending Slack admin approval and execution.",
+        "summary": "DB read request is queued for read-only validation and execution.",
     }
 
 

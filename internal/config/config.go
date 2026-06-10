@@ -86,6 +86,7 @@ type Config struct {
 	DBReadTargetsJSON                    string
 	DBReadClientToken                    string
 	DBReadApproverSlackUserIDs           []string
+	DBReadAutoApprove                    bool
 	DBReadWorkerTargets                  []string
 	NotionToken                          string
 	NotionMirrorEnabled                  bool
@@ -302,6 +303,7 @@ func Load(serviceName string) Config {
 		DBReadTargetsJSON:                    stringEnv("RSI_DB_READ_TARGETS_JSON", ""),
 		DBReadClientToken:                    stringEnv("RSI_DB_READ_CLIENT_TOKEN", ""),
 		DBReadApproverSlackUserIDs:           dbReadApprovers,
+		DBReadAutoApprove:                    boolEnv("RSI_DB_READ_AUTO_APPROVE", true),
 		DBReadWorkerTargets:                  listEnv("RSI_DB_READ_WORKER_TARGETS"),
 		NotionToken:                          stringEnv("NOTION_TOKEN", ""),
 		NotionMirrorEnabled:                  boolEnv("RSI_NOTION_MIRROR_ENABLED", false),

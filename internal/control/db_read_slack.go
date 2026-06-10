@@ -50,6 +50,62 @@ func postDBReadApprovalCard(ctx context.Context, cfg config.Config, store storep
 	return err
 }
 
+// postDBReadAuditCard posts the same audit card as the approval flow but
+// without approve/deny buttons, for requests that are auto-approved after
+// read-only validation. It records the Slack message coordinates so later
+// status updates land on this card.
+func postDBReadAuditCard(ctx context.Context, store storepkg.Store, api slackMessagePoster, request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt, preview string) error {
+	if api == nil {
+		return fmt.Errorf("slackAPI is required to post DB read audit cards")
+	}
+	if strings.TrimSpace(request.ChannelID) == "" {
+		return fmt.Errorf("db read request has no Slack channel")
+	}
+	if request.SlackMessageChannelID != "" && request.SlackMessageTS != "" {
+		return nil
+	}
+	text := dbReadAuditText(request)
+	blocks := dbReadAuditBlocks(request, attempt, preview)
+	options := []slack.MsgOption{
+		slack.MsgOptionText(text, false),
+		slack.MsgOptionBlocks(blocks...),
+	}
+	if strings.TrimSpace(request.ThreadTS) != "" {
+		options = append(options, slack.MsgOptionTS(request.ThreadTS))
+	}
+	channel, ts, err := api.PostMessageContext(ctx, request.ChannelID, options...)
+	if err != nil {
+		return err
+	}
+	_, err = store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStatePendingApproval, func(item *storepkg.DBReadRequest) error {
+		item.SlackMessageChannelID = channel
+		item.SlackMessageTS = ts
+		return nil
+	})
+	return err
+}
+
+func dbReadAuditBlocks(request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt, preview string) []slack.Block {
+	sqlPreview := truncateSlackText(firstNonEmpty(request.SQL, preview), 2200)
+	return []slack.Block{
+		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, dbReadAuditText(request), false, false), nil, nil),
+		slack.NewSectionBlock(slack.NewTextBlockObject(slack.MarkdownType, "*Exact SQL to run:*\n```"+escapeSlackCode(sqlPreview)+"```", false, false), nil, nil),
+		slack.NewContextBlock("rsi_db_read_footer", slack.NewTextBlockObject(slack.MarkdownType, dbReadRequestFooter(request, attempt), false, false)),
+	}
+}
+
+func dbReadAuditText(request storepkg.DBReadRequest) string {
+	return fmt.Sprintf(
+		"*DB read (auto-approved)*\nTarget: `%s`  Requester: %s\nPurpose: `%s`\nCaps: max_rows=%d max_bytes=%d timeout=%ds\nValidated read-only; executing without manual approval.",
+		request.Target,
+		dbReadRequesterLabel(request.Requester),
+		firstNonEmpty(request.Purpose, "query"),
+		request.Caps.MaxRows,
+		request.Caps.MaxBytes,
+		request.Caps.TimeoutSeconds,
+	)
+}
+
 func dbReadApprovalBlocks(request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt, preview string) []slack.Block {
 	approve := slack.NewButtonBlockElement(
 		dbReadSlackApproveAction,

@@ -161,11 +161,49 @@ func handleDBReadValidationLease(ctx context.Context, cfg config.Config, store s
 		markDBReadExternalToolOutcome(cfg, store, updated, storepkg.ExternalToolOutcomeFailed, firstNonEmpty(validation.Message, validation.ErrorCode, "target-side validation failed"))
 		return
 	}
+	if cfg.DBReadAutoApprove {
+		if err := autoApproveDBReadRequest(ctx, store, slackAPI, updated, attempt, validation.Preview); err != nil {
+			log.Printf("db-read-worker auto-approve request=%s error=%v", request.ID, err)
+		}
+		return
+	}
 	if updated.ChannelID != "" {
 		if err := postDBReadApprovalCard(ctx, cfg, store, slackAPI, updated, attempt, validation.Preview); err != nil {
 			log.Printf("db-read-worker approval card request=%s error=%v", request.ID, err)
 		}
 	}
+}
+
+// autoApproveDBReadRequest moves a validated request straight to approved
+// without waiting for a Slack approver. SQL safety is still guaranteed by the
+// read-only AST validation and target-side prepare that ran before this point.
+// A buttonless audit card is posted to Slack so the result still lands in the
+// originating thread.
+func autoApproveDBReadRequest(ctx context.Context, store storepkg.Store, slackAPI slackMessagePoster, request storepkg.DBReadRequest, attempt storepkg.DBReadValidationAttempt, preview string) error {
+	if request.ChannelID != "" && slackAPI != nil {
+		if err := postDBReadAuditCard(ctx, store, slackAPI, request, attempt, preview); err != nil {
+			log.Printf("db-read-worker audit card request=%s error=%v", request.ID, err)
+		}
+		if latest, ok := store.GetDBReadRequest(request.ID); ok {
+			request = latest
+		}
+	}
+	now := time.Now().UTC()
+	updated, err := store.TransitionDBReadRequest(request.ID, storepkg.DBReadStatePendingApproval, storepkg.DBReadStateApproved, func(item *storepkg.DBReadRequest) error {
+		item.ApprovedAt = &now
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	if pause, ok := store.GetExternalToolPauseByDBReadRequestID(updated.ID); ok {
+		_, _ = store.UpdateExternalToolPause(pause.ID, func(item *storepkg.ExternalToolPause) error {
+			item.ApprovalStatus = storepkg.ExternalToolApprovalApproved
+			item.ApprovalRef = "auto:read_only_validated"
+			return nil
+		})
+	}
+	return updateDBReadSlackCard(ctx, slackAPI, updated, "auto-approved (validated read-only); queued for execution")
 }
 
 func appendDBReadValidation(store storepkg.Store, request storepkg.DBReadRequest, status storepkg.DBReadValidationStatus, stage string, message string, code string, now time.Time) (storepkg.DBReadValidationAttempt, error) {

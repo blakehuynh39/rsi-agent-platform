@@ -8265,11 +8265,12 @@ if __name__ == "__main__":
             if self._config.db_read_gateway_configured:
                 parts.append(
                     "Postgres read requests are available through native `db_read.*` tools in the `rsi-db-read` "
-                    "toolset. This is an async, Slack-approved RSI control-plane gateway: the tools never have DB "
+                    "toolset. This is an async RSI control-plane gateway: the tools never have DB "
                     "DSNs and never execute SQL locally. Use `db_read.sources`, `db_read.schema`, "
                     "`db_read.validate`, `db_read.query`, and `db_read.status`. `db_read.query` pauses the tool "
-                    "call for Slack admin approval, then resumes this Hermes session with a sanitized tool result. "
-                    "Approval is bound to the exact target and SQL hash; do not bypass this native tool with raw "
+                    "call while RSI validates the SQL is read-only, auto-approves it, executes it, and posts an "
+                    "audit card to Slack, then resumes this Hermes session with a sanitized tool result. "
+                    "Execution is bound to the exact target and SQL hash; do not bypass this native tool with raw "
                     "control-plane curl or any legacy `rsi-db` executable from agent code."
                 )
             parts.append(
