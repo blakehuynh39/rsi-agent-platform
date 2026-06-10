@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "913db5b737f6957dd6010e5c89eff3eb1b3a692aeaf94896d5a0f23e2cdf8c5a",
-        "size": 619888
+        "sha256": "46d8347baf661beec9aae4d6156307dc161ac19a4afe492172b688b184398a34",
+        "size": 621032
       },
       {
         "path": "log.md",
-        "sha256": "ab747dddea7b7b407e4aa854c164f952335059ce22af3c083730c2493ef40784",
-        "size": 1193496
+        "sha256": "b4d4636c1ef7e0d5463f5cde26b747bada1a0e91041dcffd277d93b184a2feea",
+        "size": 1194676
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3713,6 +3713,11 @@
         "path": "pages/concepts/ipaccount-centric-data-model.md",
         "sha256": "d5225da5615f81e7a9b94da774929cb3da709f34dc4b5eb92d3edb13abba1d8d",
         "size": 6834
+      },
+      {
+        "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
+        "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
+        "size": 3757
       },
       {
         "path": "pages/concepts/l1-api-specifications.md",
@@ -4870,6 +4875,11 @@
         "size": 1074
       },
       {
+        "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
+        "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
+        "size": 3294
+      },
+      {
         "path": "pages/projects/ai-data-audit-portal.md",
         "sha256": "35f92a4447f7a4b4841eba65703421806556b4dad560ea0965c012add5bf6ee3",
         "size": 12162
@@ -5965,6 +5975,11 @@
         "size": 5542
       },
       {
+        "path": "pages/runbooks/aeneid-genesis-wallets.md",
+        "sha256": "fcf8ca9d9e42255359efb2c03ec8f5927ffdd687fb011ce8eca711c80addafd8",
+        "size": 3582
+      },
+      {
         "path": "pages/runbooks/aws-cli-setup.md",
         "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
         "size": 3333
@@ -6824,8 +6839,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-10T02:33:52Z",
-  "file_count": 1363,
+  "exported_at": "2026-06-10T03:21:06Z",
+  "file_count": 1366,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10092,7 +10107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-c546bb6sh6h",
-  "previous_tree_hash": "7d2234e13db78361d58de24fe94f72ff80159de06010e1f9352d7f90ae1a8b51",
+  "previous_tree_hash": "373d82eabaa400faa9427741af9d6b392b0f0a18bdb4f6418eb7a130d354bdb9",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10105,14 +10120,14 @@
   ],
   "skill_tree_hash": "67bc19834ed987c896ffb9550decfe7e1a381991729bac1251b930552dcf06e8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "373d82eabaa400faa9427741af9d6b392b0f0a18bdb4f6418eb7a130d354bdb9",
+  "tree_hash": "e47304bb788ff21f9f42a630c5373188ceff13b4bc4270a4ff504f91f86ed434",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 711,
+  "wiki_file_count": 714,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10121,13 +10136,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "913db5b737f6957dd6010e5c89eff3eb1b3a692aeaf94896d5a0f23e2cdf8c5a",
-      "size": 619888
+      "sha256": "46d8347baf661beec9aae4d6156307dc161ac19a4afe492172b688b184398a34",
+      "size": 621032
     },
     {
       "path": "log.md",
-      "sha256": "ab747dddea7b7b407e4aa854c164f952335059ce22af3c083730c2493ef40784",
-      "size": 1193496
+      "sha256": "b4d4636c1ef7e0d5463f5cde26b747bada1a0e91041dcffd277d93b184a2feea",
+      "size": 1194676
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10563,6 +10578,11 @@
       "path": "pages/concepts/ipaccount-centric-data-model.md",
       "sha256": "d5225da5615f81e7a9b94da774929cb3da709f34dc4b5eb92d3edb13abba1d8d",
       "size": 6834
+    },
+    {
+      "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
+      "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
+      "size": 3757
     },
     {
       "path": "pages/concepts/l1-api-specifications.md",
@@ -11720,6 +11740,11 @@
       "size": 1074
     },
     {
+      "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
+      "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
+      "size": 3294
+    },
+    {
       "path": "pages/projects/ai-data-audit-portal.md",
       "sha256": "35f92a4447f7a4b4841eba65703421806556b4dad560ea0965c012add5bf6ee3",
       "size": 12162
@@ -12815,6 +12840,11 @@
       "size": 5542
     },
     {
+      "path": "pages/runbooks/aeneid-genesis-wallets.md",
+      "sha256": "fcf8ca9d9e42255359efb2c03ec8f5927ffdd687fb011ce8eca711c80addafd8",
+      "size": 3582
+    },
+    {
       "path": "pages/runbooks/aws-cli-setup.md",
       "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
       "size": 3333
@@ -13671,5 +13701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6a7921d7cee27ec297929c9f0e0b4b4b8f8eec26e8dcc820015c7ff784b9c89d"
+  "wiki_tree_hash": "6bc1f2cb7e0bc644ab84215d36fba94abab876fb9e261877ad32212dde79babe"
 }

@@ -24852,3 +24852,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_40adbdbc7e043cf9a286ddf8c7fa2e63
 - summary: Source: [source](https://app.notion.com/p/Aeneid-Genesis-IP-Allocation-Flow-Staking-Snapshot-37b051299a5481159765ed594e4531d0)
 
+## [2026-06-10T03:17:58Z] synthesis | Aeneid Genesis IP Allocation and Staking Snapshot (2026-06-09)
+
+- status: published
+- slug: projects/aeneid-genesis-ip-allocation-staking-snapshot
+- wiki_revision_id: wikirev_ecdd78f72c192955c3c534724409101b
+- summary: Overview of the initial IP token distribution and staking positions as of 2026-06-09, drawn from live blockchain data and EVM events.
+
+## [2026-06-10T03:17:58Z] synthesis | IPTokenStaking Contract Ownership and Delegation Rules
+
+- status: published
+- slug: concepts/iptokenstaking-contract-ownership-delegation-rules
+- wiki_revision_id: wikirev_6a2d751b37b355f09e6e93e0e6fd6787
+- summary: Explanation of how the IPTokenStaking precompile (0xCccccc0000000000000000000000000000000001) assigns ownership of staked tokens, differentiating between the delegator and the paye...
+
+## [2026-06-10T03:17:58Z] synthesis | Aeneid Genesis Wallet Summary
+
+- status: published
+- slug: runbooks/aeneid-genesis-wallets
+- wiki_revision_id: wikirev_8477f1741fba63dd5ffe26d2158efa69
+- summary: Consolidated token-state table for the eight genesis EOAs, operational wallets, and externally sponsored delegators as of the 2026-06-09 snapshot.
+
