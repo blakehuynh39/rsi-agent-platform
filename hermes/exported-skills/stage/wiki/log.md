@@ -24898,3 +24898,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b7e75f0e3c2f6e5956a9ab14bacdb81d
 - summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
 
+## [2026-06-10T09:00:25Z] ingest | CDR Story Client Change Log
+
+- status: published
+- slug: notion_document/cdr-story-client-change-log-4742be2f
+- wiki_revision_id: wikirev_5e7bf6612d1a913be95d797a8f634e56
+- source_document_id: srcdoc_aeaa4036cd00e991702368cf4742be2f
+- source_revision_id: srcrev_e268f384f9c3d4dfdc613992cedb2d75
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
+
+## [2026-06-10T09:00:26Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_11a93cebd6f4a0cc32373f637af0a6e0
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_d2f54db8b619b8a94b95b5202d3a28b1
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
