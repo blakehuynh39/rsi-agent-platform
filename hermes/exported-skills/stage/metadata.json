@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0cd1ba56ff682842d92e0c480881862a2a318037a7be2702a8e8f8f72d0c1210",
-        "size": 621821
+        "sha256": "ac857a8a10d3d3fbf22fd7982dac0c378140be69e9504947279dd457917d4904",
+        "size": 622221
       },
       {
         "path": "log.md",
-        "sha256": "442600a0bc4278661ea34743311b6356e113920df0ccf654a8740c5119f14607",
-        "size": 1197616
+        "sha256": "1255de5ad477d771dfb61f1147f36720210804554f24993da7907625839c5ecd",
+        "size": 1198381
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5386,8 +5386,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "c8e79af616efc0fc6d66ae56fe297e70986a89c733cafe3959404a5d9d87eb59",
-        "size": 6496
+        "sha256": "b5ec20a9ae95224d4ab2370170490375ae7c4eba6c00835ba3f4830d59f64fc7",
+        "size": 6273
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -6440,6 +6440,11 @@
         "size": 6154
       },
       {
+        "path": "pages/systems/data-migration-technical-handbook.md",
+        "sha256": "5a3daad87abc7f8e1acd34f15e6338d27d0eda91b22064abe01d05457fb2d004",
+        "size": 12995
+      },
+      {
         "path": "pages/systems/data-portal-backend-architecture.md",
         "sha256": "d8d335f8108e406d817ea3123cf281f21610d3d1980b04f33047cd71d39e42ca",
         "size": 19359
@@ -6844,8 +6849,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-10T18:06:56Z",
-  "file_count": 1367,
+  "exported_at": "2026-06-10T18:18:41Z",
+  "file_count": 1368,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10112,7 +10117,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-795c5ds6d8g",
-  "previous_tree_hash": "aa15fc81c7723a39f4594081e279f49fe4bdff5051bb4d0c30f4af6076a81e70",
+  "previous_tree_hash": "fb61e88e81b8d8f97a7f6573f03297a1bbff4442125743f6bd4f1a46a6d44eba",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10125,14 +10130,14 @@
   ],
   "skill_tree_hash": "3851022477dab79baa575b351ba6cebdcd262c21b719aa488023735efb62b730",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fb61e88e81b8d8f97a7f6573f03297a1bbff4442125743f6bd4f1a46a6d44eba",
+  "tree_hash": "ffd80c0dbb9bcf4448c6df6c355e2f14421088b4e3fae27d95c1df79e4eba7fd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 715,
+  "wiki_file_count": 716,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10141,13 +10146,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0cd1ba56ff682842d92e0c480881862a2a318037a7be2702a8e8f8f72d0c1210",
-      "size": 621821
+      "sha256": "ac857a8a10d3d3fbf22fd7982dac0c378140be69e9504947279dd457917d4904",
+      "size": 622221
     },
     {
       "path": "log.md",
-      "sha256": "442600a0bc4278661ea34743311b6356e113920df0ccf654a8740c5119f14607",
-      "size": 1197616
+      "sha256": "1255de5ad477d771dfb61f1147f36720210804554f24993da7907625839c5ecd",
+      "size": 1198381
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12256,8 +12261,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "c8e79af616efc0fc6d66ae56fe297e70986a89c733cafe3959404a5d9d87eb59",
-      "size": 6496
+      "sha256": "b5ec20a9ae95224d4ab2370170490375ae7c4eba6c00835ba3f4830d59f64fc7",
+      "size": 6273
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -13310,6 +13315,11 @@
       "size": 6154
     },
     {
+      "path": "pages/systems/data-migration-technical-handbook.md",
+      "sha256": "5a3daad87abc7f8e1acd34f15e6338d27d0eda91b22064abe01d05457fb2d004",
+      "size": 12995
+    },
+    {
       "path": "pages/systems/data-portal-backend-architecture.md",
       "sha256": "d8d335f8108e406d817ea3123cf281f21610d3d1980b04f33047cd71d39e42ca",
       "size": 19359
@@ -13711,5 +13721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1da7ff5b815c9d8b24e62ef82cbc502e0ac35d5819331b2afc1a9785e8ceba90"
+  "wiki_tree_hash": "16f04a6f88ba708d23c6aad58dc99c3a68b2b2f5bcf46abc04adc52e2cdb8cbd"
 }

@@ -4,9 +4,8 @@ type: "project"
 slug: "projects/lion-team"
 freshness: "2026-06-08T22:03:00Z"
 tags:
-  - "agents"
-  - "data-infrastructure"
   - "engineering"
+  - "team"
 owners: []
 source_revision_ids:
   - "srcrev_98cc2d4d728d0cd0c0a95e92dac8523a"
@@ -17,7 +16,7 @@ conflict_state: "none"
 
 ## Summary
 
-The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-pages for the Internal Agentic Initiative, a POC to Data Marketplace, and references to technical handbooks and plans including $DATA Migration, Data Registration on Story L1, 100M Gas Data Registration Testing, Agent Infra, and the Story to Data Rebrand Migration Plan.
+The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-pages for Internal Agentic Initiative, Data Marketplace POC, and references to Data Migration technical handbook and other documents.
 
 ## Claims
 
@@ -44,13 +43,8 @@ The Lion Team is an engineering group with members, a team database, and initiat
 - Lion Team page references the 'Story → Data Rebrand: Migration Plan' page. `claim:claim_1_11` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
 
-## Related Pages
-
-- `concepts/lion-team-members`
-- `projects/internal-agentic-initiative`
-
 ## Sources
 
-- `source_document_id`: `srcdoc_bedb4e134badf14d697d6af434d7903a`
-- `source_revision_id`: `srcrev_98cc2d4d728d0cd0c0a95e92dac8523a`
-- `source_url`: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+- `source_document_id`: `srcdoc_595c1fb031be8bea2eb6952240911f03`
+- `source_revision_id`: `srcrev_ffe6703323530bf37a5f1fe16ad5f7bf`
+- `source_url`: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
