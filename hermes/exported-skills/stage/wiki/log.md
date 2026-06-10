@@ -24889,3 +24889,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ef8225dae4cc1869a0a27c1ba1bc4876
 - summary: Phased launch plan beginning May 28, 2026 with weekly feature releases, tasks, messaging, and action items. Weeks 1 and 2 are completed; Week 3 is in progress with pending tax and ...
 
+## [2026-06-10T08:00:22Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_5f9b485c3b6213e7f46e3d210d60b36a
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_b7e75f0e3c2f6e5956a9ab14bacdb81d
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
