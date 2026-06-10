@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e8096dd132c43a6818c45b479ef7d4ae5342a8c2442a2e58037d8a40407e6008",
-        "size": 621414
+        "sha256": "592b2e96c8fa11f073b7dd0b6bff3428816d15983c436f980f79c4154a4be816",
+        "size": 621821
       },
       {
         "path": "log.md",
-        "sha256": "284df9fefabf000079eb1787c78b732febc19a13eb1b7fdee032798080959ec8",
-        "size": 1196701
+        "sha256": "9c459c8ff60a13819396f145491fae605e9a77e9dd2b77ad96c51fef6bcb6727",
+        "size": 1197120
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6410,6 +6410,11 @@
         "size": 1050
       },
       {
+        "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
+        "sha256": "605ce46a0912db8e7e78de18220691b88273808334dd3740f5365532a2e258ad",
+        "size": 6627
+      },
+      {
         "path": "pages/systems/cicd-design-and-implementation.md",
         "sha256": "d6b71c40e10ed8db57db7249c41c97def9b467f51823fd9af7a695ae2085e4f5",
         "size": 6097
@@ -6839,8 +6844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-10T09:02:05Z",
-  "file_count": 1366,
+  "exported_at": "2026-06-10T09:54:24Z",
+  "file_count": 1367,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10107,7 +10112,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-67b56674rw2",
-  "previous_tree_hash": "337fbb492f9a41cd6e625e76cfe06981c88a9b77ded4a9a9b616a072c5ccd9e3",
+  "previous_tree_hash": "3be11ae33f7194631d649fbf554e19481ae40414962ee61668aa30587384f43e",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10120,14 +10125,14 @@
   ],
   "skill_tree_hash": "67bc19834ed987c896ffb9550decfe7e1a381991729bac1251b930552dcf06e8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3be11ae33f7194631d649fbf554e19481ae40414962ee61668aa30587384f43e",
+  "tree_hash": "e70f20bf7ca7ef833638886d7191e6f97576a41fe9e912cf9f1956e0ba9dd310",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 714,
+  "wiki_file_count": 715,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10136,13 +10141,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e8096dd132c43a6818c45b479ef7d4ae5342a8c2442a2e58037d8a40407e6008",
-      "size": 621414
+      "sha256": "592b2e96c8fa11f073b7dd0b6bff3428816d15983c436f980f79c4154a4be816",
+      "size": 621821
     },
     {
       "path": "log.md",
-      "sha256": "284df9fefabf000079eb1787c78b732febc19a13eb1b7fdee032798080959ec8",
-      "size": 1196701
+      "sha256": "9c459c8ff60a13819396f145491fae605e9a77e9dd2b77ad96c51fef6bcb6727",
+      "size": 1197120
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13275,6 +13280,11 @@
       "size": 1050
     },
     {
+      "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
+      "sha256": "605ce46a0912db8e7e78de18220691b88273808334dd3740f5365532a2e258ad",
+      "size": 6627
+    },
+    {
       "path": "pages/systems/cicd-design-and-implementation.md",
       "sha256": "d6b71c40e10ed8db57db7249c41c97def9b467f51823fd9af7a695ae2085e4f5",
       "size": 6097
@@ -13701,5 +13711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2d756adc603984e5e2e9483c3d5c6ab3e8d2da93e2418e3b20d3f903d2d94679"
+  "wiki_tree_hash": "b31b25904aed49b37e2c5baa503bca601c4d2ab72c9f1deb8f0bde0f0fc3de6f"
 }

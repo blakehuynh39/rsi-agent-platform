@@ -24916,3 +24916,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d2f54db8b619b8a94b95b5202d3a28b1
 - summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
 
+## [2026-06-10T09:50:45Z] synthesis | CDR Story Client: v1.7.0 to Feature Changes
+
+- status: published
+- slug: systems/cdr-story-client-v1-7-0-to-feature-changes
+- wiki_revision_id: wikirev_e655c0034c71086320074fa430833c7a
+- summary: Summary of changes merged or in progress from base v1.7.0 to a feature branch, including retry caps, decrypt queue draining fix, SGX/TDX validation hooks, IAVL bump, and DKG integr...
+
