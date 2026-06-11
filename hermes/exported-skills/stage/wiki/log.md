@@ -25092,3 +25092,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e2f0f9841b91bf97815bd240ebe85a74
 - summary: Closed-loop controller that modulates block fill to steer IP spent per registration toward a setpoint derived from admin-set daily IP budget and daily registration target. Incorpor...
 
+## [2026-06-11T19:30:36Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_205cff0e1f3a65240014bfa486324c04
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_cd57f843f2cba07ed38e6c2c94afa288
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
