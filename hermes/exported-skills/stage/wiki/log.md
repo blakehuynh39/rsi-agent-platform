@@ -25060,3 +25060,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_05a346fa0c172dfd6ac40f32f0757a16
 - summary: The Broadcaster Gas Strategy controls IP spending to achieve a daily registration target using a closed-loop controller that modulates gas price via block fill. Admin sets daily IP...
 
+## [2026-06-11T18:00:40Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_a496adc221da8dedb0edf00c2661f4c5
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_1c79d429562aec60c6aee788c983b1c4
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
+## [2026-06-11T18:01:32Z] synthesis | Broadcaster Gas Strategy
+
+- status: published
+- slug: systems/broadcaster-gas-strategy
+- wiki_revision_id: wikirev_388e5dc42325ab14aedb96fc0704abcd
+- summary: The broadcaster spends an admin-defined daily IP budget on a daily registration target, using a closed-loop controller that adjusts block fill to steer actual spend/registration to...
+
