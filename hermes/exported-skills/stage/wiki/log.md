@@ -25010,3 +25010,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_725c0610f05e3d3a626acb56597ba4f8
 - summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
 
+## [2026-06-11T16:30:28Z] ingest | Slack thread C0AKH5SNGKH 1781194747.936049
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1781194747-936049-8d132f73
+- wiki_revision_id: wikirev_80ff8ccb7a59906d41ed92104ed439e8
+- source_document_id: srcdoc_073e43cd647ba037da26a2b28d132f73
+- source_revision_id: srcrev_54fba54aca70d1e15a5dc24441d36e74
+- summary: hey <@U04L0DD6B6F> <@U0772SH7BRA> <@U083MMT1771> is this a legitimate API key or a placeholder value?
+
