@@ -994,8 +994,9 @@ gh pr diff <N>
 gh pr diff <N> --name-only
 ```
 
-4. **Inspect the fix commit(s) as reconciliation inputs** — use `gh api` to see exactly which files were changed after the previous review. This helps map prior findings to fixes, but it does not replace the full current PR review:
+4. **Inspect the fix commit(s) as reconciliation inputs** — use `gh api` or local `git diff` to see exactly which files were changed after the previous review. This helps map prior findings to fixes, but it does not replace the full current PR review:
 
+**With gh api (remote, no checkout needed):**
 ```bash
 # List commits since your review to find the fix commit(s)
 gh pr view <N> --json commits --jq '.commits[-5:] | .[] | {oid: .oid[0:8], message: .messageHeadline}'
@@ -1005,6 +1006,22 @@ gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | "\(.filename): 
 
 # Inspect a specific fix in detail
 gh api "repos/<owner>/<repo>/commits/<fix-sha>" --jq '.files[] | select(.filename == "path/to/file.ts") | .patch'
+```
+
+**With local git (when you have a checkout — simpler, richer context):**
+```bash
+# When the local branch is behind a force-pushed fix, fetch first
+git fetch origin feat/<branch> && git merge --ff-only origin/feat/<branch>
+
+# Inspect exactly what the fix commit changed
+git diff <parent-sha>..<fix-sha> --stat
+git diff <parent-sha>..<fix-sha> -- path/to/key/file.rs
+
+# For file-by-file fix verification, pipe through grep for the patched pattern
+git diff <parent-sha>..<fix-sha> | grep -A5 "heartbeat\|record_heartbeat\|unwrap_or_default"
+```
+
+The local `git diff` approach is preferred when a checkout exists because it gives full file context with `read_file` for surrounding code — this catches fix-regression bugs that `gh api` patch-only inspection misses.
 ```
 
 **PITFALL:** Do not limit the re-review to these fix commits. The `gh api` commit-inspection pattern above tells you exactly what changed for previous-finding reconciliation, but the approval verdict must come from the full current PR diff plus changed-file context.
@@ -1018,10 +1035,24 @@ gh api "repos/<owner>/<repo>/contents/<path>?ref=<branch>" --jq '.content' | bas
 
 6. **Report the current review result plus reconciliation** — the re-review message should not be delta-only. Structure:
    - Current-pass findings from the full blind review, ordered by severity
-   - "Previous findings" table: each issue with FIXED / PARTIAL / NOT FIXED / WITHDRAWN status
+   - "Previous findings" reconciliation table (see template below)
    - CI status update
    - Remaining items and new issues, with severity and evidence
    - Verdict
+
+**Reconciliation table template** — each previous finding gets one row with four columns:
+
+```
+| # | Previous Finding | Original Severity → Current Severity | Status | Evidence |
+|---|---|---|---|---|
+| 1 | Brief description of the flagged issue | 🔴 CRITICAL | ✅ FIXED | What changed, where, why it's resolved |
+| 2 | Another issue | 🟠 HIGH → 🟡 MEDIUM | ⚠️ PARTIAL | What was fixed, what remains, why reclassified |
+| 3 | Third issue | 🟡 MEDIUM | ✅ FIXED | Evidence the fix is in place |
+```
+
+Status values: **✅ FIXED** (fully resolved), **⚠️ PARTIAL** (some progress, severity downgraded), **⚠️ DESIGN CHOICE** (author pushback accepted), **⚠️ NOT FIXED** (still present), **❌ FALSE POSITIVE** (was never an issue).
+
+When a finding is reclassified (e.g., HIGH→MEDIUM), add a **Severity Reclassification Justification** section explaining why. Valid reasons: the remaining gap is on a non-critical path, the code is feature-gated, the risk is build-time not runtime, the underlying logic IS tested elsewhere, or an extract-to-crate is follow-up work. Do not silently downgrade — always explain the reasoning.
 
 **CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.
 

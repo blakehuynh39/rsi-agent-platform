@@ -25076,3 +25076,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_388e5dc42325ab14aedb96fc0704abcd
 - summary: The broadcaster spends an admin-defined daily IP budget on a daily registration target, using a closed-loop controller that adjusts block fill to steer actual spend/registration to...
 
+## [2026-06-11T18:30:32Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_61ca4123fe017eb7d58f3a914007320c
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_47025b6e950c469858d27c2af778cc68
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
