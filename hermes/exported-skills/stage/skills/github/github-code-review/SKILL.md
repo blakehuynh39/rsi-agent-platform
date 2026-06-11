@@ -375,7 +375,9 @@ When performing a code review (local or PR), systematically check:
 - Input validation on user-facing inputs
 - No SQL injection, XSS, or path traversal
 - Auth/authz checks where needed
-- **`.env.example` placeholder corruption:** When new env vars are added to `.env.example`, verify placeholder values are consistent. Red flags: leading `+` before the placeholder (e.g., `=+PROFI..._ID=`), trailing `_ID=` or `_KEY=` fragments from adjacent vars, truncated placeholders that don't match the var name's abbreviation pattern. These signal copy-paste errors that operators will propagate into production config.
+- **`.env.example` placeholder corruption:** When new env vars are added to `.env.example`, verify placeholder values are consistent. Red flags: leading `+` before the placeholder, trailing `_ID=` or `_KEY=` fragments from adjacent vars, truncated placeholders that don't match the var name's abbreviation pattern. These signal copy-paste errors that operators will propagate into production config.
+
+  **PITFALL: Git diff output truncation mimics placeholder corruption.** `git diff` terminal output can elide long lines with `...`, visually merging adjacent diff lines so a clean placeholder like `PROFILE_ENRICHMENT_TEMPORAL_API_KEY=` appears as `=+PROFI..._ID=`. Always verify suspected placeholder corruption by reading the actual file bytes (`od -c`, `awk 'NR==N {print length, $0}'`, `sed -n 'Np' | wc -c`) before flagging. A `git diff` display artifact is NOT evidence of corruption — only the committed file content counts.
 
 ### Code Quality
 - Clear naming (variables, functions, classes)
