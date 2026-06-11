@@ -25108,3 +25108,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fac528e87576697e83150920f853035c
 - summary: An automated gas strategy that spends an admin-defined daily IP budget on an admin-defined daily registration target by adjusting transaction fees through block fill modulation, us...
 
+## [2026-06-11T20:00:35Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_adde815dc4a38502718e1c7a76f4b793
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_540c8b3bf250ce5a69a3c00d184e8c55
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
