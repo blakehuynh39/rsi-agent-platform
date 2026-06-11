@@ -24987,3 +24987,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_48d0224969825765590d441880aa1fa2
 - summary: Controls transaction fees for the broadcaster to burn ~12K IP per day on 15M registrations while keeping priority fee low. Uses EIP-1559 base fee mechanics and configurable thresho...
 
+## [2026-06-11T00:00:22Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_fbac6f693192374de24f402186af5559
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_8b986ab9f9c3aad3ef4d8aa25b38d77a
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
