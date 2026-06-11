@@ -25019,3 +25019,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_54fba54aca70d1e15a5dc24441d36e74
 - summary: hey <@U04L0DD6B6F> <@U0772SH7BRA> <@U083MMT1771> is this a legitimate API key or a placeholder value?
 
+## [2026-06-11T17:00:33Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_f5321c112fbc2114430b038d7d65f409
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_c0ccfb325c5579acd50dcc943cf32c34
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
