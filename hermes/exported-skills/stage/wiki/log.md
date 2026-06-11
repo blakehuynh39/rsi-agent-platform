@@ -25101,3 +25101,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_cd57f843f2cba07ed38e6c2c94afa288
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-11T19:46:14Z] synthesis | Broadcaster Gas Control System
+
+- status: published
+- slug: systems/broadcaster-gas-control-system
+- wiki_revision_id: wikirev_fac528e87576697e83150920f853035c
+- summary: An automated gas strategy that spends an admin-defined daily IP budget on an admin-defined daily registration target by adjusting transaction fees through block fill modulation, us...
+
