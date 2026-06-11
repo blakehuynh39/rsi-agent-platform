@@ -25035,3 +25035,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7ffb1ec4a6ed9ef7afd511a47150c195
 - summary: The broadcaster gas strategy uses a closed-loop controller to spend a daily IP budget on registrations by manipulating block fill and thus the base fee. Admin sets daily IP budget ...
 
+## [2026-06-11T17:30:36Z] ingest | Broadcaster Gas Modeling
+
+- status: published
+- slug: notion_document/broadcaster-gas-modeling-101b8f47
+- wiki_revision_id: wikirev_a80ed887e57b14f3da9b4577431618d6
+- source_document_id: srcdoc_883b49cc46e4eb7ecc91abe5101b8f47
+- source_revision_id: srcrev_9a88dc873695c2901ee578a1c79c9cce
+- summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
+
