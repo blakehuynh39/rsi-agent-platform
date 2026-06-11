@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2e94f5a05e25bbb11b826511bfd22c9db28aaef374f1d2d70a2bf66f9bb7fd6f",
+        "sha256": "938ea8435d15305d83222ec16932b71a5acf243c2d353c0918381dc59db0205a",
         "size": 623259
       },
       {
         "path": "log.md",
-        "sha256": "f8956c89284d8eb8ccc29807db771c649d7a19898e80d784401d25e52954b317",
-        "size": 1200959
+        "sha256": "a6c8231d0fbbe1802b54c96f8760bd00ca65eb13cad0ffea8cb9b44b3c455e1c",
+        "size": 1201724
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5386,8 +5386,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "b5ec20a9ae95224d4ab2370170490375ae7c4eba6c00835ba3f4830d59f64fc7",
-        "size": 6273
+        "sha256": "6ed3548364dd8a13c19696d3fc17c4982d04718a38b20aab31736cbe1690ee86",
+        "size": 11690
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -6451,8 +6451,8 @@
       },
       {
         "path": "pages/systems/data-migration-technical-handbook.md",
-        "sha256": "5a3daad87abc7f8e1acd34f15e6338d27d0eda91b22064abe01d05457fb2d004",
-        "size": 12995
+        "sha256": "4b212767876097788e73a78bc67b93e814dca95161879532b34654d759340aad",
+        "size": 27076
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
@@ -6859,7 +6859,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-11T00:05:05Z",
+  "exported_at": "2026-06-11T00:21:51Z",
   "file_count": 1370,
   "files": [
     {
@@ -10127,7 +10127,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8csz6cs",
-  "previous_tree_hash": "6ac960ad9620dd35928313e3d8ab7749f2664e2118d48d53fe5f529b98bf9ff5",
+  "previous_tree_hash": "9ca2c7fca7e91c6153f0b5bf844b98820b5e1e41346e8bb1db559323b204211e",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10140,7 +10140,7 @@
   ],
   "skill_tree_hash": "cc3691ccf1fd66e41c5188031ac69686bbd48ff7689d0254ca053d9155a8bda2",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9ca2c7fca7e91c6153f0b5bf844b98820b5e1e41346e8bb1db559323b204211e",
+  "tree_hash": "1c87d973a5cd8f8ef0d412dd1b2c1435dd48c8c100e30f49174df91d66d601be",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10156,13 +10156,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2e94f5a05e25bbb11b826511bfd22c9db28aaef374f1d2d70a2bf66f9bb7fd6f",
+      "sha256": "938ea8435d15305d83222ec16932b71a5acf243c2d353c0918381dc59db0205a",
       "size": 623259
     },
     {
       "path": "log.md",
-      "sha256": "f8956c89284d8eb8ccc29807db771c649d7a19898e80d784401d25e52954b317",
-      "size": 1200959
+      "sha256": "a6c8231d0fbbe1802b54c96f8760bd00ca65eb13cad0ffea8cb9b44b3c455e1c",
+      "size": 1201724
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12271,8 +12271,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "b5ec20a9ae95224d4ab2370170490375ae7c4eba6c00835ba3f4830d59f64fc7",
-      "size": 6273
+      "sha256": "6ed3548364dd8a13c19696d3fc17c4982d04718a38b20aab31736cbe1690ee86",
+      "size": 11690
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -13336,8 +13336,8 @@
     },
     {
       "path": "pages/systems/data-migration-technical-handbook.md",
-      "sha256": "5a3daad87abc7f8e1acd34f15e6338d27d0eda91b22064abe01d05457fb2d004",
-      "size": 12995
+      "sha256": "4b212767876097788e73a78bc67b93e814dca95161879532b34654d759340aad",
+      "size": 27076
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
@@ -13741,5 +13741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5d751bfa5da914ee70ba47dd5e859df87c9d0c1ba98f4e288970a8f5748515d6"
+  "wiki_tree_hash": "8ac5fc18e22a19b4d38c68c18c94d97c017d752e20644bc963421de65045c4a5"
 }
