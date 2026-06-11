@@ -25044,3 +25044,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_9a88dc873695c2901ee578a1c79c9cce
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-11T17:45:19Z] ingest | Slack thread C0AKH5SNGKH 1781199144.478979
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1781199144-478979-228b4f9a
+- wiki_revision_id: wikirev_546d145eed21d907548b2089647ad165
+- source_document_id: srcdoc_bd309e0074ea8ae0607bbafa228b4f9a
+- source_revision_id: srcrev_0c6af3982499652038181660bdd3c0ac
+- summary: Slack file attachment:
+
+## [2026-06-11T17:46:23Z] synthesis | Broadcaster Gas Strategy
+
+- status: published
+- slug: systems/broadcaster-gas-strategy
+- wiki_revision_id: wikirev_05a346fa0c172dfd6ac40f32f0757a16
+- summary: The Broadcaster Gas Strategy controls IP spending to achieve a daily registration target using a closed-loop controller that modulates gas price via block fill. Admin sets daily IP...
+

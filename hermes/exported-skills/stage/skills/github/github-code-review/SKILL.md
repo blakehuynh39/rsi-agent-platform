@@ -375,6 +375,7 @@ When performing a code review (local or PR), systematically check:
 - Input validation on user-facing inputs
 - No SQL injection, XSS, or path traversal
 - Auth/authz checks where needed
+- **`.env.example` placeholder corruption:** When new env vars are added to `.env.example`, verify placeholder values are consistent. Red flags: leading `+` before the placeholder (e.g., `=+PROFI..._ID=`), trailing `_ID=` or `_KEY=` fragments from adjacent vars, truncated placeholders that don't match the var name's abbreviation pattern. These signal copy-paste errors that operators will propagate into production config.
 
 ### Code Quality
 - Clear naming (variables, functions, classes)
@@ -389,6 +390,7 @@ Pull back from line-level concerns and assess the *shape* of the change. This is
 - **Boundary drift:** Where did the seam between layers move? Did UI code start reaching into the database? Did domain types start importing transport types? Check: `import` statements that cross established layer boundaries.
 - **Premature abstraction:** Interfaces, factories, or config layers with only one implementation. These are debt — they make the code harder to understand without providing flexibility. Flag any abstraction that serves only one concrete case.
 - **Coupling:** New utilities importing from feature modules. Shared mutable state being introduced. A change in module A forcing a change in module B when they should be independent. Look for bidirectional imports between modules.
+- **Build-time dependency coupling (Rust/Cargo):** When a service crate depends on another service's full crate (e.g., `depin-api` depending on `profile-enrichment-worker` as a path dep), check whether the dependency pulls in a disproportionate dependency tree. If the API only needs a workflow input type and a client-connect function but the path dep drags in the entire Temporal SDK, protobuf, and the worker binary's full dependency graph, flag it — the feature's compile-time cost is vastly larger than its runtime surface. The fix is to extract a lightweight `-client` crate with only the shared types and client logic.
 - **Scalability:** If this code path goes 10x in volume, what breaks first? Are there unbounded collections? Missing pagination? Single-threaded bottlenecks?
 - **Reversibility:** If this turns out wrong in a month, how hard is the rollback? One-way doors (database migrations, API contract changes, data format changes) should be called out explicitly.
 - **Naming at the architecture level:** Types/functions named for the implementation (`UserManagerImplV2`) rather than the role (`UserDirectory`). Names should reflect what, not how.
@@ -436,6 +438,24 @@ The N+1 problem: executing 1 query to fetch N records, then N additional queries
 **PITFALL:** N+1 queries often don't show in local dev with small datasets. A 10ms query run 100 times = 1 second — invisible locally. But 10,000 records = 100 seconds in production. Always flag N+1 patterns even if the dataset is currently small.
 
 **PITFALL:** ORM "magic" hides queries. In JPA, `entity.getChildren().size()` triggers a SELECT you never wrote. In Django, accessing `parent.child_set.all()` in a template loop fires N queries. Look at the rendered SQL, not just the application code.
+
+### Temporal / Workflow Engine (Rust `temporalio-sdk`)
+
+When reviewing PRs that introduce or touch Temporal workflows/activities, verify the Temporal contract:
+
+- **Activity heartbeat vs heartbeat_timeout:** If `ActivityOptions.heartbeat_timeout()` is set, the activity MUST call `ctx.record_heartbeat()` periodically. The timeout starts counting from activity start, not from the first heartbeat. If no heartbeat is sent within the window, Temporal times out and retries the activity. Common bug: setting `heartbeat_timeout(60s)` on an activity that takes 5+ minutes but never calls `ctx.heartbeat()` — every attempt times out, wasting retries and leaving work stuck.
+  - **Fix:** Either call `ctx.record_heartbeat(Vec::new())` every ~30s via a background `tokio::spawn` (ActivityContext is Clone + Send + Sync), or set `heartbeat_timeout` >= `start_to_close` so it acts as a crash detector, not a liveness check.
+  - **Detection during review:** grep for `heartbeat_timeout` in workflow files, then check the corresponding activity functions for `ctx.record_heartbeat` or `ctx.heartbeat`. If the timeout is shorter than the activity's likely duration and no heartbeat call exists, flag it CRITICAL.
+
+- **Retry policy + idempotent mutations:** Activities with `maximum_attempts > 1` MUST have idempotent side effects. Every DB write, S3 operation, and external API call inside a retryable activity needs a guard (e.g., `WHERE analysis_status = 'parsing'`, `ON CONFLICT DO NOTHING`, idempotency key). Without guards, retries produce duplicate writes, double-charges, or data corruption.
+
+- **Workflow idempotency:** `start_workflow` calls should handle `AlreadyStarted` gracefully (either by returning cached result or logging + Ok). Check `id_reuse_policy` and `id_conflict_policy` match the intended deduplication semantics.
+
+- **Cron/schedule for recovery workflows:** Recovery/sweep workflows should run on a schedule (Temporal cron, or periodic restart via `AllowDuplicate` + `Fail`), not once-on-startup. A recovery that only runs on first deploy leaves rows stuck that appear after the sweep.
+
+- **Child workflow error handling:** When spawning child workflows in a loop, `WorkflowAlreadyExists` errors should be caught and skipped — the recovery workflow should not terminate just because one child already exists.
+
+- **Task queue propagation:** When a parent workflow spawns child workflows, verify the `task_queue` is correctly propagated (child inherits parent's queue when `None`; explicit override when queues differ).
 
 ### Documentation
 - Public APIs documented
