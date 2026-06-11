@@ -25126,3 +25126,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_92117d56efd4e0425da52e90739ea9ed
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-11T20:47:22Z] synthesis | Broadcaster Gas Controller
+
+- status: published
+- slug: systems/broadcaster-gas-controller
+- wiki_revision_id: wikirev_829189a45e132b5a79de9013000085f7
+- summary: Design of the closed-loop gas controller that manages daily IP budget and registration target for the broadcaster.
+
+## [2026-06-11T20:48:21Z] synthesis | Broadcaster Gas Modeling
+
+- status: published
+- slug: systems/broadcaster-gas-modeling
+- wiki_revision_id: wikirev_f73d105c12e6a30644256f4b5b498add
+- summary: A closed-loop controller manages the broadcaster's daily IP budget and registration target by modulating block fill to influence the base fee, with phases for ramp, hold, and stop.
+
