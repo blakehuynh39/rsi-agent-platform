@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "551dc129b8ad7572edffc041ad7f616aa4e8e41235a2a294267b96672b51632c",
-        "size": 624602
+        "sha256": "45ef630447e0e19d51d57d60bf781e377767a909993a0f7bae314e8b5d153412",
+        "size": 624900
       },
       {
         "path": "log.md",
-        "sha256": "ae03e5659ed64638087063abdccc3bdcb7704f46b104b157311b87abf0aab41c",
-        "size": 1207891
+        "sha256": "67faa6c24d2a18be626bf77b4d73e3c3ef9c4e86933c4b74577c159206b25470",
+        "size": 1208270
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6420,6 +6420,11 @@
         "size": 7310
       },
       {
+        "path": "pages/systems/broadcaster-gas-modeling.md",
+        "sha256": "45ee61548cdf80c0f5f6bc8a2f98ed56f990ab553ce63763c26afbe276343ab4",
+        "size": 12845
+      },
+      {
         "path": "pages/systems/broadcaster-gas-strategy.md",
         "sha256": "3b69f49d1f25c8fd5f86702d8ef73d501a5d7e25563e6dd7058cf0742476fd5c",
         "size": 11937
@@ -6869,8 +6874,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-11T20:47:43Z",
-  "file_count": 1372,
+  "exported_at": "2026-06-11T20:54:09Z",
+  "file_count": 1373,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10137,7 +10142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8cx8jl9",
-  "previous_tree_hash": "12466535ebf18465a0835a7a4dd8d0565fcef0d7dffc8d8002b887e3effbbe90",
+  "previous_tree_hash": "66e021c0621e075d3d7e87c2ed4d9f759edc03b056313f8d1ccb6ec9bf1b97de",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10150,14 +10155,14 @@
   ],
   "skill_tree_hash": "7b049a26fc2afc68d51e64295a0cd35fa5f4b4fd2cef6cf22ec4cb3a6b097123",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "66e021c0621e075d3d7e87c2ed4d9f759edc03b056313f8d1ccb6ec9bf1b97de",
+  "tree_hash": "5722fe1fefee12bfcd8ed0787ec29fcb1db26910a21007028070ddd3301bb5db",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 720,
+  "wiki_file_count": 721,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10166,13 +10171,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "551dc129b8ad7572edffc041ad7f616aa4e8e41235a2a294267b96672b51632c",
-      "size": 624602
+      "sha256": "45ef630447e0e19d51d57d60bf781e377767a909993a0f7bae314e8b5d153412",
+      "size": 624900
     },
     {
       "path": "log.md",
-      "sha256": "ae03e5659ed64638087063abdccc3bdcb7704f46b104b157311b87abf0aab41c",
-      "size": 1207891
+      "sha256": "67faa6c24d2a18be626bf77b4d73e3c3ef9c4e86933c4b74577c159206b25470",
+      "size": 1208270
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13315,6 +13320,11 @@
       "size": 7310
     },
     {
+      "path": "pages/systems/broadcaster-gas-modeling.md",
+      "sha256": "45ee61548cdf80c0f5f6bc8a2f98ed56f990ab553ce63763c26afbe276343ab4",
+      "size": 12845
+    },
+    {
       "path": "pages/systems/broadcaster-gas-strategy.md",
       "sha256": "3b69f49d1f25c8fd5f86702d8ef73d501a5d7e25563e6dd7058cf0742476fd5c",
       "size": 11937
@@ -13761,5 +13771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c56b9f728bdee6e9cd81a7ff5b6ab78ecd84e56dd1d918bc35e69759612b2aee"
+  "wiki_tree_hash": "4b6b97c2826b951d0e302d61a004d4187e6e8628ab24ac74a0f8685dd6059cdb"
 }
