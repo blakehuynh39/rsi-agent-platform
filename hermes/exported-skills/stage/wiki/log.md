@@ -25085,3 +25085,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_47025b6e950c469858d27c2af778cc68
 - summary: Source: [source](https://app.notion.com/p/Broadcaster-Gas-Modeling-37b051299a548060a733cf1309802daa)
 
+## [2026-06-11T18:46:52Z] synthesis | Broadcaster Gas Strategy
+
+- status: published
+- slug: systems/broadcaster-gas-strategy
+- wiki_revision_id: wikirev_e2f0f9841b91bf97815bd240ebe85a74
+- summary: Closed-loop controller that modulates block fill to steer IP spent per registration toward a setpoint derived from admin-set daily IP budget and daily registration target. Incorpor...
+
