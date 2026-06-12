@@ -25320,3 +25320,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cb360845307b8bec1861f76d180e7056
 - summary: Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It ai...
 
+## [2026-06-12T08:01:15Z] synthesis | NumoExpertImplementationGoals
+
+- status: published
+- slug: projects/numoexpert-implementation-goals
+- wiki_revision_id: wikirev_32f1a44903e57dfb243cf2d40abcaf85
+- summary: NumoExpert implementation goals as referenced in the Implementation PRD.
+
+## [2026-06-12T08:04:44Z] synthesis | NumoExpertImplementationGoals
+
+- status: published
+- slug: projects/numoexpert-implementation-goals
+- wiki_revision_id: wikirev_1914a4104fccae089726eb9ffb3bd4f5
+- summary: Implementation-focused PRD for Numo Expert: bringing internal Poseidon annotation workflows into app.numolabs.ai, with phased goals, data model, qualification, task assignment, con...
+
