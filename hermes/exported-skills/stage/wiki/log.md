@@ -25261,3 +25261,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_acfa5108147b12c7a6758a2b37df20eb
 - summary: Log of changes from base v0.1.0 to Feature branch, including PRs for version command, light-client recovery improvements, typed rejected lists, and light-client lag fix.
 
+## [2026-06-12T07:00:21Z] ingest | CDR Story-kernel  Change Log
+
+- status: published
+- slug: notion_document/cdr-story-kernel-change-log-6fa2ed5c
+- wiki_revision_id: wikirev_365adeb5d1c649120f7d91146394726f
+- source_document_id: srcdoc_0b44382a4d934d2ac194b21a6fa2ed5c
+- source_revision_id: srcrev_fae21b5d2b463f388f8d51f75b4d5d76
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-kernel-Change-Log-37d051299a54800b9954ce9c49999340)
+
