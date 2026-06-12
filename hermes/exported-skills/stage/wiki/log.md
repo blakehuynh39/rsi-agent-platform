@@ -25149,3 +25149,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_6d0ee03e80f3a7ec699b0099f4267cc0
 - summary: <@U04L0DD6B6F> The font colors on staging have been changed
 
+## [2026-06-12T00:30:38Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_b156ed6bbe2e2dd8e46c98ce1eee2117
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_3f1fd3909309f3c9ad6baf1958aab742
+- summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
