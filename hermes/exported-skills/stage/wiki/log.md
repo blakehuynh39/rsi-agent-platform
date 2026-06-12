@@ -25245,3 +25245,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3faf5bfd0fc41b651933051fd7887f7f
 - summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
 
+## [2026-06-12T05:00:22Z] ingest | CDR Story-kernel  Change Log
+
+- status: published
+- slug: notion_document/cdr-story-kernel-change-log-6fa2ed5c
+- wiki_revision_id: wikirev_b27e1fcb0c938f490197abb6eddc83aa
+- source_document_id: srcdoc_0b44382a4d934d2ac194b21a6fa2ed5c
+- source_revision_id: srcrev_33d2c38861421ef64092e89f2409ccee
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-kernel-Change-Log-37d051299a54800b9954ce9c49999340)
+
