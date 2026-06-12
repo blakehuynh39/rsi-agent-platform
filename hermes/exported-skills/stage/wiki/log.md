@@ -25334,3 +25334,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1914a4104fccae089726eb9ffb3bd4f5
 - summary: Implementation-focused PRD for Numo Expert: bringing internal Poseidon annotation workflows into app.numolabs.ai, with phased goals, data model, qualification, task assignment, con...
 
+## [2026-06-12T09:30:21Z] ingest | CDR Story Client Change Log
+
+- status: published
+- slug: notion_document/cdr-story-client-change-log-4742be2f
+- wiki_revision_id: wikirev_458aff5cc4f39f9b1c31b981f585ced7
+- source_document_id: srcdoc_aeaa4036cd00e991702368cf4742be2f
+- source_revision_id: srcrev_d75810da24d8c83ee308d894f82eb4df
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
+
