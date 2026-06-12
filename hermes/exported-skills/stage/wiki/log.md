@@ -25197,3 +25197,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9e755971ea1a58bd7aab0f1a67d0c037
 - summary: Multi-week launch plan for Numo, starting May 28, 2026. Weeks 1-2 completed, Week 3 moved to June 17 with Stripe Payments and W8-BEN form. Subsequent weeks are TBD or in planning.
 
+## [2026-06-12T02:00:40Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_dc8e4fba3b83939e8b8e73eeca4df09f
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_bf93ffb68884bc72e2c055ebb314ac93
+- summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
