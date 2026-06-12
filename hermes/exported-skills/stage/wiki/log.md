@@ -25238,3 +25238,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0c1f4b2555b85d45ee88e1afcaecfcae
 - summary: Status of pull requests merged from base v0.1.0 to a feature branch in the story-kernel repository, as captured in the CDR story-kernel change log.
 
+## [2026-06-12T04:20:07Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_3faf5bfd0fc41b651933051fd7887f7f
+- summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
+
