@@ -25364,3 +25364,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bb5db52846232bf5e8b6d329bbb3e648
 - summary: Describes consensus mechanisms for validating annotations, including majority vote, unique error threshold, and reviewer escalation.
 
+## [2026-06-12T09:52:13Z] synthesis | RSI Client Features (v1.7.0 Feature Branch)
+
+- status: published
+- slug: systems/client-features-v1-7-0-to-feature
+- wiki_revision_id: wikirev_bc04c32679e32012e41185c50f07baa4
+- summary: Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client Change Log.
+
