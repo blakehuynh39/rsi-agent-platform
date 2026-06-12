@@ -25277,3 +25277,39 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6219f4f320ea5080453e113c40b4fde9
 - summary: Summary of merged changes from base v0.1.0 into feature branch as of 2026-06-12.
 
+## [2026-06-12T07:30:42Z] ingest | Poseidon Atlas Proposal
+
+- status: published
+- slug: notion_document/poseidon-atlas-proposal-3995edb5
+- wiki_revision_id: wikirev_638947ea64621d7745e4bd6d3e70cdea
+- source_document_id: srcdoc_846aa29fa13ddc3c098759f83995edb5
+- source_revision_id: srcrev_dc2dc24b390953ffcdb822238bda60e5
+- summary: Source: [source](https://app.notion.com/p/Poseidon-Atlas-Proposal-374051299a548076b8c7f49e8beec947)
+
+## [2026-06-12T07:30:45Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_df55daad860bcb11569cdcdec14c00bf
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_8a165acfdbacfec1cfb7c675d1db5259
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
+## [2026-06-12T07:30:47Z] ingest | Implementation PRD
+
+- status: published
+- slug: notion_document/implementation-prd-f4ffe6f8
+- wiki_revision_id: wikirev_2db9024a4783bcc919d25db8af112b92
+- source_document_id: srcdoc_d5da7a34a4e8aaca7158c402f4ffe6f8
+- source_revision_id: srcrev_f2b31f445fbe72e514cff13704a225cd
+- summary: Source: [source](https://app.notion.com/p/Implementation-PRD-37d051299a5480129b0df970639ade82)
+
+## [2026-06-12T07:30:49Z] ingest | NumoExpertImplementationGoals
+
+- status: published
+- slug: notion_document/numoexpertimplementationgoals-44dcd70f
+- wiki_revision_id: wikirev_03025062cb6f754bc8b8a6936d784822
+- source_document_id: srcdoc_23bd1a05e81b1b9a88ad984844dcd70f
+- source_revision_id: srcrev_bc34e726162cf62fd468f998c23c3d33
+- summary: Source: [source](https://app.notion.com/p/NumoExpertImplementationGoals-37d051299a5480d38794d400f430876b)
+
