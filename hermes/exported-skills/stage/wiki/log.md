@@ -25313,3 +25313,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_bc34e726162cf62fd468f998c23c3d33
 - summary: Source: [source](https://app.notion.com/p/NumoExpertImplementationGoals-37d051299a5480d38794d400f430876b)
 
+## [2026-06-12T07:47:02Z] synthesis | Poseidon Atlas Proposal
+
+- status: published
+- slug: projects/poseidon-atlas
+- wiki_revision_id: wikirev_cb360845307b8bec1861f76d180e7056
+- summary: Atlas is a proposed demand-side marketplace within Poseidon that curates a vetted, multilingual, desktop-native pool of domain experts for AI evaluation and annotation tasks. It ai...
+

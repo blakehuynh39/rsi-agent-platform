@@ -3276,8 +3276,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9ae78df79dad0442c2b8379ffbb2e4478c982d1dae7dbf0110625cf9babfe1ba",
-        "size": 1216727
+        "sha256": "690aadad6c8ae539c10d7f5d963ccaccd4dc4f364326238c6016738dc686bf70",
+        "size": 1217099
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5556,8 +5556,8 @@
       },
       {
         "path": "pages/projects/poseidon-atlas.md",
-        "sha256": "a1394a9a58586a3b42fb317399ddd80ce386f5f4df6a1b24e2edac4bb90e6707",
-        "size": 9006
+        "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
+        "size": 8882
       },
       {
         "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -6889,7 +6889,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-12T07:31:04Z",
+  "exported_at": "2026-06-12T07:47:47Z",
   "file_count": 1376,
   "files": [
     {
@@ -10157,7 +10157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8cx8jl9",
-  "previous_tree_hash": "fc02310b39429189716e6efd3ab6c173c6cbc0cdd8cc6cad774cd4b36d4eb1c4",
+  "previous_tree_hash": "c68e68f8a4ded606badf6169f2fbf7fe9cf1e8787f6df06685cba64f03583546",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10170,7 +10170,7 @@
   ],
   "skill_tree_hash": "c505159fc59ab108001523ecf771f007d2c92067d6cafaca0f6b60914bc84ae9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c68e68f8a4ded606badf6169f2fbf7fe9cf1e8787f6df06685cba64f03583546",
+  "tree_hash": "a51cb217684b3515d8cd1ffb4bd8acc2daeaa463532578e48d001dcfe0058de9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10191,8 +10191,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9ae78df79dad0442c2b8379ffbb2e4478c982d1dae7dbf0110625cf9babfe1ba",
-      "size": 1216727
+      "sha256": "690aadad6c8ae539c10d7f5d963ccaccd4dc4f364326238c6016738dc686bf70",
+      "size": 1217099
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12471,8 +12471,8 @@
     },
     {
       "path": "pages/projects/poseidon-atlas.md",
-      "sha256": "a1394a9a58586a3b42fb317399ddd80ce386f5f4df6a1b24e2edac4bb90e6707",
-      "size": 9006
+      "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
+      "size": 8882
     },
     {
       "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -13801,5 +13801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bdf43213f23aa482bd51be69085f3fc1d4dbc674dd4668645b6d644a64d4f22c"
+  "wiki_tree_hash": "ce403d5b14109717c7ed73027aeaa1ec3448a535edfea939ac4f96aeda902950"
 }
