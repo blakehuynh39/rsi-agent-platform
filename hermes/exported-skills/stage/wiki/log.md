@@ -25380,3 +25380,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_37e9b5d1bcad5699a6696126337d61bc
 - summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
 
+## [2026-06-12T10:17:32Z] synthesis | RSI Client Features (v1.7.0 Feature Branch)
+
+- status: published
+- slug: systems/client-features-v1-7-0-to-feature
+- wiki_revision_id: wikirev_7be55145cc0ad94a9b61cfbd4ae44bc1
+- summary: Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client Change Log.
+
