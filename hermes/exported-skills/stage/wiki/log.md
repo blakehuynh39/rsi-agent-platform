@@ -25213,3 +25213,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0341064803519b1c0f7242f950424816
 - summary: Six-week launch plan for Numo starting May 28, 2026. Weeks 1-2 completed, Week 3 moved to June 17 with Stripe Payments and W8-BEN form. Week 4 includes Language Documents and telep...
 
+## [2026-06-12T03:00:22Z] ingest | CDR Story-kernel  Change Log
+
+- status: published
+- slug: notion_document/cdr-story-kernel-change-log-6fa2ed5c
+- wiki_revision_id: wikirev_40b43989d66cfaba1cbbb24c83ff65b6
+- source_document_id: srcdoc_0b44382a4d934d2ac194b21a6fa2ed5c
+- source_revision_id: srcrev_765890875e4bd632fdbdabb9b2a2ef12
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-kernel-Change-Log-37d051299a54800b9954ce9c49999340)
+
+## [2026-06-12T03:00:24Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_10a1d2c88861b2e10968434d3c07ef17
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_354de1d2c89071d2846488a107de53d3
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
