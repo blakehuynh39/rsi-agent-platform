@@ -4,9 +4,13 @@ type: "system"
 slug: "systems/client-features-v1-7-0-to-feature"
 freshness: "2026-06-12T09:41:00Z"
 tags:
-  - "change-log"
   - "client"
-  - "feature"
+  - "decrypt"
+  - "dkg"
+  - "features"
+  - "retry"
+  - "sgx"
+  - "tdx"
   - "v1.7.0"
 owners: []
 source_revision_ids:
@@ -42,5 +46,5 @@ Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client C
 ## Sources
 
 - `source_document_id`: `srcdoc_aeaa4036cd00e991702368cf4742be2f`
-- `source_revision_id`: `srcrev_37e9b5d1bcad5699a6696126337d61bc`
+- `source_revision_id`: `srcrev_e9b81eb6401906e7d803f2197dbceff9`
 - `source_url`: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)

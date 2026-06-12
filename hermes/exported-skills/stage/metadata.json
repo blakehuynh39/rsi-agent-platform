@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "199f2ebc329f0d92e864af3e33deb9407175a50cdfe131d8b11f295b26e0c6c4",
+        "sha256": "b4b2761e2871aedb7d2151d81c429689ab9b0bb6f0b5eb17c218b1a2f889e508",
         "size": 629122
       },
       {
         "path": "log.md",
-        "sha256": "a46c60f955e1481f33dea211304c68dfa54c9add1105b1b2d1c8f864fe779ac8",
-        "size": 1220782
+        "sha256": "99b34224727741ee827d904a561daccd6674aefa2149ebe8439d7c5c2fa3438e",
+        "size": 1221099
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6481,8 +6481,8 @@
       },
       {
         "path": "pages/systems/client-features-v1-7-0-to-feature.md",
-        "sha256": "56f8736eca5f4e26ce57a1bb8f2c7fa217c733412c5d05625bcdec0fb6832bd0",
-        "size": 6788
+        "sha256": "faf63d435f063ba05b40ecbb990a97e20e19bd204370400db3caadfd651a6a1d",
+        "size": 6828
       },
       {
         "path": "pages/systems/cloudflare-endpoint-protection.md",
@@ -6914,7 +6914,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-12T10:31:55Z",
+  "exported_at": "2026-06-12T10:48:37Z",
   "file_count": 1381,
   "files": [
     {
@@ -10182,7 +10182,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8cx8jl9",
-  "previous_tree_hash": "29ca08aa56433384f7456b9ade7beb0c037d121c5f4f88d082378545692fbced",
+  "previous_tree_hash": "a08865b8200a9a2ebe89b964c5994c27fb5452fc22d50c7918673da315f0d41e",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10195,7 +10195,7 @@
   ],
   "skill_tree_hash": "c505159fc59ab108001523ecf771f007d2c92067d6cafaca0f6b60914bc84ae9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a08865b8200a9a2ebe89b964c5994c27fb5452fc22d50c7918673da315f0d41e",
+  "tree_hash": "ad33fe13e95ddfc69a0ffc62b4ce038e68c0865554d962a165f34330ef12d1f8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -10211,13 +10211,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "199f2ebc329f0d92e864af3e33deb9407175a50cdfe131d8b11f295b26e0c6c4",
+      "sha256": "b4b2761e2871aedb7d2151d81c429689ab9b0bb6f0b5eb17c218b1a2f889e508",
       "size": 629122
     },
     {
       "path": "log.md",
-      "sha256": "a46c60f955e1481f33dea211304c68dfa54c9add1105b1b2d1c8f864fe779ac8",
-      "size": 1220782
+      "sha256": "99b34224727741ee827d904a561daccd6674aefa2149ebe8439d7c5c2fa3438e",
+      "size": 1221099
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13421,8 +13421,8 @@
     },
     {
       "path": "pages/systems/client-features-v1-7-0-to-feature.md",
-      "sha256": "56f8736eca5f4e26ce57a1bb8f2c7fa217c733412c5d05625bcdec0fb6832bd0",
-      "size": 6788
+      "sha256": "faf63d435f063ba05b40ecbb990a97e20e19bd204370400db3caadfd651a6a1d",
+      "size": 6828
     },
     {
       "path": "pages/systems/cloudflare-endpoint-protection.md",
@@ -13851,5 +13851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "380ea7448f3553ca8ca353dfc4daef8b1af6a3358d70fa76767b70ff3925aa7b"
+  "wiki_tree_hash": "24a9ac354ab954d131f99b8e5d2182db9d67668ecb456c8e081032a07cdb1e94"
 }
