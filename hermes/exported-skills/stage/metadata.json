@@ -3276,8 +3276,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e184a806aec3f799a42efb7ebc876df06e34cb742f57bda160764bb063fa0074",
-        "size": 1218224
+        "sha256": "371435258350baee8e5acc1318347b25f5d0ac3c7ac6eff04f24c8b0380e89bd",
+        "size": 1219256
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3853,6 +3853,16 @@
         "path": "pages/concepts/nouns-policy-licensing.md",
         "sha256": "12d2b9119d182c1cb3efcb069f51b5b529dae780239356a175cb71f1fb8280a5",
         "size": 3481
+      },
+      {
+        "path": "pages/concepts/numo-expert-consensus-system.md",
+        "sha256": "071331ea67e96ab616f9acca9e9d2a59d125b0fa996a2c89d0bd9ebc4dd5bfaa",
+        "size": 1586
+      },
+      {
+        "path": "pages/concepts/numo-expert-task-types.md",
+        "sha256": "5b31b9f1f4a570bacc584a64e0e9bfb4f37f5280ed6bde823ebdeb3c48983ec0",
+        "size": 1531
       },
       {
         "path": "pages/concepts/object-certificate-schema.md",
@@ -5455,6 +5465,11 @@
         "size": 4822
       },
       {
+        "path": "pages/projects/numo-expert.md",
+        "sha256": "63703e8a8246713c89a39dbb58aa9036b494f2ad65c8936c41d53763635bc9ee",
+        "size": 2923
+      },
+      {
         "path": "pages/projects/numo-launch-roadmap.md",
         "sha256": "e37ab32e48195336101f6646a4ddd21738f1c1c8504e63fd31af5b30d38ad967",
         "size": 48635
@@ -6894,8 +6909,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-12T09:34:00Z",
-  "file_count": 1377,
+  "exported_at": "2026-06-12T09:50:36Z",
+  "file_count": 1380,
   "files": [
     {
       "path": ".curator_backups/2026-05-11T09-00-39Z/manifest.json",
@@ -10162,7 +10177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-d6db8cx8jl9",
-  "previous_tree_hash": "d9e4f978b340c8eb68ce5049840edb12c09da2434bef4425763313884635befc",
+  "previous_tree_hash": "887d124f040036b6342d9905c65eaadfc2655d5b44559786ec7860b2d1cd5862",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10175,14 +10190,14 @@
   ],
   "skill_tree_hash": "c505159fc59ab108001523ecf771f007d2c92067d6cafaca0f6b60914bc84ae9",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "887d124f040036b6342d9905c65eaadfc2655d5b44559786ec7860b2d1cd5862",
+  "tree_hash": "f379d16f176ff0c61bc62073a216d24a07871e865cf9d805f6c0ee63fff6fe10",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 725,
+  "wiki_file_count": 728,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10196,8 +10211,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e184a806aec3f799a42efb7ebc876df06e34cb742f57bda160764bb063fa0074",
-      "size": 1218224
+      "sha256": "371435258350baee8e5acc1318347b25f5d0ac3c7ac6eff04f24c8b0380e89bd",
+      "size": 1219256
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10773,6 +10788,16 @@
       "path": "pages/concepts/nouns-policy-licensing.md",
       "sha256": "12d2b9119d182c1cb3efcb069f51b5b529dae780239356a175cb71f1fb8280a5",
       "size": 3481
+    },
+    {
+      "path": "pages/concepts/numo-expert-consensus-system.md",
+      "sha256": "071331ea67e96ab616f9acca9e9d2a59d125b0fa996a2c89d0bd9ebc4dd5bfaa",
+      "size": 1586
+    },
+    {
+      "path": "pages/concepts/numo-expert-task-types.md",
+      "sha256": "5b31b9f1f4a570bacc584a64e0e9bfb4f37f5280ed6bde823ebdeb3c48983ec0",
+      "size": 1531
     },
     {
       "path": "pages/concepts/object-certificate-schema.md",
@@ -12375,6 +12400,11 @@
       "size": 4822
     },
     {
+      "path": "pages/projects/numo-expert.md",
+      "sha256": "63703e8a8246713c89a39dbb58aa9036b494f2ad65c8936c41d53763635bc9ee",
+      "size": 2923
+    },
+    {
       "path": "pages/projects/numo-launch-roadmap.md",
       "sha256": "e37ab32e48195336101f6646a4ddd21738f1c1c8504e63fd31af5b30d38ad967",
       "size": 48635
@@ -13811,5 +13841,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4e0905e0b7c55d301f62477f37cb9e0d4af194d8b3d5ac2c41311eafb848a167"
+  "wiki_tree_hash": "5c8c54a6600a2f6ed7e272ca4e6abddc19c2170f87349951667f5f3ab91641cd"
 }

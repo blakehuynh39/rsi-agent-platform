@@ -25343,3 +25343,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d75810da24d8c83ee308d894f82eb4df
 - summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
 
+## [2026-06-12T09:49:49Z] synthesis | Numo Expert
+
+- status: published
+- slug: projects/numo-expert
+- wiki_revision_id: wikirev_cbcfb773eb5f666761c8af17f622816b
+- summary: Numo Expert is the public-facing evolution of Poseidon’s internal annotation platform, aiming to build a scalable, permissionless HITL network for audio data.
+
+## [2026-06-12T09:49:49Z] synthesis | Numo Expert Task Types
+
+- status: published
+- slug: concepts/numo-expert-task-types
+- wiki_revision_id: wikirev_a54e900c34587c934874fa835dc83d81
+- summary: Defines the different task types for annotation workflows, including transcript correction, audio match, correction validation, and future deepfake/captcha tasks.
+
+## [2026-06-12T09:49:49Z] synthesis | Numo Expert Consensus System
+
+- status: published
+- slug: concepts/numo-expert-consensus-system
+- wiki_revision_id: wikirev_bb5db52846232bf5e8b6d329bbb3e648
+- summary: Describes consensus mechanisms for validating annotations, including majority vote, unique error threshold, and reviewer escalation.
+
