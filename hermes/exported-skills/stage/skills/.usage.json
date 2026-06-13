@@ -380,13 +380,13 @@
     "created_at": "2026-06-03T20:26:22.716762+00:00",
     "created_by": null,
     "last_patched_at": "2026-06-11T18:25:21.660323+00:00",
-    "last_used_at": "2026-06-13T19:01:20.000154+00:00",
-    "last_viewed_at": "2026-06-13T19:01:19.960938+00:00",
+    "last_used_at": "2026-06-13T19:23:57.939280+00:00",
+    "last_viewed_at": "2026-06-13T19:23:57.900824+00:00",
     "patch_count": 22,
     "pinned": false,
     "state": "active",
-    "use_count": 104,
-    "view_count": 93
+    "use_count": 105,
+    "view_count": 94
   },
   "github-issues": {
     "archived_at": null,
