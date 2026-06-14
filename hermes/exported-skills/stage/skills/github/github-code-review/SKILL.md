@@ -540,12 +540,14 @@ Every finding must carry a severity label. This helps the author triage. **All s
 | 🔵 **LOW** | Style inconsistency, minor DRY opportunity, outdated comment, suggestion for cleaner approach | YES — fix or pushback comment |
 | 💡 **SUGGESTION** | Optional improvement worth considering — alternative approach, future-proofing, educational note | YES — fix or pushback comment |
 
-**Decision rule (HARD):**
-- Any unresolved finding (any severity) → **REQUEST_CHANGES** — the author must either fix the issue or add a comment explaining why a pushback is necessary
-- All findings resolved (fixed or pushback-commented) → **APPROVE**
+**Decision rule (Allen's policy, 2026-06-14):**
+- Any unresolved CRITICAL or HIGH finding → **REQUEST_CHANGES** — the author must either fix the issue or add a comment explaining why a pushback is necessary
+- All CRITICAL and HIGH findings resolved (fixed or pushback-commented), only MEDIUM/LOW/SUGGESTION remain → **APPROVE** (flag non-blocking findings but don't let them prevent approval)
 - All clear with no findings → **APPROVE**
 
-**Pushback comments** are valid resolutions: if the author believes a finding is not worth fixing (e.g., intentional design choice, out of scope, would introduce more risk), they must add a comment on the finding explaining their reasoning. Once pushback-commented, that finding is considered resolved for review purposes. Do not re-flag resolved findings on re-review unless the pushback rationale is demonstrably wrong.
+**Pushback comments** are valid resolutions: if the author believes a CRITICAL or HIGH finding is not worth fixing (e.g., intentional design choice, out of scope, would introduce more risk), they must add a comment on the finding explaining their reasoning. Once pushback-commented, that finding is considered resolved for review purposes. Do not re-flag resolved findings on re-review unless the pushback rationale is demonstrably wrong.
+
+**MEDIUM, LOW, and SUGGESTION findings are explicitly non-blocking.** Flag them clearly in the review, but proceed to approve if there are no CRITICAL or HIGH issues. This applies to: documentation/hygiene issues, PR description mismatches, missing FE UX updates (where server-side is the security boundary), missing tests for static/config data, style nits, and out-of-scope suggestions.
 
 ## 3d. Collaborative Review Tone
 
@@ -892,9 +894,7 @@ See Section 3c for the full severity classification framework.
 - **Request Changes** — any unresolved finding exists (any severity). Findings are only resolved when the author has either fixed the code or added a comment explaining why a pushback is necessary.
 - **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
 
-**🚫 HARD RULE: NEVER approve a PR that has unresolved issues of ANY severity.** Every finding must be either fixed by the author or pushed back on with a comment explaining why the fix isn't necessary. Unresolved findings mean REQUEST_CHANGES regardless of severity label. This rule has no exceptions — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If the author argues the issues are acceptable, they can override the bot with a pushback comment — but RSI must never be the one to approve through unresolved findings.
-
-Rationale: Every review finding, regardless of severity, represents a potential improvement identified by an independent reviewer. Skipping low-severity findings accumulates technical debt and erodes codebase quality over time. The pushback mechanism gives authors a lightweight way to disagree without blocking the review — but the burden is on the author to explicitly decline a fix, not on the reviewer to silently drop findings.
+**🚫 HARD RULE: NEVER approve a PR that has unresolved CRITICAL or HIGH severity issues.** Every CRITICAL or HIGH finding must be either fixed by the author or pushed back on with a comment explaining why the fix isn't necessary. Unresolved CRITICAL or HIGH findings mean REQUEST_CHANGES. MEDIUM, LOW, and SUGGESTION findings are non-blocking — flag them but approve through them. This rule has no exceptions for CRITICAL/HIGH — not even for feature-gated code, POC branches, or "will fix in follow-up" promises. If the author argues the CRITICAL/HIGH issues are acceptable, they can override the bot with a pushback comment — but RSI must never be the one to approve through unresolved CRITICAL or HIGH findings.
 
 ---
 
