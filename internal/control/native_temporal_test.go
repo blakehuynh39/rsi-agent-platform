@@ -48,35 +48,138 @@ func TestNativeTemporalDryRunDoesNotConnect(t *testing.T) {
 	}
 }
 
-func TestNativeTemporalBlocksDisallowedWorkflowType(t *testing.T) {
+func TestNativeTemporalStartsAnyWorkflowOnConfiguredTarget(t *testing.T) {
 	cfg := nativeTemporalTestConfig()
+	fake := &fakeTemporalOpsClient{}
 	previous := newTemporalClient
-	newTemporalClient = func(context.Context, config.TemporalTarget) (temporalOpsClient, error) {
-		t.Fatal("disallowed workflow type should not connect to Temporal")
-		return &fakeTemporalOpsClient{}, nil
+	newTemporalClient = func(_ context.Context, target config.TemporalTarget) (temporalOpsClient, error) {
+		if target.Name != "royalty-graph-v2" {
+			t.Fatalf("target = %q, want royalty-graph-v2", target.Name)
+		}
+		return fake, nil
 	}
 	t.Cleanup(func() { newTemporalClient = previous })
 
 	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "temporal"), nativeToolActionRequest{
 		Surface:        "temporal",
 		Operation:      "start_workflow",
-		IdempotencyKey: "temporal-bad-type",
-		Reason:         "test disallowed type",
+		IdempotencyKey: "temporal-future-workflow",
+		Reason:         "start future workflow on configured target",
 		Arguments: map[string]any{
 			"environment":     "stage",
 			"target":          "royalty-graph-v2",
-			"new_workflow_id": "royalty-graph-bad-type",
-			"workflow_type":   "BadWorkflow",
-			"task_queue":      "ROYALTY_GRAPH_TASK_QUEUE",
-			"dry_run":         true,
+			"new_workflow_id": "future-manager-workflow",
+			"workflow_type":   "FutureManagerWorkflow",
+			"task_queue":      "FUTURE_MANAGER_TASK_QUEUE",
+			"confirm":         true,
 		},
 	})
 
-	if err == nil {
-		t.Fatal("expected disallowed workflow type error")
+	if err != nil {
+		t.Fatalf("handleNativeToolAction() error = %v", err)
 	}
-	if status != http.StatusForbidden || resp.OK {
-		t.Fatalf("status/ok = %d/%v, want 403/false: %#v", status, resp.OK, resp)
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status/ok = %d/%v, want 200/true: %#v", status, resp.OK, resp)
+	}
+	if fake.startOptions.ID != "future-manager-workflow" {
+		t.Fatalf("started workflow id = %q, want future-manager-workflow", fake.startOptions.ID)
+	}
+	if fake.startOptions.TaskQueue != "FUTURE_MANAGER_TASK_QUEUE" {
+		t.Fatalf("started task queue = %q, want FUTURE_MANAGER_TASK_QUEUE", fake.startOptions.TaskQueue)
+	}
+}
+
+func TestNativeTemporalStartsIndexerManagerWithFailedOnlyReuse(t *testing.T) {
+	cfg := nativeTemporalTestConfig()
+	cfg.TemporalTargets = append(cfg.TemporalTargets, nativeTemporalIndexerTarget("stage"))
+	fake := &fakeTemporalOpsClient{}
+	previous := newTemporalClient
+	newTemporalClient = func(_ context.Context, target config.TemporalTarget) (temporalOpsClient, error) {
+		if target.Name != "indexer" {
+			t.Fatalf("target = %q, want indexer", target.Name)
+		}
+		return fake, nil
+	}
+	t.Cleanup(func() { newTemporalClient = previous })
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "temporal"), nativeToolActionRequest{
+		Surface:        "temporal",
+		Operation:      "start_workflow",
+		IdempotencyKey: "temporal-root-ip-start",
+		Reason:         "restart failed root IP manager",
+		Arguments: map[string]any{
+			"environment":   "stage",
+			"target":        "indexer",
+			"workflow_id":   "RootIPManagerWorkflow",
+			"workflow_type": "RootIPManagerWorkflow",
+			"task_queue":    "ROOT_IP_TASK_QUEUE",
+			"args":          []any{float64(5000)},
+			"confirm":       true,
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("handleNativeToolAction() error = %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status/ok = %d/%v, want 200/true: %#v", status, resp.OK, resp)
+	}
+	if fake.startOptions.ID != "RootIPManagerWorkflow" {
+		t.Fatalf("started workflow id = %q, want RootIPManagerWorkflow", fake.startOptions.ID)
+	}
+	if fake.startOptions.TaskQueue != "ROOT_IP_TASK_QUEUE" {
+		t.Fatalf("started task queue = %q, want ROOT_IP_TASK_QUEUE", fake.startOptions.TaskQueue)
+	}
+	if fake.startOptions.WorkflowIDConflictPolicy != enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL {
+		t.Fatalf("WorkflowIDConflictPolicy = %v, want FAIL", fake.startOptions.WorkflowIDConflictPolicy)
+	}
+	if fake.startOptions.WorkflowIDReusePolicy != enumspb.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY {
+		t.Fatalf("WorkflowIDReusePolicy = %v, want ALLOW_DUPLICATE_FAILED_ONLY", fake.startOptions.WorkflowIDReusePolicy)
+	}
+	if len(fake.startArgs) != 1 || fake.startArgs[0] != float64(5000) {
+		t.Fatalf("start args = %#v, want [5000]", fake.startArgs)
+	}
+}
+
+func TestNativeTemporalStartsFutureIndexerWorkflowOnConfiguredTarget(t *testing.T) {
+	cfg := nativeTemporalTestConfig()
+	cfg.TemporalTargets = append(cfg.TemporalTargets, nativeTemporalIndexerTarget("stage"))
+	fake := &fakeTemporalOpsClient{}
+	previous := newTemporalClient
+	newTemporalClient = func(_ context.Context, target config.TemporalTarget) (temporalOpsClient, error) {
+		if target.Name != "indexer" {
+			t.Fatalf("target = %q, want indexer", target.Name)
+		}
+		return fake, nil
+	}
+	t.Cleanup(func() { newTemporalClient = previous })
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "temporal"), nativeToolActionRequest{
+		Surface:        "temporal",
+		Operation:      "start_workflow",
+		IdempotencyKey: "temporal-future-indexer-start",
+		Reason:         "start future indexer manager",
+		Arguments: map[string]any{
+			"environment":   "stage",
+			"target":        "indexer",
+			"workflow_id":   "FutureIndexerManagerWorkflow",
+			"workflow_type": "FutureIndexerManagerWorkflow",
+			"task_queue":    "FUTURE_INDEXER_TASK_QUEUE",
+			"confirm":       true,
+		},
+	})
+
+	if err != nil {
+		t.Fatalf("handleNativeToolAction() error = %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status/ok = %d/%v, want 200/true: %#v", status, resp.OK, resp)
+	}
+	if fake.startOptions.ID != "FutureIndexerManagerWorkflow" {
+		t.Fatalf("started workflow id = %q, want FutureIndexerManagerWorkflow", fake.startOptions.ID)
+	}
+	if fake.startOptions.TaskQueue != "FUTURE_INDEXER_TASK_QUEUE" {
+		t.Fatalf("started task queue = %q, want FUTURE_INDEXER_TASK_QUEUE", fake.startOptions.TaskQueue)
 	}
 }
 
@@ -192,23 +295,32 @@ func nativeTemporalTestConfig() config.Config {
 	cfg := nativeToolsTestConfig()
 	cfg.TemporalControlEnabled = true
 	cfg.TemporalTargets = []config.TemporalTarget{{
-		Environment:               "stage",
-		Name:                      "royalty-graph-v2",
-		HostPort:                  "royalty-graph-v2-staging.koyiy.tmprl.cloud:7233",
-		Namespace:                 "royalty-graph-v2-staging.koyiy",
-		CertPEMEnv:                "TEMPORAL_CERT",
-		KeyPEMEnv:                 "TEMPORAL_KEY",
-		AllowedScheduleIDs:        []string{"royalty-graph-schedule-v2"},
-		AllowedWorkflowIDPrefixes: []string{"royalty-graph-"},
-		AllowedWorkflowTypes:      []string{"RoyaltyGraphManagerWorkflow"},
-		AllowedTaskQueues:         []string{"ROYALTY_GRAPH_TASK_QUEUE"},
+		Environment:        "stage",
+		Name:               "royalty-graph-v2",
+		HostPort:           "royalty-graph-v2-staging.koyiy.tmprl.cloud:7233",
+		Namespace:          "royalty-graph-v2-staging.koyiy",
+		CertPEMEnv:         "TEMPORAL_CERT",
+		KeyPEMEnv:          "TEMPORAL_KEY",
+		AllowedScheduleIDs: []string{"royalty-graph-schedule-v2"},
 	}}
 	return cfg
+}
+
+func nativeTemporalIndexerTarget(environment string) config.TemporalTarget {
+	return config.TemporalTarget{
+		Environment: environment,
+		Name:        "indexer",
+		HostPort:    "indexer-" + environment + ".koyiy.tmprl.cloud:7233",
+		Namespace:   "indexer-" + environment + ".koyiy",
+		CertPEMEnv:  "INDEXER_TEMPORAL_CERT",
+		KeyPEMEnv:   "INDEXER_TEMPORAL_KEY",
+	}
 }
 
 type fakeTemporalOpsClient struct {
 	cancelWorkflowID string
 	startOptions     temporalclient.StartWorkflowOptions
+	startArgs        []any
 }
 
 func (f *fakeTemporalOpsClient) Close() {}
@@ -250,8 +362,9 @@ func (f *fakeTemporalOpsClient) CancelWorkflow(_ context.Context, workflowID str
 	return nil
 }
 
-func (f *fakeTemporalOpsClient) StartWorkflow(_ context.Context, options temporalclient.StartWorkflowOptions, _ string, _ []any) (temporalWorkflowRun, error) {
+func (f *fakeTemporalOpsClient) StartWorkflow(_ context.Context, options temporalclient.StartWorkflowOptions, _ string, args []any) (temporalWorkflowRun, error) {
 	f.startOptions = options
+	f.startArgs = args
 	return fakeTemporalWorkflowRun{id: "started", runID: "run-1"}, nil
 }
 

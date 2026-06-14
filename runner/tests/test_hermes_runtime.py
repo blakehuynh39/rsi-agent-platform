@@ -8553,6 +8553,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi_observability.alert_rule_get", by_toolset["rsi-observability"])
         self.assertIn("rsi_observability.active_alerts", by_toolset["rsi-observability"])
         self.assertIn("rsi_temporal.describe_workflow", by_toolset["rsi-temporal"])
+        self.assertIn("rsi_temporal.start_workflow", by_toolset["rsi-temporal"])
         self.assertIn("rsi_temporal.stop_workflow", by_toolset["rsi-temporal"])
         self.assertIn("rsi_aws.read", by_toolset["rsi-aws"])
         self.assertIn("db_read.query", by_toolset["rsi-db-read"])
@@ -8732,6 +8733,12 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("confirm_destroy", temporal_stop["parameters"]["properties"])
         self.assertIn("reason", temporal_stop["parameters"]["required"])
         self.assertIn("idempotency_key", temporal_stop["parameters"]["required"])
+        temporal_start = transport_tool_schema("rsi_temporal.start_workflow")
+        self.assertEqual(temporal_start["name"], "rsi_temporal_start_workflow")
+        self.assertIn("workflow_id", temporal_start["parameters"]["properties"])
+        self.assertIn("confirm", temporal_start["parameters"]["properties"])
+        self.assertIn("reason", temporal_start["parameters"]["required"])
+        self.assertIn("idempotency_key", temporal_start["parameters"]["required"])
 
         invalid: dict[str, list[str]] = {}
         from rsi_runner.rsi_tools import rsi_plugin_toolset_definitions

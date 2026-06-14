@@ -694,7 +694,7 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_temporal.start_workflow": _write_schema(
         "rsi_temporal.start_workflow",
-        "Start one allowlisted Temporal workflow type on an allowlisted task queue. Existing workflow IDs fail closed.",
+        "Start one Temporal workflow on a configured Temporal target. Use this to restart a failed same-ID manager workflow; running IDs fail closed. Requires confirm=true unless dry_run=true.",
         {
             **_TEMPORAL_MUTATION_PROPERTIES,
             "workflow_id": {"type": "string"},
@@ -707,7 +707,7 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_temporal.stop_workflow": _write_schema(
         "rsi_temporal.stop_workflow",
-        "Request graceful cancellation for one allowlisted Temporal workflow. This does not terminate or delete history.",
+        "Request graceful cancellation for one Temporal workflow on a configured Temporal target. This does not terminate or delete history.",
         {
             **_TEMPORAL_MUTATION_PROPERTIES,
             "workflow_id": {"type": "string"},
@@ -717,7 +717,7 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_temporal.restart_workflow": _write_schema(
         "rsi_temporal.restart_workflow",
-        "Request graceful cancellation for one allowlisted Temporal workflow and start a replacement workflow.",
+        "Request graceful cancellation for one Temporal workflow and start a replacement workflow on a configured Temporal target.",
         {
             **_TEMPORAL_MUTATION_PROPERTIES,
             "workflow_id": {"type": "string"},

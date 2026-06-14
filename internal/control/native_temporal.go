@@ -236,9 +236,6 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		if workflowID == "" {
 			return withTemporalError(output, "missing_workflow_id"), "", sourceRef, "", mirrorEffect, http.StatusBadRequest, errors.New("workflow_id is required for this Temporal workflow operation")
 		}
-		if !temporalAllowed(workflowID, target.AllowedWorkflowIDs, target.AllowedWorkflowIDPrefixes) {
-			return withTemporalError(output, "workflow_not_allowed"), "", sourceRef, "", mirrorEffect, http.StatusForbidden, errors.New("workflow_id is outside the configured Temporal allowlist")
-		}
 	}
 	if temporalWorkflowStartOperation(operation) {
 		if newWorkflowID == "" {
@@ -258,15 +255,6 @@ func executeTemporalNativeToolAction(ctx context.Context, cfg config.Config, inp
 		}
 		if operation == "restart_workflow" && newWorkflowID == workflowID {
 			return withTemporalError(output, "replacement_workflow_id_required"), "", sourceRef, "", mirrorEffect, http.StatusBadRequest, errors.New("restart_workflow requires a distinct new_workflow_id so the existing workflow is not terminated or raced")
-		}
-		if !temporalAllowed(newWorkflowID, target.AllowedWorkflowIDs, target.AllowedWorkflowIDPrefixes) {
-			return withTemporalError(output, "new_workflow_not_allowed"), "", sourceRef, "", mirrorEffect, http.StatusForbidden, errors.New("new_workflow_id is outside the configured Temporal allowlist")
-		}
-		if !containsTemporalString(target.AllowedWorkflowTypes, workflowType) {
-			return withTemporalError(output, "workflow_type_not_allowed"), "", sourceRef, "", mirrorEffect, http.StatusForbidden, errors.New("workflow_type is outside the configured Temporal allowlist")
-		}
-		if !containsTemporalString(target.AllowedTaskQueues, taskQueue) {
-			return withTemporalError(output, "task_queue_not_allowed"), "", sourceRef, "", mirrorEffect, http.StatusForbidden, errors.New("task_queue is outside the configured Temporal allowlist")
 		}
 		output["args_count"] = len(workflowArgs)
 	}
@@ -489,7 +477,7 @@ func temporalStartOptions(workflowID string, taskQueue string) temporalclient.St
 		ID:                       workflowID,
 		TaskQueue:                taskQueue,
 		WorkflowIDConflictPolicy: enumspb.WORKFLOW_ID_CONFLICT_POLICY_FAIL,
-		WorkflowIDReusePolicy:    enumspb.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+		WorkflowIDReusePolicy:    enumspb.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
 	}
 }
 
@@ -762,14 +750,4 @@ func temporalTimeList(values []time.Time) []string {
 		}
 	}
 	return out
-}
-
-func containsTemporalString(values []string, target string) bool {
-	target = strings.TrimSpace(target)
-	for _, value := range values {
-		if strings.TrimSpace(value) == target {
-			return true
-		}
-	}
-	return false
 }
