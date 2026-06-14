@@ -969,6 +969,47 @@ func TestNativeAWSReadBlocksCamelCaseCredentialParams(t *testing.T) {
 	}
 }
 
+type fakeAWSReadInput struct {
+	MaxRecords int `json:"MaxRecords"`
+}
+
+type fakeAWSReadOutput struct {
+	Items []string
+}
+
+type fakeAWSReadClient struct {
+	observed fakeAWSReadInput
+}
+
+func (c *fakeAWSReadClient) DescribeDBParameters(ctx context.Context, input *fakeAWSReadInput, optFns ...func(*struct{})) (*fakeAWSReadOutput, error) {
+	c.observed = *input
+	return &fakeAWSReadOutput{Items: []string{"ok"}}, nil
+}
+
+func TestNativeAWSReadAllowsGenericSafeReadOperations(t *testing.T) {
+	if err, status := validateAWSReadRequest(awsReadRequest{
+		Account:   "stage",
+		Region:    "us-east-1",
+		Service:   "rds",
+		Operation: "describe-db-parameters",
+		Params:    map[string]any{"db_parameter_group_name": "default.postgres16"},
+	}); err != nil || status != http.StatusOK {
+		t.Fatalf("validateAWSReadRequest returned status=%d err=%v", status, err)
+	}
+
+	client := &fakeAWSReadClient{}
+	out, err := callAWSReadOperation(context.Background(), client, "describe-db-parameters", map[string]any{"max_records": 3})
+	if err != nil {
+		t.Fatalf("callAWSReadOperation returned error: %v", err)
+	}
+	if client.observed.MaxRecords != 3 {
+		t.Fatalf("MaxRecords = %d, want 3", client.observed.MaxRecords)
+	}
+	if got, ok := out.(*fakeAWSReadOutput); !ok || len(got.Items) != 1 || got.Items[0] != "ok" {
+		t.Fatalf("output = %#v", out)
+	}
+}
+
 func TestNativeAWSReadBlocksRawCloudWatchLogContent(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	oldRunner := awsNativeRunner
@@ -978,24 +1019,100 @@ func TestNativeAWSReadBlocksRawCloudWatchLogContent(t *testing.T) {
 		return nil, nil
 	}
 
-	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
-		Surface:   "aws",
-		Operation: "read",
-		Arguments: map[string]any{
-			"account":   "prod",
-			"service":   "logs",
-			"operation": "filter-log-events",
-			"params": map[string]any{
-				"log_group_name": "/aws/eks/use1-prod/application",
-				"filter_pattern": "password secret token",
-			},
-		},
-	})
-	if err != nil || status != http.StatusBadRequest || resp.OK {
-		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	for _, operation := range []string{"filter-log-events", "get-log-record"} {
+		t.Run(operation, func(t *testing.T) {
+			resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+				Surface:   "aws",
+				Operation: "read",
+				Arguments: map[string]any{
+					"account":   "prod",
+					"service":   "logs",
+					"operation": operation,
+					"params": map[string]any{
+						"log_group_name": "/aws/eks/use1-prod/application",
+						"filter_pattern": "password secret token",
+					},
+				},
+			})
+			if err != nil || status != http.StatusForbidden || resp.OK {
+				t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+			}
+			if !strings.Contains(resp.Error, "raw log") {
+				t.Fatalf("error = %q, want raw log rejection", resp.Error)
+			}
+		})
 	}
-	if !strings.Contains(resp.Error, "not allowlisted") {
-		t.Fatalf("error = %q, want allowlist rejection", resp.Error)
+}
+
+func TestNativeAWSReadLimitsSTSReadsToCallerIdentity(t *testing.T) {
+	if err, status := validateAWSReadRequest(awsReadRequest{
+		Account:   "stage",
+		Region:    "us-east-1",
+		Service:   "sts",
+		Operation: "get-caller-identity",
+	}); err != nil || status != http.StatusOK {
+		t.Fatalf("get-caller-identity status=%d err=%v, want allowed", status, err)
+	}
+
+	for _, operation := range []string{"get-session-token", "get-federation-token"} {
+		t.Run(operation, func(t *testing.T) {
+			err, status := validateAWSReadRequest(awsReadRequest{
+				Account:   "stage",
+				Region:    "us-east-1",
+				Service:   "sts",
+				Operation: operation,
+			})
+			if err == nil || status != http.StatusForbidden {
+				t.Fatalf("%s status=%d err=%v, want forbidden", operation, status, err)
+			}
+			if !strings.Contains(err.Error(), "caller identity") {
+				t.Fatalf("error = %q, want caller identity restriction", err.Error())
+			}
+		})
+	}
+}
+
+func TestNativeAWSReadBlocksSerialConsoleOutput(t *testing.T) {
+	err, status := validateAWSReadRequest(awsReadRequest{
+		Account:   "prod",
+		Region:    "us-east-1",
+		Service:   "ec2",
+		Operation: "get-serial-console-output",
+		Params:    map[string]any{"instance_id": "i-123"},
+	})
+	if err == nil || status != http.StatusForbidden {
+		t.Fatalf("status=%d err=%v, want forbidden", status, err)
+	}
+	if !strings.Contains(err.Error(), "console") {
+		t.Fatalf("error = %q, want console rejection", err.Error())
+	}
+}
+
+func TestNativeAWSReadBlocksBootstrapUserDataReads(t *testing.T) {
+	cases := []struct {
+		service   string
+		operation string
+	}{
+		{service: "ec2", operation: "describe-instance-attribute"},
+		{service: "ec2", operation: "describe-launch-template-versions"},
+		{service: "ec2", operation: "get-launch-template-data"},
+		{service: "autoscaling", operation: "describe-launch-configurations"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.service+"_"+tc.operation, func(t *testing.T) {
+			err, status := validateAWSReadRequest(awsReadRequest{
+				Account:   "prod",
+				Region:    "us-east-1",
+				Service:   tc.service,
+				Operation: tc.operation,
+			})
+			if err == nil || status != http.StatusForbidden {
+				t.Fatalf("%s.%s status=%d err=%v, want forbidden", tc.service, tc.operation, status, err)
+			}
+			if !strings.Contains(err.Error(), "credential-bearing") {
+				t.Fatalf("error = %q, want credential-bearing rejection", err.Error())
+			}
+		})
 	}
 }
 
@@ -1049,8 +1166,8 @@ func TestNativeAWSReadBlocksMutations(t *testing.T) {
 	if err != nil || status != http.StatusBadRequest || resp.OK {
 		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
 	}
-	if !strings.Contains(resp.Error, "not allowlisted") {
-		t.Fatalf("error = %q, want allowlist rejection", resp.Error)
+	if !strings.Contains(resp.Error, "not a read-only") {
+		t.Fatalf("error = %q, want read-only rejection", resp.Error)
 	}
 }
 

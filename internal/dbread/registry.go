@@ -3,6 +3,7 @@ package dbread
 import (
 	"encoding/json"
 	"errors"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -16,6 +17,7 @@ type Target struct {
 	Placement       string                         `json:"placement,omitempty"`
 	DSN             string                         `json:"dsn,omitempty"`
 	DSNEnv          string                         `json:"dsn_env,omitempty"`
+	DSNParts        DSNParts                       `json:"dsn_parts,omitempty"`
 	DSNSecretARN    string                         `json:"dsn_secret_arn,omitempty"`
 	DSNSecretARNEnv string                         `json:"dsn_secret_arn_env,omitempty"`
 	AllowedSchemas  []string                       `json:"allowed_schemas,omitempty"`
@@ -26,6 +28,21 @@ type Target struct {
 	Redaction       storepkg.DBReadRedactionPolicy `json:"redaction,omitempty"`
 	LambdaFunction  string                         `json:"lambda_function_name,omitempty"`
 	LambdaQualifier string                         `json:"lambda_qualifier,omitempty"`
+}
+
+type DSNParts struct {
+	Host        string `json:"host,omitempty"`
+	HostEnv     string `json:"host_env,omitempty"`
+	Port        string `json:"port,omitempty"`
+	PortEnv     string `json:"port_env,omitempty"`
+	Database    string `json:"database,omitempty"`
+	DatabaseEnv string `json:"database_env,omitempty"`
+	User        string `json:"user,omitempty"`
+	UserEnv     string `json:"user_env,omitempty"`
+	Password    string `json:"password,omitempty"`
+	PasswordEnv string `json:"password_env,omitempty"`
+	SSLMode     string `json:"sslmode,omitempty"`
+	SSLModeEnv  string `json:"sslmode_env,omitempty"`
 }
 
 type Registry struct {
@@ -79,6 +96,9 @@ func (r Registry) Target(id string) (Target, bool) {
 	}
 	if target.DSN == "" && target.DSNEnv != "" {
 		target.DSN = strings.TrimSpace(os.Getenv(target.DSNEnv))
+	}
+	if target.DSN == "" && target.DSNParts.Configured() {
+		target.DSN = target.DSNParts.DSN()
 	}
 	if target.DSNSecretARN == "" && target.DSNSecretARNEnv != "" {
 		target.DSNSecretARN = strings.TrimSpace(os.Getenv(target.DSNSecretARNEnv))
@@ -152,4 +172,48 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func (p DSNParts) Configured() bool {
+	return strings.TrimSpace(p.Host) != "" ||
+		strings.TrimSpace(p.HostEnv) != "" ||
+		strings.TrimSpace(p.Database) != "" ||
+		strings.TrimSpace(p.DatabaseEnv) != "" ||
+		strings.TrimSpace(p.User) != "" ||
+		strings.TrimSpace(p.UserEnv) != "" ||
+		strings.TrimSpace(p.Password) != "" ||
+		strings.TrimSpace(p.PasswordEnv) != ""
+}
+
+func (p DSNParts) DSN() string {
+	host := firstNonEmpty(p.Host, envValue(p.HostEnv))
+	database := firstNonEmpty(p.Database, envValue(p.DatabaseEnv))
+	user := firstNonEmpty(p.User, envValue(p.UserEnv))
+	password := firstNonEmpty(p.Password, envValue(p.PasswordEnv))
+	if host == "" || database == "" || user == "" || password == "" {
+		return ""
+	}
+	port := firstNonEmpty(p.Port, envValue(p.PortEnv), "5432")
+	sslmode := firstNonEmpty(p.SSLMode, envValue(p.SSLModeEnv), "require")
+	u := url.URL{
+		Scheme: "postgres",
+		User:   url.UserPassword(user, password),
+		Host:   host,
+		Path:   database,
+	}
+	if !strings.Contains(host, ":") && port != "" {
+		u.Host = host + ":" + port
+	}
+	query := u.Query()
+	query.Set("sslmode", sslmode)
+	u.RawQuery = query.Encode()
+	return u.String()
+}
+
+func envValue(key string) string {
+	key = strings.TrimSpace(key)
+	if key == "" {
+		return ""
+	}
+	return strings.TrimSpace(os.Getenv(key))
 }

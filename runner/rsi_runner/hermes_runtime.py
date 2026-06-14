@@ -8296,9 +8296,12 @@ if __name__ == "__main__":
                 "AWS operational reads are available through native `rsi_aws.read` in the `rsi-aws` toolset. "
                 "Use it for AWS-managed resource evidence such as RDS events, pending maintenance, CloudTrail, "
                 "CloudWatch metrics, CloudWatch Logs metadata, EC2/EKS/ELB inventory, and STS caller identity. "
+                "Pass AWS CLI-style service and operation names; supported diagnostic services accept safe "
+                "read-only operations instead of a tiny fixed operation list. "
                 "The gateway is read-only and blocks Secrets Manager, SSM parameter reads, KMS decrypt, "
-                "S3 object reads, IAM, ECR authorization tokens, and all mutations. For database or networking "
-                "incidents, check AWS control-plane events before concluding an application config root cause."
+                "S3 object reads, raw log reads, IAM, ECR authorization tokens, and all mutations. For database "
+                "or networking incidents, check AWS control-plane events before concluding an application config "
+                "root cause."
             )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:

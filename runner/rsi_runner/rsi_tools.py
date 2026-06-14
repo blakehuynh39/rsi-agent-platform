@@ -34,11 +34,11 @@ _AWS_READ_PROPERTIES: JsonObject = {
     "region": {"type": "string", "description": "AWS region, defaults to us-east-1."},
     "service": {
         "type": "string",
-        "description": "Allowlisted AWS service, e.g. rds, cloudwatch, logs metadata, cloudtrail, ec2, eks, elbv2, autoscaling, sts.",
+        "description": "Supported AWS diagnostic service, e.g. rds, cloudwatch, logs metadata, cloudtrail, ec2, eks, elbv2, autoscaling, sts.",
     },
     "operation": {
         "type": "string",
-        "description": "Allowlisted read operation, e.g. describe-events, describe-db-instances, lookup-events, get-caller-identity.",
+        "description": "Read-only AWS operation using CLI-style naming, e.g. describe-events, describe-db-instances, describe-db-parameters, lookup-events, get-caller-identity.",
     },
     "params": {
         "type": "object",
@@ -734,7 +734,7 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
 _AWS_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "rsi_aws.read": _schema(
         "rsi_aws.read",
-        "Read allowlisted AWS operational metadata through the RSI native AWS gateway. This is read-only and blocks Secrets Manager, SSM parameter reads, KMS decrypt, S3 object reads, ECR authorization tokens, IAM, and mutations.",
+        "Read AWS operational metadata through the RSI native AWS gateway. This accepts read-only operations for supported diagnostic services and blocks Secrets Manager, SSM parameter reads, KMS decrypt, S3 object reads, raw log reads, ECR authorization tokens, IAM, and mutations.",
         _AWS_READ_PROPERTIES,
         ["account", "service", "operation"],
     ),

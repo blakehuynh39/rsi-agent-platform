@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -42,56 +43,16 @@ type awsNativeRunnerFunc func(ctx context.Context, cfg config.Config, req awsRea
 
 var awsNativeRunner awsNativeRunnerFunc = runAWSNativeRead
 
-var awsAllowedReadOps = map[string]map[string]bool{
-	"sts": {
-		"get-caller-identity": true,
-	},
-	"rds": {
-		"describe-db-instances":                true,
-		"describe-db-clusters":                 true,
-		"describe-events":                      true,
-		"describe-pending-maintenance-actions": true,
-	},
-	"cloudwatch": {
-		"describe-alarms":        true,
-		"list-metrics":           true,
-		"get-metric-data":        true,
-		"get-metric-statistics":  true,
-		"describe-alarm-history": true,
-	},
-	"logs": {
-		"describe-log-groups":     true,
-		"describe-log-streams":    true,
-		"describe-queries":        true,
-		"describe-metric-filters": true,
-	},
-	"cloudtrail": {
-		"lookup-events": true,
-	},
-	"ec2": {
-		"describe-instances":          true,
-		"describe-security-groups":    true,
-		"describe-subnets":            true,
-		"describe-vpcs":               true,
-		"describe-route-tables":       true,
-		"describe-network-interfaces": true,
-		"describe-nat-gateways":       true,
-	},
-	"eks": {
-		"list-clusters":    true,
-		"describe-cluster": true,
-	},
-	"elbv2": {
-		"describe-load-balancers": true,
-		"describe-target-groups":  true,
-		"describe-target-health":  true,
-		"describe-listeners":      true,
-		"describe-rules":          true,
-	},
-	"autoscaling": {
-		"describe-auto-scaling-groups": true,
-		"describe-scaling-activities":  true,
-	},
+var awsSupportedReadServices = map[string]bool{
+	"sts":         true,
+	"rds":         true,
+	"cloudwatch":  true,
+	"logs":        true,
+	"cloudtrail":  true,
+	"ec2":         true,
+	"eks":         true,
+	"elbv2":       true,
+	"autoscaling": true,
 }
 
 var awsForbiddenServices = map[string]bool{
@@ -106,11 +67,47 @@ var awsForbiddenServices = map[string]bool{
 
 var awsForbiddenOperationTokens = []string{
 	"secret",
-	"parameter",
 	"decrypt",
 	"object",
 	"authorization-token",
 	"password",
+}
+
+var awsAllowedReadOperationPrefixes = []string{
+	"describe-",
+	"list-",
+	"get-",
+	"lookup-",
+	"head-",
+	"search-",
+	"batch-get-",
+}
+
+var awsBlockedReadOps = map[string]map[string]bool{
+	"logs": {
+		"filter-log-events": true,
+		"get-log-events":    true,
+		"get-log-record":    true,
+		"get-query-results": true,
+		"start-query":       true,
+		"start-live-tail":   true,
+	},
+	"ec2": {
+		"describe-instance-attribute":       true,
+		"describe-launch-template-versions": true,
+		"get-launch-template-data":          true,
+		"get-console-output":                true,
+		"get-console-screenshot":            true,
+		"get-password-data":                 true,
+		"get-serial-console-output":         true,
+	},
+	"autoscaling": {
+		"describe-launch-configurations": true,
+	},
+	"sts": {
+		"get-session-token":    true,
+		"get-federation-token": true,
+	},
 }
 
 func executeAWSNativeToolAction(ctx context.Context, cfg config.Config, input nativeToolActionRequest) (any, string, string, string, map[string]any, int, error) {
@@ -170,13 +167,22 @@ func validateAWSReadRequest(req awsReadRequest) (error, int) {
 	if awsForbiddenServices[req.Service] {
 		return fmt.Errorf("AWS service %s is blocked because it can expose secrets or raw private objects", req.Service), http.StatusForbidden
 	}
+	if !awsSupportedReadServices[req.Service] {
+		return fmt.Errorf("AWS service %s is not available in the read-only diagnostic gateway", req.Service), http.StatusBadRequest
+	}
+	if req.Service == "sts" && req.Operation != "get-caller-identity" {
+		return fmt.Errorf("AWS operation %s.%s is blocked because STS reads are limited to caller identity", req.Service, req.Operation), http.StatusForbidden
+	}
+	if awsBlockedReadOps[req.Service][req.Operation] {
+		return fmt.Errorf("AWS operation %s.%s is blocked because it can expose raw log, console, or credential-bearing content", req.Service, req.Operation), http.StatusForbidden
+	}
 	for _, token := range awsForbiddenOperationTokens {
 		if strings.Contains(req.Operation, token) {
 			return fmt.Errorf("AWS operation %s is blocked by read-only secret-safety policy", req.Operation), http.StatusForbidden
 		}
 	}
-	if !awsAllowedReadOps[req.Service][req.Operation] {
-		return fmt.Errorf("AWS read operation %s.%s is not allowlisted", req.Service, req.Operation), http.StatusBadRequest
+	if !awsOperationHasReadPrefix(req.Operation) {
+		return fmt.Errorf("AWS operation %s.%s is not a read-only diagnostic operation", req.Service, req.Operation), http.StatusBadRequest
 	}
 	if err := rejectSensitiveAWSParamKeys(req.Params); err != nil {
 		return err, http.StatusForbidden
@@ -213,227 +219,101 @@ func runAWSNativeRead(ctx context.Context, cfg config.Config, req awsReadRequest
 	if err != nil {
 		return nil, err
 	}
-	switch req.Service {
+	client := awsReadServiceClient(awsCfg, req.Service)
+	if client == nil {
+		return nil, fmt.Errorf("AWS service %s is not implemented in the read-only diagnostic gateway", req.Service)
+	}
+	return callAWSReadOperation(ctx, client, req.Operation, req.Params)
+}
+
+func awsReadServiceClient(awsCfg aws.Config, service string) any {
+	switch service {
 	case "sts":
-		client := sts.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "get-caller-identity":
-			return client.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
-		}
+		return sts.NewFromConfig(awsCfg)
 	case "rds":
-		client := rds.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-db-instances":
-			input, err := decodeAWSInput[rds.DescribeDBInstancesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeDBInstances(ctx, input)
-		case "describe-db-clusters":
-			input, err := decodeAWSInput[rds.DescribeDBClustersInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeDBClusters(ctx, input)
-		case "describe-events":
-			input, err := decodeAWSInput[rds.DescribeEventsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeEvents(ctx, input)
-		case "describe-pending-maintenance-actions":
-			input, err := decodeAWSInput[rds.DescribePendingMaintenanceActionsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribePendingMaintenanceActions(ctx, input)
-		}
+		return rds.NewFromConfig(awsCfg)
 	case "cloudwatch":
-		client := cloudwatch.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-alarms":
-			input, err := decodeAWSInput[cloudwatch.DescribeAlarmsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeAlarms(ctx, input)
-		case "list-metrics":
-			input, err := decodeAWSInput[cloudwatch.ListMetricsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.ListMetrics(ctx, input)
-		case "get-metric-data":
-			input, err := decodeAWSInput[cloudwatch.GetMetricDataInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.GetMetricData(ctx, input)
-		case "get-metric-statistics":
-			input, err := decodeAWSInput[cloudwatch.GetMetricStatisticsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.GetMetricStatistics(ctx, input)
-		case "describe-alarm-history":
-			input, err := decodeAWSInput[cloudwatch.DescribeAlarmHistoryInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeAlarmHistory(ctx, input)
-		}
+		return cloudwatch.NewFromConfig(awsCfg)
 	case "logs":
-		client := cloudwatchlogs.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-log-groups":
-			input, err := decodeAWSInput[cloudwatchlogs.DescribeLogGroupsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeLogGroups(ctx, input)
-		case "describe-log-streams":
-			input, err := decodeAWSInput[cloudwatchlogs.DescribeLogStreamsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeLogStreams(ctx, input)
-		case "describe-queries":
-			input, err := decodeAWSInput[cloudwatchlogs.DescribeQueriesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeQueries(ctx, input)
-		case "describe-metric-filters":
-			input, err := decodeAWSInput[cloudwatchlogs.DescribeMetricFiltersInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeMetricFilters(ctx, input)
-		}
+		return cloudwatchlogs.NewFromConfig(awsCfg)
 	case "cloudtrail":
-		client := cloudtrail.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "lookup-events":
-			input, err := decodeAWSInput[cloudtrail.LookupEventsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.LookupEvents(ctx, input)
-		}
+		return cloudtrail.NewFromConfig(awsCfg)
 	case "ec2":
-		client := ec2.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-instances":
-			input, err := decodeAWSInput[ec2.DescribeInstancesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeInstances(ctx, input)
-		case "describe-security-groups":
-			input, err := decodeAWSInput[ec2.DescribeSecurityGroupsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeSecurityGroups(ctx, input)
-		case "describe-subnets":
-			input, err := decodeAWSInput[ec2.DescribeSubnetsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeSubnets(ctx, input)
-		case "describe-vpcs":
-			input, err := decodeAWSInput[ec2.DescribeVpcsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeVpcs(ctx, input)
-		case "describe-route-tables":
-			input, err := decodeAWSInput[ec2.DescribeRouteTablesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeRouteTables(ctx, input)
-		case "describe-network-interfaces":
-			input, err := decodeAWSInput[ec2.DescribeNetworkInterfacesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeNetworkInterfaces(ctx, input)
-		case "describe-nat-gateways":
-			input, err := decodeAWSInput[ec2.DescribeNatGatewaysInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeNatGateways(ctx, input)
-		}
+		return ec2.NewFromConfig(awsCfg)
 	case "eks":
-		client := eks.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "list-clusters":
-			input, err := decodeAWSInput[eks.ListClustersInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.ListClusters(ctx, input)
-		case "describe-cluster":
-			input, err := decodeAWSInput[eks.DescribeClusterInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeCluster(ctx, input)
-		}
+		return eks.NewFromConfig(awsCfg)
 	case "elbv2":
-		client := elasticloadbalancingv2.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-load-balancers":
-			input, err := decodeAWSInput[elasticloadbalancingv2.DescribeLoadBalancersInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeLoadBalancers(ctx, input)
-		case "describe-target-groups":
-			input, err := decodeAWSInput[elasticloadbalancingv2.DescribeTargetGroupsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeTargetGroups(ctx, input)
-		case "describe-target-health":
-			input, err := decodeAWSInput[elasticloadbalancingv2.DescribeTargetHealthInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeTargetHealth(ctx, input)
-		case "describe-listeners":
-			input, err := decodeAWSInput[elasticloadbalancingv2.DescribeListenersInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeListeners(ctx, input)
-		case "describe-rules":
-			input, err := decodeAWSInput[elasticloadbalancingv2.DescribeRulesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeRules(ctx, input)
-		}
+		return elasticloadbalancingv2.NewFromConfig(awsCfg)
 	case "autoscaling":
-		client := autoscaling.NewFromConfig(awsCfg)
-		switch req.Operation {
-		case "describe-auto-scaling-groups":
-			input, err := decodeAWSInput[autoscaling.DescribeAutoScalingGroupsInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeAutoScalingGroups(ctx, input)
-		case "describe-scaling-activities":
-			input, err := decodeAWSInput[autoscaling.DescribeScalingActivitiesInput](req.Params)
-			if err != nil {
-				return nil, err
-			}
-			return client.DescribeScalingActivities(ctx, input)
+		return autoscaling.NewFromConfig(awsCfg)
+	}
+	return nil
+}
+
+func callAWSReadOperation(ctx context.Context, client any, operation string, params map[string]any) (any, error) {
+	methodName := awsOperationMethodName(operation)
+	method := reflect.ValueOf(client).MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, fmt.Errorf("AWS read operation %s is not implemented by service client", operation)
+	}
+	methodType := method.Type()
+	if methodType.NumIn() < 2 {
+		return nil, fmt.Errorf("AWS read operation %s has unsupported SDK method shape", operation)
+	}
+	inputType := methodType.In(1)
+	if inputType.Kind() != reflect.Pointer {
+		return nil, fmt.Errorf("AWS read operation %s has unsupported input type", operation)
+	}
+	input := reflect.New(inputType.Elem())
+	normalized := normalizeAWSParamValue(params)
+	raw, err := json.Marshal(normalized)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(raw, input.Interface()); err != nil {
+		return nil, err
+	}
+	results := method.Call([]reflect.Value{reflect.ValueOf(ctx), input})
+	if len(results) != 2 {
+		return nil, fmt.Errorf("AWS read operation %s has unsupported SDK result shape", operation)
+	}
+	if !results[1].IsNil() {
+		err, ok := results[1].Interface().(error)
+		if !ok {
+			return nil, fmt.Errorf("AWS read operation %s returned non-error failure value", operation)
+		}
+		return nil, err
+	}
+	return results[0].Interface(), nil
+}
+
+func awsOperationHasReadPrefix(operation string) bool {
+	for _, prefix := range awsAllowedReadOperationPrefixes {
+		if strings.HasPrefix(operation, prefix) {
+			return true
 		}
 	}
-	return nil, fmt.Errorf("AWS operation %s.%s is registered in policy but not implemented", req.Service, req.Operation)
+	return false
+}
+
+func awsOperationMethodName(operation string) string {
+	parts := strings.Split(operation, "-")
+	var builder strings.Builder
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		if strings.EqualFold(part, "db") {
+			builder.WriteString("DB")
+			continue
+		}
+		builder.WriteString(strings.ToUpper(part[:1]))
+		if len(part) > 1 {
+			builder.WriteString(part[1:])
+		}
+	}
+	return builder.String()
 }
 
 func awsConfigForRead(ctx context.Context, cfg config.Config, req awsReadRequest) (aws.Config, error) {
