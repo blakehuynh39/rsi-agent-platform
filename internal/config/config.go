@@ -80,6 +80,10 @@ type Config struct {
 	NativeToolsEnabled                   bool
 	NativeToolsClientToken               string
 	NativeToolsSurfaces                  []string
+	AWSReadDefaultRegion                 string
+	AWSReadStageRoleARN                  string
+	AWSReadProdRoleARN                   string
+	AWSReadMaxOutputBytes                int
 	TemporalControlEnabled               bool
 	TemporalTargets                      []TemporalTarget
 	DBReadEnabled                        bool
@@ -296,7 +300,11 @@ func Load(serviceName string) Config {
 		CompanyWikiCompilerOpenRouterAPIKey:  firstNonEmpty(stringEnv("RSI_COMPANY_WIKI_COMPILER_OPENROUTER_API_KEY", ""), stringEnv("RSI_OPENROUTER_API_KEY", ""), stringEnv("OPENROUTER_API_KEY", "")),
 		NativeToolsEnabled:                   boolEnv("RSI_NATIVE_TOOLS_ENABLED", true),
 		NativeToolsClientToken:               stringEnv("RSI_NATIVE_TOOLS_CLIENT_TOKEN", ""),
-		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry", "kanban", "temporal"}),
+		NativeToolsSurfaces:                  listEnvWithDefault("RSI_NATIVE_TOOLS_SURFACES", []string{"slack", "notion", "knowledge", "sentry", "kanban", "temporal", "aws"}),
+		AWSReadDefaultRegion:                 stringEnv("RSI_AWS_READ_DEFAULT_REGION", "us-east-1"),
+		AWSReadStageRoleARN:                  stringEnv("RSI_AWS_READ_STAGE_ROLE_ARN", ""),
+		AWSReadProdRoleARN:                   stringEnv("RSI_AWS_READ_PROD_ROLE_ARN", ""),
+		AWSReadMaxOutputBytes:                intEnv("RSI_AWS_READ_MAX_OUTPUT_BYTES", 128000),
 		TemporalControlEnabled:               boolEnv("RSI_TEMPORAL_CONTROL_ENABLED", false),
 		TemporalTargets:                      temporalTargetsEnv("RSI_TEMPORAL_TARGETS_JSON"),
 		DBReadEnabled:                        boolEnv("RSI_DB_READ_ENABLED", false),

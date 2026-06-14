@@ -74,6 +74,9 @@ var nativeToolReadOps = map[string]map[string]bool{
 		"list_schedules": true, "describe_schedule": true,
 		"list_workflows": true, "count_workflows": true, "describe_workflow": true,
 	},
+	"aws": {
+		"read": true,
+	},
 }
 
 var nativeToolDestructiveOps = map[string]map[string]bool{
@@ -296,6 +299,9 @@ func executeNativeToolAction(ctx context.Context, cfg config.Config, repo storep
 	}
 	if input.Surface == "temporal" {
 		return executeTemporalNativeToolAction(ctx, cfg, input)
+	}
+	if input.Surface == "aws" {
+		return executeAWSNativeToolAction(ctx, cfg, input)
 	}
 	if input.Surface == "knowledge" {
 		switch input.Operation {
@@ -1133,6 +1139,9 @@ func validateNativeToolActionPolicy(cfg config.Config, claims nativeToolClaims, 
 		}
 		return errors.New("notion write requires mirror_root_id or successful mirror root resolution"), http.StatusBadRequest
 	}
+	if input.Surface == "aws" {
+		return validateAWSReadPolicy(input)
+	}
 	return nil, http.StatusOK
 }
 
@@ -1341,6 +1350,21 @@ func nativeToolReadIdempotencyKey(claims nativeToolClaims, input nativeToolActio
 }
 
 func nativeToolTargetRef(args map[string]any) string {
+	if service := stringArg(args, "service"); service != "" {
+		account := normalizeAWSAccount(firstNonEmpty(stringArg(args, "account"), stringArg(args, "environment"), stringArg(args, "env")))
+		region := strings.TrimSpace(stringArg(args, "region"))
+		operation := normalizeAWSOperation(firstNonEmpty(stringArg(args, "operation"), stringArg(args, "op")))
+		if account == "" {
+			account = "stage"
+		}
+		if region == "" {
+			region = "us-east-1"
+		}
+		if operation == "" {
+			operation = "read"
+		}
+		return fmt.Sprintf("aws:%s:%s:%s:%s", account, region, normalizeAWSService(service), operation)
+	}
 	for _, key := range []string{
 		"target_ref",
 		"channel_id",

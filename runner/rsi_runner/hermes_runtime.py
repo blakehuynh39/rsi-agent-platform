@@ -40,6 +40,7 @@ from .observability import ObservationEmitter, execution_observation_id
 from .rsi_tools import (
     HERMES_ARTIFACT_TOOLSET,
     HERMES_DB_READ_TOOLSET,
+    HERMES_RSI_AWS_TOOLSET,
     HERMES_RSI_KNOWLEDGE_TOOLSET,
     HERMES_RSI_KANBAN_TOOLSET,
     HERMES_RSI_NOTION_TOOLSET,
@@ -69,6 +70,16 @@ RSI_NATIVE_TOOLSETS = (
     HERMES_RSI_SENTRY_TOOLSET,
     HERMES_RSI_KANBAN_TOOLSET,
     HERMES_RSI_TEMPORAL_TOOLSET,
+    HERMES_RSI_AWS_TOOLSET,
+)
+RSI_NATIVE_SURFACE_TOOLSETS = (
+    ("slack", HERMES_RSI_SLACK_TOOLSET),
+    ("notion", HERMES_RSI_NOTION_TOOLSET),
+    ("knowledge", HERMES_RSI_KNOWLEDGE_TOOLSET),
+    ("sentry", HERMES_RSI_SENTRY_TOOLSET),
+    ("kanban", HERMES_RSI_KANBAN_TOOLSET),
+    ("temporal", HERMES_RSI_TEMPORAL_TOOLSET),
+    ("aws", HERMES_RSI_AWS_TOOLSET),
 )
 PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
     {
@@ -1311,7 +1322,8 @@ class HermesRuntime:
         if self._execution_phase(task) in {"render", "deliver"}:
             return []
         if task.task_type in {"workflow", "prod", "proactive"}:
-            return list(RSI_NATIVE_TOOLSETS)
+            surfaces = set(self._config.native_tools_surfaces or [surface for surface, _ in RSI_NATIVE_SURFACE_TOOLSETS])
+            return [toolset for surface, toolset in RSI_NATIVE_SURFACE_TOOLSETS if surface in surfaces]
         return []
 
     def _grafana_observability_configured(self) -> bool:
@@ -3414,7 +3426,7 @@ class HermesRuntime:
             "workflow_id": first_non_empty(task.workflow_id, task.trace_id, task.execution_id, "workflow"),
             "conversation_id": first_non_empty(task.conversation_id, task.session_scope_id, task.channel_id, "conversation"),
             "actor": first_non_empty(task.user_peer_id, task.assistant_peer_id, "hermes"),
-            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge", "sentry", "kanban", "temporal"]),
+            "surfaces": list(self._config.native_tools_surfaces or ["slack", "notion", "knowledge", "sentry", "kanban", "temporal", "aws"]),
             "slack_channel_id": task.channel_id or "",
             "slack_thread_ts": task.thread_ts or task.message_ts or _derive_root_message_ts(task) or "",
             "slack_delivery_scope": "bound_thread" if task.channel_id else "",
@@ -8279,6 +8291,14 @@ if __name__ == "__main__":
                 "to start, pause/unpause, schedule trigger, stop by graceful cancellation, and restart with an "
                 "explicit replacement workflow. Mutations require reason, idempotency_key, and confirm=true "
                 "unless dry_run=true."
+            )
+            parts.append(
+                "AWS operational reads are available through native `rsi_aws.read` in the `rsi-aws` toolset. "
+                "Use it for AWS-managed resource evidence such as RDS events, pending maintenance, CloudTrail, "
+                "CloudWatch metrics, CloudWatch Logs metadata, EC2/EKS/ELB inventory, and STS caller identity. "
+                "The gateway is read-only and blocks Secrets Manager, SSM parameter reads, KMS decrypt, "
+                "S3 object reads, IAM, ECR authorization tokens, and all mutations. For database or networking "
+                "incidents, check AWS control-plane events before concluding an application config root cause."
             )
             repo_guidance = self._github_repository_guidance(task)
             if repo_guidance:

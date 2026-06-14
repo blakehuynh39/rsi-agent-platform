@@ -8459,6 +8459,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi-slack", toolsets)
         self.assertIn("rsi-notion", toolsets)
         self.assertIn("rsi-knowledge", toolsets)
+        self.assertNotIn("rsi-aws", toolsets)
         self.assertNotIn("terminal", toolsets)
 
     def test_native_runtime_env_mints_execution_token_and_strips_source_credentials(self) -> None:
@@ -8492,6 +8493,7 @@ class HermesRuntimeTests(unittest.TestCase):
                 "RSI_NATIVE_TOOLS_CLIENT_TOKEN": "native-secret",
                 "RSI_CONTROL_PLANE_BASE_URL": "http://control-plane.internal:8080",
                 "RSI_HERMES_NATIVE_TERMINAL_ENABLED": "false",
+                "RSI_NATIVE_TOOLS_SURFACES": "slack,notion,knowledge,sentry,kanban,temporal,aws",
                 "SLACK_BOT_TOKEN": "xoxb-test",
                 "NOTION_TOKEN": "ntn_test",
                 "NOTION_API_KEY": "secret_test",
@@ -8528,6 +8530,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("sentry", claims["surfaces"])
         self.assertIn("kanban", claims["surfaces"])
         self.assertIn("temporal", claims["surfaces"])
+        self.assertIn("aws", claims["surfaces"])
 
     def test_generated_plugin_registers_rsi_native_toolsets(self) -> None:
         definitions = rsi_plugin_toolset_definitions()
@@ -8551,6 +8554,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("rsi_observability.active_alerts", by_toolset["rsi-observability"])
         self.assertIn("rsi_temporal.describe_workflow", by_toolset["rsi-temporal"])
         self.assertIn("rsi_temporal.stop_workflow", by_toolset["rsi-temporal"])
+        self.assertIn("rsi_aws.read", by_toolset["rsi-aws"])
         self.assertIn("db_read.query", by_toolset["rsi-db-read"])
 
         message_post = transport_tool_schema("rsi_slack.message_post")

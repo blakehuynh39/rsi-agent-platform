@@ -771,6 +771,289 @@ func TestNativeSentryRequiresServerSideToken(t *testing.T) {
 	}
 }
 
+func TestNativeAWSReadUsesAllowlistedRunnerAndRedactsOutput(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	var observed awsReadRequest
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		observed = req
+		return map[string]any{
+			"Events": []any{
+				map[string]any{"Message": "DB instance restarted"},
+			},
+			"SecretAccessKey": "should-not-leak",
+			"AccessKeyId":     "camel-case-credential",
+			"NextToken":       "pagination-token-is-not-secret",
+		}, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "stage",
+			"region":    "us-east-1",
+			"service":   "rds",
+			"operation": "describe-events",
+			"params": map[string]any{
+				"source_identifier": "depin-backend",
+				"max_records":       20,
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("native aws read returned error: %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d response=%#v", status, resp)
+	}
+	if observed.Account != "stage" || observed.Region != "us-east-1" || observed.Service != "rds" || observed.Operation != "describe-events" {
+		t.Fatalf("observed request = %#v", observed)
+	}
+	if resp.Action.TargetRef != "aws:stage:us-east-1:rds:describe-events" {
+		t.Fatalf("target ref = %q", resp.Action.TargetRef)
+	}
+	if resp.Action.SourceRef != "aws:stage:us-east-1:rds:describe-events" {
+		t.Fatalf("source ref = %q", resp.Action.SourceRef)
+	}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal response: %v", err)
+	}
+	if strings.Contains(string(data), "should-not-leak") {
+		t.Fatalf("native aws response leaked credential-shaped output: %s", data)
+	}
+	if strings.Contains(string(data), "camel-case-credential") {
+		t.Fatalf("native aws response leaked camelCase credential-shaped output: %s", data)
+	}
+	if !strings.Contains(string(data), "pagination-token-is-not-secret") {
+		t.Fatalf("native aws response redacted non-secret pagination token: %s", data)
+	}
+	if !strings.Contains(string(data), "[REDACTED]") {
+		t.Fatalf("native aws response did not redact credential-shaped output: %s", data)
+	}
+}
+
+func TestNativeAWSReadRedactsEmbeddedJSONStringOutput(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		return map[string]any{
+			"Events": []any{
+				map[string]any{
+					"EventName":       "AssumeRole",
+					"CloudTrailEvent": `{"responseElements":{"credentials":{"accessKeyId":"embedded-access-key","sessionToken":"embedded-session-token"}},"requestID":"safe-request"}`,
+				},
+			},
+		}, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "stage",
+			"region":    "us-east-1",
+			"service":   "cloudtrail",
+			"operation": "lookup-events",
+		},
+	})
+	if err != nil {
+		t.Fatalf("native aws read returned error: %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d response=%#v", status, resp)
+	}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal response: %v", err)
+	}
+	for _, leaked := range []string{"embedded-access-key", "embedded-session-token"} {
+		if strings.Contains(string(data), leaked) {
+			t.Fatalf("native aws response leaked embedded JSON credential %q: %s", leaked, data)
+		}
+	}
+	if !strings.Contains(string(data), "safe-request") {
+		t.Fatalf("native aws response dropped non-secret embedded JSON fields: %s", data)
+	}
+}
+
+func TestNativeAWSReadKeepsSuccessfulOutputAtTimeoutBoundary(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	oldTimeout := awsNativeReadTimeout
+	defer func() {
+		awsNativeRunner = oldRunner
+		awsNativeReadTimeout = oldTimeout
+	}()
+	awsNativeReadTimeout = time.Nanosecond
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		<-ctx.Done()
+		return map[string]any{"DBInstances": []any{map[string]any{"DBInstanceIdentifier": "stage-db"}}}, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "stage",
+			"region":    "us-east-1",
+			"service":   "rds",
+			"operation": "describe-db-instances",
+		},
+	})
+	if err != nil {
+		t.Fatalf("native aws read returned error: %v", err)
+	}
+	if status != http.StatusOK || !resp.OK {
+		t.Fatalf("status=%d response=%#v", status, resp)
+	}
+}
+
+func TestNativeAWSReadBlocksSecretBearingServices(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		t.Fatalf("aws runner should not run for blocked secret service: %#v", req)
+		return nil, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "prod",
+			"service":   "secretsmanager",
+			"operation": "get-secret-value",
+			"params":    map[string]any{"secret_id": "prod/depin/database"},
+		},
+	})
+	if err != nil || status != http.StatusForbidden || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(resp.Error, "blocked") {
+		t.Fatalf("error = %q, want blocked", resp.Error)
+	}
+}
+
+func TestNativeAWSReadBlocksCamelCaseCredentialParams(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		t.Fatalf("aws runner should not run for blocked credential param: %#v", req)
+		return nil, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "stage",
+			"service":   "cloudwatch",
+			"operation": "list-metrics",
+			"params": map[string]any{
+				"AccessKeyId": "should-not-be-accepted",
+				"NextToken":   "pagination-token-is-ok",
+			},
+		},
+	})
+	if err != nil || status != http.StatusForbidden || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(resp.Error, "secret-safety") {
+		t.Fatalf("error = %q, want secret-safety rejection", resp.Error)
+	}
+}
+
+func TestNativeAWSReadBlocksRawCloudWatchLogContent(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		t.Fatalf("aws runner should not run for raw log-content read: %#v", req)
+		return nil, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "prod",
+			"service":   "logs",
+			"operation": "filter-log-events",
+			"params": map[string]any{
+				"log_group_name": "/aws/eks/use1-prod/application",
+				"filter_pattern": "password secret token",
+			},
+		},
+	})
+	if err != nil || status != http.StatusBadRequest || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(resp.Error, "not allowlisted") {
+		t.Fatalf("error = %q, want allowlist rejection", resp.Error)
+	}
+}
+
+func TestAWSConfigForReadAllowsStageAmbientButRequiresProdRole(t *testing.T) {
+	t.Setenv("AWS_ACCESS_KEY_ID", "test-access-key")
+	t.Setenv("AWS_SECRET_ACCESS_KEY", "test-secret-key")
+	t.Setenv("AWS_SESSION_TOKEN", "test-session-token")
+	cfg := nativeToolsTestConfig()
+	cfg.AWSReadStageRoleARN = ""
+	cfg.AWSReadProdRoleARN = ""
+
+	stageCfg, err := awsConfigForRead(context.Background(), cfg, awsReadRequest{
+		Account: "stage",
+		Region:  "us-east-1",
+	})
+	if err != nil {
+		t.Fatalf("stage ambient config returned error: %v", err)
+	}
+	if stageCfg.Region != "us-east-1" {
+		t.Fatalf("stage region = %q, want us-east-1", stageCfg.Region)
+	}
+
+	_, err = awsConfigForRead(context.Background(), cfg, awsReadRequest{
+		Account: "prod",
+		Region:  "us-east-1",
+	})
+	if err == nil || !strings.Contains(err.Error(), "no role ARN configured") {
+		t.Fatalf("prod config err = %v, want missing role error", err)
+	}
+}
+
+func TestNativeAWSReadBlocksMutations(t *testing.T) {
+	cfg := nativeToolsTestConfig()
+	oldRunner := awsNativeRunner
+	defer func() { awsNativeRunner = oldRunner }()
+	awsNativeRunner = func(ctx context.Context, cfg config.Config, req awsReadRequest) (any, error) {
+		t.Fatalf("aws runner should not run for mutation: %#v", req)
+		return nil, nil
+	}
+
+	resp, status, err := handleNativeToolAction(context.Background(), cfg, storepkg.NewMemoryStore(), nativeToolsValidClaims(time.Now().UTC(), "aws"), nativeToolActionRequest{
+		Surface:   "aws",
+		Operation: "read",
+		Arguments: map[string]any{
+			"account":   "stage",
+			"service":   "rds",
+			"operation": "modify-db-instance",
+			"params":    map[string]any{"db_instance_identifier": "depin-backend"},
+		},
+	})
+	if err != nil || status != http.StatusBadRequest || resp.OK {
+		t.Fatalf("status=%d err=%v response=%#v", status, err, resp)
+	}
+	if !strings.Contains(resp.Error, "not allowlisted") {
+		t.Fatalf("error = %q, want allowlist rejection", resp.Error)
+	}
+}
+
 func TestNativeNotionWriteResolvesMirrorRootFromSourceMirror(t *testing.T) {
 	cfg := nativeToolsTestConfig()
 	cfg.NotionMirrorEnabled = true

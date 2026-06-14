@@ -15,6 +15,7 @@ HERMES_RSI_SENTRY_TOOLSET = "rsi-sentry"
 HERMES_RSI_KANBAN_TOOLSET = "rsi-kanban"
 HERMES_RSI_TEMPORAL_TOOLSET = "rsi-temporal"
 HERMES_RSI_OBSERVABILITY_TOOLSET = "rsi-observability"
+HERMES_RSI_AWS_TOOLSET = "rsi-aws"
 
 _JSON_OBJECT_SCHEMA: JsonObject = {"type": "object"}
 _JSON_ARRAY_SCHEMA: JsonObject = {"type": "array"}
@@ -27,6 +28,22 @@ _TEMPORAL_MUTATION_PROPERTIES: JsonObject = {
     **_TEMPORAL_TARGET_PROPERTIES,
     "confirm": {"type": "boolean", "description": "Must be true after explicit operator authorization for live mutations."},
     "dry_run": {"type": "boolean", "description": "Validate policy and report what would be executed without connecting to Temporal."},
+}
+_AWS_READ_PROPERTIES: JsonObject = {
+    "account": {"type": "string", "enum": ["stage", "staging", "prod", "production"], "description": "AWS account/environment to read."},
+    "region": {"type": "string", "description": "AWS region, defaults to us-east-1."},
+    "service": {
+        "type": "string",
+        "description": "Allowlisted AWS service, e.g. rds, cloudwatch, logs metadata, cloudtrail, ec2, eks, elbv2, autoscaling, sts.",
+    },
+    "operation": {
+        "type": "string",
+        "description": "Allowlisted read operation, e.g. describe-events, describe-db-instances, lookup-events, get-caller-identity.",
+    },
+    "params": {
+        "type": "object",
+        "description": "Operation input object. Use AWS SDK-style field names or snake_case/kebab-case equivalents. Do not include secrets.",
+    },
 }
 _SLACK_REPORT_COLUMN_SCHEMA: JsonObject = {
     "type": "object",
@@ -714,6 +731,15 @@ _TEMPORAL_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
 }
 
+_AWS_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
+    "rsi_aws.read": _schema(
+        "rsi_aws.read",
+        "Read allowlisted AWS operational metadata through the RSI native AWS gateway. This is read-only and blocks Secrets Manager, SSM parameter reads, KMS decrypt, S3 object reads, ECR authorization tokens, IAM, and mutations.",
+        _AWS_READ_PROPERTIES,
+        ["account", "service", "operation"],
+    ),
+}
+
 _DB_READ_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     "db_read.sources": _schema(
         "db_read.sources",
@@ -755,6 +781,7 @@ _TOOL_SCHEMAS = {
     **_SENTRY_TOOL_SCHEMAS,
     **_KANBAN_TOOL_SCHEMAS,
     **_TEMPORAL_TOOL_SCHEMAS,
+    **_AWS_TOOL_SCHEMAS,
     **_OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TOOLSET_SCHEMAS = {
@@ -766,6 +793,7 @@ _TOOLSET_SCHEMAS = {
     HERMES_RSI_SENTRY_TOOLSET: _SENTRY_TOOL_SCHEMAS,
     HERMES_RSI_KANBAN_TOOLSET: _KANBAN_TOOL_SCHEMAS,
     HERMES_RSI_TEMPORAL_TOOLSET: _TEMPORAL_TOOL_SCHEMAS,
+    HERMES_RSI_AWS_TOOLSET: _AWS_TOOL_SCHEMAS,
     HERMES_RSI_OBSERVABILITY_TOOLSET: _OBSERVABILITY_TOOL_SCHEMAS,
 }
 _TRANSPORT_SAFE_TOOL_CHARS = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-")

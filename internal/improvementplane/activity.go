@@ -1210,11 +1210,12 @@ func canonicalTraceActivityToolName(name string) string {
 		"rsi_observability_alert_rules_search": "rsi_observability.alert_rules_search",
 		"rsi_observability_alert_rule_get":     "rsi_observability.alert_rule_get",
 		"rsi_observability_active_alerts":      "rsi_observability.active_alerts",
+		"rsi_aws_read":                         "rsi_aws.read",
 	}
 	if mapped, ok := explicit[name]; ok {
 		return mapped
 	}
-	prefixes := []string{"rsi_notion", "rsi_knowledge", "rsi_sentry", "rsi_kanban", "rsi_observability", "rsi_slack", "db_read"}
+	prefixes := []string{"rsi_notion", "rsi_knowledge", "rsi_sentry", "rsi_kanban", "rsi_observability", "rsi_aws", "rsi_slack", "db_read"}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(name, prefix+"_") {
 			return prefix + "." + strings.TrimPrefix(name, prefix+"_")
@@ -1499,6 +1500,8 @@ func traceActivityDetailType(toolName string) string {
 		return "kanban"
 	case strings.HasPrefix(toolName, "rsi_observability."):
 		return "observability"
+	case strings.HasPrefix(toolName, "rsi_aws."):
+		return "aws"
 	case strings.HasPrefix(toolName, "db_read."):
 		return "db_read"
 	case toolName == "terminal":
