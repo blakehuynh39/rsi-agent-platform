@@ -73,6 +73,19 @@ git diff main...HEAD --name-only
 git diff main...HEAD --stat
 ```
 
+**PITFALL: `git diff main...HEAD` fails when the base branch isn't available locally.** Pre-cloned review workspaces (e.g., `/tmp/<repo>-review`) are often shallow clones or single-branch checkouts where the base branch (main/develop) doesn't exist. The error is `fatal: ambiguous argument 'main...HEAD': unknown revision or path not in the working tree`. In this case, fall back to reading the changed files directly:
+
+```bash
+# Get the commit's changed files and diff
+git show --stat HEAD
+git show HEAD
+
+# Then read each changed file in full for context
+read_file path/to/changed/file.ts
+```
+
+This gives richer context than a diff alone — you see surrounding code, imports, and type definitions that a diff might hide. Pair with `search_files` for cross-references (e.g., "does this new type appear anywhere else?"). For PRs where `gh pr diff` works remotely, prefer that for the first pass; use the direct-read approach when the repo is already local and the base branch is unavailable.
+
 ### Review Strategy
 
 1. **Get the big picture first:**
@@ -1056,7 +1069,7 @@ When a finding is reclassified (e.g., HIGH→MEDIUM), add a **Severity Reclassif
 
 **CRITICAL — Use a fresh subagent for re-reviews (see Section 5d).** The parent agent that performed the original review has anchoring bias. It "knows" auth.ts was clean and "knows" the migration was fine. A fresh subagent has no such knowledge — it reviews every line as if seeing it for the first time. See Section 5d for the full rationale and protocol.
 
----
+
 
 ## 5d. Fresh Subagent Per Review Pass (Anti-Bias Protocol)
 
@@ -1189,3 +1202,69 @@ The parent agent may verify and format subagent findings, but must not silently 
 - Drop findings that are demonstrably false positives, explaining why if the drop affects the verdict
 - Preserve unresolved findings even if the author claims they are fixed
 - Include evidence that a current-pass subagent was used, such as the task label or a short "fresh subagent pass completed" note
+
+---
+
+## 5e. Cherry-Pick / Release PR Review
+
+A **release PR** cherry-picks one or more commits from a source branch (e.g., `staging`) onto a target branch (e.g., `main`, `release/*`). These PRs need an additional integrity check beyond the standard review: **verify the cherry-pick is clean** — the code on the release branch is identical to the vetted source-branch code.
+
+### Cherry-Pick Integrity Checklist
+
+1. **Verify content identity against the source branch:**
+
+```bash
+# Fetch the source branch (e.g., staging) — use sufficient depth to reach the fork point
+git fetch origin staging --depth=100
+
+# Diff the release branch against the source branch — MUST be EMPTY for the
+# files that were cherry-picked. Any diff means the cherry-pick is NOT clean.
+git diff FETCH_HEAD..HEAD -- <path/to/changed/file1> <path/to/changed/file2>
+```
+
+If the diff is non-empty, the cherry-pick introduced unintended changes — flag it CRITICAL.
+
+2. **Verify only expected files changed:** The diff against the base branch should contain ONLY the files from the original PR. No extra files, no merge artifacts.
+
+```bash
+git diff <base-branch>..HEAD --stat
+```
+
+3. **Verify commit message references the original PR:** The commit message should mention the original PR number (e.g., `(#542)`) so traceability is maintained.
+
+```bash
+git log <base-branch>..HEAD --oneline
+```
+
+4. **Check for single-commit cherry-picks:** A release PR should typically be a single commit per cherry-picked feature. Multiple commits may indicate a merge rather than a cherry-pick.
+
+```bash
+git log <base-branch>..HEAD --oneline | wc -l
+```
+
+### Pitfalls
+
+**PITFALL: Shallow clones defeat `git diff main...HEAD`.** Pre-cloned review workspaces at `/tmp/<repo>-review/` are often shallow clones with only the PR branch. The triple-dot syntax needs a merge base, which doesn't exist. `git diff main...HEAD` produces `fatal: ambiguous argument 'main...HEAD': unknown revision or path not in the working tree`. Workaround:
+
+```bash
+# Fetch the base branch explicitly
+git fetch origin main --depth=50
+
+# Use two-dot diff against FETCH_HEAD instead of triple-dot
+git diff FETCH_HEAD..HEAD --stat
+git diff FETCH_HEAD..HEAD -- <path/to/file>
+```
+
+**PITFALL: `git show --stat HEAD` on shallow clones can show the entire repo history.** When a shallow clone has only one commit, `git show` may display the initial commit's full diff (hundreds of files, tens of thousands of lines), even though the PR only touches 2 files. Always verify scope with `git diff <base>..HEAD` against a fetched base, not `git show`.
+
+**PITFALL: Cherry-pick across divergent branches may require `git fetch origin <branch> --depth=100`** — the depth needs to reach the fork point between the source and target branches. If `git diff FETCH_HEAD..HEAD` fails with "no merge base", increase the fetch depth or try a two-dot diff (`FETCH_HEAD..HEAD` instead of `FETCH_HEAD...HEAD`), which doesn't require a merge base.
+
+### Can a Cherry-Pick PR Introduce New Issues?
+
+Yes. Possible cherry-pick-specific failures:
+- **Resolution errors:** Manual conflict resolution introduces bugs not present on the source branch
+- **Missing dependencies:** The cherry-picked commit depends on infrastructure (migrations, config, types) that exists on the source branch but not the target
+- **Divergent DB state:** The target branch's schema or data may not match what the cherry-picked code expects — verify migrations ran in the correct order on the target
+- **FE contract mismatch:** A BE cherry-pick that changes block reasons, status values, or response shapes needs the matching FE PR also cherry-picked to the release branch — otherwise the release branch's FE is stale
+
+Always perform the full Section 3 review checklist on the cherry-pick, not just the integrity check. The source branch's review pass doesn't guarantee the cherry-pick is safe on the target branch.
