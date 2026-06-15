@@ -1,9 +1,9 @@
 {
-  "last_report_path": "/var/lib/hermes/logs/curator/20260608-090038",
-  "last_run_at": "2026-06-08T09:00:38.196567+00:00",
-  "last_run_duration_seconds": 30.204047,
+  "last_report_path": "/var/lib/hermes/logs/curator/20260615-090044",
+  "last_run_at": "2026-06-15T09:00:44.639864+00:00",
+  "last_run_duration_seconds": 12.151006,
   "last_run_summary": "auto: no changes; llm: error: Provider 'deepseek' is set in config.yaml but no API key was found. Set the DEEPSEEK_API_KEY environment variable, or switch to a different provider with `hermes model`.",
   "last_run_summary_shown_at": null,
   "paused": false,
-  "run_count": 5
+  "run_count": 6
 }
