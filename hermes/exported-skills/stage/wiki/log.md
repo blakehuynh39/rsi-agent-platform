@@ -25490,3 +25490,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_03e82a63f5f50016741ef9851b1a6d96
 - summary: Numo Expert brings the Poseidon annotation workflow into app.numolabs.ai, with phases for parity, contractor beta, permissionless onboarding, consensus, honeypots, and payment.
 
+## [2026-06-16T05:30:37Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_58f2da7933df16fbbd6c44a6ba10bb85
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_617e2b52002c2092938f1bba56943c22
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
