@@ -18,6 +18,7 @@ type hermesExecutionRecovery struct {
 	response     clients.RunnerResponse
 	stillRunning bool
 	status       string
+	runnerStatus clients.HermesExecutionStatus
 }
 
 func recoverHermesExecution(client *clients.RunnerClient, executionID string) (hermesExecutionRecovery, error) {
@@ -41,13 +42,13 @@ func recoverHermesExecution(client *clients.RunnerClient, executionID string) (h
 func recoverHermesExecutionFromStatus(executionID string, status clients.HermesExecutionStatus) hermesExecutionRecovery {
 	statusText := strings.ToLower(strings.TrimSpace(status.Status))
 	if status.Result != nil {
-		return hermesExecutionRecovery{response: *status.Result, status: statusText}
+		return hermesExecutionRecovery{response: *status.Result, status: statusText, runnerStatus: status}
 	}
 	switch statusText {
 	case "running", "accepted", "starting", "finalizing", "cancel_requested", "cancelling":
-		return hermesExecutionRecovery{stillRunning: true, status: statusText}
+		return hermesExecutionRecovery{stillRunning: true, status: statusText, runnerStatus: status}
 	case "queued":
-		return hermesExecutionRecovery{stillRunning: true, status: statusText}
+		return hermesExecutionRecovery{stillRunning: true, status: statusText, runnerStatus: status}
 	case "completed", "failed", "cancelled", "orphaned":
 		return hermesExecutionRecovery{
 			response: hermesExecutorRecoveryFailureWithStatus(
@@ -56,7 +57,8 @@ func recoverHermesExecutionFromStatus(executionID string, status clients.HermesE
 				"Hermes executor reached a terminal state but did not expose a durable result; refusing to launch a duplicate run.",
 				status,
 			),
-			status: statusText,
+			status:       statusText,
+			runnerStatus: status,
 		}
 	default:
 		statusText := strings.TrimSpace(status.Status)
@@ -67,7 +69,8 @@ func recoverHermesExecutionFromStatus(executionID string, status clients.HermesE
 				fmt.Sprintf("Hermes executor returned unrecognized status %q for a previously started execution; refusing to launch a duplicate run.", statusText),
 				statusText,
 			),
-			status: strings.ToLower(statusText),
+			status:       strings.ToLower(statusText),
+			runnerStatus: status,
 		}
 	}
 }
@@ -231,6 +234,15 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			return clients.RunnerResponse{}, true, errHermesExecutionStillRunning
 		}
 		cancelCompletedAt := time.Now().UTC()
+		if hermesStatusObservedByNonOwner(status) {
+			_, _ = runtime.recordRunnerExecutionWithHolderCAS(storepkg.RunnerExecution{
+				ExecutionID:     task.ExecutionID,
+				Status:          "cancel_requested",
+				CancelRequested: true,
+				UpdatedAt:       cancelCompletedAt,
+			}, expectedRunnerExecutionHolder(record), record.HeartbeatAt)
+			return clients.RunnerResponse{}, true, nil
+		}
 		statusText := strings.ToLower(firstNonEmpty(status.Status, "cancelling"))
 		if !storepkg.RunnerExecutionStatusTerminal(statusText) {
 			statusText = "cancelling"
@@ -376,6 +388,20 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 			recoveredAt := time.Now().UTC()
 			if err == nil && recovery.stillRunning {
 				enteringFinalizing := runnerExecutionEnteringFinalizing(recovery.status, record)
+				if hermesStatusObservedByNonOwner(recovery.runnerStatus) && runnerExecutionHeartbeatExpired(cfg, record, recoveredAt) {
+					failure := hermesExecutorRecoveryFailureWithStatus(task.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor heartbeat expired while polling a non-owner executor status.", recovery.runnerStatus)
+					completedAt := recoveredAt
+					_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
+						ExecutionID:  task.ExecutionID,
+						Status:       "failed",
+						Result:       runnerResponseMap(failure),
+						FailureClass: workflowFailureRunnerExecutorStatusUnavailable,
+						HeartbeatAt:  &recoveredAt,
+						CompletedAt:  &completedAt,
+						UpdatedAt:    recoveredAt,
+					})
+					return failure, false, nil
+				}
 				if (recovery.status == "queued" || recovery.status == "finalizing") && !enteringFinalizing && runnerExecutionHeartbeatExpired(cfg, record, recoveredAt) {
 					failureClass, message := heartbeatExpiredFailureClassAndMessage(recovery.status)
 					failure := hermesExecutorRecoveryFailure(task.ExecutionID, failureClass, message, "heartbeat_expired")
@@ -397,7 +423,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 					Holder:      executionHolder,
 					UpdatedAt:   recoveredAt,
 				}
-				if runnerExecutionStatusRefreshesHeartbeat(recovery.status, record) {
+				if runnerExecutionStatusRefreshesHeartbeatFromStatus(recovery.runnerStatus, record) {
 					update.HeartbeatAt = &recoveredAt
 				}
 				_, _ = runtime.recordRunnerExecution(update)
@@ -622,6 +648,19 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 	switch strings.ToLower(strings.TrimSpace(statusText)) {
 	case "running", "accepted", "starting", "finalizing", "cancel_requested", "cancelling", "queued":
 		enteringFinalizing := runnerExecutionEnteringFinalizing(statusText, record)
+		if hermesStatusObservedByNonOwner(status) && runnerExecutionHeartbeatExpired(cfg, record, statusCompletedAt) {
+			failure := hermesExecutorRecoveryFailureWithStatus(task.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor heartbeat expired while polling a non-owner executor status.", status)
+			_, _ = runtime.recordRunnerExecution(storepkg.RunnerExecution{
+				ExecutionID:  task.ExecutionID,
+				Status:       "failed",
+				Result:       runnerResponseMap(failure),
+				FailureClass: workflowFailureRunnerExecutorStatusUnavailable,
+				HeartbeatAt:  &statusCompletedAt,
+				CompletedAt:  &statusCompletedAt,
+				UpdatedAt:    statusCompletedAt,
+			})
+			return failure, false, nil
+		}
 		if (statusText == "queued" || statusText == "finalizing") && !enteringFinalizing && runnerExecutionHeartbeatExpired(cfg, record, statusCompletedAt) {
 			failureClass, message := heartbeatExpiredFailureClassAndMessage(statusText)
 			failure := hermesExecutorRecoveryFailure(task.ExecutionID, failureClass, message, "heartbeat_expired")
@@ -644,7 +683,7 @@ func executeOrPollAsyncHermesExecution(cfg config.Config, store storepkg.Store, 
 		if statusText == "cancel_requested" || statusText == "cancelling" {
 			update.CancelRequested = true
 		}
-		if runnerExecutionStatusRefreshesHeartbeat(statusText, record) {
+		if runnerExecutionStatusRefreshesHeartbeatFromStatus(status, record) {
 			update.HeartbeatAt = &statusCompletedAt
 		}
 		_, _ = runtime.recordRunnerExecution(update)
@@ -731,6 +770,22 @@ func runnerExecutionStatusRefreshesHeartbeat(status string, record storepkg.Runn
 	default:
 		return true
 	}
+}
+
+func runnerExecutionStatusRefreshesHeartbeatFromStatus(status clients.HermesExecutionStatus, record storepkg.RunnerExecution) bool {
+	if hermesStatusObservedByNonOwner(status) {
+		return false
+	}
+	return runnerExecutionStatusRefreshesHeartbeat(status.Status, record)
+}
+
+func hermesStatusObservedByNonOwner(status clients.HermesExecutionStatus) bool {
+	if status.ExecutorOwnerMismatch {
+		return true
+	}
+	owner := strings.TrimSpace(status.ExecutorInstanceID)
+	current := strings.TrimSpace(status.CurrentExecutorInstanceID)
+	return owner != "" && current != "" && owner != current
 }
 
 func runnerExecutionEnteringFinalizing(status string, record storepkg.RunnerExecution) bool {
@@ -840,6 +895,9 @@ func hermesExecutorRecoveryFailureWithStatus(executionID string, failureClass st
 	}
 	addStringDiagnostic("executor_instance_id", status.ExecutorInstanceID)
 	addStringDiagnostic("current_executor_instance_id", status.CurrentExecutorInstanceID)
+	if hermesStatusObservedByNonOwner(status) {
+		diagnostics["executor_owner_mismatch"] = true
+	}
 	addFloatDiagnostic("executor_started_at_unix", status.ExecutorStartedAtUnix)
 	addFloatDiagnostic("current_executor_started_at_unix", status.CurrentExecutorStartedAtUnix)
 	addStringDiagnostic("executor_message", status.Message)

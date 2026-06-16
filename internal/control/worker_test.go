@@ -1463,6 +1463,120 @@ func TestAsyncHermesExecutionQueuedRecoveryPersistsStillRunningStatus(t *testing
 	}
 }
 
+func TestAsyncHermesExecutionNonOwnerStatusDoesNotRefreshHeartbeat(t *testing.T) {
+	statusCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-non-owner-running" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		statusCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID:               "hexec-non-owner-running",
+			Status:                    "running",
+			ExecutorInstanceID:        "hermes-executor-1",
+			CurrentExecutorInstanceID: "hermes-executor-0",
+			ExecutorOwnerMismatch:     true,
+			Message:                   "current instance is not authoritative",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-30 * time.Second).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:        "hexec-non-owner-running",
+		Status:             "running",
+		ExecutorInstanceID: "hermes-executor-1",
+		ExecutorBaseURL:    executor.URL,
+		Holder:             "hermes-executor:hexec-non-owner-running",
+		HeartbeatAt:        &heartbeat,
+		CreatedAt:          heartbeat,
+		UpdatedAt:          heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-non-owner-running"},
+		transition.EffectExecution{ID: "eff-non-owner-running"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || !wait || resp.OK {
+		t.Fatalf("non-owner running result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if statusCalls != 1 {
+		t.Fatalf("status calls=%d, want 1", statusCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-non-owner-running")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "running" || record.HeartbeatAt == nil || !record.HeartbeatAt.Equal(heartbeat) {
+		t.Fatalf("non-owner status must not refresh heartbeat, got %+v want heartbeat %s", record, heartbeat.Format(time.RFC3339Nano))
+	}
+}
+
+func TestAsyncHermesExecutionStaleNonOwnerStatusFailsClosed(t *testing.T) {
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/internal/hermes-executions/hexec-stale-non-owner" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID:               "hexec-stale-non-owner",
+			Status:                    "running",
+			ExecutorInstanceID:        "hermes-executor-1",
+			CurrentExecutorInstanceID: "hermes-executor-0",
+			ExecutorOwnerMismatch:     true,
+			Message:                   "current instance is not authoritative",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-2 * time.Minute).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:        "hexec-stale-non-owner",
+		Status:             "running",
+		ExecutorInstanceID: "hermes-executor-1",
+		ExecutorBaseURL:    executor.URL,
+		Holder:             "hermes-executor:hexec-stale-non-owner",
+		HeartbeatAt:        &heartbeat,
+		CreatedAt:          heartbeat,
+		UpdatedAt:          heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-stale-non-owner"},
+		transition.EffectExecution{ID: "eff-stale-non-owner"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || wait || resp.OK {
+		t.Fatalf("stale non-owner result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if resp.Raw["failure_class"] != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("failure_class = %#v, want %q", resp.Raw["failure_class"], workflowFailureRunnerExecutorStatusUnavailable)
+	}
+	record, ok := store.GetRunnerExecution("hexec-stale-non-owner")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "failed" || record.CompletedAt == nil || record.FailureClass != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("stale non-owner status should fail closed, got %+v", record)
+	}
+}
+
 func TestAsyncHermesExecutionFinalizingTransitionRefreshesHeartbeat(t *testing.T) {
 	statusCalls := 0
 	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -2431,6 +2545,65 @@ func TestAsyncHermesExecutionCancellingDoesNotRedispatchCancel(t *testing.T) {
 	}
 	if cancelCalls != 1 {
 		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+}
+
+func TestAsyncHermesExecutionCancelNonOwnerStatusDoesNotRefreshHeartbeat(t *testing.T) {
+	cancelCalls := 0
+	executor := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/internal/hermes-executions/hexec-cancel-non-owner/cancel" {
+			t.Fatalf("unexpected executor call %s %s", r.Method, r.URL.Path)
+		}
+		cancelCalls++
+		_ = json.NewEncoder(w).Encode(clients.HermesExecutionStatus{
+			ExecutionID:               "hexec-cancel-non-owner",
+			Status:                    "running",
+			ExecutorInstanceID:        "hermes-executor-1",
+			CurrentExecutorInstanceID: "hermes-executor-0",
+			ExecutorOwnerMismatch:     true,
+			Message:                   "current instance is not authoritative",
+		})
+	}))
+	defer executor.Close()
+
+	store := storepkg.NewMemoryStore()
+	heartbeat := time.Now().Add(-30 * time.Second).UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:        "hexec-cancel-non-owner",
+		Status:             "cancel_requested",
+		ExecutorInstanceID: "hermes-executor-1",
+		ExecutorBaseURL:    executor.URL,
+		Holder:             "hermes-executor:hexec-cancel-non-owner",
+		CancelRequested:    true,
+		HeartbeatAt:        &heartbeat,
+		CreatedAt:          heartbeat,
+		UpdatedAt:          heartbeat,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+
+	resp, wait, err := executeOrPollAsyncHermesExecution(
+		config.Config{HermesExecutionHeartbeatTimeout: time.Minute},
+		store,
+		clients.NewRunnerClient(executor.URL),
+		clients.RunnerTask{ExecutionID: "hexec-cancel-non-owner"},
+		transition.EffectExecution{ID: "eff-cancel-non-owner"},
+		"prod",
+		workflowContext{},
+		time.Now().UTC(),
+	)
+	if err != nil || !wait || resp.OK {
+		t.Fatalf("cancel non-owner result = resp=%+v wait=%t err=%v", resp, wait, err)
+	}
+	if cancelCalls != 1 {
+		t.Fatalf("cancel calls = %d, want 1", cancelCalls)
+	}
+	record, ok := store.GetRunnerExecution("hexec-cancel-non-owner")
+	if !ok {
+		t.Fatal("expected runner execution record")
+	}
+	if record.Status != "cancel_requested" || !record.CancelRequested || record.HeartbeatAt == nil || !record.HeartbeatAt.Equal(heartbeat) {
+		t.Fatalf("non-owner cancel must preserve cancel_requested without heartbeat refresh, got %+v", record)
 	}
 }
 

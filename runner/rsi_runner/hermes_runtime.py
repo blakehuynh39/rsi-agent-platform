@@ -3142,13 +3142,13 @@ class HermesRuntime:
                 with self._executor_process_lock:
                     active = key in self._executor_processes or key in self._executor_threads
                 if not active:
-                    orphaned = self._orphaned_executor_status(
+                    inactive = self._inactive_local_executor_status(
                         key,
                         cached,
                         "Cached executor status was running, but no local execution process is active.",
                     )
-                    self._executor_recent_results[key] = orphaned
-                    return orphaned
+                    self._executor_recent_results[key] = inactive
+                    return inactive
             return self._merge_self_review_status(key, dict(cached))
         path = self._executor_status_path(key)
         try:
@@ -3164,7 +3164,7 @@ class HermesRuntime:
             with self._executor_process_lock:
                 active = key in self._executor_processes or key in self._executor_threads
             if not active:
-                payload = self._orphaned_executor_status(
+                payload = self._inactive_local_executor_status(
                     key,
                     payload,
                     "Persisted executor status was running, but no local execution process is active.",
@@ -3173,21 +3173,48 @@ class HermesRuntime:
         self._executor_recent_results[key] = dict(payload)
         return dict(payload)
 
+    def _inactive_local_executor_status(self, execution_id: str, payload: JsonObject, message: str) -> JsonObject:
+        owner = _string_or_json(payload.get("executor_instance_id"))
+        if owner and owner != self._config.executor_instance_id:
+            return self._non_owner_executor_status(
+                execution_id,
+                payload,
+                "Persisted executor status is owned by a different executor instance; current instance is not authoritative.",
+            )
+        return self._orphaned_executor_status(execution_id, payload, message)
+
+    def _non_owner_executor_status(self, execution_id: str, payload: JsonObject, message: str) -> JsonObject:
+        out = self._executor_status_with_current_instance(execution_id, payload)
+        out["message"] = message
+        out["executor_owner_mismatch"] = True
+        out["local_execution_active"] = False
+        out["last_observed_status"] = str(payload.get("status") or "").strip()
+        if "last_observed_ledger_seq" not in out:
+            out["last_observed_ledger_seq"] = out.get("last_ledger_seq", "")
+        return out
+
     def _orphaned_executor_status(self, execution_id: str, payload: JsonObject, message: str) -> JsonObject:
-        path = self._executor_status_path(execution_id)
-        out = dict(payload)
+        out = self._executor_status_with_current_instance(execution_id, payload)
         out["status"] = "orphaned"
         out["message"] = message
         out["executor_instance_id"] = first_non_empty(
             _string_or_json(out.get("executor_instance_id")),
             self._config.executor_instance_id,
         )
-        out["current_executor_instance_id"] = self._config.executor_instance_id
         if "executor_started_at_unix" not in out:
             out["executor_started_at_unix"] = self._started_at_unix
+        out["local_execution_active"] = False
+        out["last_observed_status"] = str(payload.get("status") or "").strip()
+        if "last_observed_ledger_seq" not in out:
+            out["last_observed_ledger_seq"] = out.get("last_ledger_seq", "")
+        return out
+
+    def _executor_status_with_current_instance(self, execution_id: str, payload: JsonObject) -> JsonObject:
+        path = self._executor_status_path(execution_id)
+        out = dict(payload)
+        out["current_executor_instance_id"] = self._config.executor_instance_id
         out["current_executor_started_at_unix"] = self._started_at_unix
         out["status_file_path"] = str(path)
-        out["last_observed_status"] = str(payload.get("status") or "").strip()
         if path.exists():
             try:
                 stat = path.stat()
@@ -3195,8 +3222,6 @@ class HermesRuntime:
                 out["status_file_size_bytes"] = stat.st_size
             except OSError:
                 pass
-        if "last_observed_ledger_seq" not in out:
-            out["last_observed_ledger_seq"] = out.get("last_ledger_seq", "")
         return out
 
     def _merge_self_review_status(self, execution_id: str, payload: JsonObject) -> JsonObject:
@@ -3295,6 +3320,10 @@ class HermesRuntime:
         status = self.executor_status(key)
         if not status:
             status = {"execution_id": key, "status": "cancelling"}
+        elif _bool_or_false(status.get("executor_owner_mismatch")):
+            status["message"] = "Cancel request reached a non-owner executor instance; retry against the owning executor."
+            status["cancel_forward_required"] = True
+            return status
         else:
             status["status"] = "cancelling"
         self._store_executor_result(key, status)

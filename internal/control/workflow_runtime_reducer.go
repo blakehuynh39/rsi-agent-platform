@@ -265,6 +265,9 @@ func reduceWorkflowRuntimeRunnerStatus(snapshot WorkflowRuntimeSnapshot, event W
 		return waitWithRunnerUpdate(snapshot, event, update, "runner remains queued")
 	case "accepted", "starting", "running", "finalizing":
 		enteringFinalizing := status == "finalizing" && hasExisting && runnerExecutionEnteringFinalizing(status, existing)
+		if hasExisting && hermesStatusObservedByNonOwner(event.RunnerStatus) && workflowRuntimeHeartbeatExpired(snapshot, existing) {
+			return workflowRuntimeFailureDecisionWithStatus(snapshot, existing.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor heartbeat expired while polling a non-owner executor status.", event.RunnerStatus)
+		}
 		if status == "finalizing" && hasExisting && !enteringFinalizing && workflowRuntimeHeartbeatExpired(snapshot, existing) {
 			return workflowRuntimeFailureDecision(snapshot, existing.ExecutionID, "plugin_execution_envelope_missing", "Hermes executor heartbeat expired while finalizing the native execution envelope.", "heartbeat_expired")
 		}
@@ -273,13 +276,16 @@ func reduceWorkflowRuntimeRunnerStatus(snapshot WorkflowRuntimeSnapshot, event W
 			updateStatus = "cancel_requested"
 		}
 		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: updateStatus, CancelRequested: hasExisting && existing.CancelRequested, UpdatedAt: snapshot.Now}
-		if runnerExecutionStatusRefreshesHeartbeat(status, existing) {
+		if runnerExecutionStatusRefreshesHeartbeatFromStatus(event.RunnerStatus, existing) {
 			update.HeartbeatAt = &snapshot.Now
 		}
 		return waitWithRunnerUpdate(snapshot, event, update, "runner is still active")
 	case "cancel_requested", "cancelling":
+		if hasExisting && hermesStatusObservedByNonOwner(event.RunnerStatus) && workflowRuntimeHeartbeatExpired(snapshot, existing) {
+			return workflowRuntimeFailureDecisionWithStatus(snapshot, existing.ExecutionID, workflowFailureRunnerExecutorStatusUnavailable, "Hermes executor heartbeat expired while polling a non-owner executor status.", event.RunnerStatus)
+		}
 		update := storepkg.RunnerExecution{ExecutionID: existing.ExecutionID, Status: "cancelling", CancelRequested: true, UpdatedAt: snapshot.Now}
-		if status == "cancelling" {
+		if status == "cancelling" && !hermesStatusObservedByNonOwner(event.RunnerStatus) {
 			update.HeartbeatAt = &snapshot.Now
 		}
 		return waitWithRunnerUpdate(snapshot, event, update, "runner cancellation is still active")

@@ -5013,6 +5013,85 @@ class HermesRuntimeTests(unittest.TestCase):
                 self.assertEqual(status["status"], "orphaned")
                 self.assertIn("no local execution process", status["message"])
 
+    def test_executor_status_does_not_orphan_active_execution_owned_by_other_instance(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root:
+            shared_env = {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            }
+            with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+                os.environ,
+                {**shared_env, "RSI_HERMES_EXECUTOR_INSTANCE_ID": "executor-pod-1"},
+                clear=True,
+            ):
+                first = HermesRuntime(RunnerConfig.from_env())
+                first._store_executor_result(
+                    "hexec-cross-replica",
+                    {
+                        "execution_id": "hexec-cross-replica",
+                        "executor_instance_id": "executor-pod-1",
+                        "executor_started_at_unix": 1779091470,
+                        "status": "running",
+                    },
+                )
+
+            with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+                os.environ,
+                {**shared_env, "RSI_HERMES_EXECUTOR_INSTANCE_ID": "executor-pod-2"},
+                clear=True,
+            ):
+                second = HermesRuntime(RunnerConfig.from_env())
+                status = second.executor_status("hexec-cross-replica")
+
+        self.assertEqual(status["status"], "running")
+        self.assertEqual(status["executor_instance_id"], "executor-pod-1")
+        self.assertEqual(status["current_executor_instance_id"], "executor-pod-2")
+        self.assertTrue(status["executor_owner_mismatch"])
+        self.assertFalse(status["local_execution_active"])
+        self.assertEqual(status["last_observed_status"], "running")
+
+    def test_cancel_execution_does_not_mutate_status_owned_by_other_instance(self) -> None:
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as workspace_root:
+            shared_env = {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_COMPUTER_ROOT": str(Path(workspace_root) / "company"),
+                "RSI_HERMES_RUN_ROOT": str(Path(workspace_root) / "company" / ".rsi" / "runs"),
+                "RSI_HERMES_ARTIFACT_ROOT": str(Path(workspace_root) / "company" / "artifacts"),
+            }
+            with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+                os.environ,
+                {**shared_env, "RSI_HERMES_EXECUTOR_INSTANCE_ID": "executor-pod-1"},
+                clear=True,
+            ):
+                first = HermesRuntime(RunnerConfig.from_env())
+                first._store_executor_result(
+                    "hexec-cross-replica-cancel",
+                    {
+                        "execution_id": "hexec-cross-replica-cancel",
+                        "executor_instance_id": "executor-pod-1",
+                        "status": "running",
+                    },
+                )
+
+            with mock.patch("rsi_runner.hermes_runtime.SessionManager", FakeSessionManager), mock.patch.dict(
+                os.environ,
+                {**shared_env, "RSI_HERMES_EXECUTOR_INSTANCE_ID": "executor-pod-2"},
+                clear=True,
+            ):
+                second = HermesRuntime(RunnerConfig.from_env())
+                cancel_status = second.cancel_execution("hexec-cross-replica-cancel")
+                persisted = json.loads(Path(shared_env["RSI_HERMES_RUN_ROOT"], "_executions", "hexec-cross-replica-cancel.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(cancel_status["status"], "running")
+        self.assertTrue(cancel_status["executor_owner_mismatch"])
+        self.assertTrue(cancel_status["cancel_forward_required"])
+        self.assertEqual(persisted["status"], "running")
+        self.assertEqual(persisted["executor_instance_id"], "executor-pod-1")
+
 
 
 

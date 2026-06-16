@@ -188,6 +188,72 @@ func TestWorkflowRuntimeReducerCancelRequestedRunningStatusRefreshesHeartbeat(t 
 	}
 }
 
+func TestWorkflowRuntimeReducerNonOwnerStatusDoesNotRefreshHeartbeat(t *testing.T) {
+	heartbeat := time.Now().Add(-30 * time.Second).UTC()
+	now := heartbeat.Add(10 * time.Second)
+	existing := storepkg.RunnerExecution{
+		ExecutionID:        "hexec-non-owner",
+		Status:             "running",
+		ExecutorInstanceID: "executor-pod-1",
+		HeartbeatAt:        &heartbeat,
+		CreatedAt:          heartbeat,
+		UpdatedAt:          heartbeat,
+	}
+	decision := ReduceWorkflowRuntime(WorkflowRuntimeSnapshot{
+		RunnerExecution:  &existing,
+		HeartbeatTimeout: time.Minute,
+		Now:              now,
+	}, WorkflowRuntimeEvent{
+		Kind: WorkflowRuntimeEventRunnerStatus,
+		RunnerStatus: clients.HermesExecutionStatus{
+			ExecutionID:               "hexec-non-owner",
+			Status:                    "running",
+			ExecutorInstanceID:        "executor-pod-1",
+			CurrentExecutorInstanceID: "executor-pod-2",
+			ExecutorOwnerMismatch:     true,
+		},
+	})
+	if decision.DecisionKind != "wait_runner" || decision.RunnerUpdate == nil {
+		t.Fatalf("non-owner decision = %+v, want wait runner update", decision)
+	}
+	if decision.RunnerUpdate.HeartbeatAt != nil {
+		t.Fatalf("non-owner status must not refresh heartbeat, got %+v", decision.RunnerUpdate.HeartbeatAt)
+	}
+}
+
+func TestWorkflowRuntimeReducerStaleNonOwnerStatusFailsClosed(t *testing.T) {
+	heartbeat := time.Now().Add(-2 * time.Minute).UTC()
+	now := heartbeat.Add(2 * time.Minute)
+	existing := storepkg.RunnerExecution{
+		ExecutionID:        "hexec-stale-non-owner",
+		Status:             "running",
+		ExecutorInstanceID: "executor-pod-1",
+		HeartbeatAt:        &heartbeat,
+		CreatedAt:          heartbeat,
+		UpdatedAt:          heartbeat,
+	}
+	decision := ReduceWorkflowRuntime(WorkflowRuntimeSnapshot{
+		RunnerExecution:  &existing,
+		HeartbeatTimeout: time.Minute,
+		Now:              now,
+	}, WorkflowRuntimeEvent{
+		Kind: WorkflowRuntimeEventRunnerStatus,
+		RunnerStatus: clients.HermesExecutionStatus{
+			ExecutionID:               "hexec-stale-non-owner",
+			Status:                    "running",
+			ExecutorInstanceID:        "executor-pod-1",
+			CurrentExecutorInstanceID: "executor-pod-2",
+			ExecutorOwnerMismatch:     true,
+		},
+	})
+	if decision.RunnerResponse == nil || decision.RunnerResponse.OK || decision.RunnerResponse.Raw["failure_class"] != workflowFailureRunnerExecutorStatusUnavailable {
+		t.Fatalf("stale non-owner decision = %+v, want status-unavailable fail-closed response", decision)
+	}
+	if decision.RunnerUpdate == nil || decision.RunnerUpdate.Status != "failed" {
+		t.Fatalf("runner update = %+v, want failed", decision.RunnerUpdate)
+	}
+}
+
 func TestWorkflowRuntimeReducerQueuedHeartbeatExpires(t *testing.T) {
 	started := time.Now().Add(-5 * time.Minute).UTC()
 	now := time.Now().UTC()

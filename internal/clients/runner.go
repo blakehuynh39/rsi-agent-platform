@@ -299,6 +299,8 @@ type HermesExecutionStatus struct {
 	ExecutorInstanceID           string          `json:"executor_instance_id,omitempty"`
 	CurrentExecutorInstanceID    string          `json:"current_executor_instance_id,omitempty"`
 	ExecutorBaseURL              string          `json:"executor_base_url,omitempty"`
+	ExecutorOwnerMismatch        bool            `json:"executor_owner_mismatch,omitempty"`
+	LocalExecutionActive         bool            `json:"local_execution_active,omitempty"`
 	ExecutorStartedAtUnix        float64         `json:"executor_started_at_unix,omitempty"`
 	CurrentExecutorStartedAtUnix float64         `json:"current_executor_started_at_unix,omitempty"`
 	Phase                        string          `json:"phase,omitempty"`
