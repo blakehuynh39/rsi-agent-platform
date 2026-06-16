@@ -332,6 +332,8 @@ When a feature spans two repos (e.g., backend API + frontend app), the user ofte
 
 When reviewing a `depin-backend` PR (base: `staging`), the accompanying FE repo is **always** `piplabs/numo-monorepo` (base: `develop`). Any BE change that affects the FE flow **must** be accompanied by a matching FE PR, or the review must flag the gap.
 
+**Release PR exception:** When both PRs are release PRs (base: `main` on both repos, merging `staging`→`main` on BE and `develop`→`main` on FE), the same cross-repo alignment checks apply — verify route paths, field names, null handling. The merge order for release PRs is BE first (staging→main), then FE (develop→main), ideally in the same deployment window. Both PR descriptions should cross-reference each other.
+
 **Changes that REQUIRE a linked FE PR:**
 - New or renamed API routes/paths → FE API client must add the matching call
 - New fields on response types (`AdminUserSummary`, etc.) → FE types must be updated
@@ -1216,20 +1218,43 @@ The parent agent may verify and format subagent findings, but must not silently 
 
 A **release PR** cherry-picks one or more commits from a source branch (e.g., `staging`) onto a target branch (e.g., `main`, `release/*`). These PRs need an additional integrity check beyond the standard review: **verify the cherry-pick is clean** — the code on the release branch is identical to the vetted source-branch code.
 
+**Release PR policy (Allen's rule):** For `develop → main` release PRs where the code was already vetted on `develop`, the default verdict is **APPROVE** unless the review finds new issues introduced in the merge itself (cherry-pick artifact, conflict resolution error, missing dependency, or CI failure). The review still performs the full Section 3 checklist + Section 5e integrity checks, but the bar for blocking findings is higher — only findings that are genuinely NEW to the release PR (not already present on develop) should block.
+
+**Fresh-subagent exemption for release PRs:** The Section 5d fresh-subagent rule exists to eliminate anchoring/confirmation bias from prior review rounds. A release PR has no prior review rounds against this base branch — the parent agent is reviewing the merge for the first time. The parent agent may review directly without `delegate_task`. If a release PR requires a re-review (e.g., after fixing a merge conflict), the fresh-subagent rule applies to the re-review pass.
+
 ### Cherry-Pick Integrity Checklist
 
-1. **Verify content identity against the source branch:**
+**Pre-merge quick-check (PR is OPEN, merge hasn't happened yet):**
+
+```bash
+# Fetch the source branch (e.g., develop) with enough depth
+git fetch origin develop --depth=200
+
+# Triple-dot diff: what's on source but not on target — this IS the PR content.
+# Compare stat against `gh pr diff N --stat` — must match file list and line counts.
+git diff <target>...origin/<source> --stat
+
+# Verify no extra commits between target and source beyond the expected PRs:
+git log <target>..origin/<source> --oneline
+```
+
+Verify each commit references the original PR number (e.g., `(#407)`, `(#408)`).
+
+### Cherry-Pick Integrity — Detailed Checks
 
 ```bash
 # Fetch the source branch (e.g., staging) — use sufficient depth to reach the fork point
 git fetch origin staging --depth=100
 
-# Diff the release branch against the source branch — MUST be EMPTY for the
-# files that were cherry-picked. Any diff means the cherry-pick is NOT clean.
+# Diff the release branch against the source branch
+git diff FETCH_HEAD..HEAD --stat
 git diff FETCH_HEAD..HEAD -- <path/to/changed/file1> <path/to/changed/file2>
 ```
 
-If the diff is non-empty, the cherry-pick introduced unintended changes — flag it CRITICAL.
+**Pre-merge:** If `--stat` shows extra files not in the PR description, or the per-file diff doesn't match `gh pr diff` — flag it CRITICAL.
+**Post-merge:** If the diff is non-empty for cherry-picked files — flag it CRITICAL (unintended changes introduced).
+
+**PITFALL: Diff direction matters for pre-merge vs post-merge.** For an OPEN release PR, `git diff source..target` (e.g., `origin/develop..HEAD` where HEAD is main) will be NON-EMPTY because the target branch doesn't have the changes yet — that's expected. The check is verifying the PR delta matches source content, not that the diff is empty. Use triple-dot (`main...develop`) for pre-merge; use two-dot against fetched source (`FETCH_HEAD..HEAD`) for post-merge only.
 
 2. **Verify only expected files changed:** The diff against the base branch should contain ONLY the files from the original PR. No extra files, no merge artifacts.
 
@@ -1237,13 +1262,13 @@ If the diff is non-empty, the cherry-pick introduced unintended changes — flag
 git diff <base-branch>..HEAD --stat
 ```
 
-3. **Verify commit message references the original PR:** The commit message should mention the original PR number (e.g., `(#542)`) so traceability is maintained.
+3. **Verify commit message references the original PR:** Each commit should mention the original PR number (e.g., `(#542)`) for traceability.
 
 ```bash
 git log <base-branch>..HEAD --oneline
 ```
 
-4. **Check for single-commit cherry-picks:** A release PR should typically be a single commit per cherry-picked feature. Multiple commits may indicate a merge rather than a cherry-pick.
+4. **Check for single-commit per feature:** A release PR typically has one commit per cherry-picked feature. If a single feature is spread across multiple commits, check whether it was a merge rather than a cherry-pick.
 
 ```bash
 git log <base-branch>..HEAD --oneline | wc -l
@@ -1254,8 +1279,9 @@ git log <base-branch>..HEAD --oneline | wc -l
 **PITFALL: Shallow clones defeat `git diff main...HEAD`.** Pre-cloned review workspaces at `/tmp/<repo>-review/` are often shallow clones with only the PR branch. The triple-dot syntax needs a merge base, which doesn't exist. `git diff main...HEAD` produces `fatal: ambiguous argument 'main...HEAD': unknown revision or path not in the working tree`. Workaround:
 
 ```bash
-# Fetch the base branch explicitly
+# Fetch the base branch explicitly — for release PRs, fetch the source branch too
 git fetch origin main --depth=50
+git fetch origin develop --depth=200
 
 # Use two-dot diff against FETCH_HEAD instead of triple-dot
 git diff FETCH_HEAD..HEAD --stat
@@ -1266,6 +1292,8 @@ git diff FETCH_HEAD..HEAD -- <path/to/file>
 
 **PITFALL: Cherry-pick across divergent branches may require `git fetch origin <branch> --depth=100`** — the depth needs to reach the fork point between the source and target branches. If `git diff FETCH_HEAD..HEAD` fails with "no merge base", increase the fetch depth or try a two-dot diff (`FETCH_HEAD..HEAD` instead of `FETCH_HEAD...HEAD`), which doesn't require a merge base.
 
+**PITFALL: `git diff FETCH_HEAD..HEAD -- <files>` shows the inverse for an OPEN release PR.** When HEAD is on main and FETCH_HEAD is develop (the source), `git diff FETCH_HEAD..HEAD` shows what main has that develop doesn't — i.e., the files are DELETED on the diff's right side. This is correct but confusing. For pre-merge integrity, prefer `git diff main...origin/develop --stat` (triple-dot, shows what develop alone contributes) and compare against `gh pr diff N`.
+
 ### Can a Cherry-Pick PR Introduce New Issues?
 
 Yes. Possible cherry-pick-specific failures:
@@ -1275,3 +1303,5 @@ Yes. Possible cherry-pick-specific failures:
 - **FE contract mismatch:** A BE cherry-pick that changes block reasons, status values, or response shapes needs the matching FE PR also cherry-picked to the release branch — otherwise the release branch's FE is stale
 
 Always perform the full Section 3 review checklist on the cherry-pick, not just the integrity check. The source branch's review pass doesn't guarantee the cherry-pick is safe on the target branch.
+
+**Output format:** Use the structured release PR review template in [`references/release-pr-review-template.md`](references/release-pr-review-template.md) — six sections covering cherry-pick integrity, CI, security, cross-repo alignment, Section 3 summary, and RSI_PR_REVIEW_VERDICT JSON.

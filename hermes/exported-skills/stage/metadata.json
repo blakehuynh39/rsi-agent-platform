@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "8f813c879bad262bd58f153e6121b249329d4b5b94fb33333f01654009e27c1c",
+        "sha256": "9022587ac6a1801b87cd23dc5cb6c95251cad33e79a0a45fee6680b5546d5a13",
         "size": 31923
       },
       {
@@ -1754,8 +1754,8 @@
       },
       {
         "path": "github/github-code-review/SKILL.md",
-        "sha256": "3463b65802abefbaab689d8ee388777a21ca4dabbdd43f6cd79c2eb64c27a0b4",
-        "size": 81131
+        "sha256": "c62af65747250f7115f3f78b62c7b4096cdee4303df62b2be84844bd4c2cd7d6",
+        "size": 84600
       },
       {
         "path": "github/github-code-review/SKILL.md.backup-20260609T074336Z",
@@ -1806,6 +1806,11 @@
         "path": "github/github-code-review/references/pre-cloned-workspace-review.md",
         "sha256": "b85dc4a68018da400121f2d099c2cadfa1e6bfdc37288f1fc13a91fc394a14ae",
         "size": 2624
+      },
+      {
+        "path": "github/github-code-review/references/release-pr-review-template.md",
+        "sha256": "2d2d73fe7fe8d0bddeccb00080a41e2ac8aa6d969c6984975a33a262c82a10b2",
+        "size": 3298
       },
       {
         "path": "github/github-code-review/references/remote-file-inspection.md",
@@ -6939,8 +6944,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-16T18:52:26Z",
-  "file_count": 1386,
+  "exported_at": "2026-06-16T18:59:00Z",
+  "file_count": 1387,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -6999,7 +7004,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "8f813c879bad262bd58f153e6121b249329d4b5b94fb33333f01654009e27c1c",
+      "sha256": "9022587ac6a1801b87cd23dc5cb6c95251cad33e79a0a45fee6680b5546d5a13",
       "size": 31923
     },
     {
@@ -8694,8 +8699,8 @@
     },
     {
       "path": "github/github-code-review/SKILL.md",
-      "sha256": "3463b65802abefbaab689d8ee388777a21ca4dabbdd43f6cd79c2eb64c27a0b4",
-      "size": 81131
+      "sha256": "c62af65747250f7115f3f78b62c7b4096cdee4303df62b2be84844bd4c2cd7d6",
+      "size": 84600
     },
     {
       "path": "github/github-code-review/SKILL.md.backup-20260609T074336Z",
@@ -8746,6 +8751,11 @@
       "path": "github/github-code-review/references/pre-cloned-workspace-review.md",
       "sha256": "b85dc4a68018da400121f2d099c2cadfa1e6bfdc37288f1fc13a91fc394a14ae",
       "size": 2624
+    },
+    {
+      "path": "github/github-code-review/references/release-pr-review-template.md",
+      "sha256": "2d2d73fe7fe8d0bddeccb00080a41e2ac8aa6d969c6984975a33a262c82a10b2",
+      "size": 3298
     },
     {
       "path": "github/github-code-review/references/remote-file-inspection.md",
@@ -10212,9 +10222,9 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc889bq7ml",
-  "previous_tree_hash": "2b9b572b7ac97c16df75d08444801e438b1c8c2f5f153ccc83a448a878baf967",
+  "previous_tree_hash": "2394cab89378b8891658192d7d69ee717cc824b01e6def4023dc088a58f35d74",
   "schema_version": 1,
-  "skill_file_count": 653,
+  "skill_file_count": 654,
   "skill_manage_sessions": [
     {
       "role": "assistant",
@@ -10223,9 +10233,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "49007bda22483dcf19323c54eb3e5de9eb8b52275d2414310798d889c72029bc",
+  "skill_tree_hash": "8ed76d6153e410cc84d5a6a953b6586cc052fe7ffc1aaa00cb5f1047cce8040f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2394cab89378b8891658192d7d69ee717cc824b01e6def4023dc088a58f35d74",
+  "tree_hash": "f876fa53ae0cb9a132408b4754cf5e27ea802f4d929a436ebee2ae88487d7424",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
