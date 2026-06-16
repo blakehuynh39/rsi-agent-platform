@@ -25533,3 +25533,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_400f63158c1d4808f5f9ea69b30dd65f
 - summary: Six-week launch plan for Numo starting May 28, 2026. Weeks 1-2 completed, Week 3 moved to June 17 with Stripe Payments and W8-BEN form. Week 4 includes Language Documents and telep...
 
+## [2026-06-16T10:33:18Z] synthesis | RSI Client Features (v1.7.0 Feature Branch)
+
+- status: published
+- slug: systems/client-features-v1-7-0-to-feature
+- wiki_revision_id: wikirev_1bc64709e29fb237d54c3c231adee60f
+- summary: Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client Change Log.
+
