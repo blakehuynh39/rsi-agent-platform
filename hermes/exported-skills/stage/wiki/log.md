@@ -25455,3 +25455,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7f2b88527fdfca31996d4083f8b159e0
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Implementation-PRD-37d051299a5480d38794d400f430876b)
 
+## [2026-06-16T04:19:03Z] synthesis | Numo Expert
+
+- status: published
+- slug: projects/numo-expert
+- wiki_revision_id: wikirev_9a7214b061a158d9b58bc682b0392015
+- summary: Numo Expert is the public-facing evolution of Poseidon's internal annotation tool, aiming to scale human-in-the-loop annotation through a permissionless, reputation-based contribut...
+
+## [2026-06-16T04:19:03Z] synthesis | Numo Expert Task Types
+
+- status: published
+- slug: concepts/numo-expert-task-types
+- wiki_revision_id: wikirev_9f1bf095152043d24c984e9979b284c9
+- summary: Defines the task types, annotation workflow, and schema‑driven approach used by Numo Expert to support transcript correction, audio‑match, and future tasks.
+
+## [2026-06-16T04:19:03Z] synthesis | Numo Expert HITL Validation
+
+- status: published
+- slug: concepts/numo-expert-validation
+- wiki_revision_id: wikirev_2a2de212212ac4e45a627002ae298af2
+- summary: Describes the validation strategy including post‑submission sampling, consensus mechanisms, honeypot tasks, quality scoring, behavioral tracking, and contributor trust states.
+
+## [2026-06-16T04:19:03Z] synthesis | Numo Expert Launch Plan
+
+- status: published
+- slug: projects/numo-expert-launch-plan
+- wiki_revision_id: wikirev_7bb96f321deef1825514bac2f024880d
+- summary: Defines the five‑stage launch plan for Numo Expert, starting with internal parity and ending with mobile/deepfake HITL, along with MVP requirements and explicitly out‑of‑scope item...
+
