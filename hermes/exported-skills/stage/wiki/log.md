@@ -25631,3 +25631,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e2009d2eba3ea2172355e8904c6e4192
 - summary: Slack file attachment:
 
+## [2026-06-16T21:00:40Z] ingest | Aeneid Genesis Native Token — Allocation, Flow & Staking Snapshot
+
+- status: published
+- slug: notion_document/aeneid-genesis-native-token-allocation-flow-staking-snapshot-cc057deb
+- wiki_revision_id: wikirev_aa2f9df201bd9aee1a848ad94cb6e9fd
+- source_document_id: srcdoc_ccb6ef3f6922ad4a55322dedcc057deb
+- source_revision_id: srcrev_8321062e4f3a4030d1f4a8b317beff29
+- summary: Source: [source](https://app.notion.com/p/Aeneid-Genesis-Native-Token-Allocation-Flow-Staking-Snapshot-37b051299a5481159765ed594e4531d0)
+
+## [2026-06-16T21:00:57Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_4ec37ff41160c3d351320abdb4e6d3a4
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_a89edcc01ff8408534164077da09c820
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
