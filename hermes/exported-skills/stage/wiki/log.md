@@ -25508,3 +25508,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_564e2e212e90c516e1e9ee44fadf9c55
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
 
+## [2026-06-16T09:30:34Z] ingest | Numo Launch Roadmap
+
+- status: published
+- slug: notion_document/numo-launch-roadmap-dc6c988f
+- wiki_revision_id: wikirev_8699a15e7207be41abb7719ea356065f
+- source_document_id: srcdoc_de4df82bd031aa412ec4a2f4dc6c988f
+- source_revision_id: srcrev_2004d4d47256610f193f3286db06d5ce
+- summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
+
