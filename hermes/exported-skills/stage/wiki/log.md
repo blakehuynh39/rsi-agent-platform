@@ -25649,3 +25649,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_a89edcc01ff8408534164077da09c820
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
 
+## [2026-06-16T21:17:31Z] synthesis | Aeneid Genesis Token Staking Snapshot (2026-06-09)
+
+- status: published
+- slug: concepts/aeneid-genesis-token-staking-snapshot-2026-06-09
+- wiki_revision_id: wikirev_004ed210c9a2526193422ced51faf278
+- summary: Snapshot of Aeneid genesis IP token allocation and staking as of 2026-06-09, detailing liquid balances and staking positions for 8 genesis EOAs.
+

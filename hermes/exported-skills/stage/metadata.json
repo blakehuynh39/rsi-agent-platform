@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d65a37a23ecd8301fdd0c1c0cdf22b27276e3764031784f59ddac5373590fa8a",
-        "size": 1233251
+        "sha256": "1b6e727da404850334b44801d718f98903a037caa84133a45b2a2eb4a7098342",
+        "size": 1233645
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3298,6 +3298,11 @@
         "path": "pages/concepts/access-control-complexity-analysis.md",
         "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
+      },
+      {
+        "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
+        "sha256": "7d76129efdd70d0828d2ae480f85085969a79d8294159a059b13fcc7e9f8125a",
+        "size": 9046
       },
       {
         "path": "pages/concepts/ai-assisted-content-generation.md",
@@ -6944,8 +6949,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-16T21:03:53Z",
-  "file_count": 1387,
+  "exported_at": "2026-06-16T21:20:33Z",
+  "file_count": 1388,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10222,7 +10227,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc889bq7ml",
-  "previous_tree_hash": "bf4bdae7437179b6dd48a3e6c3f81e73cc1e7a4b67cd8a59600f9cbd3ec11d7a",
+  "previous_tree_hash": "2332c0bf2271f8cfa854c7b6b1b4f1276de992515bab91d58338cc7e3422b32b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10235,14 +10240,14 @@
   ],
   "skill_tree_hash": "354b4b1b193aca3a028e274ca3fd8cc4c0b5331c832e4a70c0943db09aeb57c5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2332c0bf2271f8cfa854c7b6b1b4f1276de992515bab91d58338cc7e3422b32b",
+  "tree_hash": "fc8f73208561a70f463391152f3bee1a29006255229e91a5d42ec06cc0a09456",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 733,
+  "wiki_file_count": 734,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10256,8 +10261,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d65a37a23ecd8301fdd0c1c0cdf22b27276e3764031784f59ddac5373590fa8a",
-      "size": 1233251
+      "sha256": "1b6e727da404850334b44801d718f98903a037caa84133a45b2a2eb4a7098342",
+      "size": 1233645
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10268,6 +10273,11 @@
       "path": "pages/concepts/access-control-complexity-analysis.md",
       "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
+    },
+    {
+      "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
+      "sha256": "7d76129efdd70d0828d2ae480f85085969a79d8294159a059b13fcc7e9f8125a",
+      "size": 9046
     },
     {
       "path": "pages/concepts/ai-assisted-content-generation.md",
@@ -13911,5 +13921,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9833203642e29d0206a35617928b9da618b28b97285abfeed976eea61728d1e4"
+  "wiki_tree_hash": "ff265df120740bf54923ac97946d8e7604a4896e017b54ab0fc978c8f9ba2ba2"
 }
