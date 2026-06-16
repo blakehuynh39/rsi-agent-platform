@@ -3276,8 +3276,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "df773b3d18c65254026c17cb0074d53d2e6a6a59d674b7f0e1dbfece98f3f6f8",
-        "size": 1230017
+        "sha256": "294d3f3788dc58d9ae2efcf6d04f2149e1fada9340947f2bb90c69270842d97e",
+        "size": 1230276
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5180,6 +5180,11 @@
         "size": 4415
       },
       {
+        "path": "pages/projects/fuzz-develop-document.md",
+        "sha256": "43286bf195ba34e0deccb5240251091bc82538aa596d84f3afb5e6b639077fda",
+        "size": 1200
+      },
+      {
         "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
         "sha256": "27a455f3689160f9f36a282580d268b9fc9067e60d642a31d4e7a10d1d59072a",
         "size": 1336
@@ -6929,8 +6934,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-16T15:32:08Z",
-  "file_count": 1384,
+  "exported_at": "2026-06-16T15:48:52Z",
+  "file_count": 1385,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10197,7 +10202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc889bq7ml",
-  "previous_tree_hash": "50042e5c4545096173f275701963b23795d0e221f9da0496e4c104dd856dc601",
+  "previous_tree_hash": "ef148b5135267a55822740f333b1ea520e3002b33c9bbf4c1532088562ad957d",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10210,14 +10215,14 @@
   ],
   "skill_tree_hash": "f7eb79b65b5855f04d7d4e303e6cffbc56478607ef6bf613db9219bd065173af",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ef148b5135267a55822740f333b1ea520e3002b33c9bbf4c1532088562ad957d",
+  "tree_hash": "ab342a2ec509cc70f59ade989a1e6e0eb63c4eae5b31fa0919cd1c422e1d7177",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 732,
+  "wiki_file_count": 733,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10231,8 +10236,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "df773b3d18c65254026c17cb0074d53d2e6a6a59d674b7f0e1dbfece98f3f6f8",
-      "size": 1230017
+      "sha256": "294d3f3788dc58d9ae2efcf6d04f2149e1fada9340947f2bb90c69270842d97e",
+      "size": 1230276
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12135,6 +12140,11 @@
       "size": 4415
     },
     {
+      "path": "pages/projects/fuzz-develop-document.md",
+      "sha256": "43286bf195ba34e0deccb5240251091bc82538aa596d84f3afb5e6b639077fda",
+      "size": 1200
+    },
+    {
       "path": "pages/projects/gcp-gke-l1-orchestration-setup.md",
       "sha256": "27a455f3689160f9f36a282580d268b9fc9067e60d642a31d4e7a10d1d59072a",
       "size": 1336
@@ -13881,5 +13891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0b89b718fe19699fe48b8f70de18bfc35ed712ceb14a5547a3a0419625700f8a"
+  "wiki_tree_hash": "ac78b5d252a9f58526362154690ea18213db4509c79aa0005b76f82102a89144"
 }
