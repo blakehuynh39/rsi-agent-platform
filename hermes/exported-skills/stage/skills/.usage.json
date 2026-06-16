@@ -380,13 +380,13 @@
     "created_at": "2026-06-03T20:26:22.716762+00:00",
     "created_by": null,
     "last_patched_at": "2026-06-16T18:12:59.045773+00:00",
-    "last_used_at": "2026-06-16T18:19:38.529203+00:00",
-    "last_viewed_at": "2026-06-16T18:19:38.463839+00:00",
+    "last_used_at": "2026-06-16T18:51:08.920945+00:00",
+    "last_viewed_at": "2026-06-16T18:51:08.867939+00:00",
     "patch_count": 34,
     "pinned": false,
     "state": "active",
-    "use_count": 137,
-    "view_count": 126
+    "use_count": 138,
+    "view_count": 127
   },
   "github-issues": {
     "archived_at": null,
@@ -406,13 +406,13 @@
     "created_at": "2026-06-05T20:08:11.444517+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-16T18:04:38.257326+00:00",
-    "last_viewed_at": "2026-06-16T18:04:38.188085+00:00",
+    "last_used_at": "2026-06-16T18:51:09.513196+00:00",
+    "last_viewed_at": "2026-06-16T18:51:09.464599+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 10,
-    "view_count": 10
+    "use_count": 11,
+    "view_count": 11
   },
   "github-repo-management": {
     "archived_at": null,
