@@ -418,6 +418,7 @@ Pull back from line-level concerns and assess the *shape* of the change. This is
 **Deep Test Quality — a test that exists ≠ a test that catches regressions:**
 
 - **Assertion strength:** Are assertions specific enough to catch bugs? `assert(result != null)` passes for wrong results. `assert(result.count === 3)` catches actual deviations. Flag tests that only check truthiness, existence, or "doesn't crash."
+- **PITFALL — Shared function return-semantics change:** When a PR changes what a shared utility/helper function returns (e.g., remapping status strings to different block reasons, changing an enum variant's meaning), updating the function's own unit tests is not enough. You MUST also check every caller and every test assertion across the codebase that consumes that function's output. Use `search_files` with the function name across the entire repo (not just the module where it lives) to find integration tests, route handlers, and other services that assert on its return values. A PR that changes `payout_block_reason_for_record("opened")` from `"pending_verification"` to `"incomplete"` must also update the integration test at `tax_form_resubmission.rs:809` that asserts `block_reason == "pending_verification"` after a dropin session creates an `opened` form. The unit tests in `mod.rs` were updated correctly — the integration test 300 lines away in `tests/` was missed.
 - **Mocking discipline:** Mocks that don't fail when the real interface changes are worse than no tests — they create false confidence. Check: does the mock verify the same contract the real implementation provides? Over-mocking (mocking everything except the function under test) produces tests that only test the mocks.
 - **Determinism:** Date/time/random/network calls must be stubbed. A test that passes today and fails tomorrow (or passes on one machine but flakes on CI) is broken. Flag `new Date()`, `Math.random()`, `Date.now()`, `uuid()` in test code without seeding/stubbing.
 - **Edge cases tested:** Empty input, null/undefined, boundary values (max int, zero, negative), errors thrown by dependencies. One happy-path test is not coverage.
@@ -706,6 +707,12 @@ Go through each category: Correctness, Security, Code Quality, Testing, Performa
 For reading individual files from the PR branch without a full checkout, use `gh api .../contents/<path>?ref=<branch> | base64 -d` — see `references/remote-file-inspection.md` for patterns.
 
 ### Local Checkout Path (for large PRs needing deeper context)
+
+> **Pre-cloned workspace shortcut:** When the repo is already checked out at
+> `/tmp/<repo>-review/` with the PR branch, skip `gh pr diff` and read files
+> directly from disk. See `references/pre-cloned-workspace-review.md` for the
+> full pattern including type-union analysis, dependency tracing, and cross-repo
+> alignment checks.
 
 ### Step 1: Set up environment
 

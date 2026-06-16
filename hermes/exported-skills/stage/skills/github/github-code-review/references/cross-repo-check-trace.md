@@ -24,8 +24,18 @@ When a cross-repo pair is detected, always check:
 - [ ] If FE is already merged, verify BE merged first. If not, flag it.
 - [ ] If BE is already merged, verify FE is still open or was merged after BE.
 
-## 2026-06-05: depin-backend#519 ↔ numo-monorepo#373
+## 2026-06-16: depin-backend#555 ↔ numo-monorepo#408
 
-- **BE PR #519** (`feat/aiwei-agent/stripe-connect-id-bd-pk`) added `connect_ready_for_withdrawal()` gating that requires `stripe_connect_payout_method_id` for v2 users. BE's `get_payout_setup_status` propagates `stripe_ready` into `block_reasons` (incl. `stripe_not_connected`).
-- **FE PR #373** (`feat/aiwei-agent/stripe-connect-country-labels`) introduced `isStripeConnectReady()` helper that checks `block_reasons.includes("stripe_not_connected")` from the setup-status response, then falls back to `connectStatus.payouts_enabled` while loading.
-- **Lesson:** When BE changes how a gating boolean is computed and the FE reads it through `block_reasons` (not a direct API field), verify the full chain: BE compute function → `stripe_ready` → `block_reasons` array → FE helper reads array. A break at any link causes silent gating mismatches. The `block_reasons` enum tokens (`stripe_not_connected`, `tax_form_required`, etc.) form an implicit contract between repos — changing them requires both sides.
+- **BE PR #555** (`fix/tax-status-gating`) split `payout_block_reason_for_record`'s mapping: `"opened"` moved from `"pending_verification"` to `"incomplete"`. New helper `is_tax_form_pending_verification()` created. Dropin-session now returns 409 for `submitted`/`awaiting_tin_match` forms.
+- **FE PR #408** added matching `isTaxFormPendingVerification()` and `isTaxFormIncompleteInProgress()` helpers, plus `pending_verification` to `TaxBlockReason` type union. FE catches the 409 conflict and shows different UI per state.
+- **Lesson 1 — block_reasons as implicit cross-repo contract:** The `block_reasons` array tokens (`pending_verification`, `incomplete`) are an implicit contract. The BE constructs `"tax_setup_incomplete:{block_reason}"` and the FE's `parseTaxSetupReason()` strips the prefix. When BE adds a new token, FE's `reasonCopyByReason` and `TaxBlockReason` type must both gain the new variant. The FE also reads `tax.status` (raw form status) independently from `block_reasons` (processed gating reason) — they serve different UI decisions.
+- **Lesson 2 — shared function return-semantics change breaks distant tests:** The BE PR correctly updated unit tests in `mod.rs` but missed the integration test at `tax_form_resubmission.rs:809` that asserted `block_reason == "pending_verification"` after a dropin session creates an `opened` form. The test was 300 lines away from the function definition and in a different file. When changing what a shared function returns, search the entire repo for all callers and assertions — don't stop at the module's own tests.
+- **CI masking:** The broken test wasn't caught because `cargo fmt --check` failed first (import ordering). If the fmt check stops the CI job before tests, a test regression can ship undetected.
+
+## Review checklist enhancement
+
+When a cross-repo pair is detected, always check:
+- [ ] If FE is already merged, verify BE merged first. If not, flag it.
+- [ ] If BE is already merged, verify FE is still open or was merged after BE.
+- [ ] When BE changes `block_reasons` tokens or `payout_block_reason_for_record` return values, verify the FE's `parseTaxSetupReason` prefix strip + `reasonCopyByReason` dict + `TaxBlockReason` type union all cover the new/changed token.
+- [ ] When BE changes a shared function's return semantics, use `search_files` repo-wide to find integration tests and distant callers that assert on the old return value.
