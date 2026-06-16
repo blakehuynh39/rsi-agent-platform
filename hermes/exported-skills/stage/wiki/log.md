@@ -25437,3 +25437,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d77a5b34d2d23dbeecf05084acfbe585
 - summary: The Numo project ownership transitions to the Korea team, targeting a production-ready app launch by June 30, 2026, with intensive onboarding June 3-10 and primary ownership June 1...
 
+## [2026-06-16T03:30:38Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_4cce2d123cd5c266ab258a02e7dab575
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_4c67f92f7646472d7cf1af6b6218b03d
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
+## [2026-06-16T03:30:40Z] ingest | Numo Expert — Implementation PRD
+
+- status: published
+- slug: notion_document/numo-expert-implementation-prd-44dcd70f
+- wiki_revision_id: wikirev_eddfa27ef16a5094c7554bf8c6d7f0dd
+- source_document_id: srcdoc_23bd1a05e81b1b9a88ad984844dcd70f
+- source_revision_id: srcrev_7f2b88527fdfca31996d4083f8b159e0
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Implementation-PRD-37d051299a5480d38794d400f430876b)
+
