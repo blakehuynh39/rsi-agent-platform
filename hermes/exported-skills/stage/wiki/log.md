@@ -25517,3 +25517,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_2004d4d47256610f193f3286db06d5ce
 - summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-06-16T10:00:22Z] ingest | CDR Story Client Change Log
+
+- status: published
+- slug: notion_document/cdr-story-client-change-log-4742be2f
+- wiki_revision_id: wikirev_b90653b2a2f3955b968056ece68b7ebd
+- source_document_id: srcdoc_aeaa4036cd00e991702368cf4742be2f
+- source_revision_id: srcrev_dc2d15cac6ef43ba92af4f0a5ae22347
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
+
