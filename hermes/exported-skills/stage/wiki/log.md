@@ -25549,3 +25549,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_36724c824291f06032bec42fe86c79fe
 - summary: Source: [source](https://app.notion.com/p/Numo-Launch-Roadmap-366051299a5480d4ae14f214abe927d7)
 
+## [2026-06-16T15:16:47Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_f28eb39af42023931bf2130d417290c6
+- summary: Six-week launch plan for Numo starting May 28, 2026. Weeks 1-2 completed, Week 3 moved to June 17 with Stripe Payments and W8-BEN. Week 4 includes Language Documents and teleprompt...
+
