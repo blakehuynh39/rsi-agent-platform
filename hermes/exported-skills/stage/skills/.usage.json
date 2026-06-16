@@ -276,13 +276,13 @@
     "created_at": "2026-05-14T22:23:55.494233+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-06T06:35:13.266610+00:00",
-    "last_viewed_at": "2026-06-06T06:35:13.240526+00:00",
+    "last_used_at": "2026-06-16T00:18:40.582331+00:00",
+    "last_viewed_at": "2026-06-16T00:18:40.549697+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 13,
-    "view_count": 13
+    "use_count": 14,
+    "view_count": 14
   },
   "dogfood": {
     "archived_at": null,
@@ -406,13 +406,13 @@
     "created_at": "2026-06-05T20:08:11.444517+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-12T00:18:24.323924+00:00",
-    "last_viewed_at": "2026-06-12T00:18:24.291991+00:00",
+    "last_used_at": "2026-06-16T00:18:40.653236+00:00",
+    "last_viewed_at": "2026-06-16T00:18:40.621334+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 8,
-    "view_count": 8
+    "use_count": 9,
+    "view_count": 9
   },
   "github-repo-management": {
     "archived_at": null,
