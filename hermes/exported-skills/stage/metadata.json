@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "ad8e68290110dc8b5eeb4960d9f9c906fb71236f801a3dd6d83327673845eb3b",
+        "sha256": "a0361933a686fb4bdf64fb111a3a81bfc04afb283394eb9f45b85beef8a49238",
         "size": 31861
       },
       {
@@ -3271,13 +3271,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f0c0230b229d095f31ead268935ec5dc7718f7483076b6cd1dd8b0e39e77d5e7",
-        "size": 630467
+        "sha256": "dc3011e60d41c031e6caa130fc607fdca345c3f5b6b6745a07ce3d9e8ce80046",
+        "size": 630835
       },
       {
         "path": "log.md",
-        "sha256": "3f24095e7c4f2207ab81320a7841cccd60f94c690a7da90a5aa79fcd0222c5af",
-        "size": 1225174
+        "sha256": "1f284c8b438875c22fc649fca60a2103f4e82bb0368593e564bfaf6ac696bad6",
+        "size": 1225554
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5470,6 +5470,11 @@
         "size": 4822
       },
       {
+        "path": "pages/projects/numo-expert-implementation.md",
+        "sha256": "c5523c6e858d3c564dd96b4b3729d0aef7a86d8ea3aae9620021e8074a7d1b3f",
+        "size": 7311
+      },
+      {
         "path": "pages/projects/numo-expert-launch-plan.md",
         "sha256": "b2059a9d4701bb6008db5e2ea0ba4e031c0267dbd4f5f1d7fa6f681e8974f85d",
         "size": 5891
@@ -6924,8 +6929,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-16T04:38:25Z",
-  "file_count": 1383,
+  "exported_at": "2026-06-16T05:22:22Z",
+  "file_count": 1384,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -6984,7 +6989,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "ad8e68290110dc8b5eeb4960d9f9c906fb71236f801a3dd6d83327673845eb3b",
+      "sha256": "a0361933a686fb4bdf64fb111a3a81bfc04afb283394eb9f45b85beef8a49238",
       "size": 31861
     },
     {
@@ -10191,8 +10196,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-6bf49cng4rs",
-  "previous_tree_hash": "c67b423da8239939cc7bef2289587e8c5fcfe2e0891f2e352efb3588a7ca47f8",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc889bp769",
+  "previous_tree_hash": "afd557ce82f8b975a941c22aa5d8c108bba03e9f30fd07a80983b87df5ecd884",
   "schema_version": 1,
   "skill_file_count": 652,
   "skill_manage_sessions": [
@@ -10203,16 +10208,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "45848f22d1e85f1ce2539e06ece49eaf9c486c9023ad597060f3649067d55550",
+  "skill_tree_hash": "f7eb79b65b5855f04d7d4e303e6cffbc56478607ef6bf613db9219bd065173af",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "afd557ce82f8b975a941c22aa5d8c108bba03e9f30fd07a80983b87df5ecd884",
+  "tree_hash": "407e538138f7af8467d62ac889d5813c029409ac26c0944184b63c686facc204",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 731,
+  "wiki_file_count": 732,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10221,13 +10226,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f0c0230b229d095f31ead268935ec5dc7718f7483076b6cd1dd8b0e39e77d5e7",
-      "size": 630467
+      "sha256": "dc3011e60d41c031e6caa130fc607fdca345c3f5b6b6745a07ce3d9e8ce80046",
+      "size": 630835
     },
     {
       "path": "log.md",
-      "sha256": "3f24095e7c4f2207ab81320a7841cccd60f94c690a7da90a5aa79fcd0222c5af",
-      "size": 1225174
+      "sha256": "1f284c8b438875c22fc649fca60a2103f4e82bb0368593e564bfaf6ac696bad6",
+      "size": 1225554
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12420,6 +12425,11 @@
       "size": 4822
     },
     {
+      "path": "pages/projects/numo-expert-implementation.md",
+      "sha256": "c5523c6e858d3c564dd96b4b3729d0aef7a86d8ea3aae9620021e8074a7d1b3f",
+      "size": 7311
+    },
+    {
       "path": "pages/projects/numo-expert-launch-plan.md",
       "sha256": "b2059a9d4701bb6008db5e2ea0ba4e031c0267dbd4f5f1d7fa6f681e8974f85d",
       "size": 5891
@@ -13871,5 +13881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "699cc48ee98869b63f2ff4be7a585a043bc4a9de469714b62542935872598a6f"
+  "wiki_tree_hash": "79b9dd63319f4963154a09ecc7197200315ce15f3bd702f5fc0c3b0f167a903f"
 }

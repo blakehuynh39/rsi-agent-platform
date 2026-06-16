@@ -25483,3 +25483,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7bb96f321deef1825514bac2f024880d
 - summary: Defines the five‑stage launch plan for Numo Expert, starting with internal parity and ending with mobile/deepfake HITL, along with MVP requirements and explicitly out‑of‑scope item...
 
+## [2026-06-16T05:19:56Z] synthesis | Numo Expert Implementation
+
+- status: published
+- slug: projects/numo-expert-implementation
+- wiki_revision_id: wikirev_03e82a63f5f50016741ef9851b1a6d96
+- summary: Numo Expert brings the Poseidon annotation workflow into app.numolabs.ai, with phases for parity, contractor beta, permissionless onboarding, consensus, honeypots, and payment.
+
