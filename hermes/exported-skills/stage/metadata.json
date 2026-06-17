@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b5139d7d83a3e365f299fce3634890443115768ae64ad78f764530a453a02538",
-        "size": 901370
+        "sha256": "a7063152370e8d13b41c91b582bcfc9638763453aab2d0c225476eba7a30ab36",
+        "size": 902198
       },
       {
         "path": "log.md",
-        "sha256": "60339f17272ceead6f68534f0f3ef724c6190ad97f72844861053e1754c4f6f7",
-        "size": 1622847
+        "sha256": "59ce05587edf654ab068dd6ea6f304bb388cae5b1cca9c44e7ad452e8aab123c",
+        "size": 1624168
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5845,6 +5845,11 @@
         "size": 4121
       },
       {
+        "path": "pages/projects/royalty-token-vault-auto-deployment.md",
+        "sha256": "4ae1a238f8b52e5c1c2d1c8628daab7d786ba4836aa7481271701c995dba63b3",
+        "size": 3119
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -6485,6 +6490,11 @@
         "size": 6399
       },
       {
+        "path": "pages/runbooks/troubleshooting-royalty-percent-exceeds-max-revenue-share.md",
+        "sha256": "e699e62c6b045e159b4f2e602f563d32b93c74e2baee27de80312a78ca48cc44",
+        "size": 3107
+      },
+      {
         "path": "pages/runbooks/typescript-sdk-setup.md",
         "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
         "size": 1126
@@ -7019,8 +7029,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T23:18:45Z",
-  "file_count": 1402,
+  "exported_at": "2026-06-17T23:35:25Z",
+  "file_count": 1404,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10297,7 +10307,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "f557e1b607184f5e93bdae4c9411138e2f0bbceca1c2510b44a3eec1247efa54",
+  "previous_tree_hash": "5af1908520ee7dbb33886d115ab75b123a3f45dcf84b0f854a66349861b270c8",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10310,14 +10320,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5af1908520ee7dbb33886d115ab75b123a3f45dcf84b0f854a66349861b270c8",
+  "tree_hash": "94a9ae50df1c5d760d8cc92339af0147520cd5a268edce3f43c1c956bf1f0be9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 748,
+  "wiki_file_count": 750,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10326,13 +10336,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b5139d7d83a3e365f299fce3634890443115768ae64ad78f764530a453a02538",
-      "size": 901370
+      "sha256": "a7063152370e8d13b41c91b582bcfc9638763453aab2d0c225476eba7a30ab36",
+      "size": 902198
     },
     {
       "path": "log.md",
-      "sha256": "60339f17272ceead6f68534f0f3ef724c6190ad97f72844861053e1754c4f6f7",
-      "size": 1622847
+      "sha256": "59ce05587edf654ab068dd6ea6f304bb388cae5b1cca9c44e7ad452e8aab123c",
+      "size": 1624168
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12890,6 +12900,11 @@
       "size": 4121
     },
     {
+      "path": "pages/projects/royalty-token-vault-auto-deployment.md",
+      "sha256": "4ae1a238f8b52e5c1c2d1c8628daab7d786ba4836aa7481271701c995dba63b3",
+      "size": 3119
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -13530,6 +13545,11 @@
       "size": 6399
     },
     {
+      "path": "pages/runbooks/troubleshooting-royalty-percent-exceeds-max-revenue-share.md",
+      "sha256": "e699e62c6b045e159b4f2e602f563d32b93c74e2baee27de80312a78ca48cc44",
+      "size": 3107
+    },
+    {
       "path": "pages/runbooks/typescript-sdk-setup.md",
       "sha256": "a635bc8d24ccc1cd5eddc146b89a66deb673512d29062b4d92cdcc4a06a8471d",
       "size": 1126
@@ -14061,5 +14081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8b7fcf16ef9afbe80827580b77e66a90c90a314414d262cef13c2c3cca604ba3"
+  "wiki_tree_hash": "ca97d6c77bfb236816deccb160ad3a0488f26481ea44747e880095276a85b9e5"
 }

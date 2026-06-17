@@ -33157,3 +33157,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f248adaf8644118eaeee1879081a9d34
 - summary: A user encounters a ValueError when calling registerDerivative: 'The royalty percent for the parent IP with id ... is greater than the maximum revenue share ...', despite setting m...
 
+## [2026-06-17T23:30:25Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_cdec58283267d0d8b0858d7ce665eca7
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_82a245207902de03a8cf942b5b68cc8c
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-17T23:31:22Z] synthesis | Royalty Token Vault Auto-Deployment
+
+- status: published
+- slug: projects/royalty-token-vault-auto-deployment
+- wiki_revision_id: wikirev_9a2d789382520b95a5cc1d5ba4041fe5
+- summary: Project to enable automatic deployment of royalty token vaults to IP Assets (IPAs), including those without commercial licensing, in support of Verio's staking/tipping feature. Dev...
+
+## [2026-06-17T23:32:28Z] synthesis | Troubleshooting: 'Royalty percent for parent IP exceeds max revenue share' Error
+
+- status: published
+- slug: runbooks/troubleshooting-royalty-percent-exceeds-max-revenue-share
+- wiki_revision_id: wikirev_b35acafa537f8e0b30f2a2ec75fa2160
+- summary: How to diagnose and resolve the ValueError: 'The royalty percent for the parent IP is greater than the maximum revenue share' when calling registerDerivative.
+
