@@ -276,13 +276,13 @@
     "created_at": "2026-05-14T22:23:55.494233+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-16T00:18:40.582331+00:00",
-    "last_viewed_at": "2026-06-16T00:18:40.549697+00:00",
+    "last_used_at": "2026-06-17T17:16:35.064711+00:00",
+    "last_viewed_at": "2026-06-17T17:16:35.028085+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 14,
-    "view_count": 14
+    "use_count": 15,
+    "view_count": 15
   },
   "dogfood": {
     "archived_at": null,
