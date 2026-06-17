@@ -32161,3 +32161,89 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_05d4f06907c4ad4376ff42d361d41b9f
 - summary: [depin-backend] ip-registration pre-broadcast revert reached max_discard_attempts — failing job terminally and marking source row FAILED. Likely deterministic contract revert, not ...
 
+## [2026-06-17T22:12:33Z] ingest | Slack thread C0B2EJ96U83 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-channel-5675522d
+- wiki_revision_id: wikirev_c930922a6ca833683d4d4f050e6b5e32
+- source_document_id: srcdoc_b140aea25556e86e3666c67c5675522d
+- source_revision_id: srcrev_087c8493c27e887fc1141c419ae26d6a
+- summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
+
+## [2026-06-17T22:12:34Z] ingest | Slack thread C0B2EJ96U83 1779492744.011719
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-1779492744-011719-6fd42651
+- wiki_revision_id: wikirev_0deab5fc428966fd4177bab81f7e2e5f
+- source_document_id: srcdoc_c1fe11751399ae42e03a827b6fd42651
+- source_revision_id: srcrev_e161c42c121cb7d87ea8284c9caa49c3
+- summary: I’m meeting Victor in Palo Alto Sunday and will hold him hostage until he signs
+
+## [2026-06-17T22:12:55Z] ingest | Slack thread C0B2GCPCPB5 1778789548.248549
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-1778789548-248549-777d7c74
+- wiki_revision_id: wikirev_a3ce7d19d44007b0d4fa6972258c45fc
+- source_document_id: srcdoc_16aa11e25270dfadf2823af0777d7c74
+- source_revision_id: srcrev_ea95a2f52bcbb7160f6d3b91b570f939
+- summary: Hi <!here> - Confirming our meeting with oto today at 5PM PT. You all should have invites to the call.
+
+## [2026-06-17T22:12:56Z] ingest | Slack thread C0B2GCPCPB5 1780674815.424509
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-1780674815-424509-1bd7f920
+- wiki_revision_id: wikirev_f21c8c3b61a862bf6558c9526d160a99
+- source_document_id: srcdoc_2e0dec668c4b7f98a4c006fd1bd7f920
+- source_revision_id: srcrev_0af794421cdf38598057cbb92e1ad7ef
+- summary: <@U0772SH7BRA> what is your telegram handle? We need you to be in the telegram discussion when required for Oto.
+
+## [2026-06-17T22:12:56Z] ingest | Slack thread C0B2GCPCPB5 1778867274.167559
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-1778867274-167559-47a8b7c3
+- wiki_revision_id: wikirev_cb05841ed1d57b45fddf94eb6daa857a
+- source_document_id: srcdoc_38deb4a374c3fac90c4efa9647a8b7c3
+- source_revision_id: srcrev_4dce127a3420a82825a2b971d57cc468
+- summary: *Hi <!here> - Quick update on oto x story x psdn call from yesterday:*
+
+## [2026-06-17T22:12:56Z] ingest | Slack thread C0B2GCPCPB5 1780622731.631189
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-1780622731-631189-fcd1f465
+- wiki_revision_id: wikirev_e183ad4447aac9b82b3fd41b8ce5ff50
+- source_document_id: srcdoc_50808f3712322e868e00ff52fcd1f465
+- source_revision_id: srcrev_b3a91b3a80d231e0ace9801e03710530
+- summary: Yes I will reach out to Oto tomorrow about the new spec. I see they probably wont get to it until late next week so gives us some time
+
+## [2026-06-17T22:12:57Z] ingest | Slack thread C0B2GCPCPB5 1780433328.786669
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-1780433328-786669-bed7958d
+- wiki_revision_id: wikirev_5c56805a19f00eb603d32d3cd19fb11e
+- source_document_id: srcdoc_70469fc1d4e3a68e333257d9bed7958d
+- source_revision_id: srcrev_f246b22b4ae4bd7a60e37a435359d0bd
+- summary: <!here> who's driving this integration forward? Do we have a status update on what's happening now and next steps? <@U0772SH7BRA> <@U08HVGL6LDR> <@U06A5AQ1VD3>
+
+## [2026-06-17T22:12:57Z] ingest | Slack thread C0B2GCPCPB5 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2gcpcpb5-channel-3bfd9448
+- wiki_revision_id: wikirev_53cc2521cdef960d7422b65d0745e822
+- source_document_id: srcdoc_a6630fa38e9474a8ba659a2b3bfd9448
+- source_revision_id: srcrev_9f4ab7c1c262509b308e8e155bea1ee6
+- summary: Hey (again) team :smile_cat: I'm opening this channel up to keep alignment tight on the Oto integration and partnership rollout.
+
+## [2026-06-17T22:16:26Z] synthesis | Listing Royalty Token Holders for an IP Royalty Vault
+
+- status: published
+- slug: concepts/listing-rt-holders-for-ip-vault
+- wiki_revision_id: wikirev_ee8aa95ae7aa33dc032b664882601aba
+- summary: Covers methods to list all addresses and their royalty token (RT) balances for a given ipId's royalty vault, including on-chain limitations and off-chain solutions like Blockscout ...
+
+## [2026-06-17T22:17:01Z] synthesis | Royalty Token Distribution Workflows
+
+- status: published
+- slug: concepts/royalty-token-distribution-workflows
+- wiki_revision_id: wikirev_573c04e5fd6b3063318cc87b188856a7
+- summary: Discussion about existing royalty token distribution workflows and new functionality.
+
