@@ -25982,3 +25982,570 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_5d377f03d96724f2ebe85e10dc1c8af0
 - summary: Sharing a report of several hours api downtime from Crossmint today. Seems like it's back now, but just checking if this is a known issue
 
+## [2026-06-17T21:34:49Z] ingest | Slack thread C07K3J4JTH6 1772236577.127539
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772236577-127539-06623a2a
+- wiki_revision_id: wikirev_c711904e7f5540c58f3347f4195caee0
+- source_document_id: srcdoc_00a83b33937e05dccccc889406623a2a
+- source_revision_id: srcrev_03dd760aa8ed2f8c6c910bb68817034c
+- summary: [story-api] POST /api/v4/assets failed with 504: Request timeout
+
+## [2026-06-17T21:34:50Z] ingest | Slack thread C07K3J4JTH6 1780809555.116029
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780809555-116029-58132b28
+- wiki_revision_id: wikirev_23aa2cafd336cd69981b828104a84abc
+- source_document_id: srcdoc_08c431942e702fb41d9eacec58132b28
+- source_revision_id: srcrev_5b9ff39121bb80eb4266b3e63c140ebf
+- summary: [story-api] confirmer batch failed; continuing sibling batches
+
+## [2026-06-17T21:34:50Z] ingest | Slack thread C07K3J4JTH6 1771978942.017629
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1771978942-017629-e22df869
+- wiki_revision_id: wikirev_9ab36c53958733703634933d69585763
+- source_document_id: srcdoc_0ff7bbfedaad80575ff1ad83e22df869
+- source_revision_id: srcrev_c042cace736e1d5f420c9f5d0c387c17
+- summary: [story-api] POST /api/v4/collections failed with 500: Internal Server Error
+
+## [2026-06-17T21:34:50Z] ingest | Slack thread C07K3J4JTH6 1781411695.965299
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411695-965299-81b92bcf
+- wiki_revision_id: wikirev_97b0f6ed3d1acde385859b629f1b427b
+- source_document_id: srcdoc_12e6b19f809397aeb378c22a81b92bcf
+- source_revision_id: srcrev_ab9d55ae614f5d06be9c4ba9c313c734
+- summary: [story-api] *errors.withStack: dial tcp 10.32.100.216:5432: connect: connection refused
+
+## [2026-06-17T21:34:51Z] ingest | Slack thread C07K3J4JTH6 1772070585.340179
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772070585-340179-e798eb86
+- wiki_revision_id: wikirev_0c8f50fc3e60734212790916ff4afa3c
+- source_document_id: srcdoc_1ab5f1ec6019cd948bbac151e798eb86
+- source_revision_id: srcrev_510988811487a6008baf170f55527794
+- summary: [story-api] *errors.withStack: ERROR #23502 null value in column "created_at" of relation "notifications" violates not-null constraint
+
+## [2026-06-17T21:34:51Z] ingest | Slack thread C07K3J4JTH6 1781411577.416369
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411577-416369-8270b393
+- wiki_revision_id: wikirev_934e37b069dfb61bb84a702023f74438
+- source_document_id: srcdoc_26427b55f7197d5929d9b3f58270b393
+- source_revision_id: srcrev_ef1c8f9074c66352c93f31145f23ac09
+- summary: [story-api] GET /api/v1/data-audit/feed failed with 500: EOF
+
+## [2026-06-17T21:34:51Z] ingest | Slack thread C07K3J4JTH6 1772243481.441719
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772243481-441719-6a9b0918
+- wiki_revision_id: wikirev_eb7e8a07446ada2dcdb0519ab898f4b8
+- source_document_id: srcdoc_3731dd88fe850cf663f5518d6a9b0918
+- source_revision_id: srcrev_447b7c3e695918a211a9bb7a75a64e84
+- summary: [story-api] POST /api/v4/search failed with 504: Request timeout
+
+## [2026-06-17T21:34:52Z] ingest | Slack thread C07K3J4JTH6 1777486222.977879
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1777486222-977879-7e2b95d0
+- wiki_revision_id: wikirev_f3cc2add7ab831a2796b462ecdb9ee2b
+- source_document_id: srcdoc_523f9ccef40672ee919bd2357e2b95d0
+- source_revision_id: srcrev_eb1df81a50f1368a0830c2b496981840
+- summary: [story-api] POST /api/v4/assets/lineage failed with 504: Request timeout
+
+## [2026-06-17T21:34:52Z] ingest | Slack thread C07K3J4JTH6 1766393630.121209
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1766393630-121209-7429dbac
+- wiki_revision_id: wikirev_81fafb104a03ab3e33a4e8564af5b479
+- source_document_id: srcdoc_53ddcef37c64dd272a5ef8257429dbac
+- source_revision_id: srcrev_a76a7e960b392d8f7b7a1f109aa34d62
+- summary: [story-api] *errors.fundamental: invalid field: twitter_handle
+
+## [2026-06-17T21:34:52Z] ingest | Slack thread C07K3J4JTH6 1781411724.233429
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411724-233429-584ac388
+- wiki_revision_id: wikirev_f4a585973aa0e4584e863af36aa32ed5
+- source_document_id: srcdoc_56686ca7c285fd31f1384861584ac388
+- source_revision_id: srcrev_e7ef7cc94ee0d152fda04a7cd4e53b6b
+- summary: [story-api] *errors.withStack: failed to retrieve IP assets: dial tcp 10.32.101.130:5432: connect: connection refused
+
+## [2026-06-17T21:34:53Z] ingest | Slack thread C07K3J4JTH6 channel
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-channel-1efb5eea
+- wiki_revision_id: wikirev_f28d16eb50be18fa0af3966d128823a7
+- source_document_id: srcdoc_5d3459afcedd0f5ec46a635b1efb5eea
+- source_revision_id: srcrev_c6dea59e8af51003f59c882c01bc9ca0
+- summary: checking them
+
+## [2026-06-17T21:34:53Z] ingest | Slack thread C07K3J4JTH6 1772050530.748759
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772050530-748759-324e310f
+- wiki_revision_id: wikirev_ae963e9ed2d5d11a4eedaf68f096444d
+- source_document_id: srcdoc_68c139891ce1b049e928df36324e310f
+- source_revision_id: srcrev_b47705ef571b3a2757fbad08dce68924
+- summary: [story-api] POST /api/v4/assets failed with 504: Request timeout
+
+## [2026-06-17T21:34:53Z] ingest | Slack thread C07K3J4JTH6 1780534946.310219
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780534946-310219-152a6567
+- wiki_revision_id: wikirev_9df3adb5ee574b2ffca2921e45e2998f
+- source_document_id: srcdoc_756e4b27c63137d5551add1d152a6567
+- source_revision_id: srcrev_ad08c1a2b5182e5bfd09b6b0069b9a80
+- summary: [story-api] POST /webhook/v1/data-audit/records:operation failed with 500: operation error DynamoDB: BatchGetItem, https response error StatusCode: 400, RequestID: 6LHTFRQEKCTMSIVH...
+
+## [2026-06-17T21:34:54Z] ingest | Slack thread C07K3J4JTH6 1780882700.240239
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780882700-240239-20f424ab
+- wiki_revision_id: wikirev_7162e63b7390ed7d6ac3c0730ce8234a
+- source_document_id: srcdoc_791a98068e8f43b806246cc620f424ab
+- source_revision_id: srcrev_f8550e9d00fc511801b90b1b88005fb5
+- summary: [story-api] shard task returned a fatal stream error
+
+## [2026-06-17T21:34:54Z] ingest | Slack thread C07K3J4JTH6 1780967321.307329
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780967321-307329-e394cfca
+- wiki_revision_id: wikirev_2b16bcb2b3432f04cc744830acff4850
+- source_document_id: srcdoc_84c7b5e454a2fd8b36914e9ee394cfca
+- source_revision_id: srcrev_d8a4da57e2237e3f1f3cdde06d4b8601
+- summary: [story-api] projection conflict: refusing to overwrite an existing tx_hash
+
+## [2026-06-17T21:34:54Z] ingest | Slack thread C07K3J4JTH6 1772246143.036249
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772246143-036249-009b5a32
+- wiki_revision_id: wikirev_95f627427d9af267a4c813611314753c
+- source_document_id: srcdoc_8680d88c4832bad89401ee01009b5a32
+- source_revision_id: srcrev_cb2d9ecdbc3c00082e0d441168246da1
+- summary: [story-api] *fmt.wrapError: failed to fetch wallet IP royalties: all retries failed: request failed: Get "<http://prod-story-orchestration-service.story.svc.cluster.local:8080/grap...
+
+## [2026-06-17T21:34:55Z] ingest | Slack thread C07K3J4JTH6 1780764774.500999
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780764774-500999-db7cd1de
+- wiki_revision_id: wikirev_20cce215bb26c6b9270a1b6dc65387fd
+- source_document_id: srcdoc_87f774c3367c1d9384de5a34db7cd1de
+- source_revision_id: srcrev_86b0b3ece5d7a4c51e17d255f0162f14
+- summary: [story-api] BROADCASTER_SKIP_BOOTSTRAP_GATE=true; bootstrap gate is disabled by operator override
+
+## [2026-06-17T21:34:55Z] ingest | Slack thread C07K3J4JTH6 1781411729.339569
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411729-339569-08edebf5
+- wiki_revision_id: wikirev_7430c0533366925cfd4ab4b00d11cb8f
+- source_document_id: srcdoc_8dc22060b1689eb4d9c28dc308edebf5
+- source_revision_id: srcrev_4a803e48ccae8d2c29c8845af20ab198
+- summary: [story-api] POST /api/v4/assets failed with 500: Failed to retrieve IP assets
+
+## [2026-06-17T21:34:55Z] ingest | Slack thread C07K3J4JTH6 1780437530.620189
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780437530-620189-b6fb4e74
+- wiki_revision_id: wikirev_b13cef1a1ff90b2595f64676b4076c36
+- source_document_id: srcdoc_966726b344f437a2abfaf81ab6fb4e74
+- source_revision_id: srcrev_b39171e007052cf05bf94f8e243f9316
+- summary: [story-api] POST /api/v1/data-audit/scoped-groups failed with 503: operation error SQS: SendMessage, https response error StatusCode: 400, RequestID: 931609d2-6205-5581-8300-6b4b36...
+
+## [2026-06-17T21:34:56Z] ingest | Slack thread C07K3J4JTH6 1780882511.566079
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780882511-566079-57afbf12
+- wiki_revision_id: wikirev_fe785d206d9af3e10c47ef827e607872
+- source_document_id: srcdoc_99cf0cc72d0931b2a10e96ac57afbf12
+- source_revision_id: srcrev_ecd4dffe3efb15c4fb0a1a423b6aee9e
+- summary: [story-api] projector tick failed; sleeping before retry
+
+## [2026-06-17T21:34:56Z] ingest | Slack thread C07K3J4JTH6 1781411570.515519
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411570-515519-3e32ab5c
+- wiki_revision_id: wikirev_b52228b201c9eb1781aaedf431dd3a19
+- source_document_id: srcdoc_9b2fd6209b5b525f2e11804f3e32ab5c
+- source_revision_id: srcrev_865b766fac2b34182497d5ff9e79be2f
+- summary: [story-api] GET /api/v1/data-audit/stats failed with 500: EOF
+
+## [2026-06-17T21:34:56Z] ingest | Slack thread C07K3J4JTH6 1780777693.854829
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780777693-854829-d16cd825
+- wiki_revision_id: wikirev_a54464493615ea45b716f33dd2641414
+- source_document_id: srcdoc_9d20e04e2cc7ef75da2ae649d16cd825
+- source_revision_id: srcrev_21eaf0bbac9e029a043bd746f9d40848
+- summary: [story-api] replacement gas re-estimate failed deterministically; quarantining batch
+
+## [2026-06-17T21:34:57Z] ingest | Slack thread C07K3J4JTH6 1768319512.776889
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1768319512-776889-a4b77388
+- wiki_revision_id: wikirev_3fb8ed59c7ca6f16f0688915f56aa2ea
+- source_document_id: srcdoc_9ff3474c3ac271f340cf705fa4b77388
+- source_revision_id: srcrev_dfb4198b58a1f7e595ce6de84a8649cb
+- summary: [story-api] POST /api/v4/assets failed with 500: Internal Server Error
+
+## [2026-06-17T21:34:57Z] ingest | Slack thread C07K3J4JTH6 1772235535.496989
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772235535-496989-752d46c5
+- wiki_revision_id: wikirev_c48177771184a3ceb8e4f16bf6227c2d
+- source_document_id: srcdoc_a718e26269bc36b61f397e98752d46c5
+- source_revision_id: srcrev_e08e083bca31e32d5159b99fbe50cccd
+- summary: [story-api] POST /api/v4/licenses/tokens failed with 504: Request timeout
+
+## [2026-06-17T21:34:57Z] ingest | Slack thread C07K3J4JTH6 1781160623.732939
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781160623-732939-ea366fc2
+- wiki_revision_id: wikirev_cfadbe9b63aa797e642af98f31438159
+- source_document_id: srcdoc_ab13a9de3a06e4ee653754cfea366fc2
+- source_revision_id: srcrev_f952827b856f3ab36283a3b4357b665a
+- summary: [story-api] gas-price monitor RPC failed; holding last-good snapshot and gate vote
+
+## [2026-06-17T21:34:58Z] ingest | Slack thread C07K3J4JTH6 1780900837.053459
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780900837-053459-050b6fb5
+- wiki_revision_id: wikirev_afcdad947b6e69f3f8e355c286a41a1b
+- source_document_id: srcdoc_b33dadb4668fdb482b79e351050b6fb5
+- source_revision_id: srcrev_b2a356be6866920cfe31071a362b9a1b
+- summary: [story-api] block-util observer RPC failed; failing the gate open
+
+## [2026-06-17T21:34:58Z] ingest | Slack thread C07K3J4JTH6 1781138983.948289
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781138983-948289-b359e6a0
+- wiki_revision_id: wikirev_a9b16426aea6ada3fbc54fd7e8453897
+- source_document_id: srcdoc_b89783489f3a57ee563b37deb359e6a0
+- source_revision_id: srcrev_fa23e5e820aa060162f9cd27a5ca668a
+- summary: [story-api] GET /api/v1/data-audit/stats failed with 503: data audit store is not configured
+
+## [2026-06-17T21:34:58Z] ingest | Slack thread C07K3J4JTH6 1781411697.987919
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411697-987919-62c40e14
+- wiki_revision_id: wikirev_e57b212ef4398d0f019cb269c0dfc5ae
+- source_document_id: srcdoc_c6122f7d06f0601db14b70c562c40e14
+- source_revision_id: srcrev_8658552cba5079f2848dace5e1dd800e
+- summary: [story-api] POST /api/v4/disputes failed with 500: Internal server error
+
+## [2026-06-17T21:34:58Z] ingest | Slack thread C07K3J4JTH6 1780434697.439619
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780434697-439619-c9ee13f5
+- wiki_revision_id: wikirev_c025f4ee7f81edf21a26111c06c690cb
+- source_document_id: srcdoc_d150c996eab5dc4ff8e988a5c9ee13f5
+- source_revision_id: srcrev_5acba376c088eba2a441d9a834ad435d
+- summary: [story-api] POST /api/v1/data-audit/scoped-groups failed with 500: operation error DynamoDB: PutItem, https response error StatusCode: 400, RequestID: OE8PGSTGTC0ST4HF2EUCRLHGKNVV4...
+
+## [2026-06-17T21:34:59Z] ingest | Slack thread C07K3J4JTH6 1772236643.997649
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1772236643-997649-40b22721
+- wiki_revision_id: wikirev_1f9d6853fcc0f9b075fe7663981858fc
+- source_document_id: srcdoc_d6480023c8ae0a48bff6479d40b22721
+- source_revision_id: srcrev_f9f94b28a1e097a6eb72a4f763f890ae
+- summary: [story-api] POST /api/v4/transactions failed with 504: Request timeout
+
+## [2026-06-17T21:34:59Z] ingest | Slack thread C07K3J4JTH6 1780827971.695219
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780827971-695219-b1422060
+- wiki_revision_id: wikirev_e9b11b03df5231685e6fdb42ca00056c
+- source_document_id: srcdoc_d7e8fbcb722e57fa90e9c7c2b1422060
+- source_revision_id: srcrev_a55130b04816d90cdbf12bea0f6a3d80
+- summary: [story-api] submitter tick failed terminally; stopping worker
+
+## [2026-06-17T21:34:59Z] ingest | Slack thread C07K3J4JTH6 1780810368.929899
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780810368-929899-aeb83c78
+- wiki_revision_id: wikirev_9c519f453df4379a45810646ff942fd4
+- source_document_id: srcdoc_e9734c0d99d44bc77933c830aeb83c78
+- source_revision_id: srcrev_1221c373c3673879948394731b662111
+- summary: [story-api] broadcaster active wallet nonce drift detected
+
+## [2026-06-17T21:35:00Z] ingest | Slack thread C07K3J4JTH6 1781411569.669329
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1781411569-669329-6624b2c0
+- wiki_revision_id: wikirev_1918cb442c785cbbfbdd8b81baf56669
+- source_document_id: srcdoc_fc3dde93c7db94f921c29a9b6624b2c0
+- source_revision_id: srcrev_f204c7b5c129f1f99211858cdc9ffaf2
+- summary: [story-api] GET /api/v1/data-audit/search failed with 500: EOF
+
+## [2026-06-17T21:35:00Z] ingest | Slack thread C07K3J4JTH6 1780832205.996339
+
+- status: published
+- slug: slack_message/slack-thread-c07k3j4jth6-1780832205-996339-ff90bb62
+- wiki_revision_id: wikirev_3a62b83d8a2dfeb600a0cc390c64102b
+- source_document_id: srcdoc_fdd871f83242f5b35cb041baff90bb62
+- source_revision_id: srcrev_3602078c2e8e61ec7b7010d5d636fed7
+- summary: [story-api] submitter tick failed; sleeping before retry
+
+## [2026-06-17T21:35:16Z] ingest | Slack thread C08BWTULNPP 1772246494.323179
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772246494-323179-3ef68659
+- wiki_revision_id: wikirev_ce52b3216bf999cce83ed2560c277dad
+- source_document_id: srcdoc_19ae1cafc3b1803c363f1a7c3ef68659
+- source_revision_id: srcrev_089fd96d88ae741e49261eba14cec5c5
+- summary: [story-orchestration-service] *errors.withStack: context canceled
+
+## [2026-06-17T21:35:16Z] ingest | Slack thread C08BWTULNPP 1772273448.650679
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772273448-650679-547bc855
+- wiki_revision_id: wikirev_285f9ee5bcdb140d6fb5837772fa26ba
+- source_document_id: srcdoc_27d9e99ff7bf6ad346cfcca3547bc855
+- source_revision_id: srcrev_86ea418f26d378160921f10b9480b8a9
+- summary: [story-orchestration-service] *errors.withStack: ERROR #42P10 there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+## [2026-06-17T21:35:17Z] ingest | Slack thread C08BWTULNPP 1772239373.481999
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772239373-481999-6e7ab26f
+- wiki_revision_id: wikirev_993da5dc35ac50ca05e4e604f554934e
+- source_document_id: srcdoc_2cd8712e780e6d2fd03fe1b46e7ab26f
+- source_revision_id: srcrev_3442962645f6afbcefca5420092da972
+- summary: [story-orchestration-service] Aggregation Error: ip_transactions
+
+## [2026-06-17T21:35:17Z] ingest | Slack thread C08BWTULNPP 1769811680.364389
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1769811680-364389-e72bf779
+- wiki_revision_id: wikirev_c261c6780f28e7f76925cfbd6b615951
+- source_document_id: srcdoc_2e3156dcfc319ad4f1adbd22e72bf779
+- source_revision_id: srcrev_60c7999debb8c5798cc919dd265d9efb
+- summary: [story-orchestration-service] Aggregation Error: collection_aggregation
+
+## [2026-06-17T21:35:17Z] ingest | Slack thread C08BWTULNPP 1772236542.340769
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772236542-340769-715491ec
+- wiki_revision_id: wikirev_145a0a36117e9e1a0d9cb5c1b88037a5
+- source_document_id: srcdoc_2ee36661bd5f2d70dc9c6791715491ec
+- source_revision_id: srcrev_645d8391c7a3d284147352a55875227d
+- summary: [story-orchestration-service] Aggregation Error: ip_ownership
+
+## [2026-06-17T21:35:18Z] ingest | Slack thread C08BWTULNPP 1771968682.077709
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1771968682-077709-ec79157e
+- wiki_revision_id: wikirev_5c9b1fdd58de240d0d8550513983e143
+- source_document_id: srcdoc_381c7a6e822f48c093c5962fec79157e
+- source_revision_id: srcrev_0f1fe97e8d5e8eeec84fd09a2eb92d3a
+- summary: [story-orchestration-service] Aggregation Error: dispute_aggregation
+
+## [2026-06-17T21:35:18Z] ingest | Slack thread C08BWTULNPP 1770906899.979959
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1770906899-979959-53846bdd
+- wiki_revision_id: wikirev_e6d503d713b312c6b2300eab8a410282
+- source_document_id: srcdoc_521f84d36c8b0382f53c871b53846bdd
+- source_revision_id: srcrev_a7df68cbb8869604c3f187601dedae5b
+- summary: [story-orchestration-service] *fmt.wrapError: request timeout: context deadline exceeded
+
+## [2026-06-17T21:35:18Z] ingest | Slack thread C08BWTULNPP 1771905641.569179
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1771905641-569179-a8d29365
+- wiki_revision_id: wikirev_1bff9f989ff4f831dfb2e5b557f78370
+- source_document_id: srcdoc_5ad7ab806d1c5c9dda578e12a8d29365
+- source_revision_id: srcrev_8da7b1f2dc395eafd36844f34c47ac6e
+- summary: [story-orchestration-service] Indexing Error: ip_group
+
+## [2026-06-17T21:35:19Z] ingest | Slack thread C08BWTULNPP 1771977954.594189
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1771977954-594189-792e1183
+- wiki_revision_id: wikirev_8d5f5d148475be20c2be4645964f6d42
+- source_document_id: srcdoc_5d418769014a95a7bac0f592792e1183
+- source_revision_id: srcrev_1a5793603b4b3a322c74c027c3f5d472
+- summary: [story-orchestration-service] Aggregation Error: ip_transactions
+
+## [2026-06-17T21:35:19Z] ingest | Slack thread C08BWTULNPP 1757949117.438549
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1757949117-438549-c0d31fda
+- wiki_revision_id: wikirev_c7622f94df543ade33697b77a88d1a05
+- source_document_id: srcdoc_6b61b49b75b3ea033b95eeebc0d31fda
+- source_revision_id: srcrev_9a73801cb09a93df083d57208943e271
+- summary: [story-orchestration-service] Aggregation Error: ip_asset_metadata
+
+## [2026-06-17T21:35:19Z] ingest | Slack thread C08BWTULNPP channel
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-channel-48403fb0
+- wiki_revision_id: wikirev_bd2c6a6f813a2b6fd7ac17843588a5b2
+- source_document_id: srcdoc_6d98173eca656bf5435ac44d48403fb0
+- source_revision_id: srcrev_2373a038a5b933db0de8fc000aa2770c
+- summary: [story-orchestration-service] runtime.errorString: runtime error: invalid memory address or nil pointer dereference
+
+## [2026-06-17T21:35:20Z] ingest | Slack thread C08BWTULNPP 1772460164.208669
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772460164-208669-39b30548
+- wiki_revision_id: wikirev_351a12c15ffbbe03e893c651b3daa794
+- source_document_id: srcdoc_80486e8e8d4b883ae426064c39b30548
+- source_revision_id: srcrev_8a9356661dd55c49f66dfcd041debb66
+- summary: [story-orchestration-service] *errors.withStack: ERROR #42P10 there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+## [2026-06-17T21:35:20Z] ingest | Slack thread C08BWTULNPP 1772238649.873479
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1772238649-873479-6de1a925
+- wiki_revision_id: wikirev_d6cf3a8360cd18b26aa4cbc60f79a1dc
+- source_document_id: srcdoc_ca3af6ddd7601bf867faf5586de1a925
+- source_revision_id: srcrev_1922d92214b3f1a4040e7d3b837ad560
+- summary: [story-orchestration-service] Aggregation Error: collection_aggregation
+
+## [2026-06-17T21:35:20Z] ingest | Slack thread C08BWTULNPP 1780554037.550049
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1780554037-550049-6641ccaa
+- wiki_revision_id: wikirev_f77d94ce4ccf0c99451eb5bfdb4d9a58
+- source_document_id: srcdoc_d0b17829b1c0b813fbc88c526641ccaa
+- source_revision_id: srcrev_8ae4b48a4c1bf5fc7dad6bbd8c98a944
+- summary: [story-orchestration-service] runtime.errorString: runtime error: invalid memory address or nil pointer dereference
+
+## [2026-06-17T21:35:21Z] ingest | Slack thread C08BWTULNPP 1766798063.782629
+
+- status: published
+- slug: slack_message/slack-thread-c08bwtulnpp-1766798063-782629-019f56d4
+- wiki_revision_id: wikirev_4d076625c273ae721858120c1251de92
+- source_document_id: srcdoc_ddf1cc65b0baf39be6bdc061019f56d4
+- source_revision_id: srcrev_27527f081138744788fed9df022f65ed
+- summary: [story-orchestration-service] Indexing Error: licensing
+
+## [2026-06-17T21:38:18Z] ingest | Slack thread C08GPQT5SB1 1777538222.695589
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777538222-695589-12a0a373
+- wiki_revision_id: wikirev_6cf19eb24574a038c82f699c8795d1b4
+- source_document_id: srcdoc_00193b862c264a30c6b47b7d12a0a373
+- source_revision_id: srcrev_1d879cb2905d8e2ddd2abe2091fe8755
+- summary: [numo-web] Error: There was an error during concurrent rendering but React was able to recover by instead synchronously rendering the entire root.
+
+## [2026-06-17T21:38:18Z] ingest | Slack thread C08GPQT5SB1 1777571262.882449
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777571262-882449-eda02ba1
+- wiki_revision_id: wikirev_27711492989deecc4c89b1baabaf8133
+- source_document_id: srcdoc_027132247554cc81fd57e8efeda02ba1
+- source_revision_id: srcrev_c806bd2cab89609e8982d4b4692c1144
+- summary: [numo-web] Error: Error creating WebGL context.
+
+## [2026-06-17T21:38:18Z] ingest | Slack thread C08GPQT5SB1 1777599691.964959
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777599691-964959-381f48f8
+- wiki_revision_id: wikirev_bbf6349127947488aac49716968f9ab6
+- source_document_id: srcdoc_080a8324d3c6afb14f2e3ec4381f48f8
+- source_revision_id: srcrev_7c937aa9c5f4f1bf5d4e86b8fc3ac8a3
+- summary: [numo-web] InvalidStateError: Skipped ViewTransition due to document being hidden
+
+## [2026-06-17T21:38:19Z] ingest | Slack thread C08GPQT5SB1 1777614849.972009
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777614849-972009-077144b6
+- wiki_revision_id: wikirev_abc41f761937ed5ebb0d691d78432a6e
+- source_document_id: srcdoc_1a86cb7aeac72c60ea640326077144b6
+- source_revision_id: srcrev_c893a4ba7e9d8df15a37f91888fb3167
+- summary: [numo-web] Error: CancelledError
+
+## [2026-06-17T21:38:19Z] ingest | Slack thread C08GPQT5SB1 1777636789.227549
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777636789-227549-da59be07
+- wiki_revision_id: wikirev_0807fdef7c42f7f829b1e2abf93cb339
+- source_document_id: srcdoc_1b10113a9d11083e0977a2dcda59be07
+- source_revision_id: srcrev_f0b74cab729734113b0c50d64ab4b959
+- summary: [numo-web] TurnstileError: [Cloudflare Turnstile] Could not find widget for provided container.
+
+## [2026-06-17T21:38:19Z] ingest | Slack thread C08GPQT5SB1 1777609717.285419
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777609717-285419-0cae67fd
+- wiki_revision_id: wikirev_a9fb640d4b9d44c9bcaa0e06252ac95c
+- source_document_id: srcdoc_1b37e880d86046e96726c61a0cae67fd
+- source_revision_id: srcrev_f1e0da1b6718c75d011cc68f4f9d8edf
+- summary: [numo-web] InvalidStateError: Skipping view transition because document visibility state has become hidden.
+
+## [2026-06-17T21:38:20Z] ingest | Slack thread C08GPQT5SB1 1778836255.977629
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1778836255-977629-f0f3f890
+- wiki_revision_id: wikirev_054d9794358a559ae0c19f75fdc04ff5
+- source_document_id: srcdoc_1b999326e4b43d61cb05440cf0f3f890
+- source_revision_id: srcrev_3b885c4200309041805a3571da17ff6f
+- summary: [numo-web] Error: Error invoking postMessage: Java object is gone
+
+## [2026-06-17T21:38:20Z] ingest | Slack thread C08GPQT5SB1 1777581295.273759
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777581295-273759-f36e74e8
+- wiki_revision_id: wikirev_cb0aa859d28134071f406a5ad0e531e7
+- source_document_id: srcdoc_23635b7756686818b7fb0ed9f36e74e8
+- source_revision_id: srcrev_0b2f5b525ffd7ff71491edb5ee795480
+- summary: [numo-web] Error: CancelledError
+
+## [2026-06-17T21:38:20Z] ingest | Slack thread C08GPQT5SB1 1777521737.344579
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777521737-344579-f8e69239
+- wiki_revision_id: wikirev_3229622d6f4765ecb8f1ef5db116b260
+- source_document_id: srcdoc_37285ea428d034e81b455843f8e69239
+- source_revision_id: srcrev_068f666fa70aec2cf66575b7382ad0a4
+- summary: [numo-web] Error: There was an error during concurrent rendering but React was able to recover by instead synchronously rendering the entire root.
+
+## [2026-06-17T21:38:21Z] ingest | Slack thread C08GPQT5SB1 1777562204.303799
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777562204-303799-38153c89
+- wiki_revision_id: wikirev_54d538fb81777e68ec942d24a5f19e93
+- source_document_id: srcdoc_3998b845e76b362015aab46e38153c89
+- source_revision_id: srcrev_4f341734d0bd0aa4e6a50d46ce33bbd7
+- summary: [numo-web] TurnstileError: [Cloudflare Turnstile] Could not find widget for provided container.
+
+## [2026-06-17T21:38:21Z] ingest | Slack thread C08GPQT5SB1 1780643286.067619
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1780643286-067619-11d1459f
+- wiki_revision_id: wikirev_643430f4860c258ad2ee0cdd5613785f
+- source_document_id: srcdoc_443b3ccaff4557f23a53347911d1459f
+- source_revision_id: srcrev_2787dfdeaf20a04d88098f756b709e56
+- summary: :white_circle: <https://story-protocol.sentry.io/issues/7529007607/?referrer=slack&alert_rule_id=16972964&alert_type=issue|*Error*> /_common/login ```Failed to load iframe after al...
+
+## [2026-06-17T21:38:21Z] ingest | Slack thread C08GPQT5SB1 1777667943.642439
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777667943-642439-4e9fabb5
+- wiki_revision_id: wikirev_244a8d6eba9502b98cf81594d9b1e655
+- source_document_id: srcdoc_4aebdcb2894adc311ffa07804e9fabb5
+- source_revision_id: srcrev_6570fc1530212feb134585b9005325ea
+- summary: [numo-web] InvalidStateError: View transition was skipped because document visibility state is hidden.
+
+## [2026-06-17T21:38:22Z] ingest | Slack thread C08GPQT5SB1 1777480934.608509
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777480934-608509-875068c8
+- wiki_revision_id: wikirev_d21b2c380818e405f0b2003bfeb7acbf
+- source_document_id: srcdoc_4c791042f80cba08deda0568875068c8
+- source_revision_id: srcrev_fecd69e0c330c7b4125e65fac8e21627
+- summary: [numo-web] &lt;unknown&gt;
+
+## [2026-06-17T21:38:22Z] ingest | Slack thread C08GPQT5SB1 1777314003.374759
+
+- status: published
+- slug: slack_message/slack-thread-c08gpqt5sb1-1777314003-374759-1dcf3fca
+- wiki_revision_id: wikirev_8480bad5dd35e99fb0f32144b8b98c11
+- source_document_id: srcdoc_515ae61b94df2a59bdeac8551dcf3fca
+- source_revision_id: srcrev_d3b49a05dbde1010fcd92dc7da23829e
+- summary: [numo-web] TypeError: Object [object Object] has no method 'updateFrom'
+
