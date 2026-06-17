@@ -33150,3 +33150,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6033d9aacd7dbb81c7d5e48acd14ce42
 - summary: PR #479 on storyprotocol/protocol-core-v1 is ready for review. Multiple gentle bumps have been sent to potential reviewers @U04L0DD7UM9 and @U08V4SFU7LZ. @U04L0DD7UM9 replied to a ...
 
+## [2026-06-17T23:02:01Z] synthesis | registerDerivative Error: Royalty Percent Exceeds Maximum Revenue Share
+
+- status: published
+- slug: open-questions/registerderivative-maxrevenueshare-error
+- wiki_revision_id: wikirev_f248adaf8644118eaeee1879081a9d34
+- summary: A user encounters a ValueError when calling registerDerivative: 'The royalty percent for the parent IP with id ... is greater than the maximum revenue share ...', despite setting m...
+

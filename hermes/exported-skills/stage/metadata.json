@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "28b314c36b76bdcfe6cdb7e98859aae5be5d27b732f354c28dc8373e5e5a0fa6",
-        "size": 900930
+        "sha256": "b5139d7d83a3e365f299fce3634890443115768ae64ad78f764530a453a02538",
+        "size": 901370
       },
       {
         "path": "log.md",
-        "sha256": "6b9306ecf150444549024dcf69d70e93262a7a424165e1a1939b91a2dcf664dd",
-        "size": 1622395
+        "sha256": "60339f17272ceead6f68534f0f3ef724c6190ad97f72844861053e1754c4f6f7",
+        "size": 1622847
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4693,6 +4693,11 @@
         "path": "pages/open-questions/product-open-questions.md",
         "sha256": "58ef4337a62c0c607d86027b2d816e5ea35ac93d8b4c43878e7b825594a0fd81",
         "size": 3589
+      },
+      {
+        "path": "pages/open-questions/registerderivative-maxrevenueshare-error.md",
+        "sha256": "620190427c921b57d3fdfe9ee577722a0d2de4df61c08c77eb3d13b60490b5cd",
+        "size": 3690
       },
       {
         "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
@@ -7014,8 +7019,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T22:50:23Z",
-  "file_count": 1401,
+  "exported_at": "2026-06-17T23:07:04Z",
+  "file_count": 1402,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10292,7 +10297,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "61052e6457d093afe363cc9b9436f0266ed68b12a4eb35ed04f5aa0f66febfa9",
+  "previous_tree_hash": "44ae0d5e42452673bd4dffa47e5325d0246cc6cb9fddc027339cb34ae1759209",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10305,14 +10310,14 @@
   ],
   "skill_tree_hash": "a70e7acdbed3154abc1502bd1e6cd3e0fcf2ae04a60c15e9d085902ca11ac3c8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "44ae0d5e42452673bd4dffa47e5325d0246cc6cb9fddc027339cb34ae1759209",
+  "tree_hash": "f557e1b607184f5e93bdae4c9411138e2f0bbceca1c2510b44a3eec1247efa54",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 747,
+  "wiki_file_count": 748,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10321,13 +10326,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "28b314c36b76bdcfe6cdb7e98859aae5be5d27b732f354c28dc8373e5e5a0fa6",
-      "size": 900930
+      "sha256": "b5139d7d83a3e365f299fce3634890443115768ae64ad78f764530a453a02538",
+      "size": 901370
     },
     {
       "path": "log.md",
-      "sha256": "6b9306ecf150444549024dcf69d70e93262a7a424165e1a1939b91a2dcf664dd",
-      "size": 1622395
+      "sha256": "60339f17272ceead6f68534f0f3ef724c6190ad97f72844861053e1754c4f6f7",
+      "size": 1622847
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11733,6 +11738,11 @@
       "path": "pages/open-questions/product-open-questions.md",
       "sha256": "58ef4337a62c0c607d86027b2d816e5ea35ac93d8b4c43878e7b825594a0fd81",
       "size": 3589
+    },
+    {
+      "path": "pages/open-questions/registerderivative-maxrevenueshare-error.md",
+      "sha256": "620190427c921b57d3fdfe9ee577722a0d2de4df61c08c77eb3d13b60490b5cd",
+      "size": 3690
     },
     {
       "path": "pages/open-questions/rosetta-reconciliation-failure-public-testnet-block-393.md",
@@ -14051,5 +14061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5360695532b0925102d9151a3bbef34f1c31ab37986fc6a975dd1991d3b1ad63"
+  "wiki_tree_hash": "8b7fcf16ef9afbe80827580b77e66a90c90a314414d262cef13c2c3cca604ba3"
 }
