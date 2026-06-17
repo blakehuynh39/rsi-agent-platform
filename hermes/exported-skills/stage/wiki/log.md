@@ -25672,3 +25672,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_54053f68c1493fc04dc2bfbfeb666b66
 - summary: A comprehensive document detailing the fuzz testing system for the Story blockchain, including automation, configuration, code organization, engine modes, and extension points.
 
+## [2026-06-17T03:00:21Z] ingest | Aeneid Genesis Native Token — Allocation, Flow & Staking Snapshot
+
+- status: published
+- slug: notion_document/aeneid-genesis-native-token-allocation-flow-staking-snapshot-cc057deb
+- wiki_revision_id: wikirev_eb01f0d3a5a87436b1f8721c15f61f5d
+- source_document_id: srcdoc_ccb6ef3f6922ad4a55322dedcc057deb
+- source_revision_id: srcrev_f6a187f4c0bfa95cc579a687c2b56f27
+- summary: Source: [source](https://app.notion.com/p/Aeneid-Genesis-Native-Token-Allocation-Flow-Staking-Snapshot-37b051299a5481159765ed594e4531d0)
+
