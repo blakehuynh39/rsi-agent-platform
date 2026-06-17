@@ -25656,3 +25656,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_004ed210c9a2526193422ced51faf278
 - summary: Snapshot of Aeneid genesis IP token allocation and staking as of 2026-06-09, detailing liquid balances and staking positions for 8 genesis EOAs.
 
+## [2026-06-17T01:30:21Z] ingest | Fuzz Develop Document
+
+- status: published
+- slug: notion_document/fuzz-develop-document-a78c24c7
+- wiki_revision_id: wikirev_7a102688b4973ee5e9855eff92f7dc85
+- source_document_id: srcdoc_cd771799d96c1868906111fba78c24c7
+- source_revision_id: srcrev_617ec298cd5a27855c9d634504318d37
+- summary: Source: [source](https://app.notion.com/p/Fuzz-Develop-Document-381051299a548046b59fc3eeeb4ddf02)
+
