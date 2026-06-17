@@ -33127,3 +33127,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_781145d38510376e90682a662b674ace
 - summary: Discussion about enabling multiple authors to share ownership of an IPA in Magma, including control over permissions and royalties. Currently, only the minter/owner can control the...
 
+## [2026-06-17T22:45:30Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_33d98d2af481bf7281bf261bd2939481
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_452491708fde35bad168684b1dcc5539
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-17T22:46:15Z] synthesis | Checking Available Royalty Claims
+
+- status: published
+- slug: runbooks/checking-available-royalty-claims
+- wiki_revision_id: wikirev_cb907c37c86a7c4a14505c00018602e9
+- summary: Steps to determine if an account has unclaimed royalties using the Story Foundation portal.
+
+## [2026-06-17T22:46:43Z] synthesis | PR #479 Review (storyprotocol/protocol-core-v1)
+
+- status: published
+- slug: projects/pr-479-review
+- wiki_revision_id: wikirev_6033d9aacd7dbb81c7d5e48acd14ce42
+- summary: PR #479 on storyprotocol/protocol-core-v1 is ready for review. Multiple gentle bumps have been sent to potential reviewers @U04L0DD7UM9 and @U08V4SFU7LZ. @U04L0DD7UM9 replied to a ...
+

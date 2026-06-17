@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ea1c5b5eab984c07e251819749e66c40e24e4a0cdff9b8e714611e1e769c1a05",
-        "size": 900250
+        "sha256": "28b314c36b76bdcfe6cdb7e98859aae5be5d27b732f354c28dc8373e5e5a0fa6",
+        "size": 900930
       },
       {
         "path": "log.md",
-        "sha256": "5a2d14290315f7f8e9df9397a674fa328da952fa9ebdac1f5bf746f849e04d47",
-        "size": 1621222
+        "sha256": "6b9306ecf150444549024dcf69d70e93262a7a424165e1a1939b91a2dcf664dd",
+        "size": 1622395
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5720,6 +5720,11 @@
         "size": 9941
       },
       {
+        "path": "pages/projects/pr-479-review.md",
+        "sha256": "7888129b8828734675d191aebe275616d9695512580dd966930e6c4d2e8788e9",
+        "size": 2547
+      },
+      {
         "path": "pages/projects/pre-processing-optimization.md",
         "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
         "size": 1257
@@ -6128,6 +6133,11 @@
         "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
         "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
         "size": 2578
+      },
+      {
+        "path": "pages/runbooks/checking-available-royalty-claims.md",
+        "sha256": "99dff3a3e7fbe5afe2c433047b7ec6e2ddd1a3e5b8d955a802cc100b8f3984c5",
+        "size": 2510
       },
       {
         "path": "pages/runbooks/claim-backend-runbook.md",
@@ -7004,8 +7014,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T22:33:42Z",
-  "file_count": 1399,
+  "exported_at": "2026-06-17T22:50:23Z",
+  "file_count": 1401,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10282,7 +10292,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "1a59f345f7a4ff027f95c9d571c10c29336c0aa2ac00ca6b51dbe3ede9f8e768",
+  "previous_tree_hash": "61052e6457d093afe363cc9b9436f0266ed68b12a4eb35ed04f5aa0f66febfa9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10295,14 +10305,14 @@
   ],
   "skill_tree_hash": "a70e7acdbed3154abc1502bd1e6cd3e0fcf2ae04a60c15e9d085902ca11ac3c8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "61052e6457d093afe363cc9b9436f0266ed68b12a4eb35ed04f5aa0f66febfa9",
+  "tree_hash": "44ae0d5e42452673bd4dffa47e5325d0246cc6cb9fddc027339cb34ae1759209",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 745,
+  "wiki_file_count": 747,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10311,13 +10321,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ea1c5b5eab984c07e251819749e66c40e24e4a0cdff9b8e714611e1e769c1a05",
-      "size": 900250
+      "sha256": "28b314c36b76bdcfe6cdb7e98859aae5be5d27b732f354c28dc8373e5e5a0fa6",
+      "size": 900930
     },
     {
       "path": "log.md",
-      "sha256": "5a2d14290315f7f8e9df9397a674fa328da952fa9ebdac1f5bf746f849e04d47",
-      "size": 1621222
+      "sha256": "6b9306ecf150444549024dcf69d70e93262a7a424165e1a1939b91a2dcf664dd",
+      "size": 1622395
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12750,6 +12760,11 @@
       "size": 9941
     },
     {
+      "path": "pages/projects/pr-479-review.md",
+      "sha256": "7888129b8828734675d191aebe275616d9695512580dd966930e6c4d2e8788e9",
+      "size": 2547
+    },
+    {
       "path": "pages/projects/pre-processing-optimization.md",
       "sha256": "e2ee3b5ad6e79535c607f511d9cba457a0c04effbd5a58b7f6a945d5a9b30dce",
       "size": 1257
@@ -13158,6 +13173,11 @@
       "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
       "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
       "size": 2578
+    },
+    {
+      "path": "pages/runbooks/checking-available-royalty-claims.md",
+      "sha256": "99dff3a3e7fbe5afe2c433047b7ec6e2ddd1a3e5b8d955a802cc100b8f3984c5",
+      "size": 2510
     },
     {
       "path": "pages/runbooks/claim-backend-runbook.md",
@@ -14031,5 +14051,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "99d2bf0edfbe4e4a6aa21ff0ce489a92c10fc55fbf212648f3c7809d99fca0f5"
+  "wiki_tree_hash": "5360695532b0925102d9151a3bbef34f1c31ab37986fc6a975dd1991d3b1ad63"
 }
