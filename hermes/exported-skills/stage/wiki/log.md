@@ -28473,3 +28473,921 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_3896160d1393c5465ee31d17d8678add
 - summary: CUSTOMER SUPPORT INQUIRIES: Hey Team! I am going through the Customer Support emails going to <mailto:info@numolabs.ai|info@numolabs.ai> and I need to get some help with preparing ...
 
+## [2026-06-17T21:55:23Z] ingest | Slack thread C0AL7EKNHDF 1777063730.176929
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777063730-176929-4c22514b
+- wiki_revision_id: wikirev_a9aafe50a83b2056384e0fe8019c9c44
+- source_document_id: srcdoc_3a4d4fd175946a7e08a9afc84c22514b
+- source_revision_id: srcrev_61b66c6f40efb79a5c5952541a4d22f0
+- summary: password?
+
+## [2026-06-17T21:55:23Z] ingest | Slack thread C0AL7EKNHDF 1777336021.714469
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777336021-714469-7c9946ec
+- wiki_revision_id: wikirev_46baa5ddc6b5ab65d30d42839d961107
+- source_document_id: srcdoc_3c6e0846357b7077adf26b207c9946ec
+- source_revision_id: srcrev_7fe6ad4e44a786767c1f941e42adc4a4
+- summary: <@U08V4SFU7LZ> <@U04L0DD6B6F> Currently I setup wallet balance like below. should we keep it or change for production?
+
+## [2026-06-17T21:55:24Z] ingest | Slack thread C0AL7EKNHDF 1776978110.248339
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776978110-248339-1e0226d4
+- wiki_revision_id: wikirev_dbea351cf5c994944b785a9ac0ebbc0f
+- source_document_id: srcdoc_3cea34af0c31814cb6362a5c1e0226d4
+- source_revision_id: srcrev_c58e0d975edeb7b2db97083491f2e17e
+- summary: <!here> I've cloned over the PSDN Szn 1 Prelaunch checklist we have and would be useful to go over leading up to the launch to make sure that we're ready
+
+## [2026-06-17T21:55:24Z] ingest | Slack thread C0AL7EKNHDF 1777495573.226019
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777495573-226019-957421a4
+- wiki_revision_id: wikirev_5b9ecbfa741eaf9dc656a385e759abb0
+- source_document_id: srcdoc_3fa452eafbc9d00ae1db173a957421a4
+- source_revision_id: srcrev_c6645ee7b9abec0f9e215fd39f40bd4f
+- summary: India staying awake for Numo, users grinding hard
+
+## [2026-06-17T21:55:24Z] ingest | Slack thread C0AL7EKNHDF 1777065130.869549
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777065130-869549-6f66c0d9
+- wiki_revision_id: wikirev_f210f715017b9b664cf9db59642a3f39
+- source_document_id: srcdoc_43866934ca2265b26d5dd1956f66c0d9
+- source_revision_id: srcrev_35597b137356eb4ba99634dfd5a3d13a
+- summary: Hi Team, quick update on Numo launch timeline. We are pushing the *web app launch date from Monday 4/27 to 4/29* after the go/no-go review. Some of the critical no-go items we need...
+
+## [2026-06-17T21:55:25Z] ingest | Slack thread C0AL7EKNHDF 1776889241.520559
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776889241-520559-fbda7e4f
+- wiki_revision_id: wikirev_39f753e33d15b45446b37ea0fc3c89ad
+- source_document_id: srcdoc_449bc4b6a9fa7e78802b11f4fbda7e4f
+- source_revision_id: srcrev_9f8117d5588ab213e76c5221d2457466
+- summary: <@U0883L0RBRR> Could you please have a security test stage for the Numo app release. I'd need to get a quick pentest done before the release.
+
+## [2026-06-17T21:55:25Z] ingest | Slack thread C0AL7EKNHDF 1776342791.378739
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776342791-378739-764f7f15
+- wiki_revision_id: wikirev_286763b420bb65db47d5b07b76f61455
+- source_document_id: srcdoc_47476e992ac4b120079680e1764f7f15
+- source_revision_id: srcrev_6ed83cc97d7260f5010c50ce54903a4c
+- summary: +
+
+## [2026-06-17T21:55:25Z] ingest | Slack thread C0AL7EKNHDF 1777566566.938799
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777566566-938799-39911568
+- wiki_revision_id: wikirev_2441008dafd87f10e6088135ea4895b4
+- source_document_id: srcdoc_4c08574d791f88eed34dadac39911568
+- source_revision_id: srcrev_c22aeaa518af4c12d4f182c318b89963
+- summary: :x: Numo digest failed (``). See <https://github.com/piplabs/numo-monorepo/actions/runs/25177069826|workflow run> for details.
+
+## [2026-06-17T21:55:26Z] ingest | Slack thread C0AL7EKNHDF 1777058713.062729
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777058713-062729-c3ed9989
+- wiki_revision_id: wikirev_1134ad8723f69c59d2b0e53402d23384
+- source_document_id: srcdoc_4cdf8b5e3ca9324953c8a224c3ed9989
+- source_revision_id: srcrev_981bc9af1e2e3434f973caa5dafae568
+- summary: <@U0A2D9U625V> <@U0772SH7BRA> have we settled on where the spoken transcripts are going to land? Per last meeting, preferably in a Cloudflare R2 bucket vs. S3.
+
+## [2026-06-17T21:55:26Z] ingest | Slack thread C0AL7EKNHDF 1777388397.474779
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777388397-474779-888f75d6
+- wiki_revision_id: wikirev_772e04c7a607a0a85d4dc837bae9c8d0
+- source_document_id: srcdoc_4d97482c78a4a39f8aba0ded888f75d6
+- source_revision_id: srcrev_e9eba71d39566d9725306e25064650ce
+- summary: couple of pre-dogfooding notes :thread:
+
+## [2026-06-17T21:55:26Z] ingest | Slack thread C0AL7EKNHDF 1774556082.162739
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774556082-162739-3affa077
+- wiki_revision_id: wikirev_336b6266648795de3380e3d6a808b585
+- source_document_id: srcdoc_502c32a21b883c2863fc71e93affa077
+- source_revision_id: srcrev_4d1fe0c65783d04a8bc5843d0c79a100
+- summary: <@U086FECSTP1> I've listed some of the questions in this <https://www.notion.so/storyprotocol/Compliance-Questions-335051299a54807aa8d7eaeb1b9d1cb7?source=copy_link|sheet>, with mo...
+
+## [2026-06-17T21:55:27Z] ingest | Slack thread C0AL7EKNHDF 1776873239.171509
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776873239-171509-55a45828
+- wiki_revision_id: wikirev_2bc251bfeeb217be1d90a090841deb6b
+- source_document_id: srcdoc_5854999b1ba7f2eadf4ca55e55a45828
+- source_revision_id: srcrev_1dc259a369c6ea973214df3358332df4
+- summary: Payments / Whop update: yesterday I setup an account and things seem pretty straightforward so we are proceeding with proper account setup via <@U08JPHTRTLN> today, as he'll need t...
+
+## [2026-06-17T21:55:27Z] ingest | Slack thread C0AL7EKNHDF 1777330718.014099
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777330718-014099-29ccdf55
+- wiki_revision_id: wikirev_308be5697ebec0945109bdbd4c3161a2
+- source_document_id: srcdoc_58c4c1e7f61ad4e2ba62645529ccdf55
+- source_revision_id: srcrev_b485370681ea20cd96f568657cff3771
+- summary: <@U0AQZPN6ZQV> For the Beehiiv thing, the only thing I need help with is creating the email and what you want it to look like. If you go under the Numo project, click "Automations"...
+
+## [2026-06-17T21:55:27Z] ingest | Slack thread C0AL7EKNHDF 1776798650.366219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776798650-366219-2430e893
+- wiki_revision_id: wikirev_716df636c82dd0ecc061cf337dcdb5bf
+- source_document_id: srcdoc_5b8c60dc5e3b7972a78857ca2430e893
+- source_revision_id: srcrev_9408769bb40885d1d4defd5e34270589
+- summary: <@U04L0DD71TM> <@U0AU3DWLVE2> I discussed with <@U06A5AQ1VD3> regarding showing the "payout tags" on the Task cards, we think we shouldn't show the "exact" payout amount in numbers...
+
+## [2026-06-17T21:55:27Z] ingest | Slack thread C0AL7EKNHDF 1775003037.091769
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775003037-091769-89af8995
+- wiki_revision_id: wikirev_b8d488f911eaf81fc9e17fceb6b435c7
+- source_document_id: srcdoc_5f1c78a15d93c013702839e289af8995
+- source_revision_id: srcrev_408845dc5a87c376fab31b8ad0f163d4
+- summary: FYI <@U07A7AUGL5V> <@U08951K4SRY> still finalizing exact dates, but we're looking to be code complete on Numo and ready for QA on 4/13 in advance of a (hopefully) a 4/20 launch. I ...
+
+## [2026-06-17T21:55:28Z] ingest | Slack thread C0AL7EKNHDF 1776875283.522869
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776875283-522869-9b2e33a5
+- wiki_revision_id: wikirev_db4d43f06f43551784363dc622347b13
+- source_document_id: srcdoc_635c6d6ac5f1d51a55ef312f9b2e33a5
+- source_revision_id: srcrev_98b5bf48aaf2164acbad225e2401b410
+- summary: Quick question: will multipliers automatically apply if a poseidon user signs up with their S1 email address before we blast them? or does it have to be via special link? I'm antic...
+
+## [2026-06-17T21:55:28Z] ingest | Slack thread C0AL7EKNHDF 1775153012.510199
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775153012-510199-34e5908b
+- wiki_revision_id: wikirev_82e3f2fe4d34ecff3e6ea07242a7fc5b
+- source_document_id: srcdoc_653c9dfb8bd5695482ab788734e5908b
+- source_revision_id: srcrev_ad7b7d413d9c1c8c1be9bcf326f97b6f
+- summary: just catching up on the notes from the meeting I couldn't make earlier
+
+## [2026-06-17T21:55:28Z] ingest | Slack thread C0AL7EKNHDF 1777061851.343039
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777061851-343039-24c0c180
+- wiki_revision_id: wikirev_3de68649c427902ceaee2d8611ba1d4c
+- source_document_id: srcdoc_65608ac66a81c24d178af9ae24c0c180
+- source_revision_id: srcrev_81db517c736d40c2ab1542a2084a3f37
+- summary: <@U04L0DD6B6F> I've added additional transcripts for all the languages. There are now 350,000 transcripts per language in this bucket - <https://dash.cloudflare.com/9d9dba3b9867413...
+
+## [2026-06-17T21:55:29Z] ingest | Slack thread C0AL7EKNHDF 1777537175.519859
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777537175-519859-086fc047
+- wiki_revision_id: wikirev_7a4980fb303637ebd047bda1f5ec1cd9
+- source_document_id: srcdoc_6654509e3fdbd3b5a283ef2c086fc047
+- source_revision_id: srcrev_1b6d24f2dfa12d2067262471edcabd71
+- summary: [TEST] Numo afternoon digest: 6,314 submissions in last 24h, 6,322 pending review.
+
+## [2026-06-17T21:55:29Z] ingest | Slack thread C0AL7EKNHDF 1777539361.184219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777539361-184219-aad4777b
+- wiki_revision_id: wikirev_6422cfb045e40aaf08fffd4e290ea033
+- source_document_id: srcdoc_688d4add0189f9211b47ac6faad4777b
+- source_revision_id: srcrev_31c5342a2db8d723556ea415a86562bd
+- summary: Hey folks, I know it’s been an absolute marathon getting v1 out the door.
+
+## [2026-06-17T21:55:29Z] ingest | Slack thread C0AL7EKNHDF 1777452794.059259
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777452794-059259-c5350abf
+- wiki_revision_id: wikirev_d4a088b015eea2dd02c5b945540bb736
+- source_document_id: srcdoc_6c1d75f696150cceb451cbe0c5350abf
+- source_revision_id: srcrev_420e938b11de9a65d307e6baafcd378e
+- summary: Here is the infra related dashboard for war room cc. <@U04L0DD6B6F> <@U0772SH7BRA> <@U08V4SFU7LZ> <@U04VDFP1YQ5>
+
+## [2026-06-17T21:55:30Z] ingest | Slack thread C0AL7EKNHDF 1777073716.340969
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777073716-340969-e2ca7984
+- wiki_revision_id: wikirev_ca4dd485c0bf722305dc3a36529341c2
+- source_document_id: srcdoc_6f043ea9fc23e9edfa7172bce2ca7984
+- source_revision_id: srcrev_efdde9030ee6353e85e262cd7be9ebf1
+- summary: Hey <@U04L0DD6B6F> Marketing needs to sync with Product / Eng in order to get UTMs / GA Events / Meta Pixel / Meta SDK / App Events for Beehive set up for tracking, ads and drip ca...
+
+## [2026-06-17T21:55:30Z] ingest | Slack thread C0AL7EKNHDF 1777480884.930029
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777480884-930029-b7e1e0bc
+- wiki_revision_id: wikirev_48222050833e2aa4582162dcda3873d0
+- source_document_id: srcdoc_70da8c42babe725436dc3b7cb7e1e0bc
+- source_revision_id: srcrev_b164703c69903d218801925abbf8deb9
+- summary: We're LIVE!! Thank you everyone for all the hardwork poured in!
+
+## [2026-06-17T21:55:30Z] ingest | Slack thread C0AL7EKNHDF 1776963766.374219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776963766-374219-549efa17
+- wiki_revision_id: wikirev_d337e9e46adf701301b831972c4593c2
+- source_document_id: srcdoc_71cfebe2b0f64fb902a1c33e549efa17
+- source_revision_id: srcrev_c11627e71cc71cc1393e7e1c907064bb
+- summary: Following up on our discussion during the recent meeting, we now have a admin dashboard designed specifically to streamline how we monitor our core performance metrics and extract ...
+
+## [2026-06-17T21:55:31Z] ingest | Slack thread C0AL7EKNHDF 1776445105.677419
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776445105-677419-d8fbbc58
+- wiki_revision_id: wikirev_5c99c191a22939043e032713dfaf1341
+- source_document_id: srcdoc_76863347daf355bd7d746d5bd8fbbc58
+- source_revision_id: srcrev_4d9cc5c7b8eae98b5b4225ef7250482b
+- summary: Data receipts thread :thread:
+
+## [2026-06-17T21:55:31Z] ingest | Slack thread C0AL7EKNHDF 1776889464.626269
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776889464-626269-912e5d5c
+- wiki_revision_id: wikirev_24e2c8add0aea065ed9f4f7586d67ba9
+- source_document_id: srcdoc_76f4cc2b05d657771e2b6784912e5d5c
+- source_revision_id: srcrev_9117382373286cd8dc517c2da7780e96
+- summary: <@U0AG7GU6WBU> <@U07A7AUGL5V> <@U08AGDT08E7> <@U06A5AQ1VD3> please advise, we need to have an IP fund to fund our wallets to ensure IP registration work seamlessly
+
+## [2026-06-17T21:55:32Z] ingest | Slack thread C0AL7EKNHDF 1777307082.574879
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777307082-574879-2f6671a5
+- wiki_revision_id: wikirev_7900354444f2bc7a2bb7532cea2defb0
+- source_document_id: srcdoc_775165ec6e3ffeef75b5901f2f6671a5
+- source_revision_id: srcrev_955f749e52387be6202f88535c4f78c7
+- summary: should probably transfer that process lol, but for now super easy to just hit them up via upwork for the incremental asks/gigs
+
+## [2026-06-17T21:55:32Z] ingest | Slack thread C0AL7EKNHDF 1777274247.125889
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777274247-125889-156e20d4
+- wiki_revision_id: wikirev_80e317f19a94901ef40412f64a832f26
+- source_document_id: srcdoc_79e891e93fed704f0d198e25156e20d4
+- source_revision_id: srcrev_5ef481d47b239cfe8c7b496d29e1f5ba
+- summary: *I reviewed the task contribution flow and redesigned it:*
+
+## [2026-06-17T21:55:32Z] ingest | Slack thread C0AL7EKNHDF 1777309283.074749
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777309283-074749-2a64ae41
+- wiki_revision_id: wikirev_a9869b3c2667927d7e5276efce0ea8eb
+- source_document_id: srcdoc_7ce55a4050f900f71ef123f92a64ae41
+- source_revision_id: srcrev_855aaecbcdf576562cea77b57ad3e074
+- summary: Hey <!here>, thanks for all the hard work up to this point.
+
+## [2026-06-17T21:55:33Z] ingest | Slack thread C0AL7EKNHDF 1776981403.491799
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776981403-491799-3203b255
+- wiki_revision_id: wikirev_57e9e8273daab710def185314bdd4e2d
+- source_document_id: srcdoc_7e58555d50fd519f1ba7b7bd3203b255
+- source_revision_id: srcrev_b68acd2c4298165373f1aa52fac8e2fd
+- summary: Do you mind if we switch our icons to Phosphor for consistency? It’s a solid option and free:
+
+## [2026-06-17T21:55:33Z] ingest | Slack thread C0AL7EKNHDF 1775652988.334329
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775652988-334329-1daac08b
+- wiki_revision_id: wikirev_4be705322a5aa67f2237b96317af1137
+- source_document_id: srcdoc_7e9d2cb701e8a7fd7e2fa2781daac08b
+- source_revision_id: srcrev_f6a35b77360858de3df9f1949c63f269
+- summary: fwiw, I went out a couple times over the past 2 days to attempt the Kled task in the attached picture, bc how could I pass up a task this easy which is labelled "High Pay".
+
+## [2026-06-17T21:55:33Z] ingest | Slack thread C0AL7EKNHDF 1777573694.107169
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777573694-107169-2b008494
+- wiki_revision_id: wikirev_82d5c132748b7c9eee44e3bcf27d7f52
+- source_document_id: srcdoc_7f71d6d58d3a9e6ea92e96b42b008494
+- source_revision_id: srcrev_6613c67abde0a4c6052515bc46e42a73
+- summary: reg the professional translations stream from the stand today
+
+## [2026-06-17T21:55:34Z] ingest | Slack thread C0AL7EKNHDF 1776436067.883419
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776436067-883419-c0e28a6a
+- wiki_revision_id: wikirev_280deb120e7d6f9b7e8108741e9b8630
+- source_document_id: srcdoc_8645fec6094b5698a10d153dc0e28a6a
+- source_revision_id: srcrev_f2206e83bb789737a091214e6993ba16
+- summary: FYI
+
+## [2026-06-17T21:55:34Z] ingest | Slack thread C0AL7EKNHDF 1776877533.145279
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776877533-145279-b501323b
+- wiki_revision_id: wikirev_c5090e0ddbb709255a33a9c71163ddf0
+- source_document_id: srcdoc_8c36ab5e89a9096b38592503b501323b
+- source_revision_id: srcrev_6d1e4fc5004a0d0289b907ca33e61284
+- summary: <@U08AGDT08E7> <@U06A5AQ1VD3> we might want to hit up World to give them heads up - still waiting on the some design assets but should be handed over today
+
+## [2026-06-17T21:55:34Z] ingest | Slack thread C0AL7EKNHDF 1777075109.214869
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777075109-214869-dc3e5b94
+- wiki_revision_id: wikirev_ab643bb1b8873c0aa5e93fdc33e6d51b
+- source_document_id: srcdoc_8fc90a224160b65d12023aaedc3e5b94
+- source_revision_id: srcrev_b287af2a3dbf43d1c2258c2b045b85eb
+- summary: <@U04L0DD6B6F> <@U0772SH7BRA> <@U083MMT1771> what is _/v1/me/resumes/{resume_id}/activate_ endpoint?
+
+## [2026-06-17T21:55:35Z] ingest | Slack thread C0AL7EKNHDF 1775540867.382379
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775540867-382379-59eaae64
+- wiki_revision_id: wikirev_77cb06c12144b070f910c304d141fb46
+- source_document_id: srcdoc_91a0956af8c1a78d62fdf10659eaae64
+- source_revision_id: srcrev_9442979e504a2800dd803cf6730f22ca
+- summary: Hi Team, Please find the analysis for our Phase 1 `Payout options for India, Philippines and Vietnam` markets <https://www.notion.so/storyprotocol/Payout-Infrastructure-Analysis-33...
+
+## [2026-06-17T21:55:35Z] ingest | Slack thread C0AL7EKNHDF 1777501727.413219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777501727-413219-c4d7be52
+- wiki_revision_id: wikirev_c112a47216ac6ba1d1fddd68bc6371c6
+- source_document_id: srcdoc_9387ba5a6485fb3bff185174c4d7be52
+- source_revision_id: srcrev_2e8d6ef9a9cc1ef10581a0f19a1193c1
+- summary: `Payouts status`: i was able to run a full end to end payouts flow for stripe on sandbox
+
+## [2026-06-17T21:55:35Z] ingest | Slack thread C0AL7EKNHDF 1777924305.712219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777924305-712219-ffcd48ae
+- wiki_revision_id: wikirev_40ae50417e18169515a954d7230fb33c
+- source_document_id: srcdoc_93d6da8ebd97c57f0690e397ffcd48ae
+- source_revision_id: srcrev_99ecca78dc430c660105221d16041108
+- summary: So timely <@U0866HDK755> - good looks!!
+
+## [2026-06-17T21:55:36Z] ingest | Slack thread C0AL7EKNHDF 1774988260.628259
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774988260-628259-58ae0aab
+- wiki_revision_id: wikirev_3f2d8fe9fa49eef10f9277f266c40bf4
+- source_document_id: srcdoc_9cb5f6ac790e322d741674d658ae0aab
+- source_revision_id: srcrev_4c7d0d6bda1f4886d09ba6a231c5b227
+- summary: <!here> Sandeep, Andrea and I just had a call with Shinji Watanabe. He's a prof from CMU and the creator / lead of ESPnet, the most widely used open-source toolkit for end-to-end s...
+
+## [2026-06-17T21:55:36Z] ingest | Slack thread C0AL7EKNHDF 1777556459.440649
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777556459-440649-3ef9bc1d
+- wiki_revision_id: wikirev_eb07a280c853ee64387c8913ec792efd
+- source_document_id: srcdoc_9f2692790179d5ee419607083ef9bc1d
+- source_revision_id: srcrev_bf899ca3be6bfa4737a713d23631069b
+- summary: gm gang – i have access to the dashboard, but i think there may be an access issue because I can't see any data.
+
+## [2026-06-17T21:55:36Z] ingest | Slack thread C0AL7EKNHDF 1777494350.428769
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777494350-428769-f8a7791b
+- wiki_revision_id: wikirev_ab9d9e7605e313d15004b72a1621ba5d
+- source_document_id: srcdoc_9f8cd6a8340cf05c07dc81eff8a7791b
+- source_revision_id: srcrev_e75c689c7fea6ef0df457f91990a31fe
+- summary: Some Kled intel from another channel: 90% of the payouts are in stablecoin.
+
+## [2026-06-17T21:55:37Z] ingest | Slack thread C0AL7EKNHDF 1777335655.979219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777335655-979219-fa69093e
+- wiki_revision_id: wikirev_50f04c067297aa58d58189e7b7cb4039
+- source_document_id: srcdoc_a4cb0f9381ad6f471b254fadfa69093e
+- source_revision_id: srcrev_867f69e4892fe2032345a01cb1d2f82d
+- summary: <@U05A515NBFC> <@U083MMT1771> can you guys quickly update all the dependencies pointed out <https://github.com/piplabs/numo-monorepo/security/dependabot?q=is%3Aopen+severity%3Ahigh...
+
+## [2026-06-17T21:55:37Z] ingest | Slack thread C0AL7EKNHDF 1776811856.779369
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776811856-779369-2cbbf4e8
+- wiki_revision_id: wikirev_a5c593dabe892d7fac8b50c4edd1237a
+- source_document_id: srcdoc_a7637208f0c9c2ac582aa4cc2cbbf4e8
+- source_revision_id: srcrev_073abf75ed71a8c599007e95a184083e
+- summary: We actually extended the meeting the product alignment meeting at 1pm to cover the Poseidon pitfalls so canceling the meeting at 4pm to return time to people unless there are speci...
+
+## [2026-06-17T21:55:37Z] ingest | Slack thread C0AL7EKNHDF 1776721455.179499
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776721455-179499-fd16e168
+- wiki_revision_id: wikirev_32dbec7b3b1e106159f816cd987520be
+- source_document_id: srcdoc_a7a00742d01fc7b3e83c3367fd16e168
+- source_revision_id: srcrev_b944fc391bbf1d58e7161b48087082e1
+- summary: Hey <@U067QP5PD6J> <@U0772SH7BRA> <@U04L0DD6B6F> <@U09ES4C0952>, we're kicking off development for data validation, could you help answer the questions below so we can align?
+
+## [2026-06-17T21:55:38Z] ingest | Slack thread C0AL7EKNHDF 1777486671.244699
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777486671-244699-727d42c2
+- wiki_revision_id: wikirev_657a0cda5fd2fb724f88ead04c9a306a
+- source_document_id: srcdoc_b29a213b73b037391b786405727d42c2
+- source_revision_id: srcrev_092abe4c6bbdd1dbd35f7c3a1e7f389f
+- summary: 2hrs in we're at 457 users and almost 900 submissions
+
+## [2026-06-17T21:55:38Z] ingest | Slack thread C0AL7EKNHDF 1775679782.066869
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775679782-066869-7c52b64e
+- wiki_revision_id: wikirev_3432391b3428cb1f1f7a09d61283b77e
+- source_document_id: srcdoc_b9514661fadb276af4ddd91c7c52b64e
+- source_revision_id: srcrev_8922250fcb505d392b88281a8663a8ba
+- summary: <@U04L0DD6B6F> <@U05A515NBFC> it would be great to have some email format for the test email blast script. Can we get some html templates ? or do u want me to just send them a perm...
+
+## [2026-06-17T21:55:38Z] ingest | Slack thread C0AL7EKNHDF 1776970701.796919
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776970701-796919-483bd323
+- wiki_revision_id: wikirev_c67bbcbc422c21f8e46d617c33e91e4b
+- source_document_id: srcdoc_b9a3ade23e00ec122591ab6c483bd323
+- source_revision_id: srcrev_7d50af5f0b06fdc95a206251a6598ec0
+- summary: <@U04L0DD6B6F> I'm getting the following error while trying to login.
+
+## [2026-06-17T21:55:39Z] ingest | Slack thread C0AL7EKNHDF 1777650142.899399
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777650142-899399-e8abe74a
+- wiki_revision_id: wikirev_68abc4c064b77d35d05e28202ff0edfc
+- source_document_id: srcdoc_bae26f9a746e85bea446f255e8abe74a
+- source_revision_id: srcrev_b83015a8e96a153c778740ed2016d578
+- summary: Slack file attachment:
+
+## [2026-06-17T21:55:39Z] ingest | Slack thread C0AL7EKNHDF 1777417919.009219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777417919-009219-9e670664
+- wiki_revision_id: wikirev_78261f7e708b78d6fda91e91f6dd0173
+- source_document_id: srcdoc_bcc061a44a64afeb038aa44e9e670664
+- source_revision_id: srcrev_671a048d01bfad0fc0ae9b79946a6c4b
+- summary: hey <@U08332YRB7W> can you please help <@U0AQZPN6ZQV> and I get access to <mailto:info@numolabs.ai|info@numolabs.ai> inbox?
+
+## [2026-06-17T21:55:39Z] ingest | Slack thread C0AL7EKNHDF 1776363188.494409
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776363188-494409-d0f9f365
+- wiki_revision_id: wikirev_74f9f48268220f2008ab340e6f4690bc
+- source_document_id: srcdoc_bffb3a06733dff3c379675a3d0f9f365
+- source_revision_id: srcrev_7a0d265d6283bffabee56bbe106bb12d
+- summary: do we have a twitter account yet for numo
+
+## [2026-06-17T21:55:39Z] ingest | Slack thread C0AL7EKNHDF 1775158375.889599
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775158375-889599-cf467e8e
+- wiki_revision_id: wikirev_d9fd4109227814ad8a3668e46e6a7aad
+- source_document_id: srcdoc_c2def0666e044df90fb393e0cf467e8e
+- source_revision_id: srcrev_bbd23d69b3eba19e879d25eb9ee5b402
+- summary: <@U08AGDT08E7> going over the tier system you drafted up.
+
+## [2026-06-17T21:55:40Z] ingest | Slack thread C0AL7EKNHDF 1776442670.140839
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776442670-140839-0d8419de
+- wiki_revision_id: wikirev_2613f64c4a19c2db85340ca4a9a78126
+- source_document_id: srcdoc_c2e267791673c434dadd16850d8419de
+- source_revision_id: srcrev_2dbaef07ac26e26319e9315cb4485113
+- summary: Sharing a quick summary from *Numo product leadership sync* for visibility here :thread:
+
+## [2026-06-17T21:55:40Z] ingest | Slack thread C0AL7EKNHDF 1775849074.344769
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775849074-344769-9513a586
+- wiki_revision_id: wikirev_613c24369e8d512de1c2f9889f0f6530
+- source_document_id: srcdoc_cda1d88ed9ec5a6b920327719513a586
+- source_revision_id: srcrev_580808ca9a954231ae7db929661cdb11
+- summary: hey <@U0AG7GU6WBU> following the call, we want to setup a workstream to have <@U067QP5PD6J> work with Poseidon folks on transcript quality sometime early next week.
+
+## [2026-06-17T21:55:40Z] ingest | Slack thread C0AL7EKNHDF 1776823253.218389
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776823253-218389-013df3ec
+- wiki_revision_id: wikirev_c773c18285d6eb403b70bb3f852c038a
+- source_document_id: srcdoc_d1feacf96ee07c7f0bcfe613013df3ec
+- source_revision_id: srcrev_7a201146c3df5651c9f9bd818a1771d0
+- summary: <@U0772SH7BRA> <@U083MMT1771> Looks all data is coming. please take a look if all looks good and suggest me which alerting needed
+
+## [2026-06-17T21:55:41Z] ingest | Slack thread C0AL7EKNHDF 1776444070.358029
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776444070-358029-611b85a1
+- wiki_revision_id: wikirev_c6a76e89e90ba500713bced128428fe4
+- source_document_id: srcdoc_d211f452722d81a95fc77a90611b85a1
+- source_revision_id: srcrev_1d45fbe9387f61ed26964b1d57b1de7f
+- summary: <!here> Anyone has Android to test out the mobile app? I will invite to the internal testing list
+
+## [2026-06-17T21:55:41Z] ingest | Slack thread C0AL7EKNHDF 1777335065.306989
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777335065-306989-60a45243
+- wiki_revision_id: wikirev_0c3a813482e1a7fc9915a02ae753e8cd
+- source_document_id: srcdoc_d422418b077964133b21110960a45243
+- source_revision_id: srcrev_1b6f7682ab53d72fe6df950a29b5f6c1
+- summary: Hey <@U04L0DD6B6F>, here's the diversity analysis for the transcripts I uploaded - <https://www.notion.so/DePIN-App-S2-Transcript-Diversity-34f5654de20e804e8a47e201491c48ba?source=...
+
+## [2026-06-17T21:55:41Z] ingest | Slack thread C0AL7EKNHDF 1776878311.571489
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776878311-571489-b54d1ac0
+- wiki_revision_id: wikirev_869e8caab6a5e4fa28a8c22449187d5d
+- source_document_id: srcdoc_d58ef9042cfc61e02a79d6fab54d1ac0
+- source_revision_id: srcrev_6d22b05b0be9ff3dfa399a03e21794fc
+- summary: updated screens here if you want to get a quick sense of the state of the UI
+
+## [2026-06-17T21:55:42Z] ingest | Slack thread C0AL7EKNHDF 1777234498.202069
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777234498-202069-d94d94d6
+- wiki_revision_id: wikirev_5aa17659259306c9409cc88a3f615f6b
+- source_document_id: srcdoc_d63c9d7038fbfd34c485d326d94d94d6
+- source_revision_id: srcrev_5ebdf9bb056dff972ed0c8319f9a89da
+- summary: Something we need to keep track of <@U0883L0RBRR> seems like IP World launch may have impact on gas fees so we may need more $IP for Numo registrations
+
+## [2026-06-17T21:55:42Z] ingest | Slack thread C0AL7EKNHDF 1775080235.957579
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775080235-957579-0376cb09
+- wiki_revision_id: wikirev_c4b83c623db2adb7cd48fc41c8aa9c17
+- source_document_id: srcdoc_d6cab3e5da9b319b81f10ea60376cb09
+- source_revision_id: srcrev_bf2de0f5bd201977f3f0682a85048977
+- summary: hey <@U08AGDT08E7> <@U04L0DD71TM> <@U06A5AQ1VD3> <@U09QGMMUDPC>
+
+## [2026-06-17T21:55:42Z] ingest | Slack thread C0AL7EKNHDF 1777079413.373489
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777079413-373489-3cb2a883
+- wiki_revision_id: wikirev_3f1fdaf642112c48597ba449ec6deb61
+- source_document_id: srcdoc_d7202d51851238fd8383dded3cb2a883
+- source_revision_id: srcrev_dc6887212dca6035febef857bf9478a4
+- summary: What meeting? Does marketing need to attend? <@U0883L0RBRR>
+
+## [2026-06-17T21:55:43Z] ingest | Slack thread C0AL7EKNHDF 1777411700.639589
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777411700-639589-2aa6cfa4
+- wiki_revision_id: wikirev_99b809c97265b7105bf7d2a2c8601623
+- source_document_id: srcdoc_d7f9beadbb660c1dfc6eb1b22aa6cfa4
+- source_revision_id: srcrev_ee2993c4ab3eb228b9fc89e35cfd9b90
+- summary: hey <@U0AG7GU6WBU> <@U0883L0RBRR> <@U09ES4C0952> since we've got the Poseidon DUNS number from <@U08JPHTRTLN>, i want to kick off the process with Apple app store / Android play st...
+
+## [2026-06-17T21:55:43Z] ingest | Slack thread C0AL7EKNHDF 1777069818.565979
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777069818-565979-034a453e
+- wiki_revision_id: wikirev_0cc721a7946d9ea532994537c64c4e5b
+- source_document_id: srcdoc_db10be531f4a33ad745960b4034a453e
+- source_revision_id: srcrev_e69141d111ff5c704001232a3335eb42
+- summary: Hindi images for the World app store - <@U0927FP6HH9> <@U0A2D9U625V> <@U09QGMMUDPC> <@U09ES4C0952> just want to get second eye to see if this makes sense and if the line breaks are...
+
+## [2026-06-17T21:55:43Z] ingest | Slack thread C0AL7EKNHDF 1777578999.960999
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777578999-960999-a40403cc
+- wiki_revision_id: wikirev_5efc3ab0ddfc503dc4047957a25bb9ac
+- source_document_id: srcdoc_e03f038f91c599ffbc4e838ea40403cc
+- source_revision_id: srcrev_82a4276e31b5f0d625d808dc8f822296
+- summary: <@U04L0DD6B6F> can you share the numo admin github repo link? Also, can you get me added to the admin portal? I remember you guys have gating on who can view the data in admin port...
+
+## [2026-06-17T21:55:44Z] ingest | Slack thread C0AL7EKNHDF 1775835738.034749
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775835738-034749-c2f6699f
+- wiki_revision_id: wikirev_4ef6a82bfb16ca2b4654e43b67c42377
+- source_document_id: srcdoc_e177061fd3aff37e4f668fb4c2f6699f
+- source_revision_id: srcrev_7ee2cc44bf8eac1eb3649608bb1157d4
+- summary: <@U04L0DD6B6F> we should look into using QVAC in some way for local/P2P inference for transcription/labelling/data processing. this can help cut our own costs down, as well as tee ...
+
+## [2026-06-17T21:55:44Z] ingest | Slack thread C0AL7EKNHDF 1775673335.424119
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775673335-424119-aec9039f
+- wiki_revision_id: wikirev_4a14266afa9a93081cf237f1cc92969d
+- source_document_id: srcdoc_e2c39193cfd2b7e4a6fa04a2aec9039f
+- source_revision_id: srcrev_0ff7de8b3737d513b372fae52f3397c1
+- summary: Rewards discussion
+
+## [2026-06-17T21:55:44Z] ingest | Slack thread C0AL7EKNHDF 1776792288.493599
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776792288-493599-91bc0611
+- wiki_revision_id: wikirev_709fb592f9dfe8d1d1238d0023f87515
+- source_document_id: srcdoc_e845ba75bd1be21943935fa891bc0611
+- source_revision_id: srcrev_e8d59bc3afe5224c768acb7a1aa8464c
+- summary: <@U09E7N6LTQF> <@U0A2D9U625V> <@U0AM69UKUGY> meeting rescheduled to 1pm
+
+## [2026-06-17T21:55:45Z] ingest | Slack thread C0AL7EKNHDF 1776708900.296419
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776708900-296419-9f1e2c77
+- wiki_revision_id: wikirev_53dc6c448760aac0c096fbde1f291f32
+- source_document_id: srcdoc_ecff39c629f61d6ef48e84c49f1e2c77
+- source_revision_id: srcrev_d4f3174d30ef2945777def6a7d119833
+- summary: Looked into App store languages in IN:
+
+## [2026-06-17T21:55:45Z] ingest | Slack thread C0AL7EKNHDF 1777322821.158779
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777322821-158779-55ca56dd
+- wiki_revision_id: wikirev_d03dc17994907db21e5688562a59f165
+- source_document_id: srcdoc_f19bce46a50ce5c5884ed33a55ca56dd
+- source_revision_id: srcrev_d58a370f2739cddb563094eee15c7312
+- summary: <@U04L0DD6B6F> <@U08AGDT08E7> <@U067QP5PD6J> <@U08HVGL6LDR> - We have some frustrating news.
+
+## [2026-06-17T21:55:45Z] ingest | Slack thread C0AL7EKNHDF 1776900599.639489
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776900599-639489-ad0a9677
+- wiki_revision_id: wikirev_ae46102e2672b5d345c0eba0ecbc97f1
+- source_document_id: srcdoc_f306905b25dfaa2356f0ee42ad0a9677
+- source_revision_id: srcrev_a2ef78cdadd58c549fc226706198cfab
+- summary: <@U08AGDT08E7> <@U0883L0RBRR> <@U06A5AQ1VD3> <@U0AG7GU6WBU> we need this unblocked ASAP,
+
+## [2026-06-17T21:55:46Z] ingest | Slack thread C0AL7EKNHDF 1775177836.065809
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1775177836-065809-5f6a3df6
+- wiki_revision_id: wikirev_0881b12a33ca20c33acc18ca656f3056
+- source_document_id: srcdoc_f3c9e6dc85ce7b6050e2f0475f6a3df6
+- source_revision_id: srcrev_9726b9ff6e8bc923bae2fa575d3487f8
+- summary: Hey team <!here> a few operational updates now that we're clear on what we're building and working on app development
+
+## [2026-06-17T21:55:46Z] ingest | Slack thread C0AL7EKNHDF 1777484448.642219
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1777484448-642219-60214db2
+- wiki_revision_id: wikirev_46251431e30f6e09ca3878377cf99159
+- source_document_id: srcdoc_f445399a1f40eb3ca1e9a90560214db2
+- source_revision_id: srcrev_d3f3f4362a9baa105b105c9313af7f7f
+- summary: hey <@U06A5AQ1VD3> we're already getting questions about psdn szn 1 from the community. would be good to add an FAQ about the multipliers etc into the current FAQ so we can point t...
+
+## [2026-06-17T21:55:46Z] ingest | Slack thread C0AL7EKNHDF 1776885337.946469
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1776885337-946469-e4c0ee8e
+- wiki_revision_id: wikirev_f48c44ffe509d5116e52c5fb53b6c869
+- source_document_id: srcdoc_f8f23578062853cad4cce87fe4c0ee8e
+- source_revision_id: srcrev_bb673928ec09dfe9dad7f4fd910ec4a7
+- summary: Nice!! I added some comments on Figma for quick reference. :heart:
+
+## [2026-06-17T21:56:51Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_c153722f1417fe680f0b010865354669
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_4bc92e3d74c6d7ce5fe6d581c5b0d07a
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-17T21:56:51Z] ingest | Slack thread C0AL7EKNHDF 1774569678.372309
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774569678-372309-6c782251
+- wiki_revision_id: wikirev_bc2eda4c2bfbdf136da0fe849bf7d8f8
+- source_document_id: srcdoc_06539943bde53151f67492046c782251
+- source_revision_id: srcrev_eafc997e861fa80a4be071aa9d6fccb4
+- summary: when you are considering jurisdictions acquiring data from various countries, here is a basic list of countries broken down into 4 tiers for general reference (probably we should f...
+
+## [2026-06-17T21:56:52Z] ingest | Slack thread C0AL7EKNHDF 1774033404.580979
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774033404-580979-575744fb
+- wiki_revision_id: wikirev_a7c56a550d7624b69f67c6b2e9a5d545
+- source_document_id: srcdoc_0d147f628466b0da70e13310575744fb
+- source_revision_id: srcrev_649b4bc97e1108877ff4ec8f11cd39aa
+- summary: <@U0772SH7BRA> - on data seeding side, we have a task together but i assume that is for when we launch for indic languages. For English do you want my help or are you covered? cc <...
+
+## [2026-06-17T21:56:52Z] ingest | Slack thread C0AL7EKNHDF 1774293347.042829
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774293347-042829-a8ee7e9f
+- wiki_revision_id: wikirev_1d7aca636776978db1efccf91b1f733b
+- source_document_id: srcdoc_1e58f6bac9454acbb2299b5ca8ee7e9f
+- source_revision_id: srcrev_e0a4bbf71b7db095826b9ce06103ccd0
+- summary: Hey folks, here's the Aura WIP, welcome feedback
+
+## [2026-06-17T21:56:52Z] ingest | Slack thread C0AL7EKNHDF 1774889969.882239
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774889969-882239-c4d86168
+- wiki_revision_id: wikirev_b64d4e08dace17c7daef2f5604c12e98
+- source_document_id: srcdoc_27fdd57c3ee5caf48bef288fc4d86168
+- source_revision_id: srcrev_8d406df622680e0216a664bf491448fa
+- summary: Also <@U086FECSTP1> how do we make sure that we can use “numo” as our app name?
+
+## [2026-06-17T21:56:53Z] ingest | Slack thread C0AL7EKNHDF 1774888070.937809
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774888070-937809-1e3b3c3f
+- wiki_revision_id: wikirev_a880988098173feccc67a7be4541fe86
+- source_document_id: srcdoc_2bd301239bfaeaab9b468c831e3b3c3f
+- source_revision_id: srcrev_4a71e173b38ba0f561d626dc327bfa86
+- summary: Hi - for the call to discuss payments with Stripe (informational session), who should i include on it?
+
+## [2026-06-17T21:56:53Z] ingest | Slack thread C0AL7EKNHDF 1773336738.257529
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773336738-257529-0be1e009
+- wiki_revision_id: wikirev_3cbbbc05c836f9a6293c38e254d15f0f
+- source_document_id: srcdoc_3fdf050f59a9da8eb27cafc80be1e009
+- source_revision_id: srcrev_249162273856eb797704c4ebba7d6280
+- summary: Had a beast insight-session with <@U09ES4C0952> this morning (as in Sarick is a beast :pray:). I've updated my running research page to reflect this conversation and the new insigh...
+
+## [2026-06-17T21:56:54Z] ingest | Slack thread C0AL7EKNHDF 1773951199.512119
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773951199-512119-d33f6d39
+- wiki_revision_id: wikirev_7506fdcf853a1477b64aaadd7cd00bba
+- source_document_id: srcdoc_481975cd9e05193cbffe8401d33f6d39
+- source_revision_id: srcrev_456c2cd7e6a3bd6b0f1302cdef66fcec
+- summary: Hey <@U08AGDT08E7> we’re going to kickstart creating the agent for the jobs app. To align on focus, I think we should prioritize 10 cross-functional tech roles for now. Does the be...
+
+## [2026-06-17T21:56:54Z] ingest | Slack thread C0AL7EKNHDF 1773967369.966459
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773967369-966459-915d09fa
+- wiki_revision_id: wikirev_d14b5885dce83cd36475186db0b99a9f
+- source_document_id: srcdoc_4851034384d46f8e105023c1915d09fa
+- source_revision_id: srcrev_bf709355fddd8e7250a5bbd04b2f7c28
+- summary: just want to give some heads up on costs:
+
+## [2026-06-17T21:56:54Z] ingest | Slack thread C0AL7EKNHDF 1774556082.162739
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774556082-162739-3affa077
+- wiki_revision_id: wikirev_d0b31b2f970f2837393f76f66f219d1c
+- source_document_id: srcdoc_502c32a21b883c2863fc71e93affa077
+- source_revision_id: srcrev_40d7a45fbce9a8a731fed2914fe710f0
+- summary: <@U086FECSTP1> I've listed some of the questions in this <https://www.notion.so/storyprotocol/Compliance-Questions-335051299a54807aa8d7eaeb1b9d1cb7?source=copy_link|sheet>, with mo...
+
+## [2026-06-17T21:56:55Z] ingest | Slack thread C0AL7EKNHDF 1773967412.070089
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773967412-070089-7a5c3238
+- wiki_revision_id: wikirev_f9b461022343feeebd0c7a9656e3c9db
+- source_document_id: srcdoc_65259c81b8bf832555f326db7a5c3238
+- source_revision_id: srcrev_1ba44eb00e7cdef50a5a5340853c26bf
+- summary: another limitation is max 30 concurrent calls
+
+## [2026-06-17T21:56:55Z] ingest | Slack thread C0AL7EKNHDF 1773958819.220229
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773958819-220229-bcf65df9
+- wiki_revision_id: wikirev_5c74cf6af8b62012e306f56ea853e55a
+- source_document_id: srcdoc_68ba0a925ec487dd7d0bbc28bcf65df9
+- source_revision_id: srcrev_d067d1f0c128322c9bdd6db2d616479a
+- summary: <https://human-agent-poc-web.vercel.app/>
+
+## [2026-06-17T21:56:55Z] ingest | Slack thread C0AL7EKNHDF 1774379349.255519
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774379349-255519-e093f391
+- wiki_revision_id: wikirev_a0c6c78b5c90711bfd0b6d395171a33d
+- source_document_id: srcdoc_77b22ef58f2b362fb9868822e093f391
+- source_revision_id: srcrev_c29a6c0f489a54e1a637eda201d563aa
+- summary: `LLM Selection Strategy` for the DePIN Indic audio app is ready for review <https://docs.google.com/document/d/1NiHix4FUO5wwmxaa5PT7LGxtpderp4tNVdWEOTMH52M/edit?usp=sharing|here>
+
+## [2026-06-17T21:56:55Z] ingest | Slack thread C0AL7EKNHDF 1773937454.115829
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773937454-115829-4eb187de
+- wiki_revision_id: wikirev_7bd0e1df8e77ca9f048e1593a6c616f7
+- source_document_id: srcdoc_794986377b3f0bdcc4d1ccd14eb187de
+- source_revision_id: srcrev_c183f9b411381423cfaca354ae228e76
+- summary: relatedly <@U086FECSTP1> we'll need some legal and compliance air cover here (Privacy Policy. ToS etc) I put some time on tomorrow for us to discuss.
+
+## [2026-06-17T21:56:56Z] ingest | Slack thread C0AL7EKNHDF 1774291108.610559
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774291108-610559-bff93671
+- wiki_revision_id: wikirev_1be528656806aa675bfaaaac9b5a52bb
+- source_document_id: srcdoc_7fbbfb14cbfa7849305d1a02bff93671
+- source_revision_id: srcrev_17129179a0f423b1d506a344b87f69d7
+- summary: Sam shared this, <@U04L0DD71TM> / <@U04L0DD6B6F> could you both look at this? <https://www.pencil.dev/>
+
+## [2026-06-17T21:56:56Z] ingest | Slack thread C0AL7EKNHDF 1773965820.148099
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773965820-148099-df8919aa
+- wiki_revision_id: wikirev_2675fd14266acbf59aa0a97997c5c02a
+- source_document_id: srcdoc_86136ccf367b41a31a49b802df8919aa
+- source_revision_id: srcrev_230546f9f23367fd2357f2500a79bccd
+- summary: I tested out a first try of the MBTI voice agent and pasted the transcript to chatGPT, it got it right the first time :open_mouth: quite stunning: <@U0772SH7BRA> <@U08AGDT08E7> <@U...
+
+## [2026-06-17T21:56:56Z] ingest | Slack thread C0AL7EKNHDF 1773760057.252859
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773760057-252859-709ee7c3
+- wiki_revision_id: wikirev_c09e3fcda2af24bf2c989809ab21d659
+- source_document_id: srcdoc_95a8f73bc520ed8444ee6f71709ee7c3
+- source_revision_id: srcrev_4856b42eaa77d7041932b10270ef0806
+- summary: Here is the research I shared yesterday. <https://docs.google.com/document/d/1L6Z_hl-ldx7Mi9N16hLr_4wCK1fJyY1nVZTvmSwJJno/edit?usp=sharing>
+
+## [2026-06-17T21:56:57Z] ingest | Slack thread C0AL7EKNHDF 1773393518.229609
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773393518-229609-b95c9b3c
+- wiki_revision_id: wikirev_61cda253bc208f33818afb74884ebcf3
+- source_document_id: srcdoc_9762818e9ef8d72fff574114b95c9b3c
+- source_revision_id: srcrev_7bbb7bd42873df2be9452c0b34644bdf
+- summary: *Ringo (Granola competitor) Update*
+
+## [2026-06-17T21:56:57Z] ingest | Slack thread C0AL7EKNHDF 1773938251.880299
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773938251-880299-47b8646a
+- wiki_revision_id: wikirev_e185359ec19b2b54755ace71ee8dc4b8
+- source_document_id: srcdoc_9b5226dd1a2274a82aa387ef47b8646a
+- source_revision_id: srcrev_1ac1da5cb8b6eb559b283d63f61b53d8
+- summary: <https://stitch.withgoogle.com/projects/18051464381232995408>
+
+## [2026-06-17T21:56:57Z] ingest | Slack thread C0AL7EKNHDF 1773203253.769449
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773203253-769449-dcae3c56
+- wiki_revision_id: wikirev_5c3ec873dc88137bf33e09e62a5c32e6
+- source_document_id: srcdoc_9e7d0bda0304fbd83fae0313dcae3c56
+- source_revision_id: srcrev_2d63e1ad89d20824fb636d8b2df480c7
+- summary: *Q2 DePIN Product Stream Kickoff Meeting — Recap*
+
+## [2026-06-17T21:56:58Z] ingest | Slack thread C0AL7EKNHDF 1773691632.651889
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773691632-651889-6b295620
+- wiki_revision_id: wikirev_6c6647da61e431123e330d5f930ad439
+- source_document_id: srcdoc_a5b5faa7cb12cc6de91be81a6b295620
+- source_revision_id: srcrev_fe40387bcbe9bd3729170c821124cfca
+- summary: <https://voicechat-one.vercel.app/#signal=N4Ig1glgdgJiBcID2AzFBTATiANCAzuvvhElAJJyICGAHAMYDMAjNejALToPUcAsfegCMOtIQAYAbBwCsQ6oxkx0M%2BvXQB2XCGX56mCAAcALqSgJQxgJ6H0CZGizb8MQ-YBuAXnE...
+
+## [2026-06-17T21:56:58Z] ingest | Slack thread C0AL7EKNHDF 1773244759.115229
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773244759-115229-7c87dda9
+- wiki_revision_id: wikirev_3ef16f04f07ab045b08a77d90bc00589
+- source_document_id: srcdoc_a60fac7bc51067088990a0d17c87dda9
+- source_revision_id: srcrev_3bc290f96d3e5e108257cad40912d6c9
+- summary: Thinking aloud.
+
+## [2026-06-17T21:56:58Z] ingest | Slack thread C0AL7EKNHDF 1774024893.497499
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774024893-497499-578d90e6
+- wiki_revision_id: wikirev_e15533bd2284882444ec0d0c2c3d5467
+- source_document_id: srcdoc_aac61335760a55e511b7391f578d90e6
+- source_revision_id: srcrev_027564746930f7c50e69ab7524b3e11d
+- summary: <@U04L0DD6B6F> is there no LLM where we can help user sign up for there own free tier using client side (browser) API call in our app, and use that instead for their individual ses...
+
+## [2026-06-17T21:56:59Z] ingest | Slack thread C0AL7EKNHDF 1773936996.920229
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773936996-920229-bd715db8
+- wiki_revision_id: wikirev_83dd6ce02a2a037e5638b40c78e3b4a3
+- source_document_id: srcdoc_b55659e1d6dfbbfec7a678c5bd715db8
+- source_revision_id: srcrev_5754b301096e1487871cd0b6e177a809
+- summary: <@U07A7AUGL5V> <@U08951K4SRY> some heads up on QA / dogfooding schedule for the DePIN initiatives from Tiger Team
+
+## [2026-06-17T21:56:59Z] ingest | Slack thread C0AL7EKNHDF 1773243264.299289
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773243264-299289-3aead8f4
+- wiki_revision_id: wikirev_8b39cfd9cba7928a0cc4080c9408c01e
+- source_document_id: srcdoc_c1908eccca5d864db0466fbd3aead8f4
+- source_revision_id: srcrev_45590122be06711a714234179cc3d058
+- summary: Im gonna explore my idea of creating a google meets notetaker app that records audio and uses that as bi-directional audio data for Poseidon processing. Turn note taker apps into a...
+
+## [2026-06-17T21:56:59Z] ingest | Slack thread C0AL7EKNHDF 1773938065.405839
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773938065-405839-36157af3
+- wiki_revision_id: wikirev_831e917405b41729c2ed77a8d7730d3b
+- source_document_id: srcdoc_cb55aff623cf6bf812527d6736157af3
+- source_revision_id: srcrev_4ebfd900c70708021c9afc86d4e321c6
+- summary: Has anyone tried this? <https://stitch.withgoogle.com/> cc <@U04L0DD71TM> especially
+
+## [2026-06-17T21:57:00Z] ingest | Slack thread C0AL7EKNHDF 1773342873.711459
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773342873-711459-ee387e4e
+- wiki_revision_id: wikirev_1ee8115bdd730761aa16ba599f22f4b6
+- source_document_id: srcdoc_e4a1a060b288c299bfccec0bee387e4e
+- source_revision_id: srcrev_098ecbfe5e917ea75587f70a3146bc0e
+- summary: Hey folks - I've added a list of the competitors in the same space under the SOT: <https://www.notion.so/DePIN-Competitors-Research-321051299a5480179299d28d847ca597?source=copy_lin...
+
+## [2026-06-17T21:57:00Z] ingest | Slack thread C0AL7EKNHDF 1774051350.368049
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1774051350-368049-1dd37ee2
+- wiki_revision_id: wikirev_8559faf3294f97b2143c03c14e4a90ca
+- source_document_id: srcdoc_e985e0e699d598a90f643ae51dd37ee2
+- source_revision_id: srcrev_0334af604f54bb807c32efd07df18cf6
+- summary: <https://scout-careers-web.vercel.app/> <@U04L0DD71TM> <@U08AGDT08E7>
+
+## [2026-06-17T21:57:00Z] ingest | Slack thread C0AL7EKNHDF 1773242050.279829
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773242050-279829-62da02af
+- wiki_revision_id: wikirev_1ca97aa847a81531c1dbe8d0d718c9df
+- source_document_id: srcdoc_fc15899344232501c257a48462da02af
+- source_revision_id: srcrev_37342dec31b14ebc712d7dba3216f177
+- summary: <!here> okay trying something new in the spirit of the age of AI -&gt; HTML instead of a slide. Click around to expand the boxes
+
+## [2026-06-17T21:57:01Z] ingest | Slack thread C0AL7EKNHDF 1773244464.999549
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1773244464-999549-da238d99
+- wiki_revision_id: wikirev_6fe2a8dddb255983d243be1596a120a8
+- source_document_id: srcdoc_fd05bec443340b1a39568f32da238d99
+- source_revision_id: srcrev_75a42a68c936209f49a276eec255fbb2
+- summary: Next idea: Speaking into your computer is becoming common across a variety of tasks, including vibe coding: <https://x.com/trq212/status/2028628570692890800?s=20>
+
