@@ -25695,3 +25695,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a25f8365237260ca54403e2a41fb7215
 - summary: Rules governing stake ownership and withdrawal as implemented by the IPTokenStaking precompile on Aeneid. Stake is burned on EVM, accounting on consensus layer. Delegator (not paye...
 
+## [2026-06-17T08:00:31Z] ingest | CDR Story-kernel  Change Log
+
+- status: published
+- slug: notion_document/cdr-story-kernel-change-log-6fa2ed5c
+- wiki_revision_id: wikirev_f8ab23621446ee6f2bd92d7baec8a82b
+- source_document_id: srcdoc_0b44382a4d934d2ac194b21a6fa2ed5c
+- source_revision_id: srcrev_f27c37876ea2b92518e3601b12a91b7b
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-kernel-Change-Log-37d051299a54800b9954ce9c49999340)
+
+## [2026-06-17T08:00:32Z] ingest | CDR Story Client Change Log
+
+- status: published
+- slug: notion_document/cdr-story-client-change-log-4742be2f
+- wiki_revision_id: wikirev_c3c9aeedeae53b2326dde0956d2504bd
+- source_document_id: srcdoc_aeaa4036cd00e991702368cf4742be2f
+- source_revision_id: srcrev_7e85469e5b25b1de518ae193def30c7a
+- summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
+
