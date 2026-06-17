@@ -25665,3 +25665,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_617ec298cd5a27855c9d634504318d37
 - summary: Source: [source](https://app.notion.com/p/Fuzz-Develop-Document-381051299a548046b59fc3eeeb4ddf02)
 
+## [2026-06-17T02:16:32Z] synthesis | Fuzz Develop Document
+
+- status: published
+- slug: projects/fuzz-develop-document
+- wiki_revision_id: wikirev_54053f68c1493fc04dc2bfbfeb666b66
+- summary: A comprehensive document detailing the fuzz testing system for the Story blockchain, including automation, configuration, code organization, engine modes, and extension points.
+
