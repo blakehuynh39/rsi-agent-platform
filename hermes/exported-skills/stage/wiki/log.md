@@ -33180,3 +33180,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b35acafa537f8e0b30f2a2ec75fa2160
 - summary: How to diagnose and resolve the ValueError: 'The royalty percent for the parent IP is greater than the maximum revenue share' when calling registerDerivative.
 
+## [2026-06-17T23:47:28Z] synthesis | registerDerivative Error: Royalty Percent Exceeds Max Revenue Share
+
+- status: published
+- slug: runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share
+- wiki_revision_id: wikirev_179a8b91aea41945f6d324f4fbb9bfbe
+- summary: Troubleshooting the ValueError 'The royalty percent for the parent IP with id ... is greater than the maximum revenue share ...' when calling registerDerivative via the Story Proto...
+

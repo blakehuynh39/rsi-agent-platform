@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a7063152370e8d13b41c91b582bcfc9638763453aab2d0c225476eba7a30ab36",
-        "size": 902198
+        "sha256": "26704d30bd51c6840bfdbcd05b9d40e7b9c99c6b0cd774f240dc06f944c85fed",
+        "size": 902649
       },
       {
         "path": "log.md",
-        "sha256": "59ce05587edf654ab068dd6ea6f304bb388cae5b1cca9c44e7ad452e8aab123c",
-        "size": 1624168
+        "sha256": "b34359a2cb691322e513c2a73b086376386f363ff1032fc5d3f44cc3eb7d620f",
+        "size": 1624631
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6435,6 +6435,11 @@
         "size": 2850
       },
       {
+        "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
+        "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
+        "size": 3533
+      },
+      {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
         "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
         "size": 1280
@@ -7029,8 +7034,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T23:35:25Z",
-  "file_count": 1404,
+  "exported_at": "2026-06-17T23:52:05Z",
+  "file_count": 1405,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10307,7 +10312,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5af1908520ee7dbb33886d115ab75b123a3f45dcf84b0f854a66349861b270c8",
+  "previous_tree_hash": "94a9ae50df1c5d760d8cc92339af0147520cd5a268edce3f43c1c956bf1f0be9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10320,14 +10325,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "94a9ae50df1c5d760d8cc92339af0147520cd5a268edce3f43c1c956bf1f0be9",
+  "tree_hash": "60295936f9818badfd436cd2a2cb5eb22642804e586f4590381cbc15596e17fd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 750,
+  "wiki_file_count": 751,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10336,13 +10341,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a7063152370e8d13b41c91b582bcfc9638763453aab2d0c225476eba7a30ab36",
-      "size": 902198
+      "sha256": "26704d30bd51c6840bfdbcd05b9d40e7b9c99c6b0cd774f240dc06f944c85fed",
+      "size": 902649
     },
     {
       "path": "log.md",
-      "sha256": "59ce05587edf654ab068dd6ea6f304bb388cae5b1cca9c44e7ad452e8aab123c",
-      "size": 1624168
+      "sha256": "b34359a2cb691322e513c2a73b086376386f363ff1032fc5d3f44cc3eb7d620f",
+      "size": 1624631
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13490,6 +13495,11 @@
       "size": 2850
     },
     {
+      "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
+      "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
+      "size": 3533
+    },
+    {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
       "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
       "size": 1280
@@ -14081,5 +14091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ca97d6c77bfb236816deccb160ad3a0488f26481ea44747e880095276a85b9e5"
+  "wiki_tree_hash": "293f91babd73afcd1f050fcac24ddccfa168a4def49057927bdad48c4dd8b03c"
 }
