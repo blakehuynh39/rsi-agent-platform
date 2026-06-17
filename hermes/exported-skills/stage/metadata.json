@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5081389d2567b9f1c1c0004ca27bda2cad2db441208f19334a0359812b2eb13c",
-        "size": 639205
+        "sha256": "8cd12bc0dfe1b813ea297df353c4792c36faa483bb946f6e8ed5ec4791cb3927",
+        "size": 640243
       },
       {
         "path": "log.md",
-        "sha256": "799df3bc48d7036f018878415e5247f1731dd5149bcdac564ad56df1f3f6c017",
-        "size": 1245273
+        "sha256": "e7cbdf7f99e315c137a2759a3c178f25792e0e33463f925fcd178826b72b3fcb",
+        "size": 1246347
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4055,6 +4055,11 @@
         "size": 6171
       },
       {
+        "path": "pages/concepts/royalty-transfer-to-vault.md",
+        "sha256": "75fc9a11e3cd778ffc224db4701c4fb3de89e32d8eca84fc0da86fa6dfebdaf5",
+        "size": 2975
+      },
+      {
         "path": "pages/concepts/sahara-ai-datasets.md",
         "sha256": "30313dee7169792c7074f317a4ba95f3277b8ba0fae466c9e9ba4f015f7bdfd8",
         "size": 5022
@@ -4803,6 +4808,11 @@
         "path": "pages/policies/off-chain-terms.md",
         "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
+      },
+      {
+        "path": "pages/policies/pil-license-canonical-url.md",
+        "sha256": "28b6d92de7a8fa33df1ea877463b1cd73ac27af03424307884dc977522b0d0ac",
+        "size": 2055
       },
       {
         "path": "pages/policies/pil-licensing-terms-coverage.md",
@@ -6185,6 +6195,11 @@
         "size": 3005
       },
       {
+        "path": "pages/runbooks/faucet-and-testnet-tokens.md",
+        "sha256": "fea57371520355365d769df46496210a1c6fee964350d7bbf54c4904bd609936",
+        "size": 3032
+      },
+      {
         "path": "pages/runbooks/faucet-app-runbook.md",
         "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
         "size": 3599
@@ -6964,8 +6979,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T21:26:51Z",
-  "file_count": 1391,
+  "exported_at": "2026-06-17T21:33:34Z",
+  "file_count": 1394,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10242,7 +10257,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc8898g7fs",
-  "previous_tree_hash": "6b487479decff23d326c16b0c6e2a9bb38c90f04991ad28d238829acddbe150d",
+  "previous_tree_hash": "388785c93f90b5622ae6e8b450a56888996c20d3c795b99f010732f3dd0c3a0d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10255,14 +10270,14 @@
   ],
   "skill_tree_hash": "a70e7acdbed3154abc1502bd1e6cd3e0fcf2ae04a60c15e9d085902ca11ac3c8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "388785c93f90b5622ae6e8b450a56888996c20d3c795b99f010732f3dd0c3a0d",
+  "tree_hash": "62dacefcabc032f7d19ce335fb0fdf75ab066c3f959778decb5382a654f43fdb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 737,
+  "wiki_file_count": 740,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10271,13 +10286,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5081389d2567b9f1c1c0004ca27bda2cad2db441208f19334a0359812b2eb13c",
-      "size": 639205
+      "sha256": "8cd12bc0dfe1b813ea297df353c4792c36faa483bb946f6e8ed5ec4791cb3927",
+      "size": 640243
     },
     {
       "path": "log.md",
-      "sha256": "799df3bc48d7036f018878415e5247f1731dd5149bcdac564ad56df1f3f6c017",
-      "size": 1245273
+      "sha256": "e7cbdf7f99e315c137a2759a3c178f25792e0e33463f925fcd178826b72b3fcb",
+      "size": 1246347
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11045,6 +11060,11 @@
       "size": 6171
     },
     {
+      "path": "pages/concepts/royalty-transfer-to-vault.md",
+      "sha256": "75fc9a11e3cd778ffc224db4701c4fb3de89e32d8eca84fc0da86fa6dfebdaf5",
+      "size": 2975
+    },
+    {
       "path": "pages/concepts/sahara-ai-datasets.md",
       "sha256": "30313dee7169792c7074f317a4ba95f3277b8ba0fae466c9e9ba4f015f7bdfd8",
       "size": 5022
@@ -11793,6 +11813,11 @@
       "path": "pages/policies/off-chain-terms.md",
       "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
+    },
+    {
+      "path": "pages/policies/pil-license-canonical-url.md",
+      "sha256": "28b6d92de7a8fa33df1ea877463b1cd73ac27af03424307884dc977522b0d0ac",
+      "size": 2055
     },
     {
       "path": "pages/policies/pil-licensing-terms-coverage.md",
@@ -13175,6 +13200,11 @@
       "size": 3005
     },
     {
+      "path": "pages/runbooks/faucet-and-testnet-tokens.md",
+      "sha256": "fea57371520355365d769df46496210a1c6fee964350d7bbf54c4904bd609936",
+      "size": 3032
+    },
+    {
       "path": "pages/runbooks/faucet-app-runbook.md",
       "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
       "size": 3599
@@ -13951,5 +13981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8b4ceb9c41fc9c4f69c41783ada9b13d87c73a1ab53f4d704d33d7005f5b86be"
+  "wiki_tree_hash": "011854d297850add99541c11d6742da54836c669250079ac8a34a36b7222704c"
 }

@@ -25880,3 +25880,105 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_c2f1861d446db03f53a211d1cd7fef9e
 - summary: Hey team - quick question on the royalty token vault auto-deployment:
 
+## [2026-06-17T21:30:50Z] synthesis | transferToVault Function in Royalty Module
+
+- status: published
+- slug: concepts/royalty-transfer-to-vault
+- wiki_revision_id: wikirev_0373a8521a3d7742a48010555de1449a
+- summary: Clarifies the purpose and usage of the transferToVault function within the Royalty Module, including how automatic revenue distribution and manual claiming work.
+
+## [2026-06-17T21:33:28Z] synthesis | Story Protocol Faucet and Testnet Token Acquisition
+
+- status: published
+- slug: runbooks/faucet-and-testnet-tokens
+- wiki_revision_id: wikirev_08c1d654c2a026d3159a5785ad8ed476
+- summary: Overview of the Story Protocol faucet issues, its functionality, and alternative methods to obtain WIP tokens on testnet.
+
+## [2026-06-17T21:33:28Z] synthesis | PIL License Canonical URL Requirement
+
+- status: published
+- slug: policies/pil-license-canonical-url
+- wiki_revision_id: wikirev_f7b09de000e7c9cd968036da5d9606db
+- summary: Requirement to establish clean, professional URLs for the Programmable IP License (PIL), with versioned and latest canonical links.
+
+## [2026-06-17T21:34:04Z] ingest | Slack thread C05UULCUBH9 channel
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-channel-a687b81c
+- wiki_revision_id: wikirev_c97f05ce8556c32ed060fd7ab436230f
+- source_document_id: srcdoc_03fabd07f67dbe6eafa4902da687b81c
+- source_revision_id: srcrev_f547b6613d8d16f118af6f9fdc50ee18
+- summary: Metamask has been unable to connect to Story Mainnet for last 15 minutes. Not exactly sure where to post
+
+## [2026-06-17T21:34:04Z] ingest | Slack thread C05UULCUBH9 1769813055.352759
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1769813055-352759-62d4663a
+- wiki_revision_id: wikirev_e4af8fbfb889855ec3570528d03955c0
+- source_document_id: srcdoc_1ca87df9040f723d579dd91162d4663a
+- source_revision_id: srcrev_b299aac0bbec0eafbf57cb27aae563e1
+- summary: here are the namepsaces for which we have received alerts from Temporal for certificate expiration.
+
+## [2026-06-17T21:34:04Z] ingest | Slack thread C05UULCUBH9 1757440724.838779
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1757440724-838779-2650291c
+- wiki_revision_id: wikirev_5858ae529f338cba3029a57b3dce6c85
+- source_document_id: srcdoc_3eb26c1703bb30d4c3fb56c02650291c
+- source_revision_id: srcrev_32aa4366d51e4f9b13015f7062921c6c
+- summary: Magma is working through some content moderation issues prior to GA release of Story integration.
+
+## [2026-06-17T21:34:05Z] ingest | Slack thread C05UULCUBH9 1774475825.298459
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1774475825-298459-4e257cce
+- wiki_revision_id: wikirev_7b3d582973bb36ab3c168ab0b8eb8c63
+- source_document_id: srcdoc_41548ec3eb3869285b59c0df4e257cce
+- source_revision_id: srcrev_aebe67808ad962e2632b85232a5f267f
+- summary: Hi, I'm working on a project on creating a workflow to replace Alchemy for fetching metadata of an IP asset. I have made this <https://www.notion.so/storyprotocol/Replacing-Alchemy...
+
+## [2026-06-17T21:34:05Z] ingest | Slack thread C05UULCUBH9 1775511743.119789
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1775511743-119789-65693121
+- wiki_revision_id: wikirev_68db8dd3b007b4e96aed68425fdcbc3c
+- source_document_id: srcdoc_68e82a3c835fe02c9d00655165693121
+- source_revision_id: srcrev_a76436b9e89ec4e5cd62a4ec93d52be4
+- summary: <https://portal.story.foundation/asset/0x3754b0906f041c720b3C8a2d44cc2c5b8a58a839> - hey folks is alchemy failing? getting 403 on portal for many of the assets
+
+## [2026-06-17T21:34:05Z] ingest | Slack thread C05UULCUBH9 1769212978.229609
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1769212978-229609-fccf3307
+- wiki_revision_id: wikirev_3f1f6eb22a2c711265118cdb485d0975
+- source_document_id: srcdoc_6d6e4e9c56c5d072a053acaffccf3307
+- source_revision_id: srcrev_9dc90c67a0cacf1aee914ef28fd41e2e
+- summary: Are we still having the sync?
+
+## [2026-06-17T21:34:06Z] ingest | Slack thread C05UULCUBH9 1771394462.163279
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1771394462-163279-91fd315c
+- wiki_revision_id: wikirev_544c59b43d55eca33759b57c13e2adaa
+- source_document_id: srcdoc_9b7334fc99f0b299ddf177d391fd315c
+- source_revision_id: srcrev_241ca27420aa397feaf996f24f9b95f8
+- summary: getting `403` `Account blocked due to plan usage limit` when calling `<https://api.pinata.cloud/pinning/pinFileToIPFS>`, we get the JWT from the `hub/pinata/requestJWT` endpoint. N...
+
+## [2026-06-17T21:34:06Z] ingest | Slack thread C05UULCUBH9 1775520623.723519
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1775520623-723519-6d065a28
+- wiki_revision_id: wikirev_10dc1ab7c51329c7d630c912faf01956
+- source_document_id: srcdoc_b2b47f6a90b87b2a66cedc166d065a28
+- source_revision_id: srcrev_f1404bedb29540186ca3bc29a7d8d91d
+- summary: <@U0ANHPXBBDM> hi what can you do?
+
+## [2026-06-17T21:34:07Z] ingest | Slack thread C05UULCUBH9 1760042401.379839
+
+- status: published
+- slug: slack_message/slack-thread-c05uulcubh9-1760042401-379839-a6087c18
+- wiki_revision_id: wikirev_9ae54fd83060d87c5efcff2e8e65ac85
+- source_document_id: srcdoc_b86a6e90bd38f887cb30011fa6087c18
+- source_revision_id: srcrev_5d377f03d96724f2ebe85e10dc1c8af0
+- summary: Sharing a report of several hours api downtime from Crossmint today. Seems like it's back now, but just checking if this is a known issue
+
