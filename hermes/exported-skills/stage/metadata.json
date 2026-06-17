@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "60ac3a366f0054ed88b5ed1b2168e9b9d116774c1f9979b5a9e7accaaa8a4e1b",
-        "size": 899860
+        "sha256": "ea1c5b5eab984c07e251819749e66c40e24e4a0cdff9b8e714611e1e769c1a05",
+        "size": 900250
       },
       {
         "path": "log.md",
-        "sha256": "65861cb28b17cda16fc19396c3af5a389b33c2e0c5a6c32a4875122d6f87a81d",
-        "size": 1620820
+        "sha256": "5a2d14290315f7f8e9df9397a674fa328da952fa9ebdac1f5bf746f849e04d47",
+        "size": 1621222
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4088,6 +4088,11 @@
         "path": "pages/concepts/shamir-secret-sharing.md",
         "sha256": "512b028667851dd6538cc836913fad89e337db1c1631181e3ab6e2041497252b",
         "size": 1262
+      },
+      {
+        "path": "pages/concepts/shared-ipa-ownership-in-magma.md",
+        "sha256": "b4443f08eac633acba26e05a57689e3545257ce5f61bf5e8be9fff78f8791f14",
+        "size": 3306
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
@@ -6999,8 +7004,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T22:22:56Z",
-  "file_count": 1398,
+  "exported_at": "2026-06-17T22:33:42Z",
+  "file_count": 1399,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10277,7 +10282,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "8c4d8d07e982ac8f86ce923e83eb9aad3576b0a9ea28ece578119354594d37a7",
+  "previous_tree_hash": "1a59f345f7a4ff027f95c9d571c10c29336c0aa2ac00ca6b51dbe3ede9f8e768",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10290,14 +10295,14 @@
   ],
   "skill_tree_hash": "a70e7acdbed3154abc1502bd1e6cd3e0fcf2ae04a60c15e9d085902ca11ac3c8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1a59f345f7a4ff027f95c9d571c10c29336c0aa2ac00ca6b51dbe3ede9f8e768",
+  "tree_hash": "61052e6457d093afe363cc9b9436f0266ed68b12a4eb35ed04f5aa0f66febfa9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 744,
+  "wiki_file_count": 745,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10306,13 +10311,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "60ac3a366f0054ed88b5ed1b2168e9b9d116774c1f9979b5a9e7accaaa8a4e1b",
-      "size": 899860
+      "sha256": "ea1c5b5eab984c07e251819749e66c40e24e4a0cdff9b8e714611e1e769c1a05",
+      "size": 900250
     },
     {
       "path": "log.md",
-      "sha256": "65861cb28b17cda16fc19396c3af5a389b33c2e0c5a6c32a4875122d6f87a81d",
-      "size": 1620820
+      "sha256": "5a2d14290315f7f8e9df9397a674fa328da952fa9ebdac1f5bf746f849e04d47",
+      "size": 1621222
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11113,6 +11118,11 @@
       "path": "pages/concepts/shamir-secret-sharing.md",
       "sha256": "512b028667851dd6538cc836913fad89e337db1c1631181e3ab6e2041497252b",
       "size": 1262
+    },
+    {
+      "path": "pages/concepts/shared-ipa-ownership-in-magma.md",
+      "sha256": "b4443f08eac633acba26e05a57689e3545257ce5f61bf5e8be9fff78f8791f14",
+      "size": 3306
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
@@ -14021,5 +14031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "795c70765f5eb2fc2c2b3163d9d165f811edd6f82f38da2bc33d5261a62151e9"
+  "wiki_tree_hash": "99d2bf0edfbe4e4a6aa21ff0ce489a92c10fc55fbf212648f3c7809d99fca0f5"
 }

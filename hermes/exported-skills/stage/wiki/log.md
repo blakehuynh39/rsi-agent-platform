@@ -33120,3 +33120,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7cb2c93d9000ae2cd8fa48c533b444db
 - summary: <@U0ASDQKU3UL> you want longevity too?
 
+## [2026-06-17T22:33:02Z] synthesis | Shared Ownership of IP Assets in Magma
+
+- status: published
+- slug: concepts/shared-ipa-ownership-in-magma
+- wiki_revision_id: wikirev_781145d38510376e90682a662b674ace
+- summary: Discussion about enabling multiple authors to share ownership of an IPA in Magma, including control over permissions and royalties. Currently, only the minter/owner can control the...
+
