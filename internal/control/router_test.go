@@ -430,6 +430,47 @@ func TestSourceMirrorStatusEndpointReportsCompletedRecords(t *testing.T) {
 	}
 }
 
+func TestSourceMirrorStatusEndpointAliasesSlackToSlackMessage(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	record := storepkg.SourceMirrorRecord{
+		SourceType:       companyknowledge.SlackMessageSourceType,
+		SourceKey:        "slack:T123:C123:1710000000.000000",
+		Workspace:        "T123",
+		Environment:      "stage",
+		SourceSessionKey: "slack:T123:C123:channel",
+		HonchoWorkspace:  "rsi_company_knowledge",
+		HonchoSessionID:  "slack_T123_C123_channel",
+		SourceRevision:   "rev1",
+		Status:           storepkg.SourceMirrorStatusPending,
+	}
+	if _, err := store.ClaimSourceMirrorRecord(record, time.Minute); err != nil {
+		t.Fatalf("claim source mirror record: %v", err)
+	}
+	if _, err := store.CompleteSourceMirrorRecord(record.SourceType, record.SourceKey, "msg_1", nil); err != nil {
+		t.Fatalf("complete source mirror record: %v", err)
+	}
+	router := NewRouter(config.Config{ServiceName: "control-plane", Environment: "stage"}, store)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/internal/source-mirror/status?source_type=slack", nil)
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		responseBody, _ := io.ReadAll(rec.Body)
+		t.Fatalf("expected status 200, got %d: %s", rec.Code, string(responseBody))
+	}
+	var out sourceMirrorStatusResponse
+	if err := json.NewDecoder(rec.Body).Decode(&out); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if !out.OK || out.SourceTypes[companyknowledge.SlackMessageSourceType].LatestComplete == nil {
+		t.Fatalf("expected aliased Slack source mirror status, got %+v", out)
+	}
+	if _, found := out.SourceTypes["slack"]; found {
+		t.Fatalf("expected canonical slack_message key only, got %+v", out.SourceTypes)
+	}
+}
+
 func TestSourceMirrorStatusEndpointReportsHistoricalStaleRecordsWithoutFailingType(t *testing.T) {
 	store := storepkg.NewMemoryStore()
 	complete := storepkg.SourceMirrorRecord{

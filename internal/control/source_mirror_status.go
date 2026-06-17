@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/piplabs/rsi-agent-platform/internal/companyknowledge"
 	"github.com/piplabs/rsi-agent-platform/internal/config"
 	storepkg "github.com/piplabs/rsi-agent-platform/internal/store"
 )
@@ -126,6 +127,9 @@ func parseSourceMirrorStatusQuery(values []string) []string {
 	for _, value := range values {
 		for _, item := range strings.Split(value, ",") {
 			item = strings.TrimSpace(item)
+			if strings.EqualFold(item, "slack") {
+				item = companyknowledge.SlackMessageSourceType
+			}
 			if item != "" {
 				out = append(out, item)
 			}
