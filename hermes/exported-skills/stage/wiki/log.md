@@ -30118,3 +30118,2046 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_9a06515c2f02965577ec7ff8408bca5a
 - summary: Hi <@U07TNT9N4JC>,
 
+## [2026-06-17T22:07:06Z] ingest | Slack thread C08FS1UV04F 1779924600.248319
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779924600-248319-f95514cf
+- wiki_revision_id: wikirev_be47abf1512577e62f68effa9a20c846
+- source_document_id: srcdoc_0099ed35c3cab8224f9180d2f95514cf
+- source_revision_id: srcrev_b6a6d9fb16993f08a3f2a05ac10d116e
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:06Z] ingest | Slack thread C08FS1UV04F 1780596300.175759
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780596300-175759-55850035
+- wiki_revision_id: wikirev_0ebbc91deb0b27f0a349e3bda924cfa4
+- source_document_id: srcdoc_00de0d958f43054c71ee0f0b55850035
+- source_revision_id: srcrev_858810b7430d065eb4486ed2778f642a
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:07Z] ingest | Slack thread C08FS1UV04F 1781431420.884419
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781431420-884419-ce3a56e8
+- wiki_revision_id: wikirev_0284f92493c50cd802d9efff426f92b0
+- source_document_id: srcdoc_0244e71ef5cd778d955b1799ce3a56e8
+- source_revision_id: srcrev_d55b983ed904c9871684c9dd95c7d918
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:07Z] ingest | Slack thread C08FS1UV04F 1779924519.873229
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779924519-873229-d71c1b7b
+- wiki_revision_id: wikirev_d7dd31fa3ddbf0519b89353c21132357
+- source_document_id: srcdoc_09baa72565100cd041681285d71c1b7b
+- source_revision_id: srcrev_d6b6dfc47b9dfb68227fcdb1a9a6ca27
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:07Z] ingest | Slack thread C08FS1UV04F 1781446920.282239
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781446920-282239-7a7e1b01
+- wiki_revision_id: wikirev_8265b4037f9ab0e2d11f217902af5fb5
+- source_document_id: srcdoc_0c1eb495436785c0412f40197a7e1b01
+- source_revision_id: srcrev_05a024935edc9e2e4278fc75cb6353d6
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:08Z] ingest | Slack thread C08FS1UV04F 1780596000.116109
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780596000-116109-a3419b02
+- wiki_revision_id: wikirev_ef514401533dfba1a85bba8b70e60f86
+- source_document_id: srcdoc_1f1ca2222f1cbaecf8d7d278a3419b02
+- source_revision_id: srcrev_c8b07f14559453c6f65720817345f796
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:08Z] ingest | Slack thread C08FS1UV04F 1781412518.991309
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781412518-991309-e8c29416
+- wiki_revision_id: wikirev_e0aca16591a403117235713c30307a74
+- source_document_id: srcdoc_2d76ae32b2ba68eecc526c20e8c29416
+- source_revision_id: srcrev_de2af4c7d8755771ef2531bd20f650b8
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:08Z] ingest | Slack thread C08FS1UV04F 1778205739.261689
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778205739-261689-2f92736a
+- wiki_revision_id: wikirev_ac97f9b683cc28b19bd02ccd1a81cb02
+- source_document_id: srcdoc_2e53847742a88dd356f1b0052f92736a
+- source_revision_id: srcrev_75fe93e7565647245e8a3efc0c0b2535
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:09Z] ingest | Slack thread C08FS1UV04F 1779912314.635869
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779912314-635869-b7afd3dc
+- wiki_revision_id: wikirev_80d04b2fb71a665d901a4c47270900c7
+- source_document_id: srcdoc_3016f7eb77fa20dba21eb18bb7afd3dc
+- source_revision_id: srcrev_181df3c0b3b13ea9c856dbeb0eb84655
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:09Z] ingest | Slack thread C08FS1UV04F 1779912819.688689
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779912819-688689-818e4617
+- wiki_revision_id: wikirev_04ed372618500c8609d1b5decfd3339f
+- source_document_id: srcdoc_37b199ab342cbb43258c1714818e4617
+- source_revision_id: srcrev_2d33101884bb7044af7c6014ee19e923
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:09Z] ingest | Slack thread C08FS1UV04F 1778201772.323239
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778201772-323239-86cf1ac6
+- wiki_revision_id: wikirev_2709f877f5a7b54175e890c7348a70fa
+- source_document_id: srcdoc_3c9d32c419c1c7eebeb9cdf586cf1ac6
+- source_revision_id: srcrev_0b4508d5dcd3f0a4433fc1234bdfdec8
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:10Z] ingest | Slack thread C08FS1UV04F 1779912614.635709
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779912614-635709-62651e93
+- wiki_revision_id: wikirev_59cf006b76e7d5d6d3565965fb2eaffb
+- source_document_id: srcdoc_3de78f7eaf659ffd5eff1c4762651e93
+- source_revision_id: srcrev_68ee18be3b491dd05be56377e27e4e05
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:10Z] ingest | Slack thread C08FS1UV04F 1780594959.744469
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780594959-744469-abaaf584
+- wiki_revision_id: wikirev_70a2f8108f18b9b3c0e345364562a2a4
+- source_document_id: srcdoc_4064946d5de9303999654cb2abaaf584
+- source_revision_id: srcrev_f8161cd8e37fd070fb7301a15eb4e89e
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:10Z] ingest | Slack thread C08FS1UV04F 1781630979.303579
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781630979-303579-6f932fe6
+- wiki_revision_id: wikirev_abc23ac68f63c1115aeab88c2852ef9f
+- source_document_id: srcdoc_427abc123bbe8dc02f2d23b76f932fe6
+- source_revision_id: srcrev_5445924a7961de11ec24c38446222c1d
+- summary: @plat-dev Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-17T22:07:10Z] ingest | Slack thread C08FS1UV04F 1780609959.775819
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780609959-775819-661c2972
+- wiki_revision_id: wikirev_72eb25e6495ab93493d4bd28f8f92f23
+- source_document_id: srcdoc_47624c62b3c24f364d5a563b661c2972
+- source_revision_id: srcrev_3d08cf526302904ec34405cd7e9f60af
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:11Z] ingest | Slack thread C08FS1UV04F 1781454220.180399
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781454220-180399-b15a644a
+- wiki_revision_id: wikirev_04975e1b9721be0f1bcdd76c99595e76
+- source_document_id: srcdoc_48603659d99ce32d0eade486b15a644a
+- source_revision_id: srcrev_87c321f1722209c5618eb7acc21ea2a4
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:11Z] ingest | Slack thread C08FS1UV04F 1780584159.721249
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780584159-721249-3301ae10
+- wiki_revision_id: wikirev_3857cc9f6800d07a1573fa987b978ffe
+- source_document_id: srcdoc_49846bf4ef3ec46424ccbcf73301ae10
+- source_revision_id: srcrev_fa7c151fbbbe8643980812f20292f1cf
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:11Z] ingest | Slack thread C08FS1UV04F 1781601459.301959
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781601459-301959-376a7ba1
+- wiki_revision_id: wikirev_9b190a787065120a13908df55e9690ab
+- source_document_id: srcdoc_5448c9d27d93980371060f0a376a7ba1
+- source_revision_id: srcrev_1ffec8136b7e1d0713c6095ac6fb8f51
+- summary: @plat-dev Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-17T22:07:12Z] ingest | Slack thread C08FS1UV04F 1778206156.570059
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778206156-570059-6608b8ab
+- wiki_revision_id: wikirev_cda4df9005ac043db29175c8c66a991a
+- source_document_id: srcdoc_551ccb32372240f24edb70826608b8ab
+- source_revision_id: srcrev_a75b1e11b2bdd9a1b7d3951cca898c8f
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:12Z] ingest | Slack thread C08FS1UV04F 1779924300.243559
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779924300-243559-5ea52623
+- wiki_revision_id: wikirev_23a60f09876ce3f5808b6aa6cee389a0
+- source_document_id: srcdoc_5f6a4d7ae945ceb17aa7cb485ea52623
+- source_revision_id: srcrev_9b54a787c7180530a317f205deed135c
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:12Z] ingest | Slack thread C08FS1UV04F 1781432520.099279
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781432520-099279-d8e48c31
+- wiki_revision_id: wikirev_58c15dac3b4097812b3478ec7ea72ed8
+- source_document_id: srcdoc_621692b99cea0ff96d5ae8b9d8e48c31
+- source_revision_id: srcrev_28a1d7006e7d9ee2476f2a4c04adb1aa
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:13Z] ingest | Slack thread C08FS1UV04F 1781427840.297099
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781427840-297099-b8e3bd08
+- wiki_revision_id: wikirev_3b2cd835c8017700f7d7fdde76e8ee75
+- source_document_id: srcdoc_63b761eb1963a4b373d0b4fdb8e3bd08
+- source_revision_id: srcrev_2039b6a148f84fd0ef31fbcbfd0e0032
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:13Z] ingest | Slack thread C08FS1UV04F 1780555680.118449
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780555680-118449-3275992b
+- wiki_revision_id: wikirev_3f5e1a61ee3b741d5d36a63732e4f638
+- source_document_id: srcdoc_6717cfa7fe19509c176447113275992b
+- source_revision_id: srcrev_222dc1ddf3792abf5727e5abf8ef1989
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:13Z] ingest | Slack thread C08FS1UV04F 1778202376.562019
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778202376-562019-d26b5d42
+- wiki_revision_id: wikirev_94d9f8ebb0dc5f626b07ac24ac8a68bb
+- source_document_id: srcdoc_7d37bac38c4541236908e42bd26b5d42
+- source_revision_id: srcrev_83942c468a5d308f5f9b5b653fc1137c
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:14Z] ingest | Slack thread C08FS1UV04F 1779913800.262179
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779913800-262179-57f020d8
+- wiki_revision_id: wikirev_a4b99addd1f069dc8d773da217f3c7e0
+- source_document_id: srcdoc_8ff1e024bea591e0e8557a8857f020d8
+- source_revision_id: srcrev_b9022756cfef57c08325b9bd254626f9
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:14Z] ingest | Slack thread C08FS1UV04F 1779923414.664689
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779923414-664689-a69c8bcb
+- wiki_revision_id: wikirev_577f200d381bf3c862d86165d5fd66d4
+- source_document_id: srcdoc_9337965337e6376ef03bc04ba69c8bcb
+- source_revision_id: srcrev_5cc93d602e25cc9a2b314086354d7e96
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:14Z] ingest | Slack thread C08FS1UV04F 1780595259.876129
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780595259-876129-ff9e1548
+- wiki_revision_id: wikirev_ccd45cccdfa89807eb75f82535cadd83
+- source_document_id: srcdoc_93627aa35247dc62577874d7ff9e1548
+- source_revision_id: srcrev_3b2ba5eff74e92e9d84b547e4974ca9f
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:14Z] ingest | Slack thread C08FS1UV04F 1779169539.683859
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779169539-683859-076338e2
+- wiki_revision_id: wikirev_7fdc69e766721c9456d4cf89891f3df3
+- source_document_id: srcdoc_99035a5c7a76553675236862076338e2
+- source_revision_id: srcrev_19287915014de73cef9ca55f7d6be369
+- summary: @plat-dev Can you take a look at it? cc: <@U079ZJ48D62>
+
+## [2026-06-17T22:07:15Z] ingest | Slack thread C08FS1UV04F 1778202072.314689
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778202072-314689-9af3950a
+- wiki_revision_id: wikirev_7846c2f425462d069f467a08649d9feb
+- source_document_id: srcdoc_a0dee2fb75744bb774ff97b99af3950a
+- source_revision_id: srcrev_6a8b163eabed24e9dc814a9b00e2bac5
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:15Z] ingest | Slack thread C08FS1UV04F 1781041899.811479
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781041899-811479-f8ffef72
+- wiki_revision_id: wikirev_b37651955ba7c8e8e40c8c6f866deb33
+- source_document_id: srcdoc_a301ad70454966d23ad133cbf8ffef72
+- source_revision_id: srcrev_34b6812e86ef0a7d0a6ab3103c53c6a3
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:15Z] ingest | Slack thread C08FS1UV04F 1778621472.324609
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778621472-324609-471393e8
+- wiki_revision_id: wikirev_f4578857cf81b6cf430ac2dd13caed90
+- source_document_id: srcdoc_ac1c25ef33c336b8ec7b89a8471393e8
+- source_revision_id: srcrev_d3bc7a2ac9184b8c83a2283521f2610f
+- summary: @plat-dev Can you take a look at it? cc: <@U0772SH7BRA>
+
+## [2026-06-17T22:07:16Z] ingest | Slack thread C08FS1UV04F 1779912914.646849
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779912914-646849-5001ac45
+- wiki_revision_id: wikirev_232b30a1458ce215d2260b44ab029c4d
+- source_document_id: srcdoc_b0e5190447189b5bf765cfdd5001ac45
+- source_revision_id: srcrev_05ccbcacb193263d4c3e6e00daa245cd
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:16Z] ingest | Slack thread C08FS1UV04F 1780554759.656569
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780554759-656569-6eb96786
+- wiki_revision_id: wikirev_732b6d01cffc5eb8716f866bb85e679e
+- source_document_id: srcdoc_b5546bccd2c0c43f8a2e0fa06eb96786
+- source_revision_id: srcrev_a1802f7e2e8f5ff4fc26c7acdd4e85ed
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:16Z] ingest | Slack thread C08FS1UV04F 1778201472.331499
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778201472-331499-0b298f89
+- wiki_revision_id: wikirev_a30f11502d8c8c00a9ac24ef4596d3af
+- source_document_id: srcdoc_b83af7fe45b34190a31cd6ef0b298f89
+- source_revision_id: srcrev_eb3c3557a585bab50e34c4a0c85d86d3
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:17Z] ingest | Slack thread C08FS1UV04F 1780570080.414519
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780570080-414519-1a6412d0
+- wiki_revision_id: wikirev_61d1d75b0498198ca7213822b63e07b0
+- source_document_id: srcdoc_c0d23ba2060e1c48b0046fa31a6412d0
+- source_revision_id: srcrev_cdcdecaa9052b2ec28607e42344bdd0e
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:17Z] ingest | Slack thread C08FS1UV04F 1781446120.102979
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781446120-102979-76834092
+- wiki_revision_id: wikirev_f28f635aa3271188ab73a88d07c1a0ef
+- source_document_id: srcdoc_c63f2a9ffbe753b17d67ac7476834092
+- source_revision_id: srcrev_a5d4b22fcaec18f7ee5ec6ea07958886
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:17Z] ingest | Slack thread C08FS1UV04F 1780569459.680779
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780569459-680779-1ed82da2
+- wiki_revision_id: wikirev_ba9e10b20a6016e67f5eae39cf5da5ed
+- source_document_id: srcdoc_c65815ffe90ada901353e0ac1ed82da2
+- source_revision_id: srcrev_fd242148e693b0ac7e09eefdb4f583a6
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:18Z] ingest | Slack thread C08FS1UV04F 1781426919.788949
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781426919-788949-38bdeeb5
+- wiki_revision_id: wikirev_0bb40bd02079f978648ad18038b3b1a2
+- source_document_id: srcdoc_c7a6a41f007ed506714469d538bdeeb5
+- source_revision_id: srcrev_f03dfa249e2b27ba1f01e8e05561a2bb
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:18Z] ingest | Slack thread C08FS1UV04F 1781419183.844919
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781419183-844919-5b4d2412
+- wiki_revision_id: wikirev_d337724c0c75165d726bfcbaf8082ee4
+- source_document_id: srcdoc_cfa07204d2e620e3270b7e275b4d2412
+- source_revision_id: srcrev_ec537727b1ef7b2b08d9d1904fb58b71
+- summary: <@U0ASDQKU3UL> look at pipelines issues above, is it resolved and recovering or need a restart ?
+
+## [2026-06-17T22:07:18Z] ingest | Slack thread C08FS1UV04F 1780584780.448939
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780584780-448939-5f336399
+- wiki_revision_id: wikirev_4a6ec4135562e3465bd7f982b7eaf930
+- source_document_id: srcdoc_dbd20156fd7f32abea2bd3bf5f336399
+- source_revision_id: srcrev_5dbe63643fa3ac33a3d8ef2b1d8538a1
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:18Z] ingest | Slack thread C08FS1UV04F 1778201959.223499
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778201959-223499-198c7b77
+- wiki_revision_id: wikirev_7c0e40b11ffd0bcc5fecea9953966af9
+- source_document_id: srcdoc_e3c711861a4b079d5f874814198c7b77
+- source_revision_id: srcrev_3ccfa2535fb7245bd98664a6f8f538a1
+- summary: @plat-dev Can you take a look at it? cc: <@U0AAUT0PSF4>
+
+## [2026-06-17T22:07:19Z] ingest | Slack thread C08FS1UV04F 1778615472.316139
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778615472-316139-b5966d96
+- wiki_revision_id: wikirev_681c41cba0f68e8010e7dc8840dda5c2
+- source_document_id: srcdoc_e532b0f739fef63d79a9144fb5966d96
+- source_revision_id: srcrev_53bc7c4bc45887de780f2190844e3076
+- summary: @plat-dev Can you take a look at it? cc: <@U0772SH7BRA>
+
+## [2026-06-17T22:07:19Z] ingest | Slack thread C08FS1UV04F 1781432220.117229
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781432220-117229-ce26fec4
+- wiki_revision_id: wikirev_a7e6f3df8006a7b1e94ab4d5cae5e52d
+- source_document_id: srcdoc_eefb3ce2825b7b354b6777f9ce26fec4
+- source_revision_id: srcrev_e2c9e9eb84544c7ec5ec275f4453a06b
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:19Z] ingest | Slack thread C08FS1UV04F 1780611000.184129
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1780611000-184129-3477ec74
+- wiki_revision_id: wikirev_d2c26c9ee474e63d52774143968db506
+- source_document_id: srcdoc_f9335ad8366a0f628f593a203477ec74
+- source_revision_id: srcrev_5deb7aefd3ff3fa17fc0069b9c750036
+- summary: @plat-dev Can you take a look at it? cc: <@U082UKSD3BR>
+
+## [2026-06-17T22:07:20Z] ingest | Slack thread C08FS1UV04F 1778796315.636689
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1778796315-636689-2121bf6a
+- wiki_revision_id: wikirev_ccd98341bbee14ce1d7dc51564109c0b
+- source_document_id: srcdoc_f9acb7b0226a003ec39aa66e2121bf6a
+- source_revision_id: srcrev_2750b99a8c85cc6f235cf256905417eb
+- summary: @plat-dev Can you take a look at it? cc: <@U0772SH7BRA>
+
+## [2026-06-17T22:07:20Z] ingest | Slack thread C08FS1UV04F 1781413440.101799
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1781413440-101799-61fd5fb2
+- wiki_revision_id: wikirev_8c211985f74d559d23c68f3515120ea5
+- source_document_id: srcdoc_f9ed27e745c7526884d6871f61fd5fb2
+- source_revision_id: srcrev_c142894f7be833713a796835c6e309a2
+- summary: @plat-dev Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-17T22:07:20Z] ingest | Slack thread C08FS1UV04F 1779913119.844169
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779913119-844169-593e17c7
+- wiki_revision_id: wikirev_7be907ed52c8efb4779f260c8c8ec626
+- source_document_id: srcdoc_fc80c8b0ef1726f09fd93fa1593e17c7
+- source_revision_id: srcrev_a518d93d0be5f0b6fae404a2d273b5b6
+- summary: @plat-dev Can you take a look at it? cc: <@U08332YRB7W>
+
+## [2026-06-17T22:07:21Z] ingest | Slack thread C08FS1UV04F 1779923714.668079
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1779923714-668079-1ef8627f
+- wiki_revision_id: wikirev_0d97d71a47f69d7885117ecdfa67c8bb
+- source_document_id: srcdoc_fed9a4765c596bfc198bbc2c1ef8627f
+- source_revision_id: srcrev_a2ff56048f011e9b8adcc7985d58de4c
+- summary: <@U08332YRB7W> I restored all. sorry for the issue but there are more than one pods so production effect was minor and issue is only for the delaying pipeline cc. <@U04VDFP1YQ5>
+
+## [2026-06-17T22:08:39Z] ingest | Slack thread C08FS1UV04F 1776866580.386739
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776866580-386739-b7fd42b2
+- wiki_revision_id: wikirev_125dc301255e0ce5db601f5b3f28dd45
+- source_document_id: srcdoc_00d309cfbe80f515d2d21a2cb7fd42b2
+- source_revision_id: srcrev_ce05b26f5e4574ed0f0f1ce54a7937f5
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:39Z] ingest | Slack thread C08FS1UV04F 1776881280.410919
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776881280-410919-9df86b0b
+- wiki_revision_id: wikirev_1bd73139c15b2e84395f08c0c1a540e3
+- source_document_id: srcdoc_01078bd94803935914245b449df86b0b
+- source_revision_id: srcrev_9385c001d0ec73d869adacd94ed9ef98
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:40Z] ingest | Slack thread C08FS1UV04F 1776757440.108169
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776757440-108169-8c3ed3e3
+- wiki_revision_id: wikirev_e78029b3217499b71d5f3168b8f30373
+- source_document_id: srcdoc_020789cedde76072d5689f9f8c3ed3e3
+- source_revision_id: srcrev_dc5dd288f6fb42fb850ba9909b594937
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:40Z] ingest | Slack thread C08FS1UV04F 1772589030.196149
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1772589030-196149-6aaf8e37
+- wiki_revision_id: wikirev_d11a390520c421d98e24e9177e10988c
+- source_document_id: srcdoc_04a4107ebe53077938298bf46aaf8e37
+- source_revision_id: srcrev_a12065155504684275363946619c4b30
+- summary: <@U0772SH7BRA> <@U083MMT1771> It seems that pipeline is lagging but no mentioned on which pipeline is lagging?
+
+## [2026-06-17T22:08:40Z] ingest | Slack thread C08FS1UV04F 1773125913.751019
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773125913-751019-897160ea
+- wiki_revision_id: wikirev_83212641a9178c02aaca88d8e369e27f
+- source_document_id: srcdoc_075229faf8ce24b5ebe86e2f897160ea
+- source_revision_id: srcrev_a723196a18715aa949fa162eb3c0be12
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:08:41Z] ingest | Slack thread C08FS1UV04F 1776790200.167049
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776790200-167049-bdd6dc0c
+- wiki_revision_id: wikirev_0d1deafecff262e13c04d305b9905cf7
+- source_document_id: srcdoc_0c39094497ef109264301215bdd6dc0c
+- source_revision_id: srcrev_3ccce1f38005978c8985eaa54bce3c1a
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:41Z] ingest | Slack thread C08FS1UV04F 1776788979.368329
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776788979-368329-dbfa856b
+- wiki_revision_id: wikirev_03b1e1c3344833d9dbb2ba980484313f
+- source_document_id: srcdoc_0dafb6e1eeca6faa5d592fd4dbfa856b
+- source_revision_id: srcrev_404bd2a259fc2adea4bacd1c8a057dfe
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:41Z] ingest | Slack thread C08FS1UV04F 1776771099.470859
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776771099-470859-d889228f
+- wiki_revision_id: wikirev_f9ccf88839d0737e8f5d8ceeddd8ac6d
+- source_document_id: srcdoc_0fb3755d2f0462557944b2c8d889228f
+- source_revision_id: srcrev_1bc3135254b5b85f13d2f45828fb905f
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:42Z] ingest | Slack thread C08FS1UV04F 1776489879.731849
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776489879-731849-fbb2a48f
+- wiki_revision_id: wikirev_adea81801a6bbf745643bc378cd1f8a3
+- source_document_id: srcdoc_14e155daafca7ac8a9f8229cfbb2a48f
+- source_revision_id: srcrev_5a3167ded8995d5ff283681effc7dfab
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:42Z] ingest | Slack thread C08FS1UV04F 1776801150.239889
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776801150-239889-2f56d6f9
+- wiki_revision_id: wikirev_238a0cc379d5e22aaa7383f600b88284
+- source_document_id: srcdoc_1a2373277ba3444ac9ed6be72f56d6f9
+- source_revision_id: srcrev_3e14bd48c7b31c63bdae3f7da191d347
+- summary: <@U0A7ZQXB160> <@U07TNT9N4JC> <@U083MMT1771> all platform alerts are cleared. <@U0A7ZQXB160> we should add the issues to the on-call notes, or kinkly remind me to add them later
+
+## [2026-06-17T22:08:42Z] ingest | Slack thread C08FS1UV04F 1772293072.473459
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1772293072-473459-c745080e
+- wiki_revision_id: wikirev_162cfdf393f829371b8f47d556ef25f1
+- source_document_id: srcdoc_203ecbd70fcd6b4731a5cbf3c745080e
+- source_revision_id: srcrev_f4e66c9bc47335e737e804ddc3e3c4e7
+- summary: <@U0772SH7BRA> are these still noise?
+
+## [2026-06-17T22:08:43Z] ingest | Slack thread C08FS1UV04F 1776851498.681809
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776851498-681809-33172727
+- wiki_revision_id: wikirev_f1a30126a9f35bc349d7c64d6d547c49
+- source_document_id: srcdoc_2e01d66ce7724a269e8acd3f33172727
+- source_revision_id: srcrev_4b15738f2471da6b137391812677e9d3
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:43Z] ingest | Slack thread C08FS1UV04F 1770904981.963359
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1770904981-963359-8fb16041
+- wiki_revision_id: wikirev_ffb1bd09d879d55b07d8215b40952505
+- source_document_id: srcdoc_30b74a566c3257c0d62162ad8fb16041
+- source_revision_id: srcrev_a5963576b8ec79c83948cbd66e402dce
+- summary: <!subteam^S06H0J9SQRY> <@U07A7AUGL5V> <@U0772SH7BRA> <@U083MMT1771>
+
+## [2026-06-17T22:08:43Z] ingest | Slack thread C08FS1UV04F 1776563172.464849
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776563172-464849-209ce03d
+- wiki_revision_id: wikirev_43179c48fe4d68d8f0e50be42cf31016
+- source_document_id: srcdoc_370f81eb75a70bb450430ce9209ce03d
+- source_revision_id: srcrev_bc78bd7d67aa45debd1142b8a2bfb869
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:44Z] ingest | Slack thread C08FS1UV04F channel
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-channel-c6b76660
+- wiki_revision_id: wikirev_0042fa439ba5904998541905c6d9c931
+- source_document_id: srcdoc_448ef3e93def856221c78eccc6b76660
+- source_revision_id: srcrev_4ba49106259182a24fb1739fafee0d27
+- summary: checking current prod state before drafting a reply for Woojin.
+
+## [2026-06-17T22:08:44Z] ingest | Slack thread C08FS1UV04F 1776724152.406429
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776724152-406429-1ed80fc5
+- wiki_revision_id: wikirev_a40ccfd9e222769e2901433bebdcbf28
+- source_document_id: srcdoc_4a39f56c666bb687e4956fe91ed80fc5
+- source_revision_id: srcrev_41a4618ac5ce31ae40fcc92b6ed93750
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:44Z] ingest | Slack thread C08FS1UV04F 1773124302.900119
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773124302-900119-383be945
+- wiki_revision_id: wikirev_a460a9e4681cabe3e1bb2162ae2875f2
+- source_document_id: srcdoc_54442d2080303985ac8bded6383be945
+- source_revision_id: srcrev_8050756bcd21df77caa33d1d5c6164c2
+- summary: <!subteam^S06H0J9SQRY> Can you take a look at it? cc: <@U07KLPN0JN6>
+
+## [2026-06-17T22:08:45Z] ingest | Slack thread C08FS1UV04F 1773257086.429249
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773257086-429249-0c611484
+- wiki_revision_id: wikirev_0f7b810a7d582a8d8dfd83cfa9ef77f5
+- source_document_id: srcdoc_59c54ec53d7abd21ef4f2da70c611484
+- source_revision_id: srcrev_a428cf19702077b0c219592d242891fc
+- summary: <@U0AK1PVDR1R> unpause the alert routing
+
+## [2026-06-17T22:08:45Z] ingest | Slack thread C08FS1UV04F 1773189038.931599
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773189038-931599-c2cf08ba
+- wiki_revision_id: wikirev_a4904eef1f53c4451b94966918c18384
+- source_document_id: srcdoc_5f35db665f5b820996b4949bc2cf08ba
+- source_revision_id: srcrev_28294d2cfe84e1e1f0af204b54203d14
+- summary: <!subteam^S06H0J9SQRY> Can you please take a look? cc. <!subteam^S083BDZ4FTM>
+
+## [2026-06-17T22:08:45Z] ingest | Slack thread C08FS1UV04F 1772500002.936749
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1772500002-936749-42c09ccd
+- wiki_revision_id: wikirev_15dc810e1d17476bb430d77f983172a5
+- source_document_id: srcdoc_60243c6691665ac75501bec842c09ccd
+- source_revision_id: srcrev_b6e807d5c5b3000b53b27d5ba77dd5cd
+- summary: <@U0772SH7BRA> still expected? Thanks
+
+## [2026-06-17T22:08:46Z] ingest | Slack thread C08FS1UV04F 1776742272.405719
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776742272-405719-0b68f6ce
+- wiki_revision_id: wikirev_6b1cac9ecfc404743fe0a14378a413b9
+- source_document_id: srcdoc_64fec6d692124ed30f4594170b68f6ce
+- source_revision_id: srcrev_acf74f56d55feb9536c581f094efd586
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:46Z] ingest | Slack thread C08FS1UV04F 1776866198.721919
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776866198-721919-0eca092c
+- wiki_revision_id: wikirev_0b5b9619cafa58d7503cf790b2704f5a
+- source_document_id: srcdoc_70df9ca646948fe3900a6abb0eca092c
+- source_revision_id: srcrev_b433e9fb3a5e8d9549292ced63b2052e
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:46Z] ingest | Slack thread C08FS1UV04F 1773138706.436279
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773138706-436279-f537f17b
+- wiki_revision_id: wikirev_6c9fa256b4ed17804b03859d853385f3
+- source_document_id: srcdoc_740e5eb889f512bceeab0297f537f17b
+- source_revision_id: srcrev_b9f803c8dd08ecd0690a41728d257389
+- summary: <@U0772SH7BRA> Still there are some of pods which are not working correctly.
+
+## [2026-06-17T22:08:46Z] ingest | Slack thread C08FS1UV04F 1773124006.411559
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773124006-411559-3854d6bf
+- wiki_revision_id: wikirev_5569ceb1b6e9fdfc80710db740dbf540
+- source_document_id: srcdoc_781bad891ffd39bcfb845f6e3854d6bf
+- source_revision_id: srcrev_7daa9a028813293ea91d725b7d4d087a
+- summary: <!subteam^S06H0J9SQRY> Can you take a look at it? cc: <@U07KLPN0JN6>
+
+## [2026-06-17T22:08:47Z] ingest | Slack thread C08FS1UV04F 1776899892.479539
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776899892-479539-bf5446e3
+- wiki_revision_id: wikirev_f228685caf8ad20670731c8c463a0557
+- source_document_id: srcdoc_7c1a406211431a47263ad8f4bf5446e3
+- source_revision_id: srcrev_626be0a06e0b6cdf8da1803a3d1d76d2
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:47Z] ingest | Slack thread C08FS1UV04F 1776880898.797149
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776880898-797149-3afae360
+- wiki_revision_id: wikirev_d17fbabb66324021dcdb847014974ecb
+- source_document_id: srcdoc_801e6e661f956925351b3deb3afae360
+- source_revision_id: srcrev_f8ff5674d6c18609e595efd12577feb2
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:47Z] ingest | Slack thread C08FS1UV04F 1776789279.460339
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776789279-460339-29073e52
+- wiki_revision_id: wikirev_44278c77f116a2f9724e089929cf06bc
+- source_document_id: srcdoc_83245ba3eaca82c4d967af9229073e52
+- source_revision_id: srcrev_3f11c5cd4fe2e042c3a792df68f4fe71
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:48Z] ingest | Slack thread C08FS1UV04F 1776895598.780769
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776895598-780769-b2a1176f
+- wiki_revision_id: wikirev_21303920d0e8caf8072b29769bde817f
+- source_document_id: srcdoc_837f19f940dc13805566ee76b2a1176f
+- source_revision_id: srcrev_f4afb258dabd972626e15ac5eab2b671
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:48Z] ingest | Slack thread C08FS1UV04F 1776729132.387799
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776729132-387799-6ff010cd
+- wiki_revision_id: wikirev_1ed14cab078e72dd270055958a3364b0
+- source_document_id: srcdoc_83ee951257a4bdfcb8270e0d6ff010cd
+- source_revision_id: srcrev_d1c8695bdc1c77969f606a29e212002b
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:48Z] ingest | Slack thread C08FS1UV04F 1776904533.845779
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776904533-845779-fc065345
+- wiki_revision_id: wikirev_5da4de78aea078b047dda81a6efa1e8a
+- source_document_id: srcdoc_84b71d53299f1a8fa77a9663fc065345
+- source_revision_id: srcrev_db60126227ccff21367e6063966d4611
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:49Z] ingest | Slack thread C08FS1UV04F 1776901832.472189
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776901832-472189-73021d88
+- wiki_revision_id: wikirev_f42d1d6b38798e0d8f6f9185cf4f5fb9
+- source_document_id: srcdoc_85aba351224973addd9ec4e773021d88
+- source_revision_id: srcrev_54dcf37f11a305977bf05413b5c2c4b2
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:49Z] ingest | Slack thread C08FS1UV04F 1773112075.980469
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773112075-980469-4df14bdd
+- wiki_revision_id: wikirev_9345ba029a0b8301f5c94221cd7a48c4
+- source_document_id: srcdoc_879974f3f793adbf168cecee4df14bdd
+- source_revision_id: srcrev_64c831e9432aeba1201b27420f71a571
+- summary: [FIRING:1] test alert
+
+## [2026-06-17T22:08:49Z] ingest | Slack thread C08FS1UV04F 1776851198.683959
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776851198-683959-4b685049
+- wiki_revision_id: wikirev_8d5f9483cc22d6c8b1c1eec2f0f59b0e
+- source_document_id: srcdoc_8fd1f59c9353d350eb5223064b685049
+- source_revision_id: srcrev_fbb44abdaae85dc1b23046c38de14c1f
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:50Z] ingest | Slack thread C08FS1UV04F 1776788500.559289
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776788500-559289-9850caa5
+- wiki_revision_id: wikirev_787f16058f08b04072aa44ad849d158c
+- source_document_id: srcdoc_93cee59a1cdb9d5a21d327379850caa5
+- source_revision_id: srcrev_b4c5e8080deb7a2d381ec9d7b1eb5d7d
+- summary: Still stuck at 16,434,712. Third deployment, same result — gap now 129,838.
+
+## [2026-06-17T22:08:50Z] ingest | Slack thread C08FS1UV04F 1776800700.371499
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776800700-371499-2172449e
+- wiki_revision_id: wikirev_06d88894c142bb1c0d0c77fa8b6af758
+- source_document_id: srcdoc_941cd5714572c88a4105d2502172449e
+- source_revision_id: srcrev_3915aaf56e4165894b02d5b9b034f76d
+- summary: pipeline recovered — caught up ~135k blocks, gap is now 9. all clear.
+
+## [2026-06-17T22:08:50Z] ingest | Slack thread C08FS1UV04F 1776755171.763479
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776755171-763479-063b1129
+- wiki_revision_id: wikirev_accd06fe3e2049448ce5daac0bfb7d3a
+- source_document_id: srcdoc_95795c8ac2791ed873d412c5063b1129
+- source_revision_id: srcrev_cbabe3bb81d322a02ddd2666b46265f9
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:51Z] ingest | Slack thread C08FS1UV04F 1776852180.140949
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776852180-140949-5d3f5ffb
+- wiki_revision_id: wikirev_a27148e287e420901816a12334aacfbc
+- source_document_id: srcdoc_99146f8cb6bf635fc046cd835d3f5ffb
+- source_revision_id: srcrev_69580474676c795d7b2f3811332757f7
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:51Z] ingest | Slack thread C08FS1UV04F 1776757740.118919
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776757740-118919-cf6ffbef
+- wiki_revision_id: wikirev_d4240d77f5122a18b7f1a20813f3bf8a
+- source_document_id: srcdoc_a5cd933b979fbd678435dd84cf6ffbef
+- source_revision_id: srcrev_0f824887b8f04443ef70d85bcf8c0b1b
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:51Z] ingest | Slack thread C08FS1UV04F 1773125190.325359
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773125190-325359-14c15283
+- wiki_revision_id: wikirev_ebb41c4afe4e8bf2fd5738e24626853c
+- source_document_id: srcdoc_ad2ca94ffacaf4815802f0d414c15283
+- source_revision_id: srcrev_dd68c7e8930b9efc3b95d29fe3fb0c89
+- summary: <!subteam^S06H0J9SQRY> Can you take a look at it? cc: <@U07KLPN0JN6>
+
+## [2026-06-17T22:08:52Z] ingest | Slack thread C08FS1UV04F 1776726372.381739
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776726372-381739-e8bd577c
+- wiki_revision_id: wikirev_8e883e31688536f6f2967d6af7541a64
+- source_document_id: srcdoc_b759f278c043e6d0b3de6f96e8bd577c
+- source_revision_id: srcrev_8857ed781b0c568947ad31c79c961715
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:52Z] ingest | Slack thread C08FS1UV04F 1776756699.173099
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776756699-173099-f62b14ab
+- wiki_revision_id: wikirev_10f2d12f386dfd8d52f9c02cba38d624
+- source_document_id: srcdoc_c578fd1cf731c97b1194cea0f62b14ab
+- source_revision_id: srcrev_f437c266f954a6100a1a5a88c33351c0
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:52Z] ingest | Slack thread C08FS1UV04F 1772070481.903729
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1772070481-903729-f1ebd254
+- wiki_revision_id: wikirev_9bcd4df8fdb66315cd3fbab9889df0e9
+- source_document_id: srcdoc_cb14c1ef5169b62347757ee4f1ebd254
+- source_revision_id: srcrev_11c75a3cfcb51948472263b88f3b3e72
+- summary: <!subteam^S06H0J9SQRY>
+
+## [2026-06-17T22:08:53Z] ingest | Slack thread C08FS1UV04F 1773125190.390169
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1773125190-390169-543fc337
+- wiki_revision_id: wikirev_26001530bf01d3d18ace467da167e54e
+- source_document_id: srcdoc_d09a545b485a4e94e3eddb8e543fc337
+- source_revision_id: srcrev_c3d3ff491076801f4a02c9d9814bdbd3
+- summary: <!subteam^S06H0J9SQRY> Can you take a look at it? cc: <@U07KLPN0JN6>
+
+## [2026-06-17T22:08:53Z] ingest | Slack thread C08FS1UV04F 1776901954.747359
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776901954-747359-fd7cd773
+- wiki_revision_id: wikirev_259b353d8f64e8efbbb7527713d8fbae
+- source_document_id: srcdoc_d16ea958f0e4002351638351fd7cd773
+- source_revision_id: srcrev_a0e2b55884677b8579000d93ba3ad1f7
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:53Z] ingest | Slack thread C08FS1UV04F 1776756420.469719
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776756420-469719-e9ded0a4
+- wiki_revision_id: wikirev_d57593c07bd3fe0ec9cd7ec8dbfbaa9c
+- source_document_id: srcdoc_d2c43b4e187e2e7407f2ac9ae9ded0a4
+- source_revision_id: srcrev_3dd7ed8ee2f4ca6b716e4ff1ff423edf
+- summary: New replicaset (`99b677bbf` vs `6668586b96`) — looks like someone deployed a new version of the orchestration service. That's why the old pod series went MissingSeries.
+
+## [2026-06-17T22:08:54Z] ingest | Slack thread C08FS1UV04F 1776785500.259879
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776785500-259879-fff6c720
+- wiki_revision_id: wikirev_964dd5395e6591bec8bc43e3425148c1
+- source_document_id: srcdoc_d737b1f34713d19b32fee275fff6c720
+- source_revision_id: srcrev_5c0351bc376a32a24d24681a3f99bf34
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:54Z] ingest | Slack thread C08FS1UV04F 1776490860.331379
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776490860-331379-f9edb9e0
+- wiki_revision_id: wikirev_fcc907919c3fde5d135a3b85a1f782b0
+- source_document_id: srcdoc_d86596cc4a3cb8b0ec3de567f9edb9e0
+- source_revision_id: srcrev_4533fa813032c015ebe2b2b4722d322b
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:54Z] ingest | Slack thread C08FS1UV04F 1770908281.920529
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1770908281-920529-06456ca2
+- wiki_revision_id: wikirev_c4a6e6fb85e6ed395c400d4f6b8902be
+- source_document_id: srcdoc_d89e9e1f07be42cb76192df806456ca2
+- source_revision_id: srcrev_62c36856c2ea3428558b77a68766b434
+- summary: <!subteam^S06H0J9SQRY> <@U07A7AUGL5V> <@U0772SH7BRA> <@U083MMT1771>
+
+## [2026-06-17T22:08:55Z] ingest | Slack thread C08FS1UV04F 1776529980.268679
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776529980-268679-215f5021
+- wiki_revision_id: wikirev_5cea1d638fa4ff333f237247feb8a300
+- source_document_id: srcdoc_d9333d3d662a4675e4aa1e2f215f5021
+- source_revision_id: srcrev_2efe74e06c88fcdc7a791be6eb5770c5
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:55Z] ingest | Slack thread C08FS1UV04F 1776754899.067529
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776754899-067529-fddedeeb
+- wiki_revision_id: wikirev_97dda5b1e9f53d6363e2449838b45436
+- source_document_id: srcdoc_d9afe3e5abb06e2ddb956e96fddedeeb
+- source_revision_id: srcrev_711b044720947485684927960b3e0a9a
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:55Z] ingest | Slack thread C08FS1UV04F 1772227987.827849
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1772227987-827849-15f72b84
+- wiki_revision_id: wikirev_4f056f3f0824bbf19ad8975b8d7d8508
+- source_document_id: srcdoc_dd567d6e958ac6db9cd2b48315f72b84
+- source_revision_id: srcrev_f28126b2c1165b49de066598f032a14f
+- summary: <@U0772SH7BRA> are you looking at this ^?
+
+## [2026-06-17T22:08:55Z] ingest | Slack thread C08FS1UV04F 1776895980.447799
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776895980-447799-9ec46cce
+- wiki_revision_id: wikirev_2b71e77de4643dbc22bddc0fb0f0a600
+- source_document_id: srcdoc_de12f6f514647b8d8c058a109ec46cce
+- source_revision_id: srcrev_c79158319a65a9a9f4010ab1d9ff3d50
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:56Z] ingest | Slack thread C08FS1UV04F 1776529118.956349
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776529118-956349-5568db04
+- wiki_revision_id: wikirev_b285523d96c7d7dd51206cbe196e3056
+- source_document_id: srcdoc_e1adc98bea4a8d68f0b6b21e5568db04
+- source_revision_id: srcrev_ef6f6b62a632b8541845c4cceb9c9c1c
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:56Z] ingest | Slack thread C08FS1UV04F 1776903332.538329
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776903332-538329-8accf7b2
+- wiki_revision_id: wikirev_2c5c42b95b56c8286a39c0216117e04c
+- source_document_id: srcdoc_e4175fd97991ffbbdc097b6b8accf7b2
+- source_revision_id: srcrev_8a2de4a6e1a34fa867ff1dbddd87e51a
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:56Z] ingest | Slack thread C08FS1UV04F 1776789900.170169
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776789900-170169-e083cf95
+- wiki_revision_id: wikirev_85abad75363c69127e85b189bea27f63
+- source_document_id: srcdoc_e5ce40c382cf80707dd71ad6e083cf95
+- source_revision_id: srcrev_370e74007c0006389243dce40b975321
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:08:57Z] ingest | Slack thread C08FS1UV04F 1769823132.192939
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1769823132-192939-aaffbb60
+- wiki_revision_id: wikirev_c876e8829aaf80389e5ded12291664c9
+- source_document_id: srcdoc_ed27566100a799883b63a765aaffbb60
+- source_revision_id: srcrev_e52924e88e68e411b810343329c1608f
+- summary: <@U0772SH7BRA> solved
+
+## [2026-06-17T22:08:57Z] ingest | Slack thread C08FS1UV04F 1776563472.484769
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776563472-484769-b832e26d
+- wiki_revision_id: wikirev_205a3112ed7ac47d40d969729dac1b90
+- source_document_id: srcdoc_ee2243d279e1f89d3a5a2d23b832e26d
+- source_revision_id: srcrev_db1d2f68600514c0381b8911bcba6853
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:57Z] ingest | Slack thread C08FS1UV04F 1776562872.319249
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776562872-319249-71550ec2
+- wiki_revision_id: wikirev_3b577740540a6a8d145c1956d7afebe5
+- source_document_id: srcdoc_f181accf10b0b55bbbd866ee71550ec2
+- source_revision_id: srcrev_5f45a6d9d600a01a10da2bc4b32c3379
+- summary: @plat-dev Can you take a look at it? cc: <@U08V4SFU7LZ>
+
+## [2026-06-17T22:08:58Z] ingest | Slack thread C08FS1UV04F 1776754920.422089
+
+- status: published
+- slug: slack_message/slack-thread-c08fs1uv04f-1776754920-422089-a8474566
+- wiki_revision_id: wikirev_814e7b093f33004d4d0143241cb6f669
+- source_document_id: srcdoc_f1d939f8ffaf349119bd123fa8474566
+- source_revision_id: srcrev_c809e61475855a5e0a05802debb039d9
+- summary: @plat-dev Can you take a look at it? cc: <@U0A7ZQXB160>
+
+## [2026-06-17T22:09:12Z] ingest | Slack thread C08GWDHV23S 1777594054.752059
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777594054-752059-1947b52d
+- wiki_revision_id: wikirev_149e9dee5e37820068421a70d4561ef5
+- source_document_id: srcdoc_225c20852c27a0a295265b101947b52d
+- source_revision_id: srcrev_9b920eba0ae16b74751b87db557634fc
+- summary: checked stage DePIN.
+
+## [2026-06-17T22:09:12Z] ingest | Slack thread C08GWDHV23S 1777531023.780329
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777531023-780329-9088e3cf
+- wiki_revision_id: wikirev_57f4a81d64866e5a86cb3c5bbd848a36
+- source_document_id: srcdoc_248671d36d7a290ae790f9049088e3cf
+- source_revision_id: srcrev_2a5823be0f8b85487e84104631233833
+- summary: checked it. this one is stage only.
+
+## [2026-06-17T22:09:12Z] ingest | Slack thread C08GWDHV23S 1777521622.669239
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777521622-669239-0f9debcf
+- wiki_revision_id: wikirev_511dec9d9a89a2f3e90751823265b028
+- source_document_id: srcdoc_24d67d0cf74aa0caf39c766a0f9debcf
+- source_revision_id: srcrev_06bf178b0de470ec05ba40e83dff505a
+- summary: checked prod DePIN.
+
+## [2026-06-17T22:09:13Z] ingest | Slack thread C08GWDHV23S 1777589283.886189
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777589283-886189-220e742a
+- wiki_revision_id: wikirev_6e979930a567c5094e464d74bc9f704f
+- source_document_id: srcdoc_47da82db70b7b82b2d0808d3220e742a
+- source_revision_id: srcrev_e04a68abc40817c1c472c3204acef632
+- summary: rechecked. still stage only, same state.
+
+## [2026-06-17T22:09:13Z] ingest | Slack thread C08GWDHV23S 1777524022.695459
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777524022-695459-51c2fb00
+- wiki_revision_id: wikirev_7b18fdc77a957ec7263e8268757c0fcd
+- source_document_id: srcdoc_49c03a1155b73a907e78aabb51c2fb00
+- source_revision_id: srcrev_380d70294b61c4dd4b9f3cc535c3a505
+- summary: resolved. matches the earlier check: prod workers were healthy and submitters were broadcasting again, so no infra action needed.
+
+## [2026-06-17T22:09:13Z] ingest | Slack thread C08GWDHV23S 1777614873.337459
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777614873-337459-e8211222
+- wiki_revision_id: wikirev_ddc0f617fba01f70faeeccd562b1cd06
+- source_document_id: srcdoc_5c5dd3aaf18ba691c58ab8dce8211222
+- source_revision_id: srcrev_7ebab58518220006c0e1fd322177a945
+- summary: stage DePIN API looks healthy from the app side.
+
+## [2026-06-17T22:09:14Z] ingest | Slack thread C08GWDHV23S 1777618894.470479
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777618894-470479-e6d2f85b
+- wiki_revision_id: wikirev_d24557f79bfe52b2676540158e700a05
+- source_document_id: srcdoc_70d23ec301ebaecbaf19f0a7e6d2f85b
+- source_revision_id: srcrev_92e4f57bc1eb9845b4c99816d1dd4a5d
+- summary: this is stage poller from Prometheus’s perspective, not actual replicas down.
+
+## [2026-06-17T22:09:14Z] ingest | Slack thread C08GWDHV23S 1777579419.957499
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777579419-957499-cfe36057
+- wiki_revision_id: wikirev_7ad491ca5d70cad3d9462b51d977131b
+- source_document_id: srcdoc_7688ec684453a6b32488d0cacfe36057
+- source_revision_id: srcrev_579def67d2f46aaebbaf339259865dab
+- summary: resolved via MissingSeries for the same evicted pod.
+
+## [2026-06-17T22:09:14Z] ingest | Slack thread C08GWDHV23S 1777574283.795339
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777574283-795339-fb3a3299
+- wiki_revision_id: wikirev_348e28ceb50a95b8e6998c7147077718
+- source_document_id: srcdoc_77e7e6476bba5192f0e36e05fb3a3299
+- source_revision_id: srcrev_f0fae46f2840ddfacf6632fa2b5dd4a4
+- summary: same as earlier, stage only.
+
+## [2026-06-17T22:09:15Z] ingest | Slack thread C08GWDHV23S 1777617496.828579
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777617496-828579-e5b9cc37
+- wiki_revision_id: wikirev_7d83fa09650136af694a307734255dd3
+- source_document_id: srcdoc_851e83cf9eac2938143c7608e5b9cc37
+- source_revision_id: srcrev_417e14ce3b2f45722312841d9ba5fe4c
+- summary: already recovered.
+
+## [2026-06-17T22:09:15Z] ingest | Slack thread C08GWDHV23S 1777618756.805829
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777618756-805829-aaf2bb1e
+- wiki_revision_id: wikirev_3f570eb350cc9e3a32bb65ab17a725a5
+- source_document_id: srcdoc_8ca4ac509d8ff3d802363196aaf2bb1e
+- source_revision_id: srcrev_84b0f146e98d8b3faa05eb9cf967ecbf
+- summary: recovered now.
+
+## [2026-06-17T22:09:15Z] ingest | Slack thread C08GWDHV23S 1777662483.701169
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777662483-701169-529afc06
+- wiki_revision_id: wikirev_48a2b0b82e5534a77b0c6fdfe021316f
+- source_document_id: srcdoc_8daf13c60124113d1ebb2264529afc06
+- source_revision_id: srcrev_6fce5c09a4cf5941bae7d8a3a65a1ba7
+- summary: still the same stage inactivity alert.
+
+## [2026-06-17T22:09:16Z] ingest | Slack thread C08GWDHV23S 1777554339.995299
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777554339-995299-516efe25
+- wiki_revision_id: wikirev_4fa3615edcab01c29780e5a13dfe927d
+- source_document_id: srcdoc_9d3e016563ad12563046b51d516efe25
+- source_revision_id: srcrev_ad8857752db307b8c051e34b5b7da827
+- summary: resolved. this was stage pipeline lag across multiple pipelines on one orchestration pod, and Grafana resolved it via MissingSeries.
+
+## [2026-06-17T22:09:16Z] ingest | Slack thread C08GWDHV23S 1777579119.901999
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777579119-901999-f1bf1e10
+- wiki_revision_id: wikirev_7c73f3771e0001d17bac72a9db524e31
+- source_document_id: srcdoc_a1e547112869abef0b045055f1bf1e10
+- source_revision_id: srcrev_86d0392776c4144bf200550891e2f14f
+- summary: checked stage.
+
+## [2026-06-17T22:09:16Z] ingest | Slack thread C08GWDHV23S 1777594654.740309
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777594654-740309-0c2f7cba
+- wiki_revision_id: wikirev_70e8999c93948928c8a391a4708c1ff1
+- source_document_id: srcdoc_b6b3472a92cd6a5d3bfa48180c2f7cba
+- source_revision_id: srcrev_e5742148a748f6512e322767c86a1b40
+- summary: resolved. matches the earlier check: Kubernetes replicas/endpoints were healthy, and poller metrics were listening.
+
+## [2026-06-17T22:09:17Z] ingest | Slack thread C08GWDHV23S 1777632483.653239
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777632483-653239-8b4d6c30
+- wiki_revision_id: wikirev_fbfc72bd2a7fea2f37541b0f0ce6bac0
+- source_document_id: srcdoc_c7a18de75b4d77c8a4dbc7798b4d6c30
+- source_revision_id: srcrev_f521a930399b9f4d0c153b8cbb0dba74
+- summary: still the same stage inactivity condition.
+
+## [2026-06-17T22:09:17Z] ingest | Slack thread C08GWDHV23S 1777604283.907029
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777604283-907029-c031fa42
+- wiki_revision_id: wikirev_055a81b16797164ead6a6d29e806980c
+- source_document_id: srcdoc_d1982fdbc8d85e3dab8550b9c031fa42
+- source_revision_id: srcrev_6d88b2fa1a687eae6e9aed905c3cc794
+- summary: same recurring stage-only idle alert.
+
+## [2026-06-17T22:09:17Z] ingest | Slack thread C08GWDHV23S 1777614903.970689
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777614903-970689-aa1b4441
+- wiki_revision_id: wikirev_a2e7edc2eda1e6916f3372eb170da5f6
+- source_document_id: srcdoc_dafff3f7af5d17bf8e640915aa1b4441
+- source_revision_id: srcrev_5d4ba3f6e57bea4945cf62f78501055b
+- summary: this one is stage too, not prod.
+
+## [2026-06-17T22:09:18Z] ingest | Slack thread C08GWDHV23S 1777647483.671669
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777647483-671669-94a900c6
+- wiki_revision_id: wikirev_92579ddb103390fdcc5b627c5717e969
+- source_document_id: srcdoc_e6c6891ac0ac4a27f2496ac794a900c6
+- source_revision_id: srcrev_8e1c81a71bd2cbc58e8e252bc7cb35c7
+- summary: still stage, same condition.
+
+## [2026-06-17T22:09:18Z] ingest | Slack thread C08GWDHV23S 1777617483.628009
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777617483-628009-e968cbbd
+- wiki_revision_id: wikirev_27d8241d64e11665cb6ea442e99ba908
+- source_document_id: srcdoc_e7365c2e0cd4e789740a3d8ce968cbbd
+- source_revision_id: srcrev_42f816c31495a38b802daca1095a68f2
+- summary: same stage condition again.
+
+## [2026-06-17T22:09:32Z] ingest | Slack thread C08GWDHV23S 1776915575.668469
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776915575-668469-104481b8
+- wiki_revision_id: wikirev_cc4ea1644552d79b7e5c7865613b1429
+- source_document_id: srcdoc_0d1012061597e1a603625278104481b8
+- source_revision_id: srcrev_82d614015feb38423145b1b920669edb
+- summary: Thanos query is timing out — `Post "<http://thanos-query:9090/api/v1/query_range>": Client.Timeout exceeded`. this explains all the DatasourceNoData noise we've been seeing tonight...
+
+## [2026-06-17T22:09:32Z] ingest | Slack thread C08GWDHV23S 1776962439.866619
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776962439-866619-5cda1450
+- wiki_revision_id: wikirev_9aea5f35eb413f4cec10c3b34f4ef399
+- source_document_id: srcdoc_10f49e32c634d51f5a319bd85cda1450
+- source_revision_id: srcrev_fd143c2e7b18fb8c231059995342f88f
+- summary: The first two pipelines (ip-group, ip-group-membership-aggregation) resolved via MissingSeries — meaning pod p96mp died/restarted. Now a different pod (7q28h) is firing with two mo...
+
+## [2026-06-17T22:09:33Z] ingest | Slack thread C08GWDHV23S 1777205343.767079
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777205343-767079-e9560256
+- wiki_revision_id: wikirev_e30eb777ffd0c1f61a7b9821c4225db4
+- source_document_id: srcdoc_11fd4160c818feb52e4aece3e9560256
+- source_revision_id: srcrev_17017cc3baf5befacb0174ec3868ce23
+- summary: fleet-wide inactivity firing again — second time today (first was ~08:00 UTC). that's 4+ hours with no registrations across the fleet. starting to look less like low sunday traffic...
+
+## [2026-06-17T22:09:33Z] ingest | Slack thread C08GWDHV23S 1776934456.784779
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776934456-784779-ede5f348
+- wiki_revision_id: wikirev_ba121145718fe1cbf349bae81e2a339b
+- source_document_id: srcdoc_18ce9325b060089080a3a5c5ede5f348
+- source_revision_id: srcrev_9eafeeb5508d36dd4e5feeee10e143e4
+- summary: Stage cluster auth is expired so can't pull pod details directly. Two pods stuck in PodInitializing:
+
+## [2026-06-17T22:09:33Z] ingest | Slack thread C08GWDHV23S 1776923194.715719
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776923194-715719-b8a7e067
+- wiki_revision_id: wikirev_5f6b6c32a98d4cfe3524628bb8bb9a2e
+- source_document_id: srcdoc_1ba02932cab7637afec9a8fdb8a7e067
+- source_revision_id: srcrev_fb6fedaa0c5c8b7e894d3b45d9b2b3d5
+- summary: Tier1-STAGE: DePIN service down — all replicas at 0 in stage.
+
+## [2026-06-17T22:09:33Z] ingest | Slack thread C08GWDHV23S 1776929734.717749
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776929734-717749-00f68f83
+- wiki_revision_id: wikirev_479dc1564e19223b92d769348599f7ae
+- source_document_id: srcdoc_233030236dafeee07083abea00f68f83
+- source_revision_id: srcrev_ee5c1e54209f42ad55e95791c6232868
+- summary: Same stage DePIN all-replicas-down alert firing again — third time today (previously 05:46-05:56 UTC, and before that). Consistent pattern of firing then resolving via NoData. Stag...
+
+## [2026-06-17T22:09:34Z] ingest | Slack thread C08GWDHV23S 1776962139.868419
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776962139-868419-5f51faf4
+- wiki_revision_id: wikirev_aae7fff1318e3a2c9fc4d88de0de5712
+- source_document_id: srcdoc_25df6ebe17998061d37c1ed55f51faf4
+- source_revision_id: srcrev_67dd4971de611230788dfabc81fc656d
+- summary: New one — Pipeline Head Difference High on stage.
+
+## [2026-06-17T22:09:34Z] ingest | Slack thread C08GWDHV23S 1776909063.693839
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776909063-693839-6d001803
+- wiki_revision_id: wikirev_4460996f88da703943aa42f64761cbd7
+- source_document_id: srcdoc_3f91248f1e7f0ac6e42aa8f06d001803
+- source_revision_id: srcrev_d85cd97701e74769c2007470ab497b2d
+- summary: two DePIN alerts firing now — Tier1 stage service down (all replicas) plus fleet-wide worker inactivity. this lines up with the depin-backend CrashLoopBackOff we saw earlier tonigh...
+
+## [2026-06-17T22:09:34Z] ingest | Slack thread C08GWDHV23S 1776902854.141369
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776902854-141369-5e7d7765
+- wiki_revision_id: wikirev_20e88bc52828df7bdd8e628a7e9408ee
+- source_document_id: srcdoc_51a4cd7e784aef17acbeabe45e7d7765
+- source_revision_id: srcrev_645330b2f5223623283107aaf03aa623
+- summary: DePIN fleet-wide worker inactivity — no registrations in the last hour. this one has no environment label so unclear if it's stage or prod. also worth noting <http://poseidon-depin...
+
+## [2026-06-17T22:09:35Z] ingest | Slack thread C08GWDHV23S 1776985336.766169
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776985336-766169-428032aa
+- wiki_revision_id: wikirev_bc33a5b5072109ff5896acaf84c82be0
+- source_document_id: srcdoc_55bb28697223c08ec81ee0ba428032aa
+- source_revision_id: srcrev_95451d7e06ea8d066c9f990b5b789eea
+- summary: This is escalating — 5 pods stuck simultaneously in PodInitializing on stage:
+
+## [2026-06-17T22:09:35Z] ingest | Slack thread C08GWDHV23S 1776985696.772939
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776985696-772939-d56eb358
+- wiki_revision_id: wikirev_7845b2619a0f0877ea4cde74fd8619ac
+- source_document_id: srcdoc_5cf865c3c5d073d4851c9fb6d56eb358
+- source_revision_id: srcrev_119a90e537c5b3c2d6f965ed00d12dae
+- summary: Stage is getting worse — now 4 more pods across different services stuck initializing:
+
+## [2026-06-17T22:09:35Z] ingest | Slack thread C08GWDHV23S 1776918692.658589
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776918692-658589-99fbe3b2
+- wiki_revision_id: wikirev_c74abf97b7eafadb8d2d4f2cb13d9430
+- source_document_id: srcdoc_69515a32763a246c7024e0ba99fbe3b2
+- source_revision_id: srcrev_5c9aff4a8d8afb8ef32bd5aa10c02e9b
+- summary: Tier2: DePIN broadcast/RPC errors &gt; 0.02/s
+
+## [2026-06-17T22:09:36Z] ingest | Slack thread C08GWDHV23S 1776915275.685259
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776915275-685259-97be4b7c
+- wiki_revision_id: wikirev_134a5203c2ba481e579084bb67a20652
+- source_document_id: srcdoc_78aedfcf639e51eca4f7c39d97be4b7c
+- source_revision_id: srcrev_bc42186559611f2f3600927a813ae5c2
+- summary: Thanos query is timing out — `Post "<http://thanos-query:9090/api/v1/query_range>": Client.Timeout exceeded`. this explains all the DatasourceNoData noise we've been seeing tonight...
+
+## [2026-06-17T22:09:36Z] ingest | Slack thread C08GWDHV23S 1776903031.830409
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776903031-830409-b9fcd556
+- wiki_revision_id: wikirev_d87a55964d2a857ec9c04e793d13529b
+- source_document_id: srcdoc_a1b4e390e5294c101a1d63a5b9fcd556
+- source_revision_id: srcrev_5496276ca68c2360fe1590abd4eb08d7
+- summary: all 6 DePIN Backend alerts are firing as DatasourceNoData against Thanos — this looks like a Thanos scrape/query issue rather than actual backend problems. the worker inactivity al...
+
+## [2026-06-17T22:09:36Z] ingest | Slack thread C08GWDHV23S 1776965656.782999
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776965656-782999-0c7f44fe
+- wiki_revision_id: wikirev_2055b71fbdc28f0a8cb0598fe40ee901
+- source_document_id: srcdoc_ac1b8b872575ba1ac3c05ba50c7f44fe
+- source_revision_id: srcrev_1a373ba82b142f4c5ac0d1de6a881e65
+- summary: New replicaset hash (74fb44488c vs 6d8d49b earlier) — looks like a fresh deploy of story-orchestration-service on stage. Still stuck in PodInitializing. Likely the same init depend...
+
+## [2026-06-17T22:09:36Z] ingest | Slack thread C08GWDHV23S 1776923999.970779
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776923999-970779-f3f35409
+- wiki_revision_id: wikirev_369a8e65322ba341c32391ea10adab26
+- source_document_id: srcdoc_b850ccad840930e5364586eef3f35409
+- source_revision_id: srcrev_21823c1bc40615879a8ca7b3c206fd48
+- summary: This one's been firing since 01:50 UTC — over 4 hours of prod fleet-wide worker inactivity now. No registrations across the fleet in the last hour (value=0).
+
+## [2026-06-17T22:09:37Z] ingest | Slack thread C08GWDHV23S 1776998400.130689
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776998400-130689-d6352a2a
+- wiki_revision_id: wikirev_6f114939baaff1f165e0e8b90922e452
+- source_document_id: srcdoc_ce97985bfb66b12dfeec5391d6352a2a
+- source_revision_id: srcrev_69a5f8386f9956ce19628c321ae16cbe
+- summary: DePIN fleet-wide worker inactivity is now at 25 hours. This has been firing continuously since 01:50 UTC yesterday with no acknowledgment. At this point it's not a quiet traffic wi...
+
+## [2026-06-17T22:09:37Z] ingest | Slack thread C08GWDHV23S 1777220343.789789
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1777220343-789789-e4b633fb
+- wiki_revision_id: wikirev_980a53144cb028e6c388b3ae380f1933
+- source_document_id: srcdoc_f2073cf9fa10bb39377c5678e4b633fb
+- source_revision_id: srcrev_65d61ee790da55e88dbc5f8e7115c70f
+- summary: can't reach prod cluster right now — kubectl creds are expired. fleet-wide inactivity has been firing since 08:00 UTC (8+ hours now). depin team needs to check prod worker status d...
+
+## [2026-06-17T22:10:14Z] ingest | Slack thread C08GWDHV23S 1774602488.030399
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774602488-030399-70a70960
+- wiki_revision_id: wikirev_540106c84b8455ffd1ff248966064441
+- source_document_id: srcdoc_08fb9b76a68e7dd0a423305f70a70960
+- source_revision_id: srcrev_8ffae3abb60214b1c00205859daffa48
+- summary: this is a false positive. stage cluster was intentionally scaled to 0 for cost savings (been that way since 3/24). the thanos sidecar on stage is down, so grafana can't query it fo...
+
+## [2026-06-17T22:10:14Z] ingest | Slack thread C08GWDHV23S 1775497060.330219
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775497060-330219-6cdbbf93
+- wiki_revision_id: wikirev_fad73b56ceec9e4cbde37b09b27d86d9
+- source_document_id: srcdoc_16db5e439701f15b73b426be6cdbbf93
+- source_revision_id: srcrev_e5b4298088020565836c7a99f12cfa67
+- summary: @plat-dev Can you take a look at it? cc: <@U04L0DD6B6F>
+
+## [2026-06-17T22:10:14Z] ingest | Slack thread C08GWDHV23S 1776891226.796969
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776891226-796969-e61ebf37
+- wiki_revision_id: wikirev_66825759803347f2838b18eae056cd31
+- source_document_id: srcdoc_1963f2aa0099fd8205658481e61ebf37
+- source_revision_id: srcrev_78d3bbe763ebb8f86a64744753e4da01
+- summary: use1-stage-depin-backend is CrashLoopBackOff and has cycled through at least two RS hashes now (59d9599666 and 75f6bbd585) — looks like it got redeployed and is still crashing. sta...
+
+## [2026-06-17T22:10:15Z] ingest | Slack thread C08GWDHV23S 1774896965.150499
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774896965-150499-21ea54d1
+- wiki_revision_id: wikirev_7ca82dcb2202458c67d05d43d88d5a9b
+- source_document_id: srcdoc_27fa59587077160fb60a4fc521ea54d1
+- source_revision_id: srcrev_1be2560f87b559f8a2b796d6f440bf81
+- summary: DatasourceNoData on the Thanos datasource — Grafana's "Staging Pipeline Alert" rule in the Backend team folder can't reach Thanos to evaluate. No value is being returned, so the al...
+
+## [2026-06-17T22:10:15Z] ingest | Slack thread C08GWDHV23S 1774483296.203069
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774483296-203069-059da6e4
+- wiki_revision_id: wikirev_cf69708680a18ca2a5cd3ad4988eb840
+- source_document_id: srcdoc_314878be5697822427369e7a059da6e4
+- source_revision_id: srcrev_f4cc6ee0597f17a04bc0420ce1be165a
+- summary: test alert from Grafana (TestAlert / Test Folder) — looks like a notification routing check, not a real incident. ignoring.
+
+## [2026-06-17T22:10:15Z] ingest | Slack thread C08GWDHV23S 1775048597.056699
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775048597-056699-8df6d090
+- wiki_revision_id: wikirev_956e12551a22620a16cff0ca5a894b64
+- source_document_id: srcdoc_484a47917b9105c1225e19e88df6d090
+- source_revision_id: srcrev_4361c2bdd88f7e4302235fa90903e026
+- summary: stage pod stuck in PodInitializing — checking what's going on
+
+## [2026-06-17T22:10:16Z] ingest | Slack thread C08GWDHV23S 1774415127.274199
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774415127-274199-629130f4
+- wiki_revision_id: wikirev_9c940e459a505f53f19ed9bf7974a8e7
+- source_document_id: srcdoc_4cfb923914f1391dee7cbbc1629130f4
+- source_revision_id: srcrev_f6ef34c9b7fb6fb221e4c8e3d23dcbdd
+- summary: test
+
+## [2026-06-17T22:10:16Z] ingest | Slack thread C08GWDHV23S 1776889336.858839
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776889336-858839-4a82c200
+- wiki_revision_id: wikirev_766ad12e8f223ed4e9f9339e9b8f72ce
+- source_document_id: srcdoc_4ec35b07589ea69ac1e1d38a4a82c200
+- source_revision_id: srcrev_69317fcac3c479f0cc261cc4c5875054
+- summary: stage is intentionally scaled to 0 (cost savings) — chain-head-exporter and content-moderation-worker being stuck in ContainerCreating/PodInitializing is expected. not actionable.
+
+## [2026-06-17T22:10:16Z] ingest | Slack thread C08GWDHV23S 1775254276.922819
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775254276-922819-e3a3aad6
+- wiki_revision_id: wikirev_5a8c7aa48f3a9c0f2fb7951db0c59734
+- source_document_id: srcdoc_54bd4e16350bf6600a6150dfe3a3aad6
+- source_revision_id: srcrev_91e4bd2c9d8a81d32c652f6b9fb4324f
+- summary: Kubectl is being blocked by exec policy. Let me update Woojin with what I have.
+
+## [2026-06-17T22:10:17Z] ingest | Slack thread C08GWDHV23S 1774526225.127419
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774526225-127419-8a4e15f6
+- wiki_revision_id: wikirev_6e58b840666f4c0b2c961a2faecd517c
+- source_document_id: srcdoc_56341c1e3d10e90c9e2f31698a4e15f6
+- source_revision_id: srcrev_ce0340b2de0e2899595ee431235514fe
+- summary: Resolved. Fired for ~5 minutes, auto-cleared. Nothing to do.
+
+## [2026-06-17T22:10:17Z] ingest | Slack thread C08GWDHV23S 1774322166.107589
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774322166-107589-e7e3e517
+- wiki_revision_id: wikirev_fa5f973481d1dd184cf27c3a849bdeb5
+- source_document_id: srcdoc_64bc7caa021d5fccef8dd850e7e3e517
+- source_revision_id: srcrev_b4bf741318a244d80eba1312c07940fb
+- summary: <@U0ANKN05ZK2> can you investigate this error
+
+## [2026-06-17T22:10:17Z] ingest | Slack thread C08GWDHV23S 1774898045.137729
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774898045-137729-1149b58f
+- wiki_revision_id: wikirev_f9b7b1a64365e091eee219522edd1100
+- source_document_id: srcdoc_68a1fd509faa8bf05edec6201149b58f
+- source_revision_id: srcrev_4034ef543d417c19cdb11c176aa78dd1
+- summary: Resolved again, MissingSeries. That's the pattern now — fires for ~5 min, clears for~ 8 min, repeats. Two full cycles in 20 minutes.
+
+## [2026-06-17T22:10:17Z] ingest | Slack thread C08GWDHV23S 1774525925.153329
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774525925-153329-88bafa3a
+- wiki_revision_id: wikirev_2bc76e050c374678abebbbae4adea4d6
+- source_document_id: srcdoc_7224dbab18fd293c98aaef3288bafa3a
+- source_revision_id: srcrev_63bb0fcd62997d80e9f730b534d87261
+- summary: DatasourceNoData on Thanos for "Staging Pipeline Alert" (Backend team folder).
+
+## [2026-06-17T22:10:18Z] ingest | Slack thread C08GWDHV23S 1774397789.067459
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774397789-067459-dd608670
+- wiki_revision_id: wikirev_1a2fcd89e14ba2d8141c78f30f78acd0
+- source_document_id: srcdoc_79d4d75303673b31f9b977e2dd608670
+- source_revision_id: srcrev_74f3ceadf48e0e29038a7753286dcd09
+- summary: <https://cloud.temporal.io/namespaces/indexer-staging.koyiy/workflows?query=%60ExecutionStatus%60%3D%22Failed%22> i dont have the write access to the temporal wfs, need to restart ...
+
+## [2026-06-17T22:10:18Z] ingest | Slack thread C08GWDHV23S 1774897265.141129
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774897265-141129-ba8f7ffd
+- wiki_revision_id: wikirev_71d3b310f03463c3c96ebe9570a760e2
+- source_document_id: srcdoc_7cad1e1afc4cdad89deadc1aba8f7ffd
+- source_revision_id: srcrev_4376ee307cbffa2fc8b8515548fb1f7a
+- summary: Resolved. Thanos datasource is back, fired for about 5 minutes. Reason was MissingSeries — likely a brief blip in Thanos. No action needed.
+
+## [2026-06-17T22:10:18Z] ingest | Slack thread C08GWDHV23S 1774389630.239919
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774389630-239919-0485b249
+- wiki_revision_id: wikirev_cb112f9f7610f771cdff58d4036a8735
+- source_document_id: srcdoc_8a6217db65d7903247da630f0485b249
+- source_revision_id: srcrev_becd00f934dae1772285144c73377bca
+- summary: <@U0772SH7BRA> are you able to access grafana? i got this
+
+## [2026-06-17T22:10:19Z] ingest | Slack thread C08GWDHV23S 1775503308.702629
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775503308-702629-7ba77460
+- wiki_revision_id: wikirev_1093147332c6b94bf8c8b0781bc2d869
+- source_document_id: srcdoc_8d63c569a453c3b7160413687ba77460
+- source_revision_id: srcrev_7d306ff60de0680396d29b9fc789082b
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:10:19Z] ingest | Slack thread C08GWDHV23S 1775124100.295219
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775124100-295219-c1fa5881
+- wiki_revision_id: wikirev_b3be0650f46bfa41ae5aca757d883811
+- source_document_id: srcdoc_8d83ae3b43fba44732cbc0afc1fa5881
+- source_revision_id: srcrev_5e3cba6025617f434d168ff3d113cc0d
+- summary: stage is intentionally scaled to 0 (cost savings, per known state). pipeline head difference alerts here are expected noise — orchestration service isn't running so the pipelines f...
+
+## [2026-06-17T22:10:19Z] ingest | Slack thread C08GWDHV23S 1776757867.614439
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776757867-614439-e04b5404
+- wiki_revision_id: wikirev_399e1c8084adc0eb52971321a3d8cdc9
+- source_document_id: srcdoc_90f7fce7569989df7e0d0b38e04b5404
+- source_revision_id: srcrev_ddbd5c268adb7833860ea6b075b204a8
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:10:20Z] ingest | Slack thread C08GWDHV23S 1774965191.278909
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774965191-278909-5221c970
+- wiki_revision_id: wikirev_bc2dd53ce874e1c4d7e6192376124bd0
+- source_document_id: srcdoc_943405424c9f8e17e70c45bf5221c970
+- source_revision_id: srcrev_976b1225d7cc5b7dd87ff2bb9b1951e1
+- summary: DatasourceNoData on Thanos — Grafana alert rule "Staging Pipeline Alert" fired because it can't reach the Thanos datasource. Thanos query pods in ops are up, but they're timing out...
+
+## [2026-06-17T22:10:20Z] ingest | Slack thread C08GWDHV23S 1776701596.854739
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776701596-854739-04956345
+- wiki_revision_id: wikirev_bc533a3996abdd4b75e49c0781fa59a8
+- source_document_id: srcdoc_95a00e6757e1b43877610da104956345
+- source_revision_id: srcrev_e0eefe191ead99f8852442b3ecc8babc
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:10:20Z] ingest | Slack thread C08GWDHV23S 1775496759.950699
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775496759-950699-15d4413b
+- wiki_revision_id: wikirev_c65b2e4ce71532baee5e09111b62365a
+- source_document_id: srcdoc_a6ac644c193d5d339ca9e94215d4413b
+- source_revision_id: srcrev_ceb4b955006e445d3cfacbc5085d780a
+- summary: @plat-dev Can you take a look at it? cc: <@U04L0DD6B6F>
+
+## [2026-06-17T22:10:21Z] ingest | Slack thread C08GWDHV23S 1774914280.188529
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774914280-188529-97e0a1c8
+- wiki_revision_id: wikirev_a821510514c0aed0bc6be4fb9d4e784c
+- source_document_id: srcdoc_acb4c20129dca61e648ec9b097e0a1c8
+- source_revision_id: srcrev_908b8dceaefb6d79be1b76f00dbd8304
+- summary: Two pipelines behind in stage:
+
+## [2026-06-17T22:10:21Z] ingest | Slack thread C08GWDHV23S 1774328026.230749
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774328026-230749-5e1199b8
+- wiki_revision_id: wikirev_e95ce6aab76ca05ca18cde991da5b632
+- source_document_id: srcdoc_c66ec896fd4c2289bb1bed4c5e1199b8
+- source_revision_id: srcrev_7e52a624f0811b5cc4aacdbb77261d09
+- summary: Sure thing! Could you please provide more details about the error you're encountering? For example, the name of the pipeline or workflow involved and any specific error message you...
+
+## [2026-06-17T22:10:21Z] ingest | Slack thread C08GWDHV23S 1774965491.066869
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774965491-066869-d63c46b6
+- wiki_revision_id: wikirev_55f3d7807cfd5e4d5681b09d0bc1781a
+- source_document_id: srcdoc_cb221b33bde1441617263687d63c46b6
+- source_revision_id: srcrev_1fa47559c04127205aee614f9c9e671a
+- summary: Resolved — Thanos DatasourceNoData cleared itself after ~5 min (reason: MissingSeries). Transient blip, nothing to action.
+
+## [2026-06-17T22:10:21Z] ingest | Slack thread C08GWDHV23S 1774410163.290029
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774410163-290029-5c93a005
+- wiki_revision_id: wikirev_afa3ddaf3f0d5adca03bc8a579bc1b29
+- source_document_id: srcdoc_cb6a943962e4ae4c9ecd44635c93a005
+- source_revision_id: srcrev_ece8b2ddbead92c553387a0f6411fd76
+- summary: Can you check if there is any issue?
+
+## [2026-06-17T22:10:22Z] ingest | Slack thread C08GWDHV23S 1774897745.193849
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774897745-193849-a9a13e2b
+- wiki_revision_id: wikirev_7ac31ef10082ebecac0508e8fde167a7
+- source_document_id: srcdoc_ce782361b9c45920b986e6e9a9a13e2b
+- source_revision_id: srcrev_fad50081106bdc6637b4230b3098da18
+- summary: Back again — same DatasourceNoData on Thanos, 8 minutes after it resolved. Two flaps in under 15 minutes suggests this isn't just a one-off blip. Thanos might be intermittently una...
+
+## [2026-06-17T22:10:22Z] ingest | Slack thread C08GWDHV23S 1774398024.781859
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774398024-781859-fe189823
+- wiki_revision_id: wikirev_fdeb07116534c2c0a91ce5d5720fecc1
+- source_document_id: srcdoc_d4a70a7386932ea6eefa598afe189823
+- source_revision_id: srcrev_9cbb2790a1738b5c32afe8531f269285
+- summary: <@U0AKJV8710S> can you help handling to add alert for this? <https://storyprotocol.slack.com/archives/C08GWDHV23S/p1774397906795489?thread_ts=1774397789.067459&amp;channel=C08GWDHV...
+
+## [2026-06-17T22:10:22Z] ingest | Slack thread C08GWDHV23S 1774410349.927169
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774410349-927169-ac06c37f
+- wiki_revision_id: wikirev_a48603600ed279008e2a6186e0e5dd6e
+- source_document_id: srcdoc_d8c012b6e32cebc6d3ec24e9ac06c37f
+- source_revision_id: srcrev_996ad64455dfdd1a25debfd396bd550b
+- summary: Can you check if there is any issue?
+
+## [2026-06-17T22:10:23Z] ingest | Slack thread C08GWDHV23S 1776655558.208969
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1776655558-208969-fe625fbd
+- wiki_revision_id: wikirev_6b02c7e5ae42103a5b13cae61f2d7308
+- source_document_id: srcdoc_e6044303a48ad7be2904af0cfe625fbd
+- source_revision_id: srcrev_0e8fe7985e18a746b84536988940ed8f
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:10:23Z] ingest | Slack thread C08GWDHV23S 1774358985.447129
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774358985-447129-dcb544d0
+- wiki_revision_id: wikirev_aac0089f7dd62a96e4680bb93bad0e11
+- source_document_id: srcdoc_e68565e3688bcc43567d48d0dcb544d0
+- source_revision_id: srcrev_7f180a7b8849b05013f5e041730b5e58
+- summary: I keep getting this alert. Did some recent update cause it? <@U07TNT9N4JC>
+
+## [2026-06-17T22:10:23Z] ingest | Slack thread C08GWDHV23S 1775048897.060119
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1775048897-060119-1a18dfd1
+- wiki_revision_id: wikirev_1c7f3d18bbc883e66bb1f3d19ec38031
+- source_document_id: srcdoc_e9186ce43c588ec366ad620d1a18dfd1
+- source_revision_id: srcrev_cb196628ccb5cf92f1a0a316d3e9857c
+- summary: resolved via NoData — pod disappeared from metrics, consistent with stage being scaled to 0. nothing to action.
+
+## [2026-06-17T22:10:24Z] ingest | Slack thread C08GWDHV23S 1774914580.439279
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1774914580-439279-583bfe4f
+- wiki_revision_id: wikirev_7991fb4ef687f45abb3467d2d3854fa2
+- source_document_id: srcdoc_f4478cd0207c2d15e0d7086f583bfe4f
+- source_revision_id: srcrev_c6d3d6f750a72eff2870c3306dac6581
+- summary: Resolved. Looks like stage got scaled back up — two orchestration pods are now running and both pipelines caught up below the 80-block threshold. All clear.
+
+## [2026-06-17T22:10:24Z] ingest | Slack thread C08GWDHV23S channel
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-channel-60093256
+- wiki_revision_id: wikirev_98456722cfaae2884adc75dec8297e09
+- source_document_id: srcdoc_f9a5428baae95831ea52a29560093256
+- source_revision_id: srcrev_9ec51354f9f35fa0c42214eeeecb8d98
+- summary: :brain: Thinking...
+
+## [2026-06-17T22:10:37Z] ingest | Slack thread C08GWDHV23S 1769932680.497189
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769932680-497189-3e8335f4
+- wiki_revision_id: wikirev_c6d6858228acdc03b5ef761fd25053ca
+- source_document_id: srcdoc_12e936b0831d5f64c09c72733e8335f4
+- source_revision_id: srcrev_042d3e708377b22815e4f69533772906
+- summary: cc <@U0772SH7BRA>
+
+## [2026-06-17T22:10:38Z] ingest | Slack thread C08GWDHV23S 1772053056.681819
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1772053056-681819-70a1ddc9
+- wiki_revision_id: wikirev_7a8163f3e0bfff30057eb8daa4513e0d
+- source_document_id: srcdoc_1a17f41ddbf6848bf1d4335a70a1ddc9
+- source_revision_id: srcrev_2b427bb2345a1632fec69fd24f29d9a6
+- summary: <@U07A7AUGL5V> <@U0772SH7BRA> are all these alerts normal?
+
+## [2026-06-17T22:10:38Z] ingest | Slack thread C08GWDHV23S 1771204384.898119
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1771204384-898119-26fa71ab
+- wiki_revision_id: wikirev_2bf4875847e0d198d3048217ff06e608
+- source_document_id: srcdoc_3b35618baa32f44e1f48a29226fa71ab
+- source_revision_id: srcrev_99a7ec0495391844abba160cc1332d89
+- summary: <@U0772SH7BRA> Aeneid service seems far behind. Do we want to restart?
+
+## [2026-06-17T22:10:38Z] ingest | Slack thread C08GWDHV23S 1770082170.497639
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1770082170-497639-5684cf7d
+- wiki_revision_id: wikirev_437496435f92acc222dff3f46b7ef249
+- source_document_id: srcdoc_4a12e96eaeb160456e97ed805684cf7d
+- source_revision_id: srcrev_f430312fde0a91a2bfefe3d38a4cf6af
+- summary: <@U0772SH7BRA> You mean fail the deployment? can you share the actions?
+
+## [2026-06-17T22:10:39Z] ingest | Slack thread C08GWDHV23S 1771521799.058429
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1771521799-058429-f17e038b
+- wiki_revision_id: wikirev_bf962e08613684c974c348f46b255a26
+- source_document_id: srcdoc_aa32bf4b8394ae5622dfff2ef17e038b
+- source_revision_id: srcrev_4f6aaeee7f09508d482fdee0170efee6
+- summary: <@U0772SH7BRA> still migrating?
+
+## [2026-06-17T22:10:39Z] ingest | Slack thread C08GWDHV23S 1773125935.963489
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1773125935-963489-8121b6bc
+- wiki_revision_id: wikirev_5387535f763b2f6aa4bfce193ef333ab
+- source_document_id: srcdoc_bc7c544b20e7cc359f1b6d178121b6bc
+- source_revision_id: srcrev_b477a89782b272eb65787c9d7dfd10d3
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-17T22:10:39Z] ingest | Slack thread C08GWDHV23S 1772588675.198869
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1772588675-198869-fd449604
+- wiki_revision_id: wikirev_2626d7af2006e3a193410b9dec8f3964
+- source_document_id: srcdoc_c936e2482a1d5aebdf182872fd449604
+- source_revision_id: srcrev_4b3067b4892723ae112e902de899961e
+- summary: <@U0772SH7BRA> <@U083MMT1771> It seems that pipeline is lagging but no mentioned on which pipeline is lagging?
+
+## [2026-06-17T22:10:39Z] ingest | Slack thread C08GWDHV23S channel
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-channel-60093256
+- wiki_revision_id: wikirev_4a6fab469e16ce38bc5833781b89ba53
+- source_document_id: srcdoc_f9a5428baae95831ea52a29560093256
+- source_revision_id: srcrev_2959535e659fb14d27c753951f66f2c8
+- summary: :brain: Thinking...
+
+## [2026-06-17T22:10:40Z] ingest | Slack thread C08GWDHV23S 1773123695.124029
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1773123695-124029-d0f6446b
+- wiki_revision_id: wikirev_20d77811e8afe1caffe28b11d153ceb3
+- source_document_id: srcdoc_fe4352eb951bb3d580b304fcd0f6446b
+- source_revision_id: srcrev_4b21d18989f9c57483451ef0e54cacea
+- summary: <!subteam^S06H0J9SQRY> Can you take a look at it? cc: <@U07KLPN0JN6>
+
+## [2026-06-17T22:10:40Z] ingest | Slack thread C08GWDHV23S 1770084780.765909
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1770084780-765909-305c38c2
+- wiki_revision_id: wikirev_f37ae16c66ad0bd2c56dc054ede8b8fe
+- source_document_id: srcdoc_ffd69e35b4b5619bb0154023305c38c2
+- source_revision_id: srcrev_b54949184835bf3ada572dd3efc70357
+- summary: <@U0772SH7BRA> Looks it still happened
+
+## [2026-06-17T22:10:54Z] ingest | Slack thread C08GWDHV23S 1769797976.908019
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769797976-908019-c7bcbe35
+- wiki_revision_id: wikirev_80f53ddc608ef7f06d5e93541371f5ae
+- source_document_id: srcdoc_5f2999e86404f3222c85411ec7bcbe35
+- source_revision_id: srcrev_5b17b6eef1f01dbd1df7272cfb017d00
+- summary: <!subteam^S06H0J9SQRY> DatasourceNoData?
+
+## [2026-06-17T22:10:54Z] ingest | Slack thread C08GWDHV23S 1769501280.892249
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769501280-892249-2070bb54
+- wiki_revision_id: wikirev_a21afa150a2b02908000b8b09a7e6d4f
+- source_document_id: srcdoc_631464b242ff572efb8d0bd62070bb54
+- source_revision_id: srcrev_6ceb1193871170eee5b235c007c09f12
+- summary: <!subteam^S06H0J9SQRY> expected due to the node upgrades?
+
+## [2026-06-17T22:10:54Z] ingest | Slack thread C08GWDHV23S 1769821365.020559
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769821365-020559-6265b8e9
+- wiki_revision_id: wikirev_510f4325f99d873850add92dd73c572f
+- source_document_id: srcdoc_771dbcd7e5686f777f4c6a2c6265b8e9
+- source_revision_id: srcrev_86f322c2e5f9fcda1a7f536c6f276274
+- summary: just got this error, not sure why there's no slack notification, but anyways <@U0772SH7BRA> could u take a look?
+
+## [2026-06-17T22:10:55Z] ingest | Slack thread C08GWDHV23S 1769373933.724249
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769373933-724249-6bc4995c
+- wiki_revision_id: wikirev_a9179f872ba793a6f6a5b263890a06cb
+- source_document_id: srcdoc_8a1edd9a97aebad53f45037f6bc4995c
+- source_revision_id: srcrev_7174da1eb8029ef40e906b0733bb49ed
+- summary: <@U0772SH7BRA> <@U083MMT1771> it seems that the APIs are falling behind. Does it need a restart?
+
+## [2026-06-17T22:10:55Z] ingest | Slack thread C08GWDHV23S 1767494280.561259
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1767494280-561259-2c9175c0
+- wiki_revision_id: wikirev_a1d6b5e5c994915a046172b4eb67343b
+- source_document_id: srcdoc_a875c2d6a0e2bb70bf60674c2c9175c0
+- source_revision_id: srcrev_c2138fedf6479040632e61bae9d7ca27
+- summary: Hi <@U0772SH7BRA> <@U083MMT1771>, *s*hould we take a look at this alert?
+
+## [2026-06-17T22:10:55Z] ingest | Slack thread C08GWDHV23S 1769839951.283739
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1769839951-283739-a5679cf5
+- wiki_revision_id: wikirev_272ba5f7a0521047baf7efac2b640bad
+- source_document_id: srcdoc_cb73cb2c5e71227aa8ef8561a5679cf5
+- source_revision_id: srcrev_e66f142a3c5349faec0f4f53386295e1
+- summary: the `<https://staging-api.storyprotocol.net/api/v4/>` endpoint is returning CORS errors now <@U0772SH7BRA> <@U08332YRB7W>, not sure if its related to the above
+
+## [2026-06-17T22:10:56Z] ingest | Slack thread C08GWDHV23S 1766799780.287339
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1766799780-287339-617ce3dc
+- wiki_revision_id: wikirev_1d50f6d027d0fde270b4b22bac10e15c
+- source_document_id: srcdoc_e3bc6895669f948525a505c2617ce3dc
+- source_revision_id: srcrev_ba93ee544c1d94f2acd8c24927c930d3
+- summary: <@U0772SH7BRA> <@U083MMT1771> After restarting the geth to upgrade Fusaka, looks it is not syncing.
+
+## [2026-06-17T22:10:56Z] ingest | Slack thread C08GWDHV23S 1767729481.191929
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-1767729481-191929-40e6103c
+- wiki_revision_id: wikirev_e58157042b544bf6761ce46630699de7
+- source_document_id: srcdoc_e4571a6dc3b2b42ac8456b4440e6103c
+- source_revision_id: srcrev_e439f9444d194bb56e1447cf2fb7ce02
+- summary: <@U083MMT1771> <@U0772SH7BRA> cc. <@U082UKSD3BR>
+
+## [2026-06-17T22:10:56Z] ingest | Slack thread C08GWDHV23S channel
+
+- status: published
+- slug: slack_message/slack-thread-c08gwdhv23s-channel-60093256
+- wiki_revision_id: wikirev_f00d99f4c38f658805935ddc296eb8b4
+- source_document_id: srcdoc_f9a5428baae95831ea52a29560093256
+- source_revision_id: srcrev_686a43ce87443e58fab14ff6a1b447e7
+- summary: :brain: Thinking...
+
+## [2026-06-17T22:11:07Z] ingest | Slack thread C0AN6SRLWLB 1781497232.610489
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1781497232-610489-9130f290
+- wiki_revision_id: wikirev_ef337cab6042329a0457c9207d62a8d8
+- source_document_id: srcdoc_5827c8933a59fb6e1db69d309130f290
+- source_revision_id: srcrev_1d386fb0f333ffed97571abe339f6bd1
+- summary: <@U0ASDQKU3UL> what is this from
+
+## [2026-06-17T22:11:07Z] ingest | Slack thread C0AN6SRLWLB 1781549151.331979
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1781549151-331979-2848c104
+- wiki_revision_id: wikirev_8b8cbedb9b254fdbecf3b1e095494504
+- source_document_id: srcdoc_cc6ce371b778fcfdb09a77dc2848c104
+- source_revision_id: srcrev_e6c67b3fc948fdeb5f27832f1e591e92
+- summary: <@U0AKJV8710S> can you make endpoints for tax bandits not alert on latency since it usually take 10-15s for the api
+
+## [2026-06-17T22:11:07Z] ingest | Slack thread C0AN6SRLWLB 1781553049.538369
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1781553049-538369-e2e237da
+- wiki_revision_id: wikirev_96b047bc76fed74509bf1d872f2d3510
+- source_document_id: srcdoc_e2609daba2ed533018d501eae2e237da
+- source_revision_id: srcrev_c8d48fbc6c606fb0c7ce01b5a8af4bf9
+- summary: <@U0AKJV8710S> alerts still happening
+
+## [2026-06-17T22:11:08Z] ingest | Slack thread C0AN6SRLWLB 1781581877.478689
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1781581877-478689-33a8e4cd
+- wiki_revision_id: wikirev_724438927a61b1bfa7fe4e28f968dcfb
+- source_document_id: srcdoc_fcaed84b750b8ce1893a654433a8e4cd
+- source_revision_id: srcrev_f9783641fc26198a6f561d82ae1c5d90
+- summary: ^ <@U0ASDQKU3UL>, <@U0AKJV8710S> what went wrong
+
+## [2026-06-17T22:11:23Z] ingest | Slack thread C0AN6SRLWLB channel
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-channel-ec105294
+- wiki_revision_id: wikirev_ce342b0f64729e9bbdfaf668948c1ab5
+- source_document_id: srcdoc_093f760e065a62778c61a432ec105294
+- source_revision_id: srcrev_93ce8839f15e79b359a66ff697a75d8b
+- summary: [depin-backend] Internal: unknown multiplier task evaluator kind: resume_uploaded
+
+## [2026-06-17T22:11:23Z] ingest | Slack thread C0AN6SRLWLB 1779312984.613889
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1779312984-613889-4220ac91
+- wiki_revision_id: wikirev_f9198b98c1ca408f96ac00130b539566
+- source_document_id: srcdoc_1178db02038be96deb6fd3d34220ac91
+- source_revision_id: srcrev_668eb6cd0d319cb7ad4c14f76d1d77c5
+- summary: <@U0ASDQKU3UL> what are the depin api p95 &gt; 1s (per path) alerts from ? What routes is this ? Can you investigate on staging depin-backend
+
+## [2026-06-17T22:11:24Z] ingest | Slack thread C0AN6SRLWLB 1779150435.059269
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1779150435-059269-79439730
+- wiki_revision_id: wikirev_c247c96875f9e50baffb8fb8d3a81225
+- source_document_id: srcdoc_a5c802a6aee9efd81341149b79439730
+- source_revision_id: srcrev_1ab71edd0456822f4d0bbb521e591e87
+- summary: <@U08V4SFU7LZ> can you look at these alerts ? cc <@U07TNT9N4JC>
+
+## [2026-06-17T22:11:26Z] ingest | Slack thread C0AN6SRLWLB channel
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-channel-ec105294
+- wiki_revision_id: wikirev_7efbe42a7fb05ab368bca00085975713
+- source_document_id: srcdoc_093f760e065a62778c61a432ec105294
+- source_revision_id: srcrev_50d6c658645d6a0a5364cd192bee8b13
+- summary: [depin-backend] Internal: unknown multiplier task evaluator kind: resume_uploaded
+
+## [2026-06-17T22:11:26Z] ingest | Slack thread C0AN6SRLWLB 1778621484.846379
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1778621484-846379-7351a6da
+- wiki_revision_id: wikirev_29d504ab21849a1f6aeda4fca61eaa59
+- source_document_id: srcdoc_354f28fd9e50a96950b5f1e67351a6da
+- source_revision_id: srcrev_2927b353572f03a065100e107bc63dea
+- summary: [depin-backend] ip-registration wallet nonce drift detected — on-chain tx likely landed without a matching DB attempt. Operator triage required.
+
+## [2026-06-17T22:11:27Z] ingest | Slack thread C0AN6SRLWLB 1778218401.758349
+
+- status: published
+- slug: slack_message/slack-thread-c0an6srlwlb-1778218401-758349-f481e14a
+- wiki_revision_id: wikirev_520ac636a884fd342661ed543f3ba60c
+- source_document_id: srcdoc_3a639e5739fd2c0220903c0cf481e14a
+- source_revision_id: srcrev_bbe860a3cf6773280b80031346f37196
+- summary: seems like staging API is down <@U0772SH7BRA>
+
+## [2026-06-17T22:12:18Z] ingest | Slack thread C0ANB6XD7LN 1781412207.853459
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1781412207-853459-45ee9f68
+- wiki_revision_id: wikirev_5083b8165d354df2e29489811991e6dd
+- source_document_id: srcdoc_1cd0c05b37d9ee4ed70388e445ee9f68
+- source_revision_id: srcrev_328c4cb238bfbed8cf66f9c9c8d05924
+- summary: <@U0ASDQKU3UL> check above errors
+
+## [2026-06-17T22:12:18Z] ingest | Slack thread C0ANB6XD7LN 1778201720.896589
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778201720-896589-80fdaaf0
+- wiki_revision_id: wikirev_61551b7b433bce4f266aa8c4a3267505
+- source_document_id: srcdoc_1faa3bbe265683d4dc81a38380fdaaf0
+- source_revision_id: srcrev_04e63c1d858e728ad02174364b7eae13
+- summary: [depin-backend] avatar-public endpoint returned unexpected status, using default image
+
+## [2026-06-17T22:12:19Z] ingest | Slack thread C0ANB6XD7LN 1781235903.427529
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1781235903-427529-8c5be400
+- wiki_revision_id: wikirev_60b1e3a773f4a69f6b3ae64eac3e0a8c
+- source_document_id: srcdoc_2ca2524ceb0af1429c3cedc98c5be400
+- source_revision_id: srcrev_aa3ae79cdfc135c65be8b1c38d2f677a
+- summary: [depin-backend] panic: unexpected encoding "StandardEncoding"
+
+## [2026-06-17T22:12:19Z] ingest | Slack thread C0ANB6XD7LN 1781667945.137619
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1781667945-137619-23fa170e
+- wiki_revision_id: wikirev_42a6fa0a3502c7639917d9b6970c695b
+- source_document_id: srcdoc_2e3cc9507d123dc9f1fd6a2023fa170e
+- source_revision_id: srcrev_867c4262bf0b27f2c9830a69b584ffa0
+- summary: [depin-backend] failed to ingest numo validation batch
+
+## [2026-06-17T22:12:19Z] ingest | Slack thread C0ANB6XD7LN 1778618913.732179
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778618913-732179-22f43b46
+- wiki_revision_id: wikirev_27a7ff35ad58bce35ddb1f298616f2d6
+- source_document_id: srcdoc_40e9c653cdd247ed58b6276522f43b46
+- source_revision_id: srcrev_f8b4fe89dbb72210d1f78fb168741ca4
+- summary: <@U07TNT9N4JC> when you are available pls review <https://github.com/storyprotocol/story-infra-aws/pull/79>
+
+## [2026-06-17T22:12:20Z] ingest | Slack thread C0ANB6XD7LN 1778177047.710789
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778177047-710789-71e1ae44
+- wiki_revision_id: wikirev_608b425a185cbad4bc9ecf57a5900435
+- source_document_id: srcdoc_4144e7153073b8bf2ef668f771e1ae44
+- source_revision_id: srcrev_b5f3cd438203fd7d1eafeb693ffb74a3
+- summary: :white_circle: <https://story-protocol.sentry.io/issues/7466101207/?referrer=slack&alert_rule_id=16805828&alert_type=issue|*ip-registration wallet nonce drift detected — on-chain t...
+
+## [2026-06-17T22:12:20Z] ingest | Slack thread C0ANB6XD7LN 1777534147.759129
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1777534147-759129-b2be5ca1
+- wiki_revision_id: wikirev_0475135435a338bdb4d8bfc652abe2e8
+- source_document_id: srcdoc_44ef24a60a90ecbf03bf9cbab2be5ca1
+- source_revision_id: srcrev_4d6ce9046a5266e7e22e213c7091966b
+- summary: :white_circle: <https://story-protocol.sentry.io/issues/7451304065/?referrer=slack&alert_rule_id=16805828&alert_type=issue|*Internal*> http://api.numolabs.ai/v1/admin/users ```erro...
+
+## [2026-06-17T22:12:20Z] ingest | Slack thread C0ANB6XD7LN 1778606762.173679
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778606762-173679-4d76d6d9
+- wiki_revision_id: wikirev_667d9142e64fef03678859d8e77df000
+- source_document_id: srcdoc_7143aa77dc53ffe35fdfd5774d76d6d9
+- source_revision_id: srcrev_fd4a0357940f6281c449887792842ab9
+- summary: [depin-backend] failed to fetch public avatar info, using default image
+
+## [2026-06-17T22:12:21Z] ingest | Slack thread C0ANB6XD7LN 1781222864.280489
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1781222864-280489-af16cc4c
+- wiki_revision_id: wikirev_38cb7cf048f2a6b552e259f2e1961b33
+- source_document_id: srcdoc_80e5999cf2a1bd6fc82da730af16cc4c
+- source_revision_id: srcrev_fe51535250a8d75af1b7ed78ae8e600c
+- summary: [depin-backend] tax form status poll ingest failed
+
+## [2026-06-17T22:12:21Z] ingest | Slack thread C0ANB6XD7LN 1781637396.716519
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1781637396-716519-ee7d6151
+- wiki_revision_id: wikirev_991347563e5fb5af3794e0b1231ddffd
+- source_document_id: srcdoc_82213dbd9a585dc8c6ea67b9ee7d6151
+- source_revision_id: srcrev_9009aaa4017146304328d44e2ff70259
+- summary: [depin-backend] ip-registration broadcast failed, marking send_pending attempt awaiting_verify for confirmer reconciliation
+
+## [2026-06-17T22:12:22Z] ingest | Slack thread C0ANB6XD7LN 1778795751.055609
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778795751-055609-b7849d34
+- wiki_revision_id: wikirev_5ce08b1fc5a0b7f3a1c8e314ff8ad44f
+- source_document_id: srcdoc_8d1e2021b7b9d80f03dfe9f2b7849d34
+- source_revision_id: srcrev_cd5b47ed49fb095db137cd8f6c2d25f5
+- summary: :white_circle: <https://story-protocol.sentry.io/issues/7481753266/?referrer=slack&alert_rule_id=16805828&alert_type=issue|*Internal*> http://depin.storyprotocol.net/v1/public/user...
+
+## [2026-06-17T22:12:22Z] ingest | Slack thread C0ANB6XD7LN channel
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-channel-2135c2b8
+- wiki_revision_id: wikirev_f137957933f0848884f13e915e34416d
+- source_document_id: srcdoc_8ff22916ba359c9d63db469f2135c2b8
+- source_revision_id: srcrev_91f5036e776ac5277d66167c780e049b
+- summary: <@U07B5C4QH41>
+
+## [2026-06-17T22:12:22Z] ingest | Slack thread C0ANB6XD7LN 1778796135.638789
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778796135-638789-993add7e
+- wiki_revision_id: wikirev_1bbba98f47f8a0f59facd3b08aa9aeab
+- source_document_id: srcdoc_92cbde704ea731a9759df03e993add7e
+- source_revision_id: srcrev_b305f369a77558a809fa3a301ffefe6c
+- summary: looks like still broken alert <@U07TNT9N4JC>, are you still fixing this ?
+
+## [2026-06-17T22:12:23Z] ingest | Slack thread C0ANB6XD7LN 1777572941.708239
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1777572941-708239-4352a1d9
+- wiki_revision_id: wikirev_a1b1f2ae32903086d08c5a0380973e59
+- source_document_id: srcdoc_d424141ab6b08282d84b98354352a1d9
+- source_revision_id: srcrev_db4b4a13bb8c0082ca92ead843307c3b
+- summary: [depin-backend] TypeError: Object [object Object] has no method 'updateFrom'
+
+## [2026-06-17T22:12:23Z] ingest | Slack thread C0ANB6XD7LN 1776969159.734629
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1776969159-734629-fa704f2b
+- wiki_revision_id: wikirev_52b73c744899d9ca2063744c0576a878
+- source_document_id: srcdoc_d7518fa8f68194d8e1cefdeafa704f2b
+- source_revision_id: srcrev_0ea9682980882377676816564e3c33ca
+- summary: [depin-backend] ip-registration wallet nonce drift detected — on-chain tx likely landed without a matching DB attempt. Operator triage required.
+
+## [2026-06-17T22:12:23Z] ingest | Slack thread C0ANB6XD7LN 1778613732.320519
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778613732-320519-8d2c42fe
+- wiki_revision_id: wikirev_7cfad651d2911c14fe7d6c3a54726579
+- source_document_id: srcdoc_d992c09940568685dd1157318d2c42fe
+- source_revision_id: srcrev_0af38383aa2f81c544b9d2fbbc8e0ab0
+- summary: <@U0AKJV8710S> <@U07TNT9N4JC> is this accurate
+
+## [2026-06-17T22:12:24Z] ingest | Slack thread C0ANB6XD7LN 1778150622.785069
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778150622-785069-4b33d037
+- wiki_revision_id: wikirev_5f6d5c440930675beda4ab5b63173a55
+- source_document_id: srcdoc_da7f0b35f8680b3ac968d65f4b33d037
+- source_revision_id: srcrev_0067508f60e77a16990012b765dfcf6d
+- summary: [depin-backend] user_safety_signals refresh failed
+
+## [2026-06-17T22:12:24Z] ingest | Slack thread C0ANB6XD7LN 1777545489.666129
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1777545489-666129-a6c764c3
+- wiki_revision_id: wikirev_35afbf502396ecbb8432b70518b0bdcf
+- source_document_id: srcdoc_ebe8763353cc6efab1efaf9da6c764c3
+- source_revision_id: srcrev_4a182ff233fae91e9a9d48e69fb864cd
+- summary: :white_circle: <https://story-protocol.sentry.io/issues/7451621209/?referrer=slack&alert_rule_id=16805828&alert_type=issue|*Internal*> http://api.numolabs.ai/v1/submissions/73402a7...
+
+## [2026-06-17T22:12:24Z] ingest | Slack thread C0ANB6XD7LN 1778193219.531919
+
+- status: published
+- slug: slack_message/slack-thread-c0anb6xd7ln-1778193219-531919-dec9b10f
+- wiki_revision_id: wikirev_82b9d12af2b30232f09bdef7b6e5a12e
+- source_document_id: srcdoc_f31ef7a256cef45122a22b5adec9b10f
+- source_revision_id: srcrev_05d4f06907c4ad4376ff42d361d41b9f
+- summary: [depin-backend] ip-registration pre-broadcast revert reached max_discard_attempts — failing job terminally and marking source row FAILED. Likely deterministic contract revert, not ...
+
