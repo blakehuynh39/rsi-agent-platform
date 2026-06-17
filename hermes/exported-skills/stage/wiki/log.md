@@ -32247,3 +32247,876 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_573c04e5fd6b3063318cc87b188856a7
 - summary: Discussion about existing royalty token distribution workflows and new functionality.
 
+## [2026-06-17T22:18:43Z] ingest | Slack thread C0B36TEUYHF 1779387182.261309
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779387182-261309-d0be4d07
+- wiki_revision_id: wikirev_756f3eea9d364e0cc1d1143544b31fa9
+- source_document_id: srcdoc_01bfbb60635d6452ecb00a43d0be4d07
+- source_revision_id: srcrev_c790c6171fb14b96814b2d757d8e3815
+- summary: From <@U07KLPN0JN6>
+
+## [2026-06-17T22:18:43Z] ingest | Slack thread C0B36TEUYHF 1778554539.629339
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778554539-629339-ff65aa57
+- wiki_revision_id: wikirev_d8090178d7a92fa43559685ebcf999b0
+- source_document_id: srcdoc_01f9a21130d9b9db5b503024ff65aa57
+- source_revision_id: srcrev_b1f711c39c95dc7426f790d275c755d5
+- summary: <@U0ASDQKU3UL> can you check company docs for smart contract calls and their gas consumption ?
+
+## [2026-06-17T22:18:43Z] ingest | Slack thread C0B36TEUYHF 1780435301.180249
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780435301-180249-f9fd5583
+- wiki_revision_id: wikirev_bfd0bdd671a5cd55d53607d419d8e8b5
+- source_document_id: srcdoc_066df01ac1227e3c5b458f26f9fd5583
+- source_revision_id: srcrev_6e987b8e59b36c7d16ba11ec0686452a
+- summary: 6/29, right?
+
+## [2026-06-17T22:18:44Z] ingest | Slack thread C0B36TEUYHF 1779399268.128349
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779399268-128349-80c3d8a2
+- wiki_revision_id: wikirev_1bbb87d555b52ba99f88d94aa7f6ab3f
+- source_document_id: srcdoc_07a638b5a83ef1403cc1c45080c3d8a2
+- source_revision_id: srcrev_e2b56c5f3de0430a38551c35df016246
+- summary: <@U04VDFP1YQ5> <@U07KLPN0JN6> <@U08V4SFU7LZ> <@U08HVGL6LDR>
+
+## [2026-06-17T22:18:44Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_71c6f6147e140c9985e2404168d9c942
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_efde577e4e65bb2e80b5dc9a916d1a3f
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
+## [2026-06-17T22:18:44Z] ingest | Slack thread C0B36TEUYHF 1781282861.119409
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781282861-119409-09e8c8dd
+- wiki_revision_id: wikirev_118a1eece82d45e58e1a2da940a6a385
+- source_document_id: srcdoc_09f5c0d5629ba56c21b8887f09e8c8dd
+- source_revision_id: srcrev_01cc36917b1db062b144afeaf347c177
+- summary: <@U0772SH7BRA> for publishing Numo records, should we use a new API key for Numo or just use Kled's for now?
+
+## [2026-06-17T22:18:45Z] ingest | Slack thread C0B36TEUYHF 1779384085.896529
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779384085-896529-cde74c68
+- wiki_revision_id: wikirev_e04c5a79f0f9d4fc062ee3ffee84661d
+- source_document_id: srcdoc_0d75cf4266849b82835f388dcde74c68
+- source_revision_id: srcrev_ee19cc2971b944158aa5af5eb8276670
+- summary: Here is the proposed handoff doc to kled. I've built the infra on staging to comfortably accept 500 records/s so they can start testing integration and iterate from there
+
+## [2026-06-17T22:18:45Z] ingest | Slack thread C0B36TEUYHF 1779386936.235889
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779386936-235889-c7cc3d35
+- wiki_revision_id: wikirev_e3cf743b9c38f31807835a741f07d5f6
+- source_document_id: srcdoc_0dc77551b536223690c595b2c7cc3d35
+- source_revision_id: srcrev_fe52256fbb9ce9c3d23e4802d9e75c3c
+- summary: I ran some experiments on Aeneid using a smart contract that modifies storage and emits an event, and another contract that just emits events. I got those results:
+
+## [2026-06-17T22:18:45Z] ingest | Slack thread C0B36TEUYHF 1779385785.112329
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779385785-112329-8b4e2ab4
+- wiki_revision_id: wikirev_6a520fba35f9bdbbfe4713fab68871b4
+- source_document_id: srcdoc_0f2e47082a8d2b4650f235bf8b4e2ab4
+- source_revision_id: srcrev_f3d2ab8e357d22d8221f96deacf46eb3
+- summary: Trying to gather different workstreams to make sure we are all aligned on what needs to happen from frontend side.
+
+## [2026-06-17T22:18:46Z] ingest | Slack thread C0B36TEUYHF 1778551515.448759
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778551515-448759-562480c4
+- wiki_revision_id: wikirev_f6f3d6bc522ab6032b88231b5f6e91f5
+- source_document_id: srcdoc_10ac4c0fa64be6accb62e358562480c4
+- source_revision_id: srcrev_452bb01e83d68f3f458a676f9494820c
+- summary: more gas needed is better for us, we can raise gas limit per block from 36m to 60m to accommodate more tx per block.
+
+## [2026-06-17T22:18:46Z] ingest | Slack thread C0B36TEUYHF 1779313890.937689
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779313890-937689-92bed8b7
+- wiki_revision_id: wikirev_870cc325c212813e1de21325a8390bea
+- source_document_id: srcdoc_199c4115d1c484ab603f6af792bed8b7
+- source_revision_id: srcrev_1213ce0d8c2cc27bf0d099613ccf8a9b
+- summary: <@U08HVGL6LDR> :bear-salute:
+
+## [2026-06-17T22:18:47Z] ingest | Slack thread C0B36TEUYHF 1780969371.668339
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780969371-668339-285b47a0
+- wiki_revision_id: wikirev_cd8e65d7d2b81128292282adee37d7ef
+- source_document_id: srcdoc_1d563823c8dd1d11252727f1285b47a0
+- source_revision_id: srcrev_97f24618dc5152c866aa53020e93885e
+- summary: can you remind me about the cname question you asked <@U06A5AQ1VD3>?
+
+## [2026-06-17T22:18:47Z] ingest | Slack thread C0B36TEUYHF 1779138726.602789
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779138726-602789-0d5b5866
+- wiki_revision_id: wikirev_a8e97b6e3fa1ff0ac614a13d0afa286c
+- source_document_id: srcdoc_1e4951542b9f915382a4e4ee0d5b5866
+- source_revision_id: srcrev_bc885f1270e74264b65fcf405918a5a4
+- summary: <https://www.notion.so/storyprotocol/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914?source=copy_link>
+
+## [2026-06-17T22:18:47Z] ingest | Slack thread C0B36TEUYHF 1780945042.981249
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780945042-981249-d72d55b5
+- wiki_revision_id: wikirev_4d0165f3cb63711d21e626c649a8c800
+- source_document_id: srcdoc_2703f0ed7f00eaab703a12ced72d55b5
+- source_revision_id: srcrev_930a42c7785c79b47a255a4c959a09e3
+- summary: Hey <@U0772SH7BRA>, we need a few more things added on backend side:
+
+## [2026-06-17T22:18:47Z] ingest | Slack thread C0B36TEUYHF 1780671058.779319
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780671058-779319-724ffe04
+- wiki_revision_id: wikirev_a285393c99c25b0a0a3ae07b6463b788
+- source_document_id: srcdoc_29652ac1f319e2e44ada6cc1724ffe04
+- source_revision_id: srcrev_e13fa0b8b5e77cbe9e7a0177f7b4cb13
+- summary: <@U08V4SFU7LZ> is the broadcaster and infra also already ?
+
+## [2026-06-17T22:18:48Z] ingest | Slack thread C0B36TEUYHF 1780345982.392439
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780345982-392439-801768bd
+- wiki_revision_id: wikirev_75f4703077a9c34cd1b99100fc832c9a
+- source_document_id: srcdoc_378e1447c93d11de20fcc4f9801768bd
+- source_revision_id: srcrev_fb895bae07776c5c4980760576adf98b
+- summary: <@U06A5AQ1VD3> we are looking into setting up the master wallet for the $IP funds to register
+
+## [2026-06-17T22:18:48Z] ingest | Slack thread C0B36TEUYHF 1780934542.072809
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780934542-072809-fbd1bb61
+- wiki_revision_id: wikirev_2852db31a0027dec076c844a813ca311
+- source_document_id: srcdoc_41507370ad1cf66a2e366385fbd1bb61
+- source_revision_id: srcrev_a27c81aa2b82b6fb3fbb2b2c9ade2c56
+- summary: Update for Trace
+
+## [2026-06-17T22:18:49Z] ingest | Slack thread C0B36TEUYHF 1781599895.365909
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781599895-365909-88609344
+- wiki_revision_id: wikirev_857a05c6bbf9aaf44d4214ad5d9e0950
+- source_document_id: srcdoc_452985cebf187ace3985291488609344
+- source_revision_id: srcrev_1c12dee2a1d05d369d5a39d91fb16074
+- summary: To clarify, you mean these 3?:
+
+## [2026-06-17T22:18:49Z] ingest | Slack thread C0B36TEUYHF 1780587001.803059
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780587001-803059-afbf38a6
+- wiki_revision_id: wikirev_4ed9add1fc910ccf63377a1b865d7d34
+- source_document_id: srcdoc_47024d25a670f561ae4935dfafbf38a6
+- source_revision_id: srcrev_023e4b5efa03092926e6735c189aedd2
+- summary: <@U08HVGL6LDR> should be g2g on backend. Can you integrate/test on FE using the latest kled handoff
+
+## [2026-06-17T22:18:49Z] ingest | Slack thread C0B36TEUYHF 1781102850.213039
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781102850-213039-c295a571
+- wiki_revision_id: wikirev_bcf345c4da22f1e0bfc5e0efa1b92fa5
+- source_document_id: srcdoc_478424ba1210b849ab19338cc295a571
+- source_revision_id: srcrev_bd0985b9d8a3591fab10ee3a505128a5
+- summary: <@U0ASDQKU3UL> review <https://github.com/storyprotocol/story-api/pull/1010>
+
+## [2026-06-17T22:18:50Z] ingest | Slack thread C0B36TEUYHF 1780788581.283949
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780788581-283949-f32d14a0
+- wiki_revision_id: wikirev_cc068023f9b0b6b4dada2db58b775203
+- source_document_id: srcdoc_4ab4bfb872bf40df4cd68db6f32d14a0
+- source_revision_id: srcrev_6eaf3c66c73bafb0049efe184f70df24
+- summary: also how can I get more IP fund to test broadcasters `0x8b997E52A44DE1E00cB9aD1ef376BFc01cCc1057` cc <@U08V4SFU7LZ> <@U04VDFP1YQ5>
+
+## [2026-06-17T22:18:50Z] ingest | Slack thread C0B36TEUYHF 1781671432.586409
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781671432-586409-e28d2ea5
+- wiki_revision_id: wikirev_48c8b40dccd786951836c37360990b6d
+- source_document_id: srcdoc_4bc15a9d4e448ec12c9f8ebee28d2ea5
+- source_revision_id: srcrev_c11d4a6d2596173365cb90722ee45b6b
+- summary: <@U0ASDQKU3UL> review plz <https://github.com/storyprotocol/story-api/pull/1099>
+
+## [2026-06-17T22:18:50Z] ingest | Slack thread C0B36TEUYHF 1779480460.105549
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779480460-105549-c71f1bfb
+- wiki_revision_id: wikirev_8b679fdc1209f3dc86f290cc933a0f0d
+- source_document_id: srcdoc_4c301f60f44b7425e45bea2cc71f1bfb
+- source_revision_id: srcrev_dd28c850313206893608a5e139fa4fd4
+- summary: Who can help me to find a logo for Oto?
+
+## [2026-06-17T22:18:51Z] ingest | Slack thread C0B36TEUYHF 1781045643.193359
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781045643-193359-c0a2ed29
+- wiki_revision_id: wikirev_c467b6722cf1ff128b2160af3ddc0e6c
+- source_document_id: srcdoc_4d905ab860ef8689e915152cc0a2ed29
+- source_revision_id: srcrev_6040c5b6153f45f688f09d4d8790eb2e
+- summary: We should all align on a new set of dates for the release of Trace
+
+## [2026-06-17T22:18:51Z] ingest | Slack thread C0B36TEUYHF 1778549313.251979
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778549313-251979-85c230f3
+- wiki_revision_id: wikirev_86c76dacd5cf7d2fb05c69c83a4a0fd9
+- source_document_id: srcdoc_523d1ec9012d097aae0575dd85c230f3
+- source_revision_id: srcrev_cda3173cb96081ab93b7c19cf4d02a7a
+- summary: Here is the high level details and discussion already happened today
+
+## [2026-06-17T22:18:52Z] ingest | Slack thread C0B36TEUYHF 1780976208.184399
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780976208-184399-b05750c0
+- wiki_revision_id: wikirev_e40367c8c81b2c50f9f5674d56105b34
+- source_document_id: srcdoc_553b12184826afee5eedc42db05750c0
+- source_revision_id: srcrev_96c7ce4d0b4035913a67cf166f29766c
+- summary: <@U0ASDQKU3UL> is staging api for trace down
+
+## [2026-06-17T22:18:52Z] ingest | Slack thread C0B36TEUYHF 1779483056.282349
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779483056-282349-589964b0
+- wiki_revision_id: wikirev_f1282d362d1d0c8e3fdc792d9c2f0519
+- source_document_id: srcdoc_57524d0b7945106214b722de589964b0
+- source_revision_id: srcrev_46259395820f6d2b73e690f5ff1e5f5c
+- summary: Hey guy! Today the API info is supposed to be sent to Oto. Where are we at with that workflow?
+
+## [2026-06-17T22:18:52Z] ingest | Slack thread C0B36TEUYHF 1778627334.642879
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778627334-642879-63597919
+- wiki_revision_id: wikirev_6f2edee1c0faa74947926d1fd7f7c99a
+- source_document_id: srcdoc_57aada03b559ac44b144517763597919
+- source_revision_id: srcrev_708037cb7d87549df3afdc567a698d60
+- summary: <!here> changing it to a zoom meeting so we can do it in conference room
+
+## [2026-06-17T22:18:53Z] ingest | Slack thread C0B36TEUYHF 1781424079.703589
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781424079-703589-653e1b2e
+- wiki_revision_id: wikirev_6777587ee30267ebd58f447fdb08605a
+- source_document_id: srcdoc_5ed8f943075435d7c987aee4653e1b2e
+- source_revision_id: srcrev_a858ead199334ba32e325559e08d95a4
+- summary: <@U0772SH7BRA> <@U06A5AQ1VD3> Have we started ingesting Kled's data (incl. samples) or is TRACE still in design phase?
+
+## [2026-06-17T22:18:53Z] ingest | Slack thread C0B36TEUYHF 1781209056.022169
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781209056-022169-ae8aeb33
+- wiki_revision_id: wikirev_095930b57fe3f8cd257271ab4af931e6
+- source_document_id: srcdoc_5f4c09277f428695b447bffaae8aeb33
+- source_revision_id: srcrev_91e156bfed29b1c0316024240b081635
+- summary: <@U06A5AQ1VD3> <@U0871SH0FNZ> I updated my proposal following our discussion
+
+## [2026-06-17T22:18:53Z] ingest | Slack thread C0B36TEUYHF 1779726108.708939
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779726108-708939-14c752e9
+- wiki_revision_id: wikirev_d389de6ae17ef0df6213be43eb9eeb10
+- source_document_id: srcdoc_6296d69f86260883dd41ff7e14c752e9
+- source_revision_id: srcrev_6cb2b307b4dd66eeb04a3d4324cf4de6
+- summary: <@U04VDFP1YQ5> can you please bring <@U081RCLP2KB> up to speed on the L1 side of Trace
+
+## [2026-06-17T22:18:54Z] ingest | Slack thread C0B36TEUYHF 1780317508.429879
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780317508-429879-544746ab
+- wiki_revision_id: wikirev_38a2c534b543bf51aa803be7fbdb9dd8
+- source_document_id: srcdoc_66020d55a3b352a65386fa6a544746ab
+- source_revision_id: srcrev_6fcc9dac16cec2039946e60c0c72deca
+- summary: Where are we on the L1 registration experiments? Did we land on a solution? We have 15 days until we should start ingesting.
+
+## [2026-06-17T22:18:54Z] ingest | Slack thread C0B36TEUYHF 1781679083.751949
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781679083-751949-9a7e3bc4
+- wiki_revision_id: wikirev_6d167ef37ec2363984de4937fac76b7e
+- source_document_id: srcdoc_6aa502492a24030e1e5e565d9a7e3bc4
+- source_revision_id: srcrev_93ef0781061e1adca31bb7c5becdbcc4
+- summary: <@U0772SH7BRA> oto mentioned they will not be providing any geo information in the metadata schema, so as long as thats optional theyre good (`kyc_country`)
+
+## [2026-06-17T22:18:54Z] ingest | Slack thread C0B36TEUYHF 1780701053.404449
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780701053-404449-9c00cb49
+- wiki_revision_id: wikirev_675fb4c4db1a516bdacecab2f8eeab30
+- source_document_id: srcdoc_6c3b730f40a1290b66505ac79c00cb49
+- source_revision_id: srcrev_1196efc31b6bca03425703c2dd48e36b
+- summary: <@U0772SH7BRA> do we need ordering such that daily jobs are broadcasted asap and backlog drains if there's additional room, or the ordering doesn't matter
+
+## [2026-06-17T22:18:55Z] ingest | Slack thread C0B36TEUYHF 1781727367.104279
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781727367-104279-bb7fdde5
+- wiki_revision_id: wikirev_2161f34188b4399d1dd282f27c3fae63
+- source_document_id: srcdoc_6c6ef297bf9b105c7c7f4101bb7fdde5
+- source_revision_id: srcrev_a877b0f24798713c23442893b80a2e1e
+- summary: <@U0ASDQKU3UL> review <https://github.com/storyprotocol/story-api/pull/1105>
+
+## [2026-06-17T22:18:55Z] ingest | Slack thread C0B36TEUYHF 1779148420.109309
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779148420-109309-b7f11868
+- wiki_revision_id: wikirev_662b3c0578ecb11d6111904495c26083
+- source_document_id: srcdoc_6fe4cc0e2ee0509a2a91565eb7f11868
+- source_revision_id: srcrev_3426705a0dbb7a5fe239f399af9be9ab
+- summary: Here are some thoughts on contract design
+
+## [2026-06-17T22:18:55Z] ingest | Slack thread C0B36TEUYHF 1780684701.694859
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780684701-694859-9970485b
+- wiki_revision_id: wikirev_2c525ebd4061083b53437bc9a6adac55
+- source_document_id: srcdoc_7461406a96b815993f2148189970485b
+- source_revision_id: srcrev_8112c0e3c57136f976c4e1ba6c2418e0
+- summary: <@U0ASDQKU3UL> are the /stats totals and /search endpoints out of sync? im seeing a lot of records in search but only 3 total in stats. this is for the trace api
+
+## [2026-06-17T22:18:56Z] ingest | Slack thread C0B36TEUYHF 1781123447.078749
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781123447-078749-285048f8
+- wiki_revision_id: wikirev_e270323b8ac2883e60ec9e14af9ffeb7
+- source_document_id: srcdoc_7b6ab83e9d1dafaa72d023b1285048f8
+- source_revision_id: srcrev_ee4ed988a2180e2eda65ff6d8f8db807
+- summary: <@U06A5AQ1VD3> <@U04VDFP1YQ5> <@U0772SH7BRA> here’s my proposal for the gas price and block utilization monitoring strategy, designed to spend ~12K $IP / day on 15M registrations. ...
+
+## [2026-06-17T22:18:56Z] ingest | Slack thread C0B36TEUYHF 1780678386.046309
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780678386-046309-a326910c
+- wiki_revision_id: wikirev_007964c4ce359aac2e56ee25e159ccd0
+- source_document_id: srcdoc_81c769f4b8ae20d381c72bdfa326910c
+- source_revision_id: srcrev_a33c1085c8b79ebc8ffca76f2fa15ed7
+- summary: <!here> Happy Friday!! please provide *a standup update in this thread* :thread:for Trace if you are working on the project. <@U0772SH7BRA> <@U08V4SFU7LZ> <@U07TNT9N4JC> <@U08332YR...
+
+## [2026-06-17T22:18:56Z] ingest | Slack thread C0B36TEUYHF 1780029058.021089
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780029058-021089-94573820
+- wiki_revision_id: wikirev_8dd78a4b40a86fe29533d75d42ff2400
+- source_document_id: srcdoc_83a28be674c25e438221e29c94573820
+- source_revision_id: srcrev_0ea99f6a2b8fbdcbfb5a87fe3ca5a9e3
+- summary: Updated the<https://www.notion.so/storyprotocol/DataRegistry-State-Growth-Localnet-Measurement-36e051299a54805f9628e03e36cb38c9?showMoveTo=true&amp;saveParent=true| DataRegistry st...
+
+## [2026-06-17T22:18:57Z] ingest | Slack thread C0B36TEUYHF 1781135654.828219
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781135654-828219-8b4748bf
+- wiki_revision_id: wikirev_b243777501e20da9142f4cac632b986b
+- source_document_id: srcdoc_83d4d5c730cc465ddbb29a848b4748bf
+- source_revision_id: srcrev_ad908be5fd7faa445159897315c7f8df
+- summary: <@U0ASDQKU3UL> review <https://github.com/piplabs/trace-frontend/pull/5>
+
+## [2026-06-17T22:18:57Z] ingest | Slack thread C0B36TEUYHF 1781584509.035019
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781584509-035019-550a7967
+- wiki_revision_id: wikirev_96c9fb82a19545d03b017ecb4d5621d4
+- source_document_id: srcdoc_847482b651ddbb2ebd6c0a5b550a7967
+- source_revision_id: srcrev_3a6560841224ad28f8b36b26011fa158
+- summary: <@U0ASDQKU3UL> review pllleeeeaaaassseee <https://github.com/storyprotocol/story-api/pull/1084>
+
+## [2026-06-17T22:18:57Z] ingest | Slack thread C0B36TEUYHF 1781057602.116359
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781057602-116359-7503b3f9
+- wiki_revision_id: wikirev_25541c5f1dca1395b00d27be729b25f5
+- source_document_id: srcdoc_84752215afdb73ec205e0f227503b3f9
+- source_revision_id: srcrev_d188f2c0844072bf6265d4b152f6aec0
+- summary: <@U07TNT9N4JC> is starting work on the Refill service that will monitor wallet balance and request funds from a master wallet owned by Kled.
+
+## [2026-06-17T22:18:58Z] ingest | Slack thread C0B36TEUYHF 1781571071.002449
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781571071-002449-936862ec
+- wiki_revision_id: wikirev_1fffb264066e3cbb58cd7e78357e13b2
+- source_document_id: srcdoc_855b8b42578fb88e7f134663936862ec
+- source_revision_id: srcrev_a27492e46538c60a623da2565f0cf520
+- summary: adds a new GH workflow to copy a generalized handoff file over to our docs <@U0ASDQKU3UL> please review: <https://github.com/storyprotocol/story-api/pull/1082>
+
+## [2026-06-17T22:18:58Z] ingest | Slack thread C0B36TEUYHF 1780574045.423589
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780574045-423589-f0ccf3e3
+- wiki_revision_id: wikirev_d01f8c906cdb5e105bf6e3b8a682fa99
+- source_document_id: srcdoc_86b4e9cc6e3b84a878f53948f0ccf3e3
+- source_revision_id: srcrev_8c1da30b3b4314150f37e11a65294720
+- summary: <@U082UKSD3BR> I see the L1 load tests used batches of 10 registrations, would it be fine to batch more on the L1 side? E.g, 50-100
+
+## [2026-06-17T22:18:58Z] ingest | Slack thread C0B36TEUYHF 1781504874.134599
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781504874-134599-e57c784f
+- wiki_revision_id: wikirev_de9150cbbfdba49eb0a83fc63bcd62f6
+- source_document_id: srcdoc_86da6b973385ccae7ca817bce57c784f
+- source_revision_id: srcrev_757a3f0de8b037e119de6dbfd12f0115
+- summary: <@U0ASDQKU3UL> review plz <https://github.com/storyprotocol/story-api/pull/1043>
+
+## [2026-06-17T22:18:59Z] ingest | Slack thread C0B36TEUYHF 1779401745.990999
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779401745-990999-dadd2e5f
+- wiki_revision_id: wikirev_0b23cba39a4bf025ae7f2ede9ab04529
+- source_document_id: srcdoc_88c99e563e6eef2d4b5e0560dadd2e5f
+- source_revision_id: srcrev_40fcbc0539b6609884854ab79784d399
+- summary: I started scaffolding the frontend for this project here: <https://trace-frontend-tan.vercel.app/>
+
+## [2026-06-17T22:18:59Z] ingest | Slack thread C0B36TEUYHF 1780994836.596369
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780994836-596369-8bb57a45
+- wiki_revision_id: wikirev_a6f2d01fbbf46231da220c973bcbc03d
+- source_document_id: srcdoc_89c237cf8e85a0e8b3d68e228bb57a45
+- source_revision_id: srcrev_7bf15621c00a5db639a58a7cff01b76b
+- summary: <@U0772SH7BRA> was this tested on purpose?
+
+## [2026-06-17T22:19:00Z] ingest | Slack thread C0B36TEUYHF 1779384438.400619
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779384438-400619-8b8c4274
+- wiki_revision_id: wikirev_da27f7f723267356bc737e0b194ca22f
+- source_document_id: srcdoc_9119ca4700bf0ac92ecbc5d18b8c4274
+- source_revision_id: srcrev_6ea5da9f4523c13e480bc440f7fcff58
+- summary: 1. so this api accepts kled's metadata and structures it in our own standardized schema? or does it require kled to follow our schema?
+
+## [2026-06-17T22:19:00Z] ingest | Slack thread C0B36TEUYHF 1780587099.151179
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780587099-151179-6e8b2da3
+- wiki_revision_id: wikirev_193c78698f7f9f78802937097bfc0f92
+- source_document_id: srcdoc_9196032a25b920c26bf8b9f86e8b2da3
+- source_revision_id: srcrev_0f79c777a1e210ae6c3bee391ec55658
+- summary: Thanks <@U0772SH7BRA>
+
+## [2026-06-17T22:19:00Z] ingest | Slack thread C0B36TEUYHF 1781726475.517439
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781726475-517439-3cac759b
+- wiki_revision_id: wikirev_7fe286a13c1cccb675781275d8b01e93
+- source_document_id: srcdoc_919bac8363e280b496a2ec893cac759b
+- source_revision_id: srcrev_51d5bda23d100f205fc8221c8adbdce7
+- summary: <@U0772SH7BRA> <@U08HVGL6LDR> let's make sure we register all the Numo Web and Poseidon Season 1 contributions as well, i.e. everything that was an IP asset. and work with Jed and ...
+
+## [2026-06-17T22:19:01Z] ingest | Slack thread C0B36TEUYHF 1780569284.769719
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780569284-769719-06cc1909
+- wiki_revision_id: wikirev_c3f4c0226ded548dbb94bb39767e2740
+- source_document_id: srcdoc_91ee134a2d686cb5dac0e3b006cc1909
+- source_revision_id: srcrev_d144f0e90cb87191608e5882ff5fddd3
+- summary: <@U04VDFP1YQ5> <@U0772SH7BRA> opened a pr to implement the V1 smart contract as discussed yesterday, also made the contract upgradeable and bumped OpenZeppelin-related parts to OZ ...
+
+## [2026-06-17T22:19:01Z] ingest | Slack thread C0B36TEUYHF 1780762709.312809
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780762709-312809-e862a996
+- wiki_revision_id: wikirev_f57d5cc5efaa2816b376aeaeecd80232
+- source_document_id: srcdoc_9251485a9c6ef7dea39b4879e862a996
+- source_revision_id: srcrev_ca41b614890da91319c767d1f74d109e
+- summary: are the contracts deployed yet on aeneid ? cc <@U08V4SFU7LZ> <@U04VDFP1YQ5>
+
+## [2026-06-17T22:19:02Z] ingest | Slack thread C0B36TEUYHF 1781145678.954769
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781145678-954769-e8f0ad8b
+- wiki_revision_id: wikirev_a13e24bda84a4dd1003d2362871838d7
+- source_document_id: srcdoc_991ec9ac697213195e363149e8f0ad8b
+- source_revision_id: srcrev_eebd176a26fb49d29d4d69cc4d8d4ef3
+- summary: <@U07TNT9N4JC> devnet is down I think can you take a look
+
+## [2026-06-17T22:19:03Z] ingest | Slack thread C0B36TEUYHF 1779318151.104369
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779318151-104369-4009e98e
+- wiki_revision_id: wikirev_3f32330d806f64a922b75e683232af6f
+- source_document_id: srcdoc_9d93dadc09aa6682ed725bb14009e98e
+- source_revision_id: srcrev_e03983e8153bcdced1beddbb52ace4b3
+- summary: Hey everyone I'm going to pick up the frontend portion of this Trace effort
+
+## [2026-06-17T22:19:03Z] ingest | Slack thread C0B36TEUYHF 1779990530.277949
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779990530-277949-6eda96af
+- wiki_revision_id: wikirev_0874c77dedb3b34aef0a1b39e7587402
+- source_document_id: srcdoc_a866334b05b57681112cfa8b6eda96af
+- source_revision_id: srcrev_b97e596ef5c6a4982df11b14b3b0b22f
+- summary: <@U04VDFP1YQ5> regarding batch registration, I think we should skip already registered entries instead of reverting the whole smart contract call. Opened a PR: <https://github.com/...
+
+## [2026-06-17T22:19:04Z] ingest | Slack thread C0B36TEUYHF 1781565565.434619
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781565565-434619-e11f734f
+- wiki_revision_id: wikirev_0fe4bb9e905f30fc4e38b1dc001f2c60
+- source_document_id: srcdoc_af589f64bf8a449e0ceb0a93e11f734f
+- source_revision_id: srcrev_d992ba98e3521b98483cfca3e8c04baf
+- summary: changed to 36M please take a look
+
+## [2026-06-17T22:19:04Z] ingest | Slack thread C0B36TEUYHF 1778612348.677709
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778612348-677709-b51dfb08
+- wiki_revision_id: wikirev_811eff6bfdd0a793549ccd429ec06d68
+- source_document_id: srcdoc_b0edaec6bd2f5209393cee34b51dfb08
+- source_revision_id: srcrev_05346a178200e910e899a296e9d3357d
+- summary: Also updated the PRD this morning and going through it with <@U04L0DD6B6F>: <https://www.notion.so/storyprotocol/Trace-AI-Data-Audit-Portal-358051299a54806eabbbdfa3ce6181d8>
+
+## [2026-06-17T22:19:05Z] ingest | Slack thread C0B36TEUYHF 1779826953.641739
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779826953-641739-6397374c
+- wiki_revision_id: wikirev_d7c2cc2ad59003e2f372ef1410abccb5
+- source_document_id: srcdoc_b2e014eebd7f8fb3480f4ede6397374c
+- source_revision_id: srcrev_8c09d3056b17739906d3f52a9f135796
+- summary: We are looking at dev complete by end of this week, and testing + dogfooding by end of next week. Is this still on track?
+
+## [2026-06-17T22:19:05Z] ingest | Slack thread C0B36TEUYHF 1778788948.844219
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1778788948-844219-a7f28dad
+- wiki_revision_id: wikirev_c98e58e791198cf8415dbbd48f1fce25
+- source_document_id: srcdoc_b3d5ba944244c442a48ad835a7f28dad
+- source_revision_id: srcrev_1245769d9cae2a58c40d42718d3e4905
+- summary: hey <!here> i've sent an invite to continue discussion on the audit IP registration architecture at ~2PM~ 3:30PM PT today. <@U04VDFP1YQ5> also has drafted up a proposal that he wou...
+
+## [2026-06-17T22:19:06Z] ingest | Slack thread C0B36TEUYHF 1781117773.468669
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781117773-468669-2174ee57
+- wiki_revision_id: wikirev_8d09bb758d451abd9dbd07201fd529d6
+- source_document_id: srcdoc_b551f8e8386d59c4f1f086722174ee57
+- source_revision_id: srcrev_a672353c331c92f2331b96363b66eebd
+- summary: <@U0772SH7BRA> How costly are the *global* statistics like % KYC or % Account Verified? Is it a heavy strain on backend? These stats aren't super necessary, and would be nice to ke...
+
+## [2026-06-17T22:19:06Z] ingest | Slack thread C0B36TEUYHF 1780365167.055609
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780365167-055609-10b32799
+- wiki_revision_id: wikirev_e6027ef88fbf497510ad0612173218bd
+- source_document_id: srcdoc_b68493ae3e22b86ee98a5d6e10b32799
+- source_revision_id: srcrev_e15e777def0f9446feb3821dab9f234b
+- summary: This is the proposal <https://app.notion.com/p/storyprotocol/Trace-proposal-V1-from-L1-perspective-373051299a548025b691f9b815265b32>
+
+## [2026-06-17T22:19:06Z] ingest | Slack thread C0B36TEUYHF 1781040349.651769
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781040349-651769-c66baa07
+- wiki_revision_id: wikirev_c1836475e8bc468d51ff813ae452dc93
+- source_document_id: srcdoc_b727eef7a3e33d2a71b2ebdec66baa07
+- source_revision_id: srcrev_ca913a8ebe0514ecef5a932434b92748
+- summary: <@U04VDFP1YQ5> just saw the contracts license is MIT while it's usually BUSL-1.1, maybe we should restrict it?
+
+## [2026-06-17T22:19:07Z] ingest | Slack thread C0B36TEUYHF 1780988354.294999
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780988354-294999-2c16bc57
+- wiki_revision_id: wikirev_604a55cd3a80e4029f12ac800126f5c3
+- source_document_id: srcdoc_bdcb86dda85ba78a75f7ca8a2c16bc57
+- source_revision_id: srcrev_2ed1082800e9c9cd71c4f8c37b023322
+- summary: <@U0ASDQKU3UL> can you review and approve
+
+## [2026-06-17T22:19:07Z] ingest | Slack thread C0B36TEUYHF 1781716194.726059
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781716194-726059-c5e8ab75
+- wiki_revision_id: wikirev_0e741c1be8e2139d16f68e11e02fa16c
+- source_document_id: srcdoc_be2c0ecc4335eadf2d9acc31c5e8ab75
+- source_revision_id: srcrev_9d4441c2989ae31bcefbe8a3dbd0c982
+- summary: <@U0ASDQKU3UL> review <https://github.com/storyprotocol/story-api/pull/1010>
+
+## [2026-06-17T22:19:08Z] ingest | Slack thread C0B36TEUYHF 1780345111.358289
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780345111-358289-718eaca1
+- wiki_revision_id: wikirev_83aa66dfbe9c8e325a790042c06546e8
+- source_document_id: srcdoc_bee998eb8ea5cacac6917003718eaca1
+- source_revision_id: srcrev_e6c40b81b1984f88ee89911c77a42476
+- summary: <@U06A5AQ1VD3> <@U08HVGL6LDR>
+
+## [2026-06-17T22:19:08Z] ingest | Slack thread C0B36TEUYHF 1780960020.554799
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780960020-554799-a8af98dd
+- wiki_revision_id: wikirev_c00dee3eca8187f6141059dae6d8d3a2
+- source_document_id: srcdoc_bf4be3f547b43ce9345d08d5a8af98dd
+- source_revision_id: srcrev_691850bd71c0798d5e4d157935bd4112
+- summary: *Update on Trace*
+
+## [2026-06-17T22:19:08Z] ingest | Slack thread C0B36TEUYHF 1781194448.399049
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781194448-399049-9425ae97
+- wiki_revision_id: wikirev_7482a993399cb245121b76703a98333e
+- source_document_id: srcdoc_c42b04b68d19331b9e11736d9425ae97
+- source_revision_id: srcrev_9df855c90f8eb8e2c8dd9b6b25faebf9
+- summary: <@U0ASDQKU3UL> review plz <https://github.com/storyprotocol/story-api/pull/1043>
+
+## [2026-06-17T22:19:09Z] ingest | Slack thread C0B36TEUYHF 1779324873.827239
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779324873-827239-c5177348
+- wiki_revision_id: wikirev_df69f8ef03aacc4433eeed8015f780a6
+- source_document_id: srcdoc_c7be79a80dbbf38c9280dc79c5177348
+- source_revision_id: srcrev_5d3e5429d9ddc2564d8d5f2fdf27ced4
+- summary: Please <@U07KLPN0JN6> share the insights from stress testing registration with 1 validator and the only event based registration contract
+
+## [2026-06-17T22:19:09Z] ingest | Slack thread C0B36TEUYHF 1781673631.620539
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781673631-620539-5adea48c
+- wiki_revision_id: wikirev_4d591df7486bf814ef085426f83d341a
+- source_document_id: srcdoc_cc3c0847dae58379cf08e0a85adea48c
+- source_revision_id: srcrev_80817fd545c91d0add258064d377cbf8
+- summary: <@U0ASDQKU3UL> review plz <https://github.com/storyprotocol/story-api/pull/1100>
+
+## [2026-06-17T22:19:09Z] ingest | Slack thread C0B36TEUYHF 1780435720.305859
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780435720-305859-32a85b81
+- wiki_revision_id: wikirev_6b15a3c8617001167def7cc048cc9455
+- source_document_id: srcdoc_d0652007b4de0acf8057e2a632a85b81
+- source_revision_id: srcrev_f92f7fbfda8ad2f158b685d59ad218cc
+- summary: there are parallel workstreams L1 + contracts owned by <@U04VDFP1YQ5>, Platform ingestion owned by me and broadcaster owned by <@U08V4SFU7LZ>
+
+## [2026-06-17T22:19:10Z] ingest | Slack thread C0B36TEUYHF 1781721606.040559
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781721606-040559-9ea17881
+- wiki_revision_id: wikirev_ace38503abe966458d7cc8d5aea6814d
+- source_document_id: srcdoc_d117382eab58e1f85a695e079ea17881
+- source_revision_id: srcrev_46339d0ed4e6389a64f54e594ffdd028
+- summary: <@U0772SH7BRA> <@U04VDFP1YQ5> gas controller PR merged, env vars updated
+
+## [2026-06-17T22:19:10Z] ingest | Slack thread C0B36TEUYHF 1780613069.534649
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780613069-534649-e07a1a26
+- wiki_revision_id: wikirev_5ac29c0e4e8a0786696415197b20d926
+- source_document_id: srcdoc_d48f3754d361b15f5774bfcfe07a1a26
+- source_revision_id: srcrev_c6873ae4977d668b5d9893ecf168505d
+- summary: Seems to be working pretty great <@U0772SH7BRA> <https://trace-frontend-tan.vercel.app/>
+
+## [2026-06-17T22:19:11Z] ingest | Slack thread C0B36TEUYHF 1781587092.427069
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781587092-427069-a23cfa86
+- wiki_revision_id: wikirev_07f87af96c9a4a916ac5a4c62554f051
+- source_document_id: srcdoc_d62b6b4a10adb567a3735785a23cfa86
+- source_revision_id: srcrev_296a2777572a088ba0465e0d3ab74e5f
+- summary: <@U0ASDQKU3UL> review playze <https://github.com/storyprotocol/story-api/pull/1087>
+
+## [2026-06-17T22:19:11Z] ingest | Slack thread C0B36TEUYHF 1781041291.902869
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781041291-902869-8172cf57
+- wiki_revision_id: wikirev_85e5f0996cad69ed4627dbb48efa78b2
+- source_document_id: srcdoc_d96cb9906c0dc1b4671687498172cf57
+- source_revision_id: srcrev_ac473d8228a178f490524e4238d26fa8
+- summary: <@U07TNT9N4JC> is the current devnet validator network just 1 instance ? Can we increase it to 3, each validator in different AZ. Also for RPC is it load balanced behind 1 or multi...
+
+## [2026-06-17T22:19:11Z] ingest | Slack thread C0B36TEUYHF 1779492417.728679
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779492417-728679-95187ff9
+- wiki_revision_id: wikirev_4392d97c400d65a85fc65515e5ba6bb8
+- source_document_id: srcdoc_dad91fb40785a075b0bfefd595187ff9
+- source_revision_id: srcrev_eec6289b455943bafaf2f440c52a75d6
+- summary: <https://www.notion.so/storyprotocol/Data-Portal-Backend-Architecture-35e051299a5480a3864be5b963962914?source=copy_link>
+
+## [2026-06-17T22:19:12Z] ingest | Slack thread C0B36TEUYHF 1781043318.465599
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781043318-465599-6df2bebf
+- wiki_revision_id: wikirev_fe35a066e2565ecf30b7740a11af9689
+- source_document_id: srcdoc_de4cb47d0ab41afc29d5b2066df2bebf
+- source_revision_id: srcrev_751879f8e398761396515216d99d98aa
+- summary: <@U08V4SFU7LZ> can you look at the current code and levers we can pull to dynamically throttle or adjust broadcasting to meet a certain # of gas price per tx and gas per block ? Id...
+
+## [2026-06-17T22:19:12Z] ingest | Slack thread C0B36TEUYHF 1780351992.948979
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780351992-948979-83c25fa8
+- wiki_revision_id: wikirev_462eee4ffa4716ad2fb7a054b657b1a9
+- source_document_id: srcdoc_e33e358ab9c6477285c51ab283c25fa8
+- source_revision_id: srcrev_2709b76da4a915d7180396d89bf5e3b9
+- summary: <@U0772SH7BRA> have you reviewed the feedback from Eli? <https://storyprotocol.slack.com/archives/C0B3QLVHPUL/p1779964988296079>
+
+## [2026-06-17T22:19:12Z] ingest | Slack thread C0B36TEUYHF 1780683127.454199
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780683127-454199-1d2fa9d8
+- wiki_revision_id: wikirev_fe7b5fcf76b14b0825ee981e106ee322
+- source_document_id: srcdoc_e4650667ea56ab5d4e59ed511d2fa9d8
+- source_revision_id: srcrev_d357c7e38dfad3ac8468b0679ffeb1c3
+- summary: <@U0772SH7BRA> will all the registration backlog already be in our Dynamo db on launch?
+
+## [2026-06-17T22:19:13Z] ingest | Slack thread C0B36TEUYHF 1779414338.183669
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779414338-183669-d658f6e2
+- wiki_revision_id: wikirev_911ac95553c6317d9ccf7d452ecb91cc
+- source_document_id: srcdoc_e4ffbb713587ad996cb6ba02d658f6e2
+- source_revision_id: srcrev_5205fb45e332c1dd18cf0d450f96eae2
+- summary: <@U06A5AQ1VD3> this is more of a business side question, but thinking on FUD.
+
+## [2026-06-17T22:19:13Z] ingest | Slack thread C0B36TEUYHF 1780670015.719609
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780670015-719609-2ebb7b23
+- wiki_revision_id: wikirev_9c1ccc5aedb36c96fb6b0389194f1b4f
+- source_document_id: srcdoc_eb2880ed032dfac5e1808dd62ebb7b23
+- source_revision_id: srcrev_edb48517e96d6671a11843c6e76289a4
+- summary: <@U0772SH7BRA> <@U04VDFP1YQ5> the contract now lives in <https://github.com/storyprotocol/story-api/tree/staging/trace-contracts|story-api/trace-contracts>
+
+## [2026-06-17T22:19:13Z] ingest | Slack thread C0B36TEUYHF 1779201106.507679
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779201106-507679-9bb4e52f
+- wiki_revision_id: wikirev_4df5932de3c96fea13bf70b143f93657
+- source_document_id: srcdoc_ee153bde68580ebfe5482df29bb4e52f
+- source_revision_id: srcrev_2ea7fc00821a0a71df61bf00cab50544
+- summary: this is the v0 of the spec file that Kled will send. we are still tweaking some things. WE have a follow up call with them tomorow. <@U0772SH7BRA> (+ <@U08V4SFU7LZ> <@U08HVGL6LDR> ...
+
+## [2026-06-17T22:19:14Z] ingest | Slack thread C0B36TEUYHF 1780954593.139449
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780954593-139449-bd1fdf37
+- wiki_revision_id: wikirev_c4e5b58e7f23f56cdc95631cd23cbc24
+- source_document_id: srcdoc_f48b627bdf09ab8b9000fffcbd1fdf37
+- source_revision_id: srcrev_e1c6ae30deaeff7ec851a1de41d93605
+- summary: <@U0772SH7BRA> <@U08V4SFU7LZ> AFAIK the registration contract you are using was not spreading registration in different buckets.
+
+## [2026-06-17T22:19:15Z] ingest | Slack thread C0B36TEUYHF 1780347971.243669
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1780347971-243669-4f715547
+- wiki_revision_id: wikirev_0a255f8ce8310155be7465f6d88f0e08
+- source_document_id: srcdoc_f6c96e0007d42ea33f031ca44f715547
+- source_revision_id: srcrev_03eaa5443103c79e5f17739197dcfa25
+- summary: Re: registration smart contract, given
+
+## [2026-06-17T22:19:15Z] ingest | Slack thread C0B36TEUYHF 1781039476.593759
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1781039476-593759-c0f30c54
+- wiki_revision_id: wikirev_52bde9ce95a3160a2f13add3bc943032
+- source_document_id: srcdoc_f84a49a011fca8f3883533dfc0f30c54
+- source_revision_id: srcrev_c216ce42c33b7106bf99dfcc972a15d0
+- summary: <https://github.com/storyprotocol/story-deployments/pull/444/changes>
+
+## [2026-06-17T22:19:16Z] ingest | Slack thread C0B36TEUYHF 1779494861.826759
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779494861-826759-c5b57a80
+- wiki_revision_id: wikirev_8de4174fc0f5b36d5585317513dff0ef
+- source_document_id: srcdoc_fa41f3d5c7f69d9fe3bd3ee7c5b57a80
+- source_revision_id: srcrev_42983f1760d8c8df4454b4e1575c500e
+- summary: <@U0772SH7BRA> looking at the doc
+
+## [2026-06-17T22:19:16Z] ingest | Slack thread C0B36TEUYHF 1779806961.800449
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1779806961-800449-adf87282
+- wiki_revision_id: wikirev_2f45e4aeff77822804f0d7ce43e8a0dd
+- source_document_id: srcdoc_fb1888248d9c88c36ead63afadf87282
+- source_revision_id: srcrev_10bdf50bac6b98437a3b1d236c9212c6
+- summary: Hi team, I'll be out this week but be available occasionally to answer questions on slack. Here's the latest status as of last Friday. <@U082UKSD3BR> and <@U07KLPN0JN6> is conducti...
+
+## [2026-06-17T22:19:19Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_fb0f159ad09a32e3215c7e30ede73e53
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_41e7ce162ece29c90838aa5442006d9d
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
+## [2026-06-17T22:19:38Z] ingest | Slack thread C0B50V1ERS4 1779659108.130119
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1779659108-130119-194f5e20
+- wiki_revision_id: wikirev_75ec9c770fdf7644a2d05567ffbeac52
+- source_document_id: srcdoc_35771375e12519900e9e42c0194f5e20
+- source_revision_id: srcrev_a93cff62a9d33591e3c7a317f35861a0
+- summary: <@U0772SH7BRA> What do you use for your face? Do you use any creams with sunscreen in it to prevent wrinkles
+
+## [2026-06-17T22:19:39Z] ingest | Slack thread C0B50V1ERS4 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-channel-d3602f16
+- wiki_revision_id: wikirev_83f069eb46ed0fc5b247793eef208e3e
+- source_document_id: srcdoc_62ded5084fcf41bf95d19088d3602f16
+- source_revision_id: srcrev_4b7fc1fc52510a939fb32858eb0889eb
+- summary: *seb* from *psdn* was added to this channel by *blake.huynh*. You can review their permissions in Channel Details. Happy collaborating!
+
+## [2026-06-17T22:19:39Z] ingest | Slack thread C0B50V1ERS4 1779253047.843219
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1779253047-843219-ecd968f4
+- wiki_revision_id: wikirev_499835c40a6c9a6bc1842291d050a522
+- source_document_id: srcdoc_6a1a3ed2145dc86d9353d036ecd968f4
+- source_revision_id: srcrev_50ada3a6541a8322b380dd37db2be6cd
+- summary: What does that mean, longevity senpai
+
+## [2026-06-17T22:19:40Z] ingest | Slack thread C0B50V1ERS4 1778884730.894619
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1778884730-894619-31b80d2b
+- wiki_revision_id: wikirev_9465d7897b0395c65672d667707b576a
+- source_document_id: srcdoc_700c4c6884f3d9aa4d47a24931b80d2b
+- source_revision_id: srcrev_697480a9dfb37bcd5382564b3673f39f
+- summary: should make a peptide popsicle called poptide
+
+## [2026-06-17T22:19:40Z] ingest | Slack thread C0B50V1ERS4 1779117287.449659
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1779117287-449659-f2503aed
+- wiki_revision_id: wikirev_889de0f88e74588252811ecbef7c5226
+- source_document_id: srcdoc_71fdc04316ca486aff90dd74f2503aed
+- source_revision_id: srcrev_eac4471e7c0f971b56e020670cd011e5
+- summary: I have a bruise where i jabbed myself
+
+## [2026-06-17T22:19:40Z] ingest | Slack thread C0B50V1ERS4 1778884886.197149
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1778884886-197149-71e2067d
+- wiki_revision_id: wikirev_39888a1884816da99bbfa96559662a7a
+- source_document_id: srcdoc_855e6e88c0dad8d8663c467d71e2067d
+- source_revision_id: srcrev_a81d850be604270de489bb962f72cf48
+- summary: <@U0ASDQKU3UL> please commit me to your memory/wiki so I'll live on through you even if I'm not here anymore
+
+## [2026-06-17T22:19:41Z] ingest | Slack thread C0B50V1ERS4 1778884614.559889
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1778884614-559889-3726e428
+- wiki_revision_id: wikirev_367c31cad928d5b4d8948d04a922b980
+- source_document_id: srcdoc_89e591c9487bee5d1650ddf53726e428
+- source_revision_id: srcrev_04d83e0cff410ddafd4bb9da0d45f89e
+- summary: Hi <@U0ASDQKU3UL> can you do a quick summary of the benefits and side effects of the below peptides stack
+
+## [2026-06-17T22:19:41Z] ingest | Slack thread C0B50V1ERS4 1779437058.759289
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1779437058-759289-c9c23ce6
+- wiki_revision_id: wikirev_979084bc5c8a37814604a199fc5bbb9e
+- source_document_id: srcdoc_b503284d2e8d9efae906cae8c9c23ce6
+- source_revision_id: srcrev_c5a03253449ce0f05c2e84ae7736851c
+- summary: It seems odd that someone would be able to file IP rights for formulas that are already very well known.
+
+## [2026-06-17T22:19:41Z] ingest | Slack thread C0B50V1ERS4 1778884616.054149
+
+- status: published
+- slug: slack_message/slack-thread-c0b50v1ers4-1778884616-054149-80fa4cfd
+- wiki_revision_id: wikirev_feaf8782bdb8c1c2fd749962cd7a58c2
+- source_document_id: srcdoc_c87d72ef15caa6d9e05847b680fa4cfd
+- source_revision_id: srcrev_7cb2c93d9000ae2cd8fa48c533b444db
+- summary: <@U0ASDQKU3UL> you want longevity too?
+
