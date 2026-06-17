@@ -25713,3 +25713,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7e85469e5b25b1de518ae193def30c7a
 - summary: Source: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
 
+## [2026-06-17T08:16:50Z] synthesis | Story Kernel Changelog (v0.1.0 to Feature)
+
+- status: published
+- slug: projects/story-kernel-changelog
+- wiki_revision_id: wikirev_14f5cf03e52d5c82cc58a4253e7bbbff
+- summary: Changelog of merged PRs for Story kernel from base v0.1.0 to a feature branch, covering versioning, light-client improvements, DKG protocol fixes, and resilience enhancements.
+
