@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b92f4280504b21746be396acb765fe400977f025277d1bc64e15cce7b56aa007",
-        "size": 632530
+        "sha256": "a9e40a9c061ee4ed23c13a1b60e9ade2d8b58a9b028d78852143068ab95c1755",
+        "size": 633333
       },
       {
         "path": "log.md",
-        "sha256": "8f5048c168d1463bb5b1cd69456ad3b5d68b829191240965d21d83015ed3ca52",
-        "size": 1234995
+        "sha256": "a694ec41612997b12e504696e9d00ba31c3b4dd1215f14697988ca6fda8f99a5",
+        "size": 1235822
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3298,6 +3298,11 @@
         "path": "pages/concepts/access-control-complexity-analysis.md",
         "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
+      },
+      {
+        "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
+        "sha256": "ec46009dce2ea5996c2ee877c9772b079c54c99154793777950c86001e633ac8",
+        "size": 9340
       },
       {
         "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
@@ -6625,6 +6630,11 @@
         "size": 1377
       },
       {
+        "path": "pages/systems/iptoken-staking-ownership-rules.md",
+        "sha256": "62cf85243e74e1b779d06ded67c0e9c6bb6d834d64e59bfbc579c6913572e4e7",
+        "size": 4768
+      },
+      {
         "path": "pages/systems/kled-trace-api.md",
         "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
         "size": 9118
@@ -6949,8 +6959,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T03:08:38Z",
-  "file_count": 1388,
+  "exported_at": "2026-06-17T03:20:16Z",
+  "file_count": 1390,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10227,7 +10237,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7dc889bq7ml",
-  "previous_tree_hash": "cbcefc3668c8036eed7177e74ab78c5c1309e94fe596ce0a087f4bef61886f60",
+  "previous_tree_hash": "687f3f59204840df6282c6c30f7bbd290f7e9fd17c8b89c341df2704070e5d78",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10240,14 +10250,14 @@
   ],
   "skill_tree_hash": "f8a95b8ee9d9639b6f223d81bb29a8221dffd3fcb7d68d026b8c1cb0dacd3ba1",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "687f3f59204840df6282c6c30f7bbd290f7e9fd17c8b89c341df2704070e5d78",
+  "tree_hash": "744b275171f42b35753e81db0917ab185b3cd0b6c17a3602a9616a97251f94bb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 734,
+  "wiki_file_count": 736,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10256,13 +10266,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b92f4280504b21746be396acb765fe400977f025277d1bc64e15cce7b56aa007",
-      "size": 632530
+      "sha256": "a9e40a9c061ee4ed23c13a1b60e9ade2d8b58a9b028d78852143068ab95c1755",
+      "size": 633333
     },
     {
       "path": "log.md",
-      "sha256": "8f5048c168d1463bb5b1cd69456ad3b5d68b829191240965d21d83015ed3ca52",
-      "size": 1234995
+      "sha256": "a694ec41612997b12e504696e9d00ba31c3b4dd1215f14697988ca6fda8f99a5",
+      "size": 1235822
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10273,6 +10283,11 @@
       "path": "pages/concepts/access-control-complexity-analysis.md",
       "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
+    },
+    {
+      "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
+      "sha256": "ec46009dce2ea5996c2ee877c9772b079c54c99154793777950c86001e633ac8",
+      "size": 9340
     },
     {
       "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
@@ -13600,6 +13615,11 @@
       "size": 1377
     },
     {
+      "path": "pages/systems/iptoken-staking-ownership-rules.md",
+      "sha256": "62cf85243e74e1b779d06ded67c0e9c6bb6d834d64e59bfbc579c6913572e4e7",
+      "size": 4768
+    },
+    {
       "path": "pages/systems/kled-trace-api.md",
       "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
       "size": 9118
@@ -13921,5 +13941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e038187dc570fb7e57814d1b9b645987b2ec96813b9c2562dc998d235f130fda"
+  "wiki_tree_hash": "b25808987371ecbd4429de9a4e8ced32b9b6f70ff9b31efcce279abf70e31a34"
 }

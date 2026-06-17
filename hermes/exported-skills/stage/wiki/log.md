@@ -25681,3 +25681,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f6a187f4c0bfa95cc579a687c2b56f27
 - summary: Source: [source](https://app.notion.com/p/Aeneid-Genesis-Native-Token-Allocation-Flow-Staking-Snapshot-37b051299a5481159765ed594e4531d0)
 
+## [2026-06-17T03:19:14Z] synthesis | Aeneid Genesis Token Snapshot (2026-06-09)
+
+- status: published
+- slug: concepts/aeneid-genesis-token-snapshot-2026-06-09
+- wiki_revision_id: wikirev_165c2aa73eeef8b8f9a31186b076d122
+- summary: Snapshot of IP token allocation and flow from the Aeneid genesis as of 2026-06-09. 1.02B IP distributed across 8 EOAs, with 520M untouched and 500M moved by three operational walle...
+
+## [2026-06-17T03:19:14Z] synthesis | IPTokenStaking Ownership and Withdrawal Rules
+
+- status: published
+- slug: systems/iptoken-staking-ownership-rules
+- wiki_revision_id: wikirev_a25f8365237260ca54403e2a41fb7215
+- summary: Rules governing stake ownership and withdrawal as implemented by the IPTokenStaking precompile on Aeneid. Stake is burned on EVM, accounting on consensus layer. Delegator (not paye...
+
