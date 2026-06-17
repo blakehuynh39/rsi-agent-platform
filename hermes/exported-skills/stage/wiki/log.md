@@ -29391,3 +29391,730 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_75a42a68c936209f49a276eec255fbb2
 - summary: Next idea: Speaking into your computer is becoming common across a variety of tasks, including vibe coding: <https://x.com/trq212/status/2028628570692890800?s=20>
 
+## [2026-06-17T22:02:41Z] synthesis | Difference between transferToVault and payRoyaltyOnBehalf
+
+- status: published
+- slug: open-questions/transfertovault-vs-payroyaltyonbehalf
+- wiki_revision_id: wikirev_af0ec7eaad704c6cf22d3003ba2b030b
+- summary: Question raised about the use-case difference between two royalty-related functions: transferToVault and payRoyaltyOnBehalf. Discussion suggests transferToVault may replace ancesto...
+
+## [2026-06-17T22:05:36Z] ingest | Slack thread C0547N89JUB 1775719735.169359
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775719735-169359-4b6af3d9
+- wiki_revision_id: wikirev_b29b4ba0f6da8d3c72f9a28120cd00ad
+- source_document_id: srcdoc_110ea1a54d9cdb3088e6521e4b6af3d9
+- source_revision_id: srcrev_239901c593f670304c0c65f9d77330f1
+- summary: Hey <@U0AKJV8710S> please grant <@U0A7JJMU5T2> access to the repo. <https://github.com/piplabs/cdr-sdk>
+
+## [2026-06-17T22:05:36Z] ingest | Slack thread C0547N89JUB 1778665177.577679
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778665177-577679-7a5e32ca
+- wiki_revision_id: wikirev_e67b04d0dbc1386e3a9ab5cfc00b0333
+- source_document_id: srcdoc_16d6b381e9243f7ec63fae9d7a5e32ca
+- source_revision_id: srcrev_e7bf32fc41d73d1e9e2a6135970eb608
+- summary: Hi <@U0AKJV8710S> — ask from the CDR SDK side.
+
+## [2026-06-17T22:05:36Z] ingest | Slack thread C0547N89JUB 1777604671.461769
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777604671-461769-4d7ef459
+- wiki_revision_id: wikirev_18d0e15883551e964da8a0ed08426c0e
+- source_document_id: srcdoc_17a72234ac71088433df50874d7ef459
+- source_revision_id: srcrev_2b08b0641dce9ff5544e2326d242eaf1
+- summary: <@U08332YRB7W> <@U04L0DD6B6F> <@U083MMT1771> <@U0772SH7BRA> I sent you invitation of OpenRouter
+
+## [2026-06-17T22:05:37Z] ingest | Slack thread C0547N89JUB 1776207654.029289
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776207654-029289-c755ac94
+- wiki_revision_id: wikirev_21a15ca91991685c30ebdb1c53d96498
+- source_document_id: srcdoc_1a210a0afccdb639432cde14c755ac94
+- source_revision_id: srcrev_af46dede682f3f5085db81c8e176e433
+- summary: <@U0927FP6HH9> Do you have any idea with project-bengali in GCP project. Does it still use?
+
+## [2026-06-17T22:05:37Z] ingest | Slack thread C0547N89JUB 1781636003.409529
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781636003-409529-755232b1
+- wiki_revision_id: wikirev_fca03a5551723359abb01f4806707efc
+- source_document_id: srcdoc_1c63b2cd8fccb7955787c064755232b1
+- source_revision_id: srcrev_3693878dfe3f2127d3c13ccb2b7a561f
+- summary: I'm getting reports that Aeneid is down. I just tried myself and can't seem to run a tx <@U0AKJV8710S> <@U082UKSD3BR> <@U07KLPN0JN6> sorry I don't know who to ping
+
+## [2026-06-17T22:05:37Z] ingest | Slack thread C0547N89JUB 1775810814.554249
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775810814-554249-78d377b9
+- wiki_revision_id: wikirev_378c1cf188ac167d39cada627dce99ea
+- source_document_id: srcdoc_1de4cc738cd560ec3a6f515178d377b9
+- source_revision_id: srcrev_2cdba42ec97ebd8265a6495c90e2072d
+- summary: Hey <@U0AKJV8710S> WebSocket connections to storyscan (both aeneid and mainnet) are blocked by Cloudflare WAF (403 on /socket/websocket). Regular API works fine. This causes the ho...
+
+## [2026-06-17T22:05:38Z] ingest | Slack thread C0547N89JUB 1778827864.635489
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778827864-635489-1060b40f
+- wiki_revision_id: wikirev_5d22df5fb4b3027133a19f824f218409
+- source_document_id: srcdoc_1e92119f47d983ed228d1ebd1060b40f
+- source_revision_id: srcrev_117db971fd845de72e7771f231b786af
+- summary: With the recent service launches I was going to let things stabilize first and trim resources after, but our AWS credits look almost gone and we're maybe a month away from the full...
+
+## [2026-06-17T22:05:38Z] ingest | Slack thread C0547N89JUB 1780388414.042299
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780388414-042299-47055015
+- wiki_revision_id: wikirev_84ba946251562b9a49b75d363a003260
+- source_document_id: srcdoc_2715ed92f63a23b292dc464247055015
+- source_revision_id: srcrev_b3a765a8996e76b816516160ab51674f
+- summary: Hey sir <@U0AKJV8710S>
+
+## [2026-06-17T22:05:38Z] ingest | Slack thread C0547N89JUB 1777344557.853849
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777344557-853849-3b764e0c
+- wiki_revision_id: wikirev_530855eda0905d9ad5417223fd5a9420
+- source_document_id: srcdoc_2a2650c19c96141c7ed6e2d03b764e0c
+- source_revision_id: srcrev_5264580123292509cb63b10f9c70f690
+- summary: Hey <@U0AF5V86SV7> can you give permission on story-dev? We are going to create on story-dev and people in Suzhou office can access via SSM to use Claude.
+
+## [2026-06-17T22:05:39Z] ingest | Slack thread C0547N89JUB 1776061486.872239
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776061486-872239-2b7da163
+- wiki_revision_id: wikirev_7c8db8fd94aa5c43eb44f690f7f4ee86
+- source_document_id: srcdoc_2c4f1a61a8fb1b806bf77b062b7da163
+- source_revision_id: srcrev_064c861d9ffc995677595b2a9b1c4c8e
+- summary: Hey <@U0AKJV8710S> could you transfer ownership of <https://github.com/piplabs/cdr-sdk> to the infra team, and downgrade @jdubpark 's permission from admin to write access?
+
+## [2026-06-17T22:05:39Z] ingest | Slack thread C0547N89JUB 1777515975.366939
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777515975-366939-7d358787
+- wiki_revision_id: wikirev_d26d9e8cb12b404e8126b24cf727b567
+- source_document_id: srcdoc_315f4833bd5b8ab877d2a2e17d358787
+- source_revision_id: srcrev_4c6825d3cdd3e3f292665143971eae73
+- summary: Hey <@U0AKJV8710S> can you remove the banner in <https://aeneid.staking.story.foundation>
+
+## [2026-06-17T22:05:39Z] ingest | Slack thread C0547N89JUB 1780997154.068509
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780997154-068509-065ba0b5
+- wiki_revision_id: wikirev_09aa9a440ef3c6c2aaa3acfa577b660c
+- source_document_id: srcdoc_341dbeb580ac6770b637d927065ba0b5
+- source_revision_id: srcrev_a95d7392827e32fdb603d5336e755f5e
+- summary: Hey <@U0AKJV8710S>, do we have test wallet on mainnet? We need real IP token for testing.
+
+## [2026-06-17T22:05:39Z] ingest | Slack thread C0547N89JUB 1775692720.164859
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775692720-164859-b2983342
+- wiki_revision_id: wikirev_f9a65b6cd95b6f9b19c00915f072491f
+- source_document_id: srcdoc_36857be2cc0f145c16a8a146b2983342
+- source_revision_id: srcrev_21fff84fec28c0cf97a65cf3a5fbb8d0
+- summary: <https://github.com/piplabs/story-orchestration-service/actions/runs/24164240475/job/70522753087> also flagging a ci/cd issue for sos service deployment cc <@U0AKJV8710S>
+
+## [2026-06-17T22:05:40Z] ingest | Slack thread C0547N89JUB 1774390356.110279
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774390356-110279-0c5af970
+- wiki_revision_id: wikirev_f58536822c8a1035cb510fc73c50c4be
+- source_document_id: srcdoc_3a85c8581b3bf9d2f1befd540c5af970
+- source_revision_id: srcrev_947b650fc9ecfadfddaeabf4df6350a6
+- summary: <@U0AKJV8710S> How to access <https://grafana.ops.storyprotocol.net/>
+
+## [2026-06-17T22:05:40Z] ingest | Slack thread C0547N89JUB 1778746066.349769
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778746066-349769-3423be2e
+- wiki_revision_id: wikirev_6020bb573830a41bbf6dc8608eb9e384
+- source_document_id: srcdoc_404af64b8b9287dc762d11543423be2e
+- source_revision_id: srcrev_d26de6b3a48bb938a6f78712613f573f
+- summary: Hey <@U0AKJV8710S> can you add <@U0A7ZQXB160> to the piplabs org of NPM?
+
+## [2026-06-17T22:05:40Z] ingest | Slack thread C0547N89JUB 1775675483.744039
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775675483-744039-e8889817
+- wiki_revision_id: wikirev_452920fffc423eb207ae9539fdf43c1f
+- source_document_id: srcdoc_41d84aca1848e89d7ea308d4e8889817
+- source_revision_id: srcrev_724a8b11da6441ffa342dd131aeb8366
+- summary: <@U0AKJV8710S> The <http://staging-depin.storyprotocol.net|staging-depin.storyprotocol.net> nginx ingress needs proxy-body-size increased. We're uploading ~5MB avatar images to `/v...
+
+## [2026-06-17T22:05:41Z] ingest | Slack thread C0547N89JUB 1777418695.680389
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777418695-680389-706ca9d3
+- wiki_revision_id: wikirev_c66bd9bd7bbc5bba0a6fe10dae4a1332
+- source_document_id: srcdoc_4cb64d93f4a8cb8435c932aa706ca9d3
+- source_revision_id: srcrev_f31ee8ce8a32b0d66ac35d7469d39204
+- summary: <@U0AKJV8710S> do you know how much we are paying monthly for each EC2 instance in mainnet AWS account?
+
+## [2026-06-17T22:05:41Z] ingest | Slack thread C0547N89JUB 1777526471.275489
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777526471-275489-7a136e71
+- wiki_revision_id: wikirev_0f2c0ac22f6deb42279d3d7d4762984d
+- source_document_id: srcdoc_510d5ce73530e6b5483d12917a136e71
+- source_revision_id: srcrev_68abcf2a9dec52e40ae97af0981e5199
+- summary: <@U0A7ZQXB160> <@U07KLPN0JN6> <@U0AAUT0PSF4> Can I remove the network which is created from <https://github.com/piplabs/story-cdr-e2e>?
+
+## [2026-06-17T22:05:41Z] ingest | Slack thread C0547N89JUB 1775699256.226589
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775699256-226589-2f0ec0a5
+- wiki_revision_id: wikirev_774d920d52789fdb4262796003432e22
+- source_document_id: srcdoc_531c1ca7c8eeeae4d91b54b62f0ec0a5
+- source_revision_id: srcrev_338db1fed06c7a4a0fd204fbe9c74e50
+- summary: <@U07KLPN0JN6> Here is the list of the servers. Please confirm which should not be deleted
+
+## [2026-06-17T22:05:42Z] ingest | Slack thread C0547N89JUB 1776232959.799959
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776232959-799959-377718ac
+- wiki_revision_id: wikirev_45c40f5ff63b0fbb122eca3ce42a0899
+- source_document_id: srcdoc_57aca3204b70d49c766c68b1377718ac
+- source_revision_id: srcrev_20609b29a08db84e934cf4461c925f6d
+- summary: <@U04L0DD7UM9> <@U067QP5PD6J> <@U082UKSD3BR>
+
+## [2026-06-17T22:05:42Z] ingest | Slack thread C0547N89JUB 1776759478.608379
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776759478-608379-7944bd3d
+- wiki_revision_id: wikirev_3d2100a4c90f7e206d2b277d412040f9
+- source_document_id: srcdoc_5a728370e61d3395ebda39217944bd3d
+- source_revision_id: srcrev_ed27342063cf9629c2ef018745ea30a6
+- summary: Hey sir <@U07TNT9N4JC> <@U08332YRB7W> <@U0AKJV8710S> <@U0AF5V86SV7> , I am hitting the Claude Code 5-hour session cap on our Team plan and it's blocking long debugging sessions. Co...
+
+## [2026-06-17T22:05:42Z] ingest | Slack thread C0547N89JUB 1781516280.865069
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781516280-865069-3d782245
+- wiki_revision_id: wikirev_4ee191ce90ca7eeaa3c2c04c5afbe041
+- source_document_id: srcdoc_5b1eb82f93aae0d4db7613da3d782245
+- source_revision_id: srcrev_19d4b8f5fa67d5b558c64b3d12209f92
+- summary: Hey <@U0AKJV8710S> I need test BNB / test ETH token for test but it's really hard to claim them via faucet on my side. can you help please if possible
+
+## [2026-06-17T22:05:43Z] ingest | Slack thread C0547N89JUB 1776754431.823279
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776754431-823279-a9ab47ef
+- wiki_revision_id: wikirev_5c6f9b33658b40278bb03ffa840fd744
+- source_document_id: srcdoc_603090c3996ccb7971701932a9ab47ef
+- source_revision_id: srcrev_aa7216a280dd4d34aae219690de11af4
+- summary: Hi, <@U07TNT9N4JC> @jin <@U0AKJV8710S>
+
+## [2026-06-17T22:05:43Z] ingest | Slack thread C0547N89JUB 1779760741.673409
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779760741-673409-8a627320
+- wiki_revision_id: wikirev_cc0b83530689aaa8762adff8c39cc3a8
+- source_document_id: srcdoc_60dfefb2ec1167b6913913408a627320
+- source_revision_id: srcrev_9edbff3026f574d1f8e3b28090a96994
+- summary: <@U08332YRB7W> I am trying to add some more credits for <@U08V4SFU7LZ> in OpenAI
+
+## [2026-06-17T22:05:43Z] ingest | Slack thread C0547N89JUB 1778062059.002519
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778062059-002519-4a17e2f6
+- wiki_revision_id: wikirev_4fc0f582237f5b71328ec5066e2514c5
+- source_document_id: srcdoc_63d8b88a5fe95d6c501eb43f4a17e2f6
+- source_revision_id: srcrev_c961bafa4fb39f042451bd5c80437842
+- summary: hi, <@U07TNT9N4JC> , I've allocated 82 Elastic IPs in us-east-1 under the story-devnet account (408766208637) for QA devnet:
+
+## [2026-06-17T22:05:44Z] ingest | Slack thread C0547N89JUB 1781145477.493739
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781145477-493739-4dc16c5b
+- wiki_revision_id: wikirev_0622331630d644e1cce869010a09990a
+- source_document_id: srcdoc_6458f0c4feb082ece397b0b74dc16c5b
+- source_revision_id: srcrev_cea5d6843ee0c7a729bfc6e930465aae
+- summary: Hi <@U0AKJV8710S> <@U07TNT9N4JC> — I created a fine-grained PAT (owner: storyprotocol) that's pending approval. Could you approve it?
+
+## [2026-06-17T22:05:44Z] ingest | Slack thread C0547N89JUB 1777444760.268109
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777444760-268109-5da9cacd
+- wiki_revision_id: wikirev_ea7003b75cc7aa72a40a424b206fea8c
+- source_document_id: srcdoc_652cd58b0bb85ce65763c3e25da9cacd
+- source_revision_id: srcrev_06220fb29dcfeaf73134e2f58be0cc0e
+- summary: Hey sir <@U0AKJV8710S> please review the PR and approve. <https://github.com/piplabs/story-localnet/pull/17>
+
+## [2026-06-17T22:05:44Z] ingest | Slack thread C0547N89JUB 1774836787.943339
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774836787-943339-9101dcd0
+- wiki_revision_id: wikirev_f3c26f1e608f5e557f4e4bb021dd1f94
+- source_document_id: srcdoc_69a1214f7112e8975cc8e79b9101dcd0
+- source_revision_id: srcrev_97cb648bedcfbd14d9d27cc50e2ee6df
+- summary: <@U082UKSD3BR> <@U079ZJ48D62> I invited <https://platform.claude.com/> to use Claude API cc. <@U07A7AUGL5V> <@U08332YRB7W>
+
+## [2026-06-17T22:05:44Z] ingest | Slack thread C0547N89JUB 1780470620.134639
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780470620-134639-a6ee249e
+- wiki_revision_id: wikirev_6faa5569b65f0860120a5a7dd56ee49d
+- source_document_id: srcdoc_69f2ef7b98f50dda86ea2572a6ee249e
+- source_revision_id: srcrev_5665c5bc7b91c9f170ac992dd8a226df
+- summary: Hey <@U0AKJV8710S> can you give me write access to the repo <https://github.com/piplabs/story-private-fork>
+
+## [2026-06-17T22:05:45Z] ingest | Slack thread C0547N89JUB 1779410458.378569
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779410458-378569-4ce45cb7
+- wiki_revision_id: wikirev_8c23512bf7582fd67aafae9453c41502
+- source_document_id: srcdoc_6e93d673902011a3a98080e14ce45cb7
+- source_revision_id: srcrev_01d7ed301d3890a5bd557f1894cac94c
+- summary: <@U08332YRB7W> <@U0772SH7BRA> Can you confirm to remove this domain ?
+
+## [2026-06-17T22:05:45Z] ingest | Slack thread C0547N89JUB 1779297888.535289
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779297888-535289-4b3dbb8a
+- wiki_revision_id: wikirev_0e3987f4e56acdaba7c3b08457d6c210
+- source_document_id: srcdoc_704b9dd469c1e7597314b22b4b3dbb8a
+- source_revision_id: srcrev_d281d41c291cb0d07ef1e128971a86ee
+- summary: <@U07TNT9N4JC> I'm reviewing the GCP bill for April and May and looks like there are some stale resources which we should cleanup. Check the :thread:
+
+## [2026-06-17T22:05:45Z] ingest | Slack thread C0547N89JUB 1776234764.673479
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776234764-673479-c7c7009d
+- wiki_revision_id: wikirev_70dd58cd510d102d3d9d541fbce5b5f5
+- source_document_id: srcdoc_71233da2ea53396799fd3a7ac7c7009d
+- source_revision_id: srcrev_82eaed1263d92e49d95815aee2911fad
+- summary: <@U07A7AUGL5V> <@U08332YRB7W> Can you help confirm remove below domains?
+
+## [2026-06-17T22:05:46Z] ingest | Slack thread C0547N89JUB 1781577344.125209
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781577344-125209-e787bf05
+- wiki_revision_id: wikirev_ba1d198bc20241a4b2de2100052924a3
+- source_document_id: srcdoc_733fb7d3ff3796afee06f5dde787bf05
+- source_revision_id: srcrev_1fd718439a0e37a8d66f687017036ca6
+- summary: <@U0AKJV8710S> my story-geth client on steven-vm (3.226.240.21) is down. Root disk / is 100% full (1.2T, ~2G free), which triggered geth's low-disk auto-shutdown. Node won't recove...
+
+## [2026-06-17T22:05:46Z] ingest | Slack thread C0547N89JUB 1775807898.788999
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775807898-788999-fa01b986
+- wiki_revision_id: wikirev_9a16ad2b604cb91083c594818223779c
+- source_document_id: srcdoc_75e489fe59d32ebe875f36aefa01b986
+- source_revision_id: srcrev_239bc30529d060f9744dde7bad0fe8d6
+- summary: <!subteam^S083BDZ4FTM> <@U08332YRB7W> Please review to remove the domains
+
+## [2026-06-17T22:05:46Z] ingest | Slack thread C0547N89JUB 1778565078.400469
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778565078-400469-94e5d2cf
+- wiki_revision_id: wikirev_da61a10e41abf3bac715401c8a898fa3
+- source_document_id: srcdoc_79285b178c99fc53190dabcb94e5d2cf
+- source_revision_id: srcrev_e32b42ade26e602404f68b5a6565a370
+- summary: Hi <@U0AKJV8710S> can I have the access to the workflow? <https://github.com/piplabs/story/actions/workflows/build-release-artifacts.yml>
+
+## [2026-06-17T22:05:47Z] ingest | Slack thread C0547N89JUB 1774461487.968719
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774461487-968719-2a15f9b1
+- wiki_revision_id: wikirev_6d139c421b34cc985238cd7af41f449d
+- source_document_id: srcdoc_79320f49dc41b413520fc8a72a15f9b1
+- source_revision_id: srcrev_71ce2b701eb7ff523cb63d0f7edecd37
+- summary: <@U08332YRB7W> Can you add me to company vercel account? My vercel account is `mengli-3768`
+
+## [2026-06-17T22:05:47Z] ingest | Slack thread C0547N89JUB 1779324107.534389
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779324107-534389-61c5ab93
+- wiki_revision_id: wikirev_d06244fca1bbecc5390a5f4892f8c532
+- source_document_id: srcdoc_7c77cc16bfac4490d3f841e561c5ab93
+- source_revision_id: srcrev_cddcdf5641f5090a7744c8836bc2f9b9
+- summary: Hey <@U0AKJV8710S> <@U08332YRB7W>, can we remove this issue from our public story repo?
+
+## [2026-06-17T22:05:47Z] ingest | Slack thread C0547N89JUB 1779352361.719219
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779352361-719219-f78b0633
+- wiki_revision_id: wikirev_d0605f787d2fc60a46719a21fd8f32e2
+- source_document_id: srcdoc_89019def57dd078614372368f78b0633
+- source_revision_id: srcrev_3a05b7cdd397d4542787f966ea9bde64
+- summary: Hey <@U07TNT9N4JC>, cc. <@U0A7JJMU5T2>
+
+## [2026-06-17T22:05:47Z] ingest | Slack thread C0547N89JUB 1774423285.762959
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774423285-762959-fd4740f1
+- wiki_revision_id: wikirev_45330c5e25c17c7796953541f850f659
+- source_document_id: srcdoc_8aaf5451ab2fd1c105f1b10cfd4740f1
+- source_revision_id: srcrev_744d06dfd0c5cb186845ac70c9b95ab6
+- summary: <!subteam^S083BDZ4FTM> <@U0772SH7BRA> <@U04L0DD6B6F> <@U08332YRB7W> I am trying to remove below domains which looks dangling.
+
+## [2026-06-17T22:05:48Z] ingest | Slack thread C0547N89JUB 1778033489.623819
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778033489-623819-fe990c01
+- wiki_revision_id: wikirev_e45e375b31182de7eaea3865af14ec5b
+- source_document_id: srcdoc_93ee3c2f4b2cdfab388060ddfe990c01
+- source_revision_id: srcrev_188e61d2610e89c0b90fcbb154a0840a
+- summary: Hi <@U07TNT9N4JC>
+
+## [2026-06-17T22:05:48Z] ingest | Slack thread C0547N89JUB 1781646848.436319
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781646848-436319-3c23758a
+- wiki_revision_id: wikirev_26ce159c35e4d37ec5b26d09a09e48f7
+- source_document_id: srcdoc_99c47441ba735567a1643b413c23758a
+- source_revision_id: srcrev_d772dd567e18253b421c93a7811f4bab
+- summary: <@U0AF5V86SV7> Can you give SSM access role in story-testnet to <@U079ZJ48D62>? cc. <@U08332YRB7W>
+
+## [2026-06-17T22:05:48Z] ingest | Slack thread C0547N89JUB 1778741500.186739
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778741500-186739-cd592819
+- wiki_revision_id: wikirev_0d4c3627f764b6ba363cdb6001a38457
+- source_document_id: srcdoc_99fbf5a5c5a239c8638522c1cd592819
+- source_revision_id: srcrev_28267caaf1eb7d11d76a048c4a06214b
+- summary: Hi, <@U0AKJV8710S>
+
+## [2026-06-17T22:05:49Z] ingest | Slack thread C0547N89JUB 1781087072.163719
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781087072-163719-14bd3e18
+- wiki_revision_id: wikirev_f485408d751e05a2a72664ff5bfbf28e
+- source_document_id: srcdoc_9efa3b1f8b79c3094352fadf14bd3e18
+- source_revision_id: srcrev_810a8840b5b19cdec7019493bf44b00f
+- summary: <@U07KLPN0JN6> I revived <@U0APT5R0S2U>. Please take a look. cc <@U04VDFP1YQ5>
+
+## [2026-06-17T22:05:49Z] ingest | Slack thread C0547N89JUB 1776150089.904439
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776150089-904439-666e17df
+- wiki_revision_id: wikirev_ac69c2e571924ca43eefb84086ac6e89
+- source_document_id: srcdoc_a55e57b4f9169e1a111c3b1d666e17df
+- source_revision_id: srcrev_4f33746ed8fed3bea8dddc07b4f9e3ca
+- summary: Hi <@U0AKJV8710S> Can I have admin role of the repo: <https://github.com/piplabs/story-api-tests>
+
+## [2026-06-17T22:05:49Z] ingest | Slack thread C0547N89JUB 1777012469.913669
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777012469-913669-182478aa
+- wiki_revision_id: wikirev_ede506feec07eaa465122cfce7143f9a
+- source_document_id: srcdoc_ac243811e2d6d72435b00b80182478aa
+- source_revision_id: srcrev_13bb66368307d01a360c6eebdda2c985
+- summary: Hi <@U07TNT9N4JC> <@U0AKJV8710S> <!subteam^S083BDZ4FTM>, I am working on publishing CDR SDK packages to npm under `@piplabs` scope. A few questions:
+
+## [2026-06-17T22:05:50Z] ingest | Slack thread C0547N89JUB 1775552711.299739
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775552711-299739-6a1128f0
+- wiki_revision_id: wikirev_d37d70e3ed7df05809afa4d6ff077755
+- source_document_id: srcdoc_b216aabd787018439adf2aac6a1128f0
+- source_revision_id: srcrev_6fd7e0081cccc958e5c69f20ccbe1554
+- summary: <@U0AKJV8710S> could you please help to deal with it? The source repo for this image is already public
+
+## [2026-06-17T22:05:50Z] ingest | Slack thread C0547N89JUB 1774848303.326059
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774848303-326059-25d2ad4c
+- wiki_revision_id: wikirev_5b817302b8069c939f920636bd0c7833
+- source_document_id: srcdoc_b56662657ee0a58370eb01ec25d2ad4c
+- source_revision_id: srcrev_8e4eeb8e77552b6a7a51a02c6527b510
+- summary: <@U079ZJ48D62> <@U07KLPN0JN6> Is it right location for the upgrade info that we did checking just in case? `/home/ubuntu/.story/story/cosmovisor/upgrades/v1.6.0/upgrade-info.json`
+
+## [2026-06-17T22:05:50Z] ingest | Slack thread C0547N89JUB 1779089759.961299
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779089759-961299-1b710470
+- wiki_revision_id: wikirev_43455dba2645d9fb87af16975155d615
+- source_document_id: srcdoc_b6a5d6b769761f3873f117c41b710470
+- source_revision_id: srcrev_30212ff32d0b9d6a9ca0c9fdcff26b2e
+- summary: hey <@U0AKJV8710S> do you have access to the Aeneid wallet 0xcA93A8f7a3971D208670876202D8353Ca3D6869a?
+
+## [2026-06-17T22:05:51Z] ingest | Slack thread C0547N89JUB 1778832892.166459
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778832892-166459-3e3c108e
+- wiki_revision_id: wikirev_fdbc25de2032db0b9e0c8b2d5ceb3faf
+- source_document_id: srcdoc_b75b998f688c959d0e66da5d3e3c108e
+- source_revision_id: srcrev_0ebc480bc57f8cbb6dad5142ccf40bcd
+- summary: hi, <@U07TNT9N4JC> <@U0AKJV8710S> <@U08332YRB7W>,my Notion workspace has reached its API credit limit. Could you increase the quota or reset the credits? I need it for ongoing QA d...
+
+## [2026-06-17T22:05:51Z] ingest | Slack thread C0547N89JUB channel
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-channel-4fa03731
+- wiki_revision_id: wikirev_e37ac7fc90e2a70e71af086127803891
+- source_document_id: srcdoc_b853172082170c2d6c8b40804fa03731
+- source_revision_id: srcrev_3b860922d60eba48a1c08ff922102121
+- summary: <@U080YAW205V> any idea where is the `Dodckerfile` for <https://console.cloud.google.com/artifacts/docker/employee-managed-validator/us/gcr.io/ai-playground-backend?project=employe...
+
+## [2026-06-17T22:05:51Z] ingest | Slack thread C0547N89JUB 1774504290.164309
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774504290-164309-33906bc5
+- wiki_revision_id: wikirev_a85a9a6bf887883075e7c19107961555
+- source_document_id: srcdoc_b8e3f3ffcbe9e3afafa2c1a833906bc5
+- source_revision_id: srcrev_1dae0db1c259b2df29730792ddf99b47
+- summary: <@U0AKJV8710S> Can you check Azure billing cost? cc. <@U07A7AUGL5V>
+
+## [2026-06-17T22:05:52Z] ingest | Slack thread C0547N89JUB 1777253413.479709
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777253413-479709-960ed325
+- wiki_revision_id: wikirev_e0339e951e0d81684e3fa07202834f93
+- source_document_id: srcdoc_bbd1403456612e7354334747960ed325
+- source_revision_id: srcrev_a859c5f6b1ade3b3b55000c71d7e4d43
+- summary: Hey <@U07TNT9N4JC> <@U0AKJV8710S> it seems some issue on Loki. <https://grafana.ops.storyprotocol.net/explore?schemaVersion=1&amp;panes=%7B%22ejf%22:%7B%22datasource%22:%22loki-blo...
+
+## [2026-06-17T22:05:52Z] ingest | Slack thread C0547N89JUB 1776275081.430369
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776275081-430369-e2d03627
+- wiki_revision_id: wikirev_398b945c394230e32452d0b8734f0dae
+- source_document_id: srcdoc_bd69e26554aa3a3eba29622ae2d03627
+- source_revision_id: srcrev_e9ab3cc9fe8ea6a6e5ec9ba235e48dc2
+- summary: <@U0AKJV8710S> can you <https://github.com/storyprotocol/story-helm/pull/142/changes|review this pr> for adding numo as a new cluster definition for tracking ip-registration, cc <@...
+
+## [2026-06-17T22:05:52Z] ingest | Slack thread C0547N89JUB 1776712741.456159
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776712741-456159-65cb8eb3
+- wiki_revision_id: wikirev_c8d6cc3bea718c67f2f2fd69ae7a7cf8
+- source_document_id: srcdoc_bfb1a06fe03cd45200d204a265cb8eb3
+- source_revision_id: srcrev_220ce5e65b6aa88cfbc5af28261a7f0c
+- summary: <@U0AKJV8710S>
+
+## [2026-06-17T22:05:53Z] ingest | Slack thread C0547N89JUB 1780554992.192819
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780554992-192819-82e7c5a2
+- wiki_revision_id: wikirev_02808a0076b57e22e58f2b055db5d345
+- source_document_id: srcdoc_c182e72915b752f62ed83b5182e7c5a2
+- source_revision_id: srcrev_4b002bab8324b8e9da0a0c106db148f6
+- summary: <@U079ZJ48D62> <@U0A7JJMU5T2> we also don't use staking-devnet right?
+
+## [2026-06-17T22:05:53Z] ingest | Slack thread C0547N89JUB 1778231671.578769
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778231671-578769-24f2e850
+- wiki_revision_id: wikirev_799d642735f11f9e529ab677ec2f8a35
+- source_document_id: srcdoc_c52a9a16d5cd5f0aab0a706224f2e850
+- source_revision_id: srcrev_646970c105c245e3aec58f31f993915f
+- summary: Hi <@U0AKJV8710S> The server `jpe-qa-validator5 20.46.180.209` appears to be offline. Could you take a look?
+
+## [2026-06-17T22:05:53Z] ingest | Slack thread C0547N89JUB 1780011492.577489
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780011492-577489-06cdb9d9
+- wiki_revision_id: wikirev_64bc1ea8570a7490119148d485359901
+- source_document_id: srcdoc_c5e774e7c95a39845c4039b506cdb9d9
+- source_revision_id: srcrev_e0c66ad87fbddce1e81bf2dfd67aca3a
+- summary: <@U07TNT9N4JC> do you know anything about our indexers that we run using Temporal? Is it a right term to call it internal? We use Goldsky (external partner) for indexer but I also ...
+
+## [2026-06-17T22:05:53Z] ingest | Slack thread C0547N89JUB 1780629090.307119
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780629090-307119-67f5540f
+- wiki_revision_id: wikirev_fa2e4fa3f6982e4990cdd5ab6e5868ca
+- source_document_id: srcdoc_c8aa5679948d88d3f47dcc2667f5540f
+- source_revision_id: srcrev_c7f44a1e558ccac33ae4e75096bb53cd
+- summary: <@U04VDFP1YQ5> <@U079ZJ48D62> <@U07KLPN0JN6> FYI since we are testing more and more on Azure
+
+## [2026-06-17T22:05:54Z] ingest | Slack thread C0547N89JUB 1776232852.254369
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776232852-254369-dbcc2ce7
+- wiki_revision_id: wikirev_380370aa39b2c3994f38735904f3427c
+- source_document_id: srcdoc_c91fbdc65d1f08927adac984dbcc2ce7
+- source_revision_id: srcrev_4bfee4d04aa67b1b59b12767ad25721c
+- summary: Hey <@U08332YRB7W> <@U07TNT9N4JC>,
+
+## [2026-06-17T22:05:54Z] ingest | Slack thread C0547N89JUB 1781505512.418249
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1781505512-418249-75b68823
+- wiki_revision_id: wikirev_f5816ce7e97ace9b500dbca23aae0e05
+- source_document_id: srcdoc_ca0b41ad6e49cd5de986466175b68823
+- source_revision_id: srcrev_8ef76e60a4f5967ec731645aef7b7963
+- summary: Hey <@U07TNT9N4JC> pls help.
+
+## [2026-06-17T22:05:54Z] ingest | Slack thread C0547N89JUB 1780382680.121369
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1780382680-121369-270d60e7
+- wiki_revision_id: wikirev_55d726ba04d8f808333f40244299520e
+- source_document_id: srcdoc_ca767a4c8ff6c3467561c0c5270d60e7
+- source_revision_id: srcrev_cf426d2e82c2432d80e502f12061a5ae
+- summary: Hey <@U0AKJV8710S>
+
+## [2026-06-17T22:05:55Z] ingest | Slack thread C0547N89JUB 1779242381.212589
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779242381-212589-c7d34bbf
+- wiki_revision_id: wikirev_dc54ee83c37649b293a5da2136c1c461
+- source_document_id: srcdoc_cd5313f93d0532e49e87d54ac7d34bbf
+- source_revision_id: srcrev_f52332207e039e90862688bb3f70ddaf
+- summary: <@U0772SH7BRA> <@U079ZJ48D62> I am trying to cleanup story-deployments with legacy settings.
+
+## [2026-06-17T22:05:55Z] ingest | Slack thread C0547N89JUB 1778303844.935079
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778303844-935079-cf9dee3b
+- wiki_revision_id: wikirev_8eed4177a2a6a5cdb0fce94b4a9c3948
+- source_document_id: srcdoc_cff3406825f6b8717a08bb31cf9dee3b
+- source_revision_id: srcrev_3e2a4370eda10e30753e3879da42129f
+- summary: <@U0AKJV8710S> cc. <@U0A7JJMU5T2>
+
+## [2026-06-17T22:05:55Z] ingest | Slack thread C0547N89JUB 1775611774.693859
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775611774-693859-9e6a4ec4
+- wiki_revision_id: wikirev_8c7681b44083707b9d037f869f6816cd
+- source_document_id: srcdoc_d4129d63bff44db2d4e179d29e6a4ec4
+- source_revision_id: srcrev_d305eafe6fbc8783f18fe3562fd0fb1b
+- summary: Hey <@U0AKJV8710S> can you automatically review this repo? <https://github.com/piplabs/cdr-sdk/pull/28>
+
+## [2026-06-17T22:05:56Z] ingest | Slack thread C0547N89JUB 1778213410.573869
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778213410-573869-8c5ee5f5
+- wiki_revision_id: wikirev_0f938a00f2e4829b50d2bee57a88d0cd
+- source_document_id: srcdoc_da11634ea7b7e1497d3659f78c5ee5f5
+- source_revision_id: srcrev_a3df4db10a197d33a7a1dbc9cd5c2a27
+- summary: Hey <@U0AKJV8710S>, it seems <@U0APT5R0S2U> not working, `LLM request failed: network connection error.` , can you check
+
+## [2026-06-17T22:05:56Z] ingest | Slack thread C0547N89JUB 1775545108.430009
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775545108-430009-06f5d632
+- wiki_revision_id: wikirev_d4579f5ad211b8e475edc15e632f778b
+- source_document_id: srcdoc_dacf64b9fe120ef26de07c2e06f5d632
+- source_revision_id: srcrev_dab1c38646b1edda750fb9756f86dedd
+- summary: Hey <@U0AKJV8710S> <@U0AJS9RQX1B> , could you grant <@U0A7JJMU5T2> and <@U0A7ZQXB160> the same AWS role (AWS-QA-Dev-Access) that I have? Thanks.
+
+## [2026-06-17T22:05:56Z] ingest | Slack thread C0547N89JUB 1779773836.978369
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779773836-978369-3a2f8d66
+- wiki_revision_id: wikirev_8511af4722296b35c59a38411e0b0006
+- source_document_id: srcdoc_db42607450fc76635597bd303a2f8d66
+- source_revision_id: srcrev_3daf831d4e686825dcb46552751901a3
+- summary: <@U0AF5V86SV7> Can you give permission to <@U0B1LM3KZ7E> with story-ops so that can access server <https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#InstanceDetail...
+
+## [2026-06-17T22:05:57Z] ingest | Slack thread C0547N89JUB 1777257699.219159
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1777257699-219159-8b9c2767
+- wiki_revision_id: wikirev_ede3a021996a4db8e9015f0048997ce0
+- source_document_id: srcdoc_dd35594c9b830ff99339eba48b9c2767
+- source_revision_id: srcrev_7c3cc623d8092f5df53a05f4e7ad4479
+- summary: Hi, <@U07TNT9N4JC> <@U0AKJV8710S> could you help open *TCP port 1317* on the Azure NSG for our QA devnet validators? This port is the Story node's built-in REST API (`--api-address...
+
+## [2026-06-17T22:05:57Z] ingest | Slack thread C0547N89JUB 1772667777.172299
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1772667777-172299-b5ef2b52
+- wiki_revision_id: wikirev_9708e59e18a918ac13933f763cb16563
+- source_document_id: srcdoc_df98dc004bd2b5d5e74b330eb5ef2b52
+- source_revision_id: srcrev_a9643fb02acca010166c1bdcd5d03228
+- summary: <@U079ZJ48D62> <@U082UKSD3BR> Can you please check EKS side staging private staking api working fine?
+
+## [2026-06-17T22:05:57Z] ingest | Slack thread C0547N89JUB 1775202424.989199
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1775202424-989199-f610950c
+- wiki_revision_id: wikirev_7733641b8dd3a5bfbd6ff2d5cb47d702
+- source_document_id: srcdoc_e111e656bdfebab944ef599bf610950c
+- source_revision_id: srcrev_31024db958a05454d68e2fd9cad562e2
+- summary: Hey <@U0AKJV8710S> set me as the code owner of the repo <https://github.com/piplabs/story-localnet>.
+
+## [2026-06-17T22:05:57Z] ingest | Slack thread C0547N89JUB 1778215885.899199
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1778215885-899199-7974c129
+- wiki_revision_id: wikirev_5ee95bb6ca66e84e52ba849552803110
+- source_document_id: srcdoc_e86514d56923931bec8d24bb7974c129
+- source_revision_id: srcrev_b52c078e649c051edcc9150897bebed3
+- summary: Hey <@U07TNT9N4JC> cc. <@U081RCLP2KB> <@U082UKSD3BR> <@U07KLPN0JN6>
+
+## [2026-06-17T22:05:58Z] ingest | Slack thread C0547N89JUB 1774648429.287299
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774648429-287299-776e22eb
+- wiki_revision_id: wikirev_be72b5d56a2fa10abe0f425d86c43ae1
+- source_document_id: srcdoc_eaa816b44900604d601cafc4776e22eb
+- source_revision_id: srcrev_dfe6e4136c1ee5af323fc28f17523488
+- summary: <@U0AKJV8710S> estimate how much cost savings there is if we switch EC2's nodes from on-demand to 1-year Reserved Instance upfront purchase
+
+## [2026-06-17T22:05:58Z] ingest | Slack thread C0547N89JUB 1779322928.231139
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1779322928-231139-34d4ccc9
+- wiki_revision_id: wikirev_e371f3c1a5866bfeb25ffeba81b25076
+- source_document_id: srcdoc_f053c43795827a147f78c95534d4ccc9
+- source_revision_id: srcrev_a0d061bafa97d39fd2bc09e63e0c91bb
+- summary: <@U08332YRB7W> Can you please share the temporal related cost context that <@U04VDFP1YQ5> mentioned in the lion sync meeting??
+
+## [2026-06-17T22:05:58Z] ingest | Slack thread C0547N89JUB 1774374755.299529
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1774374755-299529-9a6656b8
+- wiki_revision_id: wikirev_48c417d95e3926d744979e291d0db0a1
+- source_document_id: srcdoc_f51862e05f2a179dae5973e09a6656b8
+- source_revision_id: srcrev_c8b8ce7a7f80b6795906702aba04e0c5
+- summary: <@U0AJS9RQX1B> who is managing our company vercel account? can you please add my github account to vercel `LeoHChen`?
+
+## [2026-06-17T22:05:59Z] ingest | Slack thread C0547N89JUB 1776376219.213409
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1776376219-213409-f0e79bf1
+- wiki_revision_id: wikirev_683ab1aca3473c7508d02c0c34ed31f9
+- source_document_id: srcdoc_f858ebbe636569ad071a3e2ef0e79bf1
+- source_revision_id: srcrev_72c4e70ec3862bd3d8aa8fe832d23d0f
+- summary: can we turn off all the bots commenting on the PRs currently ? It's spamming a lot
+
+## [2026-06-17T22:06:08Z] ingest | Slack thread C0547N89JUB 1755551422.074169
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1755551422-074169-0061a327
+- wiki_revision_id: wikirev_2b8ed4d1dc08edd95f0460db9535bb0a
+- source_document_id: srcdoc_1d3e8590dad9bac9aeab25970061a327
+- source_revision_id: srcrev_4b9be38ab75e230c49d729b4063c9a27
+- summary: Hi team, I'm trying to trace how much royalty has been generated from the IPAs that are on Story and was hoping there's a central royalty management contract deployed by story that...
+
+## [2026-06-17T22:06:08Z] ingest | Slack thread C0547N89JUB 1739746274.575779
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1739746274-575779-77c6cfab
+- wiki_revision_id: wikirev_095faf7f548fceb5ac6917b6e93b5c86
+- source_document_id: srcdoc_37b224f85e6dfb8040c6536c77c6cfab
+- source_revision_id: srcrev_f78c416b30de24f01039dacc2e58bdd2
+- summary: What’s the latest status on email whitelisting? I need to give access to:
+
+## [2026-06-17T22:06:08Z] ingest | Slack thread C0547N89JUB 1740611725.604119
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1740611725-604119-5bc71f17
+- wiki_revision_id: wikirev_7bb3ba31c8c7b72b447f45ef29000b09
+- source_document_id: srcdoc_5e3ddf34ddd630f799ba32435bc71f17
+- source_revision_id: srcrev_0759a9d5c705440d2c5cc764fd98c00e
+- summary: Just submitted a linear issue for ip whitelisting for odyssey rpc
+
+## [2026-06-17T22:06:08Z] ingest | Slack thread C0547N89JUB channel
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-channel-4fa03731
+- wiki_revision_id: wikirev_ecac6d78c2ac0a0f5dd0599db02e813b
+- source_document_id: srcdoc_b853172082170c2d6c8b40804fa03731
+- source_revision_id: srcrev_ba57047c7838b6251e2e2108a55224f1
+- summary: <@U080YAW205V> any idea where is the `Dodckerfile` for <https://console.cloud.google.com/artifacts/docker/employee-managed-validator/us/gcr.io/ai-playground-backend?project=employe...
+
+## [2026-06-17T22:06:09Z] ingest | Slack thread C0547N89JUB 1758068247.755379
+
+- status: published
+- slug: slack_message/slack-thread-c0547n89jub-1758068247-755379-e677e05d
+- wiki_revision_id: wikirev_cba4d553a2f571d554d374ce8cd31af7
+- source_document_id: srcdoc_de7928ed2a5bd33af6f0ca24e677e05d
+- source_revision_id: srcrev_9a06515c2f02965577ec7ff8408bca5a
+- summary: Hi <@U07TNT9N4JC>,
+
