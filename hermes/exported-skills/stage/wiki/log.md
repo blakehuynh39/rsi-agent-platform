@@ -25720,3 +25720,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_14f5cf03e52d5c82cc58a4253e7bbbff
 - summary: Changelog of merged PRs for Story kernel from base v0.1.0 to a feature branch, covering versioning, light-client improvements, DKG protocol fixes, and resilience enhancements.
 
+## [2026-06-17T08:46:34Z] synthesis | RSI Client Features (v1.7.0 Feature Branch)
+
+- status: published
+- slug: systems/client-features-v1-7-0-to-feature
+- wiki_revision_id: wikirev_179a6d0624328918d7eba03570fafff8
+- summary: Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client Change Log.
+

@@ -3,7 +3,15 @@ title: "RSI Client Features (v1.7.0 Feature Branch)"
 type: "system"
 slug: "systems/client-features-v1-7-0-to-feature"
 freshness: "2026-06-12T09:41:00Z"
-tags: []
+tags:
+  - "client"
+  - "dkg"
+  - "features"
+  - "sgx"
+  - "tdx"
+  - "tee"
+  - "upgrade"
+  - "validation"
 owners: []
 source_revision_ids:
   - "srcrev_37e9b5d1bcad5699a6696126337d61bc"
@@ -38,5 +46,5 @@ Changes from base v1.7.0 to Feature branch as recorded in the CDR Story Client C
 ## Sources
 
 - `source_document_id`: `srcdoc_aeaa4036cd00e991702368cf4742be2f`
-- `source_revision_id`: `srcrev_dc2d15cac6ef43ba92af4f0a5ae22347`
+- `source_revision_id`: `srcrev_7e85469e5b25b1de518ae193def30c7a`
 - `source_url`: [source](https://app.notion.com/p/CDR-Story-Client-Change-Log-37b051299a548058956cc6fd4e2995be)
