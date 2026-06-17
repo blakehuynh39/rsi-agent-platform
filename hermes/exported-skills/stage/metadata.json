@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "55ab028537f20dc03555c3e3ca7b215702f3aa7f0d4f2c0a41b3fac8d340c87e",
-        "size": 672246
+        "sha256": "30e26f55a63e2efd9eb38f6b00dc899c58d88ebda2bb5f8c17a2823ad475cdff",
+        "size": 702286
       },
       {
         "path": "log.md",
-        "sha256": "48604c223d3de2f1517db3bf35cbfa2f74d7c90a34352ba5de5104b403552d42",
-        "size": 1292656
+        "sha256": "1176d555bfb56d893a80d4f1a5447523147cea393cece5a2c670f941380cb00e",
+        "size": 1334631
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5200,6 +5200,11 @@
         "size": 2920
       },
       {
+        "path": "pages/projects/faucet-migration-to-aws.md",
+        "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
+        "size": 3967
+      },
+      {
         "path": "pages/projects/first-party-app.md",
         "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
         "size": 2358
@@ -6979,8 +6984,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T21:42:50Z",
-  "file_count": 1394,
+  "exported_at": "2026-06-17T21:48:33Z",
+  "file_count": 1395,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10257,7 +10262,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7d9f5djthrt",
-  "previous_tree_hash": "4fff1673869eb29d4959743ddca8bd28ba015b086f3d57b3a1a53a641cfad640",
+  "previous_tree_hash": "b78484d55b3499984c4eea7e8adf4f021dbbba409e948bfcfaed2470461bbbb9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10270,14 +10275,14 @@
   ],
   "skill_tree_hash": "a70e7acdbed3154abc1502bd1e6cd3e0fcf2ae04a60c15e9d085902ca11ac3c8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b78484d55b3499984c4eea7e8adf4f021dbbba409e948bfcfaed2470461bbbb9",
+  "tree_hash": "b5f3c57631d3e1c5588a61e4fb496c73d39b893a8073a2a5fbab51d96adde51d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 740,
+  "wiki_file_count": 741,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10286,13 +10291,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "55ab028537f20dc03555c3e3ca7b215702f3aa7f0d4f2c0a41b3fac8d340c87e",
-      "size": 672246
+      "sha256": "30e26f55a63e2efd9eb38f6b00dc899c58d88ebda2bb5f8c17a2823ad475cdff",
+      "size": 702286
     },
     {
       "path": "log.md",
-      "sha256": "48604c223d3de2f1517db3bf35cbfa2f74d7c90a34352ba5de5104b403552d42",
-      "size": 1292656
+      "sha256": "1176d555bfb56d893a80d4f1a5447523147cea393cece5a2c670f941380cb00e",
+      "size": 1334631
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12205,6 +12210,11 @@
       "size": 2920
     },
     {
+      "path": "pages/projects/faucet-migration-to-aws.md",
+      "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
+      "size": 3967
+    },
+    {
       "path": "pages/projects/first-party-app.md",
       "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
       "size": 2358
@@ -13981,5 +13991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2c5764b892aa877b160f87ba2d64b20497458a3aa8be154fbb2a8086b31e41b8"
+  "wiki_tree_hash": "c0b708d75f88cfe14f6cff3daf746e03512464ce9edf25b33087b5413e67fd7e"
 }
