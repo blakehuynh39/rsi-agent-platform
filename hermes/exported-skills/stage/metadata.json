@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "dd04fc79fc163c1e2de3578cf765f5ea0ff294360df36b9a1bdc9824c62a4517",
-        "size": 914981
+        "sha256": "8f85b855c5595d0e227da5809762972ad1258042eda20be052312d7d32d43c69",
+        "size": 915670
       },
       {
         "path": "log.md",
-        "sha256": "7009b8d3ab327d0f5d09f715fd18e85bd0a6a49c247085033e5ac6aaee393194",
-        "size": 1637752
+        "sha256": "4502d012a7a4a506ccf035ffe3dd87a6386b61d03845047860a1d371d1f3803c",
+        "size": 1638465
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6590,6 +6590,11 @@
         "size": 1690
       },
       {
+        "path": "pages/runbooks/story-orchestration-service-ip-transactions-aggregation-error.md",
+        "sha256": "735ccb938ee68066aa8b6bba881d367d58de9e1a883910f367895968eb92f145",
+        "size": 1610
+      },
+      {
         "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
         "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
         "size": 2417
@@ -7115,6 +7120,11 @@
         "size": 5356
       },
       {
+        "path": "pages/systems/story-orchestration-service.md",
+        "sha256": "136e09f9c8a9309998d971bd31032db06865ecc0a1fa1f756c5ffd75226560e6",
+        "size": 1560
+      },
+      {
         "path": "pages/systems/story-protocol-core-architecture.md",
         "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
         "size": 9851
@@ -7199,8 +7209,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T06:24:14Z",
-  "file_count": 1438,
+  "exported_at": "2026-06-18T06:35:56Z",
+  "file_count": 1440,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10477,7 +10487,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "e8c2bab995ee9e4a9ad67b11c42c2c8ce03efa2150f5753c31cb4aa69530f699",
+  "previous_tree_hash": "5f63b5bd1eb76830132650e7256f3973436d1da411dde24cf2eea24b63bc548f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10490,14 +10500,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5f63b5bd1eb76830132650e7256f3973436d1da411dde24cf2eea24b63bc548f",
+  "tree_hash": "c59047a4c621d1cf2a9caa3dc46770946772a197471b97676ac56b97dcc36f97",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 784,
+  "wiki_file_count": 786,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10506,13 +10516,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "dd04fc79fc163c1e2de3578cf765f5ea0ff294360df36b9a1bdc9824c62a4517",
-      "size": 914981
+      "sha256": "8f85b855c5595d0e227da5809762972ad1258042eda20be052312d7d32d43c69",
+      "size": 915670
     },
     {
       "path": "log.md",
-      "sha256": "7009b8d3ab327d0f5d09f715fd18e85bd0a6a49c247085033e5ac6aaee393194",
-      "size": 1637752
+      "sha256": "4502d012a7a4a506ccf035ffe3dd87a6386b61d03845047860a1d371d1f3803c",
+      "size": 1638465
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13815,6 +13825,11 @@
       "size": 1690
     },
     {
+      "path": "pages/runbooks/story-orchestration-service-ip-transactions-aggregation-error.md",
+      "sha256": "735ccb938ee68066aa8b6bba881d367d58de9e1a883910f367895968eb92f145",
+      "size": 1610
+    },
+    {
       "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
       "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
       "size": 2417
@@ -14340,6 +14355,11 @@
       "size": 5356
     },
     {
+      "path": "pages/systems/story-orchestration-service.md",
+      "sha256": "136e09f9c8a9309998d971bd31032db06865ecc0a1fa1f756c5ffd75226560e6",
+      "size": 1560
+    },
+    {
       "path": "pages/systems/story-protocol-core-architecture.md",
       "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
       "size": 9851
@@ -14421,5 +14441,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4e6624105e8c0f709049455de061bf3e0cffdcca8ee601b63b5102b9fad2b82f"
+  "wiki_tree_hash": "f53468b5300487070d0bd40ce90b604d2969ad62868037702e3b0028425eada6"
 }

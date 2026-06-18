@@ -33425,3 +33425,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d182c735823248b29a3fe7ffb2d3d767
 - summary: A PostgreSQL error 42P10 (no unique or exclusion constraint matching ON CONFLICT) was encountered in the story-orchestration-service. The issue was resolved via Sentry issue #72985...
 
+## [2026-06-18T06:31:08Z] synthesis | story-orchestration-service ip_transactions Aggregation Error
+
+- status: published
+- slug: runbooks/story-orchestration-service-ip-transactions-aggregation-error
+- wiki_revision_id: wikirev_5ab3330ec8246c42672822a6a3c4d734
+- summary: An aggregation error for ip_transactions occurred in story-orchestration-service and was resolved.
+
+## [2026-06-18T06:32:02Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_5ae6cb4f5b8923f0479aea8be7150762
+- summary: The story-orchestration-service experienced a collection_aggregation error that was tracked in Sentry and later resolved by Blake Huynh.
+
