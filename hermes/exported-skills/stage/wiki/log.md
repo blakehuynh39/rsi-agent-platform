@@ -33572,3 +33572,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e4a1724ff437605429a48ea175178d63
 - summary: This page captures the current understanding of whether disputes can be raised for non-commercial IP on the Story platform. The Portal seems to have a limitation, and IP infringeme...
 
+## [2026-06-18T15:17:12Z] synthesis | Numo
+
+- status: published
+- slug: projects/numo
+- wiki_revision_id: wikirev_b35ff5fd02dd82ac630cafbd866739af
+- summary: Numo is an AI data training platform that rewards contributors with crypto. It processes thousands of daily submissions and maintains a review queue of hundreds of thousands of ite...
+
+## [2026-06-18T15:17:12Z] synthesis | TaxBandits Integration
+
+- status: published
+- slug: projects/taxbandits-integration
+- wiki_revision_id: wikirev_2f3e88f54e28b5d09f9f43b81d8f5a44
+- summary: Integration of TaxBandits for W-8 / W-9 form collection, including UX evaluation, sandbox testing, and parallel Stripe exploration.
+
+## [2026-06-18T15:17:12Z] synthesis | Finding Numo Visual App Idea
+
+- status: published
+- slug: concepts/finding-numo-app-idea
+- wiki_revision_id: wikirev_5ca4a97d7cb4a6eef3421ba6b3c1d0f5
+- summary: Idea to create a visual app called 'Finding Numo' to showcase Numo data in an engaging way, possibly for investor or public demos.
+
+## [2026-06-18T15:17:12Z] synthesis | Competitive Landscape in AI Data Training
+
+- status: published
+- slug: concepts/competitive-landscape-ai-data-training
+- wiki_revision_id: wikirev_6d8770239140614a08345d5282f39c72
+- summary: References to other AI data training and robotics data collection platforms that may inform Numo's market positioning.
+
+## [2026-06-18T15:17:12Z] synthesis | Numo External Communication Guideline
+
+- status: published
+- slug: policies/numo-external-communication-guideline
+- wiki_revision_id: wikirev_48356154d0247ccdff3a580f27f34bdb
+- summary: Guideline to avoid mentioning 'Numo' explicitly to customers who may be averse to cryptocurrency.
+

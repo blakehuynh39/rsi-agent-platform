@@ -2,17 +2,18 @@
 title: "Numo"
 type: "project"
 slug: "projects/numo"
-freshness: "2026-06-04T05:00:00Z"
+freshness: "2026-05-31T23:27:12Z"
 tags:
-  - "growth"
-  - "korea-team"
-  - "mobile-app"
-  - "toss-mini-app"
-  - "user-reputation"
-owners:
-  - "Korea Team"
+  - "ai-data-training"
+  - "crowdsourcing"
+  - "crypto-rewards"
+owners: []
 source_revision_ids:
-  - "srcrev_fae4aaa88423ef099b6b85df1ecf74f0"
+  - "srcrev_07e337887c2b45c2dc8bd2eecd3dd35c"
+  - "srcrev_bde8a8278a7668a9ec3d6a1008d82e6b"
+  - "srcrev_c962ca7b7f418fe21c7498d4e7803995"
+  - "srcrev_d0852d001e579bd27fd69444ffb273b8"
+  - "srcrev_e5d3f8a4bf0fafbe9ba3632b045b0d2a"
 conflict_state: "none"
 ---
 
@@ -20,35 +21,26 @@ conflict_state: "none"
 
 ## Summary
 
-Numo is a mobile application within the Poseidon ecosystem that leverages user reputation and identity systems. Ownership has transitioned to the Korea team, which is responsible for development, launch, growth, and operations, targeting a production-ready app by June 30, 2026.
+Numo is an AI data training platform that rewards contributors with crypto. It processes thousands of daily submissions and maintains a review queue of hundreds of thousands of items.
 
 ## Claims
 
-- The target is to have a production-ready app delivered by June 30, 2026. `claim:claim_1_1` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_23d96a9f43b103919fe9e402d9ef24ba` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1` `source_timestamp=2026-06-04T05:00:00Z`
-- Intensive onboarding and handoff occurs June 3–10, transferring product knowledge, technical architecture, infrastructure access, credentials, operational processes, and launch plans to the Korea Team. `claim:claim_1_2` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_23d96a9f43b103919fe9e402d9ef24ba` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1` `source_timestamp=2026-06-04T05:00:00Z`
-- From June 11–30, the Korea Team assumes primary ownership, focusing on delivering the mobile app, driving growth initiatives, and executing the Toss Mini App strategy. `claim:claim_1_3` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_23d96a9f43b103919fe9e402d9ef24ba` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1` `source_timestamp=2026-06-04T05:00:00Z`
-- Post-launch, both teams will continue collaborating on shared reputation, identity, and trust infrastructure. `claim:claim_1_4` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_23d96a9f43b103919fe9e402d9ef24ba` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-1` `source_timestamp=2026-06-04T05:00:00Z`
-- The Korea team owns the Numo Mobile App, responsible for product development, launch, growth, user acquisition, retention, operations, and ongoing roadmap execution. `claim:claim_1_5` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_d4d2d1732a6de5df7f3d608a729dfece` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2` `source_timestamp=2026-06-04T05:00:00Z`
-- The Korea team owns the Toss Mini App, responsible for distribution strategy, implementation, growth, partnerships, and market expansion within the Toss ecosystem. `claim:claim_1_6` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_d4d2d1732a6de5df7f3d608a729dfece` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2` `source_timestamp=2026-06-04T05:00:00Z`
-- Shared infrastructure across teams includes user identity and authentication, reputation and trust systems, contributor quality scoring, verification, shared user profiles, and cross-product user portability. `claim:claim_1_7` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2) `source_document_id=srcdoc_14b9675d3b89ce8eb59e4ff11db78b80` `source_revision_id=srcrev_fae4aaa88423ef099b6b85df1ecf74f0` `chunk_id=srcchunk_d4d2d1732a6de5df7f3d608a729dfece` `native_locator=https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276#chunk-2` `source_timestamp=2026-06-04T05:00:00Z`
-
-## Open Questions
-
-- Exact ownership of the Poseidon Expert/Evaluation Platform (Atlas) remains TBD (Allen + Sasi).
+- Daily submissions range from 3,846 to 5,316, with a pending review backlog between 715,470 and 736,565 items, and unvalidated amounts from $19,140.38 to $21,617.60. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_d0852d001e579bd27fd69444ffb273b8` `chunk_id=srcchunk_873f9e4ab045ccce552f12cbd79d9e86` `native_locator=slack:C0AL7EKNHDF:1779988356.580369:1779988356.580369` `source_timestamp=2026-05-28T17:12:36Z`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_07e337887c2b45c2dc8bd2eecd3dd35c` `chunk_id=srcchunk_713d0e71b8c11a7d10189a84129ad09d` `native_locator=slack:C0AL7EKNHDF:1780011150.744229:1780011150.744229` `source_timestamp=2026-05-28T23:32:30Z`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_bde8a8278a7668a9ec3d6a1008d82e6b` `chunk_id=srcchunk_205545eb76b49f8f91d28dcc34f34a06` `native_locator=slack:C0AL7EKNHDF:1780270032.444009:1780270032.444009` `source_timestamp=2026-05-31T23:27:12Z`
+- Validated rewards per submission remained constant at $0.24 across all observations. `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_d0852d001e579bd27fd69444ffb273b8` `chunk_id=srcchunk_873f9e4ab045ccce552f12cbd79d9e86` `native_locator=slack:C0AL7EKNHDF:1779988356.580369:1779988356.580369` `source_timestamp=2026-05-28T17:12:36Z`
+- Numo data contains deepfake examples considered interesting for investor demos and general sharing. `claim:claim_1_3` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_c962ca7b7f418fe21c7498d4e7803995` `chunk_id=srcchunk_657437ba7c21a85073c99f3ad11500e6` `native_locator=slack:C0AL7EKNHDF:1780036156.749879:1780036156.749879` `source_timestamp=2026-05-29T06:29:16Z`
+  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_e5d3f8a4bf0fafbe9ba3632b045b0d2a` `chunk_id=srcchunk_d5eaee571d4fd50e47432bc505d1a851` `native_locator=slack:C0AL7EKNHDF:1780036180.340989:1780036180.340989` `source_timestamp=2026-05-29T06:29:40Z`
 
 ## Related Pages
 
-- `poseidon-reputation-infrastructure`
+- `competitive-landscape-ai-data-training`
+- `numo-external-communication-guideline`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_14b9675d3b89ce8eb59e4ff11db78b80`
-- `source_revision_id`: `srcrev_fae4aaa88423ef099b6b85df1ecf74f0`
-- `source_url`: [source](https://app.notion.com/p/Numo-Transition-Plan-Korea-Team-Goals-373051299a5480498c55e0d7c599e276)
+- `source_document_id`: `srcdoc_02882053947288838246eb0a4d96bb56`
+- `source_revision_id`: `srcrev_7d25cc1a4053a5e78027f9bd1b56293e`

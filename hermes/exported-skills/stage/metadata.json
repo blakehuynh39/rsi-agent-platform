@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d22c40258a7944d1a41ec8d8ec2107a7dd706cd3a0218d9ca959322430b378fd",
-        "size": 921063
+        "sha256": "cd9e5e9e6135a31bf7219de17a1de6706e1931e5315a96c8bf51183153ac1e1d",
+        "size": 922345
       },
       {
         "path": "log.md",
-        "sha256": "c056b9d667fbae05dc51a7978b224d4228fa3fe94199ec7640363f650187f486",
-        "size": 1645539
+        "sha256": "819fa8293c2d9350dcff14c2b8ceba981bd1d70f954126b0ff13f7efd6e6e089",
+        "size": 1647212
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3403,6 +3403,11 @@
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
         "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
         "size": 1065
+      },
+      {
+        "path": "pages/concepts/competitive-landscape-ai-data-training.md",
+        "sha256": "82b739e49af009f0f7c86ea30a43691faf4053d2d3db9f062e3b250c28676403",
+        "size": 1673
       },
       {
         "path": "pages/concepts/concept-native-yield.md",
@@ -3583,6 +3588,11 @@
         "path": "pages/concepts/farming-mitigation.md",
         "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
         "size": 1138
+      },
+      {
+        "path": "pages/concepts/finding-numo-app-idea.md",
+        "sha256": "e7b8ad4ae596e1439d38de2f27e76b8c9316dfb7bf92791514a2bf61bb633518",
+        "size": 1580
       },
       {
         "path": "pages/concepts/frontend-periphery-contracts.md",
@@ -4915,6 +4925,11 @@
         "size": 1584
       },
       {
+        "path": "pages/policies/numo-external-communication-guideline.md",
+        "sha256": "242f934b0ddcc1b63358fd460ed0e1eb71d7d56c977473a4b16d2be1a2cc2707",
+        "size": 1097
+      },
+      {
         "path": "pages/policies/off-chain-terms.md",
         "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
@@ -5656,8 +5671,8 @@
       },
       {
         "path": "pages/projects/numo.md",
-        "sha256": "bec85fab7c13406ae4cf186c21f1677ba67bf6918606d8706ffa25e355b0d43e",
-        "size": 5668
+        "sha256": "a08524d4b0f09c72ae5e23caef3f12739117233dcc1a8854eeb313e928c81367",
+        "size": 3179
       },
       {
         "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -6073,6 +6088,11 @@
         "path": "pages/projects/subnet-v0-1-0.md",
         "sha256": "4cdbcaf184646c621479bafe3c20c6b21707cea4af34a9ba0306ee0fb201b43c",
         "size": 3226
+      },
+      {
+        "path": "pages/projects/taxbandits-integration.md",
+        "sha256": "3d09ac4a237213b608d95b3731c67a42518ec213c5bac9fe312d66e613ac12af",
+        "size": 3791
       },
       {
         "path": "pages/projects/testnet-launch-checklist.md",
@@ -7279,8 +7299,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T15:08:22Z",
-  "file_count": 1454,
+  "exported_at": "2026-06-18T15:20:03Z",
+  "file_count": 1458,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10557,7 +10577,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5be28529c0b54ca63b0fee801ca73e927b29d17afcb685eff5ff2c97b1f4f6ea",
+  "previous_tree_hash": "d7405f4d1f14d9177a10a0c6424782e4093a5096d58b0c11c42cbf3d90df654e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10570,14 +10590,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d7405f4d1f14d9177a10a0c6424782e4093a5096d58b0c11c42cbf3d90df654e",
+  "tree_hash": "4a27f1519bf881c721816069dcd551ce5be6358b325de43ce11736ce86a1eee4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 800,
+  "wiki_file_count": 804,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10586,13 +10606,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d22c40258a7944d1a41ec8d8ec2107a7dd706cd3a0218d9ca959322430b378fd",
-      "size": 921063
+      "sha256": "cd9e5e9e6135a31bf7219de17a1de6706e1931e5315a96c8bf51183153ac1e1d",
+      "size": 922345
     },
     {
       "path": "log.md",
-      "sha256": "c056b9d667fbae05dc51a7978b224d4228fa3fe94199ec7640363f650187f486",
-      "size": 1645539
+      "sha256": "819fa8293c2d9350dcff14c2b8ceba981bd1d70f954126b0ff13f7efd6e6e089",
+      "size": 1647212
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10708,6 +10728,11 @@
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
       "sha256": "9e8249101edf4328ffe9136736711d423694f7c3c959dac0f10d867be092ef8b",
       "size": 1065
+    },
+    {
+      "path": "pages/concepts/competitive-landscape-ai-data-training.md",
+      "sha256": "82b739e49af009f0f7c86ea30a43691faf4053d2d3db9f062e3b250c28676403",
+      "size": 1673
     },
     {
       "path": "pages/concepts/concept-native-yield.md",
@@ -10888,6 +10913,11 @@
       "path": "pages/concepts/farming-mitigation.md",
       "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
       "size": 1138
+    },
+    {
+      "path": "pages/concepts/finding-numo-app-idea.md",
+      "sha256": "e7b8ad4ae596e1439d38de2f27e76b8c9316dfb7bf92791514a2bf61bb633518",
+      "size": 1580
     },
     {
       "path": "pages/concepts/frontend-periphery-contracts.md",
@@ -12220,6 +12250,11 @@
       "size": 1584
     },
     {
+      "path": "pages/policies/numo-external-communication-guideline.md",
+      "sha256": "242f934b0ddcc1b63358fd460ed0e1eb71d7d56c977473a4b16d2be1a2cc2707",
+      "size": 1097
+    },
+    {
       "path": "pages/policies/off-chain-terms.md",
       "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
@@ -12961,8 +12996,8 @@
     },
     {
       "path": "pages/projects/numo.md",
-      "sha256": "bec85fab7c13406ae4cf186c21f1677ba67bf6918606d8706ffa25e355b0d43e",
-      "size": 5668
+      "sha256": "a08524d4b0f09c72ae5e23caef3f12739117233dcc1a8854eeb313e928c81367",
+      "size": 3179
     },
     {
       "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -13378,6 +13413,11 @@
       "path": "pages/projects/subnet-v0-1-0.md",
       "sha256": "4cdbcaf184646c621479bafe3c20c6b21707cea4af34a9ba0306ee0fb201b43c",
       "size": 3226
+    },
+    {
+      "path": "pages/projects/taxbandits-integration.md",
+      "sha256": "3d09ac4a237213b608d95b3731c67a42518ec213c5bac9fe312d66e613ac12af",
+      "size": 3791
     },
     {
       "path": "pages/projects/testnet-launch-checklist.md",
@@ -14581,5 +14621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fb934fb2a65c81754d83efab552285688c8058eb7a42202a73d5dc6c4063e730"
+  "wiki_tree_hash": "7a841da248a80d50ced9ecb2a276e769ab51526b4b5d070af8cba6f0d79ea1e5"
 }
