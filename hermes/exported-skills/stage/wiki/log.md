@@ -33551,3 +33551,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c71df78f09a66d9fe2a033d690ecd742
 - summary: Current understanding of whether IP disputes can be raised for non-commercial works, and the role of the Attestation Service. Discussion originates from Magma's need to handle stol...
 
+## [2026-06-18T14:46:46Z] synthesis | Non-Commercial IP Dispute Limitations
+
+- status: published
+- slug: open-questions/non-commercial-ip-dispute-limitations
+- wiki_revision_id: wikirev_43dabbd8c77b8b2c8d4bebef974338cc
+- summary: Exploration of whether non-commercial IP can be disputed on the Story Protocol, current limitation on Portal, and potential solutions for platforms like Magma.
+
+## [2026-06-18T14:47:41Z] synthesis | Non-Commercial IP Dispute Capabilities
+
+- status: published
+- slug: concepts/non-commercial-ip-dispute
+- wiki_revision_id: wikirev_b4ed90ca90f36c3ac29178fa786dcb61
+- summary: Current limitations and open questions regarding the ability to raise disputes for non-commercial intellectual property on the Story platform, including a use case from Magma.
+
