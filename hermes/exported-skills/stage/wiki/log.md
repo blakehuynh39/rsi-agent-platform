@@ -33686,3 +33686,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b43c8977b9f95330930bd281c261901f
 - summary: Status of adding Filipino and Arabic language support, including scripts, seed phrase readiness, and RTL for Numo frontend.
 
+## [2026-06-18T16:32:01Z] synthesis | Stripe Payouts Integration
+
+- status: published
+- slug: decisions/stripe-payouts-integration
+- wiki_revision_id: wikirev_1252f1f9071cea948e3733a271e619d5
+- summary: Decisions and challenges around integrating Stripe for international creator payouts. Initial confusion over Connect vs Global Payouts, discovery that some countries require expens...
+
+## [2026-06-18T16:32:52Z] synthesis | Referral Automation Risk Signal
+
+- status: published
+- slug: decisions/referral-automation-risk-signal
+- wiki_revision_id: wikirev_bf534c3a6c37f76be5971d4bedafd26a
+- summary: A user a9baf1af-f6fa-4aa2-a54c-a664548fdecb generated 4676 referrals in 1-2 days, likely via script. This pattern should be added as a risk signal and included in the payout-obliga...
+
