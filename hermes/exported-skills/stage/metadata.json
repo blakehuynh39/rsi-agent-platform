@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2b2d89918ca19488eac945d0ff20452bde7a3168e9b980b66b6f81a07c1d6294",
-        "size": 913349
+        "sha256": "f8b2f86a0f17342592651db793414e1683b2161932ee1d7938b1119297e48908",
+        "size": 914136
       },
       {
         "path": "log.md",
-        "sha256": "293f112001ef38f7803bfd0c11d504fd87cc6e58a72049bed87a8a444b96c26d",
-        "size": 1636072
+        "sha256": "01da81b9faa36e350e3bd18b672d64afc0691ec5b5b55a5a9fe1159de20fe390",
+        "size": 1636883
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -7075,6 +7075,16 @@
         "size": 2056
       },
       {
+        "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
+        "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
+        "size": 3534
+      },
+      {
+        "path": "pages/systems/story-api-submitter-tick-failure.md",
+        "sha256": "2017bed07b312f619702a575544b9605e3336fc9053ea0ad680c4ae66fbac428",
+        "size": 1619
+      },
+      {
         "path": "pages/systems/story-api-v4-assets-504-timeout.md",
         "sha256": "a553bc00926e6a352b0528bc088f1b137dff2cf005d024b527e9b26b9a599074",
         "size": 1709
@@ -7179,8 +7189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T05:49:34Z",
-  "file_count": 1434,
+  "exported_at": "2026-06-18T06:06:11Z",
+  "file_count": 1436,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10457,7 +10467,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4e4cde95608a62f12734784627d9a7726af76d687352eb426329ed00a1b83199",
+  "previous_tree_hash": "08f157760bc24e2c4721b4b9a733392009de26f4cf934a30484d7782d2160b86",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10470,14 +10480,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "08f157760bc24e2c4721b4b9a733392009de26f4cf934a30484d7782d2160b86",
+  "tree_hash": "f9d58dbeec3395d12c0146a1e10ae5c7fa0dd1e5a4766917a16faa9a8db5c6c3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 780,
+  "wiki_file_count": 782,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10486,13 +10496,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2b2d89918ca19488eac945d0ff20452bde7a3168e9b980b66b6f81a07c1d6294",
-      "size": 913349
+      "sha256": "f8b2f86a0f17342592651db793414e1683b2161932ee1d7938b1119297e48908",
+      "size": 914136
     },
     {
       "path": "log.md",
-      "sha256": "293f112001ef38f7803bfd0c11d504fd87cc6e58a72049bed87a8a444b96c26d",
-      "size": 1636072
+      "sha256": "01da81b9faa36e350e3bd18b672d64afc0691ec5b5b55a5a9fe1159de20fe390",
+      "size": 1636883
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -14280,6 +14290,16 @@
       "size": 2056
     },
     {
+      "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
+      "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
+      "size": 3534
+    },
+    {
+      "path": "pages/systems/story-api-submitter-tick-failure.md",
+      "sha256": "2017bed07b312f619702a575544b9605e3336fc9053ea0ad680c4ae66fbac428",
+      "size": 1619
+    },
+    {
       "path": "pages/systems/story-api-v4-assets-504-timeout.md",
       "sha256": "a553bc00926e6a352b0528bc088f1b137dff2cf005d024b527e9b26b9a599074",
       "size": 1709
@@ -14381,5 +14401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e50a4a8b3a815587ec40af160448cd8c579fa21442fbcb85f177d1c7fcdeec14"
+  "wiki_tree_hash": "9881842d18ec796ca7f4136bae1c7ccfadc4fc78ec2e07b8a0389334fc73a437"
 }

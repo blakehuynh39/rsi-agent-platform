@@ -33397,3 +33397,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_57424bd7d8f6807c98b1803aa3ef8c61
 - summary: In June 2026, the story-api's submitter tick failed terminally, causing a worker to stop. The issue was later marked as resolved.
 
+## [2026-06-18T06:02:01Z] synthesis | Story API Staging Outage on 2026-06-16
+
+- status: published
+- slug: systems/story-api-staging-outage-2026-06-16
+- wiki_revision_id: wikirev_d046535c68edc55a51198fa55f0481cc
+- summary: At 04:32 UTC on 2026-06-16, the staging story-api experienced 500 errors on GET /api/v1/data-audit/search due to a transient PostgreSQL outage. The outage lasted ~20s and resolved ...
+
+## [2026-06-18T06:03:08Z] synthesis | Story API Submitter Tick Failure Incident
+
+- status: published
+- slug: systems/story-api-submitter-tick-failure
+- wiki_revision_id: wikirev_659df1d6f2f31d13c368e827401224db
+- summary: The story-api system experienced submitter tick failures, causing the process to sleep before retrying. The issue was tracked as STORY-API-EQ in Sentry and resolved by Blake Huynh.
+
