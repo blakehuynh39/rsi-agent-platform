@@ -33923,3 +33923,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4fc1bb36691d42642e6ac53eb67f108c
 - summary: Generation of transcripts for Malay and Indonesian languages for the dePIN app, with target counts of 50k Malay and 10k Indonesian. Transcripts have been generated and uploaded to ...
 
+## [2026-06-18T19:31:53Z] synthesis | Payout Wave 1 Email Selection
+
+- status: published
+- slug: projects/payout-wave-1-email-selection
+- wiki_revision_id: wikirev_b60a35beef288b47346903eea71aea42
+- summary: Selection and distribution of payout emails to 100 eligible workers as Wave 1, with filters on country, fraud score, pass rate, and task count.
+

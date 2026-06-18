@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "48b38f4d7bde6de0e2e409654b7393b31566ba1eaa545594b42d44d19abee1e1",
-        "size": 936253
+        "sha256": "caf0ebc6503057419d5f6d3ffc4dbb27f2b36e080eeaa6c1c82fdb2e9c39bccf",
+        "size": 936594
       },
       {
         "path": "log.md",
-        "sha256": "713032eeb9373e7409a26ac8d59b620d8f53fd5d42499b41eef747c5e0617abe",
-        "size": 1663436
+        "sha256": "2e9b738026dbe5bfaf3e7e6330246f9f3749f6425185e8795401d8b464dd057c",
+        "size": 1663789
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5870,6 +5870,11 @@
         "size": 1174
       },
       {
+        "path": "pages/projects/payout-wave-1-email-selection.md",
+        "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
+        "size": 4054
+      },
+      {
         "path": "pages/projects/pfp-engineering-specs.md",
         "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
@@ -7494,8 +7499,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T19:23:16Z",
-  "file_count": 1497,
+  "exported_at": "2026-06-18T19:35:03Z",
+  "file_count": 1498,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10772,7 +10777,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "856cd7f7a7fef0d610bd75f1ec20466196fde69f73e2c10788a4eaaf1d64b0c6",
+  "previous_tree_hash": "5f45914c8a6bf3d6148a7f9b8b8237f08f44ccf4252cf3899686e183b9d48990",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10785,14 +10790,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5f45914c8a6bf3d6148a7f9b8b8237f08f44ccf4252cf3899686e183b9d48990",
+  "tree_hash": "df7c5034226d44d17c7c6a87f86e0db7620516bdea6646d68f6076a4e1d0d855",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 843,
+  "wiki_file_count": 844,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10801,13 +10806,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "48b38f4d7bde6de0e2e409654b7393b31566ba1eaa545594b42d44d19abee1e1",
-      "size": 936253
+      "sha256": "caf0ebc6503057419d5f6d3ffc4dbb27f2b36e080eeaa6c1c82fdb2e9c39bccf",
+      "size": 936594
     },
     {
       "path": "log.md",
-      "sha256": "713032eeb9373e7409a26ac8d59b620d8f53fd5d42499b41eef747c5e0617abe",
-      "size": 1663436
+      "sha256": "2e9b738026dbe5bfaf3e7e6330246f9f3749f6425185e8795401d8b464dd057c",
+      "size": 1663789
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13390,6 +13395,11 @@
       "size": 1174
     },
     {
+      "path": "pages/projects/payout-wave-1-email-selection.md",
+      "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
+      "size": 4054
+    },
+    {
       "path": "pages/projects/pfp-engineering-specs.md",
       "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
@@ -15011,5 +15021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8267d80f262b0a560d66cd819d880234e269138e25afcce21eee88164a1a7782"
+  "wiki_tree_hash": "5d48d756f132fd0c8fde5c9cb6e7449058e5dcda714922a4f09ab9c56e4579d6"
 }
