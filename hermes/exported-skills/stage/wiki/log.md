@@ -33788,3 +33788,59 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a0204d53f4540ed6142ef39d16093888
 - summary: Monitoring the completion of Tamil language translation, which as of last assessment was 99.74% and has since reached completion, with coordination for closure underway.
 
+## [2026-06-18T17:50:02Z] synthesis | Numo Expert Project
+
+- status: published
+- slug: projects/numo-expert-project
+- wiki_revision_id: wikirev_73afbf87b4b491eec5b026a0f035f659
+- summary: Numo Expert brings the internal Poseidon annotation workflow into app.numolabs.ai, enabling qualified users to complete audio/transcript annotation tasks with quality controls, con...
+
+## [2026-06-18T17:50:02Z] synthesis | Onboarding and Qualification
+
+- status: published
+- slug: policies/numo-expert-onboarding
+- wiki_revision_id: wikirev_9105dabd114ec037d7ab4c77e9d6e84b
+- summary: Self-serve onboarding flow for Numo Expert contributors: complete profile, select languages, read quickstart guide, watch walkthrough, take language quiz with ≥85% pass, complete s...
+
+## [2026-06-18T17:50:02Z] synthesis | Consensus and Review Workflow
+
+- status: published
+- slug: systems/numo-expert-consensus-review
+- wiki_revision_id: wikirev_79dd1e0ca1277a2d8803c2fded15b39a
+- summary: Consensus mechanism uses majority voting (2 of 3 or 3 of 5) with escalation to Reviewer and then Expert Judge on mismatch. Reviewer pool handles conflicts, low-confidence consensus...
+
+## [2026-06-18T17:50:02Z] synthesis | Honeypots and Quality Control
+
+- status: published
+- slug: systems/numo-expert-honeypots
+- wiki_revision_id: wikirev_5a412cf287fb172c8e8e923c4d6b6e6b
+- summary: Honeypots are known-answer tasks inserted into the normal flow to establish baseline quality and catch careless annotators. Types include known transcript error, valid transcript, ...
+
+## [2026-06-18T17:50:03Z] synthesis | Payment Model
+
+- status: published
+- slug: policies/numo-expert-payment
+- wiki_revision_id: wikirev_b6ac2cceefe5a39e8021338b29836dca
+- summary: Payment for annotation tasks is planned as per-task or per-item, scaled by task type and complexity (e.g., transcript length, audio duration). Payment requires consensus acceptance...
+
+## [2026-06-18T17:50:03Z] synthesis | MVP Implementation Scope
+
+- status: published
+- slug: decisions/numo-expert-mvp-scope
+- wiki_revision_id: wikirev_dc14b5383cb3c5bd85633cdd2e40fb13
+- summary: MVP must-have features: task list/detail, submit/draft/skip, audio player, transcript editor, manual/team assignment, profile gating, basic quiz, honeypot metadata, consensus confi...
+
+## [2026-06-18T17:50:52Z] synthesis | Arabic Audio Transcripts for Humain
+
+- status: published
+- slug: projects/arabic-audio-transcripts-humain
+- wiki_revision_id: wikirev_75ca5dc91c90a1d1a134e914cde736cf
+- summary: Project to ramp up Arabic audio transcripts for Humain, with dialect selection to be Gulf, Saudi, Emirati.
+
+## [2026-06-18T17:50:52Z] synthesis | Arabic Dialect Selection for Transcripts
+
+- status: published
+- slug: decisions/arabic-dialect-selection
+- wiki_revision_id: wikirev_265c05ef56cadd07d7dab4eb8ba9de45
+- summary: Decision to use Gulf, Saudi, and Emirati dialects for Arabic audio transcripts, due to their popularity among many varieties.
+
