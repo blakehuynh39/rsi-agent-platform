@@ -33439,3 +33439,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5ae6cb4f5b8923f0479aea8be7150762
 - summary: The story-orchestration-service experienced a collection_aggregation error that was tracked in Sentry and later resolved by Blake Huynh.
 
+## [2026-06-18T06:46:38Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_58641ef12a498aa4ab7ffb52b8a9b451
+- summary: The Story Orchestration Service encountered an aggregation error related to ip_ownership, which was later resolved by Blake Huynh.
+
+## [2026-06-18T06:47:45Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_d6f7880cb3f422f7175c6a5c135fe0c7
+- summary: Captures incident and resolution of dispute_aggregation error.
+

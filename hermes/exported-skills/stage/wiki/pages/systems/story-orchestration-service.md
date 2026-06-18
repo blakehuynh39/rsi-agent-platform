@@ -2,16 +2,16 @@
 title: "Story Orchestration Service"
 type: "system"
 slug: "systems/story-orchestration-service"
-freshness: "2026-02-28T16:00:58Z"
+freshness: "2026-02-28T16:01:00Z"
 tags:
-  - "aggregation-error"
+  - "aggregation"
+  - "error"
+  - "orchestration"
   - "sentry"
-  - "story-orchestration-service"
-owners:
-  - "blake.huynh@storyprotocol.xyz"
+owners: []
 source_revision_ids:
-  - "srcrev_3494aa2639faaed64f40bfcbe2721c52"
-  - "srcrev_60c7999debb8c5798cc919dd265d9efb"
+  - "srcrev_0f1fe97e8d5e8eeec84fd09a2eb92d3a"
+  - "srcrev_53c1384705c662b00de9eebdaed328de"
 conflict_state: "none"
 ---
 
@@ -19,16 +19,16 @@ conflict_state: "none"
 
 ## Summary
 
-The story-orchestration-service experienced a collection_aggregation error that was tracked in Sentry and later resolved by Blake Huynh.
+Captures incident and resolution of dispute_aggregation error.
 
 ## Claims
 
-- [story-orchestration-service] Aggregation Error: collection_aggregation `claim:claim_1_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_3494aa2639faaed64f40bfcbe2721c52` `chunk_id=srcchunk_8e16c4f98db5fd69927e07756c735a79` `native_locator=slack:C08BWTULNPP:1769811680.364389:1769811680.364389` `source_timestamp=2026-01-30T22:21:20Z`
-- Blake Huynh marked the Sentry issue STORY-ORCHESTRATION-SERVICE-FH as resolved `claim:claim_1_2` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_60c7999debb8c5798cc919dd265d9efb` `chunk_id=srcchunk_9e442309ceb999fc21f96bd30a4fb4e6` `native_locator=slack:C08BWTULNPP:1769811680.364389:1772294458.385469` `source_timestamp=2026-02-28T16:00:58Z`
+- The story-orchestration-service experienced an aggregation error: dispute_aggregation. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_381c7a6e822f48c093c5962fec79157e` `source_revision_id=srcrev_53c1384705c662b00de9eebdaed328de` `chunk_id=srcchunk_0be384a628937af317084ed26797c87f` `native_locator=slack:C08BWTULNPP:1771968682.077709:1771968682.077709` `source_timestamp=2026-02-24T21:31:22Z`
+- The error was marked as resolved in Sentry by blake.huynh@storyprotocol.xyz. `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_381c7a6e822f48c093c5962fec79157e` `source_revision_id=srcrev_0f1fe97e8d5e8eeec84fd09a2eb92d3a` `chunk_id=srcchunk_df332dc74cc54d036751f4f2f3ae36ce` `native_locator=slack:C08BWTULNPP:1771968682.077709:1772294460.440539` `source_timestamp=2026-02-28T16:01:00Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_2e3156dcfc319ad4f1adbd22e72bf779`
-- `source_revision_id`: `srcrev_60c7999debb8c5798cc919dd265d9efb`
+- `source_document_id`: `srcdoc_381c7a6e822f48c093c5962fec79157e`
+- `source_revision_id`: `srcrev_0f1fe97e8d5e8eeec84fd09a2eb92d3a`
