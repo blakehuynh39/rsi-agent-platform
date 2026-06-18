@@ -33453,3 +33453,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d6f7880cb3f422f7175c6a5c135fe0c7
 - summary: Captures incident and resolution of dispute_aggregation error.
 
+## [2026-06-18T07:03:07Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_8e471f9246d4c66b02566433c9c7ddac
+- summary: A service for orchestration tasks; recently resolved an indexing error for ip_group.
+
