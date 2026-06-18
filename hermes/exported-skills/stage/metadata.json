@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2e1c144b5faa7a3bb9b6a16ab97ede77d15a02fdc281e9ae0cb73aea7146df57",
-        "size": 935576
+        "sha256": "48b38f4d7bde6de0e2e409654b7393b31566ba1eaa545594b42d44d19abee1e1",
+        "size": 936253
       },
       {
         "path": "log.md",
-        "sha256": "0d2ca65a21086425042caab6787491daeee29eba0103c28c2e23fa70495cd8ee",
-        "size": 1663005
+        "sha256": "713032eeb9373e7409a26ac8d59b620d8f53fd5d42499b41eef747c5e0617abe",
+        "size": 1663436
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5283,6 +5283,11 @@
         "path": "pages/projects/depin-ai-data-research-initiative.md",
         "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
         "size": 4616
+      },
+      {
+        "path": "pages/projects/depin-app-malay-indonesian-transcripts.md",
+        "sha256": "6692b7ccef94041f8b160d2f59f9e8fd45ceefc4b1d56bd858dd61611c43e4ac",
+        "size": 6864
       },
       {
         "path": "pages/projects/depin-application-season-one.md",
@@ -7489,8 +7494,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T19:16:36Z",
-  "file_count": 1496,
+  "exported_at": "2026-06-18T19:23:16Z",
+  "file_count": 1497,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10767,7 +10772,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a07922753ddff8068b14f98b0a8b4761979f1b713435660f88faea27610f6003",
+  "previous_tree_hash": "856cd7f7a7fef0d610bd75f1ec20466196fde69f73e2c10788a4eaaf1d64b0c6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10780,14 +10785,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "856cd7f7a7fef0d610bd75f1ec20466196fde69f73e2c10788a4eaaf1d64b0c6",
+  "tree_hash": "5f45914c8a6bf3d6148a7f9b8b8237f08f44ccf4252cf3899686e183b9d48990",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 842,
+  "wiki_file_count": 843,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10796,13 +10801,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2e1c144b5faa7a3bb9b6a16ab97ede77d15a02fdc281e9ae0cb73aea7146df57",
-      "size": 935576
+      "sha256": "48b38f4d7bde6de0e2e409654b7393b31566ba1eaa545594b42d44d19abee1e1",
+      "size": 936253
     },
     {
       "path": "log.md",
-      "sha256": "0d2ca65a21086425042caab6787491daeee29eba0103c28c2e23fa70495cd8ee",
-      "size": 1663005
+      "sha256": "713032eeb9373e7409a26ac8d59b620d8f53fd5d42499b41eef747c5e0617abe",
+      "size": 1663436
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12798,6 +12803,11 @@
       "path": "pages/projects/depin-ai-data-research-initiative.md",
       "sha256": "a49131425183657dada95c67ee899c6529ae9bafb02ba390d4dde857abe828d7",
       "size": 4616
+    },
+    {
+      "path": "pages/projects/depin-app-malay-indonesian-transcripts.md",
+      "sha256": "6692b7ccef94041f8b160d2f59f9e8fd45ceefc4b1d56bd858dd61611c43e4ac",
+      "size": 6864
     },
     {
       "path": "pages/projects/depin-application-season-one.md",
@@ -15001,5 +15011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f943c269ba7451a187087884a4f4d8a037efe8172647bfd7ec084f747be590d1"
+  "wiki_tree_hash": "8267d80f262b0a560d66cd819d880234e269138e25afcce21eee88164a1a7782"
 }
