@@ -33607,3 +33607,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_48356154d0247ccdff3a580f27f34bdb
 - summary: Guideline to avoid mentioning 'Numo' explicitly to customers who may be averse to cryptocurrency.
 
+## [2026-06-18T15:30:34Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_e7ba8a23af422275e169e87422e8c601
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_dfed466712f2c0cb8d9e0b1a0396f54c
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-18T15:32:00Z] synthesis | Whitelist foravneet@gmail.com for Live Payment Testing
+
+- status: published
+- slug: decisions/whitelist-foravneet-gmail-live-payment-testing
+- wiki_revision_id: wikirev_663ae2216e5fbec270d901cc975b44d5
+- summary: Avneet Singh requested whitelisting of his personal email foravneet@gmail.com for live payment testing. The request was completed after noting that the email must be used to regist...
+
