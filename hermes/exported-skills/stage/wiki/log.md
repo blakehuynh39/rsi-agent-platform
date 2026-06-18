@@ -34051,3 +34051,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7468eaf9f36f840bfa358b5e8074ac2f
 - summary: A crowdsourcing task by Story Protocol to gather real-world data for the Tamil language. The task exceeded its original goal of 200,000 submissions, reaching 200,300, and was offic...
 
+## [2026-06-18T22:30:58Z] synthesis | Stripe Connect Setup for Vietnam and Pakistan Payouts
+
+- status: published
+- slug: projects/stripe-connect-vietnam-pakistan-payouts
+- wiki_revision_id: wikirev_26d54128683bfdd5effd6b95b9616f61
+- summary: Integration of Stripe Connect to enable payouts to contributors in Vietnam and Pakistan, evaluating v2 Global Payouts versus v1 classic Express accounts.
+
+## [2026-06-18T22:31:29Z] synthesis | TaxBandits Access for Korean Team
+
+- status: published
+- slug: projects/taxbandits-access-for-korean-team
+- wiki_revision_id: wikirev_e1082b62c6495f4a82a6c6fbcfc641bf
+- summary: Request and provisioning of TaxBandits access for mason@psdn.ai, numo@psdn.ai, and royce.zhao@piplabs.xyz to facilitate the Korean team's work.
+
