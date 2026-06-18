@@ -33516,3 +33516,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_86ef9b55d5c0e352b899a8c8d46ef479
 - summary: How revenue distribution and claiming work in the RSI Royalty Module, including automatic distribution to ancestor vaults and manual claiming from vaults.
 
+## [2026-06-18T14:01:03Z] synthesis | Usage of transferToVault in Royalty Module
+
+- status: published
+- slug: open-questions/transfer-to-vault-usage
+- wiki_revision_id: wikirev_fe3458ed92c0b8b754c6277ff5f477e7
+- summary: Clarifying when and whether developers or users need to call transferToVault directly.
+
+## [2026-06-18T14:01:56Z] synthesis | Revenue Distribution to Vaults
+
+- status: published
+- slug: concepts/revenue-distribution-to-vaults
+- wiki_revision_id: wikirev_806398b4080e5967d8812fe559eef9b0
+- summary: Revenue from royalty payments is automatically distributed to ancestor vaults via payRoyaltyOnBehalf or payLicenseMintingFee, without need for manual transferToVault calls. Claimin...
+
