@@ -33264,3 +33264,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2b33b7bb7faf67053479cc406cf71630
 - summary: On 2026-06-12, the story-api endpoint GET /api/v1/data-audit/feed returned a 500 Internal Server Error with EOF. The issue was later resolved by Blake Huynh on 2026-06-14.
 
+## [2026-06-18T02:47:22Z] synthesis | Story API Search Endpoint 504 Timeout
+
+- status: published
+- slug: runbooks/story-api-search-504-timeout
+- wiki_revision_id: wikirev_1f746ed18d7fff1d6a4ce5b5c3d4b7e1
+- summary: The /api/v4/search POST endpoint in story-api has experienced intermittent 504 Request Timeout errors. The issue was marked resolved on 2026-04-17 but reoccurred later.
+
+## [2026-06-18T02:47:56Z] synthesis | Story API Lineage Timeout Incident
+
+- status: published
+- slug: runbooks/story-api-lineage-timeout-incident
+- wiki_revision_id: wikirev_ebabcc3cceb3b7a7d6e5b2064159ce57
+- summary: The story-api POST /api/v4/assets/lineage endpoint returned a 504 timeout error.
+
