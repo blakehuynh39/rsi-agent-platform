@@ -33215,3 +33215,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a05e0337444e6fdfe7d92867851a22a6
 - summary: Exploration of enabling shared ownership and multi-author workflows for IPAs in Magma. Currently, an IPA is restricted to a single minter/owner, who controls permissions and royalt...
 
+## [2026-06-18T00:31:25Z] synthesis | Multi-Author IPA Ownership
+
+- status: published
+- slug: open-questions/multi-author-ipa-ownership
+- wiki_revision_id: wikirev_c8d198bc0dd046243603d18a6696d8cf
+- summary: Discussion on how to enable shared ownership and control of an IPA (Intellectual Property Asset) among multiple authors in Magma, given that an IPA can only have one minter/owner.
+
+## [2026-06-18T00:32:00Z] synthesis | Shared Ownership of IP Assets
+
+- status: published
+- slug: open-questions/shared-ownership-of-ip-assets
+- wiki_revision_id: wikirev_8a2ec567a21c4fad874ee47c5f1e31ee
+- summary: The current Magma system allows only one owner/minter per IP Asset, hindering multi-author collaboration. This page captures the ongoing discussion and exploration of mechanisms to...
+

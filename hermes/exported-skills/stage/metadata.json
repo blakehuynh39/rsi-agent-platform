@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f8e83cbed92abcd40da0c426b971da5c3a6d30ee3594ed4cac7585bf278fd1c1",
-        "size": 1626279
+        "sha256": "7b9ba434e323dde39700b373fe4cd4357aa1fae09dbeeb83ca589127d8c8b0ad",
+        "size": 1626668
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4663,6 +4663,11 @@
         "path": "pages/open-questions/licensing-questions-to-ben.md",
         "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
         "size": 5471
+      },
+      {
+        "path": "pages/open-questions/multi-author-ipa-ownership.md",
+        "sha256": "0712e3b7a112fa22d6548216b0a2b731cb65dcdc39809254ffc1c09fb3002a87",
+        "size": 3732
       },
       {
         "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
@@ -7049,8 +7054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T00:20:21Z",
-  "file_count": 1408,
+  "exported_at": "2026-06-18T00:32:03Z",
+  "file_count": 1409,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10327,7 +10332,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "6f74581d110a0f979c9dec8767d1218111432cad72e3bbc5df997143915ab3e0",
+  "previous_tree_hash": "597ae11798e62acb4c7b3b2073aee654b6b09cfeff0e27cfe8603e14d3a95015",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10340,14 +10345,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "597ae11798e62acb4c7b3b2073aee654b6b09cfeff0e27cfe8603e14d3a95015",
+  "tree_hash": "e7ead46806b65ebd7624c59cbabe7f9a3f61f4c357f350283bd05f92a99ed806",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 754,
+  "wiki_file_count": 755,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10361,8 +10366,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f8e83cbed92abcd40da0c426b971da5c3a6d30ee3594ed4cac7585bf278fd1c1",
-      "size": 1626279
+      "sha256": "7b9ba434e323dde39700b373fe4cd4357aa1fae09dbeeb83ca589127d8c8b0ad",
+      "size": 1626668
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11738,6 +11743,11 @@
       "path": "pages/open-questions/licensing-questions-to-ben.md",
       "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
       "size": 5471
+    },
+    {
+      "path": "pages/open-questions/multi-author-ipa-ownership.md",
+      "sha256": "0712e3b7a112fa22d6548216b0a2b731cb65dcdc39809254ffc1c09fb3002a87",
+      "size": 3732
     },
     {
       "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
@@ -14121,5 +14131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "634316deafd2bb5ad531e167b80a2cc6e31185a4b6db156b3eda197e7bffbc7e"
+  "wiki_tree_hash": "bfc1c188e7eff892ee0540362a7151adb6d57bdc4211b2504175e4756bdc9cb4"
 }
