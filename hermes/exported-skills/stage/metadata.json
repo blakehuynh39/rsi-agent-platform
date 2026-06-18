@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8a8115fdf2177b4412b1607dfd3813fb12b7b9b8076f3cec310a402f0916f4f1",
-        "size": 911720
+        "sha256": "45025dab9fca0a516f010e18c0a3ff5a7148c0dfac599963a7dbae6861077e1b",
+        "size": 912368
       },
       {
         "path": "log.md",
-        "sha256": "ca49ede7897dda4b4da3c7024019146c702f0847145cc9d987eb0423192fc798",
-        "size": 1634383
+        "sha256": "7686b1f1103e626c894aa0b6898ca1eb090729e820f3337b96c9c1b3c03bdd66",
+        "size": 1635055
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4113,6 +4113,11 @@
         "path": "pages/concepts/storj.md",
         "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
         "size": 1012
+      },
+      {
+        "path": "pages/concepts/story-api-dispute-500-error.md",
+        "sha256": "7979e5e2cc45da545b5d5776103ba4703e832bdf77623f7d3c501bc513716195",
+        "size": 1606
       },
       {
         "path": "pages/concepts/story-api-post-collections-500-error.md",
@@ -6205,6 +6210,11 @@
         "size": 3408
       },
       {
+        "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
+        "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
+        "size": 1541
+      },
+      {
         "path": "pages/runbooks/data-migration-handbook-external.md",
         "sha256": "461e940f656dae624957d90c98a7ab809d6b90ad013c45bb62a1450d1bcad66e",
         "size": 3917
@@ -7154,8 +7164,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T04:49:12Z",
-  "file_count": 1429,
+  "exported_at": "2026-06-18T05:21:10Z",
+  "file_count": 1431,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10432,7 +10442,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "0d309d937347b4f697f1cc3c8242a78755075db6d417efd599c5722268e137b1",
+  "previous_tree_hash": "06abdde81750d458e9ab8a94e688c6f90112cd5f288baad910ebb11bc235b750",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10445,14 +10455,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "06abdde81750d458e9ab8a94e688c6f90112cd5f288baad910ebb11bc235b750",
+  "tree_hash": "a4b39d3028564616d1aed90866d9be05a669f929a02d4fa341b519378943a733",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 775,
+  "wiki_file_count": 777,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10461,13 +10471,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8a8115fdf2177b4412b1607dfd3813fb12b7b9b8076f3cec310a402f0916f4f1",
-      "size": 911720
+      "sha256": "45025dab9fca0a516f010e18c0a3ff5a7148c0dfac599963a7dbae6861077e1b",
+      "size": 912368
     },
     {
       "path": "log.md",
-      "sha256": "ca49ede7897dda4b4da3c7024019146c702f0847145cc9d987eb0423192fc798",
-      "size": 1634383
+      "sha256": "7686b1f1103e626c894aa0b6898ca1eb090729e820f3337b96c9c1b3c03bdd66",
+      "size": 1635055
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11293,6 +11303,11 @@
       "path": "pages/concepts/storj.md",
       "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
       "size": 1012
+    },
+    {
+      "path": "pages/concepts/story-api-dispute-500-error.md",
+      "sha256": "7979e5e2cc45da545b5d5776103ba4703e832bdf77623f7d3c501bc513716195",
+      "size": 1606
     },
     {
       "path": "pages/concepts/story-api-post-collections-500-error.md",
@@ -13385,6 +13400,11 @@
       "size": 3408
     },
     {
+      "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
+      "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
+      "size": 1541
+    },
+    {
       "path": "pages/runbooks/data-migration-handbook-external.md",
       "sha256": "461e940f656dae624957d90c98a7ab809d6b90ad013c45bb62a1450d1bcad66e",
       "size": 3917
@@ -14331,5 +14351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aaebcc6fd694b51a553c95a0ee66bc569aab0b3addd1b903374787fbfc302963"
+  "wiki_tree_hash": "e5b3f9ce9cafb55cf7a6390de7f7b2f6294c86442ddf9921e93d4608044767f9"
 }

@@ -33362,3 +33362,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_abcfc94eab38a7ded589f0f4e8b9ce1b
 - summary: The story-api endpoint POST /api/v4/licenses/tokens experienced a 504 Request timeout. Incident tracked as STORY-API-E7 and resolved.
 
+## [2026-06-18T05:16:15Z] synthesis | Data Audit Store 503 Error
+
+- status: published
+- slug: runbooks/data-audit-store-not-configured-503-error
+- wiki_revision_id: wikirev_5d9f4dd013cf64b35809a09b2a41bfb4
+- summary: The /api/v1/data-audit/stats endpoint returns a 503 error when the data audit store is not configured.
+
+## [2026-06-18T05:16:48Z] synthesis | Story-API Dispute Endpoint 500 Error
+
+- status: published
+- slug: concepts/story-api-dispute-500-error
+- wiki_revision_id: wikirev_70eb0480b3e0cf9b9187c08f39e04668
+- summary: On 2026-06-16, the story-api POST /api/v4/disputes endpoint returned a 500 Internal Server Error. The issue was resolved by Blake Huynh.
+
