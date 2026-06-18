@@ -33292,3 +33292,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ac65aa5c1bc6cf2ff0337369d19b9525
 - summary: On approximately 2026-02-26, the Story API endpoint POST /api/v4/assets experienced a 504 Gateway Timeout, causing request failures. The issue was later resolved by Blake Huynh mar...
 
+## [2026-06-18T03:31:22Z] synthesis | STORY-API-EH: Data Audit Webhook Failure
+
+- status: published
+- slug: systems/story-api-eh-data-audit-failure
+- wiki_revision_id: wikirev_fe75d92ab792babdd99b0ddf3bc3e70c
+- summary: The story-api endpoint POST /webhook/v1/data-audit/records failed with a 500 error due to an AccessDeniedException in DynamoDB. Blake Huynh resolved the issue as STORY-API-EH.
+
+## [2026-06-18T03:33:09Z] synthesis | Story-API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_abe5de8d3b63fe22f656688ac0d21371
+- summary: The Story-API system experienced multiple occurrences of a fatal stream error in a shard task between 2026-06-15 and 2026-06-24. The error was tracked in Sentry as issue STORY-API-...
+

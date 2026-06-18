@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "3bcdd4423dc6f12c2292565b2123bf971ab46057a353d60aefbeee5320ce3890",
+        "sha256": "103b566353b9b90a8a6b0ea9f8e114ebb1f34b1e7561e82e6370771620deaa88",
         "size": 31923
       },
       {
@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a3ee0184261a1a419f6e64d7f5bd0587e264c1ba1055fdf0298abefd33a71f3b",
-        "size": 1630455
+        "sha256": "60ba4c7e3b4ffbfaaad237ba4a82422b67932c74e083b8c1001d72b06bfae4e8",
+        "size": 1630852
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -7005,6 +7005,11 @@
         "size": 1790
       },
       {
+        "path": "pages/systems/story-api-eh-data-audit-failure.md",
+        "sha256": "9c06062f6f05aad9aaa727d622801edf2c0c6ec62f92a9dda3e67fa7f743c205",
+        "size": 2056
+      },
+      {
         "path": "pages/systems/story-api-v4-assets-504-timeout.md",
         "sha256": "a553bc00926e6a352b0528bc088f1b137dff2cf005d024b527e9b26b9a599074",
         "size": 1709
@@ -7104,8 +7109,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T03:21:30Z",
-  "file_count": 1419,
+  "exported_at": "2026-06-18T03:33:05Z",
+  "file_count": 1420,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -7164,7 +7169,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "3bcdd4423dc6f12c2292565b2123bf971ab46057a353d60aefbeee5320ce3890",
+      "sha256": "103b566353b9b90a8a6b0ea9f8e114ebb1f34b1e7561e82e6370771620deaa88",
       "size": 31923
     },
     {
@@ -10382,7 +10387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "14007cf2bc0afd929b0f37e0fe07175c8e8be9e6ddda5b6c5cc839c7d645ec3a",
+  "previous_tree_hash": "6ca26d9cde3461905475d3f6d1588372b40677d6df2fd9c9afb9f7e442855785",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10393,16 +10398,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
+  "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6ca26d9cde3461905475d3f6d1588372b40677d6df2fd9c9afb9f7e442855785",
+  "tree_hash": "368dbb8dbe8ae9348258a95dcf19f7c8cfa3486616d94f33b96f1bb9ea54f031",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 765,
+  "wiki_file_count": 766,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10416,8 +10421,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a3ee0184261a1a419f6e64d7f5bd0587e264c1ba1055fdf0298abefd33a71f3b",
-      "size": 1630455
+      "sha256": "60ba4c7e3b4ffbfaaad237ba4a82422b67932c74e083b8c1001d72b06bfae4e8",
+      "size": 1630852
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -14135,6 +14140,11 @@
       "size": 1790
     },
     {
+      "path": "pages/systems/story-api-eh-data-audit-failure.md",
+      "sha256": "9c06062f6f05aad9aaa727d622801edf2c0c6ec62f92a9dda3e67fa7f743c205",
+      "size": 2056
+    },
+    {
       "path": "pages/systems/story-api-v4-assets-504-timeout.md",
       "sha256": "a553bc00926e6a352b0528bc088f1b137dff2cf005d024b527e9b26b9a599074",
       "size": 1709
@@ -14231,5 +14241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d8617e1f009cc9aeef15a4b2302547fd2136e9127ec1c34595e5931d053a7aa9"
+  "wiki_tree_hash": "7429884622ee52c56fbd40ab7a7b071fe740db987084bfcdb1b3f9e1ffb2e874"
 }
