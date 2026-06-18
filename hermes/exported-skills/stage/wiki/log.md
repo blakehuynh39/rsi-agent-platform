@@ -33306,3 +33306,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_abe5de8d3b63fe22f656688ac0d21371
 - summary: The Story-API system experienced multiple occurrences of a fatal stream error in a shard task between 2026-06-15 and 2026-06-24. The error was tracked in Sentry as issue STORY-API-...
 
+## [2026-06-18T03:45:56Z] synthesis | story-api projection conflict: refusing to overwrite existing tx_hash
+
+- status: published
+- slug: runbooks/story-api-projection-conflict-txhash-overwrite
+- wiki_revision_id: wikirev_292124c43403937a98e097ba5247f8f3
+- summary: A projection conflict in story-api prevented overwriting an existing tx_hash. The issue was resolved by Blake Huynh.
+
