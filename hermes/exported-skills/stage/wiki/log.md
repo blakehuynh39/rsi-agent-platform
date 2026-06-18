@@ -33502,3 +33502,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8a5d3499e89e61d8320e4e124a40d8ba
 - summary: The RSI executor (rsi-platform-bot) cannot sign commits due to missing GPG/SSH keys and GitHub App limitations. To satisfy the verified signature policy, either a human operator mu...
 
+## [2026-06-18T08:02:09Z] synthesis | Story Orchestration Service: Indexing Error Licensing
+
+- status: published
+- slug: runbooks/story-orchestration-indexing-error-licensing
+- wiki_revision_id: wikirev_79645c6f39202ff54c8764d42fb3bd58
+- summary: The story-orchestration-service encountered an indexing error related to licensing, first observed around 2025-12-27. The incident was tracked in Sentry as STORY-ORCHESTRATION-SERV...
+
