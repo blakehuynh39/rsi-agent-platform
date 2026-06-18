@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f8b2f86a0f17342592651db793414e1683b2161932ee1d7938b1119297e48908",
-        "size": 914136
+        "sha256": "dd04fc79fc163c1e2de3578cf765f5ea0ff294360df36b9a1bdc9824c62a4517",
+        "size": 914981
       },
       {
         "path": "log.md",
-        "sha256": "1b5cdc93288bd943bd0dafb5a9e16ec15dd0d6fe3093e17621465b78901050b2",
-        "size": 1637316
+        "sha256": "7009b8d3ab327d0f5d09f715fd18e85bd0a6a49c247085033e5ac6aaee393194",
+        "size": 1637752
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6590,6 +6590,11 @@
         "size": 1690
       },
       {
+        "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
+        "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
+        "size": 2417
+      },
+      {
         "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
         "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
         "size": 4946
@@ -7194,8 +7199,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T06:17:44Z",
-  "file_count": 1437,
+  "exported_at": "2026-06-18T06:24:14Z",
+  "file_count": 1438,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10472,7 +10477,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "f9d58dbeec3395d12c0146a1e10ae5c7fa0dd1e5a4766917a16faa9a8db5c6c3",
+  "previous_tree_hash": "e8c2bab995ee9e4a9ad67b11c42c2c8ce03efa2150f5753c31cb4aa69530f699",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10485,14 +10490,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e8c2bab995ee9e4a9ad67b11c42c2c8ce03efa2150f5753c31cb4aa69530f699",
+  "tree_hash": "5f63b5bd1eb76830132650e7256f3973436d1da411dde24cf2eea24b63bc548f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 783,
+  "wiki_file_count": 784,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10501,13 +10506,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f8b2f86a0f17342592651db793414e1683b2161932ee1d7938b1119297e48908",
-      "size": 914136
+      "sha256": "dd04fc79fc163c1e2de3578cf765f5ea0ff294360df36b9a1bdc9824c62a4517",
+      "size": 914981
     },
     {
       "path": "log.md",
-      "sha256": "1b5cdc93288bd943bd0dafb5a9e16ec15dd0d6fe3093e17621465b78901050b2",
-      "size": 1637316
+      "sha256": "7009b8d3ab327d0f5d09f715fd18e85bd0a6a49c247085033e5ac6aaee393194",
+      "size": 1637752
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13810,6 +13815,11 @@
       "size": 1690
     },
     {
+      "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
+      "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
+      "size": 2417
+    },
+    {
       "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
       "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
       "size": 4946
@@ -14411,5 +14421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8bb5fad7263f6dc77c6703d92f4e6422827adaf6755ddb69df0adb0c75a825b1"
+  "wiki_tree_hash": "4e6624105e8c0f709049455de061bf3e0cffdcca8ee601b63b5102b9fad2b82f"
 }
