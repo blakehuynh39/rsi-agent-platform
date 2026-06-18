@@ -33411,3 +33411,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_659df1d6f2f31d13c368e827401224db
 - summary: The story-api system experienced submitter tick failures, causing the process to sleep before retrying. The issue was tracked as STORY-API-EQ in Sentry and resolved by Blake Huynh.
 
+## [2026-06-18T06:16:41Z] synthesis | Story Orchestration Service Context Canceled Incident
+
+- status: published
+- slug: runbooks/story-orchestration-service-context-canceled-incident
+- wiki_revision_id: wikirev_4392cb4c8a447b02296d0d0bbe7447f2
+- summary: Resolved incident: the story-orchestration-service threw a 'context canceled' error, tracked as Sentry issue STORY-ORCHESTRATION-SERVICE-FV and marked resolved by Blake Huynh.
+
+## [2026-06-18T06:17:48Z] synthesis | Story Orchestration Service: PostgreSQL Error 42P10
+
+- status: published
+- slug: runbooks/story-orchestration-service-postgresql-error-42p10
+- wiki_revision_id: wikirev_d182c735823248b29a3fe7ffb2d3d767
+- summary: A PostgreSQL error 42P10 (no unique or exclusion constraint matching ON CONFLICT) was encountered in the story-orchestration-service. The issue was resolved via Sentry issue #72985...
+
