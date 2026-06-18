@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4130b7fbe2859ecc20f9df8a1327d548d64a8722de873ebfa3bf700e084e1cdd",
-        "size": 924924
+        "sha256": "a46b00a4b1d12d906618e7389d4e2c66364dd41ebdaa9f073578b361c90da8d0",
+        "size": 925264
       },
       {
         "path": "log.md",
-        "sha256": "007b1f6371beaf0d8efe03e33946fcf1362086abb9313702cb5b6093f6ff9a6c",
-        "size": 1650682
+        "sha256": "30d5e7d79c628eb59c6b2d73732d12984d34b8a63c5ae8c456bae039d8bacbc4",
+        "size": 1651034
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5103,6 +5103,11 @@
         "path": "pages/projects/akash.md",
         "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
         "size": 4802
+      },
+      {
+        "path": "pages/projects/arabic-filipino-rollout-2026-06-16.md",
+        "sha256": "746e3e1a9daba6eed3437f351ad857149e17025e0cff6246dc63f0982d2cb8be",
+        "size": 3805
       },
       {
         "path": "pages/projects/atlas.md",
@@ -7339,8 +7344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T16:05:24Z",
-  "file_count": 1466,
+  "exported_at": "2026-06-18T16:22:14Z",
+  "file_count": 1467,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10617,7 +10622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "88c30c31b2a6d20d8df2c251d93eaa16f20e2082e1f2768f6071ab5f89035eaa",
+  "previous_tree_hash": "099b2e6ed038f9aa1dbd5cb317bc5223a529d439e9518fd421a75c6ab9893e55",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10630,14 +10635,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "099b2e6ed038f9aa1dbd5cb317bc5223a529d439e9518fd421a75c6ab9893e55",
+  "tree_hash": "8cea9099b5802873c32c256ef7bc459cbb9f2d43c1a26681e812fa4340762b5f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 812,
+  "wiki_file_count": 813,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10646,13 +10651,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4130b7fbe2859ecc20f9df8a1327d548d64a8722de873ebfa3bf700e084e1cdd",
-      "size": 924924
+      "sha256": "a46b00a4b1d12d906618e7389d4e2c66364dd41ebdaa9f073578b361c90da8d0",
+      "size": 925264
     },
     {
       "path": "log.md",
-      "sha256": "007b1f6371beaf0d8efe03e33946fcf1362086abb9313702cb5b6093f6ff9a6c",
-      "size": 1650682
+      "sha256": "30d5e7d79c628eb59c6b2d73732d12984d34b8a63c5ae8c456bae039d8bacbc4",
+      "size": 1651034
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12468,6 +12473,11 @@
       "path": "pages/projects/akash.md",
       "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
       "size": 4802
+    },
+    {
+      "path": "pages/projects/arabic-filipino-rollout-2026-06-16.md",
+      "sha256": "746e3e1a9daba6eed3437f351ad857149e17025e0cff6246dc63f0982d2cb8be",
+      "size": 3805
     },
     {
       "path": "pages/projects/atlas.md",
@@ -14701,5 +14711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6bc6e9a73c85d327a8b67c776581d0942d8384a1a072589adca178bee3b64b57"
+  "wiki_tree_hash": "0c69e13ed389a1832ee2b1e4e0b5a66bba22e11bf0f681a1ade2521773bbf780"
 }

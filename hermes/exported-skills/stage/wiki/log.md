@@ -33679,3 +33679,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f74795ffbc46f338cde87f7a63ca5aff
 - summary: The pipeline for detecting deepfake audio submissions in Poseidon's Season 1 voice collection campaign. Early results identified a spammer using deepfakes that scored highly, highl...
 
+## [2026-06-18T16:19:54Z] synthesis | Arabic and Filipino Language Rollout Status
+
+- status: published
+- slug: projects/arabic-filipino-rollout-2026-06-16
+- wiki_revision_id: wikirev_b43c8977b9f95330930bd281c261901f
+- summary: Status of adding Filipino and Arabic language support, including scripts, seed phrase readiness, and RTL for Numo frontend.
+
