@@ -33965,3 +33965,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_26e0e444bda671f5849680b0966d8226
 - summary: Evaluation of tax integration providers (Avalara vs Taxbandits) for Numo's payments feature, driven by DRI @U09QGMMUDPC, with target launch by June 10 at risk.
 
+## [2026-06-18T20:49:46Z] synthesis | Numo Top Samples Cherry-Pick
+
+- status: published
+- slug: projects/numo-top-samples-cherry-pick
+- wiki_revision_id: wikirev_fca04e9034116d3500a8c64fe9e9c5e6
+- summary: A project to select and share top samples per language from the numo dataset, distinguished by identifier {NM}_, building on previous similar work for season 1 shared with OpenAI.
+
