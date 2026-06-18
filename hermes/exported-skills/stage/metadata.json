@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "920dcf726cf5fc458459e78f1bd37946d06b7a6fb27f30917224f904a93e7474",
-        "size": 927403
+        "sha256": "216f0ac990a4a08ea77c9b005681297fb6b77ed7b4132c091a425c41ce6677b3",
+        "size": 928144
       },
       {
         "path": "log.md",
-        "sha256": "8e1b5bd1c72d476d299b4df347f23d1810d72901745dcd634c6bdd329e11511e",
-        "size": 1653243
+        "sha256": "86fb1c731c39125df72bd24309aab9e5c1ce05b8cec6b28c6df116a8327cb4e3",
+        "size": 1654467
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6550,6 +6550,11 @@
         "size": 8202
       },
       {
+        "path": "pages/runbooks/numo-launch-roadmap-access-2026-06-12.md",
+        "sha256": "621729135a4a82c80c425f9ab09640f89ebfb90025ac9d1502c333da192fbda8",
+        "size": 2640
+      },
+      {
         "path": "pages/runbooks/numo-onboarding-guide.md",
         "sha256": "e53fd1fe783b36e99d6b5615ef748f5fb70c12769328b9f1f74352d72e1314f5",
         "size": 3907
@@ -6578,6 +6583,11 @@
         "path": "pages/runbooks/official-release-guide.md",
         "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
         "size": 3344
+      },
+      {
+        "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
+        "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
+        "size": 4162
       },
       {
         "path": "pages/runbooks/periphery-code-freeze-checklist.md",
@@ -7374,8 +7384,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T16:53:52Z",
-  "file_count": 1473,
+  "exported_at": "2026-06-18T17:05:39Z",
+  "file_count": 1475,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10652,7 +10662,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7dfe3a520c42d47407c1639bbda016230a6caf4f569989a8714d76eb98935117",
+  "previous_tree_hash": "f3ed3450d62b7a90081f604b1cb9f1a39d5fe8f163f34b4287fd2058e43be31e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10665,14 +10675,14 @@
   ],
   "skill_tree_hash": "dcf2541436d80dcb2d22eaa53e24b604f161203ba30322eeb0e41fbdf8c64bad",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f3ed3450d62b7a90081f604b1cb9f1a39d5fe8f163f34b4287fd2058e43be31e",
+  "tree_hash": "13fee0f3048573cc573a2e57ad335839ce5af4768c2d96bf4bcc05f30b4f8fca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 819,
+  "wiki_file_count": 821,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10681,13 +10691,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "920dcf726cf5fc458459e78f1bd37946d06b7a6fb27f30917224f904a93e7474",
-      "size": 927403
+      "sha256": "216f0ac990a4a08ea77c9b005681297fb6b77ed7b4132c091a425c41ce6677b3",
+      "size": 928144
     },
     {
       "path": "log.md",
-      "sha256": "8e1b5bd1c72d476d299b4df347f23d1810d72901745dcd634c6bdd329e11511e",
-      "size": 1653243
+      "sha256": "86fb1c731c39125df72bd24309aab9e5c1ce05b8cec6b28c6df116a8327cb4e3",
+      "size": 1654467
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13950,6 +13960,11 @@
       "size": 8202
     },
     {
+      "path": "pages/runbooks/numo-launch-roadmap-access-2026-06-12.md",
+      "sha256": "621729135a4a82c80c425f9ab09640f89ebfb90025ac9d1502c333da192fbda8",
+      "size": 2640
+    },
+    {
       "path": "pages/runbooks/numo-onboarding-guide.md",
       "sha256": "e53fd1fe783b36e99d6b5615ef748f5fb70c12769328b9f1f74352d72e1314f5",
       "size": 3907
@@ -13978,6 +13993,11 @@
       "path": "pages/runbooks/official-release-guide.md",
       "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
       "size": 3344
+    },
+    {
+      "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
+      "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
+      "size": 4162
     },
     {
       "path": "pages/runbooks/periphery-code-freeze-checklist.md",
@@ -14771,5 +14791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "944a815ce76173916b4f641413317208e7191f4c6ff33383034a476829abf366"
+  "wiki_tree_hash": "ca50cbf798d51fd459272e12f4fbc8a779753f7476ff739dc70aa98f16c056ed"
 }

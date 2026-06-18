@@ -33728,3 +33728,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b0acce64b15ad690c0c81db2645f197e
 - summary: Turnstile issues are deprioritized because they affect very few users, often due to automation or unnaturally fast usage. The engineering team focuses on critical bugs and new feat...
 
+## [2026-06-18T17:00:39Z] ingest | Numo Expert — Implementation PRD
+
+- status: published
+- slug: notion_document/numo-expert-implementation-prd-44dcd70f
+- wiki_revision_id: wikirev_376ec7a4aea92025f4f6a6ef3b4d5882
+- source_document_id: srcdoc_23bd1a05e81b1b9a88ad984844dcd70f
+- source_revision_id: srcrev_35dce993a6ad7c6af743a623466372c6
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Implementation-PRD-37d051299a5480d38794d400f430876b)
+
+## [2026-06-18T17:01:48Z] synthesis | Numo Launch Roadmap Access Request (2026-06-12)
+
+- status: published
+- slug: runbooks/numo-launch-roadmap-access-2026-06-12
+- wiki_revision_id: wikirev_649a2fa78f198e159c0771250461c381
+- summary: A user requested access to the Notion page 'Numo-Launch-Roadmap' for colleagues; an admin granted access after identifying a workspace mismatch.
+
+## [2026-06-18T17:04:00Z] synthesis | Payout Obligations Table Export Fix (2026-06-17)
+
+- status: published
+- slug: runbooks/payout-obligations-table-fix-2026-06-17
+- wiki_revision_id: wikirev_a8fab57eb7a4d031b64e1709e8975434
+- summary: Fixes for masked email export and UI flickering in the admin dashboard payout obligations table, including workaround instructions and PR details.
+
