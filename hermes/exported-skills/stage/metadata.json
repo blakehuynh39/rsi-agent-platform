@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bbcb8f453fd2047fd6214d7efd66a24e57e179de53c1d0d3242fe45124a46d8b",
-        "size": 917704
+        "sha256": "7dc261fba8bc4b34a4e6c72c10bd7515c0c7ca164bb23b5a18995f64c7a37e5a",
+        "size": 918052
       },
       {
         "path": "log.md",
-        "sha256": "c9c5367e7522c772909f8724388c0bfae7e14dc40146341933a32c1790d291e2",
-        "size": 1642072
+        "sha256": "8c8badacb35eeca12a6e7e0effee589a92856b154e90a0db8ae318ea2cb3f3a8",
+        "size": 1642432
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4053,6 +4053,11 @@
         "path": "pages/concepts/restaking-and-avs.md",
         "sha256": "a00618bd05f8f5764d95595989103c8f6811ca467104e2aceb7a7104d638cca1",
         "size": 2675
+      },
+      {
+        "path": "pages/concepts/royalty-module-revenue-flow.md",
+        "sha256": "509c22e721f34d614725b6901ec957ce12eee68c6a0c34d90c933729b2e8604f",
+        "size": 2061
       },
       {
         "path": "pages/concepts/royalty-nft.md",
@@ -7234,8 +7239,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T12:40:14Z",
-  "file_count": 1445,
+  "exported_at": "2026-06-18T13:52:58Z",
+  "file_count": 1446,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10512,7 +10517,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "20808842fca0024a59272def1cfb3c2374866991addcd53237cca6dd85f584fe",
+  "previous_tree_hash": "787d63528f41e188499ccd01475b37d449f7cf2cf475bada869f8895af729eeb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10525,14 +10530,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "787d63528f41e188499ccd01475b37d449f7cf2cf475bada869f8895af729eeb",
+  "tree_hash": "3eb038fe941f8f51e6f11fed030aab6e1db1d0dedc31b851b6785e543ab287b9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 791,
+  "wiki_file_count": 792,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10541,13 +10546,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bbcb8f453fd2047fd6214d7efd66a24e57e179de53c1d0d3242fe45124a46d8b",
-      "size": 917704
+      "sha256": "7dc261fba8bc4b34a4e6c72c10bd7515c0c7ca164bb23b5a18995f64c7a37e5a",
+      "size": 918052
     },
     {
       "path": "log.md",
-      "sha256": "c9c5367e7522c772909f8724388c0bfae7e14dc40146341933a32c1790d291e2",
-      "size": 1642072
+      "sha256": "8c8badacb35eeca12a6e7e0effee589a92856b154e90a0db8ae318ea2cb3f3a8",
+      "size": 1642432
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11313,6 +11318,11 @@
       "path": "pages/concepts/restaking-and-avs.md",
       "sha256": "a00618bd05f8f5764d95595989103c8f6811ca467104e2aceb7a7104d638cca1",
       "size": 2675
+    },
+    {
+      "path": "pages/concepts/royalty-module-revenue-flow.md",
+      "sha256": "509c22e721f34d614725b6901ec957ce12eee68c6a0c34d90c933729b2e8604f",
+      "size": 2061
     },
     {
       "path": "pages/concepts/royalty-nft.md",
@@ -14491,5 +14501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "16bacbe4244ecb5df7145f297180d6ef3bc0f54f9ce9ec3c813568433cddf940"
+  "wiki_tree_hash": "d2b5788979364ac45302747c26dc226110a5eb0a6ca6ee98677466bb028cc97b"
 }

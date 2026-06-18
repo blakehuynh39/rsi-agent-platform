@@ -33509,3 +33509,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_79645c6f39202ff54c8764d42fb3bd58
 - summary: The story-orchestration-service encountered an indexing error related to licensing, first observed around 2025-12-27. The incident was tracked in Sentry as STORY-ORCHESTRATION-SERV...
 
+## [2026-06-18T13:48:33Z] synthesis | Royalty Module Revenue Flow
+
+- status: published
+- slug: concepts/royalty-module-revenue-flow
+- wiki_revision_id: wikirev_86ef9b55d5c0e352b899a8c8d46ef479
+- summary: How revenue distribution and claiming work in the RSI Royalty Module, including automatic distribution to ancestor vaults and manual claiming from vaults.
+
