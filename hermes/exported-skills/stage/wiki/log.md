@@ -33390,3 +33390,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5c57e38134d169992e5bf063183b36be
 - summary: POST /api/v4/transactions experienced a 504 timeout error, later resolved.
 
+## [2026-06-18T05:46:00Z] synthesis | Story API Submitter Tick Failure (2026)
+
+- status: published
+- slug: runbooks/story-api-submitter-tick-failure-2026
+- wiki_revision_id: wikirev_57424bd7d8f6807c98b1803aa3ef8c61
+- summary: In June 2026, the story-api's submitter tick failed terminally, causing a worker to stop. The issue was later marked as resolved.
+

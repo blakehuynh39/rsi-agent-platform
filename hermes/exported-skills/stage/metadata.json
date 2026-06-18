@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0fc73f8acdc41d56104698dd2257df0875da4988b3ccb87b91e74d13df57fe14",
-        "size": 913004
+        "sha256": "2b2d89918ca19488eac945d0ff20452bde7a3168e9b980b66b6f81a07c1d6294",
+        "size": 913349
       },
       {
         "path": "log.md",
-        "sha256": "9fa6a87ef8c01c452effc1865ceaedf21e4cffc83311e3c56779b60d7e85c10d",
-        "size": 1635715
+        "sha256": "293f112001ef38f7803bfd0c11d504fd87cc6e58a72049bed87a8a444b96c26d",
+        "size": 1636072
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6560,6 +6560,11 @@
         "size": 3136
       },
       {
+        "path": "pages/runbooks/story-api-submitter-tick-failure-2026.md",
+        "sha256": "b0e4a5c9f4527b96b590d1b2da6db0dc6b3312a00cf148636fb22cacf71db981",
+        "size": 1639
+      },
+      {
         "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
         "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
         "size": 10947
@@ -7174,8 +7179,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T05:32:47Z",
-  "file_count": 1433,
+  "exported_at": "2026-06-18T05:49:34Z",
+  "file_count": 1434,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10452,7 +10457,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a4b39d3028564616d1aed90866d9be05a669f929a02d4fa341b519378943a733",
+  "previous_tree_hash": "4e4cde95608a62f12734784627d9a7726af76d687352eb426329ed00a1b83199",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10465,14 +10470,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e4cde95608a62f12734784627d9a7726af76d687352eb426329ed00a1b83199",
+  "tree_hash": "08f157760bc24e2c4721b4b9a733392009de26f4cf934a30484d7782d2160b86",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 779,
+  "wiki_file_count": 780,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10481,13 +10486,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0fc73f8acdc41d56104698dd2257df0875da4988b3ccb87b91e74d13df57fe14",
-      "size": 913004
+      "sha256": "2b2d89918ca19488eac945d0ff20452bde7a3168e9b980b66b6f81a07c1d6294",
+      "size": 913349
     },
     {
       "path": "log.md",
-      "sha256": "9fa6a87ef8c01c452effc1865ceaedf21e4cffc83311e3c56779b60d7e85c10d",
-      "size": 1635715
+      "sha256": "293f112001ef38f7803bfd0c11d504fd87cc6e58a72049bed87a8a444b96c26d",
+      "size": 1636072
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13760,6 +13765,11 @@
       "size": 3136
     },
     {
+      "path": "pages/runbooks/story-api-submitter-tick-failure-2026.md",
+      "sha256": "b0e4a5c9f4527b96b590d1b2da6db0dc6b3312a00cf148636fb22cacf71db981",
+      "size": 1639
+    },
+    {
       "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
       "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
       "size": 10947
@@ -14371,5 +14381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bdcc6cbdcf1c683eb05f45ce59593d16f3b09aade7d1da27d77267fb531ebc8f"
+  "wiki_tree_hash": "e50a4a8b3a815587ec40af160448cd8c579fa21442fbcb85f177d1c7fcdeec14"
 }
