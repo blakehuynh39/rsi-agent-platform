@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d7583ff04d9f49a33bc8bfdc4674902739eb73355890d772415d131891b659ea",
-        "size": 1674340
+        "sha256": "3b2023d64be04f4dfe1918c4124c441a46c8f2f80e2c6a3c7b65642fa4899618",
+        "size": 1674728
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7370,6 +7370,11 @@
         "size": 13715
       },
       {
+        "path": "pages/systems/poseidon-numo-integration.md",
+        "sha256": "d026dc44d46c1c1d82c57f018b8c9212bc5466a4b98d9ea010234cf2d25c6481",
+        "size": 7146
+      },
+      {
         "path": "pages/systems/poseidon-pipeline.md",
         "sha256": "a8b39ab9ac8d35daca65a50ad2fdabc629e7a55326c83254dbb72fde03c0f475",
         "size": 2425
@@ -7629,8 +7634,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T23:40:19Z",
-  "file_count": 1524,
+  "exported_at": "2026-06-18T23:46:58Z",
+  "file_count": 1525,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10907,7 +10912,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "bb0c15c9f3f807848af5f0c74dff94a922a343edd091f217592c6560dd9c0a27",
+  "previous_tree_hash": "e7c8506a698d4e9eb28151a9c530e4259f9bfcc684daf12b5c8e453bc8b7a06f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10920,14 +10925,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e7c8506a698d4e9eb28151a9c530e4259f9bfcc684daf12b5c8e453bc8b7a06f",
+  "tree_hash": "601e7b643759a513d440b9d31225e0d25b7ae7ba079318f819093cab6b078415",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 870,
+  "wiki_file_count": 871,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10941,8 +10946,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d7583ff04d9f49a33bc8bfdc4674902739eb73355890d772415d131891b659ea",
-      "size": 1674340
+      "sha256": "3b2023d64be04f4dfe1918c4124c441a46c8f2f80e2c6a3c7b65642fa4899618",
+      "size": 1674728
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15025,6 +15030,11 @@
       "size": 13715
     },
     {
+      "path": "pages/systems/poseidon-numo-integration.md",
+      "sha256": "d026dc44d46c1c1d82c57f018b8c9212bc5466a4b98d9ea010234cf2d25c6481",
+      "size": 7146
+    },
+    {
       "path": "pages/systems/poseidon-pipeline.md",
       "sha256": "a8b39ab9ac8d35daca65a50ad2fdabc629e7a55326c83254dbb72fde03c0f475",
       "size": 2425
@@ -15281,5 +15291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b2dd209dad6a8735f2c65b50f09669a774e85feba920be501ed177879f568636"
+  "wiki_tree_hash": "541cebd0bb9e26a7ee4ea2fc3f95fdaa564ecbb52baab8271cf8c3a8e9ecd48c"
 }

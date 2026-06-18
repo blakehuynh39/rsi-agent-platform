@@ -34121,3 +34121,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a06039652e944686aab0e8fba0ea6bb9
 - summary: A decision was made to initially only accept English documents for tasks because it is universally accepted by international universities. Later, the English tag was removed.
 
+## [2026-06-18T23:46:04Z] synthesis | Poseidon ↔ Numo Integration
+
+- status: published
+- slug: systems/poseidon-numo-integration
+- wiki_revision_id: wikirev_79d605b8ab3ae7c1cfa53ec57999db59
+- summary: Integration between Poseidon (Story Protocol) and Numo for data validation, deepfake scoring, and reward propagation. Covers the Season 1 Multiplier (live) and the Data Validation ...
+
+## [2026-06-18T23:46:56Z] synthesis | Numo Processing Stats Digest
+
+- status: published
+- slug: systems/numo-processing-stats-digest
+- wiki_revision_id: wikirev_a8ed68b44ba05901ff8459fb412d6244
+- summary: Daily automated digest of Numo processing statistics, posted in the morning PST (16:00 UTC). Built on the Poseidon platform's app, triggered via GitHub Actions. Originally in noisy...
+
