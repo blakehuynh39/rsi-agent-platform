@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1349b78e08412e8724a6599d256ad8f8975586fedea3e9e95aa4d01f12c8d6f3",
-        "size": 916440
+        "sha256": "0f0c7caa20174632ed88aefc123114898f322aa45b3d37e4ec3b3536030a5b45",
+        "size": 917284
       },
       {
         "path": "log.md",
-        "sha256": "bd366bfd4bbc0a139ebbad989ec53df30bcfb1a57fb20ecde62c085049eebabc",
-        "size": 1640491
+        "sha256": "865c28d83e13372d2fcf2615a00a2265e14a2eeff8b169d4101733816536c4b5",
+        "size": 1641640
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6340,6 +6340,11 @@
         "size": 5237
       },
       {
+        "path": "pages/runbooks/incident-nil-pointer-deref-story-orchestration.md",
+        "sha256": "51117089192e28bf0d7e7e4a0b66e58ab5239895220a8f9d56232dbc92a0003e",
+        "size": 3349
+      },
+      {
         "path": "pages/runbooks/incident-story-api-data-audit-feed-500.md",
         "sha256": "9cc230395bfc22f561750293082cc641cea944485cfd05fb15c2884ea2c0b22c",
         "size": 1732
@@ -6508,6 +6513,11 @@
         "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
         "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
         "size": 3533
+      },
+      {
+        "path": "pages/runbooks/rsi-executor-commit-signing.md",
+        "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
+        "size": 3616
       },
       {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
@@ -7131,8 +7141,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "b4eed3102eaf4a573f1d5fd3b98a03b7b85eeed7b43d549c809f948afe8588cc",
-        "size": 1106
+        "sha256": "c8536d3790aabfec2ade02fd86be58b7cf7d596c2ebdf0d0262f7827b120fdb7",
+        "size": 1524
       },
       {
         "path": "pages/systems/story-protocol-core-architecture.md",
@@ -7219,8 +7229,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T07:34:05Z",
-  "file_count": 1442,
+  "exported_at": "2026-06-18T07:50:47Z",
+  "file_count": 1444,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10497,7 +10507,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "2761422477b111e9c0dcbc39c0f8501fcf35570b61855bbaf8a086e861184d35",
+  "previous_tree_hash": "e3154298850ee11bf3d4a7513795ab8978cad45182d68b96bc4768bea0105ba6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10510,14 +10520,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e3154298850ee11bf3d4a7513795ab8978cad45182d68b96bc4768bea0105ba6",
+  "tree_hash": "d203f716612cea0d2ee2edddee9ab73e56dfdbdd8001d0770aaaa3d8b1db6b78",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 788,
+  "wiki_file_count": 790,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10526,13 +10536,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1349b78e08412e8724a6599d256ad8f8975586fedea3e9e95aa4d01f12c8d6f3",
-      "size": 916440
+      "sha256": "0f0c7caa20174632ed88aefc123114898f322aa45b3d37e4ec3b3536030a5b45",
+      "size": 917284
     },
     {
       "path": "log.md",
-      "sha256": "bd366bfd4bbc0a139ebbad989ec53df30bcfb1a57fb20ecde62c085049eebabc",
-      "size": 1640491
+      "sha256": "865c28d83e13372d2fcf2615a00a2265e14a2eeff8b169d4101733816536c4b5",
+      "size": 1641640
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13585,6 +13595,11 @@
       "size": 5237
     },
     {
+      "path": "pages/runbooks/incident-nil-pointer-deref-story-orchestration.md",
+      "sha256": "51117089192e28bf0d7e7e4a0b66e58ab5239895220a8f9d56232dbc92a0003e",
+      "size": 3349
+    },
+    {
       "path": "pages/runbooks/incident-story-api-data-audit-feed-500.md",
       "sha256": "9cc230395bfc22f561750293082cc641cea944485cfd05fb15c2884ea2c0b22c",
       "size": 1732
@@ -13753,6 +13768,11 @@
       "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
       "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
       "size": 3533
+    },
+    {
+      "path": "pages/runbooks/rsi-executor-commit-signing.md",
+      "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
+      "size": 3616
     },
     {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
@@ -14376,8 +14396,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "b4eed3102eaf4a573f1d5fd3b98a03b7b85eeed7b43d549c809f948afe8588cc",
-      "size": 1106
+      "sha256": "c8536d3790aabfec2ade02fd86be58b7cf7d596c2ebdf0d0262f7827b120fdb7",
+      "size": 1524
     },
     {
       "path": "pages/systems/story-protocol-core-architecture.md",
@@ -14461,5 +14481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "73ee90ebaa6f3f1ad97d282c9980d2825492d2b47baf0c2d963954c58c6d99b0"
+  "wiki_tree_hash": "bb1559e9052dc8745a14c34cc3ed8ab1b238f0ac8237603c9cf13b7df03b7685"
 }

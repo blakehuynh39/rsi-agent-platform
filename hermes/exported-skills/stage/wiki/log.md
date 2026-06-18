@@ -33481,3 +33481,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_af04b0b4a5cecef3e1600183cbb53445
 - summary: PostgreSQL error #42P10 occurred in story-orchestration-service, indicating a missing unique/exclusion constraint for an ON CONFLICT clause. The issue was resolved.
 
+## [2026-06-18T07:46:15Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_7ff49320c93fc98b40027f7ee4c44c9a
+- summary: The Story Orchestration Service experienced an 'Aggregation Error: collection_aggregation' which was resolved in Sentry.
+
+## [2026-06-18T07:47:58Z] synthesis | Nil pointer dereference in story-orchestration-service
+
+- status: published
+- slug: runbooks/incident-nil-pointer-deref-story-orchestration
+- wiki_revision_id: wikirev_021263046abeef9b7def51cb32bcda75
+- summary: On Feb 12, story-orchestration-service started experiencing nil pointer dereferences (2,046 events). Root cause: GetJobByWorkflowID returning nil, nil for non-existent workflow IDs...
+
+## [2026-06-18T07:47:58Z] synthesis | RSI Executor Commit Signing
+
+- status: published
+- slug: runbooks/rsi-executor-commit-signing
+- wiki_revision_id: wikirev_8a5d3499e89e61d8320e4e124a40d8ba
+- summary: The RSI executor (rsi-platform-bot) cannot sign commits due to missing GPG/SSH keys and GitHub App limitations. To satisfy the verified signature policy, either a human operator mu...
+
