@@ -33909,3 +33909,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7a1894b17c6a8c61e29a0c3c7832669b
 - summary: Coordination of validation runs, user selection, and email sending with scheduling conflicts on June 17, 2026.
 
+## [2026-06-18T19:15:43Z] synthesis | Numo App
+
+- status: published
+- slug: systems/numo-app
+- wiki_revision_id: wikirev_56f33567f7ddc010c90e780751c92dbe
+- summary: The Numo application is live at app.numolabs.ai. Currently, no screenshots of its flow are documented.
+
+## [2026-06-18T19:17:14Z] synthesis | Transcript Generation for Malay and Indonesian (dePIN App)
+
+- status: published
+- slug: projects/depin-app-malay-indonesian-transcripts
+- wiki_revision_id: wikirev_4fc1bb36691d42642e6ac53eb67f108c
+- summary: Generation of transcripts for Malay and Indonesian languages for the dePIN app, with target counts of 50k Malay and 10k Indonesian. Transcripts have been generated and uploaded to ...
+

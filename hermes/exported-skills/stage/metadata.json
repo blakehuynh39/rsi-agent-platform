@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e1c48fa4f7c79a24652d967db69a80d3d004d01a02ecd3ad9cf8adf596b5c0f1",
-        "size": 1662736
+        "sha256": "0d2ca65a21086425042caab6787491daeee29eba0103c28c2e23fa70495cd8ee",
+        "size": 1663005
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -7165,6 +7165,11 @@
         "size": 4007
       },
       {
+        "path": "pages/systems/numo-app.md",
+        "sha256": "dc2d4c7c799f0e3a62b0c23571b2a372378db1ccf1e78001dd29a24b297289f2",
+        "size": 1306
+      },
+      {
         "path": "pages/systems/numo-architecture.md",
         "sha256": "823858345cdd4266aa225e1d3fcc3c4c0027ac143f6705fc6c858d9754b9dd7b",
         "size": 3330
@@ -7484,8 +7489,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T19:04:50Z",
-  "file_count": 1495,
+  "exported_at": "2026-06-18T19:16:36Z",
+  "file_count": 1496,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10762,7 +10767,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b2f285ea8c0ebaf18902cb34daf37bdadcabe736beb9879464f79fcb0951f40e",
+  "previous_tree_hash": "a07922753ddff8068b14f98b0a8b4761979f1b713435660f88faea27610f6003",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10775,14 +10780,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a07922753ddff8068b14f98b0a8b4761979f1b713435660f88faea27610f6003",
+  "tree_hash": "856cd7f7a7fef0d610bd75f1ec20466196fde69f73e2c10788a4eaaf1d64b0c6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 841,
+  "wiki_file_count": 842,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10796,8 +10801,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e1c48fa4f7c79a24652d967db69a80d3d004d01a02ecd3ad9cf8adf596b5c0f1",
-      "size": 1662736
+      "sha256": "0d2ca65a21086425042caab6787491daeee29eba0103c28c2e23fa70495cd8ee",
+      "size": 1663005
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -14675,6 +14680,11 @@
       "size": 4007
     },
     {
+      "path": "pages/systems/numo-app.md",
+      "sha256": "dc2d4c7c799f0e3a62b0c23571b2a372378db1ccf1e78001dd29a24b297289f2",
+      "size": 1306
+    },
+    {
       "path": "pages/systems/numo-architecture.md",
       "sha256": "823858345cdd4266aa225e1d3fcc3c4c0027ac143f6705fc6c858d9754b9dd7b",
       "size": 3330
@@ -14991,5 +15001,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f3f3e5390cb608cabacf925cd132b2e42809d40b944b0da452d519cf03072bae"
+  "wiki_tree_hash": "f943c269ba7451a187087884a4f4d8a037efe8172647bfd7ec084f747be590d1"
 }
