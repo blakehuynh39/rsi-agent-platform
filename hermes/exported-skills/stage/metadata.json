@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2cbf4cc1c576169d5f17b2777c6a40364c44ab7e772ee40ff609c57115daed26",
-        "size": 929285
+        "sha256": "9b323ef39d32cd0d6ecdc5c19c41458872d8fcbbfc1c6208fb18d07ebdffa3a7",
+        "size": 929657
       },
       {
         "path": "log.md",
-        "sha256": "a56b1bd295b543c7c9815cf6c1c2e1a3a233287a565c63a8bbbe882dc2ad3129",
-        "size": 1655644
+        "sha256": "bb3fab84044d9808d1187ab5798da4fb210085c36cb95aa839acb6b0967fd048",
+        "size": 1656487
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6170,6 +6170,11 @@
         "size": 3226
       },
       {
+        "path": "pages/projects/tamil-translation-completion.md",
+        "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
+        "size": 1579
+      },
+      {
         "path": "pages/projects/taxbandits-integration.md",
         "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
         "size": 2249
@@ -7399,8 +7404,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T17:22:28Z",
-  "file_count": 1478,
+  "exported_at": "2026-06-18T17:34:10Z",
+  "file_count": 1479,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10677,7 +10682,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "13fee0f3048573cc573a2e57ad335839ce5af4768c2d96bf4bcc05f30b4f8fca",
+  "previous_tree_hash": "645ade8087008064632254b88c5b0411d1c095bd91af5e3ee0b690c11c19ff5c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10690,14 +10695,14 @@
   ],
   "skill_tree_hash": "dcf2541436d80dcb2d22eaa53e24b604f161203ba30322eeb0e41fbdf8c64bad",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "645ade8087008064632254b88c5b0411d1c095bd91af5e3ee0b690c11c19ff5c",
+  "tree_hash": "831e0a854cca494303c0665739ca9d2a90f35ac61f2a45df6e3ec0e1b8882e98",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 824,
+  "wiki_file_count": 825,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10706,13 +10711,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2cbf4cc1c576169d5f17b2777c6a40364c44ab7e772ee40ff609c57115daed26",
-      "size": 929285
+      "sha256": "9b323ef39d32cd0d6ecdc5c19c41458872d8fcbbfc1c6208fb18d07ebdffa3a7",
+      "size": 929657
     },
     {
       "path": "log.md",
-      "sha256": "a56b1bd295b543c7c9815cf6c1c2e1a3a233287a565c63a8bbbe882dc2ad3129",
-      "size": 1655644
+      "sha256": "bb3fab84044d9808d1187ab5798da4fb210085c36cb95aa839acb6b0967fd048",
+      "size": 1656487
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13595,6 +13600,11 @@
       "size": 3226
     },
     {
+      "path": "pages/projects/tamil-translation-completion.md",
+      "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
+      "size": 1579
+    },
+    {
       "path": "pages/projects/taxbandits-integration.md",
       "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
       "size": 2249
@@ -14821,5 +14831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c0e081a0a499980e7cb3d559d05f55b93663710a8f725e2aee28720bbd0af836"
+  "wiki_tree_hash": "2be00883a06c2e5628be6d8b58c945b5bb670a10c68df2a5c54a63c452f5d5b6"
 }
