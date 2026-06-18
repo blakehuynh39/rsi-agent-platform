@@ -33257,3 +33257,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7de7356bd5b65b2542ab03286deb44a3
 - summary: story-api returned 500 Internal Server Error on POST /api/v4/collections on at least two occasions.
 
+## [2026-06-18T02:32:23Z] synthesis | story-api GET /api/v1/data-audit/feed 500 Error
+
+- status: published
+- slug: runbooks/incident-story-api-data-audit-feed-500
+- wiki_revision_id: wikirev_2b33b7bb7faf67053479cc406cf71630
+- summary: On 2026-06-12, the story-api endpoint GET /api/v1/data-audit/feed returned a 500 Internal Server Error with EOF. The issue was later resolved by Blake Huynh on 2026-06-14.
+
