@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5113d69b8f147903969b9d6580ed4338c9d7cab1e18168f65978cac15c65739b",
-        "size": 942161
+        "sha256": "73c248fe39440a9a3c5cf19e2c00f8940a82b9a68f09bc9e11c5b0c009b0d38d",
+        "size": 942554
       },
       {
         "path": "log.md",
-        "sha256": "ad13d54b22804a13bd8dbe9167b2bfe58fafac5a47960393eedaf3eb78a81eef",
-        "size": 1670069
+        "sha256": "7a1b751576317722749f383143cba5671ed12335f72bcb5367719576696f96ee",
+        "size": 1670474
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6305,6 +6305,11 @@
         "size": 1801
       },
       {
+        "path": "pages/projects/tamil-language-data-collection-task.md",
+        "sha256": "aea955061c8226e99e212326050242f0448fe112323b21fbb5a3ccd879b1d3ee",
+        "size": 3138
+      },
+      {
         "path": "pages/projects/tamil-translation-completion.md",
         "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
         "size": 1579
@@ -7574,8 +7579,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T22:09:19Z",
-  "file_count": 1513,
+  "exported_at": "2026-06-18T22:21:13Z",
+  "file_count": 1514,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10852,7 +10857,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "fd2bccdd5b9ba1fc554bb304411c8a671ad63f759aefc6735e494dc2e99e9154",
+  "previous_tree_hash": "273180b7226f95042a36ae1bc1e3d6bd16ffae11896be5a6adcd94b9de757657",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10865,14 +10870,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "273180b7226f95042a36ae1bc1e3d6bd16ffae11896be5a6adcd94b9de757657",
+  "tree_hash": "cfb29d4575ded94c8643fc80a237839a5c85e3076c2c968630cc03021b760fbb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 859,
+  "wiki_file_count": 860,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10881,13 +10886,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5113d69b8f147903969b9d6580ed4338c9d7cab1e18168f65978cac15c65739b",
-      "size": 942161
+      "sha256": "73c248fe39440a9a3c5cf19e2c00f8940a82b9a68f09bc9e11c5b0c009b0d38d",
+      "size": 942554
     },
     {
       "path": "log.md",
-      "sha256": "ad13d54b22804a13bd8dbe9167b2bfe58fafac5a47960393eedaf3eb78a81eef",
-      "size": 1670069
+      "sha256": "7a1b751576317722749f383143cba5671ed12335f72bcb5367719576696f96ee",
+      "size": 1670474
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13905,6 +13910,11 @@
       "size": 1801
     },
     {
+      "path": "pages/projects/tamil-language-data-collection-task.md",
+      "sha256": "aea955061c8226e99e212326050242f0448fe112323b21fbb5a3ccd879b1d3ee",
+      "size": 3138
+    },
+    {
       "path": "pages/projects/tamil-translation-completion.md",
       "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
       "size": 1579
@@ -15171,5 +15181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7f36d3b044d569b702af6f3871a825b4f520d16f15bd7465587c9f73ed745c0c"
+  "wiki_tree_hash": "d96fac184f578ba4e40bfdca4c19e30ba5cf7e768560e753baeefd74f49312fb"
 }

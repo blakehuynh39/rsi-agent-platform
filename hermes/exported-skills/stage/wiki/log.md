@@ -34044,3 +34044,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d0d69e12c37c42e62e363403ab1bc74b
 - summary: Community withdrawal testing conducted on June 16, 2026, involving testers from USA, Vietnam, Indonesia, Pakistan, and Malaysia. Main friction was unclear tax form approval status....
 
+## [2026-06-18T22:18:44Z] synthesis | Tamil Language Data Collection Task
+
+- status: published
+- slug: projects/tamil-language-data-collection-task
+- wiki_revision_id: wikirev_7468eaf9f36f840bfa358b5e8074ac2f
+- summary: A crowdsourcing task by Story Protocol to gather real-world data for the Tamil language. The task exceeded its original goal of 200,000 submissions, reaching 200,300, and was offic...
+
