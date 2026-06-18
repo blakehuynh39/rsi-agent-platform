@@ -33867,3 +33867,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a67d036540699d8f0498cd366bbdebb2
 - summary: A user reported being unable to get past the validation step for Filipino and was unsure if transcripts were available. They asked if anyone else could test.
 
+## [2026-06-18T18:31:10Z] synthesis | End-to-End Payout Testing in Staging Sandbox
+
+- status: published
+- slug: projects/payout-e2e-testing-staging
+- wiki_revision_id: wikirev_f6fc217c36037fc3a6d7c17d3d1ebef7
+- summary: QA completed end-to-end payout testing for all supported countries in the staging sandbox environment, verifying payout flows work across all regions.
+
+## [2026-06-18T18:32:10Z] synthesis | Filipino Language Task
+
+- status: published
+- slug: projects/filipino-language-task
+- wiki_revision_id: wikirev_61e835c682ca8ce77858da9433b178ea
+- summary: Integration of Filipino language into the seed phrase/audio task platform. Part of Release 1.2, currently live with 50 transcripts but blocked on bulk generation pending transcript...
+

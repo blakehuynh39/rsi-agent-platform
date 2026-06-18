@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8d61388075d778e49446962b96388ad2d95532c0aa525bd11fe37f260ce023dc",
-        "size": 933550
+        "sha256": "e2ccb8076bae6de6992ffd2d4acb9bcd5e98e9b3379d92b0f71bfae75161240a",
+        "size": 934278
       },
       {
         "path": "log.md",
-        "sha256": "cbd75ac9f87f71a17318ad74b6e086323494bdb17b47b9fc72ff8ba397c641c0",
-        "size": 1660639
+        "sha256": "316474a3d39372e73365d147eceb1bb01fd8d92dbc3754dee17dc6cc8eda4f3d",
+        "size": 1661390
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5420,6 +5420,11 @@
         "size": 3967
       },
       {
+        "path": "pages/projects/filipino-language-task.md",
+        "sha256": "e092d217f6c62b24d99bd3f60e272ea86ccc79489552b2d5f379ae9e8db19c50",
+        "size": 5834
+      },
+      {
         "path": "pages/projects/first-party-app.md",
         "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
         "size": 2358
@@ -5843,6 +5848,11 @@
         "path": "pages/projects/partner-testnet-v1-0-0-alpha-release.md",
         "sha256": "326ad0734583761c61994ac8753bc58d6c202f55d66419edb2ab8774d3a2e97d",
         "size": 7372
+      },
+      {
+        "path": "pages/projects/payout-e2e-testing-staging.md",
+        "sha256": "f0b5e965c3dbc29172258c9bf72c61f05cf63dfd6f96da0c631aa4857fd8cd6f",
+        "size": 1174
       },
       {
         "path": "pages/projects/pfp-engineering-specs.md",
@@ -7454,8 +7464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T18:22:45Z",
-  "file_count": 1489,
+  "exported_at": "2026-06-18T18:34:37Z",
+  "file_count": 1491,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10732,7 +10742,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "22cebe2825190d6ecab6454028b3779ffb0c66a9b0898401c8baf5a65211a047",
+  "previous_tree_hash": "b43aa6bf2e2e74bff7cdd65adab8c75eb5567d5148c8b777f9a0dfc1ef15e215",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10745,14 +10755,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b43aa6bf2e2e74bff7cdd65adab8c75eb5567d5148c8b777f9a0dfc1ef15e215",
+  "tree_hash": "d2d6d6baad80c811ce1566394765bb383c18a0d111915c7c293e77eccd181c9e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 835,
+  "wiki_file_count": 837,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10761,13 +10771,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8d61388075d778e49446962b96388ad2d95532c0aa525bd11fe37f260ce023dc",
-      "size": 933550
+      "sha256": "e2ccb8076bae6de6992ffd2d4acb9bcd5e98e9b3379d92b0f71bfae75161240a",
+      "size": 934278
     },
     {
       "path": "log.md",
-      "sha256": "cbd75ac9f87f71a17318ad74b6e086323494bdb17b47b9fc72ff8ba397c641c0",
-      "size": 1660639
+      "sha256": "316474a3d39372e73365d147eceb1bb01fd8d92dbc3754dee17dc6cc8eda4f3d",
+      "size": 1661390
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12900,6 +12910,11 @@
       "size": 3967
     },
     {
+      "path": "pages/projects/filipino-language-task.md",
+      "sha256": "e092d217f6c62b24d99bd3f60e272ea86ccc79489552b2d5f379ae9e8db19c50",
+      "size": 5834
+    },
+    {
       "path": "pages/projects/first-party-app.md",
       "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
       "size": 2358
@@ -13323,6 +13338,11 @@
       "path": "pages/projects/partner-testnet-v1-0-0-alpha-release.md",
       "sha256": "326ad0734583761c61994ac8753bc58d6c202f55d66419edb2ab8774d3a2e97d",
       "size": 7372
+    },
+    {
+      "path": "pages/projects/payout-e2e-testing-staging.md",
+      "sha256": "f0b5e965c3dbc29172258c9bf72c61f05cf63dfd6f96da0c631aa4857fd8cd6f",
+      "size": 1174
     },
     {
       "path": "pages/projects/pfp-engineering-specs.md",
@@ -14931,5 +14951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "35cfab92f8b72dff102f14d9f39b5720e60fea7e5301efcc39541d060ce5c283"
+  "wiki_tree_hash": "590b133625a09d285d0812d0dba9d49f6ce1bf2ad3f14d1f122816a26ec9fd43"
 }
