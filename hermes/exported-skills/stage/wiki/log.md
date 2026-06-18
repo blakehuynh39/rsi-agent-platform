@@ -33460,3 +33460,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8e471f9246d4c66b02566433c9c7ddac
 - summary: A service for orchestration tasks; recently resolved an indexing error for ip_group.
 
+## [2026-06-18T07:16:40Z] synthesis | Story Orchestration Service - Aggregation Error ip_transactions
+
+- status: published
+- slug: runbooks/story-orchestration-service-aggregation-error-ip-transactions
+- wiki_revision_id: wikirev_f3c735754e9a58e6bf0afdf28d409ed8
+- summary: Aggregation error 'ip_transactions' occurred in the story-orchestration-service and was resolved by Blake Huynh via Sentry issue STORY-ORCHESTRATION-SERVICE-FQ.
+
+## [2026-06-18T07:17:15Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_39450f2c1cd3c3a907ef3efcb58f478e
+- summary: A system that encountered an aggregation error related to ip_asset_metadata.
+
