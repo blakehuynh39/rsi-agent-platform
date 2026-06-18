@@ -33320,3 +33320,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_40e88f8119a545b6d55ead0e9e0c1543
 - summary: An error occurred in story-api when fetching wallet IP royalties, resulting in a context deadline exceeded error. The issue was resolved by Blake Huynh.
 
+## [2026-06-18T04:01:47Z] synthesis | Story API Broadcaster Bootstrap Gate Disabled
+
+- status: published
+- slug: decisions/story-api-broadcaster-bootstrap-gate-disabled
+- wiki_revision_id: wikirev_e6c5e58d8d387d5ddb19fa16734bc7cf
+- summary: The bootstrap gate for the story-api broadcaster was disabled by operator override, setting BROADCASTER_SKIP_BOOTSTRAP_GATE=true. Additionally, related Sentry issue STORY-API-EJ wa...
+
