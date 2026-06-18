@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "9ff5600a437c90b9c8af315509b95de40e965d12d5a37fbd80766e1af8f5b20d",
-        "size": 1645128
+        "sha256": "c056b9d667fbae05dc51a7978b224d4228fa3fe94199ec7640363f650187f486",
+        "size": 1645539
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3868,6 +3868,11 @@
         "path": "pages/concepts/nft-research-overview.md",
         "sha256": "9c33e2a99f2093fde3bc209cce44e7e07b46d697a578d82b4954e89c7b2c03f7",
         "size": 5216
+      },
+      {
+        "path": "pages/concepts/non-commercial-ip-dispute-capabilities.md",
+        "sha256": "fd4fb17fed5c66aed8ca3b03de0d21845da311722bf3b07c563a3ff83ae50858",
+        "size": 4001
       },
       {
         "path": "pages/concepts/non-commercial-ip-dispute.md",
@@ -7274,8 +7279,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T14:50:00Z",
-  "file_count": 1453,
+  "exported_at": "2026-06-18T15:01:43Z",
+  "file_count": 1454,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10552,7 +10557,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "09ff40c3330725d5181f8659657cfb98081ff5662b47c00cc7d6a287178091fb",
+  "previous_tree_hash": "d324a0cdda3fd2b1adfd7926655d6a65c71645f29ff4ea70e899e56c03dc2239",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10565,14 +10570,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d324a0cdda3fd2b1adfd7926655d6a65c71645f29ff4ea70e899e56c03dc2239",
+  "tree_hash": "5be28529c0b54ca63b0fee801ca73e927b29d17afcb685eff5ff2c97b1f4f6ea",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 799,
+  "wiki_file_count": 800,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10586,8 +10591,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "9ff5600a437c90b9c8af315509b95de40e965d12d5a37fbd80766e1af8f5b20d",
-      "size": 1645128
+      "sha256": "c056b9d667fbae05dc51a7978b224d4228fa3fe94199ec7640363f650187f486",
+      "size": 1645539
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11168,6 +11173,11 @@
       "path": "pages/concepts/nft-research-overview.md",
       "sha256": "9c33e2a99f2093fde3bc209cce44e7e07b46d697a578d82b4954e89c7b2c03f7",
       "size": 5216
+    },
+    {
+      "path": "pages/concepts/non-commercial-ip-dispute-capabilities.md",
+      "sha256": "fd4fb17fed5c66aed8ca3b03de0d21845da311722bf3b07c563a3ff83ae50858",
+      "size": 4001
     },
     {
       "path": "pages/concepts/non-commercial-ip-dispute.md",
@@ -14571,5 +14581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "084506f36897afe2802e2190c29bd3723e97b5f40117769f799bfa8955e81a7f"
+  "wiki_tree_hash": "e6f99cb21aa5ba5321c67649badf33c0e3d5148d51ce1e4ff60379324e8d6465"
 }

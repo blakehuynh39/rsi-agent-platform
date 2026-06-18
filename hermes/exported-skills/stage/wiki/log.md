@@ -33565,3 +33565,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b4ed90ca90f36c3ac29178fa786dcb61
 - summary: Current limitations and open questions regarding the ability to raise disputes for non-commercial intellectual property on the Story platform, including a use case from Magma.
 
+## [2026-06-18T15:01:13Z] synthesis | Non-Commercial IP Dispute Capabilities
+
+- status: published
+- slug: concepts/non-commercial-ip-dispute-capabilities
+- wiki_revision_id: wikirev_e4a1724ff437605429a48ea175178d63
+- summary: This page captures the current understanding of whether disputes can be raised for non-commercial IP on the Story platform. The Portal seems to have a limitation, and IP infringeme...
+
