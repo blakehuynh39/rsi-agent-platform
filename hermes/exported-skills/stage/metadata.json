@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ac2ec2a79acde144720cd52cd03d59cce0093c95e205d8f7a861048d6b713c66",
-        "size": 944874
+        "sha256": "b2dca12966d4f2b980b9925134eea8567fb7e4f10faa8135e62d79c4c293aa7c",
+        "size": 945632
       },
       {
         "path": "log.md",
-        "sha256": "be416c38da5d80dae66f5467314b98a0fc485bd5ba302dec9ddbbe4f50d0aee7",
-        "size": 1672866
+        "sha256": "19a966ad3047cdf30215ad4713fb5794e29e2209b7c83447b8a6ca71c0f6069c",
+        "size": 1673648
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5840,6 +5840,11 @@
         "size": 62780
       },
       {
+        "path": "pages/projects/numo-migration-ancillary-services.md",
+        "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
+        "size": 2881
+      },
+      {
         "path": "pages/projects/numo-top-samples-cherry-pick.md",
         "sha256": "7c7761ee48ab325fb3d9fe334377a3f1d5ec66ca61974afdd3738eb0b5b1baa6",
         "size": 4330
@@ -7560,6 +7565,11 @@
         "size": 9266
       },
       {
+        "path": "pages/systems/tax-form-intermittent-disappearance-june-2026.md",
+        "sha256": "7b0c4b06b49ec392afe8b81171c92f62e7ee26b24a130d1318c6ecfd27f1855e",
+        "size": 4027
+      },
+      {
         "path": "pages/systems/tax-forms-taxbandits-integration.md",
         "sha256": "bff14b69ed017c57433d7d1c569bce2cc750da06554a9f861ed0c9c783682b0c",
         "size": 4770
@@ -7609,8 +7619,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T22:49:47Z",
-  "file_count": 1520,
+  "exported_at": "2026-06-18T23:06:33Z",
+  "file_count": 1522,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10887,7 +10897,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "03f08d15aec00bebeffd1fc9b0793ee1a1a1a200ef454416f0fed3a1126955e6",
+  "previous_tree_hash": "aba022e9d158cee54389a2053ac53c62fd3e096a27188eb8032097e992002060",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10900,14 +10910,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "aba022e9d158cee54389a2053ac53c62fd3e096a27188eb8032097e992002060",
+  "tree_hash": "59ff0fd228b1f6bf015c4f3adf962f72149162723bb262f4afb3a45d1e5251aa",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 866,
+  "wiki_file_count": 868,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10916,13 +10926,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ac2ec2a79acde144720cd52cd03d59cce0093c95e205d8f7a861048d6b713c66",
-      "size": 944874
+      "sha256": "b2dca12966d4f2b980b9925134eea8567fb7e4f10faa8135e62d79c4c293aa7c",
+      "size": 945632
     },
     {
       "path": "log.md",
-      "sha256": "be416c38da5d80dae66f5467314b98a0fc485bd5ba302dec9ddbbe4f50d0aee7",
-      "size": 1672866
+      "sha256": "19a966ad3047cdf30215ad4713fb5794e29e2209b7c83447b8a6ca71c0f6069c",
+      "size": 1673648
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13475,6 +13485,11 @@
       "size": 62780
     },
     {
+      "path": "pages/projects/numo-migration-ancillary-services.md",
+      "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
+      "size": 2881
+    },
+    {
       "path": "pages/projects/numo-top-samples-cherry-pick.md",
       "sha256": "7c7761ee48ab325fb3d9fe334377a3f1d5ec66ca61974afdd3738eb0b5b1baa6",
       "size": 4330
@@ -15195,6 +15210,11 @@
       "size": 9266
     },
     {
+      "path": "pages/systems/tax-form-intermittent-disappearance-june-2026.md",
+      "sha256": "7b0c4b06b49ec392afe8b81171c92f62e7ee26b24a130d1318c6ecfd27f1855e",
+      "size": 4027
+    },
+    {
       "path": "pages/systems/tax-forms-taxbandits-integration.md",
       "sha256": "bff14b69ed017c57433d7d1c569bce2cc750da06554a9f861ed0c9c783682b0c",
       "size": 4770
@@ -15241,5 +15261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0bd66e61a98aa69121a0e8580a70eee6e55262e095370961c8ec8ea2e5fbe5c5"
+  "wiki_tree_hash": "ab6de2dd8626ba5b025cd139c59dd0b1f41cfbf374ccbed11c65ddfc0ceec387"
 }

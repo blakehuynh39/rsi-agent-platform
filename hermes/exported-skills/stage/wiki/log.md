@@ -34093,3 +34093,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ba74cc14f8edc8793fe936259ad506e9
 - summary: The chosen AI approach for deepfake detection uses explainable rules based on fast‑to‑calculate acoustic features, instead of a heavy convoluted AI model. This was presented in a r...
 
+## [2026-06-18T23:01:49Z] synthesis | Numo Migration Ancillary Services
+
+- status: published
+- slug: projects/numo-migration-ancillary-services
+- wiki_revision_id: wikirev_01d1c257473f986de24856c6ed64c3ec
+- summary: Identification and Phase 2 capture of non-infra ancillary services to be migrated as part of the Numo PSDN migration initiative.
+
+## [2026-06-18T23:02:20Z] synthesis | Tax Form Intermittent Disappearance and Error (June 2026)
+
+- status: published
+- slug: systems/tax-form-intermittent-disappearance-june-2026
+- wiki_revision_id: wikirev_7dddb226294237ace0daf327dfe4f8df
+- summary: On June 11, 2026, a bug was reported where the tax form setup button intermittently disappeared and clicking the tax button resulted in an empty page and error. Spamming buttons le...
+
