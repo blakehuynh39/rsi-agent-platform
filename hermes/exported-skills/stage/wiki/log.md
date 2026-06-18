@@ -33236,3 +33236,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ede89f8eef7b8eab2e1767c61d00e747
 - summary: Discussion about enabling shared ownership and revenue sharing for co-creators of intellectual property assets in Magma, where currently only one account can own and control permis...
 
+## [2026-06-18T02:00:46Z] synthesis | Story API Asset 504 Timeout Incident
+
+- status: published
+- slug: runbooks/story-api-asset-504-timeout
+- wiki_revision_id: wikirev_f71039fdd785a9e0e9226de43cbb7b4b
+- summary: On 2026-02-28, the story-api endpoint POST /api/v4/assets returned a 504 Request Timeout. Blake Huynh resolved the issue, marking Sentry issue STORY-API-E2 as resolved.
+
+## [2026-06-18T02:02:15Z] synthesis | Story-API Confirmer Batch Failure
+
+- status: published
+- slug: runbooks/story-api-confirmer-batch-failure
+- wiki_revision_id: wikirev_509af3c125a64a7765c1595caa076b34
+- summary: The story-api confirmer batch repeatedly failed, but sibling batches continued. The issue STORY-API-EM was resolved by Blake Huynh.
+

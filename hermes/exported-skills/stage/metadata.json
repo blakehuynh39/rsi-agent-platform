@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a6f2daf013d8e04d10995274e1e3d72bc552f17e8b141d724c51d7bb2b3141dc",
-        "size": 905055
+        "sha256": "d910437e10ceb93b56b4a6fb1094305e584a4a3f0b89aa6f2a332b41d76364ec",
+        "size": 905763
       },
       {
         "path": "log.md",
-        "sha256": "7eab19ae4b19cfeb6f0d430c8a2947791df8cd00c1e119d861598072a4ce786e",
-        "size": 1627502
+        "sha256": "66f5218f34eb175ee9072ac8dc148b3b4c2a16a2056875db126ddfdec8c3dd24",
+        "size": 1628234
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6485,6 +6485,16 @@
         "size": 4260
       },
       {
+        "path": "pages/runbooks/story-api-asset-504-timeout.md",
+        "sha256": "6a1eb99121fe5b4410bf29edd14aed70141552b8004cf25e04439d958b81a481",
+        "size": 1618
+      },
+      {
+        "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
+        "sha256": "95144400c40531124f2575e28f647d3865216ab6e117d4f8ef6b66fb4e3961f1",
+        "size": 3215
+      },
+      {
         "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
         "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
         "size": 10947
@@ -7064,8 +7074,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T00:50:06Z",
-  "file_count": 1411,
+  "exported_at": "2026-06-18T02:02:36Z",
+  "file_count": 1413,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10342,7 +10352,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "142352b6c79b7a8938356b0a1f65c2fc3452e6ea4062c5610f5221e9cf2fa656",
+  "previous_tree_hash": "242e9a23a07020a14444998ff4b77dcd5bc33d47213b3e2fb052d63329d8e30a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10355,14 +10365,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "242e9a23a07020a14444998ff4b77dcd5bc33d47213b3e2fb052d63329d8e30a",
+  "tree_hash": "04cf1feedb153e86d7e5e0ae2640dc2d544a91c744e1aee8b1b2694f6ff708c9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 757,
+  "wiki_file_count": 759,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10371,13 +10381,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a6f2daf013d8e04d10995274e1e3d72bc552f17e8b141d724c51d7bb2b3141dc",
-      "size": 905055
+      "sha256": "d910437e10ceb93b56b4a6fb1094305e584a4a3f0b89aa6f2a332b41d76364ec",
+      "size": 905763
     },
     {
       "path": "log.md",
-      "sha256": "7eab19ae4b19cfeb6f0d430c8a2947791df8cd00c1e119d861598072a4ce786e",
-      "size": 1627502
+      "sha256": "66f5218f34eb175ee9072ac8dc148b3b4c2a16a2056875db126ddfdec8c3dd24",
+      "size": 1628234
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13575,6 +13585,16 @@
       "size": 4260
     },
     {
+      "path": "pages/runbooks/story-api-asset-504-timeout.md",
+      "sha256": "6a1eb99121fe5b4410bf29edd14aed70141552b8004cf25e04439d958b81a481",
+      "size": 1618
+    },
+    {
+      "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
+      "sha256": "95144400c40531124f2575e28f647d3865216ab6e117d4f8ef6b66fb4e3961f1",
+      "size": 3215
+    },
+    {
       "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
       "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
       "size": 10947
@@ -14151,5 +14171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5b02f561ce4849114ddeee23f97e0fdff16109fba559de501af5a2f6d58eb336"
+  "wiki_tree_hash": "b1c6746f1fabe78294a13542078a9c0d2a67b094a08b3e374ce93d5e02b4417a"
 }
