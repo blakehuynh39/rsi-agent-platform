@@ -33986,3 +33986,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_be7173c608f12f7528410c3a9916e5aa
 - summary: Integration of TaxBandits for W-8/W-9 tax form collection within the withdrawal flow, including admin resync, design improvements, and configuration for encrypted PDF downloads.
 
+## [2026-06-18T21:15:25Z] ingest | Slack thread C0B2EJ96U83 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-channel-5675522d
+- wiki_revision_id: wikirev_6ce7d5847a9aaf272e198ce983743ba8
+- source_document_id: srcdoc_b140aea25556e86e3666c67c5675522d
+- source_revision_id: srcrev_ed1446ca6791ef0dd4382fea7a7672b6
+- summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
+
+## [2026-06-18T21:16:04Z] synthesis | Korea Launch Blocker Prioritization
+
+- status: published
+- slug: concepts/korea-launch-blocker-prioritization
+- wiki_revision_id: wikirev_6295942dbbcbc6a21bfde8badc607377
+- summary: Slack discussion where a task blocking Korean team's launch is requested to be top priority this week, and a question is raised about which nations Humain is most interested in for...
+
+## [2026-06-18T21:16:58Z] synthesis | depin-backend Repository Access
+
+- status: published
+- slug: systems/depin-backend-repo-access
+- wiki_revision_id: wikirev_eda7a71110328150809249d30f0884d9
+- summary: Access to the depin-backend repository is managed via the GitHub team @piplabs/eng-team. Users can request access by being added to this team. Scoped permissions in the repository ...
+
