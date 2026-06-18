@@ -33285,3 +33285,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_590497dec174a4fe41f4d0495b43f690
 - summary: On 2026-06-16, story-api encountered a PostgreSQL connection refusal error. The incident was tracked as STORY-API-F3 and resolved by blake.huynh.
 
+## [2026-06-18T03:19:56Z] synthesis | Story API POST /api/v4/assets 504 Timeout Incident
+
+- status: published
+- slug: systems/story-api-v4-assets-504-timeout
+- wiki_revision_id: wikirev_ac65aa5c1bc6cf2ff0337369d19b9525
+- summary: On approximately 2026-02-26, the Story API endpoint POST /api/v4/assets experienced a 504 Gateway Timeout, causing request failures. The issue was later resolved by Blake Huynh mar...
+
