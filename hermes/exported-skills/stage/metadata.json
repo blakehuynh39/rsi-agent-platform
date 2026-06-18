@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0815bf0ca4482018185c2407e3076a1765d7221b9482f6ebec7885ae0c6bf451",
-        "size": 943288
+        "sha256": "ac2ec2a79acde144720cd52cd03d59cce0093c95e205d8f7a861048d6b713c66",
+        "size": 944874
       },
       {
         "path": "log.md",
-        "sha256": "cb3a75acfd4c87251974979b9f7b3100dd2cb5434d9b23d9d6a8612a03bef27c",
-        "size": 1671232
+        "sha256": "be416c38da5d80dae66f5467314b98a0fc485bd5ba302dec9ddbbe4f50d0aee7",
+        "size": 1672866
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3483,6 +3483,11 @@
         "path": "pages/concepts/decision-making-template.md",
         "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
         "size": 2561
+      },
+      {
+        "path": "pages/concepts/deepfake-detection-ai-approach.md",
+        "sha256": "107caa6fd3a4ac8c6dd3852b1bbda21c0d21280ec91330a634950a77e0e47bf3",
+        "size": 1468
       },
       {
         "path": "pages/concepts/depin-device-auth-privilege-escalation.md",
@@ -4385,6 +4390,11 @@
         "size": 4107
       },
       {
+        "path": "pages/decisions/content-marketing-strategy.md",
+        "sha256": "a2bbd2c4c4cf0dfb269e17df55c943a01072491d9c9108780f9704620ad4e926",
+        "size": 5100
+      },
+      {
         "path": "pages/decisions/core-vs-periphery-divisions.md",
         "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
@@ -4858,6 +4868,11 @@
         "path": "pages/open-questions/non-commercial-ip-dispute-limitations.md",
         "sha256": "5144a8803bbe8b8315fd85317f61c374b13c54fd1d006fe6ec3621d8e0483420",
         "size": 1373
+      },
+      {
+        "path": "pages/open-questions/numo-app-data-handling-toss-partnership.md",
+        "sha256": "ad96d6a275c1205b7d0965dab565ecd7426bf4a78f30526bfe797f99003f3eea",
+        "size": 2866
       },
       {
         "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
@@ -7340,6 +7355,11 @@
         "size": 13715
       },
       {
+        "path": "pages/systems/poseidon-pipeline.md",
+        "sha256": "a8b39ab9ac8d35daca65a50ad2fdabc629e7a55326c83254dbb72fde03c0f475",
+        "size": 2425
+      },
+      {
         "path": "pages/systems/poseidon-reputation-infrastructure.md",
         "sha256": "a193288897b5a62f217bfa287389a0ee73755585bbd017affa2b487a3873e7ec",
         "size": 4389
@@ -7589,8 +7609,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T22:33:02Z",
-  "file_count": 1516,
+  "exported_at": "2026-06-18T22:49:47Z",
+  "file_count": 1520,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10867,7 +10887,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "cfb29d4575ded94c8643fc80a237839a5c85e3076c2c968630cc03021b760fbb",
+  "previous_tree_hash": "03f08d15aec00bebeffd1fc9b0793ee1a1a1a200ef454416f0fed3a1126955e6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10880,14 +10900,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "03f08d15aec00bebeffd1fc9b0793ee1a1a1a200ef454416f0fed3a1126955e6",
+  "tree_hash": "aba022e9d158cee54389a2053ac53c62fd3e096a27188eb8032097e992002060",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 862,
+  "wiki_file_count": 866,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10896,13 +10916,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0815bf0ca4482018185c2407e3076a1765d7221b9482f6ebec7885ae0c6bf451",
-      "size": 943288
+      "sha256": "ac2ec2a79acde144720cd52cd03d59cce0093c95e205d8f7a861048d6b713c66",
+      "size": 944874
     },
     {
       "path": "log.md",
-      "sha256": "cb3a75acfd4c87251974979b9f7b3100dd2cb5434d9b23d9d6a8612a03bef27c",
-      "size": 1671232
+      "sha256": "be416c38da5d80dae66f5467314b98a0fc485bd5ba302dec9ddbbe4f50d0aee7",
+      "size": 1672866
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11098,6 +11118,11 @@
       "path": "pages/concepts/decision-making-template.md",
       "sha256": "4dbe470a17aa376dcbd1044ed38fb7fc5eca0d0c10f491aacc63b2297b1cdbde",
       "size": 2561
+    },
+    {
+      "path": "pages/concepts/deepfake-detection-ai-approach.md",
+      "sha256": "107caa6fd3a4ac8c6dd3852b1bbda21c0d21280ec91330a634950a77e0e47bf3",
+      "size": 1468
     },
     {
       "path": "pages/concepts/depin-device-auth-privilege-escalation.md",
@@ -12000,6 +12025,11 @@
       "size": 4107
     },
     {
+      "path": "pages/decisions/content-marketing-strategy.md",
+      "sha256": "a2bbd2c4c4cf0dfb269e17df55c943a01072491d9c9108780f9704620ad4e926",
+      "size": 5100
+    },
+    {
       "path": "pages/decisions/core-vs-periphery-divisions.md",
       "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
@@ -12473,6 +12503,11 @@
       "path": "pages/open-questions/non-commercial-ip-dispute-limitations.md",
       "sha256": "5144a8803bbe8b8315fd85317f61c374b13c54fd1d006fe6ec3621d8e0483420",
       "size": 1373
+    },
+    {
+      "path": "pages/open-questions/numo-app-data-handling-toss-partnership.md",
+      "sha256": "ad96d6a275c1205b7d0965dab565ecd7426bf4a78f30526bfe797f99003f3eea",
+      "size": 2866
     },
     {
       "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
@@ -14955,6 +14990,11 @@
       "size": 13715
     },
     {
+      "path": "pages/systems/poseidon-pipeline.md",
+      "sha256": "a8b39ab9ac8d35daca65a50ad2fdabc629e7a55326c83254dbb72fde03c0f475",
+      "size": 2425
+    },
+    {
       "path": "pages/systems/poseidon-reputation-infrastructure.md",
       "sha256": "a193288897b5a62f217bfa287389a0ee73755585bbd017affa2b487a3873e7ec",
       "size": 4389
@@ -15201,5 +15241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6656b7f121c1bdcfa850cf3df6e64156b456bd0bf84625d869d26f73b487f6f5"
+  "wiki_tree_hash": "0bd66e61a98aa69121a0e8580a70eee6e55262e095370961c8ec8ea2e5fbe5c5"
 }

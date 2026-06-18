@@ -34065,3 +34065,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e1082b62c6495f4a82a6c6fbcfc641bf
 - summary: Request and provisioning of TaxBandits access for mason@psdn.ai, numo@psdn.ai, and royce.zhao@piplabs.xyz to facilitate the Korean team's work.
 
+## [2026-06-18T22:46:44Z] synthesis | Numo App Data Handling for Toss Partnership
+
+- status: published
+- slug: open-questions/numo-app-data-handling-toss-partnership
+- wiki_revision_id: wikirev_138abb2efd7a7aea65ccd5380fae5d1e
+- summary: External partner Toss requested high-level information about Numo app data handling for a mini app integration. The questions cover encryption standards, data retention, access, an...
+
+## [2026-06-18T22:47:45Z] synthesis | Poseidon Deepfake Detection Pipeline
+
+- status: published
+- slug: systems/poseidon-pipeline
+- wiki_revision_id: wikirev_ea12c7122d19cb9a313e7976b0881a12
+- summary: The pipeline for deepfake detection is being developed, targeting production launch next month, with pluggable components inspired by Kled's advertised capabilities.
+
+## [2026-06-18T22:47:45Z] synthesis | Public Content Marketing Strategy for Numo and Poseidon
+
+- status: published
+- slug: decisions/content-marketing-strategy
+- wiki_revision_id: wikirev_d6c3c7cde9cd99c7dfa2b05206e181fd
+- summary: Strategy to build public trust by sharing research and product sophistication, using pillar content (blog case studies), security/compliance highlights, and team member-led social ...
+
+## [2026-06-18T22:47:45Z] synthesis | Deepfake Detection AI Approach (Acoustic Features Rules)
+
+- status: published
+- slug: concepts/deepfake-detection-ai-approach
+- wiki_revision_id: wikirev_ba74cc14f8edc8793fe936259ad506e9
+- summary: The chosen AI approach for deepfake detection uses explainable rules based on fast‑to‑calculate acoustic features, instead of a heavy convoluted AI model. This was presented in a r...
+
