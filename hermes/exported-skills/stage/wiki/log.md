@@ -33881,3 +33881,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_61e835c682ca8ce77858da9433b178ea
 - summary: Integration of Filipino language into the seed phrase/audio task platform. Part of Release 1.2, currently live with 50 transcripts but blocked on bulk generation pending transcript...
 
+## [2026-06-18T18:45:44Z] synthesis | Payment Rollout Call Moved to Async
+
+- status: published
+- slug: decisions/payment-rollout-call-async-decision
+- wiki_revision_id: wikirev_7dbb604c96818c36365a0eb6b868a656
+- summary: The scheduled payment rollout call was canceled in favor of async communication. The team was waiting but a stakeholder decided to proceed without the call.
+
+## [2026-06-18T18:46:21Z] synthesis | Arabic Seed Phrase Launch
+
+- status: published
+- slug: projects/arabic-seed-phrase-launch
+- wiki_revision_id: wikirev_b07d5643729f43adea00ea463ce55de7
+- summary: Launching Arabic language support for seed phrase verification, including word list, feature toggle, RTL support, and font testing.
+

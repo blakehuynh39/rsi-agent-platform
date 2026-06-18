@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "316474a3d39372e73365d147eceb1bb01fd8d92dbc3754dee17dc6cc8eda4f3d",
-        "size": 1661390
+        "sha256": "8511661fd8e9d068f7fe5928f918a878d049d7c7c3832521e50152fb18bcfb0a",
+        "size": 1661769
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4583,6 +4583,11 @@
         "path": "pages/decisions/pausability-design.md",
         "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
         "size": 4556
+      },
+      {
+        "path": "pages/decisions/payment-rollout-call-async-decision.md",
+        "sha256": "b651804f62518a6116770a57012bb87028bb6bf922fc79f688554807a753396c",
+        "size": 1965
       },
       {
         "path": "pages/decisions/permissionless-ip-registration.md",
@@ -7464,8 +7469,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T18:34:37Z",
-  "file_count": 1491,
+  "exported_at": "2026-06-18T18:46:21Z",
+  "file_count": 1492,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10742,7 +10747,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b43aa6bf2e2e74bff7cdd65adab8c75eb5567d5148c8b777f9a0dfc1ef15e215",
+  "previous_tree_hash": "d2d6d6baad80c811ce1566394765bb383c18a0d111915c7c293e77eccd181c9e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10755,14 +10760,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d2d6d6baad80c811ce1566394765bb383c18a0d111915c7c293e77eccd181c9e",
+  "tree_hash": "8b187289029d62695c26f61b7e9af1dbf85315302d8899998f1b7068d599e31e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 837,
+  "wiki_file_count": 838,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10776,8 +10781,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "316474a3d39372e73365d147eceb1bb01fd8d92dbc3754dee17dc6cc8eda4f3d",
-      "size": 1661390
+      "sha256": "8511661fd8e9d068f7fe5928f918a878d049d7c7c3832521e50152fb18bcfb0a",
+      "size": 1661769
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12073,6 +12078,11 @@
       "path": "pages/decisions/pausability-design.md",
       "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
       "size": 4556
+    },
+    {
+      "path": "pages/decisions/payment-rollout-call-async-decision.md",
+      "sha256": "b651804f62518a6116770a57012bb87028bb6bf922fc79f688554807a753396c",
+      "size": 1965
     },
     {
       "path": "pages/decisions/permissionless-ip-registration.md",
@@ -14951,5 +14961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "590b133625a09d285d0812d0dba9d49f6ce1bf2ad3f14d1f122816a26ec9fd43"
+  "wiki_tree_hash": "d05baeedcca70571803945be9cf8a5cb82da8ed6ee47f20b3ba13c5187b72ca2"
 }
