@@ -33972,3 +33972,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fca04e9034116d3500a8c64fe9e9c5e6
 - summary: A project to select and share top samples per language from the numo dataset, distinguished by identifier {NM}_, building on previous similar work for season 1 shared with OpenAI.
 
+## [2026-06-18T21:01:13Z] synthesis | TaxBandits Live Account Questionnaire
+
+- status: published
+- slug: decisions/taxbandits-questionnaire-activation
+- wiki_revision_id: wikirev_73234cc07e514898b39f2f3729ec10ae
+- summary: Completion of TaxBandits questionnaire required to activate live payments. Key decision: we will not store signed W-9/W-8 PDFs locally; TaxBandits retains them for 10 years. Domain...
+
+## [2026-06-18T21:02:54Z] synthesis | Tax Forms (TaxBandits) Integration
+
+- status: published
+- slug: systems/tax-forms-taxbandits-integration
+- wiki_revision_id: wikirev_be7173c608f12f7528410c3a9916e5aa
+- summary: Integration of TaxBandits for W-8/W-9 tax form collection within the withdrawal flow, including admin resync, design improvements, and configuration for encrypted PDF downloads.
+
