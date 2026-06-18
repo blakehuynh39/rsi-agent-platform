@@ -33544,3 +33544,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_17b0e1c82d688e297c0834730078b7bd
 - summary: A team member asks for clarity on the new functionality for auto royalty distribution in Story Protocol, speculating that existing workflows mint a license and then disable it as a...
 
+## [2026-06-18T14:34:00Z] synthesis | IP Dispute Limitations for Non-Commercial Works
+
+- status: published
+- slug: concepts/ip-dispute-non-commercial-limitations
+- wiki_revision_id: wikirev_c71df78f09a66d9fe2a033d690ecd742
+- summary: Current understanding of whether IP disputes can be raised for non-commercial works, and the role of the Attestation Service. Discussion originates from Magma's need to handle stol...
+

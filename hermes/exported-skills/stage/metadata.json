@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5eb3539ef047bf2e883f66a155d582f4c95dd569dc97acb1489b920f58caeb8f",
-        "size": 919500
+        "sha256": "d50da1925a3bf23ce472efb75db2d9aa68b62bee79f4b262b5254dc7db63ad4b",
+        "size": 919907
       },
       {
         "path": "log.md",
-        "sha256": "93a0a21b3b42a7d516133e117e1caa3105c6c3542a91cfbb2e77628f746afea6",
-        "size": 1643928
+        "sha256": "d37f684bb601ded6ac51a8813d016b655947cd3016d58e7e5c78668196894af8",
+        "size": 1644347
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3683,6 +3683,11 @@
         "path": "pages/concepts/ip-chain-vision.md",
         "sha256": "5e1b7d931b9f110108b2aaff3ff994f1c626e2508c2d50baa57b9c2bfda0a4bb",
         "size": 2070
+      },
+      {
+        "path": "pages/concepts/ip-dispute-non-commercial-limitations.md",
+        "sha256": "ef472e3d79ae03ef19a99610e98617064585e4aa13085d244d7cd43ed8fb808e",
+        "size": 3475
       },
       {
         "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -7259,8 +7264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T14:21:30Z",
-  "file_count": 1450,
+  "exported_at": "2026-06-18T14:38:18Z",
+  "file_count": 1451,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10537,7 +10542,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "9c31103804ab37e46e6eda8c2d01ac831203a69706e770a18562d710aa3bef4f",
+  "previous_tree_hash": "1fdb44c057b14b9417ac73dc17a5aa9e6e6c32298af4dcab96e288a241b2cda9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10550,14 +10555,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1fdb44c057b14b9417ac73dc17a5aa9e6e6c32298af4dcab96e288a241b2cda9",
+  "tree_hash": "09ff40c3330725d5181f8659657cfb98081ff5662b47c00cc7d6a287178091fb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 796,
+  "wiki_file_count": 797,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10566,13 +10571,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5eb3539ef047bf2e883f66a155d582f4c95dd569dc97acb1489b920f58caeb8f",
-      "size": 919500
+      "sha256": "d50da1925a3bf23ce472efb75db2d9aa68b62bee79f4b262b5254dc7db63ad4b",
+      "size": 919907
     },
     {
       "path": "log.md",
-      "sha256": "93a0a21b3b42a7d516133e117e1caa3105c6c3542a91cfbb2e77628f746afea6",
-      "size": 1643928
+      "sha256": "d37f684bb601ded6ac51a8813d016b655947cd3016d58e7e5c78668196894af8",
+      "size": 1644347
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -10968,6 +10973,11 @@
       "path": "pages/concepts/ip-chain-vision.md",
       "sha256": "5e1b7d931b9f110108b2aaff3ff994f1c626e2508c2d50baa57b9c2bfda0a4bb",
       "size": 2070
+    },
+    {
+      "path": "pages/concepts/ip-dispute-non-commercial-limitations.md",
+      "sha256": "ef472e3d79ae03ef19a99610e98617064585e4aa13085d244d7cd43ed8fb808e",
+      "size": 3475
     },
     {
       "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -14541,5 +14551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4f70499e1a36d8a89d3bafdd3041299c73242734604721087b93200ef779756b"
+  "wiki_tree_hash": "3c2b1484415ef17b311dc7a2866c4faf41d6c46a1da55278f633c7485e094323"
 }
