@@ -34009,3 +34009,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eda7a71110328150809249d30f0884d9
 - summary: Access to the depin-backend repository is managed via the GitHub team @piplabs/eng-team. Users can request access by being added to this team. Scoped permissions in the repository ...
 
+## [2026-06-18T21:30:44Z] synthesis | Customer Service Email Handling Priorities
+
+- status: published
+- slug: policies/customer-service-email-handling-priorities
+- wiki_revision_id: wikirev_e72021c0fb34f65179a1146531cf191e
+- summary: Policy for responding to customer service emails: General replies are sent, but responses regarding withdrawals, payments, validation, or processing are constrained. Turnstile resp...
+
+## [2026-06-18T21:31:58Z] synthesis | Poseidon Validation Results Submission for Indic Languages
+
+- status: published
+- slug: projects/poseidon-validation-results-submission
+- wiki_revision_id: wikirev_0c390409eb1fa838b7eb860e9601cd04
+- summary: Coordination for submitting Poseidon validation results for Indic languages, including API payload changes for deepfakes and discussion about payment eligibility impacts.
+
