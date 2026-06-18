@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "45025dab9fca0a516f010e18c0a3ff5a7148c0dfac599963a7dbae6861077e1b",
-        "size": 912368
+        "sha256": "0fc73f8acdc41d56104698dd2257df0875da4988b3ccb87b91e74d13df57fe14",
+        "size": 913004
       },
       {
         "path": "log.md",
-        "sha256": "7686b1f1103e626c894aa0b6898ca1eb090729e820f3337b96c9c1b3c03bdd66",
-        "size": 1635055
+        "sha256": "9fa6a87ef8c01c452effc1865ceaedf21e4cffc83311e3c56779b60d7e85c10d",
+        "size": 1635715
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6520,6 +6520,11 @@
         "size": 4260
       },
       {
+        "path": "pages/runbooks/story-api-504-timeout-incident.md",
+        "sha256": "98280ef5c28fc1e8e73947542e05de7d41a62e70e05ba58ac06fa08a52b8be8a",
+        "size": 1476
+      },
+      {
         "path": "pages/runbooks/story-api-asset-504-timeout.md",
         "sha256": "6a1eb99121fe5b4410bf29edd14aed70141552b8004cf25e04439d958b81a481",
         "size": 1618
@@ -7050,6 +7055,11 @@
         "size": 1201
       },
       {
+        "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
+        "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
+        "size": 2019
+      },
+      {
         "path": "pages/systems/story-api-db-connection-refusal-incident.md",
         "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
         "size": 1790
@@ -7164,8 +7174,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T05:21:10Z",
-  "file_count": 1431,
+  "exported_at": "2026-06-18T05:32:47Z",
+  "file_count": 1433,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10442,7 +10452,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "06abdde81750d458e9ab8a94e688c6f90112cd5f288baad910ebb11bc235b750",
+  "previous_tree_hash": "a4b39d3028564616d1aed90866d9be05a669f929a02d4fa341b519378943a733",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10455,14 +10465,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a4b39d3028564616d1aed90866d9be05a669f929a02d4fa341b519378943a733",
+  "tree_hash": "4e4cde95608a62f12734784627d9a7726af76d687352eb426329ed00a1b83199",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 777,
+  "wiki_file_count": 779,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10471,13 +10481,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "45025dab9fca0a516f010e18c0a3ff5a7148c0dfac599963a7dbae6861077e1b",
-      "size": 912368
+      "sha256": "0fc73f8acdc41d56104698dd2257df0875da4988b3ccb87b91e74d13df57fe14",
+      "size": 913004
     },
     {
       "path": "log.md",
-      "sha256": "7686b1f1103e626c894aa0b6898ca1eb090729e820f3337b96c9c1b3c03bdd66",
-      "size": 1635055
+      "sha256": "9fa6a87ef8c01c452effc1865ceaedf21e4cffc83311e3c56779b60d7e85c10d",
+      "size": 1635715
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13710,6 +13720,11 @@
       "size": 4260
     },
     {
+      "path": "pages/runbooks/story-api-504-timeout-incident.md",
+      "sha256": "98280ef5c28fc1e8e73947542e05de7d41a62e70e05ba58ac06fa08a52b8be8a",
+      "size": 1476
+    },
+    {
       "path": "pages/runbooks/story-api-asset-504-timeout.md",
       "sha256": "6a1eb99121fe5b4410bf29edd14aed70141552b8004cf25e04439d958b81a481",
       "size": 1618
@@ -14240,6 +14255,11 @@
       "size": 1201
     },
     {
+      "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
+      "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
+      "size": 2019
+    },
+    {
       "path": "pages/systems/story-api-db-connection-refusal-incident.md",
       "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
       "size": 1790
@@ -14351,5 +14371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e5b3f9ce9cafb55cf7a6390de7f7b2f6294c86442ddf9921e93d4608044767f9"
+  "wiki_tree_hash": "bdcc6cbdcf1c683eb05f45ce59593d16f3b09aade7d1da27d77267fb531ebc8f"
 }

@@ -33376,3 +33376,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_70eb0480b3e0cf9b9187c08f39e04668
 - summary: On 2026-06-16, the story-api POST /api/v4/disputes endpoint returned a 500 Internal Server Error. The issue was resolved by Blake Huynh.
 
+## [2026-06-18T05:31:22Z] synthesis | Story-API Data Audit Scoped Groups 500 Error
+
+- status: published
+- slug: systems/story-api-data-audit-scoped-groups-error
+- wiki_revision_id: wikirev_16f3dcb2c83f233e146104ba97ccc2de
+- summary: Incident where story-api POST /api/v1/data-audit/scoped-groups returned 500 due to DynamoDB AccessDeniedException; resolved by blake.huynh.
+
+## [2026-06-18T05:31:48Z] synthesis | Story API 504 Timeout Incident
+
+- status: published
+- slug: runbooks/story-api-504-timeout-incident
+- wiki_revision_id: wikirev_5c57e38134d169992e5bf063183b36be
+- summary: POST /api/v4/transactions experienced a 504 timeout error, later resolved.
+
