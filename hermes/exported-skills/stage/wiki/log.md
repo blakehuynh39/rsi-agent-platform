@@ -33474,3 +33474,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_39450f2c1cd3c3a907ef3efcb58f478e
 - summary: A system that encountered an aggregation error related to ip_asset_metadata.
 
+## [2026-06-18T07:33:59Z] synthesis | PostgreSQL Error #42P10 in Story Orchestration Service
+
+- status: published
+- slug: runbooks/postgres-42p10-error-story-orchestration-service
+- wiki_revision_id: wikirev_af04b0b4a5cecef3e1600183cbb53445
+- summary: PostgreSQL error #42P10 occurred in story-orchestration-service, indicating a missing unique/exclusion constraint for an ON CONFLICT clause. The issue was resolved.
+

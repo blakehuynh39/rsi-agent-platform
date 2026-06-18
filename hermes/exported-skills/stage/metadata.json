@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0760e8dff616195610fcd6a255585e4130a319fa0a764aca77fe72fefe639dc1",
-        "size": 916034
+        "sha256": "1349b78e08412e8724a6599d256ad8f8975586fedea3e9e95aa4d01f12c8d6f3",
+        "size": 916440
       },
       {
         "path": "log.md",
-        "sha256": "66bba37a02648c76d183775870d1c804f771b2cf4b2e2b86c39ed5db47887484",
-        "size": 1640073
+        "sha256": "bd366bfd4bbc0a139ebbad989ec53df30bcfb1a57fb20ecde62c085049eebabc",
+        "size": 1640491
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6480,6 +6480,11 @@
         "size": 15328
       },
       {
+        "path": "pages/runbooks/postgres-42p10-error-story-orchestration-service.md",
+        "sha256": "70124aef5e9406a3813e9f8536309ced46281f17d709026684b8322ee8676105",
+        "size": 1740
+      },
+      {
         "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
         "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
         "size": 10032
@@ -7214,8 +7219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T07:17:21Z",
-  "file_count": 1441,
+  "exported_at": "2026-06-18T07:34:05Z",
+  "file_count": 1442,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10492,7 +10497,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a4c9bf7a3af6bf131d3757ada517dfd9c9177e946c9ee8a8d8db50f13986e7b9",
+  "previous_tree_hash": "2761422477b111e9c0dcbc39c0f8501fcf35570b61855bbaf8a086e861184d35",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10505,14 +10510,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2761422477b111e9c0dcbc39c0f8501fcf35570b61855bbaf8a086e861184d35",
+  "tree_hash": "e3154298850ee11bf3d4a7513795ab8978cad45182d68b96bc4768bea0105ba6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 787,
+  "wiki_file_count": 788,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10521,13 +10526,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0760e8dff616195610fcd6a255585e4130a319fa0a764aca77fe72fefe639dc1",
-      "size": 916034
+      "sha256": "1349b78e08412e8724a6599d256ad8f8975586fedea3e9e95aa4d01f12c8d6f3",
+      "size": 916440
     },
     {
       "path": "log.md",
-      "sha256": "66bba37a02648c76d183775870d1c804f771b2cf4b2e2b86c39ed5db47887484",
-      "size": 1640073
+      "sha256": "bd366bfd4bbc0a139ebbad989ec53df30bcfb1a57fb20ecde62c085049eebabc",
+      "size": 1640491
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13720,6 +13725,11 @@
       "size": 15328
     },
     {
+      "path": "pages/runbooks/postgres-42p10-error-story-orchestration-service.md",
+      "sha256": "70124aef5e9406a3813e9f8536309ced46281f17d709026684b8322ee8676105",
+      "size": 1740
+    },
+    {
       "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
       "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
       "size": 10032
@@ -14451,5 +14461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2a3a699d86474d48a530ce1ad3f84cd47609ca280006a5764ec8a2940ef3de70"
+  "wiki_tree_hash": "73ee90ebaa6f3f1ad97d282c9980d2825492d2b47baf0c2d963954c58c6d99b0"
 }
