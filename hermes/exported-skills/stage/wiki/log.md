@@ -33313,3 +33313,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_292124c43403937a98e097ba5247f8f3
 - summary: A projection conflict in story-api prevented overwriting an existing tx_hash. The issue was resolved by Blake Huynh.
 
+## [2026-06-18T03:47:03Z] synthesis | Wallet IP Royalties Fetch Error Resolved
+
+- status: published
+- slug: runbooks/wallet-ip-royalties-fetch-error-resolved
+- wiki_revision_id: wikirev_40e88f8119a545b6d55ead0e9e0c1543
+- summary: An error occurred in story-api when fetching wallet IP royalties, resulting in a context deadline exceeded error. The issue was resolved by Blake Huynh.
+

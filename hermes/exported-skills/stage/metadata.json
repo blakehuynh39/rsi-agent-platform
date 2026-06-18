@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d6c7d9e5a2c2a7ac3f1dd37bd87eca48cb0f1134e019af491f1d5de0bda068d6",
-        "size": 908637
+        "sha256": "1a05adb966c0a6fe92d01862f757bb52219770754843bebf7ecdb81dbf752ae8",
+        "size": 909380
       },
       {
         "path": "log.md",
-        "sha256": "4e792ba6fd3c3c71f005f91c38e3b321ce06b03dec0fedbba84717ad94cba2b2",
-        "size": 1631587
+        "sha256": "0e89ecaa17c20b3db5bb62a6940865cc5aa460a09f7d6587696bf00c043b855b",
+        "size": 1631971
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6585,6 +6585,11 @@
         "size": 3701
       },
       {
+        "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
+        "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
+        "size": 1741
+      },
+      {
         "path": "pages/systems/adaptive-trust-sampling.md",
         "sha256": "55f7f812bb7134e348470a2bec329e6cd6c8d4695c4ce3a34ab209aa03aa9053",
         "size": 6252
@@ -7119,8 +7124,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T03:46:05Z",
-  "file_count": 1422,
+  "exported_at": "2026-06-18T03:52:33Z",
+  "file_count": 1423,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10397,7 +10402,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "83086de4f2bf0a3361a197904cc3e0ec8737a491ea5082298ef6ef76e700059f",
+  "previous_tree_hash": "80ccd64394f36154a6bf7538021d23c77a70a7169cbbbb79a3505df0d48dd2ef",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10410,14 +10415,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "80ccd64394f36154a6bf7538021d23c77a70a7169cbbbb79a3505df0d48dd2ef",
+  "tree_hash": "717a418eb62afa71f67e35a0eb46e87a2f4dbcfe65374b2219fb7bd417fcab39",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 768,
+  "wiki_file_count": 769,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10426,13 +10431,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d6c7d9e5a2c2a7ac3f1dd37bd87eca48cb0f1134e019af491f1d5de0bda068d6",
-      "size": 908637
+      "sha256": "1a05adb966c0a6fe92d01862f757bb52219770754843bebf7ecdb81dbf752ae8",
+      "size": 909380
     },
     {
       "path": "log.md",
-      "sha256": "4e792ba6fd3c3c71f005f91c38e3b321ce06b03dec0fedbba84717ad94cba2b2",
-      "size": 1631587
+      "sha256": "0e89ecaa17c20b3db5bb62a6940865cc5aa460a09f7d6587696bf00c043b855b",
+      "size": 1631971
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13730,6 +13735,11 @@
       "size": 3701
     },
     {
+      "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
+      "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
+      "size": 1741
+    },
+    {
       "path": "pages/systems/adaptive-trust-sampling.md",
       "sha256": "55f7f812bb7134e348470a2bec329e6cd6c8d4695c4ce3a34ab209aa03aa9053",
       "size": 6252
@@ -14261,5 +14271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a3668ec0845159fdf33092ab430308ed5f5a36b7eefa94a27541a0b92063244d"
+  "wiki_tree_hash": "129be633d0b76a152bee02e3c186c24846d52eb2ce233984a62f20b51f1dca15"
 }
