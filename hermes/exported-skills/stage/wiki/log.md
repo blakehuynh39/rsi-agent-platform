@@ -33844,3 +33844,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_265c05ef56cadd07d7dab4eb8ba9de45
 - summary: Decision to use Gulf, Saudi, and Emirati dialects for Arabic audio transcripts, due to their popularity among many varieties.
 
+## [2026-06-18T18:02:01Z] synthesis | Numo Data Validation Integration
+
+- status: published
+- slug: systems/numo-data-validation-integration
+- wiki_revision_id: wikirev_7e54fe775292f0f1157cff3f1cc338cd
+- summary: Integration between Numo and the data validation system (DVP). Handles submission review, validation, deepfake detection, and publishing results back to Numo API for payout. Curren...
+
