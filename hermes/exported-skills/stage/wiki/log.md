@@ -33944,3 +33944,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_69385330f939479085ccddb9005a6e6a
 - summary: Elise from the Korean team requested access to Numo Figma files, specifically the logo component. Ava shared available links, Allen provided the logo component link, and Lex was as...
 
+## [2026-06-18T20:01:59Z] synthesis | New Languages Update (June 2026)
+
+- status: published
+- slug: projects/new-languages-update-june-2026
+- wiki_revision_id: wikirev_cdaf25aa67433df903b039f7dd09d42b
+- summary: Preparations for a marketing update about new languages on Numo, focusing on new tasks. Seed phrase feature not yet ready. Incident: Malay and Indonesian were mistakenly activated,...
+

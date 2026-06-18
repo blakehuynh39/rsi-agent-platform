@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "cbb85fe90735cf536c52df82088410f1f99630d17699b9320d549cc8f215af70",
+        "sha256": "a4ce67b7547e8fb204b6bae7a76f79bb4010a3ac1c4ee2568c4cbadf4ac624a5",
         "size": 31923
       },
       {
@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "db3b570c38456783037be9204c0164319bd9d775c7484160c299748b97d8c636",
-        "size": 1664486
+        "sha256": "f58494534968f8a7b3de9a69ea233b882ef52e591ec4dbb9273b5b537a655ddd",
+        "size": 1664883
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5745,6 +5745,11 @@
         "size": 3258
       },
       {
+        "path": "pages/projects/new-languages-update-june-2026.md",
+        "sha256": "e256d964c924f27ffae65596afbc7e73c1cb6db2b16ab92ac356f23271124f73",
+        "size": 4141
+      },
+      {
         "path": "pages/projects/nft-standard-design.md",
         "sha256": "d5536719681b224313fbc808369155ca44e7446b3b275966616964fa3b141b3f",
         "size": 5835
@@ -7509,8 +7514,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T19:56:59Z",
-  "file_count": 1500,
+  "exported_at": "2026-06-18T20:03:37Z",
+  "file_count": 1501,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -7569,7 +7574,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "cbb85fe90735cf536c52df82088410f1f99630d17699b9320d549cc8f215af70",
+      "sha256": "a4ce67b7547e8fb204b6bae7a76f79bb4010a3ac1c4ee2568c4cbadf4ac624a5",
       "size": 31923
     },
     {
@@ -10787,7 +10792,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "df7c5034226d44d17c7c6a87f86e0db7620516bdea6646d68f6076a4e1d0d855",
+  "previous_tree_hash": "cd8b4ec28a0cfbac6790ddab9974d50311ef90ddd555b9ce2fb5b6ec237d1e72",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10798,16 +10803,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
+  "skill_tree_hash": "f3e99d2947f349247eabca884400d1897409d87f2f0d429f6d857a08e49e865c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cd8b4ec28a0cfbac6790ddab9974d50311ef90ddd555b9ce2fb5b6ec237d1e72",
+  "tree_hash": "7ed855bd68da47388892ae99e5fdec074dcbd11c1ca3eaa4b5fbfb5b9e50af2c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 846,
+  "wiki_file_count": 847,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10821,8 +10826,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "db3b570c38456783037be9204c0164319bd9d775c7484160c299748b97d8c636",
-      "size": 1664486
+      "sha256": "f58494534968f8a7b3de9a69ea233b882ef52e591ec4dbb9273b5b537a655ddd",
+      "size": 1664883
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13280,6 +13285,11 @@
       "size": 3258
     },
     {
+      "path": "pages/projects/new-languages-update-june-2026.md",
+      "sha256": "e256d964c924f27ffae65596afbc7e73c1cb6db2b16ab92ac356f23271124f73",
+      "size": 4141
+    },
+    {
       "path": "pages/projects/nft-standard-design.md",
       "sha256": "d5536719681b224313fbc808369155ca44e7446b3b275966616964fa3b141b3f",
       "size": 5835
@@ -15041,5 +15051,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6026f4beef77e66a50a4f6a9ef019aeb72946e7354915df49657f65469499d45"
+  "wiki_tree_hash": "61e9dbace7bcd4f5bf5ba002d997bf2f9ca2ddc26fc62199a671fae02485c2da"
 }
