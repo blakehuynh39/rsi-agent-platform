@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "19a966ad3047cdf30215ad4713fb5794e29e2209b7c83447b8a6ca71c0f6069c",
-        "size": 1673648
+        "sha256": "d7583ff04d9f49a33bc8bfdc4674902739eb73355890d772415d131891b659ea",
+        "size": 1674340
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4740,6 +4740,11 @@
         "size": 1384
       },
       {
+        "path": "pages/decisions/task-language-requirements.md",
+        "sha256": "57c180bedc5996cda5a2799c50d0892d969f563ef1e6638d91df0b4efeb310b2",
+        "size": 2071
+      },
+      {
         "path": "pages/decisions/tax-integration-provider-selection.md",
         "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
         "size": 4570
@@ -5833,6 +5838,11 @@
         "path": "pages/projects/numo-expert.md",
         "sha256": "4140757b3ded1fd5353adcdb7463ad5c35dfeef06cd572ce024c77f4d31b7543",
         "size": 5603
+      },
+      {
+        "path": "pages/projects/numo-labs-prod-launch.md",
+        "sha256": "3c5c166f102e901b795f7b0eca2a2802db5bcf5090b6477477d44a82d893546e",
+        "size": 1777
       },
       {
         "path": "pages/projects/numo-launch-roadmap.md",
@@ -7619,8 +7629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T23:06:33Z",
-  "file_count": 1522,
+  "exported_at": "2026-06-18T23:33:36Z",
+  "file_count": 1524,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10897,7 +10907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "aba022e9d158cee54389a2053ac53c62fd3e096a27188eb8032097e992002060",
+  "previous_tree_hash": "59ff0fd228b1f6bf015c4f3adf962f72149162723bb262f4afb3a45d1e5251aa",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10910,14 +10920,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "59ff0fd228b1f6bf015c4f3adf962f72149162723bb262f4afb3a45d1e5251aa",
+  "tree_hash": "bb0c15c9f3f807848af5f0c74dff94a922a343edd091f217592c6560dd9c0a27",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 868,
+  "wiki_file_count": 870,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10931,8 +10941,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "19a966ad3047cdf30215ad4713fb5794e29e2209b7c83447b8a6ca71c0f6069c",
-      "size": 1673648
+      "sha256": "d7583ff04d9f49a33bc8bfdc4674902739eb73355890d772415d131891b659ea",
+      "size": 1674340
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12385,6 +12395,11 @@
       "size": 1384
     },
     {
+      "path": "pages/decisions/task-language-requirements.md",
+      "sha256": "57c180bedc5996cda5a2799c50d0892d969f563ef1e6638d91df0b4efeb310b2",
+      "size": 2071
+    },
+    {
       "path": "pages/decisions/tax-integration-provider-selection.md",
       "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
       "size": 4570
@@ -13478,6 +13493,11 @@
       "path": "pages/projects/numo-expert.md",
       "sha256": "4140757b3ded1fd5353adcdb7463ad5c35dfeef06cd572ce024c77f4d31b7543",
       "size": 5603
+    },
+    {
+      "path": "pages/projects/numo-labs-prod-launch.md",
+      "sha256": "3c5c166f102e901b795f7b0eca2a2802db5bcf5090b6477477d44a82d893546e",
+      "size": 1777
     },
     {
       "path": "pages/projects/numo-launch-roadmap.md",
@@ -15261,5 +15281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ab6de2dd8626ba5b025cd139c59dd0b1f41cfbf374ccbed11c65ddfc0ceec387"
+  "wiki_tree_hash": "968197802807f79a9dc4bb13c51460bd76f9120b150fd4891aff07a06908628c"
 }

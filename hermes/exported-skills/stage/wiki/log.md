@@ -34107,3 +34107,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7dddb226294237ace0daf327dfe4f8df
 - summary: On June 11, 2026, a bug was reported where the tax form setup button intermittently disappeared and clicking the tax button resulted in an empty page and error. Spamming buttons le...
 
+## [2026-06-18T23:31:55Z] synthesis | Numo Labs Production Launch
+
+- status: published
+- slug: projects/numo-labs-prod-launch
+- wiki_revision_id: wikirev_d6cb0ee7fcee6f3a0137443881e16202
+- summary: The Numo Labs feature was enabled on production at app.numolabs.ai, ready for marketing and Twitter announcement.
+
+## [2026-06-18T23:31:55Z] synthesis | Task Language Requirements
+
+- status: published
+- slug: decisions/task-language-requirements
+- wiki_revision_id: wikirev_a06039652e944686aab0e8fba0ea6bb9
+- summary: A decision was made to initially only accept English documents for tasks because it is universally accepted by international universities. Later, the English tag was removed.
+
