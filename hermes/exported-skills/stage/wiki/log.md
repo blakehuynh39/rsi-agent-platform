@@ -33623,3 +33623,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_663ae2216e5fbec270d901cc975b44d5
 - summary: Avneet Singh requested whitelisting of his personal email foravneet@gmail.com for live payment testing. The request was completed after noting that the email must be used to regist...
 
+## [2026-06-18T15:33:26Z] synthesis | TaxBandits Payment Integration
+
+- status: published
+- slug: projects/taxbandits-integration
+- wiki_revision_id: wikirev_7314c843002e7fc0c65e364587f828ae
+- summary: Integration of TaxBandits for W8/W9 forms, engineering integration complete with e2e POC, live deployment pending TaxBandits account, target within 2-3 days.
+
+## [2026-06-18T15:33:27Z] synthesis | Broadcaster Development
+
+- status: published
+- slug: projects/broadcaster-development
+- wiki_revision_id: wikirev_872f66b6783f39aadeaf30d6f961f950
+- summary: Final coding of remaining features, moving to infrastructure and staging deployment; help requested from @U07TNT9N4JC.
+
+## [2026-06-18T15:33:27Z] synthesis | Smart Contract Design Proposal
+
+- status: published
+- slug: decisions/smart-contract-design-proposal
+- wiki_revision_id: wikirev_6fc725377b53dd8db0bcd0930f59ba4c
+- summary: A design proposal for smart contracts has been created (Notion link) and the team will iterate on it.
+
+## [2026-06-18T15:33:27Z] synthesis | UI Translations
+
+- status: published
+- slug: concepts/ui-translations
+- wiki_revision_id: wikirev_c499e4d17e9bf745b6fd722a790b266d
+- summary: Added translation options for new languages and changed language picker to a scrolling select box; tested on staging.
+
+## [2026-06-18T15:33:27Z] synthesis | Payment Whitelist
+
+- status: published
+- slug: concepts/payment-whitelist
+- wiki_revision_id: wikirev_a6c218706315a63444322e410159931d
+- summary: Payment whitelist feature testing is in progress.
+
+## [2026-06-18T15:33:27Z] synthesis | Trace Schema Update
+
+- status: published
+- slug: projects/trace-schema-update
+- wiki_revision_id: wikirev_bb7788351022d41086defc1f9a35977a
+- summary: Working on a new trace schema based on kled feedback.
+

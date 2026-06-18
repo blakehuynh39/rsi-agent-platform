@@ -1,49 +1,49 @@
 ---
-title: "TaxBandits Integration"
+title: "TaxBandits Payment Integration"
 type: "project"
 slug: "projects/taxbandits-integration"
-freshness: "2026-06-02T08:48:30Z"
+freshness: "2026-06-02T17:42:27Z"
 tags:
-  - "compliance"
-  - "tax-forms"
-  - "third-party-integration"
-  - "w8-w9"
-owners: []
+  - "integration"
+  - "numo"
+  - "payments"
+  - "taxbandits"
+owners:
+  - "U05A515NBFC"
+  - "U083MMT1771"
+  - "U0883L0RBRR"
+  - "U08951K4SRY"
+  - "U09QGMMUDPC"
 source_revision_ids:
-  - "srcrev_3b0cfa2b70f7b2ac3819d4c4049448a3"
-  - "srcrev_a55689bb739ed1679be94e62cb746683"
-  - "srcrev_b83ef2dce4b2ced05dfc92566499242b"
-  - "srcrev_e833a6653bb3c873cfc79320dd8aab26"
+  - "srcrev_037d44286e813502f7db3917614062a0"
+  - "srcrev_990d21871bb6a14f2c9ccba29d43e132"
 conflict_state: "none"
 ---
 
-# TaxBandits Integration
+# TaxBandits Payment Integration
 
 ## Summary
 
-Integration of TaxBandits for W-8 / W-9 form collection, including UX evaluation, sandbox testing, and parallel Stripe exploration.
+Integration of TaxBandits for W8/W9 forms, engineering integration complete with e2e POC, live deployment pending TaxBandits account, target within 2-3 days.
 
 ## Claims
 
-- An MNDA with TaxBandits was signed to enable the integration. `claim:claim_2_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_3b0cfa2b70f7b2ac3819d4c4049448a3` `chunk_id=srcchunk_79ed402d8ca7426dc582df336057cbe6` `native_locator=slack:C0AL7EKNHDF:1779992666.699459:1779992666.699459` `source_timestamp=2026-05-28T18:24:26Z`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_e833a6653bb3c873cfc79320dd8aab26` `chunk_id=srcchunk_1b9119d46d10fe14d5abcb303a07893e` `native_locator=slack:C0AL7EKNHDF:1779994971.364659:1779994971.364659` `source_timestamp=2026-05-28T19:02:51Z`
-- A POC page at team-ux.vercel.app showcased the TaxBandits W-9/W-8 form drop-in with a combined chooser and option to load specific forms directly. `claim:claim_2_2` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_b83ef2dce4b2ced05dfc92566499242b` `chunk_id=srcchunk_86371d252d645f15b993f3044b9e58f8` `native_locator=slack:C0AL7EKNHDF:1780389450.652649:1780389450.652649` `source_timestamp=2026-06-02T08:48:30Z`
-- TaxBandits UX was rated best among reviewed options, but improvements were being negotiated. `claim:claim_2_3` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_b83ef2dce4b2ced05dfc92566499242b` `chunk_id=srcchunk_86371d252d645f15b993f3044b9e58f8` `native_locator=slack:C0AL7EKNHDF:1780389450.652649:1780389450.652649` `source_timestamp=2026-06-02T08:48:30Z`
-- Integration on sandbox was planned to begin immediately, with go-live approval targeted for the same week. `claim:claim_2_4` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_b83ef2dce4b2ced05dfc92566499242b` `chunk_id=srcchunk_86371d252d645f15b993f3044b9e58f8` `native_locator=slack:C0AL7EKNHDF:1780389450.652649:1780389450.652649` `source_timestamp=2026-06-02T08:48:30Z`
-- Parallel work on Stripe for W8/W9 and stablecoin rails was in progress, expected to be cheaper at scale. `claim:claim_2_5` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_a55689bb739ed1679be94e62cb746683` `chunk_id=srcchunk_9b535c60a8559a2530d3347364898159` `native_locator=slack:C0AL7EKNHDF:1780390019.465499:1780390019.465499` `source_timestamp=2026-06-02T08:46:59Z`
-- Priority for TaxBandits work was obtaining live account status within 2–3 days and further UX enhancements. `claim:claim_2_6` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_02882053947288838246eb0a4d96bb56` `source_revision_id=srcrev_a55689bb739ed1679be94e62cb746683` `chunk_id=srcchunk_9b535c60a8559a2530d3347364898159` `native_locator=slack:C0AL7EKNHDF:1780390019.465499:1780390019.465499` `source_timestamp=2026-06-02T08:46:59Z`
+- Engineering Integration has no blockers; an e2e working TaxBandits POC for w8/9 forms was shared with instructions and code. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_0ced1cbc332bad4ea9bd5a87b76088fe` `source_revision_id=srcrev_990d21871bb6a14f2c9ccba29d43e132` `chunk_id=srcchunk_f8cf605fceaf9bd144d153065fbd9928` `native_locator=slack:C0AL7EKNHDF:1780413763.721109:1780422147.576969` `source_timestamp=2026-06-02T17:42:27Z`
+- Live deployment dependency is getting a TaxBandits account to go live; target within 2-3 days. `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_0ced1cbc332bad4ea9bd5a87b76088fe` `source_revision_id=srcrev_990d21871bb6a14f2c9ccba29d43e132` `chunk_id=srcchunk_f8cf605fceaf9bd144d153065fbd9928` `native_locator=slack:C0AL7EKNHDF:1780413763.721109:1780422147.576969` `source_timestamp=2026-06-02T17:42:27Z`
+- A plan for the TaxBandits integration has been created. `claim:claim_1_3` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_0ced1cbc332bad4ea9bd5a87b76088fe` `source_revision_id=srcrev_037d44286e813502f7db3917614062a0` `chunk_id=srcchunk_aa7912906098c168bb2f7025bfd69485` `native_locator=slack:C0AL7EKNHDF:1780413763.721109:1780414968.603109` `source_timestamp=2026-06-02T15:42:48Z`
+
+## Open Questions
+
+- What's the overall status for payment integration? what's the target date and what's blocking?
 
 ## Related Pages
 
-- `numo-external-communication-guideline`
+- `payment-whitelist`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_02882053947288838246eb0a4d96bb56`
-- `source_revision_id`: `srcrev_7d25cc1a4053a5e78027f9bd1b56293e`
+- `source_document_id`: `srcdoc_0ced1cbc332bad4ea9bd5a87b76088fe`
+- `source_revision_id`: `srcrev_328c20e2b396c4c24533d8131995d814`

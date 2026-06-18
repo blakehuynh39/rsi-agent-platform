@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "89cd1027c80eeee03a5dc302625907ae38c14c330a843ad84e578c85fc9d6f0b",
-        "size": 922345
+        "sha256": "f5e1598299d5a28f64c17e6e551700daeca14eb3e0a0ffea83fd2c90d1232609",
+        "size": 924150
       },
       {
         "path": "log.md",
-        "sha256": "fb578484f9de86b0be834e40d5cc6aff1f4b894b189b524279937c6831361e28",
-        "size": 1647681
+        "sha256": "61ca063213e2a7d956bdb57f95103834cea055663eaba6cd3d88aa8cea93921d",
+        "size": 1649885
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -3960,6 +3960,11 @@
         "size": 1303
       },
       {
+        "path": "pages/concepts/payment-whitelist.md",
+        "sha256": "a4a17283fb12ad4572586d2de5fc1f7984405374bb3babc7209e84fb963bb28c",
+        "size": 1024
+      },
+      {
         "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
         "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
         "size": 2786
@@ -4253,6 +4258,11 @@
         "path": "pages/concepts/transfer-to-vault-function.md",
         "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
         "size": 3648
+      },
+      {
+        "path": "pages/concepts/ui-translations.md",
+        "sha256": "747d881b7cd290db157b88f4b84521ea2a6de3657ce988711426d36a35d9347c",
+        "size": 1615
       },
       {
         "path": "pages/concepts/unified-ip-account.md",
@@ -4585,6 +4595,11 @@
         "size": 3132
       },
       {
+        "path": "pages/decisions/smart-contract-design-proposal.md",
+        "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
+        "size": 1211
+      },
+      {
         "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
         "sha256": "eaac2ec89278121d98bba9342c6836bdfabaa9d0559f1205bd997fcc71e52cbe",
         "size": 1757
@@ -4683,6 +4698,11 @@
         "path": "pages/decisions/web2-api-strategy.md",
         "sha256": "a234210233b84c84a66869842d326fd53d9560fbe78e9f7d6d5a93b929959563",
         "size": 5348
+      },
+      {
+        "path": "pages/decisions/whitelist-foravneet-gmail-live-payment-testing.md",
+        "sha256": "6e5f5bcaf90f78c775642dbda2b55185dbc3fe5d7a25b6d49d7ca61c8ab133f8",
+        "size": 3241
       },
       {
         "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -5118,6 +5138,11 @@
         "path": "pages/projects/bridge-app-requirement.md",
         "sha256": "8531140e53f14fee19e03182a332789ebd0f6f4f569d1d01a40e62c8178f5c8d",
         "size": 3017
+      },
+      {
+        "path": "pages/projects/broadcaster-development.md",
+        "sha256": "97e56a30d9d0adb3a078e4e6bffd88afc3f7ccc4074004f80e7ce977d3327443",
+        "size": 1525
       },
       {
         "path": "pages/projects/community-badge.md",
@@ -6091,8 +6116,8 @@
       },
       {
         "path": "pages/projects/taxbandits-integration.md",
-        "sha256": "3d09ac4a237213b608d95b3731c67a42518ec213c5bac9fe312d66e613ac12af",
-        "size": 3791
+        "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
+        "size": 2249
       },
       {
         "path": "pages/projects/testnet-launch-checklist.md",
@@ -6123,6 +6148,11 @@
         "path": "pages/projects/trace-product-requirements-v1.md",
         "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
         "size": 9328
+      },
+      {
+        "path": "pages/projects/trace-schema-update.md",
+        "sha256": "ad5be9698c3094a97d18746a0f1eb64227bf30f491841bd47cb163a1ede490bf",
+        "size": 979
       },
       {
         "path": "pages/projects/trace-v1-product-requirements.md",
@@ -7299,8 +7329,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T15:31:47Z",
-  "file_count": 1458,
+  "exported_at": "2026-06-18T15:38:26Z",
+  "file_count": 1464,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10577,7 +10607,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4a27f1519bf881c721816069dcd551ce5be6358b325de43ce11736ce86a1eee4",
+  "previous_tree_hash": "9ad77213c40a0ed2c5042a8af8280b81b69ba9d7fe254b9b82e917e1afbdd22e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10590,14 +10620,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9ad77213c40a0ed2c5042a8af8280b81b69ba9d7fe254b9b82e917e1afbdd22e",
+  "tree_hash": "88c30c31b2a6d20d8df2c251d93eaa16f20e2082e1f2768f6071ab5f89035eaa",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 804,
+  "wiki_file_count": 810,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10606,13 +10636,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "89cd1027c80eeee03a5dc302625907ae38c14c330a843ad84e578c85fc9d6f0b",
-      "size": 922345
+      "sha256": "f5e1598299d5a28f64c17e6e551700daeca14eb3e0a0ffea83fd2c90d1232609",
+      "size": 924150
     },
     {
       "path": "log.md",
-      "sha256": "fb578484f9de86b0be834e40d5cc6aff1f4b894b189b524279937c6831361e28",
-      "size": 1647681
+      "sha256": "61ca063213e2a7d956bdb57f95103834cea055663eaba6cd3d88aa8cea93921d",
+      "size": 1649885
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11285,6 +11315,11 @@
       "size": 1303
     },
     {
+      "path": "pages/concepts/payment-whitelist.md",
+      "sha256": "a4a17283fb12ad4572586d2de5fc1f7984405374bb3babc7209e84fb963bb28c",
+      "size": 1024
+    },
+    {
       "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
       "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
       "size": 2786
@@ -11578,6 +11613,11 @@
       "path": "pages/concepts/transfer-to-vault-function.md",
       "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
       "size": 3648
+    },
+    {
+      "path": "pages/concepts/ui-translations.md",
+      "sha256": "747d881b7cd290db157b88f4b84521ea2a6de3657ce988711426d36a35d9347c",
+      "size": 1615
     },
     {
       "path": "pages/concepts/unified-ip-account.md",
@@ -11910,6 +11950,11 @@
       "size": 3132
     },
     {
+      "path": "pages/decisions/smart-contract-design-proposal.md",
+      "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
+      "size": 1211
+    },
+    {
       "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
       "sha256": "eaac2ec89278121d98bba9342c6836bdfabaa9d0559f1205bd997fcc71e52cbe",
       "size": 1757
@@ -12008,6 +12053,11 @@
       "path": "pages/decisions/web2-api-strategy.md",
       "sha256": "a234210233b84c84a66869842d326fd53d9560fbe78e9f7d6d5a93b929959563",
       "size": 5348
+    },
+    {
+      "path": "pages/decisions/whitelist-foravneet-gmail-live-payment-testing.md",
+      "sha256": "6e5f5bcaf90f78c775642dbda2b55185dbc3fe5d7a25b6d49d7ca61c8ab133f8",
+      "size": 3241
     },
     {
       "path": "pages/open-questions/access-controller-repetitiveness.md",
@@ -12443,6 +12493,11 @@
       "path": "pages/projects/bridge-app-requirement.md",
       "sha256": "8531140e53f14fee19e03182a332789ebd0f6f4f569d1d01a40e62c8178f5c8d",
       "size": 3017
+    },
+    {
+      "path": "pages/projects/broadcaster-development.md",
+      "sha256": "97e56a30d9d0adb3a078e4e6bffd88afc3f7ccc4074004f80e7ce977d3327443",
+      "size": 1525
     },
     {
       "path": "pages/projects/community-badge.md",
@@ -13416,8 +13471,8 @@
     },
     {
       "path": "pages/projects/taxbandits-integration.md",
-      "sha256": "3d09ac4a237213b608d95b3731c67a42518ec213c5bac9fe312d66e613ac12af",
-      "size": 3791
+      "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
+      "size": 2249
     },
     {
       "path": "pages/projects/testnet-launch-checklist.md",
@@ -13448,6 +13503,11 @@
       "path": "pages/projects/trace-product-requirements-v1.md",
       "sha256": "b6b3a76af9e10843cf6e0663dae7cccb752f9ccae3bfc0738feaa93aa2c19a08",
       "size": 9328
+    },
+    {
+      "path": "pages/projects/trace-schema-update.md",
+      "sha256": "ad5be9698c3094a97d18746a0f1eb64227bf30f491841bd47cb163a1ede490bf",
+      "size": 979
     },
     {
       "path": "pages/projects/trace-v1-product-requirements.md",
@@ -14621,5 +14681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3e98f191ad58ce3059efb5e77e0c6eb6d69bc8326f42234c65842c39f9125604"
+  "wiki_tree_hash": "ebe431207305facbc886b86f89b544aa1fd7701837f125b7c969fd82a5852666"
 }
