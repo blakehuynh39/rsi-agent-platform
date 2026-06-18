@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "26704d30bd51c6840bfdbcd05b9d40e7b9c99c6b0cd774f240dc06f944c85fed",
-        "size": 902649
+        "sha256": "b1e4b32be28c60f3e3d316593ddc6426dddc73d49a019614ad976864485f5ac8",
+        "size": 903036
       },
       {
         "path": "log.md",
-        "sha256": "b34359a2cb691322e513c2a73b086376386f363ff1032fc5d3f44cc3eb7d620f",
-        "size": 1624631
+        "sha256": "a5e4fa4d6203ce0728d1f3158a685a18af1ef9a7478aac1cb290d364230ada3d",
+        "size": 1625423
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5850,6 +5850,11 @@
         "size": 3119
       },
       {
+        "path": "pages/projects/royalty-vault-auto-deployment.md",
+        "sha256": "29865499ec5bb0212f9efc6e159565a2791d68874ba850c16852f338c69816f0",
+        "size": 2695
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -7034,8 +7039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-17T23:52:05Z",
-  "file_count": 1405,
+  "exported_at": "2026-06-18T00:03:38Z",
+  "file_count": 1406,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10312,7 +10317,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "94a9ae50df1c5d760d8cc92339af0147520cd5a268edce3f43c1c956bf1f0be9",
+  "previous_tree_hash": "60295936f9818badfd436cd2a2cb5eb22642804e586f4590381cbc15596e17fd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10325,14 +10330,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "60295936f9818badfd436cd2a2cb5eb22642804e586f4590381cbc15596e17fd",
+  "tree_hash": "6f74581d110a0f979c9dec8767d1218111432cad72e3bbc5df997143915ab3e0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 751,
+  "wiki_file_count": 752,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10341,13 +10346,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "26704d30bd51c6840bfdbcd05b9d40e7b9c99c6b0cd774f240dc06f944c85fed",
-      "size": 902649
+      "sha256": "b1e4b32be28c60f3e3d316593ddc6426dddc73d49a019614ad976864485f5ac8",
+      "size": 903036
     },
     {
       "path": "log.md",
-      "sha256": "b34359a2cb691322e513c2a73b086376386f363ff1032fc5d3f44cc3eb7d620f",
-      "size": 1624631
+      "sha256": "a5e4fa4d6203ce0728d1f3158a685a18af1ef9a7478aac1cb290d364230ada3d",
+      "size": 1625423
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12910,6 +12915,11 @@
       "size": 3119
     },
     {
+      "path": "pages/projects/royalty-vault-auto-deployment.md",
+      "sha256": "29865499ec5bb0212f9efc6e159565a2791d68874ba850c16852f338c69816f0",
+      "size": 2695
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -14091,5 +14101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "293f91babd73afcd1f050fcac24ddccfa168a4def49057927bdad48c4dd8b03c"
+  "wiki_tree_hash": "ec861cde22bd7b5f659e5bd231fba84edc95de8bab27e7c4da670d6cf620b8a3"
 }

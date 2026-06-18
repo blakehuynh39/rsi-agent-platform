@@ -33187,3 +33187,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_179a8b91aea41945f6d324f4fbb9bfbe
 - summary: Troubleshooting the ValueError 'The royalty percent for the parent IP with id ... is greater than the maximum revenue share ...' when calling registerDerivative via the Story Proto...
 
+## [2026-06-18T00:00:51Z] synthesis | Royalty Vault Auto-Deployment
+
+- status: published
+- slug: projects/royalty-vault-auto-deployment
+- wiki_revision_id: wikirev_f1a3793b1487a441e15a64bf0247e57a
+- summary: Project to automatically deploy royalty vaults for IPAs, enabling staking/tipping rewards for any IPA, including those without commercial licensing. Workarounds exist for non-comme...
+
+## [2026-06-18T00:01:46Z] synthesis | Royalty Token Vault Auto-Deployment
+
+- status: published
+- slug: projects/royalty-vault-auto-deployment
+- wiki_revision_id: wikirev_38663c62801594d0fb5f0d09b5541049
+- summary: Implement auto-deployment of royalty token vaults for root IPAs without commercial licensing, enabling Verio's staking/tipping on all IPAs. Expected with next Portal major release ...
+
