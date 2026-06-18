@@ -33851,3 +33851,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7e54fe775292f0f1157cff3f1cc338cd
 - summary: Integration between Numo and the data validation system (DVP). Handles submission review, validation, deepfake detection, and publishing results back to Numo API for payout. Curren...
 
+## [2026-06-18T18:15:26Z] ingest | Slack thread C0AKH5SNGKH 1781806223.059609
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1781806223-059609-58bbd468
+- wiki_revision_id: wikirev_f548a7437e82c6cc25fdbf64a98dc118
+- source_document_id: srcdoc_dfcabe9c1b819ca85ae7c9a158bbd468
+- source_revision_id: srcrev_ba387ae1dda78d9eacae011bea559518
+- summary: :white_check_mark: PR #427 reviewed and approved on GitHub.
+
+## [2026-06-18T18:16:50Z] synthesis | Filipino Validation Step Issue
+
+- status: published
+- slug: open-questions/filipino-validation-step-issue
+- wiki_revision_id: wikirev_a67d036540699d8f0498cd366bbdebb2
+- summary: A user reported being unable to get past the validation step for Filipino and was unsure if transcripts were available. They asked if anyone else could test.
+
