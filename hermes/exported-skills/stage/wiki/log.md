@@ -33700,3 +33700,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bf534c3a6c37f76be5971d4bedafd26a
 - summary: A user a9baf1af-f6fa-4aa2-a54c-a664548fdecb generated 4676 referrals in 1-2 days, likely via script. This pattern should be added as a risk signal and included in the payout-obliga...
 
+## [2026-06-18T16:46:16Z] synthesis | Numo-Trace Registration Integration
+
+- status: published
+- slug: projects/numo-trace-integration
+- wiki_revision_id: wikirev_373638c1cf66c188d3c9f02e06368114
+- summary: Integration to forward Numo user registrations to Trace upon launch, with a cron job syncing both new and existing records.
+
+## [2026-06-18T16:46:16Z] synthesis | Numo-Trace Cron Approach
+
+- status: published
+- slug: decisions/numo-trace-cron-approach
+- wiki_revision_id: wikirev_9ff4ee891c2cfcfaef6e4852f710f634
+- summary: Decision to use a cron job in the Numo API to sync registrations to Trace with deduplication.
+

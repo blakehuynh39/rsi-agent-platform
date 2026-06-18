@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "81cf2dcc6774e5832ca04a913586c250abff400d8da3763ff27002492799800f",
-        "size": 1651820
+        "sha256": "d3682e258409851425198cfe016bf9d500274e6da9e1832ce244667624b07142",
+        "size": 1652446
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4545,6 +4545,11 @@
         "size": 4593
       },
       {
+        "path": "pages/decisions/numo-trace-cron-approach.md",
+        "sha256": "ec86beb488dd01cb5167876e0706d5cb18112f6ebdd103b19df27a5e97b22945",
+        "size": 2650
+      },
+      {
         "path": "pages/decisions/numo-transition-to-korea-team.md",
         "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
         "size": 5098
@@ -5698,6 +5703,11 @@
         "path": "pages/projects/numo-launch-roadmap.md",
         "sha256": "22f0da691ed4e4fa296247518ac5d6435be7d96994b2823b4d3cdd7ec0b9c3de",
         "size": 62780
+      },
+      {
+        "path": "pages/projects/numo-trace-integration.md",
+        "sha256": "00618726f8396317c2fc79366b7b91b030142c65b77b21915b362f9ad4b2bdea",
+        "size": 5461
       },
       {
         "path": "pages/projects/numo-transition-korea-team.md",
@@ -7354,8 +7364,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T16:40:35Z",
-  "file_count": 1469,
+  "exported_at": "2026-06-18T16:47:12Z",
+  "file_count": 1471,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10632,7 +10642,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "d834f57edff406a8c04277d885f48a30bb2aaf3e70c7580f0854175144f15090",
+  "previous_tree_hash": "e92342016480e3ac18be14adbfaa1f1136d4d7b885009137dc0db309a0c2739a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10645,14 +10655,14 @@
   ],
   "skill_tree_hash": "dcf2541436d80dcb2d22eaa53e24b604f161203ba30322eeb0e41fbdf8c64bad",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e92342016480e3ac18be14adbfaa1f1136d4d7b885009137dc0db309a0c2739a",
+  "tree_hash": "7dfe3a520c42d47407c1639bbda016230a6caf4f569989a8714d76eb98935117",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 815,
+  "wiki_file_count": 817,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10666,8 +10676,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "81cf2dcc6774e5832ca04a913586c250abff400d8da3763ff27002492799800f",
-      "size": 1651820
+      "sha256": "d3682e258409851425198cfe016bf9d500274e6da9e1832ce244667624b07142",
+      "size": 1652446
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11925,6 +11935,11 @@
       "size": 4593
     },
     {
+      "path": "pages/decisions/numo-trace-cron-approach.md",
+      "sha256": "ec86beb488dd01cb5167876e0706d5cb18112f6ebdd103b19df27a5e97b22945",
+      "size": 2650
+    },
+    {
       "path": "pages/decisions/numo-transition-to-korea-team.md",
       "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
       "size": 5098
@@ -13078,6 +13093,11 @@
       "path": "pages/projects/numo-launch-roadmap.md",
       "sha256": "22f0da691ed4e4fa296247518ac5d6435be7d96994b2823b4d3cdd7ec0b9c3de",
       "size": 62780
+    },
+    {
+      "path": "pages/projects/numo-trace-integration.md",
+      "sha256": "00618726f8396317c2fc79366b7b91b030142c65b77b21915b362f9ad4b2bdea",
+      "size": 5461
     },
     {
       "path": "pages/projects/numo-transition-korea-team.md",
@@ -14731,5 +14751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "547089c13b9f073d25bc47948c61db7ef9b33489b21f6d89b2756b5bfed63ac2"
+  "wiki_tree_hash": "6dd75e6ed7403dce90dbe9c07ddc34967302348d8ed08db2df5d336b235fd2c1"
 }
