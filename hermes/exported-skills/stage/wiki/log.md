@@ -33958,3 +33958,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b95935f5dd6fba05cdd0e79e6123b2ce
 - summary: Decision to create a dedicated Slack channel for Numo metrics digest to reduce clutter in the main conversation channel. The channel has been created with ID C0B7MRJCMNK, and the w...
 
+## [2026-06-18T20:31:47Z] synthesis | Tax Integration Provider Selection
+
+- status: published
+- slug: decisions/tax-integration-provider-selection
+- wiki_revision_id: wikirev_26e0e444bda671f5849680b0966d8226
+- summary: Evaluation of tax integration providers (Avalara vs Taxbandits) for Numo's payments feature, driven by DRI @U09QGMMUDPC, with target launch by June 10 at risk.
+

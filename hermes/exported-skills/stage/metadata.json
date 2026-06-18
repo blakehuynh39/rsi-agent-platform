@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "544597d6e5e3f58f28de2bba67f14fa4976c7981dbf6b8e6067a8bda0b54fd04",
-        "size": 938026
+        "sha256": "cc2e529d09f38e558a6f7a356ac9fd610d96cf1cee0a1b5a0541d596ae5db602",
+        "size": 938394
       },
       {
         "path": "log.md",
-        "sha256": "1fbd09154e1c7311142206c32bc88394adfb359e20a09ae1af83618f4ac23df5",
-        "size": 1665269
+        "sha256": "6487d1fb8d84b95c89bb95e8e39d1f5b65448078ed3e31d306580087dde5c22e",
+        "size": 1665649
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4713,6 +4713,11 @@
         "path": "pages/decisions/subnet-worker-heartbeat.md",
         "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
         "size": 1384
+      },
+      {
+        "path": "pages/decisions/tax-integration-provider-selection.md",
+        "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
+        "size": 4570
       },
       {
         "path": "pages/decisions/token-distribution-vendor.md",
@@ -7519,8 +7524,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T20:23:26Z",
-  "file_count": 1502,
+  "exported_at": "2026-06-18T20:35:16Z",
+  "file_count": 1503,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10797,7 +10802,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "950f5d42aebed679330b1ea2d22b48d965b30cef5bdc9291f4a569689bcfddc0",
+  "previous_tree_hash": "fffd18fb9c0349d04f6807fad2b12f631a9367f4ad170938832ef77cb4a50cdd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10810,14 +10815,14 @@
   ],
   "skill_tree_hash": "f3e99d2947f349247eabca884400d1897409d87f2f0d429f6d857a08e49e865c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fffd18fb9c0349d04f6807fad2b12f631a9367f4ad170938832ef77cb4a50cdd",
+  "tree_hash": "85ef8798bd7429116f1ce0c8dd4e867c335b13784c1c8a18143fa001e1dfbcf9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 848,
+  "wiki_file_count": 849,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10826,13 +10831,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "544597d6e5e3f58f28de2bba67f14fa4976c7981dbf6b8e6067a8bda0b54fd04",
-      "size": 938026
+      "sha256": "cc2e529d09f38e558a6f7a356ac9fd610d96cf1cee0a1b5a0541d596ae5db602",
+      "size": 938394
     },
     {
       "path": "log.md",
-      "sha256": "1fbd09154e1c7311142206c32bc88394adfb359e20a09ae1af83618f4ac23df5",
-      "size": 1665269
+      "sha256": "6487d1fb8d84b95c89bb95e8e39d1f5b65448078ed3e31d306580087dde5c22e",
+      "size": 1665649
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12258,6 +12263,11 @@
       "path": "pages/decisions/subnet-worker-heartbeat.md",
       "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
       "size": 1384
+    },
+    {
+      "path": "pages/decisions/tax-integration-provider-selection.md",
+      "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
+      "size": 4570
     },
     {
       "path": "pages/decisions/token-distribution-vendor.md",
@@ -15061,5 +15071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "349ee02aef73006660a252bc9732367a3535099885010b47bc5fb583c445bad7"
+  "wiki_tree_hash": "fe975d649f6964f5415ecbd7262f9ed914e548f50048dc82ed6975dca93178d2"
 }
