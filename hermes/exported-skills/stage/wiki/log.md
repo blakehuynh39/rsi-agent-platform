@@ -33250,3 +33250,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_509af3c125a64a7765c1595caa076b34
 - summary: The story-api confirmer batch repeatedly failed, but sibling batches continued. The issue STORY-API-EM was resolved by Blake Huynh.
 
+## [2026-06-18T02:16:21Z] synthesis | story-api POST /api/v4/collections 500 Error
+
+- status: published
+- slug: concepts/story-api-post-collections-500-error
+- wiki_revision_id: wikirev_7de7356bd5b65b2542ab03286deb44a3
+- summary: story-api returned 500 Internal Server Error on POST /api/v4/collections on at least two occasions.
+

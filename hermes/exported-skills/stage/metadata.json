@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d910437e10ceb93b56b4a6fb1094305e584a4a3f0b89aa6f2a332b41d76364ec",
-        "size": 905763
+        "sha256": "958bf41dec43af2157bbc99e64c52a6469e9c88aeef1e08c22e9d184bd48d5dd",
+        "size": 906082
       },
       {
         "path": "log.md",
-        "sha256": "66f5218f34eb175ee9072ac8dc148b3b4c2a16a2056875db126ddfdec8c3dd24",
-        "size": 1628234
+        "sha256": "b92e37f4b5d980c52f805986a9c7aa23154207e9c194d120cbaf6f18316de276",
+        "size": 1628565
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4113,6 +4113,11 @@
         "path": "pages/concepts/storj.md",
         "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
         "size": 1012
+      },
+      {
+        "path": "pages/concepts/story-api-post-collections-500-error.md",
+        "sha256": "6620ea1551af65923c92e41622f8d10fd5226844406f07e5b2e8e1dfe77bacd5",
+        "size": 1494
       },
       {
         "path": "pages/concepts/story-l1-peer-discovery-insights.md",
@@ -7074,8 +7079,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T02:02:36Z",
-  "file_count": 1413,
+  "exported_at": "2026-06-18T02:19:13Z",
+  "file_count": 1414,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10352,7 +10357,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "242e9a23a07020a14444998ff4b77dcd5bc33d47213b3e2fb052d63329d8e30a",
+  "previous_tree_hash": "04cf1feedb153e86d7e5e0ae2640dc2d544a91c744e1aee8b1b2694f6ff708c9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10365,14 +10370,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "04cf1feedb153e86d7e5e0ae2640dc2d544a91c744e1aee8b1b2694f6ff708c9",
+  "tree_hash": "f8407347c3363ddf6d22f9633d3990fbe689eae3d7036014f4db50c4aceaf2a3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 759,
+  "wiki_file_count": 760,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10381,13 +10386,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d910437e10ceb93b56b4a6fb1094305e584a4a3f0b89aa6f2a332b41d76364ec",
-      "size": 905763
+      "sha256": "958bf41dec43af2157bbc99e64c52a6469e9c88aeef1e08c22e9d184bd48d5dd",
+      "size": 906082
     },
     {
       "path": "log.md",
-      "sha256": "66f5218f34eb175ee9072ac8dc148b3b4c2a16a2056875db126ddfdec8c3dd24",
-      "size": 1628234
+      "sha256": "b92e37f4b5d980c52f805986a9c7aa23154207e9c194d120cbaf6f18316de276",
+      "size": 1628565
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11213,6 +11218,11 @@
       "path": "pages/concepts/storj.md",
       "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
       "size": 1012
+    },
+    {
+      "path": "pages/concepts/story-api-post-collections-500-error.md",
+      "sha256": "6620ea1551af65923c92e41622f8d10fd5226844406f07e5b2e8e1dfe77bacd5",
+      "size": 1494
     },
     {
       "path": "pages/concepts/story-l1-peer-discovery-insights.md",
@@ -14171,5 +14181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b1c6746f1fabe78294a13542078a9c0d2a67b094a08b3e374ce93d5e02b4417a"
+  "wiki_tree_hash": "80073e1adb1d67dafdef3af4e56384364287dbad320f1dabcbb4c670d67087a8"
 }
