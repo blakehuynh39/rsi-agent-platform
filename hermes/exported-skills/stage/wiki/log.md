@@ -33714,3 +33714,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9ff4ee891c2cfcfaef6e4852f710f634
 - summary: Decision to use a cron job in the Numo API to sync registrations to Trace with deduplication.
 
+## [2026-06-18T16:48:15Z] synthesis | Customer Support Ticketing System
+
+- status: published
+- slug: systems/customer-support-ticketing-system
+- wiki_revision_id: wikirev_e163107be3abfb03648a3cb243f955a6
+- summary: Current customer support ticketing system uses GitHub issues generated from emails, managed by agents in Slack channel #C0B1GCNGQP7. Intercom migration was planned but postponed du...
+
+## [2026-06-18T16:48:15Z] synthesis | Turnstile Issue Handling Policy
+
+- status: published
+- slug: policies/turnstile-issue-handling-policy
+- wiki_revision_id: wikirev_b0acce64b15ad690c0c81db2645f197e
+- summary: Turnstile issues are deprioritized because they affect very few users, often due to automation or unnaturally fast usage. The engineering team focuses on critical bugs and new feat...
+

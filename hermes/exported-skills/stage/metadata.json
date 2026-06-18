@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e7e405621d20556014a246e6076248cca801ee1e62cd4f5872d86af1af0c6cc6",
-        "size": 926027
+        "sha256": "920dcf726cf5fc458459e78f1bd37946d06b7a6fb27f30917224f904a93e7474",
+        "size": 927403
       },
       {
         "path": "log.md",
-        "sha256": "d3682e258409851425198cfe016bf9d500274e6da9e1832ce244667624b07142",
-        "size": 1652446
+        "sha256": "8e1b5bd1c72d476d299b4df347f23d1810d72901745dcd634c6bdd329e11511e",
+        "size": 1653243
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5028,6 +5028,11 @@
         "path": "pages/policies/technical-vendor-intake-process.md",
         "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
         "size": 6574
+      },
+      {
+        "path": "pages/policies/turnstile-issue-handling-policy.md",
+        "sha256": "7378404610167481ff73923a4ab10fd2fafd630798c218e80d987ebe5e1e62eb",
+        "size": 2716
       },
       {
         "path": "pages/policies/validator-bootstrapping-strategy.md",
@@ -6900,6 +6905,11 @@
         "size": 2819
       },
       {
+        "path": "pages/systems/customer-support-ticketing-system.md",
+        "sha256": "09d17cea9dcd541f9bb99fe9a56125114a12b4cfcf2d46de51c7f2b3ee19a37c",
+        "size": 4062
+      },
+      {
         "path": "pages/systems/data-broadcaster.md",
         "sha256": "a003b5ea7b04b6b584848a21f995e238724ec4a39c92dc74dac419251384bab3",
         "size": 6154
@@ -7364,8 +7374,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T16:47:12Z",
-  "file_count": 1471,
+  "exported_at": "2026-06-18T16:53:52Z",
+  "file_count": 1473,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10642,7 +10652,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "e92342016480e3ac18be14adbfaa1f1136d4d7b885009137dc0db309a0c2739a",
+  "previous_tree_hash": "7dfe3a520c42d47407c1639bbda016230a6caf4f569989a8714d76eb98935117",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10655,14 +10665,14 @@
   ],
   "skill_tree_hash": "dcf2541436d80dcb2d22eaa53e24b604f161203ba30322eeb0e41fbdf8c64bad",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7dfe3a520c42d47407c1639bbda016230a6caf4f569989a8714d76eb98935117",
+  "tree_hash": "f3ed3450d62b7a90081f604b1cb9f1a39d5fe8f163f34b4287fd2058e43be31e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 817,
+  "wiki_file_count": 819,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10671,13 +10681,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e7e405621d20556014a246e6076248cca801ee1e62cd4f5872d86af1af0c6cc6",
-      "size": 926027
+      "sha256": "920dcf726cf5fc458459e78f1bd37946d06b7a6fb27f30917224f904a93e7474",
+      "size": 927403
     },
     {
       "path": "log.md",
-      "sha256": "d3682e258409851425198cfe016bf9d500274e6da9e1832ce244667624b07142",
-      "size": 1652446
+      "sha256": "8e1b5bd1c72d476d299b4df347f23d1810d72901745dcd634c6bdd329e11511e",
+      "size": 1653243
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12418,6 +12428,11 @@
       "path": "pages/policies/technical-vendor-intake-process.md",
       "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
       "size": 6574
+    },
+    {
+      "path": "pages/policies/turnstile-issue-handling-policy.md",
+      "sha256": "7378404610167481ff73923a4ab10fd2fafd630798c218e80d987ebe5e1e62eb",
+      "size": 2716
     },
     {
       "path": "pages/policies/validator-bootstrapping-strategy.md",
@@ -14290,6 +14305,11 @@
       "size": 2819
     },
     {
+      "path": "pages/systems/customer-support-ticketing-system.md",
+      "sha256": "09d17cea9dcd541f9bb99fe9a56125114a12b4cfcf2d46de51c7f2b3ee19a37c",
+      "size": 4062
+    },
+    {
       "path": "pages/systems/data-broadcaster.md",
       "sha256": "a003b5ea7b04b6b584848a21f995e238724ec4a39c92dc74dac419251384bab3",
       "size": 6154
@@ -14751,5 +14771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6dd75e6ed7403dce90dbe9c07ddc34967302348d8ed08db2df5d336b235fd2c1"
+  "wiki_tree_hash": "944a815ce76173916b4f641413317208e7191f4c6ff33383034a476829abf366"
 }
