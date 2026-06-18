@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f5e1598299d5a28f64c17e6e551700daeca14eb3e0a0ffea83fd2c90d1232609",
-        "size": 924150
+        "sha256": "4130b7fbe2859ecc20f9df8a1327d548d64a8722de873ebfa3bf700e084e1cdd",
+        "size": 924924
       },
       {
         "path": "log.md",
-        "sha256": "61ca063213e2a7d956bdb57f95103834cea055663eaba6cd3d88aa8cea93921d",
-        "size": 1649885
+        "sha256": "007b1f6371beaf0d8efe03e33946fcf1362086abb9313702cb5b6093f6ff9a6c",
+        "size": 1650682
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4595,6 +4595,11 @@
         "size": 3132
       },
       {
+        "path": "pages/decisions/shared-email-numo-psdn.md",
+        "sha256": "62042d8a750e8f0fb210be43031e957633e2ab323007a9c620acb6505fc03dd1",
+        "size": 7539
+      },
+      {
         "path": "pages/decisions/smart-contract-design-proposal.md",
         "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
         "size": 1211
@@ -5783,6 +5788,11 @@
         "path": "pages/projects/poseidon-atlas.md",
         "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
         "size": 8882
+      },
+      {
+        "path": "pages/projects/poseidon-deepfake-detection-pipeline.md",
+        "sha256": "2fd008db9cfe16b5bea8d935c266a94a5fa592a284140e7ceaf73c1f79622093",
+        "size": 3559
       },
       {
         "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -7329,8 +7339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T15:38:26Z",
-  "file_count": 1464,
+  "exported_at": "2026-06-18T16:05:24Z",
+  "file_count": 1466,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10607,7 +10617,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "9ad77213c40a0ed2c5042a8af8280b81b69ba9d7fe254b9b82e917e1afbdd22e",
+  "previous_tree_hash": "88c30c31b2a6d20d8df2c251d93eaa16f20e2082e1f2768f6071ab5f89035eaa",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10620,14 +10630,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "88c30c31b2a6d20d8df2c251d93eaa16f20e2082e1f2768f6071ab5f89035eaa",
+  "tree_hash": "099b2e6ed038f9aa1dbd5cb317bc5223a529d439e9518fd421a75c6ab9893e55",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 810,
+  "wiki_file_count": 812,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10636,13 +10646,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f5e1598299d5a28f64c17e6e551700daeca14eb3e0a0ffea83fd2c90d1232609",
-      "size": 924150
+      "sha256": "4130b7fbe2859ecc20f9df8a1327d548d64a8722de873ebfa3bf700e084e1cdd",
+      "size": 924924
     },
     {
       "path": "log.md",
-      "sha256": "61ca063213e2a7d956bdb57f95103834cea055663eaba6cd3d88aa8cea93921d",
-      "size": 1649885
+      "sha256": "007b1f6371beaf0d8efe03e33946fcf1362086abb9313702cb5b6093f6ff9a6c",
+      "size": 1650682
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11950,6 +11960,11 @@
       "size": 3132
     },
     {
+      "path": "pages/decisions/shared-email-numo-psdn.md",
+      "sha256": "62042d8a750e8f0fb210be43031e957633e2ab323007a9c620acb6505fc03dd1",
+      "size": 7539
+    },
+    {
       "path": "pages/decisions/smart-contract-design-proposal.md",
       "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
       "size": 1211
@@ -13138,6 +13153,11 @@
       "path": "pages/projects/poseidon-atlas.md",
       "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
       "size": 8882
+    },
+    {
+      "path": "pages/projects/poseidon-deepfake-detection-pipeline.md",
+      "sha256": "2fd008db9cfe16b5bea8d935c266a94a5fa592a284140e7ceaf73c1f79622093",
+      "size": 3559
     },
     {
       "path": "pages/projects/poseidon-depin-crunch-time-aug-2025.md",
@@ -14681,5 +14701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ebe431207305facbc886b86f89b544aa1fd7701837f125b7c969fd82a5852666"
+  "wiki_tree_hash": "6bc6e9a73c85d327a8b67c776581d0942d8384a1a072589adca178bee3b64b57"
 }

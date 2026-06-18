@@ -33665,3 +33665,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bb7788351022d41086defc1f9a35977a
 - summary: Working on a new trace schema based on kled feedback.
 
+## [2026-06-18T16:03:09Z] synthesis | Numo Shared Email (numo@psdn.ai)
+
+- status: published
+- slug: decisions/shared-email-numo-psdn
+- wiki_revision_id: wikirev_5b3b82544b47c8ba2b258dacffae9670
+- summary: The team decided to create and use numo@psdn.ai as a shared email for registering and managing Numo-specific service accounts. A Google Group distribution list was created and mana...
+
+## [2026-06-18T16:04:56Z] synthesis | Poseidon Deepfake Detection Pipeline
+
+- status: published
+- slug: projects/poseidon-deepfake-detection-pipeline
+- wiki_revision_id: wikirev_f74795ffbc46f338cde87f7a63ca5aff
+- summary: The pipeline for detecting deepfake audio submissions in Poseidon's Season 1 voice collection campaign. Early results identified a spammer using deepfakes that scored highly, highl...
+
