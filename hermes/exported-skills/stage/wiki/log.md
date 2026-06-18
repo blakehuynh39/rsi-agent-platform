@@ -33895,3 +33895,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b07d5643729f43adea00ea463ce55de7
 - summary: Launching Arabic language support for seed phrase verification, including word list, feature toggle, RTL support, and font testing.
 
+## [2026-06-18T19:00:52Z] synthesis | POC Follow-up
+
+- status: published
+- slug: projects/poc-follow-up
+- wiki_revision_id: wikirev_9b2d946c716117c61113391ca955e1d2
+- summary: A POC is in progress with an estimated time of 1-2 days. Follow-up is scheduled for tomorrow and next week's startup.
+
+## [2026-06-18T19:02:11Z] synthesis | Validation and Email Campaign Coordination
+
+- status: published
+- slug: projects/validation-email-campaign-june-2026
+- wiki_revision_id: wikirev_7a1894b17c6a8c61e29a0c3c7832669b
+- summary: Coordination of validation runs, user selection, and email sending with scheduling conflicts on June 17, 2026.
+

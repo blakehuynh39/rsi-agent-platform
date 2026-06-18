@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9c2d68f213b16fff594adbb6abab0dd08fa4525745d0fa930dea9416380d88cd",
-        "size": 934966
+        "sha256": "2e1c144b5faa7a3bb9b6a16ab97ede77d15a02fdc281e9ae0cb73aea7146df57",
+        "size": 935576
       },
       {
         "path": "log.md",
-        "sha256": "5cb48efbd090110b225884fd3e7848d7b3b05980e21fe652809ad7465a329b99",
-        "size": 1662102
+        "sha256": "e1c48fa4f7c79a24652d967db69a80d3d004d01a02ecd3ad9cf8adf596b5c0f1",
+        "size": 1662736
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -5885,6 +5885,11 @@
         "size": 4171
       },
       {
+        "path": "pages/projects/poc-follow-up.md",
+        "sha256": "e2beb48e14da0efbcdc07c74e260d67a6c676fdbe84de539a572fa2e8d6c2eb2",
+        "size": 1879
+      },
+      {
         "path": "pages/projects/poseidon-atlas.md",
         "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
         "size": 8882
@@ -6308,6 +6313,11 @@
         "path": "pages/projects/v1-relationships.md",
         "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
         "size": 4508
+      },
+      {
+        "path": "pages/projects/validation-email-campaign-june-2026.md",
+        "sha256": "08446af99a9ef1e2fe7666a52ae9f07d71eba52f36046e31d4f0d031c0abf4c9",
+        "size": 3442
       },
       {
         "path": "pages/projects/validator-network-scalability.md",
@@ -7474,8 +7484,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T18:53:02Z",
-  "file_count": 1493,
+  "exported_at": "2026-06-18T19:04:50Z",
+  "file_count": 1495,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10752,7 +10762,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "8b187289029d62695c26f61b7e9af1dbf85315302d8899998f1b7068d599e31e",
+  "previous_tree_hash": "b2f285ea8c0ebaf18902cb34daf37bdadcabe736beb9879464f79fcb0951f40e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10765,14 +10775,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b2f285ea8c0ebaf18902cb34daf37bdadcabe736beb9879464f79fcb0951f40e",
+  "tree_hash": "a07922753ddff8068b14f98b0a8b4761979f1b713435660f88faea27610f6003",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 839,
+  "wiki_file_count": 841,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10781,13 +10791,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9c2d68f213b16fff594adbb6abab0dd08fa4525745d0fa930dea9416380d88cd",
-      "size": 934966
+      "sha256": "2e1c144b5faa7a3bb9b6a16ab97ede77d15a02fdc281e9ae0cb73aea7146df57",
+      "size": 935576
     },
     {
       "path": "log.md",
-      "sha256": "5cb48efbd090110b225884fd3e7848d7b3b05980e21fe652809ad7465a329b99",
-      "size": 1662102
+      "sha256": "e1c48fa4f7c79a24652d967db69a80d3d004d01a02ecd3ad9cf8adf596b5c0f1",
+      "size": 1662736
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13385,6 +13395,11 @@
       "size": 4171
     },
     {
+      "path": "pages/projects/poc-follow-up.md",
+      "sha256": "e2beb48e14da0efbcdc07c74e260d67a6c676fdbe84de539a572fa2e8d6c2eb2",
+      "size": 1879
+    },
+    {
       "path": "pages/projects/poseidon-atlas.md",
       "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
       "size": 8882
@@ -13808,6 +13823,11 @@
       "path": "pages/projects/v1-relationships.md",
       "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
       "size": 4508
+    },
+    {
+      "path": "pages/projects/validation-email-campaign-june-2026.md",
+      "sha256": "08446af99a9ef1e2fe7666a52ae9f07d71eba52f36046e31d4f0d031c0abf4c9",
+      "size": 3442
     },
     {
       "path": "pages/projects/validator-network-scalability.md",
@@ -14971,5 +14991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d5efc4397e99e6be5aa3251f8355172debd50e9e84a4e62cafdc4e2ed0f176ef"
+  "wiki_tree_hash": "f3f3e5390cb608cabacf925cd132b2e42809d40b944b0da452d519cf03072bae"
 }
