@@ -33348,3 +33348,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_af4fa343b616829796eb9963d036d09b
 - summary: A replacement gas re-estimate failed deterministically, causing the batch to be quarantined. The incident was tracked as Sentry issue STORY-API-EK and resolved.
 
+## [2026-06-18T04:45:34Z] synthesis | story-api POST /api/v4/assets 500 Error
+
+- status: published
+- slug: systems/story-api-assets-post-500-error
+- wiki_revision_id: wikirev_bb8d1dc95415a1d5bcafd5b6ca050b6d
+- summary: The story-api endpoint POST /api/v4/assets returned HTTP 500 Internal Server Error, indicating a server-side failure when handling asset creation or update.
+
+## [2026-06-18T04:46:22Z] synthesis | 504 Timeout on POST /api/v4/licenses/tokens
+
+- status: published
+- slug: runbooks/post-api-v4-licenses-tokens-504-timeout
+- wiki_revision_id: wikirev_abcfc94eab38a7ded589f0f4e8b9ce1b
+- summary: The story-api endpoint POST /api/v4/licenses/tokens experienced a 504 Request timeout. Incident tracked as STORY-API-E7 and resolved.
+

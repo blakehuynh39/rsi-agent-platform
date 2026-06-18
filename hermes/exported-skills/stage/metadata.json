@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f9b05b0f4077d2a290c76be360f1c139f630daf275558e39d80b33096a5e774b",
-        "size": 911000
+        "sha256": "8a8115fdf2177b4412b1607dfd3813fb12b7b9b8076f3cec310a402f0916f4f1",
+        "size": 911720
       },
       {
         "path": "log.md",
-        "sha256": "484d9f13642ab91de8fa79511423071021c0499d9faa7ba8d80d754ade049c2e",
-        "size": 1633639
+        "sha256": "ca49ede7897dda4b4da3c7024019146c702f0847145cc9d987eb0423192fc798",
+        "size": 1634383
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -6460,6 +6460,11 @@
         "size": 7034
       },
       {
+        "path": "pages/runbooks/post-api-v4-licenses-tokens-504-timeout.md",
+        "sha256": "236148d3371dcc4d408da50c464cf43323ea3504205cf018f5707135f570819e",
+        "size": 1604
+      },
+      {
         "path": "pages/runbooks/post-mortem-iliad-nft-mint-high-gas-issue.md",
         "sha256": "4d149471198c5a6a3d1bd92957e43033fd0d554abf084db09cc0baee8d7ffff9",
         "size": 15328
@@ -7030,6 +7035,11 @@
         "size": 3033
       },
       {
+        "path": "pages/systems/story-api-assets-post-500-error.md",
+        "sha256": "31330f2077d4b44ba226288ab5235490cf4110e43c47b1ba71a47776c88f8779",
+        "size": 1201
+      },
+      {
         "path": "pages/systems/story-api-db-connection-refusal-incident.md",
         "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
         "size": 1790
@@ -7144,8 +7154,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T04:32:31Z",
-  "file_count": 1427,
+  "exported_at": "2026-06-18T04:49:12Z",
+  "file_count": 1429,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10422,7 +10432,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "0d1a888bf660c46412cfb952d32c868ed43dbf1b235e1f29b35daa21317bc324",
+  "previous_tree_hash": "0d309d937347b4f697f1cc3c8242a78755075db6d417efd599c5722268e137b1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10435,14 +10445,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0d309d937347b4f697f1cc3c8242a78755075db6d417efd599c5722268e137b1",
+  "tree_hash": "06abdde81750d458e9ab8a94e688c6f90112cd5f288baad910ebb11bc235b750",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 773,
+  "wiki_file_count": 775,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10451,13 +10461,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f9b05b0f4077d2a290c76be360f1c139f630daf275558e39d80b33096a5e774b",
-      "size": 911000
+      "sha256": "8a8115fdf2177b4412b1607dfd3813fb12b7b9b8076f3cec310a402f0916f4f1",
+      "size": 911720
     },
     {
       "path": "log.md",
-      "sha256": "484d9f13642ab91de8fa79511423071021c0499d9faa7ba8d80d754ade049c2e",
-      "size": 1633639
+      "sha256": "ca49ede7897dda4b4da3c7024019146c702f0847145cc9d987eb0423192fc798",
+      "size": 1634383
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -13630,6 +13640,11 @@
       "size": 7034
     },
     {
+      "path": "pages/runbooks/post-api-v4-licenses-tokens-504-timeout.md",
+      "sha256": "236148d3371dcc4d408da50c464cf43323ea3504205cf018f5707135f570819e",
+      "size": 1604
+    },
+    {
       "path": "pages/runbooks/post-mortem-iliad-nft-mint-high-gas-issue.md",
       "sha256": "4d149471198c5a6a3d1bd92957e43033fd0d554abf084db09cc0baee8d7ffff9",
       "size": 15328
@@ -14200,6 +14215,11 @@
       "size": 3033
     },
     {
+      "path": "pages/systems/story-api-assets-post-500-error.md",
+      "sha256": "31330f2077d4b44ba226288ab5235490cf4110e43c47b1ba71a47776c88f8779",
+      "size": 1201
+    },
+    {
       "path": "pages/systems/story-api-db-connection-refusal-incident.md",
       "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
       "size": 1790
@@ -14311,5 +14331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b76652967b694b7c71e9832365f6ee1b9c79761382b6702f8fde25f0d314d3be"
+  "wiki_tree_hash": "aaebcc6fd694b51a553c95a0ee66bc569aab0b3addd1b903374787fbfc302963"
 }
