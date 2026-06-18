@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "caf0ebc6503057419d5f6d3ffc4dbb27f2b36e080eeaa6c1c82fdb2e9c39bccf",
-        "size": 936594
+        "sha256": "fc4c70eb82274ea9d0ef6842dd78dbb00d1b35f92adb5f8ef04c4dac8cad8270",
+        "size": 937267
       },
       {
         "path": "log.md",
-        "sha256": "2e9b738026dbe5bfaf3e7e6330246f9f3749f6425185e8795401d8b464dd057c",
-        "size": 1663789
+        "sha256": "db3b570c38456783037be9204c0164319bd9d775c7484160c299748b97d8c636",
+        "size": 1664486
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4558,6 +4558,11 @@
         "path": "pages/decisions/numo-expert-mvp-scope.md",
         "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
         "size": 3752
+      },
+      {
+        "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
+        "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
+        "size": 3666
       },
       {
         "path": "pages/decisions/numo-trace-cron-approach.md",
@@ -6240,6 +6245,11 @@
         "size": 3226
       },
       {
+        "path": "pages/projects/tamil-completion-task.md",
+        "sha256": "0e8528e5fda2c3221e6ac7c8cc92b291a2a13c965b8144d3248a625feb903967",
+        "size": 1801
+      },
+      {
         "path": "pages/projects/tamil-translation-completion.md",
         "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
         "size": 1579
@@ -7499,8 +7509,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T19:35:03Z",
-  "file_count": 1498,
+  "exported_at": "2026-06-18T19:56:59Z",
+  "file_count": 1500,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10777,7 +10787,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5f45914c8a6bf3d6148a7f9b8b8237f08f44ccf4252cf3899686e183b9d48990",
+  "previous_tree_hash": "df7c5034226d44d17c7c6a87f86e0db7620516bdea6646d68f6076a4e1d0d855",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10790,14 +10800,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "df7c5034226d44d17c7c6a87f86e0db7620516bdea6646d68f6076a4e1d0d855",
+  "tree_hash": "cd8b4ec28a0cfbac6790ddab9974d50311ef90ddd555b9ce2fb5b6ec237d1e72",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 844,
+  "wiki_file_count": 846,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10806,13 +10816,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "caf0ebc6503057419d5f6d3ffc4dbb27f2b36e080eeaa6c1c82fdb2e9c39bccf",
-      "size": 936594
+      "sha256": "fc4c70eb82274ea9d0ef6842dd78dbb00d1b35f92adb5f8ef04c4dac8cad8270",
+      "size": 937267
     },
     {
       "path": "log.md",
-      "sha256": "2e9b738026dbe5bfaf3e7e6330246f9f3749f6425185e8795401d8b464dd057c",
-      "size": 1663789
+      "sha256": "db3b570c38456783037be9204c0164319bd9d775c7484160c299748b97d8c636",
+      "size": 1664486
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12083,6 +12093,11 @@
       "path": "pages/decisions/numo-expert-mvp-scope.md",
       "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
       "size": 3752
+    },
+    {
+      "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
+      "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
+      "size": 3666
     },
     {
       "path": "pages/decisions/numo-trace-cron-approach.md",
@@ -13765,6 +13780,11 @@
       "size": 3226
     },
     {
+      "path": "pages/projects/tamil-completion-task.md",
+      "sha256": "0e8528e5fda2c3221e6ac7c8cc92b291a2a13c965b8144d3248a625feb903967",
+      "size": 1801
+    },
+    {
       "path": "pages/projects/tamil-translation-completion.md",
       "sha256": "cf4e52811bc0688745d771ad85a3cf503b869293666adae58cf5fc42ca56d4c4",
       "size": 1579
@@ -15021,5 +15041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5d48d756f132fd0c8fde5c9cb6e7449058e5dcda714922a4f09ab9c56e4579d6"
+  "wiki_tree_hash": "6026f4beef77e66a50a4f6a9ef019aeb72946e7354915df49657f65469499d45"
 }

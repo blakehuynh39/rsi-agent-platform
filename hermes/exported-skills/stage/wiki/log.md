@@ -33930,3 +33930,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b60a35beef288b47346903eea71aea42
 - summary: Selection and distribution of payout emails to 100 eligible workers as Wave 1, with filters on country, fraud score, pass rate, and task count.
 
+## [2026-06-18T19:52:16Z] synthesis | Tamil Completion Task
+
+- status: published
+- slug: projects/tamil-completion-task
+- wiki_revision_id: wikirev_d0edca3fb16a760c309934e3c978239a
+- summary: The Tamil completion task is nearing its end, with a prepared tweet ready for announcement.
+
+## [2026-06-18T19:53:57Z] synthesis | Elise Numo Figma Access Thread (June 2026)
+
+- status: published
+- slug: decisions/numo-figma-access-elise-2026-06-08
+- wiki_revision_id: wikirev_69385330f939479085ccddb9005a6e6a
+- summary: Elise from the Korean team requested access to Numo Figma files, specifically the logo component. Ava shared available links, Allen provided the logo component link, and Lex was as...
+
