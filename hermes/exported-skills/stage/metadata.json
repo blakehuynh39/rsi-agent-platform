@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f53286a6b27264e23b5b38a1d6d7bb3352a66b5bcf6fd9ccd443f49ec93de6bd",
-        "size": 910190
+        "sha256": "f9b05b0f4077d2a290c76be360f1c139f630daf275558e39d80b33096a5e774b",
+        "size": 911000
       },
       {
         "path": "log.md",
-        "sha256": "3a06f3f13be6533af56f0af9ef7cab7422d50f7a0e293b566f5f3eda084a0f21",
-        "size": 1632805
+        "sha256": "484d9f13642ab91de8fa79511423071021c0499d9faa7ba8d80d754ade049c2e",
+        "size": 1633639
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4118,6 +4118,11 @@
         "path": "pages/concepts/story-api-post-collections-500-error.md",
         "sha256": "6620ea1551af65923c92e41622f8d10fd5226844406f07e5b2e8e1dfe77bacd5",
         "size": 1494
+      },
+      {
+        "path": "pages/concepts/story-api-replacement-gas-reestimate-failure.md",
+        "sha256": "a880203fe209ce0a4a89399d0bd491c6fb1b60e48e5bb48ad05d7c1644200094",
+        "size": 2179
       },
       {
         "path": "pages/concepts/story-l1-peer-discovery-insights.md",
@@ -6510,6 +6515,11 @@
         "size": 3215
       },
       {
+        "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
+        "sha256": "60b4f487cd886d4b5d2a83867d0b706ce9e151e8ce2de919a928f0de1214beb1",
+        "size": 1689
+      },
+      {
         "path": "pages/runbooks/story-api-lineage-timeout-incident.md",
         "sha256": "f5e39dba3821378ae41fb830da0701811fb3295ec07258b8e9708ee379a53096",
         "size": 1529
@@ -7134,8 +7144,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T04:20:50Z",
-  "file_count": 1425,
+  "exported_at": "2026-06-18T04:32:31Z",
+  "file_count": 1427,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10412,7 +10422,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7c2852beefd2bfd6e64b7d22aed1fd2c61d713e6b2372f6e54b3dc17b7c4e692",
+  "previous_tree_hash": "0d1a888bf660c46412cfb952d32c868ed43dbf1b235e1f29b35daa21317bc324",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10425,14 +10435,14 @@
   ],
   "skill_tree_hash": "b71e09017533f4768ee5af3d7e1c21185af2c3d237aafc69e71e654e41b51cda",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0d1a888bf660c46412cfb952d32c868ed43dbf1b235e1f29b35daa21317bc324",
+  "tree_hash": "0d309d937347b4f697f1cc3c8242a78755075db6d417efd599c5722268e137b1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 771,
+  "wiki_file_count": 773,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10441,13 +10451,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f53286a6b27264e23b5b38a1d6d7bb3352a66b5bcf6fd9ccd443f49ec93de6bd",
-      "size": 910190
+      "sha256": "f9b05b0f4077d2a290c76be360f1c139f630daf275558e39d80b33096a5e774b",
+      "size": 911000
     },
     {
       "path": "log.md",
-      "sha256": "3a06f3f13be6533af56f0af9ef7cab7422d50f7a0e293b566f5f3eda084a0f21",
-      "size": 1632805
+      "sha256": "484d9f13642ab91de8fa79511423071021c0499d9faa7ba8d80d754ade049c2e",
+      "size": 1633639
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11278,6 +11288,11 @@
       "path": "pages/concepts/story-api-post-collections-500-error.md",
       "sha256": "6620ea1551af65923c92e41622f8d10fd5226844406f07e5b2e8e1dfe77bacd5",
       "size": 1494
+    },
+    {
+      "path": "pages/concepts/story-api-replacement-gas-reestimate-failure.md",
+      "sha256": "a880203fe209ce0a4a89399d0bd491c6fb1b60e48e5bb48ad05d7c1644200094",
+      "size": 2179
     },
     {
       "path": "pages/concepts/story-l1-peer-discovery-insights.md",
@@ -13670,6 +13685,11 @@
       "size": 3215
     },
     {
+      "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
+      "sha256": "60b4f487cd886d4b5d2a83867d0b706ce9e151e8ce2de919a928f0de1214beb1",
+      "size": 1689
+    },
+    {
       "path": "pages/runbooks/story-api-lineage-timeout-incident.md",
       "sha256": "f5e39dba3821378ae41fb830da0701811fb3295ec07258b8e9708ee379a53096",
       "size": 1529
@@ -14291,5 +14311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fbf2f3fb07ed1444136ebf511699ead48ed99e6eeadd72378fca84d4e6581015"
+  "wiki_tree_hash": "b76652967b694b7c71e9832365f6ee1b9c79761382b6702f8fde25f0d314d3be"
 }

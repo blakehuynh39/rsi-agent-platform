@@ -33334,3 +33334,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7aca5ebfada14a77ab1775f861121f4
 - summary: The Story-API service periodically logged 'projector tick failed; sleeping before retry' errors, captured by Sentry issue STORY-API-ER. Romain Magne and Blake Huynh both marked the...
 
+## [2026-06-18T04:30:42Z] synthesis | Story API /data-audit/stats 500 Error Runbook
+
+- status: published
+- slug: runbooks/story-api-data-audit-stats-500-error
+- wiki_revision_id: wikirev_8a892f70e0435a2b4be4c0c278dfb6c7
+- summary: On ~2026-06-16, the endpoint GET /api/v1/data-audit/stats failed with HTTP 500 and EOF error. The issue was raised in Slack and later resolved by Blake Huynh via Sentry issue STORY...
+
+## [2026-06-18T04:31:22Z] synthesis | Replacement Gas Re-estimate Deterministic Failure in Story API
+
+- status: published
+- slug: concepts/story-api-replacement-gas-reestimate-failure
+- wiki_revision_id: wikirev_af4fa343b616829796eb9963d036d09b
+- summary: A replacement gas re-estimate failed deterministically, causing the batch to be quarantined. The incident was tracked as Sentry issue STORY-API-EK and resolved.
+
