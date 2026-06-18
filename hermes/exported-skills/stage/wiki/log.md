@@ -33327,3 +33327,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e6c5e58d8d387d5ddb19fa16734bc7cf
 - summary: The bootstrap gate for the story-api broadcaster was disabled by operator override, setting BROADCASTER_SKIP_BOOTSTRAP_GATE=true. Additionally, related Sentry issue STORY-API-EJ wa...
 
+## [2026-06-18T04:17:50Z] synthesis | Story-API Projector Tick Failure Incident
+
+- status: published
+- slug: runbooks/story-api-projector-tick-failure
+- wiki_revision_id: wikirev_c7aca5ebfada14a77ab1775f861121f4
+- summary: The Story-API service periodically logged 'projector tick failed; sleeping before retry' errors, captured by Sentry issue STORY-API-ER. Romain Magne and Blake Huynh both marked the...
+
