@@ -33201,3 +33201,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_38663c62801594d0fb5f0d09b5541049
 - summary: Implement auto-deployment of royalty token vaults for root IPAs without commercial licensing, enabling Verio's staking/tipping on all IPAs. Expected with next Portal major release ...
 
+## [2026-06-18T00:15:58Z] synthesis | Royalty Vault Auto-Deployment for Non-Commercial IPAs
+
+- status: published
+- slug: projects/royalty-vault-auto-deploy-noncommercial
+- wiki_revision_id: wikirev_5449be8bfe98faa21a300cedc34e2e99
+- summary: Project to deploy royalty vaults automatically for IPAs lacking commercial licensing, enabling Verio's staking and tipping rewards to flow into a royalty vault. Workarounds exist, ...
+
+## [2026-06-18T00:17:06Z] synthesis | Multi-Author Workflow and Shared IPA Ownership
+
+- status: published
+- slug: open-questions/multi-author-workflow-shared-ipa-ownership
+- wiki_revision_id: wikirev_a05e0337444e6fdfe7d92867851a22a6
+- summary: Exploration of enabling shared ownership and multi-author workflows for IPAs in Magma. Currently, an IPA is restricted to a single minter/owner, who controls permissions and royalt...
+

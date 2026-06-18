@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b1e4b32be28c60f3e3d316593ddc6426dddc73d49a019614ad976864485f5ac8",
-        "size": 903036
+        "sha256": "9955ec17d84335aa5c059bb27912e4a6eab80e50b56b52e44e17455a21d84082",
+        "size": 903868
       },
       {
         "path": "log.md",
-        "sha256": "a5e4fa4d6203ce0728d1f3158a685a18af1ef9a7478aac1cb290d364230ada3d",
-        "size": 1625423
+        "sha256": "f8e83cbed92abcd40da0c426b971da5c3a6d30ee3594ed4cac7585bf278fd1c1",
+        "size": 1626279
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4665,6 +4665,11 @@
         "size": 5471
       },
       {
+        "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
+        "sha256": "d5cbb89e60bec4d06e936a47c80ae4eb11bc299f03070d71f76b94b1cd406aa6",
+        "size": 3356
+      },
+      {
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
         "sha256": "f38675b9706fec3f92c4cc18864badb7e98895d588d7316afd6bd8beae94f7bd",
         "size": 1298
@@ -5848,6 +5853,11 @@
         "path": "pages/projects/royalty-token-vault-auto-deployment.md",
         "sha256": "4ae1a238f8b52e5c1c2d1c8628daab7d786ba4836aa7481271701c995dba63b3",
         "size": 3119
+      },
+      {
+        "path": "pages/projects/royalty-vault-auto-deploy-noncommercial.md",
+        "sha256": "cd7ec7006f8a81a41ad9deb544e0354c7256bf221aafe9204804f95c6da674ce",
+        "size": 3501
       },
       {
         "path": "pages/projects/royalty-vault-auto-deployment.md",
@@ -7039,8 +7049,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T00:03:38Z",
-  "file_count": 1406,
+  "exported_at": "2026-06-18T00:20:21Z",
+  "file_count": 1408,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10317,7 +10327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "60295936f9818badfd436cd2a2cb5eb22642804e586f4590381cbc15596e17fd",
+  "previous_tree_hash": "6f74581d110a0f979c9dec8767d1218111432cad72e3bbc5df997143915ab3e0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10330,14 +10340,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6f74581d110a0f979c9dec8767d1218111432cad72e3bbc5df997143915ab3e0",
+  "tree_hash": "597ae11798e62acb4c7b3b2073aee654b6b09cfeff0e27cfe8603e14d3a95015",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 752,
+  "wiki_file_count": 754,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10346,13 +10356,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b1e4b32be28c60f3e3d316593ddc6426dddc73d49a019614ad976864485f5ac8",
-      "size": 903036
+      "sha256": "9955ec17d84335aa5c059bb27912e4a6eab80e50b56b52e44e17455a21d84082",
+      "size": 903868
     },
     {
       "path": "log.md",
-      "sha256": "a5e4fa4d6203ce0728d1f3158a685a18af1ef9a7478aac1cb290d364230ada3d",
-      "size": 1625423
+      "sha256": "f8e83cbed92abcd40da0c426b971da5c3a6d30ee3594ed4cac7585bf278fd1c1",
+      "size": 1626279
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11730,6 +11740,11 @@
       "size": 5471
     },
     {
+      "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
+      "sha256": "d5cbb89e60bec4d06e936a47c80ae4eb11bc299f03070d71f76b94b1cd406aa6",
+      "size": 3356
+    },
+    {
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
       "sha256": "f38675b9706fec3f92c4cc18864badb7e98895d588d7316afd6bd8beae94f7bd",
       "size": 1298
@@ -12913,6 +12928,11 @@
       "path": "pages/projects/royalty-token-vault-auto-deployment.md",
       "sha256": "4ae1a238f8b52e5c1c2d1c8628daab7d786ba4836aa7481271701c995dba63b3",
       "size": 3119
+    },
+    {
+      "path": "pages/projects/royalty-vault-auto-deploy-noncommercial.md",
+      "sha256": "cd7ec7006f8a81a41ad9deb544e0354c7256bf221aafe9204804f95c6da674ce",
+      "size": 3501
     },
     {
       "path": "pages/projects/royalty-vault-auto-deployment.md",
@@ -14101,5 +14121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ec861cde22bd7b5f659e5bd231fba84edc95de8bab27e7c4da670d6cf620b8a3"
+  "wiki_tree_hash": "634316deafd2bb5ad531e167b80a2cc6e31185a4b6db156b3eda197e7bffbc7e"
 }
