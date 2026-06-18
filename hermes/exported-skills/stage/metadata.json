@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6b04148a8c3949e58666aa42482a95fc20ab86143f9aecf69ac54c160832115e",
-        "size": 933187
+        "sha256": "8d61388075d778e49446962b96388ad2d95532c0aa525bd11fe37f260ce023dc",
+        "size": 933550
       },
       {
         "path": "log.md",
-        "sha256": "170b117f0b78628dba30128de308061dd57ccc851ba177fdf70fa1ca7b023de5",
-        "size": 1660264
+        "sha256": "cbd75ac9f87f71a17318ad74b6e086323494bdb17b47b9fc72ff8ba397c641c0",
+        "size": 1660639
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4768,6 +4768,11 @@
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
         "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
         "size": 1497
+      },
+      {
+        "path": "pages/open-questions/filipino-validation-step-issue.md",
+        "sha256": "805f25b0a425cb6b9d7283c5e570bf8b32869d5ac77342732b690d9801bca174",
+        "size": 1712
       },
       {
         "path": "pages/open-questions/ip-infringement-outside-protocol-question.md",
@@ -7449,8 +7454,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T18:16:06Z",
-  "file_count": 1488,
+  "exported_at": "2026-06-18T18:22:45Z",
+  "file_count": 1489,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10727,7 +10732,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "584ed5472526634c3d32fcb9a21cb144ef8cab17aaba998cfd84389b2c2e62bb",
+  "previous_tree_hash": "22cebe2825190d6ecab6454028b3779ffb0c66a9b0898401c8baf5a65211a047",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10740,14 +10745,14 @@
   ],
   "skill_tree_hash": "61de0b611f7c10c4bd1e43bc4b4be55b0c9ca9c787b1630eab03e2cf19fe4c2a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "22cebe2825190d6ecab6454028b3779ffb0c66a9b0898401c8baf5a65211a047",
+  "tree_hash": "b43aa6bf2e2e74bff7cdd65adab8c75eb5567d5148c8b777f9a0dfc1ef15e215",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 834,
+  "wiki_file_count": 835,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10756,13 +10761,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6b04148a8c3949e58666aa42482a95fc20ab86143f9aecf69ac54c160832115e",
-      "size": 933187
+      "sha256": "8d61388075d778e49446962b96388ad2d95532c0aa525bd11fe37f260ce023dc",
+      "size": 933550
     },
     {
       "path": "log.md",
-      "sha256": "170b117f0b78628dba30128de308061dd57ccc851ba177fdf70fa1ca7b023de5",
-      "size": 1660264
+      "sha256": "cbd75ac9f87f71a17318ad74b6e086323494bdb17b47b9fc72ff8ba397c641c0",
+      "size": 1660639
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12243,6 +12248,11 @@
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
       "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
       "size": 1497
+    },
+    {
+      "path": "pages/open-questions/filipino-validation-step-issue.md",
+      "sha256": "805f25b0a425cb6b9d7283c5e570bf8b32869d5ac77342732b690d9801bca174",
+      "size": 1712
     },
     {
       "path": "pages/open-questions/ip-infringement-outside-protocol-question.md",
@@ -14921,5 +14931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "11e2e9ccc72ef50b98515cf5a6b184736f6b75d6011ae1b7921a1bd0e48e4cfd"
+  "wiki_tree_hash": "35cfab92f8b72dff102f14d9f39b5720e60fea7e5301efcc39541d060ce5c283"
 }
