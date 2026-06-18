@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49a57aebc4babae2675e7e57472548da8d0d5981eb00624b3dd9e27d16c643e3",
-        "size": 918732
+        "sha256": "5eb3539ef047bf2e883f66a155d582f4c95dd569dc97acb1489b920f58caeb8f",
+        "size": 919500
       },
       {
         "path": "log.md",
-        "sha256": "db1de0f8089dc31e9de21d5e9586aeab9d750206cf2169bb3cc127199b376862",
-        "size": 1643136
+        "sha256": "93a0a21b3b42a7d516133e117e1caa3105c6c3542a91cfbb2e77628f746afea6",
+        "size": 1643928
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4225,6 +4225,11 @@
         "size": 4719
       },
       {
+        "path": "pages/concepts/transfer-to-vault-function.md",
+        "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
+        "size": 3648
+      },
+      {
         "path": "pages/concepts/unified-ip-account.md",
         "sha256": "d1a7b5ebcac6cc8390762f996d9578e04199ae97d385f2171c3e757a51212f1b",
         "size": 6406
@@ -4663,6 +4668,11 @@
         "path": "pages/open-questions/access-controller-suggestions.md",
         "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
         "size": 1551
+      },
+      {
+        "path": "pages/open-questions/auto-royalty-distribution-inquiry.md",
+        "sha256": "b63c687b454bab50df1586b6dc707da4333afb9d98cededf7527a1e34773c588",
+        "size": 1767
       },
       {
         "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
@@ -7249,8 +7259,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T14:04:40Z",
-  "file_count": 1448,
+  "exported_at": "2026-06-18T14:21:30Z",
+  "file_count": 1450,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10527,7 +10537,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "3eb038fe941f8f51e6f11fed030aab6e1db1d0dedc31b851b6785e543ab287b9",
+  "previous_tree_hash": "9c31103804ab37e46e6eda8c2d01ac831203a69706e770a18562d710aa3bef4f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10540,14 +10550,14 @@
   ],
   "skill_tree_hash": "f8174703cbc266de36981a945e4c922699a91ac75b514f26449728ef259c6edd",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9c31103804ab37e46e6eda8c2d01ac831203a69706e770a18562d710aa3bef4f",
+  "tree_hash": "1fdb44c057b14b9417ac73dc17a5aa9e6e6c32298af4dcab96e288a241b2cda9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 794,
+  "wiki_file_count": 796,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10556,13 +10566,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49a57aebc4babae2675e7e57472548da8d0d5981eb00624b3dd9e27d16c643e3",
-      "size": 918732
+      "sha256": "5eb3539ef047bf2e883f66a155d582f4c95dd569dc97acb1489b920f58caeb8f",
+      "size": 919500
     },
     {
       "path": "log.md",
-      "sha256": "db1de0f8089dc31e9de21d5e9586aeab9d750206cf2169bb3cc127199b376862",
-      "size": 1643136
+      "sha256": "93a0a21b3b42a7d516133e117e1caa3105c6c3542a91cfbb2e77628f746afea6",
+      "size": 1643928
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11500,6 +11510,11 @@
       "size": 4719
     },
     {
+      "path": "pages/concepts/transfer-to-vault-function.md",
+      "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
+      "size": 3648
+    },
+    {
       "path": "pages/concepts/unified-ip-account.md",
       "sha256": "d1a7b5ebcac6cc8390762f996d9578e04199ae97d385f2171c3e757a51212f1b",
       "size": 6406
@@ -11938,6 +11953,11 @@
       "path": "pages/open-questions/access-controller-suggestions.md",
       "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
       "size": 1551
+    },
+    {
+      "path": "pages/open-questions/auto-royalty-distribution-inquiry.md",
+      "sha256": "b63c687b454bab50df1586b6dc707da4333afb9d98cededf7527a1e34773c588",
+      "size": 1767
     },
     {
       "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
@@ -14521,5 +14541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3b2d2d14842af40ba60e69d8939469c0863292cb11fdfad594092d8b3f88a81c"
+  "wiki_tree_hash": "4f70499e1a36d8a89d3bafdd3041299c73242734604721087b93200ef779756b"
 }

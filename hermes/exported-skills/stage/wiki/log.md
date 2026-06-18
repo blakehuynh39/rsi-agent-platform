@@ -33530,3 +33530,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_806398b4080e5967d8812fe559eef9b0
 - summary: Revenue from royalty payments is automatically distributed to ancestor vaults via payRoyaltyOnBehalf or payLicenseMintingFee, without need for manual transferToVault calls. Claimin...
 
+## [2026-06-18T14:16:59Z] synthesis | transferToVault Function
+
+- status: published
+- slug: concepts/transfer-to-vault-function
+- wiki_revision_id: wikirev_9ce493263b74b2bdafe57b9e3fe01103
+- summary: The transferToVault function is part of the Story Protocol royalty module. It transfers revenue tokens to a vault for claiming. However, it is typically handled automatically durin...
+
+## [2026-06-18T14:17:22Z] synthesis | Auto Royalty Distribution Inquiry
+
+- status: published
+- slug: open-questions/auto-royalty-distribution-inquiry
+- wiki_revision_id: wikirev_17b0e1c82d688e297c0834730078b7bd
+- summary: A team member asks for clarity on the new functionality for auto royalty distribution in Story Protocol, speculating that existing workflows mint a license and then disable it as a...
+
