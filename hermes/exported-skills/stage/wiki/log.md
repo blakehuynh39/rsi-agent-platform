@@ -34037,3 +34037,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9bad3118fe8bca4ba3e1f672132fbd99
 - summary: A hypothetical discussion about what the company would do if they reached 100 billion submissions.
 
+## [2026-06-18T22:04:19Z] synthesis | Payments Withdrawal Community Testing (2026-06-16)
+
+- status: published
+- slug: projects/payments-withdrawal-community-testing-2026-06-16
+- wiki_revision_id: wikirev_d0d69e12c37c42e62e363403ab1bc74b
+- summary: Community withdrawal testing conducted on June 16, 2026, involving testers from USA, Vietnam, Indonesia, Pakistan, and Malaysia. Main friction was unclear tax form approval status....
+

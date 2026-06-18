@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c02840adfdaeeada64e4037461593ab9fa4a874096a8c3f5619a56c813ad5c8a",
-        "size": 941452
+        "sha256": "5113d69b8f147903969b9d6580ed4338c9d7cab1e18168f65978cac15c65739b",
+        "size": 942161
       },
       {
         "path": "log.md",
-        "sha256": "a331142c5308967476ad15daa8b9bd7892e2c71d74e8302c373596ce35586780",
-        "size": 1669636
+        "sha256": "ad13d54b22804a13bd8dbe9167b2bfe58fafac5a47960393eedaf3eb78a81eef",
+        "size": 1670069
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5915,6 +5915,11 @@
         "size": 7372
       },
       {
+        "path": "pages/projects/payments-withdrawal-community-testing-2026-06-16.md",
+        "sha256": "8a61075cc0440dca75355011f34b41831c76de6ff50f9f2a5aedaa85e201d75c",
+        "size": 8672
+      },
+      {
         "path": "pages/projects/payout-e2e-testing-staging.md",
         "sha256": "f0b5e965c3dbc29172258c9bf72c61f05cf63dfd6f96da0c631aa4857fd8cd6f",
         "size": 1174
@@ -7569,8 +7574,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T22:02:42Z",
-  "file_count": 1512,
+  "exported_at": "2026-06-18T22:09:19Z",
+  "file_count": 1513,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10847,7 +10852,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "d716a2afbf1cf2fa00e7238b568d42c0506ff58619a55963a82883692d226ab6",
+  "previous_tree_hash": "fd2bccdd5b9ba1fc554bb304411c8a671ad63f759aefc6735e494dc2e99e9154",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10860,14 +10865,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fd2bccdd5b9ba1fc554bb304411c8a671ad63f759aefc6735e494dc2e99e9154",
+  "tree_hash": "273180b7226f95042a36ae1bc1e3d6bd16ffae11896be5a6adcd94b9de757657",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 858,
+  "wiki_file_count": 859,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10876,13 +10881,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c02840adfdaeeada64e4037461593ab9fa4a874096a8c3f5619a56c813ad5c8a",
-      "size": 941452
+      "sha256": "5113d69b8f147903969b9d6580ed4338c9d7cab1e18168f65978cac15c65739b",
+      "size": 942161
     },
     {
       "path": "log.md",
-      "sha256": "a331142c5308967476ad15daa8b9bd7892e2c71d74e8302c373596ce35586780",
-      "size": 1669636
+      "sha256": "ad13d54b22804a13bd8dbe9167b2bfe58fafac5a47960393eedaf3eb78a81eef",
+      "size": 1670069
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13510,6 +13515,11 @@
       "size": 7372
     },
     {
+      "path": "pages/projects/payments-withdrawal-community-testing-2026-06-16.md",
+      "sha256": "8a61075cc0440dca75355011f34b41831c76de6ff50f9f2a5aedaa85e201d75c",
+      "size": 8672
+    },
+    {
       "path": "pages/projects/payout-e2e-testing-staging.md",
       "sha256": "f0b5e965c3dbc29172258c9bf72c61f05cf63dfd6f96da0c631aa4857fd8cd6f",
       "size": 1174
@@ -15161,5 +15171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "875eaaf9589db9b6d3fa851c536a2f9db427195edc9efecf0fd19645aa914b0c"
+  "wiki_tree_hash": "7f36d3b044d569b702af6f3871a825b4f520d16f15bd7465587c9f73ed745c0c"
 }
