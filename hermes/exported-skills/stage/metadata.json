@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f58494534968f8a7b3de9a69ea233b882ef52e591ec4dbb9273b5b537a655ddd",
-        "size": 1664883
+        "sha256": "1fbd09154e1c7311142206c32bc88394adfb359e20a09ae1af83618f4ac23df5",
+        "size": 1665269
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4563,6 +4563,11 @@
         "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
         "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
         "size": 3666
+      },
+      {
+        "path": "pages/decisions/numo-metrics-channel.md",
+        "sha256": "fd9381fa47990fc193473ad5353f750ab114a48c30402b46f77c41eee857a0b8",
+        "size": 2098
       },
       {
         "path": "pages/decisions/numo-trace-cron-approach.md",
@@ -7514,8 +7519,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T20:10:13Z",
-  "file_count": 1501,
+  "exported_at": "2026-06-18T20:16:49Z",
+  "file_count": 1502,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10792,7 +10797,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7ed855bd68da47388892ae99e5fdec074dcbd11c1ca3eaa4b5fbfb5b9e50af2c",
+  "previous_tree_hash": "df4b5cf9e289379cea05f7d2b73e158c8438a9fe5d731f3c1a2d3fd18e43897e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10805,14 +10810,14 @@
   ],
   "skill_tree_hash": "f3e99d2947f349247eabca884400d1897409d87f2f0d429f6d857a08e49e865c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "df4b5cf9e289379cea05f7d2b73e158c8438a9fe5d731f3c1a2d3fd18e43897e",
+  "tree_hash": "950f5d42aebed679330b1ea2d22b48d965b30cef5bdc9291f4a569689bcfddc0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 847,
+  "wiki_file_count": 848,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10826,8 +10831,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f58494534968f8a7b3de9a69ea233b882ef52e591ec4dbb9273b5b537a655ddd",
-      "size": 1664883
+      "sha256": "1fbd09154e1c7311142206c32bc88394adfb359e20a09ae1af83618f4ac23df5",
+      "size": 1665269
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12103,6 +12108,11 @@
       "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
       "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
       "size": 3666
+    },
+    {
+      "path": "pages/decisions/numo-metrics-channel.md",
+      "sha256": "fd9381fa47990fc193473ad5353f750ab114a48c30402b46f77c41eee857a0b8",
+      "size": 2098
     },
     {
       "path": "pages/decisions/numo-trace-cron-approach.md",
@@ -15051,5 +15061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ce98b1be3db09bf3ff38ceb4b1263d01ec52c4bacca6f8f9720e2270becbafb0"
+  "wiki_tree_hash": "03dd1d749d18aa2eb11b68cedc8705e5c50fc0d0146724db5a56bb2f68c97719"
 }

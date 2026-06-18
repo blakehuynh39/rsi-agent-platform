@@ -33951,3 +33951,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cdaf25aa67433df903b039f7dd09d42b
 - summary: Preparations for a marketing update about new languages on Numo, focusing on new tasks. Seed phrase feature not yet ready. Incident: Malay and Indonesian were mistakenly activated,...
 
+## [2026-06-18T20:16:17Z] synthesis | Numo Metrics Reporting Channel
+
+- status: published
+- slug: decisions/numo-metrics-channel
+- wiki_revision_id: wikirev_b95935f5dd6fba05cdd0e79e6123b2ce
+- summary: Decision to create a dedicated Slack channel for Numo metrics digest to reduce clutter in the main conversation channel. The channel has been created with ID C0B7MRJCMNK, and the w...
+
