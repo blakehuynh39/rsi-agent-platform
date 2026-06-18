@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f29b18861d548bb5cb8484cc752e5b26ff5b5d5252d814698fdf4d9df0eecf70",
-        "size": 941132
+        "sha256": "c02840adfdaeeada64e4037461593ab9fa4a874096a8c3f5619a56c813ad5c8a",
+        "size": 941452
       },
       {
         "path": "log.md",
-        "sha256": "f8f1ab375e326c560dbd441e271ce3ed5a077b371eddcd2f84f670427109dfef",
-        "size": 1669004
+        "sha256": "38d48a297bd1f83484314d4925810938cb89a10c09a5b826b2b7d95d06c90c19",
+        "size": 1669336
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4608,6 +4608,11 @@
         "path": "pages/decisions/permissionless-ip-registration.md",
         "sha256": "7decbb8cbb99e1d0a04d4af8da38d89c5ef4292efa8ab51c50fd37ce47c2af42",
         "size": 2954
+      },
+      {
+        "path": "pages/decisions/proj-numo-digests-channel.md",
+        "sha256": "dd9d1fe00cf60e32cbcf5e5c4a6767abe0d1cbc7798502b1bfa97b85150d4cd7",
+        "size": 3358
       },
       {
         "path": "pages/decisions/prophet-nft-distribution-strategy.md",
@@ -7559,8 +7564,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T21:34:12Z",
-  "file_count": 1510,
+  "exported_at": "2026-06-18T21:51:00Z",
+  "file_count": 1511,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10837,7 +10842,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "424b04dd875bb90ec75c2f9d8c0fc9bd85df90b3f3b9e74bbe6fb331fd817813",
+  "previous_tree_hash": "d618174263cb17fd72928ba6572d18312e6348c89870bb5c5c80dc09d704d2ec",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10850,14 +10855,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d618174263cb17fd72928ba6572d18312e6348c89870bb5c5c80dc09d704d2ec",
+  "tree_hash": "d716a2afbf1cf2fa00e7238b568d42c0506ff58619a55963a82883692d226ab6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 856,
+  "wiki_file_count": 857,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10866,13 +10871,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f29b18861d548bb5cb8484cc752e5b26ff5b5d5252d814698fdf4d9df0eecf70",
-      "size": 941132
+      "sha256": "c02840adfdaeeada64e4037461593ab9fa4a874096a8c3f5619a56c813ad5c8a",
+      "size": 941452
     },
     {
       "path": "log.md",
-      "sha256": "f8f1ab375e326c560dbd441e271ce3ed5a077b371eddcd2f84f670427109dfef",
-      "size": 1669004
+      "sha256": "38d48a297bd1f83484314d4925810938cb89a10c09a5b826b2b7d95d06c90c19",
+      "size": 1669336
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -12193,6 +12198,11 @@
       "path": "pages/decisions/permissionless-ip-registration.md",
       "sha256": "7decbb8cbb99e1d0a04d4af8da38d89c5ef4292efa8ab51c50fd37ce47c2af42",
       "size": 2954
+    },
+    {
+      "path": "pages/decisions/proj-numo-digests-channel.md",
+      "sha256": "dd9d1fe00cf60e32cbcf5e5c4a6767abe0d1cbc7798502b1bfa97b85150d4cd7",
+      "size": 3358
     },
     {
       "path": "pages/decisions/prophet-nft-distribution-strategy.md",
@@ -15141,5 +15151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72178be07b891f72283a9362ccaaa14a14076dd52d9fd711ad9efc82605fbf42"
+  "wiki_tree_hash": "72af47f5b655351cc02e476d90a051a1d9184e8d94ac9f42041a94edd010e45d"
 }

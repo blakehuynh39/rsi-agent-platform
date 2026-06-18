@@ -34023,3 +34023,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0c390409eb1fa838b7eb860e9601cd04
 - summary: Coordination for submitting Poseidon validation results for Indic languages, including API payload changes for deepfakes and discussion about payment eligibility impacts.
 
+## [2026-06-18T21:47:22Z] synthesis | Proj-Numo Digests Channel
+
+- status: published
+- slug: decisions/proj-numo-digests-channel
+- wiki_revision_id: wikirev_db13ec162de583c2486aea82eca4a323
+- summary: Creation of the #proj-numo-digests channel (ID: C0B7MRJCMNK) to centralize bot digests, with daily schedule at 9am PST / 4pm UTC.
+
