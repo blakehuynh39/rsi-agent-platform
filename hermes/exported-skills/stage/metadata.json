@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "39a93e5321ec26b27f5828be87376a37f277d94d272f8b92dce6f10939d200d5",
-        "size": 904632
+        "sha256": "a6f2daf013d8e04d10995274e1e3d72bc552f17e8b141d724c51d7bb2b3141dc",
+        "size": 905055
       },
       {
         "path": "log.md",
-        "sha256": "9329dd779a6aa0c0f362573366949e4bc13d9536bdf16ef71433996e4f89d884",
-        "size": 1627067
+        "sha256": "7eab19ae4b19cfeb6f0d430c8a2947791df8cd00c1e119d861598072a4ce786e",
+        "size": 1627502
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4673,6 +4673,11 @@
         "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
         "sha256": "d5cbb89e60bec4d06e936a47c80ae4eb11bc299f03070d71f76b94b1cd406aa6",
         "size": 3356
+      },
+      {
+        "path": "pages/open-questions/multi-author-workflows-and-shared-ipa-ownership.md",
+        "sha256": "985333b516c71f49fc09515d02f7abf348e52baefdfb9c28a1c3e0649f9f097d",
+        "size": 3830
       },
       {
         "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
@@ -7059,8 +7064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T00:38:32Z",
-  "file_count": 1410,
+  "exported_at": "2026-06-18T00:50:06Z",
+  "file_count": 1411,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10337,7 +10342,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "e7ead46806b65ebd7624c59cbabe7f9a3f61f4c357f350283bd05f92a99ed806",
+  "previous_tree_hash": "142352b6c79b7a8938356b0a1f65c2fc3452e6ea4062c5610f5221e9cf2fa656",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10350,14 +10355,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "142352b6c79b7a8938356b0a1f65c2fc3452e6ea4062c5610f5221e9cf2fa656",
+  "tree_hash": "242e9a23a07020a14444998ff4b77dcd5bc33d47213b3e2fb052d63329d8e30a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 756,
+  "wiki_file_count": 757,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10366,13 +10371,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "39a93e5321ec26b27f5828be87376a37f277d94d272f8b92dce6f10939d200d5",
-      "size": 904632
+      "sha256": "a6f2daf013d8e04d10995274e1e3d72bc552f17e8b141d724c51d7bb2b3141dc",
+      "size": 905055
     },
     {
       "path": "log.md",
-      "sha256": "9329dd779a6aa0c0f362573366949e4bc13d9536bdf16ef71433996e4f89d884",
-      "size": 1627067
+      "sha256": "7eab19ae4b19cfeb6f0d430c8a2947791df8cd00c1e119d861598072a4ce786e",
+      "size": 1627502
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11758,6 +11763,11 @@
       "path": "pages/open-questions/multi-author-workflow-shared-ipa-ownership.md",
       "sha256": "d5cbb89e60bec4d06e936a47c80ae4eb11bc299f03070d71f76b94b1cd406aa6",
       "size": 3356
+    },
+    {
+      "path": "pages/open-questions/multi-author-workflows-and-shared-ipa-ownership.md",
+      "sha256": "985333b516c71f49fc09515d02f7abf348e52baefdfb9c28a1c3e0649f9f097d",
+      "size": 3830
     },
     {
       "path": "pages/open-questions/need-plan-b-api-gas-limits.md",
@@ -14141,5 +14151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ec41042e7667628cc10c613593e54278c510930521b3d3903be5869900fc2104"
+  "wiki_tree_hash": "5b02f561ce4849114ddeee23f97e0fdff16109fba559de501af5a2f6d58eb336"
 }
