@@ -33751,3 +33751,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a8fab57eb7a4d031b64e1709e8975434
 - summary: Fixes for masked email export and UI flickering in the admin dashboard payout obligations table, including workaround instructions and PR details.
 
+## [2026-06-18T17:18:18Z] synthesis | Numo Expert Platform Implementation
+
+- status: published
+- slug: projects/numo-expert-platform
+- wiki_revision_id: wikirev_43cdea46f3bb8d06dfe1f0642be55023
+- summary: Bring the internal Poseidon annotation workflow into app.numolabs.ai, enabling qualified users to complete audio/transcript annotation tasks with quality controls, consensus, and p...
+
+## [2026-06-18T17:18:18Z] synthesis | Numo Expert Quality Control
+
+- status: published
+- slug: concepts/numo-expert-quality-control
+- wiki_revision_id: wikirev_a368b7edd0ce32432c574b35add3d46f
+- summary: Quality assurance mechanisms for Numo Expert annotations, including consensus, honeypots, reviewer escalation, and quality scoring.
+
+## [2026-06-18T17:19:06Z] synthesis | Malay and Indonesian Language Banners and Seed Phrase Verification
+
+- status: published
+- slug: projects/malay-indonesian-language-banners-and-seed-phrase
+- wiki_revision_id: wikirev_497759adfc7a21c3bca3016117bd92cc
+- summary: The team added Malay and Indonesian language banners, with assets shared in a zip file. Tasks were created and seed phrase verification is required; seed words are already added, p...
+
