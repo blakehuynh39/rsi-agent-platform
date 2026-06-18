@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9955ec17d84335aa5c059bb27912e4a6eab80e50b56b52e44e17455a21d84082",
-        "size": 903868
+        "sha256": "39a93e5321ec26b27f5828be87376a37f277d94d272f8b92dce6f10939d200d5",
+        "size": 904632
       },
       {
         "path": "log.md",
-        "sha256": "7b9ba434e323dde39700b373fe4cd4357aa1fae09dbeeb83ca589127d8c8b0ad",
-        "size": 1626668
+        "sha256": "9329dd779a6aa0c0f362573366949e4bc13d9536bdf16ef71433996e4f89d884",
+        "size": 1627067
       },
       {
         "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -4718,6 +4718,11 @@
         "path": "pages/open-questions/royalty-dilution-feedback.md",
         "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
         "size": 2853
+      },
+      {
+        "path": "pages/open-questions/shared-ownership-of-ip-assets.md",
+        "sha256": "249ec74d699ac00746ff52e182f96534fba599c780628214e17f3b6bcb19e30b",
+        "size": 3854
       },
       {
         "path": "pages/open-questions/solana-nft-mapping-to-evm-address.md",
@@ -7054,8 +7059,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-18T00:32:03Z",
-  "file_count": 1409,
+  "exported_at": "2026-06-18T00:38:32Z",
+  "file_count": 1410,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10332,7 +10337,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "597ae11798e62acb4c7b3b2073aee654b6b09cfeff0e27cfe8603e14d3a95015",
+  "previous_tree_hash": "e7ead46806b65ebd7624c59cbabe7f9a3f61f4c357f350283bd05f92a99ed806",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10345,14 +10350,14 @@
   ],
   "skill_tree_hash": "c19172561125af0231e4c7c53b53004f6c81894ab845743de53832100f568e9c",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e7ead46806b65ebd7624c59cbabe7f9a3f61f4c357f350283bd05f92a99ed806",
+  "tree_hash": "142352b6c79b7a8938356b0a1f65c2fc3452e6ea4062c5610f5221e9cf2fa656",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 755,
+  "wiki_file_count": 756,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10361,13 +10366,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9955ec17d84335aa5c059bb27912e4a6eab80e50b56b52e44e17455a21d84082",
-      "size": 903868
+      "sha256": "39a93e5321ec26b27f5828be87376a37f277d94d272f8b92dce6f10939d200d5",
+      "size": 904632
     },
     {
       "path": "log.md",
-      "sha256": "7b9ba434e323dde39700b373fe4cd4357aa1fae09dbeeb83ca589127d8c8b0ad",
-      "size": 1626668
+      "sha256": "9329dd779a6aa0c0f362573366949e4bc13d9536bdf16ef71433996e4f89d884",
+      "size": 1627067
     },
     {
       "path": "pages/concepts/100m-gas-data-registration-benchmarks.md",
@@ -11798,6 +11803,11 @@
       "path": "pages/open-questions/royalty-dilution-feedback.md",
       "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
       "size": 2853
+    },
+    {
+      "path": "pages/open-questions/shared-ownership-of-ip-assets.md",
+      "sha256": "249ec74d699ac00746ff52e182f96534fba599c780628214e17f3b6bcb19e30b",
+      "size": 3854
     },
     {
       "path": "pages/open-questions/solana-nft-mapping-to-evm-address.md",
@@ -14131,5 +14141,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bfc1c188e7eff892ee0540362a7151adb6d57bdc4211b2504175e4756bdc9cb4"
+  "wiki_tree_hash": "ec41042e7667628cc10c613593e54278c510930521b3d3903be5869900fc2104"
 }
