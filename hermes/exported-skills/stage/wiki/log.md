@@ -35315,3 +35315,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3768ae555cd389585b6a09fc1f90f8ed
 - summary: Proposed formula for calculating user rewards in Numo: Reward = C * p * m, with pending and settled balances and a $25 minimum withdrawal threshold.
 
+## [2026-06-19T23:00:42Z] synthesis | Meeting Rescheduled to 1pm on 2026-04-21
+
+- status: published
+- slug: decisions/meeting-reschedule-2026-04-21
+- wiki_revision_id: wikirev_7cf6795e689a2ecd4570e0bbdbef9b70
+- summary: A meeting was rescheduled to 1pm on April 21, 2026, as announced in a Slack thread. The update was acknowledged by another participant.
+
+## [2026-06-19T23:01:24Z] synthesis | Localize App Store Listing for Indian Languages
+
+- status: published
+- slug: decisions/localize-app-store-listing-indian-languages
+- wiki_revision_id: wikirev_f0f65c7548b5fabd85936505b89ef23f
+- summary: Decision to localize Apple App Store listing for India, starting with Bengali, based on analysis of supported languages.
+

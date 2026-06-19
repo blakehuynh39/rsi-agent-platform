@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6255274af8be0526329eeab48578d149d547e930475a324f569ce3183a3ac82b",
-        "size": 1000265
+        "sha256": "1ab31bb0e748f4206c478e5e9265e0862e2860df25f4fb060f6fbddad49a7ad0",
+        "size": 1000961
       },
       {
         "path": "log.md",
-        "sha256": "9949b7044391e5177aa4cd60bf30ea6aaa3251aeb1a3e40fa16584af9144cf3c",
-        "size": 1737305
+        "sha256": "e8145157792172224766dc77cf81ef44c04681eb0b3b0f12d3831cb4ea32f896",
+        "size": 1738025
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4703,6 +4703,16 @@
         "path": "pages/decisions/localization-language-coverage.md",
         "sha256": "fca2accb4bc2bcaceb2603f3a0e6a62fa27f8c599cf03a11be99251dbd1b5073",
         "size": 1619
+      },
+      {
+        "path": "pages/decisions/localize-app-store-listing-indian-languages.md",
+        "sha256": "95fa10bdcbb69a479b0256ae2d54cf5b1433fa579ffcb075f0ce465be750e889",
+        "size": 2058
+      },
+      {
+        "path": "pages/decisions/meeting-reschedule-2026-04-21.md",
+        "sha256": "8a873e24b5909886e6d6c2d9949e8d153ebea96afb6af9ea1eeeb104b1e9de5d",
+        "size": 1567
       },
       {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -8384,8 +8394,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T22:53:08Z",
-  "file_count": 1675,
+  "exported_at": "2026-06-19T23:04:36Z",
+  "file_count": 1677,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11662,7 +11672,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "07df8b64e5275eee1223a2410a81aeee3ad96d7f11c6b30229fb25cecee14b0f",
+  "previous_tree_hash": "6ae660449e336cc54cdb8812e1c57e49f247546d756aa8b4a4b6bd6247d1c3d0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11675,14 +11685,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6ae660449e336cc54cdb8812e1c57e49f247546d756aa8b4a4b6bd6247d1c3d0",
+  "tree_hash": "b4c2024de02234da101270debf880cc07ffd6669e8f9ba60de3b66d9af98f6ca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1021,
+  "wiki_file_count": 1023,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11691,13 +11701,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6255274af8be0526329eeab48578d149d547e930475a324f569ce3183a3ac82b",
-      "size": 1000265
+      "sha256": "1ab31bb0e748f4206c478e5e9265e0862e2860df25f4fb060f6fbddad49a7ad0",
+      "size": 1000961
     },
     {
       "path": "log.md",
-      "sha256": "9949b7044391e5177aa4cd60bf30ea6aaa3251aeb1a3e40fa16584af9144cf3c",
-      "size": 1737305
+      "sha256": "e8145157792172224766dc77cf81ef44c04681eb0b3b0f12d3831cb4ea32f896",
+      "size": 1738025
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13113,6 +13123,16 @@
       "path": "pages/decisions/localization-language-coverage.md",
       "sha256": "fca2accb4bc2bcaceb2603f3a0e6a62fa27f8c599cf03a11be99251dbd1b5073",
       "size": 1619
+    },
+    {
+      "path": "pages/decisions/localize-app-store-listing-indian-languages.md",
+      "sha256": "95fa10bdcbb69a479b0256ae2d54cf5b1433fa579ffcb075f0ce465be750e889",
+      "size": 2058
+    },
+    {
+      "path": "pages/decisions/meeting-reschedule-2026-04-21.md",
+      "sha256": "8a873e24b5909886e6d6c2d9949e8d153ebea96afb6af9ea1eeeb104b1e9de5d",
+      "size": 1567
     },
     {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
@@ -16791,5 +16811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a957e2581130881f87687d775771869b2545e8e19b2aac1bb4b0dce8b07a5da0"
+  "wiki_tree_hash": "619a5c9b7a54bccdc246a497ead32b5d778018149558dc56a9869268604e0686"
 }
