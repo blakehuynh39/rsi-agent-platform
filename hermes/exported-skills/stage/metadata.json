@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8a74ca34b6fb6da81ef19e67ebfd70c0624304bffa5871f722b7df0488b45887",
-        "size": 981090
+        "sha256": "c3d96cc3116bc094d140acd182f93ece752e49de07c1e0285a4b40ac58b416cd",
+        "size": 981420
       },
       {
         "path": "log.md",
-        "sha256": "9e4a88cb5d48b2be2f4e5fdafde7dedff1dafa3d13a9ef2d86f9630e94adce4c",
-        "size": 1715202
+        "sha256": "aac7bcb13916214e9fba955a77a870e9d7ad41bebe458b50418759e33d1b4f67",
+        "size": 1715544
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6170,6 +6170,11 @@
         "size": 2764
       },
       {
+        "path": "pages/projects/numo-signup-welcome-email-beehiiv.md",
+        "sha256": "8fe0e454e04d2b6c1fc4c457b370746855e9ddf807954d685a3d95f7ce60a472",
+        "size": 2564
+      },
+      {
         "path": "pages/projects/numo-tamil-language-completion.md",
         "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
         "size": 2882
@@ -8119,8 +8124,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T15:52:03Z",
-  "file_count": 1622,
+  "exported_at": "2026-06-19T16:03:57Z",
+  "file_count": 1623,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11397,7 +11402,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "08079a4c149d755860f00abcb6d275349ff8af23e13e8ba2a782fa084eb579a0",
+  "previous_tree_hash": "11fabfc6c1015ca157f677740be3cf1290b0f2982f055e1d7b35b2374842dcee",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11410,14 +11415,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "11fabfc6c1015ca157f677740be3cf1290b0f2982f055e1d7b35b2374842dcee",
+  "tree_hash": "a9eb81fa63517f483fea812740108d2ecf5c360b3fc2593e583f2fed57718b26",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 968,
+  "wiki_file_count": 969,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11426,13 +11431,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8a74ca34b6fb6da81ef19e67ebfd70c0624304bffa5871f722b7df0488b45887",
-      "size": 981090
+      "sha256": "c3d96cc3116bc094d140acd182f93ece752e49de07c1e0285a4b40ac58b416cd",
+      "size": 981420
     },
     {
       "path": "log.md",
-      "sha256": "9e4a88cb5d48b2be2f4e5fdafde7dedff1dafa3d13a9ef2d86f9630e94adce4c",
-      "size": 1715202
+      "sha256": "aac7bcb13916214e9fba955a77a870e9d7ad41bebe458b50418759e33d1b4f67",
+      "size": 1715544
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14315,6 +14320,11 @@
       "size": 2764
     },
     {
+      "path": "pages/projects/numo-signup-welcome-email-beehiiv.md",
+      "sha256": "8fe0e454e04d2b6c1fc4c457b370746855e9ddf807954d685a3d95f7ce60a472",
+      "size": 2564
+    },
+    {
       "path": "pages/projects/numo-tamil-language-completion.md",
       "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
       "size": 2882
@@ -16261,5 +16271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8df4496cc590a5f9a020365734305c0b37c86162c888e9c35d0b83ea72485bda"
+  "wiki_tree_hash": "88a9c04b982d96b543a81947c3d635c06f187984b9bb5fd6417aed8a9f9b5e3c"
 }

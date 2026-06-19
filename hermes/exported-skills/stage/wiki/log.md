@@ -34896,3 +34896,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3db5a822e9665b92d403f8f262b33fda
 - summary: Legal and compliance requirements for the DePIN Indic Audio Collection project, covering applicable Indian regulations (DPDP Act, SPDI/IT Rules) and design implications for consent...
 
+## [2026-06-19T16:01:53Z] synthesis | Numo Signup Welcome Email (Beehiiv)
+
+- status: published
+- slug: projects/numo-signup-welcome-email-beehiiv
+- wiki_revision_id: wikirev_4388c771e72c15cb3bacea88d294fbb9
+- summary: Setup of the automated welcome email for Numo signups using Beehiiv, including API integration and email content creation.
+
