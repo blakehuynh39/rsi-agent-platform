@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "87a33b0ad650bcffe643fdd4a2ad5201028ba0cddcd52af130d16820b2de4384",
-        "size": 961147
+        "sha256": "6134ca7ef9b4f9a66659480f3866f10c33e9bb34c3acf2fac382d2b9fdd7b8f1",
+        "size": 962885
       },
       {
         "path": "log.md",
-        "sha256": "dce71c6b9986190e93e5306371a56076d3ca36c1588c039b1fb2d996e969e86a",
-        "size": 1692572
+        "sha256": "297a19871977d5d4178cc416497793ef8a0e45116b07d7a8f0e8a04628a0cf37",
+        "size": 1694904
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4250,6 +4250,11 @@
         "size": 15654
       },
       {
+        "path": "pages/concepts/stripe-w8-w9-private-beta.md",
+        "sha256": "46095ffcda005271cbd2024a29bf1fa5c9efebbcd353a006eb433350d6870ecf",
+        "size": 2381
+      },
+      {
         "path": "pages/concepts/subnet-contract-spec-v1.md",
         "sha256": "3e95df5a5a45fb7fd548d0f767f65ac85a0dbae098ba3a7d8af072b018535d45",
         "size": 3926
@@ -4278,6 +4283,11 @@
         "path": "pages/concepts/tagalog-vs-filipino-language-distinction.md",
         "sha256": "995034a39469909ea90851a140fa7145d9cd46701707042f4ae49fa27f404ccc",
         "size": 6049
+      },
+      {
+        "path": "pages/concepts/taxbit-alternative.md",
+        "sha256": "1484ad82e427862ab2df0248941a83753ffa32e696a4e639855c9fee4e23f7e7",
+        "size": 1894
       },
       {
         "path": "pages/concepts/trace-schema-v1-0.md",
@@ -5013,6 +5023,11 @@
         "path": "pages/open-questions/transfertovault-vs-payroyaltyonbehalf.md",
         "sha256": "e57757cdb97c0e339caf8cad1c35b953524a89d4f5f11cd64b40e0d07ba04054",
         "size": 1918
+      },
+      {
+        "path": "pages/open-questions/w8-form-collection-open-issues.md",
+        "sha256": "4610095a47594e80e114029ec1465fab5ea3ad1955bace84f25b69659c6e4afa",
+        "size": 2409
       },
       {
         "path": "pages/people/hans.md",
@@ -6630,6 +6645,11 @@
         "size": 7760
       },
       {
+        "path": "pages/projects/w8-form-collection-workstream.md",
+        "sha256": "40aae0642e539c669828ddfb7c231cbac5dbb3b839aa4e6c8cd6f18066df7de6",
+        "size": 4778
+      },
+      {
         "path": "pages/projects/web2-partner-integration-solution.md",
         "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
         "size": 3976
@@ -7480,6 +7500,11 @@
         "size": 3330
       },
       {
+        "path": "pages/systems/numo-campaign-health-dashboard.md",
+        "sha256": "43b6923f45bc4d7a5eeca9c53d17c9c036c6cbdc999b51b6ed1027fc93adba47",
+        "size": 2399
+      },
+      {
         "path": "pages/systems/numo-data-validation-integration.md",
         "sha256": "c1c78a3334fa6ca51b17de8e10213b6558ff4f2a8b7953275c665c3784348c35",
         "size": 5752
@@ -7834,8 +7859,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T07:17:26Z",
-  "file_count": 1565,
+  "exported_at": "2026-06-19T07:34:26Z",
+  "file_count": 1570,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11112,7 +11137,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5d5441930770a5423202a4958b98ee53d14bd83283bb792da8d5385236eeb273",
+  "previous_tree_hash": "0b2b957dbbf2a869a92161c0c2fb320d75f38199111c4378e3d6e93400c79bdd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11125,14 +11150,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0b2b957dbbf2a869a92161c0c2fb320d75f38199111c4378e3d6e93400c79bdd",
+  "tree_hash": "5e233aa8e9384806d2d43139fb3a12f6ef93e233d14e7118aa72981256c56bf9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 911,
+  "wiki_file_count": 916,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11141,13 +11166,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "87a33b0ad650bcffe643fdd4a2ad5201028ba0cddcd52af130d16820b2de4384",
-      "size": 961147
+      "sha256": "6134ca7ef9b4f9a66659480f3866f10c33e9bb34c3acf2fac382d2b9fdd7b8f1",
+      "size": 962885
     },
     {
       "path": "log.md",
-      "sha256": "dce71c6b9986190e93e5306371a56076d3ca36c1588c039b1fb2d996e969e86a",
-      "size": 1692572
+      "sha256": "297a19871977d5d4178cc416497793ef8a0e45116b07d7a8f0e8a04628a0cf37",
+      "size": 1694904
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12110,6 +12135,11 @@
       "size": 15654
     },
     {
+      "path": "pages/concepts/stripe-w8-w9-private-beta.md",
+      "sha256": "46095ffcda005271cbd2024a29bf1fa5c9efebbcd353a006eb433350d6870ecf",
+      "size": 2381
+    },
+    {
       "path": "pages/concepts/subnet-contract-spec-v1.md",
       "sha256": "3e95df5a5a45fb7fd548d0f767f65ac85a0dbae098ba3a7d8af072b018535d45",
       "size": 3926
@@ -12138,6 +12168,11 @@
       "path": "pages/concepts/tagalog-vs-filipino-language-distinction.md",
       "sha256": "995034a39469909ea90851a140fa7145d9cd46701707042f4ae49fa27f404ccc",
       "size": 6049
+    },
+    {
+      "path": "pages/concepts/taxbit-alternative.md",
+      "sha256": "1484ad82e427862ab2df0248941a83753ffa32e696a4e639855c9fee4e23f7e7",
+      "size": 1894
     },
     {
       "path": "pages/concepts/trace-schema-v1-0.md",
@@ -12873,6 +12908,11 @@
       "path": "pages/open-questions/transfertovault-vs-payroyaltyonbehalf.md",
       "sha256": "e57757cdb97c0e339caf8cad1c35b953524a89d4f5f11cd64b40e0d07ba04054",
       "size": 1918
+    },
+    {
+      "path": "pages/open-questions/w8-form-collection-open-issues.md",
+      "sha256": "4610095a47594e80e114029ec1465fab5ea3ad1955bace84f25b69659c6e4afa",
+      "size": 2409
     },
     {
       "path": "pages/people/hans.md",
@@ -14490,6 +14530,11 @@
       "size": 7760
     },
     {
+      "path": "pages/projects/w8-form-collection-workstream.md",
+      "sha256": "40aae0642e539c669828ddfb7c231cbac5dbb3b839aa4e6c8cd6f18066df7de6",
+      "size": 4778
+    },
+    {
       "path": "pages/projects/web2-partner-integration-solution.md",
       "sha256": "68c35822db84047e80244272f08b5d70a90f448c33ae844b9fda44070be47af9",
       "size": 3976
@@ -15340,6 +15385,11 @@
       "size": 3330
     },
     {
+      "path": "pages/systems/numo-campaign-health-dashboard.md",
+      "sha256": "43b6923f45bc4d7a5eeca9c53d17c9c036c6cbdc999b51b6ed1027fc93adba47",
+      "size": 2399
+    },
+    {
       "path": "pages/systems/numo-data-validation-integration.md",
       "sha256": "c1c78a3334fa6ca51b17de8e10213b6558ff4f2a8b7953275c665c3784348c35",
       "size": 5752
@@ -15691,5 +15741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "52fdf38d45d60d5e25d128cdbd0c377e7e45305867b45ae0e1abaa35643caddd"
+  "wiki_tree_hash": "7d7a30159499fdc15d85157e8087d6822d5058c523d71dbeb14420f8028f68fd"
 }

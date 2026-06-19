@@ -34461,3 +34461,47 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e6217c0066205d053d9c2d9d816d24c7
 - summary: The Vietnamese rollout was paused due to a last-minute transcript diversity issue flagged by Poseidon. The team is working to correct it and activated the task for @U0866HDK755, ta...
 
+## [2026-06-19T07:30:27Z] ingest | Slack thread C0B2EJ96U83 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-channel-5675522d
+- wiki_revision_id: wikirev_545608f3c0d742eb58c83a8584cf5be9
+- source_document_id: srcdoc_b140aea25556e86e3666c67c5675522d
+- source_revision_id: srcrev_7bae2a4a1b8f4755d6639d91db64fc64
+- summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
+
+## [2026-06-19T07:32:08Z] synthesis | Numo Campaign Health Dashboard
+
+- status: published
+- slug: systems/numo-campaign-health-dashboard
+- wiki_revision_id: wikirev_c1575045a5e7a1e99f3fe5e5df467763
+- summary: The Numo Campaign Health dashboard provides morning digest statistics and campaign performance data. A request is pending to expand displayed campaigns from top 3 to top 5 or all c...
+
+## [2026-06-19T07:33:41Z] synthesis | W8 Form Collection Workstream
+
+- status: published
+- slug: projects/w8-form-collection-workstream
+- wiki_revision_id: wikirev_5ec6cb433b9bfae5832b37e4ab71e297
+- summary: Workstream to ensure compliant collection of W8/W9 tax forms for payment processing, addressing legal risks and Stripe integration delays. Exploring alternatives like TaxBit and ot...
+
+## [2026-06-19T07:33:41Z] synthesis | Stripe W8/W9 Private Beta
+
+- status: published
+- slug: concepts/stripe-w8-w9-private-beta
+- wiki_revision_id: wikirev_824ddda224ea22d4983ca80ffd07f6bb
+- summary: Stripe's private beta product for W8/W9 tax form collection, known for slow onboarding and fractured sales process.
+
+## [2026-06-19T07:33:41Z] synthesis | TaxBit as Temporary W8/W9 Solution
+
+- status: published
+- slug: concepts/taxbit-alternative
+- wiki_revision_id: wikirev_ad0a1d094244c82f2740d906cf0c8814
+- summary: TaxBit was contacted as a short-term alternative for W8/W9 form collection; quoted $10,000 for a few hundred users.
+
+## [2026-06-19T07:33:41Z] synthesis | W8 Form Collection Open Issues and Alternatives
+
+- status: published
+- slug: open-questions/w8-form-collection-open-issues
+- wiki_revision_id: wikirev_1ae732ac5ad0b175ee2e83a9e3e1a1f5
+- summary: Unresolved questions regarding W8/W9 form collection, including Stripe delays, TaxBit viability, and exploration of KLED, Mercor, Handshake.
+
