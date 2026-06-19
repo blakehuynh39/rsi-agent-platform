@@ -34819,3 +34819,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_107633cf4001e6fa12e8459ab9deb7d0
 - summary: Strategy to combat spam submissions, using light touch methods (voice fingerprinting, language test) and escalating to payment block, informed by Pi Network and WeChat approaches, ...
 
+## [2026-06-19T14:03:47Z] synthesis | Launch Time Scheduling
+
+- status: published
+- slug: decisions/launch-time-scheduling
+- wiki_revision_id: wikirev_3de669504fc6a1e2ae30fd0965ccf241
+- summary: Team agreed to launch at 9am PT / 12pm ET on Wednesday to accommodate India IST (9pm). Final confirmation pending from Allen and team.
+
