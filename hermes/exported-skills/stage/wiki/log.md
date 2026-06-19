@@ -35024,3 +35024,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_defa730bacfad211a166acbf3e2f63b9
 - summary: Process for managing freelancers via Upwork, including handling account suspensions and transferring responsibilities.
 
+## [2026-06-19T18:00:22Z] ingest | Security Audit Scope — Anchored Inflation + Cubic Staking Weight
+
+- status: published
+- slug: notion_document/security-audit-scope-anchored-inflation-cubic-staking-weight-c7c30f89
+- wiki_revision_id: wikirev_cd3fe435d4c374fa2c3c0827d01f350c
+- source_document_id: srcdoc_0dad80217a5ee14b1346d6b0c7c30f89
+- source_revision_id: srcrev_d838f410a73735dab799d1770e29df97
+- summary: Source: [source](https://app.notion.com/p/Security-Audit-Scope-Anchored-Inflation-Cubic-Staking-Weight-384051299a548150a032d032621aaee1)
+
+## [2026-06-19T18:02:00Z] synthesis | Task Contribution Flow Redesign
+
+- status: published
+- slug: decisions/task-contribution-flow-redesign
+- wiki_revision_id: wikirev_7a1ceac8f85d4396cdeaa71819d82907
+- summary: Redesign of the task contribution flow to improve user experience and incentivize contributions.
+
+## [2026-06-19T18:02:44Z] synthesis | Pre-Launch Change Freeze - 2026-04-27
+
+- status: published
+- slug: decisions/pre-launch-change-freeze-2026-04-27
+- wiki_revision_id: wikirev_df484f4412f0324e02cafb2b84bf089e
+- summary: On April 27, 2026, a team lead announced that today is the last day for any site changes (design, Q&A, marketing) to avoid launch risk or bugs. Non-urgent, non-bug-fix items not co...
+

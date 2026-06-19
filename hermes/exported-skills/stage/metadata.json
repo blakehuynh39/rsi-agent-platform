@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "78361a45b0092a8cf5d587f06f5af322591b23b3fdea329321e042383d8efc34",
-        "size": 987577
+        "sha256": "83f719e3b71b6c67f3f84323217b530768825eb2ef0ec39304871921d11b785d",
+        "size": 988272
       },
       {
         "path": "log.md",
-        "sha256": "28770b2a8ac14d06ee740a3f1a7d2f3be6275d273b84fca550e6e7ca5ce7124d",
-        "size": 1722032
+        "sha256": "e74be90138118c03edf9b1731f005a857d265f05ff5b1617edecb44952117386",
+        "size": 1723302
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4790,6 +4790,11 @@
         "size": 2832
       },
       {
+        "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
+        "sha256": "3d0d2fe0d624ecbc5fdca9fc9bbfd71b8640eeccab7c7b22091c789b72cb7a1c",
+        "size": 2718
+      },
+      {
         "path": "pages/decisions/proj-numo-digests-channel.md",
         "sha256": "dd9d1fe00cf60e32cbcf5e5c4a6767abe0d1cbc7798502b1bfa97b85150d4cd7",
         "size": 3358
@@ -4923,6 +4928,11 @@
         "path": "pages/decisions/subnet-worker-heartbeat.md",
         "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
         "size": 1384
+      },
+      {
+        "path": "pages/decisions/task-contribution-flow-redesign.md",
+        "sha256": "65cc416c254f14569fa5f0195cc638326c8b017c3dc6cd3e0ecd94a1e5cf29af",
+        "size": 5382
       },
       {
         "path": "pages/decisions/task-language-requirements.md",
@@ -8204,8 +8214,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T17:57:50Z",
-  "file_count": 1639,
+  "exported_at": "2026-06-19T18:04:37Z",
+  "file_count": 1641,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11482,7 +11492,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "debdf598a767c283f7931fe6397a84f58b08a5319a6eb7d9cff5d13c81d6884d",
+  "previous_tree_hash": "cae3243dbf41cfee88b7e0f8d47a8530ca3ea16bbe29a1edcc76334ffc7e14f3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11495,14 +11505,14 @@
   ],
   "skill_tree_hash": "0cd403a69b245c289c02e1a3ca9eab1afe7c413b1c22d63abe25c12c31f9a4d8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cae3243dbf41cfee88b7e0f8d47a8530ca3ea16bbe29a1edcc76334ffc7e14f3",
+  "tree_hash": "607a74e7461c02e7436e7ec92ce3bd48e7d0ac7c032edd6e8ba5ed5e26bca9e3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 985,
+  "wiki_file_count": 987,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11511,13 +11521,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "78361a45b0092a8cf5d587f06f5af322591b23b3fdea329321e042383d8efc34",
-      "size": 987577
+      "sha256": "83f719e3b71b6c67f3f84323217b530768825eb2ef0ec39304871921d11b785d",
+      "size": 988272
     },
     {
       "path": "log.md",
-      "sha256": "28770b2a8ac14d06ee740a3f1a7d2f3be6275d273b84fca550e6e7ca5ce7124d",
-      "size": 1722032
+      "sha256": "e74be90138118c03edf9b1731f005a857d265f05ff5b1617edecb44952117386",
+      "size": 1723302
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13020,6 +13030,11 @@
       "size": 2832
     },
     {
+      "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
+      "sha256": "3d0d2fe0d624ecbc5fdca9fc9bbfd71b8640eeccab7c7b22091c789b72cb7a1c",
+      "size": 2718
+    },
+    {
       "path": "pages/decisions/proj-numo-digests-channel.md",
       "sha256": "dd9d1fe00cf60e32cbcf5e5c4a6767abe0d1cbc7798502b1bfa97b85150d4cd7",
       "size": 3358
@@ -13153,6 +13168,11 @@
       "path": "pages/decisions/subnet-worker-heartbeat.md",
       "sha256": "6d7353e476e7977b8fcbe98ab49813662131e453931c844a3f9a432d6951ca8e",
       "size": 1384
+    },
+    {
+      "path": "pages/decisions/task-contribution-flow-redesign.md",
+      "sha256": "65cc416c254f14569fa5f0195cc638326c8b017c3dc6cd3e0ecd94a1e5cf29af",
+      "size": 5382
     },
     {
       "path": "pages/decisions/task-language-requirements.md",
@@ -16431,5 +16451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6ed20d6c07fa1c403ffca77015cd2eb696d6d93a2f80ebae9ad725e5d68b20e3"
+  "wiki_tree_hash": "7932416db04a3fd1bc329f817d6d5159ebcd71d131593d787ef388a58caaab2d"
 }
