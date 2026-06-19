@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f15fea55e1cc2db6cd3dc57558e55e470e408e32dcfbeb3e2457ba990e78daec",
-        "size": 997179
+        "sha256": "c4844f89efa59d16ba12a7947ab6a1f800dbbdb8577e55093e05f743e04c4c33",
+        "size": 997576
       },
       {
         "path": "log.md",
-        "sha256": "9fb8f584c8ddea79cbfe534141b1b7cf75f7700923b6b4704c7d3031ad378781",
-        "size": 1733768
+        "sha256": "3ff3aaaef78296d94a3d34b961a95dafc377850a4c74c1e56dff044d7db33d82",
+        "size": 1734520
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6361,8 +6361,8 @@
       },
       {
         "path": "pages/projects/numo.md",
-        "sha256": "a08524d4b0f09c72ae5e23caef3f12739117233dcc1a8854eeb313e928c81367",
-        "size": 3179
+        "sha256": "9cb9d41e4948990547b63927f9888adac0ab8b474e169d3c49cf117cd43834d7",
+        "size": 9178
       },
       {
         "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -6948,6 +6948,11 @@
         "path": "pages/projects/trace.md",
         "sha256": "fdf4c66a9227f79a48bdeb7b89a126b9b0f9537bc573f7a321595f5a672573b6",
         "size": 1407
+      },
+      {
+        "path": "pages/projects/transcript-quality-workstream-kickoff.md",
+        "sha256": "bcc6c803ff90ac35ae22022bbcf2423ef1ee08bc8babbc5ca464b58a623515c2",
+        "size": 3850
       },
       {
         "path": "pages/projects/trident-v0-1-0.md",
@@ -8339,8 +8344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T21:06:05Z",
-  "file_count": 1666,
+  "exported_at": "2026-06-19T21:17:33Z",
+  "file_count": 1667,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11617,7 +11622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "702c73075c6f9c9b523364ed87aad759ccfbb5ffdc7e2203253443954a029e61",
+  "previous_tree_hash": "0de837372d698a5f501ada946d49dd2a4feda18b8a608f7fa5fd8342be6ff3c4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11630,14 +11635,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0de837372d698a5f501ada946d49dd2a4feda18b8a608f7fa5fd8342be6ff3c4",
+  "tree_hash": "b13c35b207019f166428924df5a8838c2f2be82e987134c0091788eac5f2c417",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1012,
+  "wiki_file_count": 1013,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11646,13 +11651,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f15fea55e1cc2db6cd3dc57558e55e470e408e32dcfbeb3e2457ba990e78daec",
-      "size": 997179
+      "sha256": "c4844f89efa59d16ba12a7947ab6a1f800dbbdb8577e55093e05f743e04c4c33",
+      "size": 997576
     },
     {
       "path": "log.md",
-      "sha256": "9fb8f584c8ddea79cbfe534141b1b7cf75f7700923b6b4704c7d3031ad378781",
-      "size": 1733768
+      "sha256": "3ff3aaaef78296d94a3d34b961a95dafc377850a4c74c1e56dff044d7db33d82",
+      "size": 1734520
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14726,8 +14731,8 @@
     },
     {
       "path": "pages/projects/numo.md",
-      "sha256": "a08524d4b0f09c72ae5e23caef3f12739117233dcc1a8854eeb313e928c81367",
-      "size": 3179
+      "sha256": "9cb9d41e4948990547b63927f9888adac0ab8b474e169d3c49cf117cd43834d7",
+      "size": 9178
     },
     {
       "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -15313,6 +15318,11 @@
       "path": "pages/projects/trace.md",
       "sha256": "fdf4c66a9227f79a48bdeb7b89a126b9b0f9537bc573f7a321595f5a672573b6",
       "size": 1407
+    },
+    {
+      "path": "pages/projects/transcript-quality-workstream-kickoff.md",
+      "sha256": "bcc6c803ff90ac35ae22022bbcf2423ef1ee08bc8babbc5ca464b58a623515c2",
+      "size": 3850
     },
     {
       "path": "pages/projects/trident-v0-1-0.md",
@@ -16701,5 +16711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "581c369e1b47364ef6ffd889676c3a160cd0e8e52900044fcfa242e8f41ce4e0"
+  "wiki_tree_hash": "67db55c491d5fe916355af402b2de1ae2f627169d9eafd8f1448691fe470666c"
 }

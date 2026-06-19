@@ -35245,3 +35245,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e06f9d991fcca173b1a31a7065f98be
 - summary: Decision that Numo will not have its own Twitter account initially, as it is a product launched under Poseidon's umbrella.
 
+## [2026-06-19T21:16:12Z] synthesis | Numo
+
+- status: published
+- slug: projects/numo
+- wiki_revision_id: wikirev_6507edf2ec4ab8e0892d6044ae2e7ec5
+- summary: Numo is a product undergoing launch. Web launch scheduled for Apr 27, 2026, with initial support for 4 Indian languages. Mobile launch target ~May 21. A two-tier payout model is ad...
+
+## [2026-06-19T21:16:44Z] synthesis | Transcript Quality Workstream Kickoff
+
+- status: published
+- slug: projects/transcript-quality-workstream-kickoff
+- wiki_revision_id: wikirev_d7167db8239e9c5d1a356e09c112648b
+- summary: A workstream to improve transcript quality with the Poseidon team was initiated. A kickoff meeting was scheduled for Tuesday, April 14, 2026. Participants include Seb, Krishna, Yas...
+
