@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7d883adca6857debee0d2e3aa2f04e0653a95a537d442da036a78d44c32c9c08",
-        "size": 956575
+        "sha256": "200cece0ab0b329ad407c5d3cc002b7ee31f8bd9c2cdd6287d5b40483f1de114",
+        "size": 957738
       },
       {
         "path": "log.md",
-        "sha256": "70b405dc8ff172df26907db2a4310f84c7614758aa2739999a71216cf95b369b",
-        "size": 1688283
+        "sha256": "a7cf2db61e2eac7b047b19b2754bfe98cb20559ad36b3075c6275e18852c7ca8",
+        "size": 1689055
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4860,6 +4860,11 @@
         "size": 1289
       },
       {
+        "path": "pages/open-questions/estimate-of-paying-users-for-w8-w9-services.md",
+        "sha256": "b01274b8288478c921819e154a58728b47c5ab647f639538005d2251cd715055",
+        "size": 1777
+      },
+      {
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
         "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
         "size": 1497
@@ -5238,6 +5243,11 @@
         "path": "pages/projects/address-p1-dogfooding-issues.md",
         "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
         "size": 1074
+      },
+      {
+        "path": "pages/projects/admin-dashboard-user-measurement-update.md",
+        "sha256": "f52538c5ffdfc298b9bfdce2ea5c6ef276b3253e9eb15bde3bfd87e72f15fccd",
+        "size": 1540
       },
       {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -7779,8 +7789,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T06:01:46Z",
-  "file_count": 1554,
+  "exported_at": "2026-06-19T06:08:23Z",
+  "file_count": 1556,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11057,7 +11067,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "3f3cca9e39217ddc85dbda06286bfa50b7d09100cc80b94362ae9821966517c8",
+  "previous_tree_hash": "ad7e9b5f9f4eae1c26021337066bcf350a9c531cc0b3e2196ae232529e2b5639",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11070,14 +11080,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ad7e9b5f9f4eae1c26021337066bcf350a9c531cc0b3e2196ae232529e2b5639",
+  "tree_hash": "6dda54341be2d293fe933e7d1ffbc1cb2b480ff8bf9533f9618a89222f6ebf54",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 900,
+  "wiki_file_count": 902,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11086,13 +11096,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7d883adca6857debee0d2e3aa2f04e0653a95a537d442da036a78d44c32c9c08",
-      "size": 956575
+      "sha256": "200cece0ab0b329ad407c5d3cc002b7ee31f8bd9c2cdd6287d5b40483f1de114",
+      "size": 957738
     },
     {
       "path": "log.md",
-      "sha256": "70b405dc8ff172df26907db2a4310f84c7614758aa2739999a71216cf95b369b",
-      "size": 1688283
+      "sha256": "a7cf2db61e2eac7b047b19b2754bfe98cb20559ad36b3075c6275e18852c7ca8",
+      "size": 1689055
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12665,6 +12675,11 @@
       "size": 1289
     },
     {
+      "path": "pages/open-questions/estimate-of-paying-users-for-w8-w9-services.md",
+      "sha256": "b01274b8288478c921819e154a58728b47c5ab647f639538005d2251cd715055",
+      "size": 1777
+    },
+    {
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
       "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
       "size": 1497
@@ -13043,6 +13058,11 @@
       "path": "pages/projects/address-p1-dogfooding-issues.md",
       "sha256": "62a9ee009891a287f61682bab2d841eb3500307f75102d2bac03bf5c5242407d",
       "size": 1074
+    },
+    {
+      "path": "pages/projects/admin-dashboard-user-measurement-update.md",
+      "sha256": "f52538c5ffdfc298b9bfdce2ea5c6ef276b3253e9eb15bde3bfd87e72f15fccd",
+      "size": 1540
     },
     {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -15581,5 +15601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "92f0586e020de9edbf00c96b289c44ddb64f0786d130fb25d4e2674b09c87ab9"
+  "wiki_tree_hash": "56f03f1be227c6738625f3a3da2e19b12c6bf4d01784525b80020afffe2ffadd"
 }
