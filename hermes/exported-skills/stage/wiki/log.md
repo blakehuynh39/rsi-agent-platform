@@ -34889,3 +34889,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_38b7142f54880c0e0b8dde72fb66ee9b
 - summary: Collected feedback from pre-dogfooding review of the Story Protocol app, covering localization issues, a placeholder task for IP registration testing, UI placement suggestions, and...
 
+## [2026-06-19T15:48:08Z] synthesis | Legal and Compliance Strategy: DePIN Indic Audio Collection
+
+- status: published
+- slug: decisions/compliance-strategy-depin-indic-audio-collection
+- wiki_revision_id: wikirev_3db5a822e9665b92d403f8f262b33fda
+- summary: Legal and compliance requirements for the DePIN Indic Audio Collection project, covering applicable Indian regulations (DPDP Act, SPDI/IT Rules) and design implications for consent...
+

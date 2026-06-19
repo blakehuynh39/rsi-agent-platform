@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4beb33125b86229a7bcb32d618c4825223f6cca5da6fafa7fea9c778df9d49ef",
-        "size": 980659
+        "sha256": "8a74ca34b6fb6da81ef19e67ebfd70c0624304bffa5871f722b7df0488b45887",
+        "size": 981090
       },
       {
         "path": "log.md",
-        "sha256": "068783b2d3ccea1063f14729e36aed753ad44e2274b25467360f201e9c8e03d9",
-        "size": 1714759
+        "sha256": "9e4a88cb5d48b2be2f4e5fdafde7dedff1dafa3d13a9ef2d86f9630e94adce4c",
+        "size": 1715202
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4468,6 +4468,11 @@
         "path": "pages/decisions/code-switching-transcripts-kgen.md",
         "sha256": "a01ea5c77ccd592ff9024092bc27bcc216b2c3d0d8c456523a26e98b9cb57a82",
         "size": 1910
+      },
+      {
+        "path": "pages/decisions/compliance-strategy-depin-indic-audio-collection.md",
+        "sha256": "0cb791e3f0d5967bb6b83465a25f3eab119afe87328a1c90391458778cc24f5f",
+        "size": 6646
       },
       {
         "path": "pages/decisions/content-marketing-strategy.md",
@@ -8114,8 +8119,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T15:35:12Z",
-  "file_count": 1621,
+  "exported_at": "2026-06-19T15:52:03Z",
+  "file_count": 1622,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11392,7 +11397,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "9fea7e070f4ac1d766a6cc35693553bec491c469d93016206d9b60c942044324",
+  "previous_tree_hash": "08079a4c149d755860f00abcb6d275349ff8af23e13e8ba2a782fa084eb579a0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11405,14 +11410,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "08079a4c149d755860f00abcb6d275349ff8af23e13e8ba2a782fa084eb579a0",
+  "tree_hash": "11fabfc6c1015ca157f677740be3cf1290b0f2982f055e1d7b35b2374842dcee",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 967,
+  "wiki_file_count": 968,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11421,13 +11426,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4beb33125b86229a7bcb32d618c4825223f6cca5da6fafa7fea9c778df9d49ef",
-      "size": 980659
+      "sha256": "8a74ca34b6fb6da81ef19e67ebfd70c0624304bffa5871f722b7df0488b45887",
+      "size": 981090
     },
     {
       "path": "log.md",
-      "sha256": "068783b2d3ccea1063f14729e36aed753ad44e2274b25467360f201e9c8e03d9",
-      "size": 1714759
+      "sha256": "9e4a88cb5d48b2be2f4e5fdafde7dedff1dafa3d13a9ef2d86f9630e94adce4c",
+      "size": 1715202
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12608,6 +12613,11 @@
       "path": "pages/decisions/code-switching-transcripts-kgen.md",
       "sha256": "a01ea5c77ccd592ff9024092bc27bcc216b2c3d0d8c456523a26e98b9cb57a82",
       "size": 1910
+    },
+    {
+      "path": "pages/decisions/compliance-strategy-depin-indic-audio-collection.md",
+      "sha256": "0cb791e3f0d5967bb6b83465a25f3eab119afe87328a1c90391458778cc24f5f",
+      "size": 6646
     },
     {
       "path": "pages/decisions/content-marketing-strategy.md",
@@ -16251,5 +16261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0d7ba7bbeb52f7051b470e48a52ffab91301e0249fda46684ea225d9d4fc303f"
+  "wiki_tree_hash": "8df4496cc590a5f9a020365734305c0b37c86162c888e9c35d0b83ea72485bda"
 }
