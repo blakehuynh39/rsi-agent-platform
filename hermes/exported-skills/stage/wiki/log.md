@@ -35196,3 +35196,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_073d1034ab11105c25f0d4f0c0fb067a
 - summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
 
+## [2026-06-19T20:04:22Z] synthesis | Poseidon Season 1 Infra Lessons
+
+- status: published
+- slug: runbooks/poseidon-season1-infra-lessons
+- wiki_revision_id: wikirev_f2a0a189b1165b0b86ca394fd1d00075
+- summary: Lessons learned from Poseidon Season 1 infrastructure and data validation pipeline, shared asynchronously in preparation for Season 2. Covers bottlenecks, audio requirements, IP re...
+

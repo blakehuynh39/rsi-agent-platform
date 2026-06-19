@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "acf229632fa8101cfd2155559273d0a6edc57fe8ab4129d6beacc53cea7d4a6f",
-        "size": 994821
+        "sha256": "6676cfdeb54f8995952dacc73b63c24c5ea804fca5d94231167f1f072abffb0e",
+        "size": 995205
       },
       {
         "path": "log.md",
-        "sha256": "8f865df46ef68e17b3771109758d34d645303bb557735e65fab7e8d7dcb62871",
-        "size": 1731327
+        "sha256": "d6f5b3793b1e5bd50406fe905289fe0dcbb0b31caa00c6753797d55f17110f08",
+        "size": 1731723
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7395,6 +7395,11 @@
         "size": 8715
       },
       {
+        "path": "pages/runbooks/poseidon-season1-infra-lessons.md",
+        "sha256": "3007c7a5fcdf725805aacd42e499db8713d71eb6abaf1c6b08674e3f6990aa25",
+        "size": 5877
+      },
+      {
         "path": "pages/runbooks/poseidon-subnet-management-api-testing-guide.md",
         "sha256": "22148ffc0374b6054abb3137ad7fd5bcd552ae1842d2ea705e726e8ca9931ced",
         "size": 5504
@@ -8304,8 +8309,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T20:03:36Z",
-  "file_count": 1659,
+  "exported_at": "2026-06-19T20:10:00Z",
+  "file_count": 1660,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11582,7 +11587,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "bf2759059514b1c0d649a8d57bc8a7134463bb846edac114eab9a5fe9cd777eb",
+  "previous_tree_hash": "d389f67169f5d81635b8b2efb9c62282935d18ed6ccf5749c6946d8f29048ccd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11595,14 +11600,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d389f67169f5d81635b8b2efb9c62282935d18ed6ccf5749c6946d8f29048ccd",
+  "tree_hash": "468321f2345a0425474c10402513c35b079394a8b7247bd0ebfedb9310f6430b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1005,
+  "wiki_file_count": 1006,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11611,13 +11616,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "acf229632fa8101cfd2155559273d0a6edc57fe8ab4129d6beacc53cea7d4a6f",
-      "size": 994821
+      "sha256": "6676cfdeb54f8995952dacc73b63c24c5ea804fca5d94231167f1f072abffb0e",
+      "size": 995205
     },
     {
       "path": "log.md",
-      "sha256": "8f865df46ef68e17b3771109758d34d645303bb557735e65fab7e8d7dcb62871",
-      "size": 1731327
+      "sha256": "d6f5b3793b1e5bd50406fe905289fe0dcbb0b31caa00c6753797d55f17110f08",
+      "size": 1731723
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15725,6 +15730,11 @@
       "size": 8715
     },
     {
+      "path": "pages/runbooks/poseidon-season1-infra-lessons.md",
+      "sha256": "3007c7a5fcdf725805aacd42e499db8713d71eb6abaf1c6b08674e3f6990aa25",
+      "size": 5877
+    },
+    {
       "path": "pages/runbooks/poseidon-subnet-management-api-testing-guide.md",
       "sha256": "22148ffc0374b6054abb3137ad7fd5bcd552ae1842d2ea705e726e8ca9931ced",
       "size": 5504
@@ -16631,5 +16641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "577ed95f3536a87b680b6d75fd6cab1eb78ca4b299aa2eb04fd766b0acfce573"
+  "wiki_tree_hash": "85a1fc760c7bfa8ce2bdbfca208fcc04ce3734ae1357762ab282f31d171d11b3"
 }
