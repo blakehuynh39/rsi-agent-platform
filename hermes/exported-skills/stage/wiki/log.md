@@ -35352,3 +35352,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_9597e6da7847fffe9ca1f939f92b26ac
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-19T23:33:41Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_a57ca2c09381c2505bea7e2470166eb6
+- summary: An engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. Includes sub-pages for Internal Agent...
+
+## [2026-06-19T23:33:41Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: systems/data-migration-technical-handbook
+- wiki_revision_id: wikirev_bc29b902657bba6fbc037eb33421e44d
+- summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
+
