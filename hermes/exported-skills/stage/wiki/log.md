@@ -34433,3 +34433,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_008fb72a3c8fe91fa6bb5c3b35975f9e
 - summary: Decision to create a new Elevenlabs business account under Vinod's ownership to address API rate limit exceeded for Story validation, with Krishna assisting in management.
 
+## [2026-06-19T07:02:00Z] synthesis | Product/Ops/Design/Marketing Call Resources
+
+- status: published
+- slug: concepts/product-ops-design-marketing-call-resources
+- wiki_revision_id: wikirev_cc8b69c4889df8a87f3abe0699747c0e
+- summary: Resources shared following a cross-functional product/ops/design/marketing call, including a Google Drive folder of videos and access to a stock photo site.
+
+## [2026-06-19T07:02:58Z] synthesis | Payment Flow UI Review
+
+- status: published
+- slug: projects/payment-flow-ui-review
+- wiki_revision_id: wikirev_17eede662477d168584e1b329047ea75
+- summary: Design review for the payment flow, covering UI improvements to button layout and balance breakdown display. The flow is functional on staging with Stripe sandbox but needs design ...
+

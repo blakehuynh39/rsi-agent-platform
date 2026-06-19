@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d6d29ae6d1c2c0a8e1c417aa39340fffc6c4902a8f5ac77592e33df99e38a6f0",
-        "size": 959619
+        "sha256": "1873621bec8d9f3c4fe9a70b96ab15d8359889717805e7e39ed9f2d5f8b574b1",
+        "size": 960368
       },
       {
         "path": "log.md",
-        "sha256": "7d4ad1d39d92841f31bcdb2dfc41a2169a5e5297625cf2433deef0d4d6060060",
-        "size": 1690996
+        "sha256": "732cccefaf7989c840bb7ef283b6efcd94fe68ae3147301878dcc7794598f462",
+        "size": 1691769
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4033,6 +4033,11 @@
         "path": "pages/concepts/privacy-preserving-inference-techniques.md",
         "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
         "size": 5483
+      },
+      {
+        "path": "pages/concepts/product-ops-design-marketing-call-resources.md",
+        "sha256": "a7f38c0286136f2af71b3f3e4dbd5582890f97737f70c025f6545b881fcd436c",
+        "size": 2108
       },
       {
         "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
@@ -6070,6 +6075,11 @@
         "size": 7372
       },
       {
+        "path": "pages/projects/payment-flow-ui-review.md",
+        "sha256": "567a768cf2f319abf2f29fcc90a98fb0c4bd0e2c5a768b178ab1dc675db3c627",
+        "size": 4635
+      },
+      {
         "path": "pages/projects/payments-withdrawal-community-testing-2026-06-16.md",
         "sha256": "8a61075cc0440dca75355011f34b41831c76de6ff50f9f2a5aedaa85e201d75c",
         "size": 8672
@@ -7814,8 +7824,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T06:53:50Z",
-  "file_count": 1561,
+  "exported_at": "2026-06-19T07:05:34Z",
+  "file_count": 1563,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11092,7 +11102,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a319b4cb8d5fe2149b8530f528435b569a085646dc4ff09e3f244a0ea8d2f19a",
+  "previous_tree_hash": "233cfdfd6f3d2b53ec260a0033b5133e815efe1e49a34184c58d7cd5f9840d1a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11105,14 +11115,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "233cfdfd6f3d2b53ec260a0033b5133e815efe1e49a34184c58d7cd5f9840d1a",
+  "tree_hash": "5d5441930770a5423202a4958b98ee53d14bd83283bb792da8d5385236eeb273",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 907,
+  "wiki_file_count": 909,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11121,13 +11131,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d6d29ae6d1c2c0a8e1c417aa39340fffc6c4902a8f5ac77592e33df99e38a6f0",
-      "size": 959619
+      "sha256": "1873621bec8d9f3c4fe9a70b96ab15d8359889717805e7e39ed9f2d5f8b574b1",
+      "size": 960368
     },
     {
       "path": "log.md",
-      "sha256": "7d4ad1d39d92841f31bcdb2dfc41a2169a5e5297625cf2433deef0d4d6060060",
-      "size": 1690996
+      "sha256": "732cccefaf7989c840bb7ef283b6efcd94fe68ae3147301878dcc7794598f462",
+      "size": 1691769
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11873,6 +11883,11 @@
       "path": "pages/concepts/privacy-preserving-inference-techniques.md",
       "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
       "size": 5483
+    },
+    {
+      "path": "pages/concepts/product-ops-design-marketing-call-resources.md",
+      "sha256": "a7f38c0286136f2af71b3f3e4dbd5582890f97737f70c025f6545b881fcd436c",
+      "size": 2108
     },
     {
       "path": "pages/concepts/programmable-blockchain-framework-design-goals.md",
@@ -13910,6 +13925,11 @@
       "size": 7372
     },
     {
+      "path": "pages/projects/payment-flow-ui-review.md",
+      "sha256": "567a768cf2f319abf2f29fcc90a98fb0c4bd0e2c5a768b178ab1dc675db3c627",
+      "size": 4635
+    },
+    {
       "path": "pages/projects/payments-withdrawal-community-testing-2026-06-16.md",
       "sha256": "8a61075cc0440dca75355011f34b41831c76de6ff50f9f2a5aedaa85e201d75c",
       "size": 8672
@@ -15651,5 +15671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7b6b8d8cdc4bd9c6caa9ea1f7e5db5de95d40c9fa36d156bbed211ad720e03ed"
+  "wiki_tree_hash": "08bd68d9741b2d59bcd6d4ce3dbf89acb66fa864fe7afb9071338f19359af9b0"
 }
