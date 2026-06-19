@@ -35366,3 +35366,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bc29b902657bba6fbc037eb33421e44d
 - summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
 
+## [2026-06-19T23:46:49Z] synthesis | Poseidon Season 1 Rewards in Numo
+
+- status: published
+- slug: policies/poseidon-season-1-numo-rewards
+- wiki_revision_id: wikirev_12b1c16fcad94e261bbaf98953ee13da
+- summary: Policy on rewards and multiplier benefits for Poseidon Season 1 contributors using Numo early access.
+
+## [2026-06-19T23:47:06Z] synthesis | Figma Design Feedback Loop
+
+- status: published
+- slug: concepts/figma-design-feedback-loop
+- wiki_revision_id: wikirev_9aef232458842f6fe82154b3ef643d64
+- summary: Design feedback comments were added in Figma on April 22, 2026, as part of an ongoing design review process.
+

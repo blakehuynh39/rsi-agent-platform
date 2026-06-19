@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2ff00449b31e1bbb882801c1263d17a0da315d3478d8a08759b04e9264c62d25",
-        "size": 1001739
+        "sha256": "42e7d440a8ca176191011c5c9eedd66ebb3b353f978e48d2d5ae86f055f4ee8c",
+        "size": 1002343
       },
       {
         "path": "log.md",
-        "sha256": "3f4148518ca7292cae0bc111d744dd5d8bdf8e4bf3a5469cce1217a39e786d35",
-        "size": 1740088
+        "sha256": "79c518390cd7805f9f2af07238fd46325281dccc202329fef6e8f627c1135a09",
+        "size": 1740716
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3613,6 +3613,11 @@
         "path": "pages/concepts/farming-mitigation.md",
         "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
         "size": 1138
+      },
+      {
+        "path": "pages/concepts/figma-design-feedback-loop.md",
+        "sha256": "5396f169b5bbfd6ac1dd73e05562fdc556e3687edc7c8a49b5bd51b72fcde445",
+        "size": 1064
       },
       {
         "path": "pages/concepts/finding-numo-app-idea.md",
@@ -5423,6 +5428,11 @@
         "path": "pages/policies/platform-team-secrets-access.md",
         "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
         "size": 1269
+      },
+      {
+        "path": "pages/policies/poseidon-season-1-numo-rewards.md",
+        "sha256": "f85744ae2f2a8296b74d40401173aa30e9cc917b87b538a92f92b765d7e60171",
+        "size": 3596
       },
       {
         "path": "pages/policies/product-intake-process.md",
@@ -8404,8 +8414,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T23:39:02Z",
-  "file_count": 1679,
+  "exported_at": "2026-06-19T23:50:32Z",
+  "file_count": 1681,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11682,7 +11692,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "49bc95e9f5922c407faa09d208f3df0b1ef0223324151556702053a30b84f9cb",
+  "previous_tree_hash": "5589c28cbb8f190f62b12a2c9042c5aa5d5921a3b6d9dddc7265d1cd42bb6ab2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11695,14 +11705,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5589c28cbb8f190f62b12a2c9042c5aa5d5921a3b6d9dddc7265d1cd42bb6ab2",
+  "tree_hash": "1678f15572464c45dd838b236f4eadfa8f6e265df66a112cbc7208dde69921f2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1025,
+  "wiki_file_count": 1027,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11711,13 +11721,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2ff00449b31e1bbb882801c1263d17a0da315d3478d8a08759b04e9264c62d25",
-      "size": 1001739
+      "sha256": "42e7d440a8ca176191011c5c9eedd66ebb3b353f978e48d2d5ae86f055f4ee8c",
+      "size": 1002343
     },
     {
       "path": "log.md",
-      "sha256": "3f4148518ca7292cae0bc111d744dd5d8bdf8e4bf3a5469cce1217a39e786d35",
-      "size": 1740088
+      "sha256": "79c518390cd7805f9f2af07238fd46325281dccc202329fef6e8f627c1135a09",
+      "size": 1740716
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12043,6 +12053,11 @@
       "path": "pages/concepts/farming-mitigation.md",
       "sha256": "b0689d83a50686b57c7fd93ab10cfd99b089f3be60d1f6052b9a4fb1fa0d38ef",
       "size": 1138
+    },
+    {
+      "path": "pages/concepts/figma-design-feedback-loop.md",
+      "sha256": "5396f169b5bbfd6ac1dd73e05562fdc556e3687edc7c8a49b5bd51b72fcde445",
+      "size": 1064
     },
     {
       "path": "pages/concepts/finding-numo-app-idea.md",
@@ -13853,6 +13868,11 @@
       "path": "pages/policies/platform-team-secrets-access.md",
       "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
       "size": 1269
+    },
+    {
+      "path": "pages/policies/poseidon-season-1-numo-rewards.md",
+      "sha256": "f85744ae2f2a8296b74d40401173aa30e9cc917b87b538a92f92b765d7e60171",
+      "size": 3596
     },
     {
       "path": "pages/policies/product-intake-process.md",
@@ -16831,5 +16851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cacdb3bd6ff9a52c9a1a134d8ae59e6607155ed7840c4a346d6fc4536d295433"
+  "wiki_tree_hash": "f7dcd05ecfb8b49ec9c1410b7ffe4b9b58d0a454c084c2f98174f9427b9f675d"
 }
