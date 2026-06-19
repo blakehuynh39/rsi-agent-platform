@@ -34826,3 +34826,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3de669504fc6a1e2ae30fd0965ccf241
 - summary: Team agreed to launch at 9am PT / 12pm ET on Wednesday to accommodate India IST (9pm). Final confirmation pending from Allen and team.
 
+## [2026-06-19T14:17:18Z] synthesis | Numo Customer Support Process
+
+- status: published
+- slug: runbooks/numo-customer-support-process
+- wiki_revision_id: wikirev_93254d2cfc56163b6eab642e6a4f08c8
+- summary: Process for handling customer support emails sent to info@numolabs.ai, including maintaining an FAQ document, using AI to categorize and generate draft responses, and coordinating ...
+
