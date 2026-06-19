@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "478b8c787b964ff220ecd2ce6736e1aa2e35e9a1702b9dfab281503131a04711",
-        "size": 954821
+        "sha256": "b8d043b7cfc7bce980eeaf24dcc7798e1e4d63b9e6464e0995bf08a0a9a746fc",
+        "size": 955615
       },
       {
         "path": "log.md",
-        "sha256": "1f90a02998195d4f7a3ff82bf92d5719aafc4a87e550270097737c21c0d75605",
-        "size": 1686042
+        "sha256": "511a472162a0e74e1c196c65916f7bc9b1913b2cddec2c4ff639eead5ae16666",
+        "size": 1686860
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4595,6 +4595,11 @@
         "size": 4593
       },
       {
+        "path": "pages/decisions/numo-bengali-voice-collection-decision.md",
+        "sha256": "7469b01eb8a494fe6a101a891f24bdd666b772f9791342d53f8dea5ea9e249de",
+        "size": 4602
+      },
+      {
         "path": "pages/decisions/numo-expert-mvp-scope.md",
         "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
         "size": 3752
@@ -4918,6 +4923,11 @@
         "path": "pages/open-questions/numo-meetings-calendar-request.md",
         "sha256": "63f6cb0ab6060038938318e8e29e999686bb73614d6f8fb91ec10bd1d0f3d18f",
         "size": 1107
+      },
+      {
+        "path": "pages/open-questions/numo-submissions-vs-pending-review-discrepancy.md",
+        "sha256": "11e7238b8340d1dac23af0cc0187ac3ed08118e92fa4d680d001b5d3a3268415",
+        "size": 2284
       },
       {
         "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
@@ -7749,8 +7759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T05:04:28Z",
-  "file_count": 1548,
+  "exported_at": "2026-06-19T05:21:22Z",
+  "file_count": 1550,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11027,7 +11037,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "9053df78ca5b940a625b56bdcfdb9ca109a4f05ede64d1ff378f6b7e4a91453f",
+  "previous_tree_hash": "8e8191d9e13634e243a2631e7fa1043a937c425674cdc2ca9d768bd654d5b96e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11040,14 +11050,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8e8191d9e13634e243a2631e7fa1043a937c425674cdc2ca9d768bd654d5b96e",
+  "tree_hash": "3f2c707c6a31e5c5fb8cfada3460dc060768a7837b3f567b7f14cb47891c0835",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 894,
+  "wiki_file_count": 896,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11056,13 +11066,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "478b8c787b964ff220ecd2ce6736e1aa2e35e9a1702b9dfab281503131a04711",
-      "size": 954821
+      "sha256": "b8d043b7cfc7bce980eeaf24dcc7798e1e4d63b9e6464e0995bf08a0a9a746fc",
+      "size": 955615
     },
     {
       "path": "log.md",
-      "sha256": "1f90a02998195d4f7a3ff82bf92d5719aafc4a87e550270097737c21c0d75605",
-      "size": 1686042
+      "sha256": "511a472162a0e74e1c196c65916f7bc9b1913b2cddec2c4ff639eead5ae16666",
+      "size": 1686860
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12370,6 +12380,11 @@
       "size": 4593
     },
     {
+      "path": "pages/decisions/numo-bengali-voice-collection-decision.md",
+      "sha256": "7469b01eb8a494fe6a101a891f24bdd666b772f9791342d53f8dea5ea9e249de",
+      "size": 4602
+    },
+    {
       "path": "pages/decisions/numo-expert-mvp-scope.md",
       "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
       "size": 3752
@@ -12693,6 +12708,11 @@
       "path": "pages/open-questions/numo-meetings-calendar-request.md",
       "sha256": "63f6cb0ab6060038938318e8e29e999686bb73614d6f8fb91ec10bd1d0f3d18f",
       "size": 1107
+    },
+    {
+      "path": "pages/open-questions/numo-submissions-vs-pending-review-discrepancy.md",
+      "sha256": "11e7238b8340d1dac23af0cc0187ac3ed08118e92fa4d680d001b5d3a3268415",
+      "size": 2284
     },
     {
       "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
@@ -15521,5 +15541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2cd464332d35a7d9c7a8bd5b93092ff7fd2abb29825ca7a6352b94b56f7e1d93"
+  "wiki_tree_hash": "3f3521d8b8702d0d119e3862f8bd9f7289d1b4a9540bbc43718f453c09eb64f3"
 }

@@ -34342,3 +34342,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1dd2e868e961d9ca1196b675cd419500
 - summary: Leadership has halted new finance and legal requests ('pencils down') until a list of required workstreams for the next 2 weeks with DRI and prioritization is reviewed, following d...
 
+## [2026-06-19T05:17:31Z] synthesis | Numo Bengali Voice Collection Decision
+
+- status: published
+- slug: decisions/numo-bengali-voice-collection-decision
+- wiki_revision_id: wikirev_1d9a96d7659ff2a5764bcab3d0f32df5
+- summary: Evaluating options for the Bengali voice collection task approaching 85% completion, weighing between stopping to evaluate or extending with more transcripts. Discussions also high...
+
+## [2026-06-19T05:18:29Z] synthesis | Numo Submissions vs Pending Review Discrepancy
+
+- status: published
+- slug: open-questions/numo-submissions-vs-pending-review-discrepancy
+- wiki_revision_id: wikirev_12c5bfa2dd05881a705d8c438f95b9cd
+- summary: On 2026-05-05, the Numo morning digest reported 39,225 submissions in 24h and 134,630 pending review, prompting a question about the significant difference.
+
