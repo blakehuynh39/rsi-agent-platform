@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7921388b889d9e9f75ef336d8b8688f99d672a8b808953a0f7dff1b52519b14a",
-        "size": 992691
+        "sha256": "5aea27420b307d5e82c79927ba450cfa41875a397f32c7d99763186e3ac1e6b7",
+        "size": 993302
       },
       {
         "path": "log.md",
-        "sha256": "51ca31777f373280e9f66cace54cccea6bb9a587f4f599de9e42425922b96f52",
-        "size": 1727865
+        "sha256": "4f2388b4f56aae7e14357c8dbdac9ef6774c8dd1252dab52461cf6fa3ec8df83",
+        "size": 1728500
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4860,6 +4860,11 @@
         "size": 1906
       },
       {
+        "path": "pages/decisions/resume-activate-endpoint-removal.md",
+        "sha256": "76de7c45d9dda2aab5b709b70ac367f9f12056498356ae37893920ff112200b4",
+        "size": 1609
+      },
+      {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
@@ -6403,6 +6408,11 @@
         "path": "pages/projects/payout-wave-1-email-selection.md",
         "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
         "size": 4054
+      },
+      {
+        "path": "pages/projects/pentest-report-april-2025.md",
+        "sha256": "28c58c25b1318a699b8561bcd1f4fd752aa3301dcd3951a00b7bddf1e01cf45c",
+        "size": 2769
       },
       {
         "path": "pages/projects/pfp-engineering-specs.md",
@@ -8274,8 +8284,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T18:49:54Z",
-  "file_count": 1653,
+  "exported_at": "2026-06-19T19:05:41Z",
+  "file_count": 1655,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11552,7 +11562,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "4e6d3e69209ef38ea398f5e25897f0a539a60d4e024f6ac30d41084b75bbf070",
+  "previous_tree_hash": "7fcc5ff4bc08fabf50f205223a1073492bd28e3acdfefc63b6a4e16d9ed0fad3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11565,14 +11575,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7fcc5ff4bc08fabf50f205223a1073492bd28e3acdfefc63b6a4e16d9ed0fad3",
+  "tree_hash": "987bac22f98e00a0f8da1d6b4aa6d76b5e20d2b3247720d868a221741d7d4bf0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 999,
+  "wiki_file_count": 1001,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11581,13 +11591,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7921388b889d9e9f75ef336d8b8688f99d672a8b808953a0f7dff1b52519b14a",
-      "size": 992691
+      "sha256": "5aea27420b307d5e82c79927ba450cfa41875a397f32c7d99763186e3ac1e6b7",
+      "size": 993302
     },
     {
       "path": "log.md",
-      "sha256": "51ca31777f373280e9f66cace54cccea6bb9a587f4f599de9e42425922b96f52",
-      "size": 1727865
+      "sha256": "4f2388b4f56aae7e14357c8dbdac9ef6774c8dd1252dab52461cf6fa3ec8df83",
+      "size": 1728500
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13160,6 +13170,11 @@
       "size": 1906
     },
     {
+      "path": "pages/decisions/resume-activate-endpoint-removal.md",
+      "sha256": "76de7c45d9dda2aab5b709b70ac367f9f12056498356ae37893920ff112200b4",
+      "size": 1609
+    },
+    {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
@@ -14703,6 +14718,11 @@
       "path": "pages/projects/payout-wave-1-email-selection.md",
       "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
       "size": 4054
+    },
+    {
+      "path": "pages/projects/pentest-report-april-2025.md",
+      "sha256": "28c58c25b1318a699b8561bcd1f4fd752aa3301dcd3951a00b7bddf1e01cf45c",
+      "size": 2769
     },
     {
       "path": "pages/projects/pfp-engineering-specs.md",
@@ -16571,5 +16591,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "039e9d6a39aec625f4f3bd045d286956d16b46887c560efab36f8caf5152c09d"
+  "wiki_tree_hash": "132dad10904591636165eba22aae15cb019700ca32017fae20790dcd25b277cc"
 }

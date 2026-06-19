@@ -35131,3 +35131,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36de3388cc19caeb152aefc5bd46e35f
 - summary: Design assets for World are being handed over: in-app assets already handed off by Lex today; marketing assets expected by Friday. Team should contact World to give heads up.
 
+## [2026-06-19T19:02:15Z] synthesis | Resume Activate Endpoint Removal Decision
+
+- status: published
+- slug: decisions/resume-activate-endpoint-removal
+- wiki_revision_id: wikirev_71d845816c8dd77d3fd65b42361a20e5
+- summary: Decision to remove the unused /v1/me/resumes/{resume_id}/activate endpoint.
+
+## [2026-06-19T19:02:15Z] synthesis | Pentest Report April 2025
+
+- status: published
+- slug: projects/pentest-report-april-2025
+- wiki_revision_id: wikirev_79d3a162694eebeae9a77bdd8a6ebe37
+- summary: Manual and automated pentest of the app resulted in a report with 1 critical and 3 high severity findings, requiring further review.
+
