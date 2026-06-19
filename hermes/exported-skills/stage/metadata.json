@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "42330604a973f85d9bb8dc18c8805fff3c0af0778101f503f6d653010293e24c",
-        "size": 997907
+        "sha256": "e8d4a40ea9d168c37e73dc7f1a2781a66b46c7204d257c190f30b21dd6d9f21f",
+        "size": 998196
       },
       {
         "path": "log.md",
-        "sha256": "c8cc5c8c1b8ce105a3324fca461105dcc7815f5050bb8e33b1f44baf1bf13fec",
-        "size": 1734863
+        "sha256": "551ee2847e60bf2ff5d780bf4aa040ed0c1cfbe282a3ba0962cf4faa223fee86",
+        "size": 1735164
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6355,6 +6355,11 @@
         "size": 7300
       },
       {
+        "path": "pages/projects/numo-ui-screens-update-2026-04-22.md",
+        "sha256": "7100de439205906e9b54d3d6c93a49be6c1a37a4d9eb3cc1eeb61c04cccf967e",
+        "size": 1590
+      },
+      {
         "path": "pages/projects/numo-user-funnel.md",
         "sha256": "5cd75814fccc4cb8c5a74f63fa33442bab28adc9fedb89e3b53028017db3fa11",
         "size": 1982
@@ -8349,8 +8354,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T21:34:07Z",
-  "file_count": 1668,
+  "exported_at": "2026-06-19T21:50:44Z",
+  "file_count": 1669,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11627,7 +11632,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b13c35b207019f166428924df5a8838c2f2be82e987134c0091788eac5f2c417",
+  "previous_tree_hash": "37a081b035117012c9ee5c4c6fc836c01d9ca2ce7fee5007cacb149e6551c9d7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11640,14 +11645,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "37a081b035117012c9ee5c4c6fc836c01d9ca2ce7fee5007cacb149e6551c9d7",
+  "tree_hash": "021eef024162921af690e20c10b8ac7aecc501fcfef928eae77beb3cbfafd785",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1014,
+  "wiki_file_count": 1015,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11656,13 +11661,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "42330604a973f85d9bb8dc18c8805fff3c0af0778101f503f6d653010293e24c",
-      "size": 997907
+      "sha256": "e8d4a40ea9d168c37e73dc7f1a2781a66b46c7204d257c190f30b21dd6d9f21f",
+      "size": 998196
     },
     {
       "path": "log.md",
-      "sha256": "c8cc5c8c1b8ce105a3324fca461105dcc7815f5050bb8e33b1f44baf1bf13fec",
-      "size": 1734863
+      "sha256": "551ee2847e60bf2ff5d780bf4aa040ed0c1cfbe282a3ba0962cf4faa223fee86",
+      "size": 1735164
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14730,6 +14735,11 @@
       "size": 7300
     },
     {
+      "path": "pages/projects/numo-ui-screens-update-2026-04-22.md",
+      "sha256": "7100de439205906e9b54d3d6c93a49be6c1a37a4d9eb3cc1eeb61c04cccf967e",
+      "size": 1590
+    },
+    {
       "path": "pages/projects/numo-user-funnel.md",
       "sha256": "5cd75814fccc4cb8c5a74f63fa33442bab28adc9fedb89e3b53028017db3fa11",
       "size": 1982
@@ -16721,5 +16731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1f7f60eb6d0343bbe367bb9d223a754d494151ad1e2c948bb94e40d20654ecff"
+  "wiki_tree_hash": "bc88ec888529d90c57c2c3485beb09876c7ab29cab4f0dfb7cdb314547cc37ae"
 }
