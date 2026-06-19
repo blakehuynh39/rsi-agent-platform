@@ -34605,3 +34605,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f3355246275ad2bedafc070384393444
 - summary: Decision to launch File Pre-commit Task with Google Drive integration, focusing on US/Europe/East Asia to avoid low-quality data, initially requesting metadata access only, and usi...
 
+## [2026-06-19T10:18:15Z] synthesis | Mu-Bench
+
+- status: published
+- slug: projects/mu-bench
+- wiki_revision_id: wikirev_3a3d973923cf24f63265a56544bc79c1
+- summary: Mu-Bench is an open multilingual transcription benchmark that includes metrics such as Word Error Rate (WER), Latency (P95), and UER (possibly Unit Error Rate). It is developed by ...
+

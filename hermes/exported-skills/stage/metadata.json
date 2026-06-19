@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "24015a4af0eea27215704fb0e374614d9d38d60e1abb43182cf6f886df5f5969",
-        "size": 967421
+        "sha256": "f9d816f2a3c4c571498c7b06feec5f28eb88bb13a6ace289b0e6f38e4c920b0f",
+        "size": 967760
       },
       {
         "path": "log.md",
-        "sha256": "a7fed08243c4a73904d7887cd645490d77c7b54d87e96276401744defcbc770f",
-        "size": 1700127
+        "sha256": "50614043f79e1c42e9f1dd45903b1643280d85e3fda9745291b27816ee64b0bd",
+        "size": 1700478
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5955,6 +5955,11 @@
         "size": 3743
       },
       {
+        "path": "pages/projects/mu-bench.md",
+        "sha256": "5b4d57bf2e837e06b82d98f5fbc0dd16eecdee34f8a28aab3717b8dd3b1c6f2a",
+        "size": 2435
+      },
+      {
         "path": "pages/projects/multichain-story-supernet.md",
         "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
         "size": 1410
@@ -7924,8 +7929,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T10:09:23Z",
-  "file_count": 1583,
+  "exported_at": "2026-06-19T10:21:07Z",
+  "file_count": 1584,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11202,7 +11207,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "c865cbab6d9e10c05b45e15b8e50c740fb1b3d733037d161bac251700c8807f4",
+  "previous_tree_hash": "34d07f41b5abd1a6e1f1d4a697f0d08763b4963ca0deafe2f3501323a3d6069a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11215,14 +11220,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "34d07f41b5abd1a6e1f1d4a697f0d08763b4963ca0deafe2f3501323a3d6069a",
+  "tree_hash": "d9c5014d50bd7a18e5635e6fcce853592dc7772e11ad59c15dc728f1a1174e92",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 929,
+  "wiki_file_count": 930,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11231,13 +11236,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "24015a4af0eea27215704fb0e374614d9d38d60e1abb43182cf6f886df5f5969",
-      "size": 967421
+      "sha256": "f9d816f2a3c4c571498c7b06feec5f28eb88bb13a6ace289b0e6f38e4c920b0f",
+      "size": 967760
     },
     {
       "path": "log.md",
-      "sha256": "a7fed08243c4a73904d7887cd645490d77c7b54d87e96276401744defcbc770f",
-      "size": 1700127
+      "sha256": "50614043f79e1c42e9f1dd45903b1643280d85e3fda9745291b27816ee64b0bd",
+      "size": 1700478
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13905,6 +13910,11 @@
       "size": 3743
     },
     {
+      "path": "pages/projects/mu-bench.md",
+      "sha256": "5b4d57bf2e837e06b82d98f5fbc0dd16eecdee34f8a28aab3717b8dd3b1c6f2a",
+      "size": 2435
+    },
+    {
       "path": "pages/projects/multichain-story-supernet.md",
       "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
       "size": 1410
@@ -15871,5 +15881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "139cd31321a52d1b12a5e59729bf2e0b532fecde1a6a65a37e47205980aa0f06"
+  "wiki_tree_hash": "f35a6bdcf8d2bdbd90524af81bdcf3f0851d2cce57736fbed161ab230cdaf9b1"
 }
