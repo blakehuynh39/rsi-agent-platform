@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3c22029213e76cfb060c3c31a44385d37a1bdc1fd76c8c7eb156db0b25152886",
-        "size": 978782
+        "sha256": "a1656c693ad8de6a347acc458aac573d3ac3e597057257380af42046071ebc5b",
+        "size": 979177
       },
       {
         "path": "log.md",
-        "sha256": "615f35694512deded1cfad5da60192b4a8b20bd472f8996414f9f59572ceb129",
-        "size": 1712822
+        "sha256": "85d268d7002cb70cc0305afd88c95940849c8f6490ba6feebc2cf21b47db4167",
+        "size": 1713229
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4718,6 +4718,11 @@
         "path": "pages/decisions/numo-transition-to-korea-team.md",
         "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
         "size": 5098
+      },
+      {
+        "path": "pages/decisions/numo-web-app-launch-delay-april-29.md",
+        "sha256": "7927dc246aeb10195c0c5798f10b68cce9a398772de66075ff0448cf0b2e0e45",
+        "size": 3562
       },
       {
         "path": "pages/decisions/onboarding-data-field-requirements.md",
@@ -8089,8 +8094,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T14:49:27Z",
-  "file_count": 1616,
+  "exported_at": "2026-06-19T15:06:23Z",
+  "file_count": 1617,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11367,7 +11372,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7379252b466569e0b9e91ba2276207e15a475445e7bcfb41e2e78b0ed2803fcf",
+  "previous_tree_hash": "974c48d2c0654bca41e059a5f7e5f38d3cfcbe086a04ec68277c34a200ae6189",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11380,14 +11385,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "974c48d2c0654bca41e059a5f7e5f38d3cfcbe086a04ec68277c34a200ae6189",
+  "tree_hash": "a73e47965e58d88272ae3483c056b78003da1676eec4a43cce44dc206024e25b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 962,
+  "wiki_file_count": 963,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11396,13 +11401,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3c22029213e76cfb060c3c31a44385d37a1bdc1fd76c8c7eb156db0b25152886",
-      "size": 978782
+      "sha256": "a1656c693ad8de6a347acc458aac573d3ac3e597057257380af42046071ebc5b",
+      "size": 979177
     },
     {
       "path": "log.md",
-      "sha256": "615f35694512deded1cfad5da60192b4a8b20bd472f8996414f9f59572ceb129",
-      "size": 1712822
+      "sha256": "85d268d7002cb70cc0305afd88c95940849c8f6490ba6feebc2cf21b47db4167",
+      "size": 1713229
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12833,6 +12838,11 @@
       "path": "pages/decisions/numo-transition-to-korea-team.md",
       "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
       "size": 5098
+    },
+    {
+      "path": "pages/decisions/numo-web-app-launch-delay-april-29.md",
+      "sha256": "7927dc246aeb10195c0c5798f10b68cce9a398772de66075ff0448cf0b2e0e45",
+      "size": 3562
     },
     {
       "path": "pages/decisions/onboarding-data-field-requirements.md",
@@ -16201,5 +16211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "857c14e002b3c3ca2c8a8b09ef48ff32151ddeb8435ba5bba4efd5fe130fd11c"
+  "wiki_tree_hash": "19bf9d938a79be0a90d1717cd57ac84144c928972c42a1a6311f915d16559e65"
 }

@@ -34854,3 +34854,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bec7626b3a3fb2bdd941596f5b55090e
 - summary: Numo is a product that saw strong early user engagement, with users in India reportedly working late into the night during its first 24 hours. A suggestion was made to create promo...
 
+## [2026-06-19T15:01:47Z] synthesis | Numo Web App Launch Delay to April 29
+
+- status: published
+- slug: decisions/numo-web-app-launch-delay-april-29
+- wiki_revision_id: wikirev_114ccad5505475a1082ed357580ef628
+- summary: The Numo web app launch was postponed from Monday April 27 to Wednesday April 29 after a go/no-go review. Critical no-go items included security reviews, testing of referral/multip...
+
