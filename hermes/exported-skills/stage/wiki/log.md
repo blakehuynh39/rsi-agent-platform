@@ -34184,3 +34184,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_621799d87ef00354524d9e92da4884c1
 - summary: Decision to remove Jacob (U08HVGL6LDR) from the Numo standup calls after leaving the Numo team.
 
+## [2026-06-19T01:30:26Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_95a762c7e9ac18472daa1071814f7996
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_e482ff6aea66850fc5ab1a4378d4809d
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
+## [2026-06-19T01:31:28Z] synthesis | Numo Tamil Language Completion
+
+- status: published
+- slug: projects/numo-tamil-language-completion
+- wiki_revision_id: wikirev_7f287a9ee0cb4adb54a2757af2197a24
+- summary: Tamil language tasks for Numo are nearing 100% completion, with marketing material and a tweet being prepared for announcement.
+

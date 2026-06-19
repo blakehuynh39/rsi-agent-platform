@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "dd218035d560d056f1511238037a1c0b182ae357f03c505d22fb87454bfc28fe",
-        "size": 949423
+        "sha256": "22e0876c7f09dccee976949a0f9799f2bd9a692f2629d35d1ad1e1529e8a6224",
+        "size": 949750
       },
       {
         "path": "log.md",
-        "sha256": "751f81e3e394ba98ed7fe21c2744b54ac16271c0337a777c9fc3abef1c2c94dc",
-        "size": 1677570
+        "sha256": "d04bbd464ad8475209367be192aee030430f4324a3bf07f729da6096004e8799",
+        "size": 1678405
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5880,6 +5880,11 @@
         "size": 9694
       },
       {
+        "path": "pages/projects/numo-tamil-language-completion.md",
+        "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
+        "size": 2882
+      },
+      {
         "path": "pages/projects/numo-top-samples-cherry-pick.md",
         "sha256": "7c7761ee48ab325fb3d9fe334377a3f1d5ec66ca61974afdd3738eb0b5b1baa6",
         "size": 4330
@@ -7674,8 +7679,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T01:21:03Z",
-  "file_count": 1533,
+  "exported_at": "2026-06-19T01:32:52Z",
+  "file_count": 1534,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10952,7 +10957,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "04abf2b5589611eada5d33d7ce1aa85be43372581c851991dc432f4ac8af9747",
+  "previous_tree_hash": "7495c6f9033e755f5bf2cc2f78227e9464089d432e69b35538c1925d1a8ebc29",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10965,14 +10970,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7495c6f9033e755f5bf2cc2f78227e9464089d432e69b35538c1925d1a8ebc29",
+  "tree_hash": "55845fa2bccc7d78b8302987255b6ca76961629eb8cfaa6b2041da2330816ffc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 879,
+  "wiki_file_count": 880,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10981,13 +10986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "dd218035d560d056f1511238037a1c0b182ae357f03c505d22fb87454bfc28fe",
-      "size": 949423
+      "sha256": "22e0876c7f09dccee976949a0f9799f2bd9a692f2629d35d1ad1e1529e8a6224",
+      "size": 949750
     },
     {
       "path": "log.md",
-      "sha256": "751f81e3e394ba98ed7fe21c2744b54ac16271c0337a777c9fc3abef1c2c94dc",
-      "size": 1677570
+      "sha256": "d04bbd464ad8475209367be192aee030430f4324a3bf07f729da6096004e8799",
+      "size": 1678405
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13580,6 +13585,11 @@
       "size": 9694
     },
     {
+      "path": "pages/projects/numo-tamil-language-completion.md",
+      "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
+      "size": 2882
+    },
+    {
       "path": "pages/projects/numo-top-samples-cherry-pick.md",
       "sha256": "7c7761ee48ab325fb3d9fe334377a3f1d5ec66ca61974afdd3738eb0b5b1baa6",
       "size": 4330
@@ -15371,5 +15381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6e9b477523fcfb910fc1f264debca207a0d5678f1ba51c6ac552f644655a22e2"
+  "wiki_tree_hash": "1d6d784dd3fa53a11980ff8fd5352e9de992ab2d852fa918d915651bffe6b4ca"
 }
