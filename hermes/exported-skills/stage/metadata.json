@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "81e26de09b55ded8ea28ea49885f16c2767c0a0babb2e39f563eefaa5d208e5e",
-        "size": 977795
+        "sha256": "c0f43264477501c0af81bf8466b0cc136d0bdfd2e774b0dfc62c1867f9e31220",
+        "size": 978142
       },
       {
         "path": "log.md",
-        "sha256": "c5f3d3713f520cdc0b4ecce79750a09d17ca7b56c84ec767edfd5e901159f091",
-        "size": 1711799
+        "sha256": "e23183141d6b97bcad1a5af32154b6e2910c790c1086beed7c5a95c026a2dcf3",
+        "size": 1712158
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7550,6 +7550,11 @@
         "size": 2341
       },
       {
+        "path": "pages/systems/depin-wallet-balance-monitoring.md",
+        "sha256": "6d2ea4a8ddab5943fb5764b007fa401a57e90f4e2395cea18bc427e230bbe3b6",
+        "size": 6335
+      },
+      {
         "path": "pages/systems/devnet-deployment-addresses.md",
         "sha256": "8e05594a3bec6cc3cb3d02ffb40199f3c2af42f091a34ef7b1344cf3ccc770f6",
         "size": 13753
@@ -8074,8 +8079,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T14:20:46Z",
-  "file_count": 1613,
+  "exported_at": "2026-06-19T14:37:37Z",
+  "file_count": 1614,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11352,7 +11357,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b756152ece7d92ab2f548f817ee5b33e2f7575a68be73318e2a5c0ec233f41f6",
+  "previous_tree_hash": "b8593f7f2a96c9b33a2ba578c283bcb4b373f978395ae97fed3b9902e74ca538",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11365,14 +11370,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b8593f7f2a96c9b33a2ba578c283bcb4b373f978395ae97fed3b9902e74ca538",
+  "tree_hash": "7379252b466569e0b9e91ba2276207e15a475445e7bcfb41e2e78b0ed2803fcf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 959,
+  "wiki_file_count": 960,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11381,13 +11386,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "81e26de09b55ded8ea28ea49885f16c2767c0a0babb2e39f563eefaa5d208e5e",
-      "size": 977795
+      "sha256": "c0f43264477501c0af81bf8466b0cc136d0bdfd2e774b0dfc62c1867f9e31220",
+      "size": 978142
     },
     {
       "path": "log.md",
-      "sha256": "c5f3d3713f520cdc0b4ecce79750a09d17ca7b56c84ec767edfd5e901159f091",
-      "size": 1711799
+      "sha256": "e23183141d6b97bcad1a5af32154b6e2910c790c1086beed7c5a95c026a2dcf3",
+      "size": 1712158
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15650,6 +15655,11 @@
       "size": 2341
     },
     {
+      "path": "pages/systems/depin-wallet-balance-monitoring.md",
+      "sha256": "6d2ea4a8ddab5943fb5764b007fa401a57e90f4e2395cea18bc427e230bbe3b6",
+      "size": 6335
+    },
+    {
       "path": "pages/systems/devnet-deployment-addresses.md",
       "sha256": "8e05594a3bec6cc3cb3d02ffb40199f3c2af42f091a34ef7b1344cf3ccc770f6",
       "size": 13753
@@ -16171,5 +16181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5ad0d9c7a5e1eaccdeeaa09e2b54f312519533a84b1532626ddc0239a1b2c176"
+  "wiki_tree_hash": "c5a676dbaece8a31298669c2bd744651d95cfe4b3effc770b44835948363afe6"
 }
