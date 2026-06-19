@@ -34149,3 +34149,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3dab41dcaa4acf57bce8589bc878a3c6
 - summary: A request was made on Slack to add the requester to Numo-related meetings on the calendar.
 
+## [2026-06-19T00:16:33Z] synthesis | Announcement Closure Reflection in App
+
+- status: published
+- slug: projects/announcement-closure-reflection-in-app
+- wiki_revision_id: wikirev_6465c15bf3e907223e6e910c7892b180
+- summary: A request to ensure that closure of announcements is reflected on the app, with an announcement already prepped.
+

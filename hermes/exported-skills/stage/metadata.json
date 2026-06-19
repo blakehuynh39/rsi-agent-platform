@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "471c84205aedb21d7df89bbe12491b9f56e060a90c2725bca36a2c6f5455edcd",
-        "size": 1675805
+        "sha256": "5684dead580bcc12857cf4d57e55f0cd318ae2b2e42a2d0ab463a0141c1ba153",
+        "size": 1676145
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5223,6 +5223,11 @@
         "path": "pages/projects/akash.md",
         "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
         "size": 4802
+      },
+      {
+        "path": "pages/projects/announcement-closure-reflection-in-app.md",
+        "sha256": "ca7212b301f703ed0d8e2765261397c7ec49a6dbe4277be2d730b75f6a15c6e3",
+        "size": 1950
       },
       {
         "path": "pages/projects/arabic-audio-transcripts-humain.md",
@@ -7649,8 +7654,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T00:05:29Z",
-  "file_count": 1528,
+  "exported_at": "2026-06-19T00:17:21Z",
+  "file_count": 1529,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10927,7 +10932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4646be560d527d97ff96d8e715df2f18b234d71ac4ee9f895889251888614d50",
+  "previous_tree_hash": "82037256578ec856b1155994d3a5068ce1d4482e78d190f6fd0cf200ac611324",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10940,14 +10945,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "82037256578ec856b1155994d3a5068ce1d4482e78d190f6fd0cf200ac611324",
+  "tree_hash": "7ebbc046a3ce67081c19a7b56b77724a376841f331a7a7e0440047abee16de0c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 874,
+  "wiki_file_count": 875,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10961,8 +10966,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "471c84205aedb21d7df89bbe12491b9f56e060a90c2725bca36a2c6f5455edcd",
-      "size": 1675805
+      "sha256": "5684dead580bcc12857cf4d57e55f0cd318ae2b2e42a2d0ab463a0141c1ba153",
+      "size": 1676145
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12898,6 +12903,11 @@
       "path": "pages/projects/akash.md",
       "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
       "size": 4802
+    },
+    {
+      "path": "pages/projects/announcement-closure-reflection-in-app.md",
+      "sha256": "ca7212b301f703ed0d8e2765261397c7ec49a6dbe4277be2d730b75f6a15c6e3",
+      "size": 1950
     },
     {
       "path": "pages/projects/arabic-audio-transcripts-humain.md",
@@ -15321,5 +15331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c7f7a36db6a27caae87c95622a128069a8cd154300dc25cfba789853af32f0d4"
+  "wiki_tree_hash": "295fc8cea40e9e50de2b7eab9b0620399a00d0af63a7b6b981a61825c0bc5ec3"
 }
