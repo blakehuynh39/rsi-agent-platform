@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ecc00398d4083480f003262f48ea9dc6b6926a56391d80883384e202d0940d33",
-        "size": 971998
+        "sha256": "2d1778702014e6ba4395bf9d0fb46da88b152139a9b758edb961759d6aa7a481",
+        "size": 973157
       },
       {
         "path": "log.md",
-        "sha256": "86cf7cbb409d7fbcc1e1c4f1bdd5f358ea346eececfb9ee1541b303524e14d84",
-        "size": 1705341
+        "sha256": "fb37b7f12caa28dd3b70da1462a0810b6b5348e0e454b2d8963e83e527dd0027",
+        "size": 1706536
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3795,6 +3795,11 @@
         "size": 1469
       },
       {
+        "path": "pages/concepts/language-target-autoscaling.md",
+        "sha256": "f9d896ba1908356ac95853d2c728a0c28d10d53cb6de2bcb2f676ffdbd1e4597",
+        "size": 2236
+      },
+      {
         "path": "pages/concepts/learning-center.md",
         "sha256": "f28f0deddd8d931f084793141c551afc84b0e77a50979aa1261ccd5c646cd07f",
         "size": 1340
@@ -4003,6 +4008,11 @@
         "path": "pages/concepts/platform-api-a.md",
         "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
         "size": 1152
+      },
+      {
+        "path": "pages/concepts/poseidon-season-1-multiplier-system.md",
+        "sha256": "fb9d59b4f60e6994225ff74da4d1c0b67918d9cbdea3d3308f878f236135f270",
+        "size": 4519
       },
       {
         "path": "pages/concepts/poseidon-user-multiplier.md",
@@ -7610,6 +7620,11 @@
         "size": 6397
       },
       {
+        "path": "pages/systems/multiplier-tasks-task-bars.md",
+        "sha256": "07ed1d0dcc9306d6798c5a7d9d6f90633761acd1f1e01435785914644e14412a",
+        "size": 2638
+      },
+      {
         "path": "pages/systems/new-product-intake.md",
         "sha256": "f3ea90a52f82c6d74c3e3a493bc7dc2529adcea3c2f789ca71afba13a7a1fbe1",
         "size": 1068
@@ -7994,8 +8009,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T11:52:05Z",
-  "file_count": 1597,
+  "exported_at": "2026-06-19T12:03:50Z",
+  "file_count": 1600,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11272,7 +11287,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "c34338d203c2265bec1cd03a4227c2622d030d884a37f8d0260a10d18848e7f0",
+  "previous_tree_hash": "d5faf467876f537d635677386407e1838250d2c04c4092fb609296559355f757",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11285,14 +11300,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d5faf467876f537d635677386407e1838250d2c04c4092fb609296559355f757",
+  "tree_hash": "c16911b56e12156e0275a5a86c84b2f2509bdc64be53d7332f45dacaf605c654",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 943,
+  "wiki_file_count": 946,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11301,13 +11316,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ecc00398d4083480f003262f48ea9dc6b6926a56391d80883384e202d0940d33",
-      "size": 971998
+      "sha256": "2d1778702014e6ba4395bf9d0fb46da88b152139a9b758edb961759d6aa7a481",
+      "size": 973157
     },
     {
       "path": "log.md",
-      "sha256": "86cf7cbb409d7fbcc1e1c4f1bdd5f358ea346eececfb9ee1541b303524e14d84",
-      "size": 1705341
+      "sha256": "fb37b7f12caa28dd3b70da1462a0810b6b5348e0e454b2d8963e83e527dd0027",
+      "size": 1706536
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11815,6 +11830,11 @@
       "size": 1469
     },
     {
+      "path": "pages/concepts/language-target-autoscaling.md",
+      "sha256": "f9d896ba1908356ac95853d2c728a0c28d10d53cb6de2bcb2f676ffdbd1e4597",
+      "size": 2236
+    },
+    {
       "path": "pages/concepts/learning-center.md",
       "sha256": "f28f0deddd8d931f084793141c551afc84b0e77a50979aa1261ccd5c646cd07f",
       "size": 1340
@@ -12023,6 +12043,11 @@
       "path": "pages/concepts/platform-api-a.md",
       "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
       "size": 1152
+    },
+    {
+      "path": "pages/concepts/poseidon-season-1-multiplier-system.md",
+      "sha256": "fb9d59b4f60e6994225ff74da4d1c0b67918d9cbdea3d3308f878f236135f270",
+      "size": 4519
     },
     {
       "path": "pages/concepts/poseidon-user-multiplier.md",
@@ -15630,6 +15655,11 @@
       "size": 6397
     },
     {
+      "path": "pages/systems/multiplier-tasks-task-bars.md",
+      "sha256": "07ed1d0dcc9306d6798c5a7d9d6f90633761acd1f1e01435785914644e14412a",
+      "size": 2638
+    },
+    {
       "path": "pages/systems/new-product-intake.md",
       "sha256": "f3ea90a52f82c6d74c3e3a493bc7dc2529adcea3c2f789ca71afba13a7a1fbe1",
       "size": 1068
@@ -16011,5 +16041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "29a5a0fdb1c9cac735b929484ebb4b4bb1dd30f1957b374d6116001743f82173"
+  "wiki_tree_hash": "caf258aff70076323e9dc6577de3b5d4f7347145658ac6019d5b86d48cde4272"
 }

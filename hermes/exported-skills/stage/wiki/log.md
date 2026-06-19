@@ -34712,3 +34712,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_87248a533532a2aae4e0c254835e51f9
 - summary: Clarification of the Google Analytics event triggers for campaign submission in the Numo app: button click intent vs. success completion.
 
+## [2026-06-19T12:03:45Z] synthesis | Poseidon Season 1 Multiplier System
+
+- status: published
+- slug: concepts/poseidon-season-1-multiplier-system
+- wiki_revision_id: wikirev_70a0adb00b63cbe3b2f4eee38440aa6e
+- summary: The Poseidon Season 1 multiplier system assigns earnings multipliers to contributors based on submission count and quality (tiers) and language weights, with a 1.05–2.00 clamp and ...
+
+## [2026-06-19T12:03:45Z] synthesis | Multiplier Tasks (Task Bars)
+
+- status: published
+- slug: systems/multiplier-tasks-task-bars
+- wiki_revision_id: wikirev_938c2f69696c8af84c52f6414bb72e1e
+- summary: Task bars in the Multiplier tab grant temporary or permanent multiplier boosts for daily submissions, contribution streaks, and total verified submissions; they do not unlock addit...
+
+## [2026-06-19T12:03:45Z] synthesis | Language Target Auto-Scaling Pay Rates
+
+- status: published
+- slug: concepts/language-target-autoscaling
+- wiki_revision_id: wikirev_ba41d9868780b09be5ef9fb45d48f25b
+- summary: Numo dynamically adjusts reward amounts per task for each language based on how close the language is to its target hours goal, using a formula to direct contributor supply where i...
+
