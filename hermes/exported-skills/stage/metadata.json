@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5e475b80850a8d3f285daab912c2ffa3ac4bc8805b5300db46bbe67651b9f0cf",
-        "size": 951841
+        "sha256": "7833e0091b692fdfb8cb4f2878e8660a3805e728feae3cf72494ebc644d1a998",
+        "size": 952651
       },
       {
         "path": "log.md",
-        "sha256": "33921f8b4a4a935a4eca0e6ecc8ca684b00ee56f3bf2c8c08ffc366e77eea9a7",
-        "size": 1683020
+        "sha256": "9734d6a20da42daf953bc94ec933930aa4c88917ae75581344f9f3e11a212299",
+        "size": 1683426
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4393,6 +4393,11 @@
         "path": "pages/decisions/character-backstory-orchestrator.md",
         "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
         "size": 4107
+      },
+      {
+        "path": "pages/decisions/closing-language-contribution-tasks.md",
+        "sha256": "cca8e68607760f019ff6ab0c687c8ed5587bb5f5b097718ffa2de480b0cd8e29",
+        "size": 3559
       },
       {
         "path": "pages/decisions/content-marketing-strategy.md",
@@ -7714,8 +7719,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T03:47:20Z",
-  "file_count": 1541,
+  "exported_at": "2026-06-19T03:53:57Z",
+  "file_count": 1542,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10992,7 +10997,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "801eea4f08f5d516aacd772cb565563f0210880b0bbd211e8acf1a9dd201a224",
+  "previous_tree_hash": "572fa2b1ff50e2325e8c965b1e01b574cef3a021dc8971ed8334d7d09940cbee",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11005,14 +11010,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "572fa2b1ff50e2325e8c965b1e01b574cef3a021dc8971ed8334d7d09940cbee",
+  "tree_hash": "ff5df8b6503185576fab006e19de743b55216c29b883348c6fc59dd0d6bb27f8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 887,
+  "wiki_file_count": 888,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11021,13 +11026,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5e475b80850a8d3f285daab912c2ffa3ac4bc8805b5300db46bbe67651b9f0cf",
-      "size": 951841
+      "sha256": "7833e0091b692fdfb8cb4f2878e8660a3805e728feae3cf72494ebc644d1a998",
+      "size": 952651
     },
     {
       "path": "log.md",
-      "sha256": "33921f8b4a4a935a4eca0e6ecc8ca684b00ee56f3bf2c8c08ffc366e77eea9a7",
-      "size": 1683020
+      "sha256": "9734d6a20da42daf953bc94ec933930aa4c88917ae75581344f9f3e11a212299",
+      "size": 1683426
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12133,6 +12138,11 @@
       "path": "pages/decisions/character-backstory-orchestrator.md",
       "sha256": "cdb85d3b982c5824c079bbfd1ac85332d1088bb9e66f549ff81cf7894c55bcdf",
       "size": 4107
+    },
+    {
+      "path": "pages/decisions/closing-language-contribution-tasks.md",
+      "sha256": "cca8e68607760f019ff6ab0c687c8ed5587bb5f5b097718ffa2de480b0cd8e29",
+      "size": 3559
     },
     {
       "path": "pages/decisions/content-marketing-strategy.md",
@@ -15451,5 +15461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c746e86d95f39aeb3ce85381b29b7d718b761d0a8064f04935b4b8e4fb88441"
+  "wiki_tree_hash": "1c259194462a43e7c97b440b3ced8c3d8d87c69c9e1e2169d692975999954a7f"
 }
