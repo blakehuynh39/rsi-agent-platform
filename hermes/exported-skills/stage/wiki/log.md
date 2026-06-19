@@ -34591,3 +34591,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1bed1533e2dae9756701521d50eb300a
 - summary: Specifies which user profile fields are mandatory during onboarding. All fields except Occupation are required. Occupation will be collected later via CV upload and LinkedIn login.
 
+## [2026-06-19T10:01:58Z] synthesis | Numo Platform Totals
+
+- status: published
+- slug: concepts/numo-platform-totals
+- wiki_revision_id: wikirev_d3d8640d794dbb12f5b95fe034813f33
+- summary: Cumulative platform statistics for Numo/DePIN as of May 27, 2026, including total submissions, contributors, registered users, active campaigns, and launch date.
+

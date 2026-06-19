@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f1e24c2b38b326686989b0ff665322b65544934aa8c3fd15c3bacfe28f624d53",
-        "size": 1699380
+        "sha256": "d64edafca950f21b019e5968cfb1e8bdbd99fb25545cd03c6748338d578e7103",
+        "size": 1699733
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3938,6 +3938,11 @@
         "path": "pages/concepts/numo-expert-validation.md",
         "sha256": "1ddda53916fd0eef5b5b69a575bc453fcac702fe44844419668584a042fe6c32",
         "size": 5253
+      },
+      {
+        "path": "pages/concepts/numo-platform-totals.md",
+        "sha256": "8e74376c2bfe209f93cfc868a08c885b9a742158b352fc2d8bf4ef9bb8dab08c",
+        "size": 2954
       },
       {
         "path": "pages/concepts/object-certificate-schema.md",
@@ -7914,8 +7919,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T09:50:57Z",
-  "file_count": 1581,
+  "exported_at": "2026-06-19T10:02:43Z",
+  "file_count": 1582,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11192,7 +11197,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "81766ba42df528172ade53b0e712439ea5e3163a79f7d960d116fcd26c6125ac",
+  "previous_tree_hash": "4462e865c85893f5b6d06f6d805ea16a0dbfbf73f7ce3a5f282a3aa386a13742",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11205,14 +11210,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4462e865c85893f5b6d06f6d805ea16a0dbfbf73f7ce3a5f282a3aa386a13742",
+  "tree_hash": "c865cbab6d9e10c05b45e15b8e50c740fb1b3d733037d161bac251700c8807f4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 927,
+  "wiki_file_count": 928,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11226,8 +11231,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f1e24c2b38b326686989b0ff665322b65544934aa8c3fd15c3bacfe28f624d53",
-      "size": 1699380
+      "sha256": "d64edafca950f21b019e5968cfb1e8bdbd99fb25545cd03c6748338d578e7103",
+      "size": 1699733
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11878,6 +11883,11 @@
       "path": "pages/concepts/numo-expert-validation.md",
       "sha256": "1ddda53916fd0eef5b5b69a575bc453fcac702fe44844419668584a042fe6c32",
       "size": 5253
+    },
+    {
+      "path": "pages/concepts/numo-platform-totals.md",
+      "sha256": "8e74376c2bfe209f93cfc868a08c885b9a742158b352fc2d8bf4ef9bb8dab08c",
+      "size": 2954
     },
     {
       "path": "pages/concepts/object-certificate-schema.md",
@@ -15851,5 +15861,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e6d9c57ea28f8f66d55983576072459215f2cd6d5140b66d23d660ac2b2f293b"
+  "wiki_tree_hash": "16712c22cd523414a51c5d2999966dad17bcbc682e9f4614d09ec97a58cf2024"
 }
