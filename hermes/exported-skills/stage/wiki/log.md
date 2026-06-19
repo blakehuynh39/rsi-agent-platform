@@ -34265,3 +34265,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5975b24119cd30cd51e1099f9f3671b3
 - summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
 
+## [2026-06-19T03:32:11Z] synthesis | Vietnamese Transcripts Generation and Integration
+
+- status: published
+- slug: projects/vietnamese-transcripts-generation
+- wiki_revision_id: wikirev_2346ad158bf97b8f448cae7f4582102e
+- summary: Effort to generate a large volume of diverse Vietnamese transcripts to support user submissions and platform training.
+
+## [2026-06-19T03:33:21Z] synthesis | U0A2D9U625V
+
+- status: published
+- slug: people/u0a2d9u625v
+- wiki_revision_id: wikirev_7ae6f0d2aad75ff5e876f201e20f62ed
+- summary: U0A2D9U625V is the designated responsible individual (DRI) for transcript generation and validation, and will attend standups to provide updates.
+
