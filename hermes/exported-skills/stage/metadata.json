@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a0d6dfa197a19a41b89ab5dd396a7bdb737debd455ef127753149f6232a75810",
-        "size": 984606
+        "sha256": "91d3c2d42bd475f5321ef2882d487c057af6f17d6d850b827750c6b67ec9ea76",
+        "size": 984959
       },
       {
         "path": "log.md",
-        "sha256": "cec0cbeaa58216ce7d231bbec9d1b96e7eeb2d6a6d2da547994de7860af6f1bc",
-        "size": 1718837
+        "sha256": "4ffe592e896f6c9491ff753929fc05af410d610d2d3e65f34829ee4ce77b2d9c",
+        "size": 1719202
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7030,6 +7030,11 @@
         "size": 6763
       },
       {
+        "path": "pages/runbooks/depin-opening-event-war-room.md",
+        "sha256": "7f90b5abebeab09967ffd61be07eeae07671f2ba29e2712ac735e36520c27257",
+        "size": 3506
+      },
+      {
         "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
         "sha256": "2d5301f0fa250852d9ec22cdb7f34dda4e49aa248a363ce997506ed0e5d27cc8",
         "size": 5848
@@ -8169,8 +8174,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T16:51:20Z",
-  "file_count": 1632,
+  "exported_at": "2026-06-19T17:03:10Z",
+  "file_count": 1633,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11447,7 +11452,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "debd6b4d3e401dadd1a390cf9911f23ad0543fc125dad30a2a7ec28a0d9763c6",
+  "previous_tree_hash": "2e2c2fe9a7deb39847089d2ff547269e23c5003ac0c65b481c1b9c62fae1844f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11460,14 +11465,14 @@
   ],
   "skill_tree_hash": "cf9429b2dbca48e14f3c1145db540b1c00cd0691b982c13fe250b5e2f5590b63",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2e2c2fe9a7deb39847089d2ff547269e23c5003ac0c65b481c1b9c62fae1844f",
+  "tree_hash": "c4dfe2533265d6dd9d91e00771bc19902053c6b6252309d2eaf0df3de6aa7b3d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 978,
+  "wiki_file_count": 979,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11476,13 +11481,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a0d6dfa197a19a41b89ab5dd396a7bdb737debd455ef127753149f6232a75810",
-      "size": 984606
+      "sha256": "91d3c2d42bd475f5321ef2882d487c057af6f17d6d850b827750c6b67ec9ea76",
+      "size": 984959
     },
     {
       "path": "log.md",
-      "sha256": "cec0cbeaa58216ce7d231bbec9d1b96e7eeb2d6a6d2da547994de7860af6f1bc",
-      "size": 1718837
+      "sha256": "4ffe592e896f6c9491ff753929fc05af410d610d2d3e65f34829ee4ce77b2d9c",
+      "size": 1719202
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15225,6 +15230,11 @@
       "size": 6763
     },
     {
+      "path": "pages/runbooks/depin-opening-event-war-room.md",
+      "sha256": "7f90b5abebeab09967ffd61be07eeae07671f2ba29e2712ac735e36520c27257",
+      "size": 3506
+    },
+    {
       "path": "pages/runbooks/deploy-and-config-monitoring-stack.md",
       "sha256": "2d5301f0fa250852d9ec22cdb7f34dda4e49aa248a363ce997506ed0e5d27cc8",
       "size": 5848
@@ -16361,5 +16371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4110d3ba385c20dab68808919dc8d880066e863846434319e281798aabc75056"
+  "wiki_tree_hash": "39f4a72c345e3515d17c52301d7abc0bece9af659c25737184d141f14b72b3ae"
 }

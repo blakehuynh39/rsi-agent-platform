@@ -34966,3 +34966,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5541ae2b689e5fa7f0b8d575e00f79a9
 - summary: Post-V1 release roadmap and priorities including seedphrase voice matching, multi-language support, world launch, native apps, payment integration, non-audio tasks, and analytics i...
 
+## [2026-06-19T17:00:54Z] synthesis | DePIN Opening Event War Room
+
+- status: published
+- slug: runbooks/depin-opening-event-war-room
+- wiki_revision_id: wikirev_721fbd4ca324304c1a1b43c0f1f81940
+- summary: War room coordination and monitoring dashboards for the DePIN opening event. Infrastructure is currently stable, but future load from farmers is anticipated.
+
