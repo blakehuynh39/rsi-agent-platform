@@ -34223,3 +34223,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c66b1d6ab43297140d5d890953614f60
 - summary: Vietnamese text rendered incorrectly due to missing stacked diacritic support in STK Bureau Sans/Serif fonts. A CSS override was deployed using Spectral as the fallback font for la...
 
+## [2026-06-19T02:17:19Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_bf501c6d3829d77b5fc488ff1f6799f5
+- summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
+
+## [2026-06-19T02:17:19Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: systems/data-migration-technical-handbook
+- wiki_revision_id: wikirev_7913c3a80fc30de697cee2496d72b6c3
+- summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
+
