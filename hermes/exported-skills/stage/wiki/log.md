@@ -34505,3 +34505,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1ae732ac5ad0b175ee2e83a9e3e1a1f5
 - summary: Unresolved questions regarding W8/W9 form collection, including Stripe delays, TaxBit viability, and exploration of KLED, Mercor, Handshake.
 
+## [2026-06-19T08:00:28Z] ingest | Slack thread C0B2EJ96U83 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-channel-5675522d
+- wiki_revision_id: wikirev_0caa30301a72fdb3441c766a070825da
+- source_document_id: srcdoc_b140aea25556e86e3666c67c5675522d
+- source_revision_id: srcrev_5f504fcfb55121db62f5fd3a33c03c17
+- summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
+
+## [2026-06-19T08:01:57Z] synthesis | Decision: Grant S3 Read Access for Fraud Analysis
+
+- status: published
+- slug: decisions/fraud-analysis-s3-access-decision
+- wiki_revision_id: wikirev_95bad457738e35845837d22908966f8a
+- summary: Decision to grant read-only S3 access to the media bucket for fraud analysis, implemented via Terraform PR #71, and requiring STS temporary credentials.
+
+## [2026-06-19T08:01:57Z] synthesis | AWS Credential Management Policy
+
+- status: published
+- slug: policies/aws-credential-management-policy
+- wiki_revision_id: wikirev_9324c3571ed24cf51c72b26a8f6a7039
+- summary: Policy prohibiting static AWS credentials for programmatic access; requires use of temporary STS credentials via aws-vault.
+
