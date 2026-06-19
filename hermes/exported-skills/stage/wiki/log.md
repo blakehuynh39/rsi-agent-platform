@@ -34668,3 +34668,33 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0d783224d8c1fa3f3064e16efe144b35
 - summary: The Bengali voice task was closed from the internal task list and closure communications were published on Twitter (Story and Poseidon tweets).
 
+## [2026-06-19T11:15:25Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_1a1112395c9dc36eafb2556534ade849
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_27ba8e08303cfd254121eda0bd951297
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-19T11:16:07Z] synthesis | SecureSpectra
+
+- status: published
+- slug: concepts/secure-spectra
+- wiki_revision_id: wikirev_22c28725cd170dd34dd25698a41abd5d
+- summary: SecureSpectra is a tool or system considered for deepfake audio detection, supported by a Bittensor subnet.
+
+## [2026-06-19T11:16:07Z] synthesis | Numo Deepfake Audio Detection
+
+- status: published
+- slug: decisions/numo-deepfake-audio-detection
+- wiki_revision_id: wikirev_cc5ceb35fc71f65a0fae8098ccd99362
+- summary: Decision to experiment with SecureSpectra for deepfake audio detection in Numo and integrate with the user sampling worker.
+
+## [2026-06-19T11:16:07Z] synthesis | User Sampling Worker
+
+- status: published
+- slug: systems/user-sampling-worker
+- wiki_revision_id: wikirev_4efd4d171933785670ab7fc658849e3c
+- summary: A worker responsible for user sampling in Numo, which will incorporate deepfake audio detection.
+
