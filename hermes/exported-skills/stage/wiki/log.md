@@ -34654,3 +34654,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_315b4d0302afba3360e11f06503d8d95
 - summary: Status of deepfake detection efforts, specifically for Bengali and Telugu audio files.
 
+## [2026-06-19T11:01:11Z] synthesis | Numo & Poseidon Transcript Collaboration
+
+- status: published
+- slug: projects/numo-poseidon-transcript-collaboration
+- wiki_revision_id: wikirev_06a788afd2f8f742cb87980ed354bee2
+- summary: Project to generate transcripts for Numo and Poseidon coordination, targeting 36k (30 hours) initially, with plans for scalability and reproducibility.
+
+## [2026-06-19T11:02:22Z] synthesis | Bengali Voice Task Closure
+
+- status: published
+- slug: decisions/bengali-voice-task-closure
+- wiki_revision_id: wikirev_0d783224d8c1fa3f3064e16efe144b35
+- summary: The Bengali voice task was closed from the internal task list and closure communications were published on Twitter (Story and Poseidon tweets).
+

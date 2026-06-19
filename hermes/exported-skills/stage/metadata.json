@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "696a6d6eacdf415bf1c4854dd57a6368a108aadece5a4e84eb5a639fc8b7b6e1",
-        "size": 969699
+        "sha256": "5004550f1a6408bb5ab4f83955869f1700794d50f10b0b6997d4ee4dcd59da56",
+        "size": 970404
       },
       {
         "path": "log.md",
-        "sha256": "6262d1a751f4201a4de11424085fbb4c6fb2a8c0d6f08ce4c6f9dd8b2ce059ac",
-        "size": 1702489
+        "sha256": "60a038d7831de6313c1cd2f5e1c20682143fa45213fe68b55abd64329059aff6",
+        "size": 1703218
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4403,6 +4403,11 @@
         "path": "pages/decisions/arabic-dialect-selection.md",
         "sha256": "e43fa64cc28044b05c8cfd227a4057f57bb4e9e681d43329e18ac7343fdd8626",
         "size": 2571
+      },
+      {
+        "path": "pages/decisions/bengali-voice-task-closure.md",
+        "sha256": "d43b80410ae086c7358b76813bf7a5e4a62c6820e809a86cac956ff1b7c7e851",
+        "size": 1994
       },
       {
         "path": "pages/decisions/beta-1st-week-architectural-review.md",
@@ -6068,6 +6073,11 @@
         "path": "pages/projects/numo-payments-testing.md",
         "sha256": "e48c7bd8404bc9b6fb9b9c35f887072c8028f5071286d816ebb7f822698ac995",
         "size": 3618
+      },
+      {
+        "path": "pages/projects/numo-poseidon-transcript-collaboration.md",
+        "sha256": "f8faa54b65529a36eb7d0741b4a5b35490ec0b068d734cb51c398e30dca638ee",
+        "size": 4686
       },
       {
         "path": "pages/projects/numo-tamil-language-completion.md",
@@ -7959,8 +7969,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T10:51:16Z",
-  "file_count": 1590,
+  "exported_at": "2026-06-19T11:03:00Z",
+  "file_count": 1592,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11237,7 +11247,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "3e4c7668495e8feb596d04c7be0eb3fce5e8a4aea297034520f279f7396b04a2",
+  "previous_tree_hash": "fe55bf519db293428c98bf99ec7a715b5fb1aea7f193d27cb48e032c704b3b71",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11250,14 +11260,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fe55bf519db293428c98bf99ec7a715b5fb1aea7f193d27cb48e032c704b3b71",
+  "tree_hash": "5bea971813124eef090df96c79bea1056de6bbb2b3e5ee5083b5f1b88d10fdaf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 936,
+  "wiki_file_count": 938,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11266,13 +11276,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "696a6d6eacdf415bf1c4854dd57a6368a108aadece5a4e84eb5a639fc8b7b6e1",
-      "size": 969699
+      "sha256": "5004550f1a6408bb5ab4f83955869f1700794d50f10b0b6997d4ee4dcd59da56",
+      "size": 970404
     },
     {
       "path": "log.md",
-      "sha256": "6262d1a751f4201a4de11424085fbb4c6fb2a8c0d6f08ce4c6f9dd8b2ce059ac",
-      "size": 1702489
+      "sha256": "60a038d7831de6313c1cd2f5e1c20682143fa45213fe68b55abd64329059aff6",
+      "size": 1703218
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12388,6 +12398,11 @@
       "path": "pages/decisions/arabic-dialect-selection.md",
       "sha256": "e43fa64cc28044b05c8cfd227a4057f57bb4e9e681d43329e18ac7343fdd8626",
       "size": 2571
+    },
+    {
+      "path": "pages/decisions/bengali-voice-task-closure.md",
+      "sha256": "d43b80410ae086c7358b76813bf7a5e4a62c6820e809a86cac956ff1b7c7e851",
+      "size": 1994
     },
     {
       "path": "pages/decisions/beta-1st-week-architectural-review.md",
@@ -14053,6 +14068,11 @@
       "path": "pages/projects/numo-payments-testing.md",
       "sha256": "e48c7bd8404bc9b6fb9b9c35f887072c8028f5071286d816ebb7f822698ac995",
       "size": 3618
+    },
+    {
+      "path": "pages/projects/numo-poseidon-transcript-collaboration.md",
+      "sha256": "f8faa54b65529a36eb7d0741b4a5b35490ec0b068d734cb51c398e30dca638ee",
+      "size": 4686
     },
     {
       "path": "pages/projects/numo-tamil-language-completion.md",
@@ -15941,5 +15961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b341b5c8033c0c6d56a5460c853b67b7de100815bb65c9474b9299f1197044fb"
+  "wiki_tree_hash": "fbf4dcca630314a424cdcc422f6c85180b8158973cb5b8eb78e7ae9e08647375"
 }
