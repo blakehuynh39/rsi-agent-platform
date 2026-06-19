@@ -34356,3 +34356,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_12c5bfa2dd05881a705d8c438f95b9cd
 - summary: On 2026-05-05, the Numo morning digest reported 39,225 submissions in 24h and 134,630 pending review, prompting a question about the significant difference.
 
+## [2026-06-19T05:31:01Z] synthesis | Numo Labs Dashboard
+
+- status: published
+- slug: systems/numo-labs-dashboard
+- wiki_revision_id: wikirev_59fa6e74b37304f30e5889b5459c826d
+- summary: The Numo Labs admin dashboard is accessible at https://admin.numolabs.ai/ using password `numopip`, after an admin adds the user's email address.
+

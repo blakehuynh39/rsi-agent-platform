@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b8d043b7cfc7bce980eeaf24dcc7798e1e4d63b9e6464e0995bf08a0a9a746fc",
-        "size": 955615
+        "sha256": "4b3984c6286eac75c4eca0805fc6cba151363e6c14ba912f6c5afe2b28b47159",
+        "size": 955937
       },
       {
         "path": "log.md",
-        "sha256": "511a472162a0e74e1c196c65916f7bc9b1913b2cddec2c4ff639eead5ae16666",
-        "size": 1686860
+        "sha256": "a6f3c4ee79a04c75dd66491a81170c9c090636840a825ece30628b0bc2e9f22c",
+        "size": 1687194
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7440,6 +7440,11 @@
         "size": 2624
       },
       {
+        "path": "pages/systems/numo-labs-dashboard.md",
+        "sha256": "74cd83f74c36a5e31a0907a6c2f1470e52b9392739a50ea465ea5175b0505d8a",
+        "size": 2807
+      },
+      {
         "path": "pages/systems/numo-morning-digest.md",
         "sha256": "79e19f475a022ffa074db85da0628f76795e828ce08b6428ea8adb6a5d665c48",
         "size": 2143
@@ -7759,8 +7764,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T05:21:22Z",
-  "file_count": 1550,
+  "exported_at": "2026-06-19T05:33:07Z",
+  "file_count": 1551,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11037,7 +11042,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "8e8191d9e13634e243a2631e7fa1043a937c425674cdc2ca9d768bd654d5b96e",
+  "previous_tree_hash": "3f2c707c6a31e5c5fb8cfada3460dc060768a7837b3f567b7f14cb47891c0835",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11050,14 +11055,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3f2c707c6a31e5c5fb8cfada3460dc060768a7837b3f567b7f14cb47891c0835",
+  "tree_hash": "d185850a037c0c5261d9ef38e0a16285119d634c476aabe65952afbd4e35669c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 896,
+  "wiki_file_count": 897,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11066,13 +11071,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b8d043b7cfc7bce980eeaf24dcc7798e1e4d63b9e6464e0995bf08a0a9a746fc",
-      "size": 955615
+      "sha256": "4b3984c6286eac75c4eca0805fc6cba151363e6c14ba912f6c5afe2b28b47159",
+      "size": 955937
     },
     {
       "path": "log.md",
-      "sha256": "511a472162a0e74e1c196c65916f7bc9b1913b2cddec2c4ff639eead5ae16666",
-      "size": 1686860
+      "sha256": "a6f3c4ee79a04c75dd66491a81170c9c090636840a825ece30628b0bc2e9f22c",
+      "size": 1687194
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15225,6 +15230,11 @@
       "size": 2624
     },
     {
+      "path": "pages/systems/numo-labs-dashboard.md",
+      "sha256": "74cd83f74c36a5e31a0907a6c2f1470e52b9392739a50ea465ea5175b0505d8a",
+      "size": 2807
+    },
+    {
       "path": "pages/systems/numo-morning-digest.md",
       "sha256": "79e19f475a022ffa074db85da0628f76795e828ce08b6428ea8adb6a5d665c48",
       "size": 2143
@@ -15541,5 +15551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3f3521d8b8702d0d119e3862f8bd9f7289d1b4a9540bbc43718f453c09eb64f3"
+  "wiki_tree_hash": "9af17ec195fb40dd3aed45567aa7f0a2743da6a4fc57b2bf50e396c8452be92f"
 }
