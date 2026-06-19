@@ -34987,3 +34987,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6fde96c1a453a6b335aebbc54d4f52de
 - summary: A staging admin dashboard at https://staging-admin.numolabs.ai/ designed to unify core performance metrics and serve as the command center for Numo operations. Evolving tool solici...
 
+## [2026-06-19T17:30:48Z] ingest | Security Audit Scope — Anchored Inflation + Cubic Staking Weight
+
+- status: published
+- slug: notion_document/security-audit-scope-anchored-inflation-cubic-staking-weight-c7c30f89
+- wiki_revision_id: wikirev_683fb35e459968f078601d5d6093280b
+- source_document_id: srcdoc_0dad80217a5ee14b1346d6b0c7c30f89
+- source_revision_id: srcrev_5e47205d423d9644146d60d614215de4
+- summary: Source: [source](https://app.notion.com/p/Security-Audit-Scope-Anchored-Inflation-Cubic-Staking-Weight-384051299a548150a032d032621aaee1)
+
+## [2026-06-19T17:32:27Z] synthesis | Numo Contribution Receipt Schema and Licensing Decision
+
+- status: published
+- slug: decisions/numo-contribution-receipt-schema
+- wiki_revision_id: wikirev_1ed0b376daf13dbeb09ff43937499674
+- summary: Decided against using Story Protocol's PIL for voice contribution receipts, opting for ToS-backed metadata with consent signatures, IPFS storage for ToS, and S3 for receipt metadat...
+
