@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c4844f89efa59d16ba12a7947ab6a1f800dbbdb8577e55093e05f743e04c4c33",
-        "size": 997576
+        "sha256": "42330604a973f85d9bb8dc18c8805fff3c0af0778101f503f6d653010293e24c",
+        "size": 997907
       },
       {
         "path": "log.md",
-        "sha256": "3ff3aaaef78296d94a3d34b961a95dafc377850a4c74c1e56dff044d7db33d82",
-        "size": 1734520
+        "sha256": "c8cc5c8c1b8ce105a3324fca461105dcc7815f5050bb8e33b1f44baf1bf13fec",
+        "size": 1734863
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6190,6 +6190,11 @@
         "size": 3743
       },
       {
+        "path": "pages/projects/mobile-app-android-internal-testing.md",
+        "sha256": "518f3c7263eb25c63ee30cc373eae08f5673b239a7c20d6c2ccd59d7c917b170",
+        "size": 4275
+      },
+      {
         "path": "pages/projects/mu-bench.md",
         "sha256": "5b4d57bf2e837e06b82d98f5fbc0dd16eecdee34f8a28aab3717b8dd3b1c6f2a",
         "size": 2435
@@ -8344,8 +8349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T21:17:33Z",
-  "file_count": 1667,
+  "exported_at": "2026-06-19T21:34:07Z",
+  "file_count": 1668,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11622,7 +11627,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "0de837372d698a5f501ada946d49dd2a4feda18b8a608f7fa5fd8342be6ff3c4",
+  "previous_tree_hash": "b13c35b207019f166428924df5a8838c2f2be82e987134c0091788eac5f2c417",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11635,14 +11640,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b13c35b207019f166428924df5a8838c2f2be82e987134c0091788eac5f2c417",
+  "tree_hash": "37a081b035117012c9ee5c4c6fc836c01d9ca2ce7fee5007cacb149e6551c9d7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1013,
+  "wiki_file_count": 1014,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11651,13 +11656,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c4844f89efa59d16ba12a7947ab6a1f800dbbdb8577e55093e05f743e04c4c33",
-      "size": 997576
+      "sha256": "42330604a973f85d9bb8dc18c8805fff3c0af0778101f503f6d653010293e24c",
+      "size": 997907
     },
     {
       "path": "log.md",
-      "sha256": "3ff3aaaef78296d94a3d34b961a95dafc377850a4c74c1e56dff044d7db33d82",
-      "size": 1734520
+      "sha256": "c8cc5c8c1b8ce105a3324fca461105dcc7815f5050bb8e33b1f44baf1bf13fec",
+      "size": 1734863
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14560,6 +14565,11 @@
       "size": 3743
     },
     {
+      "path": "pages/projects/mobile-app-android-internal-testing.md",
+      "sha256": "518f3c7263eb25c63ee30cc373eae08f5673b239a7c20d6c2ccd59d7c917b170",
+      "size": 4275
+    },
+    {
       "path": "pages/projects/mu-bench.md",
       "sha256": "5b4d57bf2e837e06b82d98f5fbc0dd16eecdee34f8a28aab3717b8dd3b1c6f2a",
       "size": 2435
@@ -16711,5 +16721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67db55c491d5fe916355af402b2de1ae2f627169d9eafd8f1448691fe470666c"
+  "wiki_tree_hash": "1f7f60eb6d0343bbe367bb9d223a754d494151ad1e2c948bb94e40d20654ecff"
 }
