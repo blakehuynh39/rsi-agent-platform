@@ -34170,3 +34170,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c026af6c63199c0d12d8987297e5405b
 - summary: Decision to select transcripts where current models fail, rather than randomly, for testing transcript generation.
 
+## [2026-06-19T01:17:52Z] synthesis | Numo Mobile Team Onboarding and Resource Provisioning
+
+- status: published
+- slug: projects/numo-mobile-team-onboarding
+- wiki_revision_id: wikirev_4e7160071dcb6c34ae4686521c66ca89
+- summary: Onboarding the Numo mobile team (Jed Lee and colleagues) to RSI infrastructure, including provisioning cloud, app store, marketing SDK accounts, email/Slack access, and defining bi...
+
+## [2026-06-19T01:18:58Z] synthesis | Remove Jacob from Numo Standup
+
+- status: published
+- slug: decisions/remove-jacob-from-numo-standup
+- wiki_revision_id: wikirev_621799d87ef00354524d9e92da4884c1
+- summary: Decision to remove Jacob (U08HVGL6LDR) from the Numo standup calls after leaving the Numo team.
+

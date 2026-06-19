@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d76f6705bae015b6c3a9750039c210049f2fe673b23f5ab34c539065e785a68f",
-        "size": 948723
+        "sha256": "dd218035d560d056f1511238037a1c0b182ae357f03c505d22fb87454bfc28fe",
+        "size": 949423
       },
       {
         "path": "log.md",
-        "sha256": "1b095432cbf63f438881d75141b588aa66d11ad2b7ea5d29318939a0f88474bc",
-        "size": 1676847
+        "sha256": "751f81e3e394ba98ed7fe21c2744b54ac16271c0337a777c9fc3abef1c2c94dc",
+        "size": 1677570
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4655,6 +4655,11 @@
         "size": 2251
       },
       {
+        "path": "pages/decisions/remove-jacob-from-numo-standup.md",
+        "sha256": "c5de55fd04b997a5fbaa394f51ad87237d0efc0369e6fa9d39de6df22791aad5",
+        "size": 1906
+      },
+      {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
@@ -5868,6 +5873,11 @@
         "path": "pages/projects/numo-migration-ancillary-services.md",
         "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
         "size": 2881
+      },
+      {
+        "path": "pages/projects/numo-mobile-team-onboarding.md",
+        "sha256": "2e6e98a4134c3575c916c7828e11fa01673f1780c930868b3484a1896cd900ea",
+        "size": 9694
       },
       {
         "path": "pages/projects/numo-top-samples-cherry-pick.md",
@@ -7664,8 +7674,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T00:54:08Z",
-  "file_count": 1531,
+  "exported_at": "2026-06-19T01:21:03Z",
+  "file_count": 1533,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10942,7 +10952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "00da828cae54bb9b64b9be679dd27f44d2019358d4980ba990358191c45e8839",
+  "previous_tree_hash": "04abf2b5589611eada5d33d7ce1aa85be43372581c851991dc432f4ac8af9747",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10955,14 +10965,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "04abf2b5589611eada5d33d7ce1aa85be43372581c851991dc432f4ac8af9747",
+  "tree_hash": "7495c6f9033e755f5bf2cc2f78227e9464089d432e69b35538c1925d1a8ebc29",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 877,
+  "wiki_file_count": 879,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10971,13 +10981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d76f6705bae015b6c3a9750039c210049f2fe673b23f5ab34c539065e785a68f",
-      "size": 948723
+      "sha256": "dd218035d560d056f1511238037a1c0b182ae357f03c505d22fb87454bfc28fe",
+      "size": 949423
     },
     {
       "path": "log.md",
-      "sha256": "1b095432cbf63f438881d75141b588aa66d11ad2b7ea5d29318939a0f88474bc",
-      "size": 1676847
+      "sha256": "751f81e3e394ba98ed7fe21c2744b54ac16271c0337a777c9fc3abef1c2c94dc",
+      "size": 1677570
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12345,6 +12355,11 @@
       "size": 2251
     },
     {
+      "path": "pages/decisions/remove-jacob-from-numo-standup.md",
+      "sha256": "c5de55fd04b997a5fbaa394f51ad87237d0efc0369e6fa9d39de6df22791aad5",
+      "size": 1906
+    },
+    {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
@@ -13558,6 +13573,11 @@
       "path": "pages/projects/numo-migration-ancillary-services.md",
       "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
       "size": 2881
+    },
+    {
+      "path": "pages/projects/numo-mobile-team-onboarding.md",
+      "sha256": "2e6e98a4134c3575c916c7828e11fa01673f1780c930868b3484a1896cd900ea",
+      "size": 9694
     },
     {
       "path": "pages/projects/numo-top-samples-cherry-pick.md",
@@ -15351,5 +15371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1a86c8ad674e7af98da593f5607706e940232efcc96bc255bb17d3cbc514d2a5"
+  "wiki_tree_hash": "6e9b477523fcfb910fc1f264debca207a0d5678f1ba51c6ac552f644655a22e2"
 }
