@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9d5dcbe00f18992009c930a1316b8b49a4dec1d350f9699c3b7872eb4018dbca",
-        "size": 948045
+        "sha256": "8d83ec2d765f211b0093d57dd72a8903c74291b561d3302575dee08913693f73",
+        "size": 948392
       },
       {
         "path": "log.md",
-        "sha256": "5684dead580bcc12857cf4d57e55f0cd318ae2b2e42a2d0ab463a0141c1ba153",
-        "size": 1676145
+        "sha256": "3153af58fff89c6ef8a7a745404f92935869de365be7d129ea7e80c2050950e9",
+        "size": 1676504
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6440,6 +6440,11 @@
         "size": 1547
       },
       {
+        "path": "pages/projects/user-certificate-deepfake-screening.md",
+        "sha256": "612e97bd006f10a291575963b413c0bc5d132190ed46ff0d741015cd2e6e1b76",
+        "size": 3960
+      },
+      {
         "path": "pages/projects/v1-relationships.md",
         "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
         "size": 4508
@@ -7654,8 +7659,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T00:24:04Z",
-  "file_count": 1529,
+  "exported_at": "2026-06-19T00:35:47Z",
+  "file_count": 1530,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10932,7 +10937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7ebbc046a3ce67081c19a7b56b77724a376841f331a7a7e0440047abee16de0c",
+  "previous_tree_hash": "4018785c48bb16d163a87f779c631d48a23e81a254136237baa96b31e70c7a69",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10945,14 +10950,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4018785c48bb16d163a87f779c631d48a23e81a254136237baa96b31e70c7a69",
+  "tree_hash": "b435087279ccd9bfe96d9eb320ec3f5c4b3642ded22d28e8ff597634f19dd61c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 875,
+  "wiki_file_count": 876,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10961,13 +10966,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9d5dcbe00f18992009c930a1316b8b49a4dec1d350f9699c3b7872eb4018dbca",
-      "size": 948045
+      "sha256": "8d83ec2d765f211b0093d57dd72a8903c74291b561d3302575dee08913693f73",
+      "size": 948392
     },
     {
       "path": "log.md",
-      "sha256": "5684dead580bcc12857cf4d57e55f0cd318ae2b2e42a2d0ab463a0141c1ba153",
-      "size": 1676145
+      "sha256": "3153af58fff89c6ef8a7a745404f92935869de365be7d129ea7e80c2050950e9",
+      "size": 1676504
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14120,6 +14125,11 @@
       "size": 1547
     },
     {
+      "path": "pages/projects/user-certificate-deepfake-screening.md",
+      "sha256": "612e97bd006f10a291575963b413c0bc5d132190ed46ff0d741015cd2e6e1b76",
+      "size": 3960
+    },
+    {
       "path": "pages/projects/v1-relationships.md",
       "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
       "size": 4508
@@ -15331,5 +15341,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1866d42533dfb0c0dd9b87cd3bd21d6ddfa2120084f3f973d4c4ebdafc478888"
+  "wiki_tree_hash": "60baf21ddd73a72a2b740e9341ae1412d6cc5934a0b6449b0809fedf99f68be9"
 }

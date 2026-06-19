@@ -34156,3 +34156,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6465c15bf3e907223e6e910c7892b180
 - summary: A request to ensure that closure of announcements is reflected on the app, with an announcement already prepped.
 
+## [2026-06-19T00:34:59Z] synthesis | User Certificate Deepfake Screening
+
+- status: published
+- slug: projects/user-certificate-deepfake-screening
+- wiki_revision_id: wikirev_bf7610b5813eb90c6510d05021573759
+- summary: Initiative to detect deepfake certificates submitted by users using SynthID, C2PA watermark detection, and LinkedIn profile verification.
+
