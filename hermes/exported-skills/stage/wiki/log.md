@@ -34535,3 +34535,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_42c212712dc714a54d5a793696cce81f
 - summary: Overview of Numo signup-to-submission conversion rates and top-line metrics as of 2026-05-05.
 
+## [2026-06-19T08:47:41Z] synthesis | Numo Indic Languages Audio Processing
+
+- status: published
+- slug: projects/numo-indic-languages-audio-processing
+- wiki_revision_id: wikirev_c27f7c194cf6b324843620dc7db66827
+- summary: Status update on processing 3x Indic languages submissions for Numo, including acceptance rates, cost breakdown, and infrastructure details.
+
+## [2026-06-19T08:49:08Z] synthesis | Payment v2 API Migration Status
+
+- status: published
+- slug: projects/payment-v2-api-migration-status
+- wiki_revision_id: wikirev_5eee7f1c457f8c992395d81bbac0bed5
+- summary: Tracking the migration of the payment system to v2 APIs, including international payouts support and country-specific end-to-end status.
+

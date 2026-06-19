@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1fb2bab52eb601a2185fd550a2d5b256751b41b9c9061dc6c9dcbe7b265515f7",
-        "size": 1696441
+        "sha256": "4200b6335261e88706cf09410d1d13da725eae4aca71f4da23ffaf4ed0914d92",
+        "size": 1696807
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5985,6 +5985,11 @@
         "size": 5603
       },
       {
+        "path": "pages/projects/numo-indic-languages-audio-processing.md",
+        "sha256": "d953ac7ba53263061df1df39676f6b1e5270f459e921d1094386df7b9b5a463a",
+        "size": 6170
+      },
+      {
         "path": "pages/projects/numo-labs-prod-launch.md",
         "sha256": "3c5c166f102e901b795f7b0eca2a2802db5bcf5090b6477477d44a82d893546e",
         "size": 1777
@@ -7874,8 +7879,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T08:26:51Z",
-  "file_count": 1573,
+  "exported_at": "2026-06-19T08:48:49Z",
+  "file_count": 1574,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11152,7 +11157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "90b817ab2328f1d6056d82f5bddcefe3822bda1e4617223743d9759a8d20ebaa",
+  "previous_tree_hash": "3e985e9879a8f6840d65df37af5f586003a757c4d01f68c8e1da7c41194e8647",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11165,14 +11170,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3e985e9879a8f6840d65df37af5f586003a757c4d01f68c8e1da7c41194e8647",
+  "tree_hash": "7173f51b1939a837e8a979cc44f57abe590452a343b560693e17602943343db2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 919,
+  "wiki_file_count": 920,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11186,8 +11191,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1fb2bab52eb601a2185fd550a2d5b256751b41b9c9061dc6c9dcbe7b265515f7",
-      "size": 1696441
+      "sha256": "4200b6335261e88706cf09410d1d13da725eae4aca71f4da23ffaf4ed0914d92",
+      "size": 1696807
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13885,6 +13890,11 @@
       "size": 5603
     },
     {
+      "path": "pages/projects/numo-indic-languages-audio-processing.md",
+      "sha256": "d953ac7ba53263061df1df39676f6b1e5270f459e921d1094386df7b9b5a463a",
+      "size": 6170
+    },
+    {
       "path": "pages/projects/numo-labs-prod-launch.md",
       "sha256": "3c5c166f102e901b795f7b0eca2a2802db5bcf5090b6477477d44a82d893546e",
       "size": 1777
@@ -15771,5 +15781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1b72e230d90a1ce8367b9efeefcc19f25ab9ae9ae8d5c84aa633b47f96aba6b0"
+  "wiki_tree_hash": "d20b57673401bf853a232d02cd307cdaade361fd1ffc651e8c5ad62ebd4c2ea4"
 }
