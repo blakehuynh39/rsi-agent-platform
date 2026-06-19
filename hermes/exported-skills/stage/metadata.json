@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5aea27420b307d5e82c79927ba450cfa41875a397f32c7d99763186e3ac1e6b7",
-        "size": 993302
+        "sha256": "1f8d60fc2b1dfb13d66d669d0e5f548bd53800d000be0867575a2fa0a7fb4f95",
+        "size": 994056
       },
       {
         "path": "log.md",
-        "sha256": "161f8bef71b83969973fb89d7761dfa9a3693ba0cf03c85ba53022cdbeafd805",
-        "size": 1728828
+        "sha256": "32f81d9a80f01b3b9d0c7af8b8a8a78a6abd9c990f3d15d85c1254822fe43867",
+        "size": 1729278
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4573,6 +4573,11 @@
         "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
         "sha256": "4fb46ce7e6c9191148b9e241eb2b614b8d62efbbc3fb485b1beedc3eb3a03f42",
         "size": 6930
+      },
+      {
+        "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
+        "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
+        "size": 5434
       },
       {
         "path": "pages/decisions/hook-registry-design.md",
@@ -8289,8 +8294,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T19:17:19Z",
-  "file_count": 1656,
+  "exported_at": "2026-06-19T19:23:53Z",
+  "file_count": 1657,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11567,7 +11572,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "987bac22f98e00a0f8da1d6b4aa6d76b5e20d2b3247720d868a221741d7d4bf0",
+  "previous_tree_hash": "2ae6029048165d14b5c7c8b98b0a353f50f60fd1542ce5341e669bd1674578c0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11580,14 +11585,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2ae6029048165d14b5c7c8b98b0a353f50f60fd1542ce5341e669bd1674578c0",
+  "tree_hash": "4e20bec1db4234603525d2e003e7d9fc561c225f9a571227585b27a9a625d48e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1002,
+  "wiki_file_count": 1003,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11596,13 +11601,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5aea27420b307d5e82c79927ba450cfa41875a397f32c7d99763186e3ac1e6b7",
-      "size": 993302
+      "sha256": "1f8d60fc2b1dfb13d66d669d0e5f548bd53800d000be0867575a2fa0a7fb4f95",
+      "size": 994056
     },
     {
       "path": "log.md",
-      "sha256": "161f8bef71b83969973fb89d7761dfa9a3693ba0cf03c85ba53022cdbeafd805",
-      "size": 1728828
+      "sha256": "32f81d9a80f01b3b9d0c7af8b8a8a78a6abd9c990f3d15d85c1254822fe43867",
+      "size": 1729278
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12888,6 +12893,11 @@
       "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
       "sha256": "4fb46ce7e6c9191148b9e241eb2b614b8d62efbbc3fb485b1beedc3eb3a03f42",
       "size": 6930
+    },
+    {
+      "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
+      "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
+      "size": 5434
     },
     {
       "path": "pages/decisions/hook-registry-design.md",
@@ -16601,5 +16611,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8c7ea591afbbbb1569deca4622a0f0d77b4c13b448dcbfa5fdf53ee09ceab2dd"
+  "wiki_tree_hash": "bb607dc0ea15afd129d097719c318b226acec10d8c2849933b2bb8a5548a6bd7"
 }
