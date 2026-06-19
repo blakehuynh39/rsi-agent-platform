@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6676cfdeb54f8995952dacc73b63c24c5ea804fca5d94231167f1f072abffb0e",
-        "size": 995205
+        "sha256": "c65533ef338e6131ee661714aa42701576a77a589652d9ba8b9de32aff6950cc",
+        "size": 995491
       },
       {
         "path": "log.md",
-        "sha256": "d6f5b3793b1e5bd50406fe905289fe0dcbb0b31caa00c6753797d55f17110f08",
-        "size": 1731723
+        "sha256": "54a198fb733b41d305f74c0bcdec346e64afbdaef57e1e3f7f68698c1870a421",
+        "size": 1732020
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6265,6 +6265,11 @@
         "size": 2738
       },
       {
+        "path": "pages/projects/numo-launch.md",
+        "sha256": "513a5d353aa9c8f11fb7ae6ed2b60891a692044d0205e3f4146727d77e3a8f02",
+        "size": 5960
+      },
+      {
         "path": "pages/projects/numo-migration-ancillary-services.md",
         "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
         "size": 2881
@@ -8309,8 +8314,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T20:10:00Z",
-  "file_count": 1660,
+  "exported_at": "2026-06-19T20:21:31Z",
+  "file_count": 1661,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11587,7 +11592,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d389f67169f5d81635b8b2efb9c62282935d18ed6ccf5749c6946d8f29048ccd",
+  "previous_tree_hash": "468321f2345a0425474c10402513c35b079394a8b7247bd0ebfedb9310f6430b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11600,14 +11605,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "468321f2345a0425474c10402513c35b079394a8b7247bd0ebfedb9310f6430b",
+  "tree_hash": "a1e65b55ad3199e52f27aa4dad38f3eafbb8612c49933dfb464a78bbcb5018a7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1006,
+  "wiki_file_count": 1007,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11616,13 +11621,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6676cfdeb54f8995952dacc73b63c24c5ea804fca5d94231167f1f072abffb0e",
-      "size": 995205
+      "sha256": "c65533ef338e6131ee661714aa42701576a77a589652d9ba8b9de32aff6950cc",
+      "size": 995491
     },
     {
       "path": "log.md",
-      "sha256": "d6f5b3793b1e5bd50406fe905289fe0dcbb0b31caa00c6753797d55f17110f08",
-      "size": 1731723
+      "sha256": "54a198fb733b41d305f74c0bcdec346e64afbdaef57e1e3f7f68698c1870a421",
+      "size": 1732020
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14600,6 +14605,11 @@
       "size": 2738
     },
     {
+      "path": "pages/projects/numo-launch.md",
+      "sha256": "513a5d353aa9c8f11fb7ae6ed2b60891a692044d0205e3f4146727d77e3a8f02",
+      "size": 5960
+    },
+    {
       "path": "pages/projects/numo-migration-ancillary-services.md",
       "sha256": "b5a5610d64d2dc9ee17253eee97d0394105b4adc6337b634406e0446f1bfad79",
       "size": 2881
@@ -16641,5 +16651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "85a1fc760c7bfa8ce2bdbfca208fcc04ce3734ae1357762ab282f31d171d11b3"
+  "wiki_tree_hash": "a57c48a4812c11871a8d6b4610904d020b1b17089d5ec81b20fc7ed6cbfd71ab"
 }

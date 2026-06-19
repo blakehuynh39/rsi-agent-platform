@@ -35203,3 +35203,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f2a0a189b1165b0b86ca394fd1d00075
 - summary: Lessons learned from Poseidon Season 1 infrastructure and data validation pipeline, shared asynchronously in preparation for Season 2. Covers bottlenecks, audio requirements, IP re...
 
+## [2026-06-19T20:18:44Z] synthesis | Numo Launch
+
+- status: published
+- slug: projects/numo-launch
+- wiki_revision_id: wikirev_e5da8c1cbeb0862ce5510df7a4d595d5
+- summary: Numo launched and rapidly acquired users and submissions. The team monitored milestones and prepared a public announcement.
+
