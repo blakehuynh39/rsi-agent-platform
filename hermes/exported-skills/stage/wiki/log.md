@@ -34200,3 +34200,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7f287a9ee0cb4adb54a2757af2197a24
 - summary: Tamil language tasks for Numo are nearing 100% completion, with marketing material and a tweet being prepared for announcement.
 
+## [2026-06-19T01:52:50Z] synthesis | TaxBandits Dogfooding Initiative
+
+- status: published
+- slug: projects/taxbandits-dogfooding
+- wiki_revision_id: wikirev_86b113b57e59368696f8731db8d30fa1
+- summary: Initiatives to dogfood TaxBandits internally, including onboarding users, resolving Stripe issues for all countries, and ensuring W-8 BEN flow readiness.
+

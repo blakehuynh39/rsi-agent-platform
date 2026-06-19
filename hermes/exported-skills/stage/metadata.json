@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "22e0876c7f09dccee976949a0f9799f2bd9a692f2629d35d1ad1e1529e8a6224",
-        "size": 949750
+        "sha256": "cb045379a34af09ed6ecd3605228a260976b404c3ea4ea709baf30e7847823f0",
+        "size": 950096
       },
       {
         "path": "log.md",
-        "sha256": "d04bbd464ad8475209367be192aee030430f4324a3bf07f729da6096004e8799",
-        "size": 1678405
+        "sha256": "439a3cb2dc889cb050209d5bfb1e97fcb3632d8af83f49dae76ae1183faab67f",
+        "size": 1678763
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6385,6 +6385,11 @@
         "size": 4647
       },
       {
+        "path": "pages/projects/taxbandits-dogfooding.md",
+        "sha256": "3bfc7f00995fff7b1a9d88c366c543df2380b22cbbbbbf8366c1f4ae3cb77ad9",
+        "size": 3962
+      },
+      {
         "path": "pages/projects/taxbandits-integration.md",
         "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
         "size": 2249
@@ -7679,8 +7684,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T01:32:52Z",
-  "file_count": 1534,
+  "exported_at": "2026-06-19T01:54:46Z",
+  "file_count": 1535,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10957,7 +10962,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7495c6f9033e755f5bf2cc2f78227e9464089d432e69b35538c1925d1a8ebc29",
+  "previous_tree_hash": "55845fa2bccc7d78b8302987255b6ca76961629eb8cfaa6b2041da2330816ffc",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10970,14 +10975,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "55845fa2bccc7d78b8302987255b6ca76961629eb8cfaa6b2041da2330816ffc",
+  "tree_hash": "cdf04513173e91350ebae80135a6e9205bdf7ba29f922891188ae04099c7f84e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 880,
+  "wiki_file_count": 881,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10986,13 +10991,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "22e0876c7f09dccee976949a0f9799f2bd9a692f2629d35d1ad1e1529e8a6224",
-      "size": 949750
+      "sha256": "cb045379a34af09ed6ecd3605228a260976b404c3ea4ea709baf30e7847823f0",
+      "size": 950096
     },
     {
       "path": "log.md",
-      "sha256": "d04bbd464ad8475209367be192aee030430f4324a3bf07f729da6096004e8799",
-      "size": 1678405
+      "sha256": "439a3cb2dc889cb050209d5bfb1e97fcb3632d8af83f49dae76ae1183faab67f",
+      "size": 1678763
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14090,6 +14095,11 @@
       "size": 4647
     },
     {
+      "path": "pages/projects/taxbandits-dogfooding.md",
+      "sha256": "3bfc7f00995fff7b1a9d88c366c543df2380b22cbbbbbf8366c1f4ae3cb77ad9",
+      "size": 3962
+    },
+    {
       "path": "pages/projects/taxbandits-integration.md",
       "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
       "size": 2249
@@ -15381,5 +15391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1d6d784dd3fa53a11980ff8fd5352e9de992ab2d852fa918d915651bffe6b4ca"
+  "wiki_tree_hash": "d3cf401c0c6fabe13548d4b5dca684151418bc3a78aabb9019dd9904f019090b"
 }
