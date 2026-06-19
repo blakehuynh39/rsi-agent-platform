@@ -14,15 +14,11 @@ conflict_state: "none"
 
 ## Summary
 
-The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-pages for the Internal Agentic Initiative, POC → Data Marketplace, and references to the $DATA Migration technical handbook and Data Registration documents.
+The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-pages for Internal Agentic Initiative, Data Registration on Story L1, 100M Gas Data Registration Testing, Agent Infra, and the Story → Data Rebrand: Migration Plan.
 
 ## Claims
 
 - Lion Team has a dedicated members page. `claim:lion_members_page` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
-- Lion Team page references the 'Agent Infra' page. `claim:lion_agent_infra` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
-- Lion Team page references the 'Story → Data Rebrand: Migration Plan' page. `claim:lion_story_data_rebrand` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
 - Lion Team tracks initiatives in a Milestones database. `claim:lion_milestones_db` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
@@ -39,6 +35,10 @@ The Lion Team is an engineering group with members, a team database, and initiat
 - Lion Team page references the 'Data Registration on Story L1 — Engineering Summary' page. `claim:lion_data_registration_summary` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
 - Lion Team page references the '100M Gas Data Registration Testing' page. `claim:lion_100m_gas_testing` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
+- Lion Team page references the 'Agent Infra' page. `claim:lion_agent_infra` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
+- Lion Team page references the 'Story → Data Rebrand: Migration Plan' page. `claim:lion_story_data_rebrand` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
 - Lion Team has a dedicated members page. `claim:claim_1` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
@@ -85,8 +85,12 @@ The Lion Team is an engineering group with members, a team database, and initiat
 - Lion Team page references the '100M Gas Data Registration Testing' page. `claim:claim_9` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3) `source_document_id=srcdoc_bedb4e134badf14d697d6af434d7903a` `source_revision_id=srcrev_98cc2d4d728d0cd0c0a95e92dac8523a` `chunk_id=srcchunk_f79923d4b86ee0fe153c87dc5fc321bf` `native_locator=https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3` `source_timestamp=2026-06-08T22:03:00Z`
 
+## Related Pages
+
+- `systems/data-migration-technical-handbook`
+
 ## Sources
 
 - `source_document_id`: `srcdoc_595c1fb031be8bea2eb6952240911f03`
-- `source_revision_id`: `srcrev_e482ff6aea66850fc5ab1a4378d4809d`
+- `source_revision_id`: `srcrev_437d5ab97295f554a5eab803926eb9b1`
 - `source_url`: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)

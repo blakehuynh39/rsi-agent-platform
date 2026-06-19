@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "82628b3f3f00d989fe3c7873a18d0956a54ede3bce563be87efd35958c0e33de",
-        "size": 1681158
+        "sha256": "0263bcca62af1e9bc88cbe0558e3a7d853d60c72579480a012bae5354d34b9f6",
+        "size": 1681923
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5766,8 +5766,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "771141d62b3b9e066841663a48f4625d9789199adc11514699fc291484ce5545",
-        "size": 17203
+        "sha256": "945826496afd5601f00dd4c7e714ad84d12f3aa4d856fa874266f54475b580f6",
+        "size": 17276
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -7186,8 +7186,8 @@
       },
       {
         "path": "pages/systems/data-migration-technical-handbook.md",
-        "sha256": "8b312352c5f79a3b6bee88f492c7d4d7ffd52c1fbd2dc1f2b260be14f8d85250",
-        "size": 41107
+        "sha256": "264cddc8a0393432364e609cc7d4e6236595f7f8f95266680770f54d5f641601",
+        "size": 41006
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
@@ -7699,7 +7699,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T03:10:33Z",
+  "exported_at": "2026-06-19T03:17:12Z",
   "file_count": 1538,
   "files": [
     {
@@ -10977,7 +10977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "facc37147a1f542dd9e9df2746e46cc059c9ef57b97755bac986d05a07f358db",
+  "previous_tree_hash": "6468e75e092db9b84fc70428b1e076c4cbaf4864bc5042704610d85293455a09",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10990,7 +10990,7 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6468e75e092db9b84fc70428b1e076c4cbaf4864bc5042704610d85293455a09",
+  "tree_hash": "0ea62c34f7e6072cdbf697668c80f40dddb0a93383057a8924fa4fc14c9e215a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -11011,8 +11011,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "82628b3f3f00d989fe3c7873a18d0956a54ede3bce563be87efd35958c0e33de",
-      "size": 1681158
+      "sha256": "0263bcca62af1e9bc88cbe0558e3a7d853d60c72579480a012bae5354d34b9f6",
+      "size": 1681923
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13491,8 +13491,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "771141d62b3b9e066841663a48f4625d9789199adc11514699fc291484ce5545",
-      "size": 17203
+      "sha256": "945826496afd5601f00dd4c7e714ad84d12f3aa4d856fa874266f54475b580f6",
+      "size": 17276
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -14911,8 +14911,8 @@
     },
     {
       "path": "pages/systems/data-migration-technical-handbook.md",
-      "sha256": "8b312352c5f79a3b6bee88f492c7d4d7ffd52c1fbd2dc1f2b260be14f8d85250",
-      "size": 41107
+      "sha256": "264cddc8a0393432364e609cc7d4e6236595f7f8f95266680770f54d5f641601",
+      "size": 41006
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
@@ -15421,5 +15421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0b387b3b0a2c20d7d0fc1b53fb3b8714f99c27330f33aa72be00d297e2df2ac9"
+  "wiki_tree_hash": "9b43d77301c246e3705c225fb981126c8a7cf5d04b5f71d16d4076b36a8493a2"
 }

@@ -34251,3 +34251,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7908f717dcc2dc85740c7c6747df20e
 - summary: Integration of Stripe for fiat payouts, including live account setup, onboarding flow, live testing with Indian bank, compliance (W-8BEN), and exploration of Wise/Whop for cost red...
 
+## [2026-06-19T03:16:54Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_ad5c8025e4468260105fda5cd980eefd
+- summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
+
+## [2026-06-19T03:16:55Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: systems/data-migration-technical-handbook
+- wiki_revision_id: wikirev_5975b24119cd30cd51e1099f9f3671b3
+- summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
+

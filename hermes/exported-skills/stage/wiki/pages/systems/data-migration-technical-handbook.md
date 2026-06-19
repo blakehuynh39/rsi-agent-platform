@@ -3,9 +3,7 @@ title: "$DATA Migration Technical Handbook (External)"
 type: "decision"
 slug: "systems/data-migration-technical-handbook"
 freshness: "2026-06-19T01:03:00Z"
-tags:
-  - "data migration"
-  - "rebranding"
+tags: []
 owners: []
 source_revision_ids:
   - "srcrev_8b986ab9f9c3aad3ef4d8aa25b38d77a"
@@ -18,7 +16,7 @@ conflict_state: "none"
 
 ## Summary
 
-Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, wallets, and builders.
+Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, developers, and integrators.
 
 ## Claims
 
@@ -54,7 +52,7 @@ Technical handbook documenting the rebranding from Story to Data, including toke
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_e482ff6aea66850fc5ab1a4378d4809d` `chunk_id=srcchunk_4dcadf479ed7f54ae6eda14cc53518d7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-19T01:03:00Z`
 - Centralized exchanges should update ticker to $DATA, network name to Data Network, and refresh all graphic materials. `claim:cex_actions` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_e482ff6aea66850fc5ab1a4378d4809d` `chunk_id=srcchunk_4dcadf479ed7f54ae6eda14cc53518d7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-19T01:03:00Z`
-- To migrate programmatically from WIP to WDATA, withdraw from WIP and then deposit to WDATA, or send native tokens directly to the WDATA contract. `claim:programmatic_migration` `confidence:1.00`
+- To migrate from WIP to WDATA programmatically, withdraw from WIP and deposit to WDATA, or send native tokens directly to the WDATA contract. `claim:programmatic_migration` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_e482ff6aea66850fc5ab1a4378d4809d` `chunk_id=srcchunk_075c3883f4c0d33417de7fc103ad4931` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2` `source_timestamp=2026-06-19T01:03:00Z`
 - Balances of native tokens are not affected by the rebranding. `claim:native_balances_unchanged` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_ffe6703323530bf37a5f1fe16ad5f7bf` `chunk_id=srcchunk_ecde68799aebcaed1428c1f3dcac755e` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-10T17:57:00Z`
@@ -66,8 +64,8 @@ Technical handbook documenting the rebranding from Story to Data, including toke
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_ffe6703323530bf37a5f1fe16ad5f7bf` `chunk_id=srcchunk_1b52290a6b81965db7b8b7bf15a85f75` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-10T17:57:00Z`
 - IP Portal remains unchanged. `claim:ip_portal_unchanged` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_ffe6703323530bf37a5f1fe16ad5f7bf` `chunk_id=srcchunk_1b52290a6b81965db7b8b7bf15a85f75` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-10T17:57:00Z`
-- Wallets and frontends must update the ticker to $DATA, network name to Data Network, refresh graphics, and point to the latest chain list commits. `claim:wallet_and_frontend_updates` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_ffe6703323530bf37a5f1fe16ad5f7bf` `chunk_id=srcchunk_1b52290a6b81965db7b8b7bf15a85f75` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-10T17:57:00Z`
+- Wallets and frontends need to update the ticker to $DATA, network name to Data Network, refresh graphics, and use the latest chain list commits. `claim:wallet_and_frontend_updates` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_ffe6703323530bf37a5f1fe16ad5f7bf` `chunk_id=srcchunk_ecde68799aebcaed1428c1f3dcac755e` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-10T17:57:00Z`
 - Story will rebrand to Data. `claim:claim_1` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_8b986ab9f9c3aad3ef4d8aa25b38d77a` `chunk_id=srcchunk_684a177b695ad79b0d33f9c356c6bc1f` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-10T23:51:00Z`
 - The story and story-geth repositories will be archived; development continues in the data-network and data-network-geth forks under the piplabs organization. `claim:claim_10` `confidence:1.00`
@@ -159,12 +157,8 @@ Technical handbook documenting the rebranding from Story to Data, including toke
 - New websites replace existing Story sites; staking sites are updated to reflect the new brand. `claim:claim_9` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_8b986ab9f9c3aad3ef4d8aa25b38d77a` `chunk_id=srcchunk_684a177b695ad79b0d33f9c356c6bc1f` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-10T23:51:00Z`
 
-## Open Questions
-
-- TODO: confirm URL for WDATA migration page
-
 ## Sources
 
 - `source_document_id`: `srcdoc_595c1fb031be8bea2eb6952240911f03`
-- `source_revision_id`: `srcrev_e482ff6aea66850fc5ab1a4378d4809d`
+- `source_revision_id`: `srcrev_437d5ab97295f554a5eab803926eb9b1`
 - `source_url`: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
