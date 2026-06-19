@@ -34293,3 +34293,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c2996797831d6947b4a127cbe43f68b6
 - summary: Decision to close language contribution tasks for Hindi, Telugu, and Vietnamese after they reached 100% of the contribution target. The target was already set to 3x the requirement...
 
+## [2026-06-19T04:02:56Z] synthesis | Numo Launch Roadmap
+
+- status: published
+- slug: projects/numo-launch-roadmap
+- wiki_revision_id: wikirev_d1d50e9d0cbbb130af83f830d318b7e6
+- summary: The Numo launch roadmap plans weekly product feature and task releases starting May 27, 2026, including PDF upload, Seed Phrase, and Payments features, with community testing for p...
+
+## [2026-06-19T04:03:20Z] synthesis | Campaign Health Expansion
+
+- status: published
+- slug: projects/campaign-health-expansion
+- wiki_revision_id: wikirev_2d859aadb89ea6687f84d899188bd790
+- summary: Project to expand campaign health to include all campaigns instead of just top 3.
+

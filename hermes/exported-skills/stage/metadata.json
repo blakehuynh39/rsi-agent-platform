@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7833e0091b692fdfb8cb4f2878e8660a3805e728feae3cf72494ebc644d1a998",
-        "size": 952651
+        "sha256": "e361637a1d7eb9e59f15c8beab20dbe1b0bcace531575aa7927bc684802d58f7",
+        "size": 952921
       },
       {
         "path": "log.md",
-        "sha256": "9734d6a20da42daf953bc94ec933930aa4c88917ae75581344f9f3e11a212299",
-        "size": 1683426
+        "sha256": "b945ccdbaecdf9ecc5fa1d25536b55ea2d05703f85f4a0360c186eeaaa3cb7fe",
+        "size": 1684082
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5320,6 +5320,11 @@
         "size": 1525
       },
       {
+        "path": "pages/projects/campaign-health-expansion.md",
+        "sha256": "2cb09576e605ab693ccedad52a4258049706571666d66cfaae36b3a370288593",
+        "size": 1927
+      },
+      {
         "path": "pages/projects/community-badge.md",
         "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
         "size": 1733
@@ -5891,8 +5896,8 @@
       },
       {
         "path": "pages/projects/numo-launch-roadmap.md",
-        "sha256": "22f0da691ed4e4fa296247518ac5d6435be7d96994b2823b4d3cdd7ec0b9c3de",
-        "size": 62780
+        "sha256": "623cbacf76036b48782804440333bb15d89eabf390552770e930e0dc2e994163",
+        "size": 6683
       },
       {
         "path": "pages/projects/numo-migration-ancillary-services.md",
@@ -7719,8 +7724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T03:53:57Z",
-  "file_count": 1542,
+  "exported_at": "2026-06-19T04:05:45Z",
+  "file_count": 1543,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10997,7 +11002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "572fa2b1ff50e2325e8c965b1e01b574cef3a021dc8971ed8334d7d09940cbee",
+  "previous_tree_hash": "ff5df8b6503185576fab006e19de743b55216c29b883348c6fc59dd0d6bb27f8",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11010,14 +11015,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ff5df8b6503185576fab006e19de743b55216c29b883348c6fc59dd0d6bb27f8",
+  "tree_hash": "7de99a6ba7f87057bdc45d4bcdce3aff8ad3c6c4be7de711ed651441fbe7af1b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 888,
+  "wiki_file_count": 889,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11026,13 +11031,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7833e0091b692fdfb8cb4f2878e8660a3805e728feae3cf72494ebc644d1a998",
-      "size": 952651
+      "sha256": "e361637a1d7eb9e59f15c8beab20dbe1b0bcace531575aa7927bc684802d58f7",
+      "size": 952921
     },
     {
       "path": "log.md",
-      "sha256": "9734d6a20da42daf953bc94ec933930aa4c88917ae75581344f9f3e11a212299",
-      "size": 1683426
+      "sha256": "b945ccdbaecdf9ecc5fa1d25536b55ea2d05703f85f4a0360c186eeaaa3cb7fe",
+      "size": 1684082
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13065,6 +13070,11 @@
       "size": 1525
     },
     {
+      "path": "pages/projects/campaign-health-expansion.md",
+      "sha256": "2cb09576e605ab693ccedad52a4258049706571666d66cfaae36b3a370288593",
+      "size": 1927
+    },
+    {
       "path": "pages/projects/community-badge.md",
       "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
       "size": 1733
@@ -13636,8 +13646,8 @@
     },
     {
       "path": "pages/projects/numo-launch-roadmap.md",
-      "sha256": "22f0da691ed4e4fa296247518ac5d6435be7d96994b2823b4d3cdd7ec0b9c3de",
-      "size": 62780
+      "sha256": "623cbacf76036b48782804440333bb15d89eabf390552770e930e0dc2e994163",
+      "size": 6683
     },
     {
       "path": "pages/projects/numo-migration-ancillary-services.md",
@@ -15461,5 +15471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1c259194462a43e7c97b440b3ced8c3d8d87c69c9e1e2169d692975999954a7f"
+  "wiki_tree_hash": "5772ac7455bc38b4baa5383592f8982e2b6dbaa1a84e1595cecf44f477e6905a"
 }
