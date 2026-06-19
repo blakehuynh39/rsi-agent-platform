@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b2bec721f0a35346d0ed1b74d3b4cb6077c8e22bda0b601ef14c9b92352aac7c",
-        "size": 1716248
+        "sha256": "dd3f1056d45742cb0019f8a9ba3b9ce1665a611e8b618a72cf0fb2a3409282f5",
+        "size": 1717295
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4665,6 +4665,11 @@
         "size": 5812
       },
       {
+        "path": "pages/decisions/localization-language-coverage.md",
+        "sha256": "fca2accb4bc2bcaceb2603f3a0e6a62fa27f8c599cf03a11be99251dbd1b5073",
+        "size": 1619
+      },
+      {
         "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
         "sha256": "322bb094afc67d8f2293e35ad79ac2fa972d5d7fb5185413e4573881fd226a85",
         "size": 1329
@@ -6030,6 +6035,11 @@
         "size": 3720
       },
       {
+        "path": "pages/projects/localization-initiative.md",
+        "sha256": "f6ae5a4272e21c1e7eeb3b43223d9f073084e5b283b39a24de846826c153b94b",
+        "size": 3385
+      },
+      {
         "path": "pages/projects/mainnet-api.md",
         "sha256": "815357e6ac3d8b643995bc6839096a0d49d73aff207de5a18fbf735ffe65f1c5",
         "size": 4023
@@ -7068,6 +7078,11 @@
         "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
         "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
         "size": 4822
+      },
+      {
+        "path": "pages/runbooks/frontend-localization-with-lingui.md",
+        "sha256": "0a00175c06d223aed15ccffa712a8a41da6951ed50e7ca3d4ae6b85913332022",
+        "size": 3207
       },
       {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
@@ -8134,8 +8149,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T16:20:50Z",
-  "file_count": 1625,
+  "exported_at": "2026-06-19T16:32:40Z",
+  "file_count": 1628,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11412,7 +11427,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a9eb81fa63517f483fea812740108d2ecf5c360b3fc2593e583f2fed57718b26",
+  "previous_tree_hash": "5d90c9dc6ff4cb2b5ec0c1802ac61dd1fb26cbc42bb469623174f2e32a56557a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11425,14 +11440,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5d90c9dc6ff4cb2b5ec0c1802ac61dd1fb26cbc42bb469623174f2e32a56557a",
+  "tree_hash": "4dacd1eff207a2b1dcbb7288cc37a47f1f79af0229e2d3f5f8fa609e522bbabb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 971,
+  "wiki_file_count": 974,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11446,8 +11461,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b2bec721f0a35346d0ed1b74d3b4cb6077c8e22bda0b601ef14c9b92352aac7c",
-      "size": 1716248
+      "sha256": "dd3f1056d45742cb0019f8a9ba3b9ce1665a611e8b618a72cf0fb2a3409282f5",
+      "size": 1717295
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12825,6 +12840,11 @@
       "size": 5812
     },
     {
+      "path": "pages/decisions/localization-language-coverage.md",
+      "sha256": "fca2accb4bc2bcaceb2603f3a0e6a62fa27f8c599cf03a11be99251dbd1b5073",
+      "size": 1619
+    },
+    {
       "path": "pages/decisions/merge-ga-properties-for-e2e-tracking.md",
       "sha256": "322bb094afc67d8f2293e35ad79ac2fa972d5d7fb5185413e4573881fd226a85",
       "size": 1329
@@ -14190,6 +14210,11 @@
       "size": 3720
     },
     {
+      "path": "pages/projects/localization-initiative.md",
+      "sha256": "f6ae5a4272e21c1e7eeb3b43223d9f073084e5b283b39a24de846826c153b94b",
+      "size": 3385
+    },
+    {
       "path": "pages/projects/mainnet-api.md",
       "sha256": "815357e6ac3d8b643995bc6839096a0d49d73aff207de5a18fbf735ffe65f1c5",
       "size": 4023
@@ -15228,6 +15253,11 @@
       "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
       "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
       "size": 4822
+    },
+    {
+      "path": "pages/runbooks/frontend-localization-with-lingui.md",
+      "sha256": "0a00175c06d223aed15ccffa712a8a41da6951ed50e7ca3d4ae6b85913332022",
+      "size": 3207
     },
     {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
@@ -16291,5 +16321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d83344dacc42dbffa18f6326294ba582c3ef3f2bd4523eabdc3231520613faad"
+  "wiki_tree_hash": "4fce96ffece0c35c5190a16c710d5ef8b79ac5874a52293e9cb622f29cd0db51"
 }

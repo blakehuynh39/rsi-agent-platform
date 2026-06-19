@@ -34917,3 +34917,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0d7b8efe59874d455c53fb323be8f982
 - summary: Decision to automatically attribute Poseidon user multipliers using an email whitelist, with login page reminders.
 
+## [2026-06-19T16:31:46Z] synthesis | Localization Initiative
+
+- status: published
+- slug: projects/localization-initiative
+- wiki_revision_id: wikirev_dc2302651c84dbdf265db6d38386409d
+- summary: Project to localize the product into multiple languages, including frontend translation using lingui and voice agents via ElevenLabs. Involves recruiting testers via Upwork and col...
+
+## [2026-06-19T16:31:46Z] synthesis | Frontend Localization Runbook
+
+- status: published
+- slug: runbooks/frontend-localization-with-lingui
+- wiki_revision_id: wikirev_b8353133d17ad82d7af4fa75ab6f194f
+- summary: Step-by-step process to add translations using lingui and configure ElevenLabs agents for voice localization.
+
+## [2026-06-19T16:31:47Z] synthesis | Localization Language Coverage Decision
+
+- status: published
+- slug: decisions/localization-language-coverage
+- wiki_revision_id: wikirev_c7555bc8f9728fd27b504265072bcecb
+- summary: Decision to prioritize hiring testers for Filipino, as internal team members already cover Korean, Vietnamese, and Hindi.
+
+## [2026-06-19T16:33:06Z] synthesis | Depin App Transcript Bucket
+
+- status: published
+- slug: systems/depin-app-transcript-bucket
+- wiki_revision_id: wikirev_60062b55198b3344730251f08cbd1149
+- summary: Cloudflare R2 bucket containing 350,000 transcripts per language for the depin app, used as a source for multi-language seed phrases.
+
+## [2026-06-19T16:33:06Z] synthesis | Multi-language Seedphrase Reintroduction
+
+- status: published
+- slug: projects/multi-language-seedphrase-reintroduction
+- wiki_revision_id: wikirev_e66cd2f2a64834e38b8234b9e9fc28b9
+- summary: Project to reintroduce seed phrases in multiple languages (English + 4 Indic languages), using transcripts from the depin app transcript bucket.
+
