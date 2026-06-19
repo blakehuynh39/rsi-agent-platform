@@ -680,7 +680,12 @@ class HermesRuntimeTests(unittest.TestCase):
         FakeObservationSinkConnection.requests = []
         with mock.patch.dict(
             os.environ,
-            {**runner_env("prod"), "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations"},
+            {
+                **runner_env("prod"),
+                "RSI_RUNTIME_OBSERVATION_SINK_URL": "http://control-plane.internal:8080/internal/runtime/observations",
+                "RSI_HERMES_EXECUTOR_INSTANCE_ID": "executor-pod-1",
+                "POD_UID": "pod-uid-1",
+            },
             clear=True,
         ), mock.patch("rsi_runner.observability.http.client.HTTPConnection", FakeObservationSinkConnection):
             config = RunnerConfig.from_env()
@@ -705,6 +710,8 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertEqual(body["trace_id"], "trace-obs")
         self.assertEqual(body["event_type"], "model.reasoning.delta")
         self.assertEqual(body["payload"]["delta"], "hello")
+        self.assertEqual(body["payload"]["executor_instance_id"], "executor-pod-1")
+        self.assertEqual(body["payload"]["pod_uid"], "pod-uid-1")
 
     def test_observation_emitter_batches_high_volume_deltas(self) -> None:
         FakeObservationSinkConnection.requests = []

@@ -290,14 +290,39 @@ func NewRouter(cfg config.Config, store storepkg.Repository) http.Handler {
 	r.Get("/internal/executions/active", func(w http.ResponseWriter, r *http.Request) {
 		active := lifecycle.reconcileStaleActiveExecutions()
 		status := http.StatusOK
-		if strings.EqualFold(cfg.DeploymentActiveExecutionPolicy, "block") && len(active) > 0 {
+		deploymentPolicy := strings.TrimSpace(r.URL.Query().Get("policy"))
+		if deploymentPolicy == "" {
+			deploymentPolicy = cfg.DeploymentActiveExecutionPolicy
+		}
+		blocked := strings.EqualFold(deploymentPolicy, "block") && len(active) > 0
+		blockingExecutorInstanceIDs := map[string]struct{}{}
+		blockingExecutorBaseURLs := map[string]struct{}{}
+		for _, execution := range active {
+			if value := strings.TrimSpace(execution.ExecutorInstanceID); value != "" {
+				blockingExecutorInstanceIDs[value] = struct{}{}
+			}
+			if value := strings.TrimSpace(execution.ExecutorBaseURL); value != "" {
+				blockingExecutorBaseURLs[value] = struct{}{}
+			}
+		}
+		payload := map[string]any{
+			"active_execution_count":          len(active),
+			"executions":                      active,
+			"deployment_policy":               deploymentPolicy,
+			"configured_deployment_policy":    cfg.DeploymentActiveExecutionPolicy,
+			"deployment_blocked":              blocked,
+			"blocking_executor_instance_ids":  sortedSetKeys(blockingExecutorInstanceIDs),
+			"blocking_executor_base_urls":     sortedSetKeys(blockingExecutorBaseURLs),
+			"active_execution_rollout_policy": "do_not_terminate_active_executor_pods",
+		}
+		if blocked {
+			payload["block_reason"] = "blocked_by_active_executions"
+			payload["message"] = "deployment is blocked because RSI runner executions are active"
+		}
+		if blocked {
 			status = http.StatusConflict
 		}
-		app.WriteJSON(w, status, map[string]any{
-			"active_execution_count": len(active),
-			"executions":             active,
-			"deployment_policy":      cfg.DeploymentActiveExecutionPolicy,
-		})
+		app.WriteJSON(w, status, payload)
 	})
 	r.Post("/internal/runner-executions/{executionID}/heartbeat", func(w http.ResponseWriter, r *http.Request) {
 		executionID := chi.URLParam(r, "executionID")

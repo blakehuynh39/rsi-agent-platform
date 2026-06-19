@@ -798,15 +798,17 @@ func TestInternalActiveExecutionsBlocksDeploymentWhenPolicyRequiresIt(t *testing
 	store := storepkg.NewMemoryStore()
 	now := time.Now().UTC()
 	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
-		ExecutionID: "hexec-active",
-		OperationID: "eff-active",
-		WorkflowID:  "wf-active",
-		TraceID:     "trace-active",
-		CaseID:      "case-active",
-		Status:      "running",
-		HeartbeatAt: &now,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		ExecutionID:        "hexec-active",
+		OperationID:        "eff-active",
+		WorkflowID:         "wf-active",
+		TraceID:            "trace-active",
+		CaseID:             "case-active",
+		ExecutorInstanceID: "executor-pod-1",
+		ExecutorBaseURL:    "http://executor-1:8090",
+		Status:             "running",
+		HeartbeatAt:        &now,
+		CreatedAt:          now,
+		UpdatedAt:          now,
 	}); err != nil {
 		t.Fatalf("RecordRunnerExecution() error = %v", err)
 	}
@@ -831,6 +833,57 @@ func TestInternalActiveExecutionsBlocksDeploymentWhenPolicyRequiresIt(t *testing
 	}
 	if payload["deployment_policy"] != "block" {
 		t.Fatalf("deployment_policy = %#v, want block", payload["deployment_policy"])
+	}
+	if payload["deployment_blocked"] != true || payload["block_reason"] != "blocked_by_active_executions" {
+		t.Fatalf("unexpected deployment block metadata: %#v", payload)
+	}
+	instanceIDs, ok := payload["blocking_executor_instance_ids"].([]any)
+	if !ok || len(instanceIDs) != 1 || instanceIDs[0] != "executor-pod-1" {
+		t.Fatalf("blocking_executor_instance_ids = %#v, want executor-pod-1", payload["blocking_executor_instance_ids"])
+	}
+	baseURLs, ok := payload["blocking_executor_base_urls"].([]any)
+	if !ok || len(baseURLs) != 1 || baseURLs[0] != "http://executor-1:8090" {
+		t.Fatalf("blocking_executor_base_urls = %#v, want http://executor-1:8090", payload["blocking_executor_base_urls"])
+	}
+}
+
+func TestInternalActiveExecutionsCanForceBlockPolicyForDeployGate(t *testing.T) {
+	store := storepkg.NewMemoryStore()
+	now := time.Now().UTC()
+	if _, err := store.RecordRunnerExecution(storepkg.RunnerExecution{
+		ExecutionID:        "hexec-active-forced-policy",
+		OperationID:        "eff-active-forced-policy",
+		WorkflowID:         "wf-active-forced-policy",
+		TraceID:            "trace-active-forced-policy",
+		ExecutorInstanceID: "executor-pod-2",
+		Status:             "running",
+		HeartbeatAt:        &now,
+		CreatedAt:          now,
+		UpdatedAt:          now,
+	}); err != nil {
+		t.Fatalf("RecordRunnerExecution() error = %v", err)
+	}
+	router := NewRouter(config.Config{
+		ServiceName:                     "control-plane",
+		Environment:                     "development",
+		DeploymentActiveExecutionPolicy: "drain",
+	}, store)
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/executions/active?policy=block", nil))
+
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("status = %d, want %d; body=%s", rec.Code, http.StatusConflict, rec.Body.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("Unmarshal() error = %v", err)
+	}
+	if payload["deployment_policy"] != "block" || payload["configured_deployment_policy"] != "drain" {
+		t.Fatalf("unexpected policy metadata: %#v", payload)
+	}
+	if payload["block_reason"] != "blocked_by_active_executions" {
+		t.Fatalf("block_reason = %#v, want blocked_by_active_executions", payload["block_reason"])
 	}
 }
 

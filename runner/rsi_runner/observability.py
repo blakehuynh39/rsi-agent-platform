@@ -5,6 +5,7 @@ import hashlib
 import http.client
 import json
 import logging
+import os
 import queue
 import threading
 import time
@@ -95,6 +96,12 @@ class ObservationEmitter:
     def emit(self, *, phase: str, event_type: str, status: str = "", payload: JsonObject | None = None) -> None:
         with self._lock:
             self.seq += 1
+            observation_payload = dict(payload or {})
+            if self.config.executor_instance_id:
+                observation_payload.setdefault("executor_instance_id", self.config.executor_instance_id)
+            pod_uid = _string(os.getenv("POD_UID"))
+            if pod_uid:
+                observation_payload.setdefault("pod_uid", pod_uid)
             item: JsonObject = {
                 "execution_id": self.execution_id,
                 "operation_id": self.operation_id,
@@ -106,7 +113,7 @@ class ObservationEmitter:
                 "event_type": _string(event_type),
                 "status": _string(status),
                 "seq": self.seq,
-                "payload": payload or {},
+                "payload": observation_payload,
                 "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "invocation_id": self.invocation_id,
             }
