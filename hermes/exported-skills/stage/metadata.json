@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "19998210eca72e3c486d175b6c45de876392af11ab6a789767a32d6c937b0aab",
-        "size": 966697
+        "sha256": "24015a4af0eea27215704fb0e374614d9d38d60e1abb43182cf6f886df5f5969",
+        "size": 967421
       },
       {
         "path": "log.md",
-        "sha256": "d64edafca950f21b019e5968cfb1e8bdbd99fb25545cd03c6748338d578e7103",
-        "size": 1699733
+        "sha256": "a7fed08243c4a73904d7887cd645490d77c7b54d87e96276401744defcbc770f",
+        "size": 1700127
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4478,6 +4478,11 @@
         "path": "pages/decisions/elevenlabs-api-account-management-for-story-poseidon.md",
         "sha256": "d1e685ea97cb77fe858eea986597d9c0c39eaac0b5f95c2e8c1bce0aa6f6dc5a",
         "size": 2721
+      },
+      {
+        "path": "pages/decisions/file-pre-commit-task-decision.md",
+        "sha256": "7ea5366ddb90d62d1449a9bedbed0d8e09659a93dbde7b508b497c4ab3895b3c",
+        "size": 6529
       },
       {
         "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
@@ -7919,8 +7924,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T10:02:43Z",
-  "file_count": 1582,
+  "exported_at": "2026-06-19T10:09:23Z",
+  "file_count": 1583,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11197,7 +11202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4462e865c85893f5b6d06f6d805ea16a0dbfbf73f7ce3a5f282a3aa386a13742",
+  "previous_tree_hash": "c865cbab6d9e10c05b45e15b8e50c740fb1b3d733037d161bac251700c8807f4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11210,14 +11215,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c865cbab6d9e10c05b45e15b8e50c740fb1b3d733037d161bac251700c8807f4",
+  "tree_hash": "34d07f41b5abd1a6e1f1d4a697f0d08763b4963ca0deafe2f3501323a3d6069a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 928,
+  "wiki_file_count": 929,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11226,13 +11231,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "19998210eca72e3c486d175b6c45de876392af11ab6a789767a32d6c937b0aab",
-      "size": 966697
+      "sha256": "24015a4af0eea27215704fb0e374614d9d38d60e1abb43182cf6f886df5f5969",
+      "size": 967421
     },
     {
       "path": "log.md",
-      "sha256": "d64edafca950f21b019e5968cfb1e8bdbd99fb25545cd03c6748338d578e7103",
-      "size": 1699733
+      "sha256": "a7fed08243c4a73904d7887cd645490d77c7b54d87e96276401744defcbc770f",
+      "size": 1700127
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12423,6 +12428,11 @@
       "path": "pages/decisions/elevenlabs-api-account-management-for-story-poseidon.md",
       "sha256": "d1e685ea97cb77fe858eea986597d9c0c39eaac0b5f95c2e8c1bce0aa6f6dc5a",
       "size": 2721
+    },
+    {
+      "path": "pages/decisions/file-pre-commit-task-decision.md",
+      "sha256": "7ea5366ddb90d62d1449a9bedbed0d8e09659a93dbde7b508b497c4ab3895b3c",
+      "size": 6529
     },
     {
       "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
@@ -15861,5 +15871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "16712c22cd523414a51c5d2999966dad17bcbc682e9f4614d09ec97a58cf2024"
+  "wiki_tree_hash": "139cd31321a52d1b12a5e59729bf2e0b532fecde1a6a65a37e47205980aa0f06"
 }

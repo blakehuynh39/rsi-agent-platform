@@ -34598,3 +34598,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d3d8640d794dbb12f5b95fe034813f33
 - summary: Cumulative platform statistics for Numo/DePIN as of May 27, 2026, including total submissions, contributors, registered users, active campaigns, and launch date.
 
+## [2026-06-19T10:04:38Z] synthesis | File Pre-commit Task Decision
+
+- status: published
+- slug: decisions/file-pre-commit-task-decision
+- wiki_revision_id: wikirev_f3355246275ad2bedafc070384393444
+- summary: Decision to launch File Pre-commit Task with Google Drive integration, focusing on US/Europe/East Asia to avoid low-quality data, initially requesting metadata access only, and usi...
+
