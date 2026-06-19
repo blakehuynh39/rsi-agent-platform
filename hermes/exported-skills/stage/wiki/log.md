@@ -35166,3 +35166,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7681a5f2ff82e88c283bfc8831ea7ded
 - summary: Discussion and initial steps toward a collaboration with Prof. Shinji Watanabe of CMU on the CHiME 9 challenge, with a focus on contributing high-quality Indian language speech dat...
 
+## [2026-06-19T19:46:17Z] synthesis | Payment Method Prioritization: Fiat vs Stablecoin
+
+- status: published
+- slug: decisions/payment-method-prioritization-decision
+- wiki_revision_id: wikirev_2064e0f19f5ef5dbc601782f9417b950
+- summary: Decision on whether to prioritize fiat or stablecoin for payouts, considering Kled intel on stablecoin usage and the upcoming launch of IPUSDC on Story chain.
+

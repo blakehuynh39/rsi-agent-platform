@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a2cf326c8fb95f0ef89feef8737e4de6092a0756b64159847224568a2afac828",
-        "size": 994435
+        "sha256": "ec9bf76ad54a61a8e70f6bd30005fd37ea9cab421d92917a6643e5f9f08637a9",
+        "size": 994821
       },
       {
         "path": "log.md",
-        "sha256": "32076115bc375e6c055da50bd583b37c7bf2e7d27c4326f0985343a593dc1093",
-        "size": 1729668
+        "sha256": "f49259b1dc56b31723ffe5d4326ed2518e731f84178028ab8cbddea079003f3f",
+        "size": 1730066
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4803,6 +4803,11 @@
         "path": "pages/decisions/pausability-design.md",
         "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
         "size": 4556
+      },
+      {
+        "path": "pages/decisions/payment-method-prioritization-decision.md",
+        "sha256": "8e02ba53f5356c779408105b02319ef203b0f4446545d8e529a5cbf71859f2d3",
+        "size": 3776
       },
       {
         "path": "pages/decisions/payment-rollout-call-async-decision.md",
@@ -8299,8 +8304,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T19:35:36Z",
-  "file_count": 1658,
+  "exported_at": "2026-06-19T19:47:03Z",
+  "file_count": 1659,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11577,7 +11582,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "4e20bec1db4234603525d2e003e7d9fc561c225f9a571227585b27a9a625d48e",
+  "previous_tree_hash": "f470a7ab553011eefc2278b128e07c12449f3b0e5624dbc1cae616aec27e1020",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11590,14 +11595,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f470a7ab553011eefc2278b128e07c12449f3b0e5624dbc1cae616aec27e1020",
+  "tree_hash": "bf2759059514b1c0d649a8d57bc8a7134463bb846edac114eab9a5fe9cd777eb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1004,
+  "wiki_file_count": 1005,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11606,13 +11611,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a2cf326c8fb95f0ef89feef8737e4de6092a0756b64159847224568a2afac828",
-      "size": 994435
+      "sha256": "ec9bf76ad54a61a8e70f6bd30005fd37ea9cab421d92917a6643e5f9f08637a9",
+      "size": 994821
     },
     {
       "path": "log.md",
-      "sha256": "32076115bc375e6c055da50bd583b37c7bf2e7d27c4326f0985343a593dc1093",
-      "size": 1729668
+      "sha256": "f49259b1dc56b31723ffe5d4326ed2518e731f84178028ab8cbddea079003f3f",
+      "size": 1730066
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13128,6 +13133,11 @@
       "path": "pages/decisions/pausability-design.md",
       "sha256": "36dccb5464eb6388960dfa9bfd1d0441d23b295b10490c92ae8b10b8535c7b9d",
       "size": 4556
+    },
+    {
+      "path": "pages/decisions/payment-method-prioritization-decision.md",
+      "sha256": "8e02ba53f5356c779408105b02319ef203b0f4446545d8e529a5cbf71859f2d3",
+      "size": 3776
     },
     {
       "path": "pages/decisions/payment-rollout-call-async-decision.md",
@@ -16621,5 +16631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e443f05b32f35a2e1b6dfe5d2bfd3238e94577b451f3d6f5740349dd7f6e7a20"
+  "wiki_tree_hash": "982b4c2a2f2e5c2ed5746e196a91e5d6dea4c9859590f8616cb33ddfd4d0109f"
 }
