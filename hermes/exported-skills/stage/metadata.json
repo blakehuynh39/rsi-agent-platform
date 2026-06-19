@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1c6ac2002304c3ce89660d1ee73df061913c82c1bf8f38175996972062256b4d",
-        "size": 953295
+        "sha256": "30fa002509e65149ec88d379efcfdd0a2f4dfb588ee285c8a4b7140a2c0b860a",
+        "size": 953716
       },
       {
         "path": "log.md",
-        "sha256": "00f865194f0ab3f808702eba71442a7f4c59c771ccc8286176e95b7dcf3a94d5",
-        "size": 1684468
+        "sha256": "ff10bc6ae0c3d341e8120544d9bf1c3678e2b17a5cd852061d84c83dc70ddc05",
+        "size": 1684901
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3963,6 +3963,11 @@
         "path": "pages/concepts/package-frontend-story-telling-examples.md",
         "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
         "size": 1415
+      },
+      {
+        "path": "pages/concepts/palo-alto-offsite-second-week-logistics.md",
+        "sha256": "37b06c0af5e9d0db56e38d0bb55f2812edabf3edca30e96dfb86dd32404bdc12",
+        "size": 3728
       },
       {
         "path": "pages/concepts/parallax-scrolling-resource.md",
@@ -7729,8 +7734,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T04:24:09Z",
-  "file_count": 1544,
+  "exported_at": "2026-06-19T04:35:50Z",
+  "file_count": 1545,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11007,7 +11012,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "0e12c90082cd4d0ee804d4a58fb608a9964aca79533e345bf282e178830f27cd",
+  "previous_tree_hash": "1610d35316b43b5aaab40fa708ae8a3626fd75ce4fcca534dfea253e28d8793d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11020,14 +11025,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1610d35316b43b5aaab40fa708ae8a3626fd75ce4fcca534dfea253e28d8793d",
+  "tree_hash": "b724ba912ff1768958d260e8d70682584dced24d0fe7ee463150085f1ee28f92",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 890,
+  "wiki_file_count": 891,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11036,13 +11041,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1c6ac2002304c3ce89660d1ee73df061913c82c1bf8f38175996972062256b4d",
-      "size": 953295
+      "sha256": "30fa002509e65149ec88d379efcfdd0a2f4dfb588ee285c8a4b7140a2c0b860a",
+      "size": 953716
     },
     {
       "path": "log.md",
-      "sha256": "00f865194f0ab3f808702eba71442a7f4c59c771ccc8286176e95b7dcf3a94d5",
-      "size": 1684468
+      "sha256": "ff10bc6ae0c3d341e8120544d9bf1c3678e2b17a5cd852061d84c83dc70ddc05",
+      "size": 1684901
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11718,6 +11723,11 @@
       "path": "pages/concepts/package-frontend-story-telling-examples.md",
       "sha256": "52f75c8af75ac679dac435639d64044d2a3a8cf2ecddd4e988f0b2018c42b374",
       "size": 1415
+    },
+    {
+      "path": "pages/concepts/palo-alto-offsite-second-week-logistics.md",
+      "sha256": "37b06c0af5e9d0db56e38d0bb55f2812edabf3edca30e96dfb86dd32404bdc12",
+      "size": 3728
     },
     {
       "path": "pages/concepts/parallax-scrolling-resource.md",
@@ -15481,5 +15491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bb88fb205f6d1fabb66fd894f1000bc709bf43a33d5b950684b44218ab73d41e"
+  "wiki_tree_hash": "06f9882a33ed1473b2981f577c070626641cfe14427346c37611765ed6b97681"
 }

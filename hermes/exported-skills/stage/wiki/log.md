@@ -34314,3 +34314,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_839073a0bb402a54b1c007f0952958eb
 - summary: Project to create and review word pools for generating seed phrases in Bengali, Hindi, Telugu, and Tamil, with initial review and expansion to 500 words per language.
 
+## [2026-06-19T04:31:57Z] synthesis | Palo Alto Offsite Second Week (May 15-22) - Logistics Issue
+
+- status: published
+- slug: concepts/palo-alto-offsite-second-week-logistics
+- wiki_revision_id: wikirev_9d0339517a27af10e60de1b96ca4c697
+- summary: The second week of the offsite (May 15-22) faces hotel booking difficulties due to high prices from conflicting events. Organizers are assessing whether to cancel that week. Attend...
+
