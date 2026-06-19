@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e64667664e7b03e242675e156e013e6cc63b9861369c67c4973c652d2f926cf8",
-        "size": 964891
+        "sha256": "a9063ec40247d457876c7908104117cdde0222279fe91f1f8716c1bbd67e52d4",
+        "size": 965633
       },
       {
         "path": "log.md",
-        "sha256": "8a22d80f8d5257d06c60703a52787790b381dcb44e5c7e3e715f93de999c057c",
-        "size": 1697915
+        "sha256": "92c1ba2a03e6e0ff9848f755f1cd278bdf533637dbc1e7f5df0899d9df5e4150",
+        "size": 1698280
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4763,6 +4763,11 @@
         "path": "pages/decisions/story-to-data-rebranding.md",
         "sha256": "10def2714dab728fae634f3d4ca912b694a71473f44a38563aff4b89a1ffe87b",
         "size": 5613
+      },
+      {
+        "path": "pages/decisions/stripe-live-branding-numo.md",
+        "sha256": "89480cda4bf3a771b8244994c386c2b4a357a55eae62bc4fee27e7f2dd6fdaf3",
+        "size": 4733
       },
       {
         "path": "pages/decisions/stripe-payouts-integration.md",
@@ -7894,8 +7899,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T09:19:00Z",
-  "file_count": 1577,
+  "exported_at": "2026-06-19T09:25:46Z",
+  "file_count": 1578,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11172,7 +11177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "6945d26574b1f48e82e5a7336e00674a4a2479aed4609f974482d8c2ab491d00",
+  "previous_tree_hash": "ae6537086a9328f2acf4c253549d4cdaa4afb1997327ee6e572c2c844a0dda1d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11185,14 +11190,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ae6537086a9328f2acf4c253549d4cdaa4afb1997327ee6e572c2c844a0dda1d",
+  "tree_hash": "f8fb4da7ef0e17ec581253d78317163e3f95ae764ae4b3c035f8f376c2f45735",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 923,
+  "wiki_file_count": 924,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11201,13 +11206,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e64667664e7b03e242675e156e013e6cc63b9861369c67c4973c652d2f926cf8",
-      "size": 964891
+      "sha256": "a9063ec40247d457876c7908104117cdde0222279fe91f1f8716c1bbd67e52d4",
+      "size": 965633
     },
     {
       "path": "log.md",
-      "sha256": "8a22d80f8d5257d06c60703a52787790b381dcb44e5c7e3e715f93de999c057c",
-      "size": 1697915
+      "sha256": "92c1ba2a03e6e0ff9848f755f1cd278bdf533637dbc1e7f5df0899d9df5e4150",
+      "size": 1698280
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12683,6 +12688,11 @@
       "path": "pages/decisions/story-to-data-rebranding.md",
       "sha256": "10def2714dab728fae634f3d4ca912b694a71473f44a38563aff4b89a1ffe87b",
       "size": 5613
+    },
+    {
+      "path": "pages/decisions/stripe-live-branding-numo.md",
+      "sha256": "89480cda4bf3a771b8244994c386c2b4a357a55eae62bc4fee27e7f2dd6fdaf3",
+      "size": 4733
     },
     {
       "path": "pages/decisions/stripe-payouts-integration.md",
@@ -15811,5 +15821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d4df9f357551a9a76e6c5e2772fce3977d046c5ada555e8c5aac2529b80f3ec9"
+  "wiki_tree_hash": "5bb63d648800aad621739384fba0d7a2a8de6eef912a5bb5a3d71f1b67d0c68e"
 }
