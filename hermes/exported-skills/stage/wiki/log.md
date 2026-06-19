@@ -35173,3 +35173,26 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2064e0f19f5ef5dbc601782f9417b950
 - summary: Decision on whether to prioritize fiat or stablecoin for payouts, considering Kled intel on stablecoin usage and the upcoming launch of IPUSDC on Story chain.
 
+## [2026-06-19T20:00:23Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_d756d24a583447e76b3bf46e0a07e811
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_d6b44dff0d0ef10b3e401fe698b9d007
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
+## [2026-06-19T20:02:26Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_61be0218f6971b8bef399c6e591fd1d9
+- summary: The Lion Team is an engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. It includes sub-page...
+
+## [2026-06-19T20:02:27Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: systems/data-migration-technical-handbook
+- wiki_revision_id: wikirev_073d1034ab11105c25f0d4f0c0fb067a
+- summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
+

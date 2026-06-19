@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ec9bf76ad54a61a8e70f6bd30005fd37ea9cab421d92917a6643e5f9f08637a9",
+        "sha256": "acf229632fa8101cfd2155559273d0a6edc57fe8ab4129d6beacc53cea7d4a6f",
         "size": 994821
       },
       {
         "path": "log.md",
-        "sha256": "f49259b1dc56b31723ffe5d4326ed2518e731f84178028ab8cbddea079003f3f",
-        "size": 1730066
+        "sha256": "8f865df46ef68e17b3771109758d34d645303bb557735e65fab7e8d7dcb62871",
+        "size": 1731327
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6121,8 +6121,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "945826496afd5601f00dd4c7e714ad84d12f3aa4d856fa874266f54475b580f6",
-        "size": 17276
+        "sha256": "d6d6acf029877d50d1cbbff8a02075089a66d6e4af3bcc1ca05d8e2efaa1c1ce",
+        "size": 22279
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -7736,8 +7736,8 @@
       },
       {
         "path": "pages/systems/data-migration-technical-handbook.md",
-        "sha256": "264cddc8a0393432364e609cc7d4e6236595f7f8f95266680770f54d5f641601",
-        "size": 41006
+        "sha256": "31af887dff81ca4d20cd21d8747ec3a79e71c653b9262ebe61efa211137b72e0",
+        "size": 44803
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
@@ -8304,7 +8304,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T19:47:03Z",
+  "exported_at": "2026-06-19T20:03:36Z",
   "file_count": 1659,
   "files": [
     {
@@ -11582,7 +11582,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "f470a7ab553011eefc2278b128e07c12449f3b0e5624dbc1cae616aec27e1020",
+  "previous_tree_hash": "bf2759059514b1c0d649a8d57bc8a7134463bb846edac114eab9a5fe9cd777eb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11595,7 +11595,7 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bf2759059514b1c0d649a8d57bc8a7134463bb846edac114eab9a5fe9cd777eb",
+  "tree_hash": "d389f67169f5d81635b8b2efb9c62282935d18ed6ccf5749c6946d8f29048ccd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -11611,13 +11611,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ec9bf76ad54a61a8e70f6bd30005fd37ea9cab421d92917a6643e5f9f08637a9",
+      "sha256": "acf229632fa8101cfd2155559273d0a6edc57fe8ab4129d6beacc53cea7d4a6f",
       "size": 994821
     },
     {
       "path": "log.md",
-      "sha256": "f49259b1dc56b31723ffe5d4326ed2518e731f84178028ab8cbddea079003f3f",
-      "size": 1730066
+      "sha256": "8f865df46ef68e17b3771109758d34d645303bb557735e65fab7e8d7dcb62871",
+      "size": 1731327
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14451,8 +14451,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "945826496afd5601f00dd4c7e714ad84d12f3aa4d856fa874266f54475b580f6",
-      "size": 17276
+      "sha256": "d6d6acf029877d50d1cbbff8a02075089a66d6e4af3bcc1ca05d8e2efaa1c1ce",
+      "size": 22279
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -16066,8 +16066,8 @@
     },
     {
       "path": "pages/systems/data-migration-technical-handbook.md",
-      "sha256": "264cddc8a0393432364e609cc7d4e6236595f7f8f95266680770f54d5f641601",
-      "size": 41006
+      "sha256": "31af887dff81ca4d20cd21d8747ec3a79e71c653b9262ebe61efa211137b72e0",
+      "size": 44803
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
@@ -16631,5 +16631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "982b4c2a2f2e5c2ed5746e196a91e5d6dea4c9859590f8616cb33ddfd4d0109f"
+  "wiki_tree_hash": "577ed95f3536a87b680b6d75fd6cab1eb78ca4b299aa2eb04fd766b0acfce573"
 }
