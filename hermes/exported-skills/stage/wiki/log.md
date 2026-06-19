@@ -34237,3 +34237,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7913c3a80fc30de697cee2496d72b6c3
 - summary: Technical handbook documenting the rebranding from Story to Data, including token renaming, domain transitions, chain ID stability, WDATA deployment, and guidelines for exchanges, ...
 
+## [2026-06-19T03:02:07Z] synthesis | Tagalog vs Filipino Language Distinction
+
+- status: published
+- slug: concepts/tagalog-vs-filipino-language-distinction
+- wiki_revision_id: wikirev_2940183d16fe2191955ff186198c9f7f
+- summary: Explanation of the linguistic, political, and practical differences between Tagalog and Filipino, as discussed by the team.
+

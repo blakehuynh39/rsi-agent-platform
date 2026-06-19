@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "13f4c10aee90350b586faf3cf929fd447444230a32f71df80f8dec4b64f616e3",
-        "size": 1680432
+        "sha256": "f3a99e19e31adf62ee0a2ff1fdec33b9b9eedbf12238fbbed87600536abbb423",
+        "size": 1680787
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4263,6 +4263,11 @@
         "path": "pages/concepts/superbridge-ui.md",
         "sha256": "ee4c1f83beb43155568fdc15ab93aec6720ebc393185291c306759ab05a7a17a",
         "size": 1943
+      },
+      {
+        "path": "pages/concepts/tagalog-vs-filipino-language-distinction.md",
+        "sha256": "995034a39469909ea90851a140fa7145d9cd46701707042f4ae49fa27f404ccc",
+        "size": 6049
       },
       {
         "path": "pages/concepts/trace-schema-v1-0.md",
@@ -7689,8 +7694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T02:26:38Z",
-  "file_count": 1536,
+  "exported_at": "2026-06-19T03:03:54Z",
+  "file_count": 1537,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10967,7 +10972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "44b65d0780efae43b880107c06e5c5a419c51a8c5198aa5833736797c77d281f",
+  "previous_tree_hash": "566f6159df99d20a2a564a90078bbed44149aee4ff50d5c5c3a16de0853f41ca",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10980,14 +10985,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "566f6159df99d20a2a564a90078bbed44149aee4ff50d5c5c3a16de0853f41ca",
+  "tree_hash": "facc37147a1f542dd9e9df2746e46cc059c9ef57b97755bac986d05a07f358db",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 882,
+  "wiki_file_count": 883,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11001,8 +11006,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "13f4c10aee90350b586faf3cf929fd447444230a32f71df80f8dec4b64f616e3",
-      "size": 1680432
+      "sha256": "f3a99e19e31adf62ee0a2ff1fdec33b9b9eedbf12238fbbed87600536abbb423",
+      "size": 1680787
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11978,6 +11983,11 @@
       "path": "pages/concepts/superbridge-ui.md",
       "sha256": "ee4c1f83beb43155568fdc15ab93aec6720ebc393185291c306759ab05a7a17a",
       "size": 1943
+    },
+    {
+      "path": "pages/concepts/tagalog-vs-filipino-language-distinction.md",
+      "sha256": "995034a39469909ea90851a140fa7145d9cd46701707042f4ae49fa27f404ccc",
+      "size": 6049
     },
     {
       "path": "pages/concepts/trace-schema-v1-0.md",
@@ -15401,5 +15411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "07235f4810c874a5e62afbccb11714bc8136bd9a978de91ac9e2f33ac744e99c"
+  "wiki_tree_hash": "269fe0179e628452f221fd98adec9468471459770169bf699f59aff5de65261e"
 }
