@@ -34163,3 +34163,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bf7610b5813eb90c6510d05021573759
 - summary: Initiative to detect deepfake certificates submitted by users using SynthID, C2PA watermark detection, and LinkedIn profile verification.
 
+## [2026-06-19T00:45:46Z] synthesis | Transcript Generation Testing Approach
+
+- status: published
+- slug: decisions/transcript-generation-testing-approach
+- wiki_revision_id: wikirev_c026af6c63199c0d12d8987297e5405b
+- summary: Decision to select transcripts where current models fail, rather than randomly, for testing transcript generation.
+

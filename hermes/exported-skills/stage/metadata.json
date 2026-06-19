@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3153af58fff89c6ef8a7a745404f92935869de365be7d129ea7e80c2050950e9",
-        "size": 1676504
+        "sha256": "1b095432cbf63f438881d75141b588aa66d11ad2b7ea5d29318939a0f88474bc",
+        "size": 1676847
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4758,6 +4758,11 @@
         "path": "pages/decisions/token-distribution-vendor.md",
         "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
         "size": 1226
+      },
+      {
+        "path": "pages/decisions/transcript-generation-testing-approach.md",
+        "sha256": "af7bf4b59c715550701f2f1a6ab0df0e39745732b879d1cc01de54cf573b0886",
+        "size": 1575
       },
       {
         "path": "pages/decisions/using-minio-for-mvp.md",
@@ -7659,8 +7664,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T00:35:47Z",
-  "file_count": 1530,
+  "exported_at": "2026-06-19T00:47:31Z",
+  "file_count": 1531,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10937,7 +10942,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4018785c48bb16d163a87f779c631d48a23e81a254136237baa96b31e70c7a69",
+  "previous_tree_hash": "b435087279ccd9bfe96d9eb320ec3f5c4b3642ded22d28e8ff597634f19dd61c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10950,14 +10955,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b435087279ccd9bfe96d9eb320ec3f5c4b3642ded22d28e8ff597634f19dd61c",
+  "tree_hash": "00da828cae54bb9b64b9be679dd27f44d2019358d4980ba990358191c45e8839",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 876,
+  "wiki_file_count": 877,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10971,8 +10976,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3153af58fff89c6ef8a7a745404f92935869de365be7d129ea7e80c2050950e9",
-      "size": 1676504
+      "sha256": "1b095432cbf63f438881d75141b588aa66d11ad2b7ea5d29318939a0f88474bc",
+      "size": 1676847
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12443,6 +12448,11 @@
       "path": "pages/decisions/token-distribution-vendor.md",
       "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
       "size": 1226
+    },
+    {
+      "path": "pages/decisions/transcript-generation-testing-approach.md",
+      "sha256": "af7bf4b59c715550701f2f1a6ab0df0e39745732b879d1cc01de54cf573b0886",
+      "size": 1575
     },
     {
       "path": "pages/decisions/using-minio-for-mvp.md",
@@ -15341,5 +15351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "60baf21ddd73a72a2b740e9341ae1412d6cc5934a0b6449b0809fedf99f68be9"
+  "wiki_tree_hash": "a4a00f3d16bb1380a0885bfb53104bb1bd0d052a71fbfc82b4216fd69d805b87"
 }
