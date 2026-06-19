@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "66f0cdee515b446617b69195c6e4caf4a934641a1b05986141bfaa28564c35b6",
+        "sha256": "4795fe1bc4c3ca87b5e89c785deab4d3b02bd72243e38ac7245c95d0ad03c6f8",
         "size": 1001739
       },
       {
         "path": "log.md",
-        "sha256": "c494c4d53573905e38258f33d378ddfa77964c49c95b8a796c9118a064a661c6",
-        "size": 1738827
+        "sha256": "a21f480f429a6f52860559e8f25dfd1f2179c81e3fb3a0dc2ba7ff1690ef2d07",
+        "size": 1739323
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8404,7 +8404,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T23:21:10Z",
+  "exported_at": "2026-06-19T23:32:39Z",
   "file_count": 1679,
   "files": [
     {
@@ -11682,7 +11682,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b4c2024de02234da101270debf880cc07ffd6669e8f9ba60de3b66d9af98f6ca",
+  "previous_tree_hash": "90e318e3ed2232323120897bed3cf2fa26cfdc8d7be80adcad1e156f9cb6de7b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11695,7 +11695,7 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "90e318e3ed2232323120897bed3cf2fa26cfdc8d7be80adcad1e156f9cb6de7b",
+  "tree_hash": "49bc95e9f5922c407faa09d208f3df0b1ef0223324151556702053a30b84f9cb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -11711,13 +11711,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "66f0cdee515b446617b69195c6e4caf4a934641a1b05986141bfaa28564c35b6",
+      "sha256": "4795fe1bc4c3ca87b5e89c785deab4d3b02bd72243e38ac7245c95d0ad03c6f8",
       "size": 1001739
     },
     {
       "path": "log.md",
-      "sha256": "c494c4d53573905e38258f33d378ddfa77964c49c95b8a796c9118a064a661c6",
-      "size": 1738827
+      "sha256": "a21f480f429a6f52860559e8f25dfd1f2179c81e3fb3a0dc2ba7ff1690ef2d07",
+      "size": 1739323
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16831,5 +16831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "79028b9da39ff6daa63478b501a81029cd55928bd1e619b0c386fbe05bd5792e"
+  "wiki_tree_hash": "03ea14ffe805f8404d8d46750900889b078109288f7b1193ff07e6c190c264af"
 }
