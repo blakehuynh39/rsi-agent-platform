@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e2094df4dea09d47feb65b83a4e78dc4d8c14481cb21f453be0d6560f9cb69da",
-        "size": 962885
+        "sha256": "a7d07356b981f2fa2c4b349adf1ce2743205d5e34c7b862b93cb3732200a6f1c",
+        "size": 963588
       },
       {
         "path": "log.md",
-        "sha256": "d650aa3659663817db677c001f6fcd4165a1f4c86cdc55fc15eb892af2a85c86",
-        "size": 1695438
+        "sha256": "7121a12a59a024bbb83a2f05dd9889847967c69ad92f9b778636e7caf8b573c5",
+        "size": 1696164
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4485,6 +4485,11 @@
         "size": 2830
       },
       {
+        "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
+        "sha256": "4fb46ce7e6c9191148b9e241eb2b614b8d62efbbc3fb485b1beedc3eb3a03f42",
+        "size": 6930
+      },
+      {
         "path": "pages/decisions/hook-registry-design.md",
         "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
         "size": 4857
@@ -5058,6 +5063,11 @@
         "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
         "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
         "size": 1054
+      },
+      {
+        "path": "pages/policies/aws-credential-management-policy.md",
+        "sha256": "e4f0fcbdcbce306a326dfe63e1b69ca4bdc6baba21a36ad5ee02fb4749165e14",
+        "size": 1591
       },
       {
         "path": "pages/policies/build-in-public-initiative.md",
@@ -7859,8 +7869,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T08:01:31Z",
-  "file_count": 1570,
+  "exported_at": "2026-06-19T08:08:14Z",
+  "file_count": 1572,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11137,7 +11147,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5e233aa8e9384806d2d43139fb3a12f6ef93e233d14e7118aa72981256c56bf9",
+  "previous_tree_hash": "c3c1efd28de5e95d461bcc4a958e7f7bae880ee031af0e2a2af918f6216c23f1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11150,14 +11160,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c3c1efd28de5e95d461bcc4a958e7f7bae880ee031af0e2a2af918f6216c23f1",
+  "tree_hash": "153d734525bdefe7999370a0a27b7ef3b565d646e25009cda1b581a2989ce1c3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 916,
+  "wiki_file_count": 918,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11166,13 +11176,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e2094df4dea09d47feb65b83a4e78dc4d8c14481cb21f453be0d6560f9cb69da",
-      "size": 962885
+      "sha256": "a7d07356b981f2fa2c4b349adf1ce2743205d5e34c7b862b93cb3732200a6f1c",
+      "size": 963588
     },
     {
       "path": "log.md",
-      "sha256": "d650aa3659663817db677c001f6fcd4165a1f4c86cdc55fc15eb892af2a85c86",
-      "size": 1695438
+      "sha256": "7121a12a59a024bbb83a2f05dd9889847967c69ad92f9b778636e7caf8b573c5",
+      "size": 1696164
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12370,6 +12380,11 @@
       "size": 2830
     },
     {
+      "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
+      "sha256": "4fb46ce7e6c9191148b9e241eb2b614b8d62efbbc3fb485b1beedc3eb3a03f42",
+      "size": 6930
+    },
+    {
       "path": "pages/decisions/hook-registry-design.md",
       "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
       "size": 4857
@@ -12943,6 +12958,11 @@
       "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
       "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
       "size": 1054
+    },
+    {
+      "path": "pages/policies/aws-credential-management-policy.md",
+      "sha256": "e4f0fcbdcbce306a326dfe63e1b69ca4bdc6baba21a36ad5ee02fb4749165e14",
+      "size": 1591
     },
     {
       "path": "pages/policies/build-in-public-initiative.md",
@@ -15741,5 +15761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bd9a1c7f390f3ccf8417ccd6a790bca3a9e5ae838d0b775309e03fd77f5e9325"
+  "wiki_tree_hash": "36fb53e6431cf03457f9f01340d1942c1d0240b002d2826c0fbdcd5a889f602d"
 }
