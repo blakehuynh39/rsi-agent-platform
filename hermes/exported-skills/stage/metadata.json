@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d0f4a04892b10ddd2e6cec6af27003c3e1fac77b0d23a1b8c98bc9b782fa001a",
-        "size": 971275
+        "sha256": "ecc00398d4083480f003262f48ea9dc6b6926a56391d80883384e202d0940d33",
+        "size": 971998
       },
       {
         "path": "log.md",
-        "sha256": "39db15888a50d2449ee56c635f82527448ff1d71df0bc7e58d9e7171dc81a840",
-        "size": 1704594
+        "sha256": "86cf7cbb409d7fbcc1e1c4f1bdd5f358ea346eececfb9ee1541b303524e14d84",
+        "size": 1705341
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6995,6 +6995,11 @@
         "size": 1732
       },
       {
+        "path": "pages/runbooks/intercom-setup-for-numolabs.md",
+        "sha256": "87db296ea798b5281732aa17245413dee9ccc309fdb4cb12b940cbc0b555eb45",
+        "size": 4353
+      },
+      {
         "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
         "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
         "size": 3278
@@ -7403,6 +7408,11 @@
         "path": "pages/systems/calendar.md",
         "sha256": "89b263f113a8e488560664a92674b2b8d44f081a46eae2b7252b18853a59494e",
         "size": 1050
+      },
+      {
+        "path": "pages/systems/campaign-submission-analytics-events.md",
+        "sha256": "ba2318b2003e33d8d2fb90aface0212558fd8206bc3dce1e83a9f5d70580b243",
+        "size": 1848
       },
       {
         "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
@@ -7984,8 +7994,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T11:19:54Z",
-  "file_count": 1595,
+  "exported_at": "2026-06-19T11:52:05Z",
+  "file_count": 1597,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11262,7 +11272,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5bea971813124eef090df96c79bea1056de6bbb2b3e5ee5083b5f1b88d10fdaf",
+  "previous_tree_hash": "c34338d203c2265bec1cd03a4227c2622d030d884a37f8d0260a10d18848e7f0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11275,14 +11285,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c34338d203c2265bec1cd03a4227c2622d030d884a37f8d0260a10d18848e7f0",
+  "tree_hash": "d5faf467876f537d635677386407e1838250d2c04c4092fb609296559355f757",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 941,
+  "wiki_file_count": 943,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11291,13 +11301,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d0f4a04892b10ddd2e6cec6af27003c3e1fac77b0d23a1b8c98bc9b782fa001a",
-      "size": 971275
+      "sha256": "ecc00398d4083480f003262f48ea9dc6b6926a56391d80883384e202d0940d33",
+      "size": 971998
     },
     {
       "path": "log.md",
-      "sha256": "39db15888a50d2449ee56c635f82527448ff1d71df0bc7e58d9e7171dc81a840",
-      "size": 1704594
+      "sha256": "86cf7cbb409d7fbcc1e1c4f1bdd5f358ea346eececfb9ee1541b303524e14d84",
+      "size": 1705341
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15005,6 +15015,11 @@
       "size": 1732
     },
     {
+      "path": "pages/runbooks/intercom-setup-for-numolabs.md",
+      "sha256": "87db296ea798b5281732aa17245413dee9ccc309fdb4cb12b940cbc0b555eb45",
+      "size": 4353
+    },
+    {
       "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
       "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
       "size": 3278
@@ -15413,6 +15428,11 @@
       "path": "pages/systems/calendar.md",
       "sha256": "89b263f113a8e488560664a92674b2b8d44f081a46eae2b7252b18853a59494e",
       "size": 1050
+    },
+    {
+      "path": "pages/systems/campaign-submission-analytics-events.md",
+      "sha256": "ba2318b2003e33d8d2fb90aface0212558fd8206bc3dce1e83a9f5d70580b243",
+      "size": 1848
     },
     {
       "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
@@ -15991,5 +16011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "465b9e4cd0d7d0dddc0503ed18e3c30fb7d0b812c600ce2e93505797a6ac0203"
+  "wiki_tree_hash": "29a5a0fdb1c9cac735b929484ebb4b4bb1dd30f1957b374d6116001743f82173"
 }

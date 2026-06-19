@@ -34698,3 +34698,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4efd4d171933785670ab7fc658849e3c
 - summary: A worker responsible for user sampling in Numo, which will incorporate deepfake audio detection.
 
+## [2026-06-19T11:46:59Z] synthesis | Intercom Setup for Numolabs Customer Support
+
+- status: published
+- slug: runbooks/intercom-setup-for-numolabs
+- wiki_revision_id: wikirev_cb0ac38795e85a6ded5847dd417636e9
+- summary: Guide for setting up Intercom for Numolabs customer support, including email forwarding from info@numolabs, uploading FAQ documents, and testing chat functionality.
+
+## [2026-06-19T11:48:22Z] synthesis | Campaign Submission Analytics Events
+
+- status: published
+- slug: systems/campaign-submission-analytics-events
+- wiki_revision_id: wikirev_87248a533532a2aae4e0c254835e51f9
+- summary: Clarification of the Google Analytics event triggers for campaign submission in the Numo app: button click intent vs. success completion.
+
