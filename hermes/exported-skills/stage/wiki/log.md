@@ -34321,3 +34321,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9d0339517a27af10e60de1b96ca4c697
 - summary: The second week of the offsite (May 15-22) faces hotel booking difficulties due to high prices from conflicting events. Organizers are assessing whether to cancel that week. Attend...
 
+## [2026-06-19T04:45:53Z] synthesis | Disperse.app Integration for Batch Token Transfers
+
+- status: published
+- slug: projects/disperse-app-batch-token-transfers
+- wiki_revision_id: wikirev_6fb7388b591202519953205bdf2caabe
+- summary: Investigation into using Disperse.app for cost-effective batch token transfers on Story, with potential for programmatic automation to handle crypto payouts.
+

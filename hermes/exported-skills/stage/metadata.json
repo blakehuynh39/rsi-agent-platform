@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "30fa002509e65149ec88d379efcfdd0a2f4dfb588ee285c8a4b7140a2c0b860a",
-        "size": 953716
+        "sha256": "26ae8d5c5d07a6834cf3d70214d7b98cdaf5d24120f0d553bc035b8b91ba2b4b",
+        "size": 954097
       },
       {
         "path": "log.md",
-        "sha256": "ff10bc6ae0c3d341e8120544d9bf1c3678e2b17a5cd852061d84c83dc70ddc05",
-        "size": 1684901
+        "sha256": "95cfcb209680182b282fc09aa43e2059d4c92ae0f931bf3e93cab94bb912d5f7",
+        "size": 1685294
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5433,6 +5433,11 @@
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
         "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
         "size": 1579
+      },
+      {
+        "path": "pages/projects/disperse-app-batch-token-transfers.md",
+        "sha256": "b556a6d5875a37009944b459dd12bf6dd7c2d51f477e4ebfc5479460aa561d34",
+        "size": 4109
       },
       {
         "path": "pages/projects/dispute-module-improvements.md",
@@ -7734,8 +7739,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T04:35:50Z",
-  "file_count": 1545,
+  "exported_at": "2026-06-19T04:47:31Z",
+  "file_count": 1546,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11012,7 +11017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "1610d35316b43b5aaab40fa708ae8a3626fd75ce4fcca534dfea253e28d8793d",
+  "previous_tree_hash": "b724ba912ff1768958d260e8d70682584dced24d0fe7ee463150085f1ee28f92",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11025,14 +11030,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b724ba912ff1768958d260e8d70682584dced24d0fe7ee463150085f1ee28f92",
+  "tree_hash": "9053df78ca5b940a625b56bdcfdb9ca109a4f05ede64d1ff378f6b7e4a91453f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 891,
+  "wiki_file_count": 892,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11041,13 +11046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "30fa002509e65149ec88d379efcfdd0a2f4dfb588ee285c8a4b7140a2c0b860a",
-      "size": 953716
+      "sha256": "26ae8d5c5d07a6834cf3d70214d7b98cdaf5d24120f0d553bc035b8b91ba2b4b",
+      "size": 954097
     },
     {
       "path": "log.md",
-      "sha256": "ff10bc6ae0c3d341e8120544d9bf1c3678e2b17a5cd852061d84c83dc70ddc05",
-      "size": 1684901
+      "sha256": "95cfcb209680182b282fc09aa43e2059d4c92ae0f931bf3e93cab94bb912d5f7",
+      "size": 1685294
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13193,6 +13198,11 @@
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
       "sha256": "790301badf8204c8a6ac4fbedf2e9b686c132b72e1d8fae1dccef576fc8945a7",
       "size": 1579
+    },
+    {
+      "path": "pages/projects/disperse-app-batch-token-transfers.md",
+      "sha256": "b556a6d5875a37009944b459dd12bf6dd7c2d51f477e4ebfc5479460aa561d34",
+      "size": 4109
     },
     {
       "path": "pages/projects/dispute-module-improvements.md",
@@ -15491,5 +15501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "06f9882a33ed1473b2981f577c070626641cfe14427346c37611765ed6b97681"
+  "wiki_tree_hash": "07658d9a2de2ad11acdade694bd7140e27d1c7d0ff7874f995018939be09a1ef"
 }
