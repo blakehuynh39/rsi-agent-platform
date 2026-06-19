@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bb2c39ce4c27f0bddc7a12b41a20045e60cf90a004df4bec0e9cab39f6d14ddd",
-        "size": 986018
+        "sha256": "4f55da81e75a0ad4b61d4d5c7c0f7c183bd45574b48a2186eb0f24596d9c2fb3",
+        "size": 986857
       },
       {
         "path": "log.md",
-        "sha256": "83d5385b36a30eb05a5d251e7c454dd402b4d06db8599e057ef9a24383e1d1aa",
-        "size": 1720425
+        "sha256": "c8e9a7868df4c5bec65eebaa35d0b0cc9c4a874adbe4ad7b7857b5bff4444a67",
+        "size": 1721288
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4595,6 +4595,11 @@
         "size": 6795
       },
       {
+        "path": "pages/decisions/ip-token-funding-decision-april-2026.md",
+        "sha256": "f8248f4a43fff0e9597bba8e33e6846c8e4fc7842a534236aa77d359ca30a481",
+        "size": 4474
+      },
+      {
         "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
         "sha256": "ebd2609693e6ead5b870a66bf8b90e6310d248f9863dc23c83a61158bed736ba",
         "size": 4945
@@ -4703,6 +4708,11 @@
         "path": "pages/decisions/numo-bengali-voice-collection-decision.md",
         "sha256": "7469b01eb8a494fe6a101a891f24bdd666b772f9791342d53f8dea5ea9e249de",
         "size": 4602
+      },
+      {
+        "path": "pages/decisions/numo-contribution-receipt-schema.md",
+        "sha256": "0c2a59a0984e7abf4b2ce111f43bc50d296726bfb4590a38f47b6cbf2bf54828",
+        "size": 6644
       },
       {
         "path": "pages/decisions/numo-deepfake-audio-detection.md",
@@ -8184,8 +8194,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T17:32:12Z",
-  "file_count": 1635,
+  "exported_at": "2026-06-19T17:39:01Z",
+  "file_count": 1637,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11462,7 +11472,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b55a49071b42fbb1e5f3ff94efd738bf349cbfae10bf5a7c187e90fac8bad89b",
+  "previous_tree_hash": "cbad3431340e7b4c99fbde9ea877e31a7c3cdb951317b4f5d7f59e3131d0b4ac",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11475,14 +11485,14 @@
   ],
   "skill_tree_hash": "cf9429b2dbca48e14f3c1145db540b1c00cd0691b982c13fe250b5e2f5590b63",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cbad3431340e7b4c99fbde9ea877e31a7c3cdb951317b4f5d7f59e3131d0b4ac",
+  "tree_hash": "430f31b91c1646f1736cd3cccc8f492251b88846de0773db0f7d7cb87a51f27a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 981,
+  "wiki_file_count": 983,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11491,13 +11501,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bb2c39ce4c27f0bddc7a12b41a20045e60cf90a004df4bec0e9cab39f6d14ddd",
-      "size": 986018
+      "sha256": "4f55da81e75a0ad4b61d4d5c7c0f7c183bd45574b48a2186eb0f24596d9c2fb3",
+      "size": 986857
     },
     {
       "path": "log.md",
-      "sha256": "83d5385b36a30eb05a5d251e7c454dd402b4d06db8599e057ef9a24383e1d1aa",
-      "size": 1720425
+      "sha256": "c8e9a7868df4c5bec65eebaa35d0b0cc9c4a874adbe4ad7b7857b5bff4444a67",
+      "size": 1721288
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12805,6 +12815,11 @@
       "size": 6795
     },
     {
+      "path": "pages/decisions/ip-token-funding-decision-april-2026.md",
+      "sha256": "f8248f4a43fff0e9597bba8e33e6846c8e4fc7842a534236aa77d359ca30a481",
+      "size": 4474
+    },
+    {
       "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
       "sha256": "ebd2609693e6ead5b870a66bf8b90e6310d248f9863dc23c83a61158bed736ba",
       "size": 4945
@@ -12913,6 +12928,11 @@
       "path": "pages/decisions/numo-bengali-voice-collection-decision.md",
       "sha256": "7469b01eb8a494fe6a101a891f24bdd666b772f9791342d53f8dea5ea9e249de",
       "size": 4602
+    },
+    {
+      "path": "pages/decisions/numo-contribution-receipt-schema.md",
+      "sha256": "0c2a59a0984e7abf4b2ce111f43bc50d296726bfb4590a38f47b6cbf2bf54828",
+      "size": 6644
     },
     {
       "path": "pages/decisions/numo-deepfake-audio-detection.md",
@@ -16391,5 +16411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7c6d33fa3713b1ca09d9dd2555fd0cf1de2093a5371d336382d41510372dc07f"
+  "wiki_tree_hash": "b57e91dd31787b07d79b43546aa98434416256bec9b048d87bd58cdafb2c4f7c"
 }

@@ -35003,3 +35003,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1ed0b376daf13dbeb09ff43937499674
 - summary: Decided against using Story Protocol's PIL for voice contribution receipts, opting for ToS-backed metadata with consent signatures, IPFS storage for ToS, and S3 for receipt metadat...
 
+## [2026-06-19T17:34:06Z] synthesis | IP Token Funding for IP Registration Wallets (April 2026 Decision)
+
+- status: published
+- slug: decisions/ip-token-funding-decision-april-2026
+- wiki_revision_id: wikirev_ec27bbba061d5fad53450c480ebc9e33
+- summary: In April 2026, the team decided how to fund IP tokens needed for large‑scale IP registration. After considering personal Brex purchases, the final decision was to request the funds...
+
