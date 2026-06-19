@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c0f43264477501c0af81bf8466b0cc136d0bdfd2e774b0dfc62c1867f9e31220",
-        "size": 978142
+        "sha256": "3c22029213e76cfb060c3c31a44385d37a1bdc1fd76c8c7eb156db0b25152886",
+        "size": 978782
       },
       {
         "path": "log.md",
-        "sha256": "e23183141d6b97bcad1a5af32154b6e2910c790c1086beed7c5a95c026a2dcf3",
-        "size": 1712158
+        "sha256": "615f35694512deded1cfad5da60192b4a8b20bd472f8996414f9f59572ceb129",
+        "size": 1712822
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6145,6 +6145,11 @@
         "size": 4686
       },
       {
+        "path": "pages/projects/numo-project.md",
+        "sha256": "61916c964b1ec4153f166d2376c7f9d3c1969043ef04c1df4dc9a669dffe5545",
+        "size": 2764
+      },
+      {
         "path": "pages/projects/numo-tamil-language-completion.md",
         "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
         "size": 2882
@@ -6453,6 +6458,11 @@
         "path": "pages/projects/protocol-visualizer.md",
         "sha256": "2caba149795efc945cd59f29f8191d53934cca59e74fa0ce001240395553075c",
         "size": 2429
+      },
+      {
+        "path": "pages/projects/psdn-szn-1-prelaunch.md",
+        "sha256": "558d931879aed99e0fe1b93fb853759508d2f1da371e5b484c6ea1007377deec",
+        "size": 2821
       },
       {
         "path": "pages/projects/public-testnet-odyssey-milestones.md",
@@ -8079,8 +8089,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T14:37:37Z",
-  "file_count": 1614,
+  "exported_at": "2026-06-19T14:49:27Z",
+  "file_count": 1616,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11357,7 +11367,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b8593f7f2a96c9b33a2ba578c283bcb4b373f978395ae97fed3b9902e74ca538",
+  "previous_tree_hash": "7379252b466569e0b9e91ba2276207e15a475445e7bcfb41e2e78b0ed2803fcf",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11370,14 +11380,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7379252b466569e0b9e91ba2276207e15a475445e7bcfb41e2e78b0ed2803fcf",
+  "tree_hash": "974c48d2c0654bca41e059a5f7e5f38d3cfcbe086a04ec68277c34a200ae6189",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 960,
+  "wiki_file_count": 962,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11386,13 +11396,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c0f43264477501c0af81bf8466b0cc136d0bdfd2e774b0dfc62c1867f9e31220",
-      "size": 978142
+      "sha256": "3c22029213e76cfb060c3c31a44385d37a1bdc1fd76c8c7eb156db0b25152886",
+      "size": 978782
     },
     {
       "path": "log.md",
-      "sha256": "e23183141d6b97bcad1a5af32154b6e2910c790c1086beed7c5a95c026a2dcf3",
-      "size": 1712158
+      "sha256": "615f35694512deded1cfad5da60192b4a8b20bd472f8996414f9f59572ceb129",
+      "size": 1712822
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14250,6 +14260,11 @@
       "size": 4686
     },
     {
+      "path": "pages/projects/numo-project.md",
+      "sha256": "61916c964b1ec4153f166d2376c7f9d3c1969043ef04c1df4dc9a669dffe5545",
+      "size": 2764
+    },
+    {
       "path": "pages/projects/numo-tamil-language-completion.md",
       "sha256": "9093c6a91a362324fc9f6f34b0473de2c8fb5faffda79597e9592820f0911dbb",
       "size": 2882
@@ -14558,6 +14573,11 @@
       "path": "pages/projects/protocol-visualizer.md",
       "sha256": "2caba149795efc945cd59f29f8191d53934cca59e74fa0ce001240395553075c",
       "size": 2429
+    },
+    {
+      "path": "pages/projects/psdn-szn-1-prelaunch.md",
+      "sha256": "558d931879aed99e0fe1b93fb853759508d2f1da371e5b484c6ea1007377deec",
+      "size": 2821
     },
     {
       "path": "pages/projects/public-testnet-odyssey-milestones.md",
@@ -16181,5 +16201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c5a676dbaece8a31298669c2bd744651d95cfe4b3effc770b44835948363afe6"
+  "wiki_tree_hash": "857c14e002b3c3ca2c8a8b09ef48ff32151ddeb8435ba5bba4efd5fe130fd11c"
 }

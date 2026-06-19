@@ -34840,3 +34840,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd3ef5785b0617ea941d5fda3b99238f
 - summary: Configuration for monitoring and alerting on DePIN IP registration wallet balances, including thresholds and planned improvements.
 
+## [2026-06-19T14:45:52Z] synthesis | PSDN Szn 1 Prelaunch
+
+- status: published
+- slug: projects/psdn-szn-1-prelaunch
+- wiki_revision_id: wikirev_324118454f1169f37c335d555f1e2e3d
+- summary: Preparation for PSDN Szn 1 launch using a cloned Notion checklist. Owners assigned, go/no‑go decision tomorrow.
+
+## [2026-06-19T14:46:31Z] synthesis | Numo Project
+
+- status: published
+- slug: projects/numo-project
+- wiki_revision_id: wikirev_bec7626b3a3fb2bdd941596f5b55090e
+- summary: Numo is a product that saw strong early user engagement, with users in India reportedly working late into the night during its first 24 hours. A suggestion was made to create promo...
+
