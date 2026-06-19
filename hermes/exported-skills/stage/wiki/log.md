@@ -34747,3 +34747,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d2b7a7f6e4296a3cfa2e6ff50c3b9ebb
 - summary: Numo is a submission tracking system. Latest digest reports 14,815 new submissions in 24h and 17,299 pending review.
 
+## [2026-06-19T12:46:59Z] synthesis | Numo Initiative
+
+- status: published
+- slug: projects/numo-initiative
+- wiki_revision_id: wikirev_3ac516a763d4759460dcaed5c761ce60
+- summary: Numo is a collaborative initiative between supply side (Poseidon) and demand side (Story), using a shared Slack channel for transparent communication to align on collection goals, ...
+
