@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4f55da81e75a0ad4b61d4d5c7c0f7c183bd45574b48a2186eb0f24596d9c2fb3",
-        "size": 986857
+        "sha256": "78361a45b0092a8cf5d587f06f5af322591b23b3fdea329321e042383d8efc34",
+        "size": 987577
       },
       {
         "path": "log.md",
-        "sha256": "c8e9a7868df4c5bec65eebaa35d0b0cc9c4a874adbe4ad7b7857b5bff4444a67",
-        "size": 1721288
+        "sha256": "28770b2a8ac14d06ee740a3f1a7d2f3be6275d273b84fca550e6e7ca5ce7124d",
+        "size": 1722032
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5370,6 +5370,11 @@
         "size": 2716
       },
       {
+        "path": "pages/policies/upwork-freelancer-management-process.md",
+        "sha256": "254ae02f8f5fc6ffb1ee5eab1bc7f6780ada74e74f96eacc53ed0dc9de0b15c1",
+        "size": 2791
+      },
+      {
         "path": "pages/policies/validator-bootstrapping-strategy.md",
         "sha256": "0ed3b8424b1f5bea49883945c0bc7bb831a7c871eaf50a12502981c2e304616b",
         "size": 5155
@@ -5468,6 +5473,11 @@
         "path": "pages/projects/akash.md",
         "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
         "size": 4802
+      },
+      {
+        "path": "pages/projects/anchored-inflation-cubic-staking-weight-security-audit-scope.md",
+        "sha256": "26952a4568ebb0f14b46d02e77e665af2d6b263ebb7bdc823d104809a0575e20",
+        "size": 6347
       },
       {
         "path": "pages/projects/announcement-closure-reflection-in-app.md",
@@ -8194,8 +8204,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T17:39:01Z",
-  "file_count": 1637,
+  "exported_at": "2026-06-19T17:50:58Z",
+  "file_count": 1639,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11472,7 +11482,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "cbad3431340e7b4c99fbde9ea877e31a7c3cdb951317b4f5d7f59e3131d0b4ac",
+  "previous_tree_hash": "430f31b91c1646f1736cd3cccc8f492251b88846de0773db0f7d7cb87a51f27a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11485,14 +11495,14 @@
   ],
   "skill_tree_hash": "cf9429b2dbca48e14f3c1145db540b1c00cd0691b982c13fe250b5e2f5590b63",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "430f31b91c1646f1736cd3cccc8f492251b88846de0773db0f7d7cb87a51f27a",
+  "tree_hash": "debdf598a767c283f7931fe6397a84f58b08a5319a6eb7d9cff5d13c81d6884d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 983,
+  "wiki_file_count": 985,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11501,13 +11511,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4f55da81e75a0ad4b61d4d5c7c0f7c183bd45574b48a2186eb0f24596d9c2fb3",
-      "size": 986857
+      "sha256": "78361a45b0092a8cf5d587f06f5af322591b23b3fdea329321e042383d8efc34",
+      "size": 987577
     },
     {
       "path": "log.md",
-      "sha256": "c8e9a7868df4c5bec65eebaa35d0b0cc9c4a874adbe4ad7b7857b5bff4444a67",
-      "size": 1721288
+      "sha256": "28770b2a8ac14d06ee740a3f1a7d2f3be6275d273b84fca550e6e7ca5ce7124d",
+      "size": 1722032
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13590,6 +13600,11 @@
       "size": 2716
     },
     {
+      "path": "pages/policies/upwork-freelancer-management-process.md",
+      "sha256": "254ae02f8f5fc6ffb1ee5eab1bc7f6780ada74e74f96eacc53ed0dc9de0b15c1",
+      "size": 2791
+    },
+    {
       "path": "pages/policies/validator-bootstrapping-strategy.md",
       "sha256": "0ed3b8424b1f5bea49883945c0bc7bb831a7c871eaf50a12502981c2e304616b",
       "size": 5155
@@ -13688,6 +13703,11 @@
       "path": "pages/projects/akash.md",
       "sha256": "c04228f42f62a68736798d74b894274d32c8d7777531e2a2dcfef136dfed8563",
       "size": 4802
+    },
+    {
+      "path": "pages/projects/anchored-inflation-cubic-staking-weight-security-audit-scope.md",
+      "sha256": "26952a4568ebb0f14b46d02e77e665af2d6b263ebb7bdc823d104809a0575e20",
+      "size": 6347
     },
     {
       "path": "pages/projects/announcement-closure-reflection-in-app.md",
@@ -16411,5 +16431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b57e91dd31787b07d79b43546aa98434416256bec9b048d87bd58cdafb2c4f7c"
+  "wiki_tree_hash": "6ed20d6c07fa1c403ffca77015cd2eb696d6d93a2f80ebae9ad725e5d68b20e3"
 }

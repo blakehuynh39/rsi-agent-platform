@@ -35010,3 +35010,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec27bbba061d5fad53450c480ebc9e33
 - summary: In April 2026, the team decided how to fund IP tokens needed for large‑scale IP registration. After considering personal Brex purchases, the final decision was to request the funds...
 
+## [2026-06-19T17:47:55Z] synthesis | Anchored Inflation + Cubic Staking Weight Security Audit Scope
+
+- status: published
+- slug: projects/anchored-inflation-cubic-staking-weight-security-audit-scope
+- wiki_revision_id: wikirev_1ca7cd8290b658efff6ee7809d5660e0
+- summary: Security audit scope for the anchored inflation and cubic staking weight features across the Story and Cosmos SDK private forks.
+
+## [2026-06-19T17:49:12Z] synthesis | Upwork Freelancer Management Process
+
+- status: published
+- slug: policies/upwork-freelancer-management-process
+- wiki_revision_id: wikirev_defa730bacfad211a166acbf3e2f63b9
+- summary: Process for managing freelancers via Upwork, including handling account suspensions and transferring responsibilities.
+
