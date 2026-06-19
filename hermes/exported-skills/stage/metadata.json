@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "8c0c63809350194c78b25ab00a91ee17648d165b02d474e97019a3c76b8b3f4e",
+        "sha256": "bcaebb5d86d3c527da93d0ee8ff68e94a1f3745d3fae888ae58ed068dee48fb9",
         "size": 31923
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "949b8c49872bf770410d88c122f079a813e5b2df981b24383c4c3c07c4d15bc4",
-        "size": 982100
+        "sha256": "630dfc299c0b6c83789210b3617863407f595a862d1ea261acdd5eaa3546f371",
+        "size": 983801
       },
       {
         "path": "log.md",
-        "sha256": "dd3f1056d45742cb0019f8a9ba3b9ce1665a611e8b618a72cf0fb2a3409282f5",
-        "size": 1717295
+        "sha256": "3f007518e24f478477dd70d37944520ad7b838b2eeda441de7bef154d49a9558",
+        "size": 1718009
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6080,6 +6080,11 @@
         "size": 2435
       },
       {
+        "path": "pages/projects/multi-language-seedphrase-reintroduction.md",
+        "sha256": "ba7403cfdb06b70b89b2f0d823c8039737d989f496b9e03ba10a5139e72968bb",
+        "size": 1854
+      },
+      {
         "path": "pages/projects/multichain-story-supernet.md",
         "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
         "size": 1410
@@ -7610,6 +7615,11 @@
         "size": 8374
       },
       {
+        "path": "pages/systems/depin-app-transcript-bucket.md",
+        "sha256": "e4fb92a592ff74aa340270d0f0c266470ef63a97ed0bc12de7e7553434782720",
+        "size": 2128
+      },
+      {
         "path": "pages/systems/depin-backend-repo-access.md",
         "sha256": "84a5f66379cf4bb11b20f783d84d33c13a0fb62f8549dae3fd92e28583635400",
         "size": 2341
@@ -8149,8 +8159,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T16:32:40Z",
-  "file_count": 1628,
+  "exported_at": "2026-06-19T16:39:31Z",
+  "file_count": 1630,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -8209,7 +8219,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "8c0c63809350194c78b25ab00a91ee17648d165b02d474e97019a3c76b8b3f4e",
+      "sha256": "bcaebb5d86d3c527da93d0ee8ff68e94a1f3745d3fae888ae58ed068dee48fb9",
       "size": 31923
     },
     {
@@ -11427,7 +11437,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "5d90c9dc6ff4cb2b5ec0c1802ac61dd1fb26cbc42bb469623174f2e32a56557a",
+  "previous_tree_hash": "4dacd1eff207a2b1dcbb7288cc37a47f1f79af0229e2d3f5f8fa609e522bbabb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11438,16 +11448,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
+  "skill_tree_hash": "cf9429b2dbca48e14f3c1145db540b1c00cd0691b982c13fe250b5e2f5590b63",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4dacd1eff207a2b1dcbb7288cc37a47f1f79af0229e2d3f5f8fa609e522bbabb",
+  "tree_hash": "debd6b4d3e401dadd1a390cf9911f23ad0543fc125dad30a2a7ec28a0d9763c6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 974,
+  "wiki_file_count": 976,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11456,13 +11466,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "949b8c49872bf770410d88c122f079a813e5b2df981b24383c4c3c07c4d15bc4",
-      "size": 982100
+      "sha256": "630dfc299c0b6c83789210b3617863407f595a862d1ea261acdd5eaa3546f371",
+      "size": 983801
     },
     {
       "path": "log.md",
-      "sha256": "dd3f1056d45742cb0019f8a9ba3b9ce1665a611e8b618a72cf0fb2a3409282f5",
-      "size": 1717295
+      "sha256": "3f007518e24f478477dd70d37944520ad7b838b2eeda441de7bef154d49a9558",
+      "size": 1718009
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14255,6 +14265,11 @@
       "size": 2435
     },
     {
+      "path": "pages/projects/multi-language-seedphrase-reintroduction.md",
+      "sha256": "ba7403cfdb06b70b89b2f0d823c8039737d989f496b9e03ba10a5139e72968bb",
+      "size": 1854
+    },
+    {
       "path": "pages/projects/multichain-story-supernet.md",
       "sha256": "5b0c61803d6e3268e2abdde733cc500292efb8c15dbd25dc95a6dd5b0b8cad26",
       "size": 1410
@@ -15785,6 +15800,11 @@
       "size": 8374
     },
     {
+      "path": "pages/systems/depin-app-transcript-bucket.md",
+      "sha256": "e4fb92a592ff74aa340270d0f0c266470ef63a97ed0bc12de7e7553434782720",
+      "size": 2128
+    },
+    {
       "path": "pages/systems/depin-backend-repo-access.md",
       "sha256": "84a5f66379cf4bb11b20f783d84d33c13a0fb62f8549dae3fd92e28583635400",
       "size": 2341
@@ -16321,5 +16341,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4fce96ffece0c35c5190a16c710d5ef8b79ac5874a52293e9cb622f29cd0db51"
+  "wiki_tree_hash": "37d4fd54771f9268bd3f7d27803be9b346befa93709bf0a9b709f6881b80c399"
 }
