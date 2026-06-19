@@ -34577,3 +34577,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_81853c4ad98ceb10f2dbab4e8e883ed9
 - summary: Summary of decisions around global vs localized rollout for upload tasks, regional ads, and language task availability in specific regions, as discussed in April/June 2026.
 
+## [2026-06-19T09:47:00Z] synthesis | Numo Payments Testing Plan
+
+- status: published
+- slug: projects/numo-payments-testing
+- wiki_revision_id: wikirev_001010aff3df8cc02d8726e3de8a8291
+- summary: Testing plan for Numo payments including candidate sourcing, test flow, and budget decisions.
+
+## [2026-06-19T09:47:19Z] synthesis | Onboarding Data Field Requirements
+
+- status: published
+- slug: decisions/onboarding-data-field-requirements
+- wiki_revision_id: wikirev_1bed1533e2dae9756701521d50eb300a
+- summary: Specifies which user profile fields are mandatory during onboarding. All fields except Occupation are required. Occupation will be collected later via CV upload and LinkedIn login.
+

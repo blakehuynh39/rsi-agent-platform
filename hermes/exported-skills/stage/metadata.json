@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ff2062ac6e20dafdf5d8e9b100c74e51dfa2bd56de6a135715e153c26ee1d4b0",
-        "size": 966028
+        "sha256": "19998210eca72e3c486d175b6c45de876392af11ab6a789767a32d6c937b0aab",
+        "size": 966697
       },
       {
         "path": "log.md",
-        "sha256": "bb01050d64d4be4ae6f163464307f17594c04237eda5b40e4bee3ac492ff505c",
-        "size": 1698687
+        "sha256": "f1e24c2b38b326686989b0ff665322b65544934aa8c3fd15c3bacfe28f624d53",
+        "size": 1699380
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4653,6 +4653,11 @@
         "path": "pages/decisions/numo-transition-to-korea-team.md",
         "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
         "size": 5098
+      },
+      {
+        "path": "pages/decisions/onboarding-data-field-requirements.md",
+        "sha256": "7e15becb660c3c4373136b1362ccd2d21b15a53241d0b524bc117c8207e4ec84",
+        "size": 2082
       },
       {
         "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -6023,6 +6028,11 @@
         "path": "pages/projects/numo-mobile-team-onboarding.md",
         "sha256": "2e6e98a4134c3575c916c7828e11fa01673f1780c930868b3484a1896cd900ea",
         "size": 9694
+      },
+      {
+        "path": "pages/projects/numo-payments-testing.md",
+        "sha256": "e48c7bd8404bc9b6fb9b9c35f887072c8028f5071286d816ebb7f822698ac995",
+        "size": 3618
       },
       {
         "path": "pages/projects/numo-tamil-language-completion.md",
@@ -7904,8 +7914,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T09:39:06Z",
-  "file_count": 1579,
+  "exported_at": "2026-06-19T09:50:57Z",
+  "file_count": 1581,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11182,7 +11192,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "9b282b880b3d5b8efa5b1e9678acd9e5a8e753c64600d688de3d26beb26af094",
+  "previous_tree_hash": "81766ba42df528172ade53b0e712439ea5e3163a79f7d960d116fcd26c6125ac",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11195,14 +11205,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "81766ba42df528172ade53b0e712439ea5e3163a79f7d960d116fcd26c6125ac",
+  "tree_hash": "4462e865c85893f5b6d06f6d805ea16a0dbfbf73f7ce3a5f282a3aa386a13742",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 925,
+  "wiki_file_count": 927,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11211,13 +11221,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ff2062ac6e20dafdf5d8e9b100c74e51dfa2bd56de6a135715e153c26ee1d4b0",
-      "size": 966028
+      "sha256": "19998210eca72e3c486d175b6c45de876392af11ab6a789767a32d6c937b0aab",
+      "size": 966697
     },
     {
       "path": "log.md",
-      "sha256": "bb01050d64d4be4ae6f163464307f17594c04237eda5b40e4bee3ac492ff505c",
-      "size": 1698687
+      "sha256": "f1e24c2b38b326686989b0ff665322b65544934aa8c3fd15c3bacfe28f624d53",
+      "size": 1699380
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12583,6 +12593,11 @@
       "path": "pages/decisions/numo-transition-to-korea-team.md",
       "sha256": "d3a48feccac7ef480611e3f2af35e868c983b9d35d583b277519e5d1ccea4f91",
       "size": 5098
+    },
+    {
+      "path": "pages/decisions/onboarding-data-field-requirements.md",
+      "sha256": "7e15becb660c3c4373136b1362ccd2d21b15a53241d0b524bc117c8207e4ec84",
+      "size": 2082
     },
     {
       "path": "pages/decisions/open-source-licensing-strategy.md",
@@ -13953,6 +13968,11 @@
       "path": "pages/projects/numo-mobile-team-onboarding.md",
       "sha256": "2e6e98a4134c3575c916c7828e11fa01673f1780c930868b3484a1896cd900ea",
       "size": 9694
+    },
+    {
+      "path": "pages/projects/numo-payments-testing.md",
+      "sha256": "e48c7bd8404bc9b6fb9b9c35f887072c8028f5071286d816ebb7f822698ac995",
+      "size": 3618
     },
     {
       "path": "pages/projects/numo-tamil-language-completion.md",
@@ -15831,5 +15851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a7cf775ca462ef49ce877762413dc200f4893b7c720aefb48c70b7c4dffd2f29"
+  "wiki_tree_hash": "e6d9c57ea28f8f66d55983576072459215f2cd6d5140b66d23d660ac2b2f293b"
 }
