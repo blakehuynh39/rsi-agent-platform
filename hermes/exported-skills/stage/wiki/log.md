@@ -35329,3 +35329,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f0f65c7548b5fabd85936505b89ef23f
 - summary: Decision to localize Apple App Store listing for India, starting with Bengali, based on analysis of supported languages.
 
+## [2026-06-19T23:17:10Z] synthesis | Numo Facebook Ads Account Flag and Reinstatement (2026-04-27)
+
+- status: published
+- slug: decisions/numo-facebook-ads-account-flag-2026-04-27
+- wiki_revision_id: wikirev_191c801624f70e20e0e9f58edec369d9
+- summary: The Numo App Facebook Ads Account was flagged, pausing ads. After a review and team engagement drive, the account was reinstated on the same day.
+
+## [2026-06-19T23:19:23Z] synthesis | Numo IP Registration Master Wallet
+
+- status: published
+- slug: systems/numo-ip-registration-master-wallet
+- wiki_revision_id: wikirev_623a234062eb38e3cafa7a3c35ec0049
+- summary: Master wallet address used for funding IP registration testing on mainnet. The private key is stored in AWS Vault and injected at runtime. A funding of 250 IP tokens was requested ...
+

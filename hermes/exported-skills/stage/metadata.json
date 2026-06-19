@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1ab31bb0e748f4206c478e5e9265e0862e2860df25f4fb060f6fbddad49a7ad0",
-        "size": 1000961
+        "sha256": "66f0cdee515b446617b69195c6e4caf4a934641a1b05986141bfaa28564c35b6",
+        "size": 1001739
       },
       {
         "path": "log.md",
-        "sha256": "e8145157792172224766dc77cf81ef44c04681eb0b3b0f12d3831cb4ea32f896",
-        "size": 1738025
+        "sha256": "c494c4d53573905e38258f33d378ddfa77964c49c95b8a796c9118a064a661c6",
+        "size": 1738827
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4763,6 +4763,11 @@
         "path": "pages/decisions/numo-expert-mvp-scope.md",
         "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
         "size": 3752
+      },
+      {
+        "path": "pages/decisions/numo-facebook-ads-account-flag-2026-04-27.md",
+        "sha256": "38c69d698d3b58f42ae8ffbb36e24c8cec2ca2c9f58244746b1573557902b5bf",
+        "size": 5866
       },
       {
         "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
@@ -8050,6 +8055,11 @@
         "size": 2624
       },
       {
+        "path": "pages/systems/numo-ip-registration-master-wallet.md",
+        "sha256": "c2d08feb54bdad4d4f4ffa3749ea46f2ccf54f7c3f94cdc43047c45a157edac2",
+        "size": 6062
+      },
+      {
         "path": "pages/systems/numo-labs-dashboard.md",
         "sha256": "74cd83f74c36a5e31a0907a6c2f1470e52b9392739a50ea465ea5175b0505d8a",
         "size": 2807
@@ -8394,8 +8404,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T23:04:36Z",
-  "file_count": 1677,
+  "exported_at": "2026-06-19T23:21:10Z",
+  "file_count": 1679,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11672,7 +11682,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6ae660449e336cc54cdb8812e1c57e49f247546d756aa8b4a4b6bd6247d1c3d0",
+  "previous_tree_hash": "b4c2024de02234da101270debf880cc07ffd6669e8f9ba60de3b66d9af98f6ca",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11685,14 +11695,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b4c2024de02234da101270debf880cc07ffd6669e8f9ba60de3b66d9af98f6ca",
+  "tree_hash": "90e318e3ed2232323120897bed3cf2fa26cfdc8d7be80adcad1e156f9cb6de7b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1023,
+  "wiki_file_count": 1025,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11701,13 +11711,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1ab31bb0e748f4206c478e5e9265e0862e2860df25f4fb060f6fbddad49a7ad0",
-      "size": 1000961
+      "sha256": "66f0cdee515b446617b69195c6e4caf4a934641a1b05986141bfaa28564c35b6",
+      "size": 1001739
     },
     {
       "path": "log.md",
-      "sha256": "e8145157792172224766dc77cf81ef44c04681eb0b3b0f12d3831cb4ea32f896",
-      "size": 1738025
+      "sha256": "c494c4d53573905e38258f33d378ddfa77964c49c95b8a796c9118a064a661c6",
+      "size": 1738827
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13183,6 +13193,11 @@
       "path": "pages/decisions/numo-expert-mvp-scope.md",
       "sha256": "45a06b49c04bcda8c02993dddba792cef51142c3696d6b62648b27f87696d41f",
       "size": 3752
+    },
+    {
+      "path": "pages/decisions/numo-facebook-ads-account-flag-2026-04-27.md",
+      "sha256": "38c69d698d3b58f42ae8ffbb36e24c8cec2ca2c9f58244746b1573557902b5bf",
+      "size": 5866
     },
     {
       "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
@@ -16470,6 +16485,11 @@
       "size": 2624
     },
     {
+      "path": "pages/systems/numo-ip-registration-master-wallet.md",
+      "sha256": "c2d08feb54bdad4d4f4ffa3749ea46f2ccf54f7c3f94cdc43047c45a157edac2",
+      "size": 6062
+    },
+    {
       "path": "pages/systems/numo-labs-dashboard.md",
       "sha256": "74cd83f74c36a5e31a0907a6c2f1470e52b9392739a50ea465ea5175b0505d8a",
       "size": 2807
@@ -16811,5 +16831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "619a5c9b7a54bccdc246a497ead32b5d778018149558dc56a9869268604e0686"
+  "wiki_tree_hash": "79028b9da39ff6daa63478b501a81029cd55928bd1e619b0c386fbe05bd5792e"
 }
