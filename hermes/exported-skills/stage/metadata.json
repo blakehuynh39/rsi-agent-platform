@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1f4fc6e381142f9e653730fb165c471b15cefbbeefa0b5e558cfcf70359553c3",
-        "size": 998567
+        "sha256": "7ad33e9407feb924e6a268e2aad16c6023e6cdb0d08badf43dab5c7d03a85424",
+        "size": 999207
       },
       {
         "path": "log.md",
-        "sha256": "347c5c9d219b04a9db2015a79b24c5d8a4152fec9d15bb05a58b61d2f88279ef",
-        "size": 1735547
+        "sha256": "1de7127611b90e552c7abb426ecd0490c4ed3930b4dcfc57af6f42f632a96f2b",
+        "size": 1736211
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6495,6 +6495,11 @@
         "size": 1879
       },
       {
+        "path": "pages/projects/poseidon-app-store-developer-setup.md",
+        "sha256": "32834d3aac7208448bcda24394faceae407808dec77ead28357ede1ed09f4b4d",
+        "size": 4026
+      },
+      {
         "path": "pages/projects/poseidon-atlas.md",
         "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
         "size": 8882
@@ -7223,6 +7228,11 @@
         "path": "pages/runbooks/eks-oidc-secret-manager-permission-troubleshooting.md",
         "sha256": "ae5610042d1142494faee2309e2f328d907147739566707d277edfe4f94189c9",
         "size": 7894
+      },
+      {
+        "path": "pages/runbooks/eng-blockers-sync.md",
+        "sha256": "76b5c0cab10f2115f818e6a19c9a13887014916ebc434fcf3843c4dc00390d99",
+        "size": 1359
       },
       {
         "path": "pages/runbooks/eng-demo-signup.md",
@@ -8359,8 +8369,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T22:08:34Z",
-  "file_count": 1670,
+  "exported_at": "2026-06-19T22:20:02Z",
+  "file_count": 1672,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11637,7 +11647,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "006ad830445854e7376678bc7748e9380e33d63cff4b1953474192c5fbea14b0",
+  "previous_tree_hash": "0a95dfd42d2d4c1fa570b0afbda15242cb8ea0677eb5009d53eedf9a05b7c1db",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11650,14 +11660,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0a95dfd42d2d4c1fa570b0afbda15242cb8ea0677eb5009d53eedf9a05b7c1db",
+  "tree_hash": "8da7fb1ac47cebd2f73616d6edc5212625195b2d0fda07162d5e27352fdf3846",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1016,
+  "wiki_file_count": 1018,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11666,13 +11676,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1f4fc6e381142f9e653730fb165c471b15cefbbeefa0b5e558cfcf70359553c3",
-      "size": 998567
+      "sha256": "7ad33e9407feb924e6a268e2aad16c6023e6cdb0d08badf43dab5c7d03a85424",
+      "size": 999207
     },
     {
       "path": "log.md",
-      "sha256": "347c5c9d219b04a9db2015a79b24c5d8a4152fec9d15bb05a58b61d2f88279ef",
-      "size": 1735547
+      "sha256": "1de7127611b90e552c7abb426ecd0490c4ed3930b4dcfc57af6f42f632a96f2b",
+      "size": 1736211
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14880,6 +14890,11 @@
       "size": 1879
     },
     {
+      "path": "pages/projects/poseidon-app-store-developer-setup.md",
+      "sha256": "32834d3aac7208448bcda24394faceae407808dec77ead28357ede1ed09f4b4d",
+      "size": 4026
+    },
+    {
       "path": "pages/projects/poseidon-atlas.md",
       "sha256": "821d32bb9da5dd67e97662220d6e48e973906332131ed7c4457c118f1a3905c9",
       "size": 8882
@@ -15608,6 +15623,11 @@
       "path": "pages/runbooks/eks-oidc-secret-manager-permission-troubleshooting.md",
       "sha256": "ae5610042d1142494faee2309e2f328d907147739566707d277edfe4f94189c9",
       "size": 7894
+    },
+    {
+      "path": "pages/runbooks/eng-blockers-sync.md",
+      "sha256": "76b5c0cab10f2115f818e6a19c9a13887014916ebc434fcf3843c4dc00390d99",
+      "size": 1359
     },
     {
       "path": "pages/runbooks/eng-demo-signup.md",
@@ -16741,5 +16761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "58b781dd036154234f03111d9ab41ae9317da99c46cdd9204ec0ee448158a87f"
+  "wiki_tree_hash": "1b4cd59b06517cec8e2949d3c25940d0b007ec8e6742e68c05ac345defa86c7e"
 }

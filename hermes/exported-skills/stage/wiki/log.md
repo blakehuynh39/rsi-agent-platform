@@ -35280,3 +35280,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fc0988a4410a6ac1b5f9cba071549447
 - summary: Funding of 500 IP to wallet 0xB6f315F1072781deBE4Af09B24D2CC7f796790de to cover gas fee spikes for Numo registrations, prompted by potential IP World launch impact. The wallet had ...
 
+## [2026-06-19T22:16:03Z] synthesis | Engineering Blockers Sync
+
+- status: published
+- slug: runbooks/eng-blockers-sync
+- wiki_revision_id: wikirev_fa2ca2e2edb566b2d4d1bd036943b634
+- summary: Recurring sync meeting for engineering blockers. Marketing does not need to attend.
+
+## [2026-06-19T22:17:20Z] synthesis | Poseidon App Store Developer Account Setup
+
+- status: published
+- slug: projects/poseidon-app-store-developer-setup
+- wiki_revision_id: wikirev_381fa51054ba01e75f92f5afb62ae265
+- summary: Setup of developer account for Apple App Store and Google Play for Poseidon, requiring developer@psdn.ai email and matching DUNS number. Currently in progress.
+
