@@ -34733,3 +34733,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ba41d9868780b09be5ef9fb45d48f25b
 - summary: Numo dynamically adjusts reward amounts per task for each language based on how close the language is to its target hours goal, using a formula to direct contributor supply where i...
 
+## [2026-06-19T12:31:15Z] synthesis | Product Alignment Meeting: SZN 1 Pitfalls
+
+- status: published
+- slug: concepts/product-alignment-szn1-pitfalls-meeting
+- wiki_revision_id: wikirev_801e6f6c8200b9a68a864ad292be81b6
+- summary: A product alignment meeting was scheduled to discuss pitfalls of SZN 1. The meeting time was initially stated as 10pm but corrected to 10am. The meeting is being rescheduled becaus...
+
+## [2026-06-19T12:32:29Z] synthesis | Numo Submissions Dashboard
+
+- status: published
+- slug: systems/numo-submissions-dashboard
+- wiki_revision_id: wikirev_d2b7a7f6e4296a3cfa2e6ff50c3b9ebb
+- summary: Numo is a submission tracking system. Latest digest reports 14,815 new submissions in 24h and 17,299 pending review.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2d1778702014e6ba4395bf9d0fb46da88b152139a9b758edb961759d6aa7a481",
-        "size": 973157
+        "sha256": "ac7a2629fffd42a6681b0906f8e49547ffce27c22d72f177e4f8d072b68e7fc9",
+        "size": 973867
       },
       {
         "path": "log.md",
-        "sha256": "fb37b7f12caa28dd3b70da1462a0810b6b5348e0e454b2d8963e83e527dd0027",
-        "size": 1706536
+        "sha256": "dafa88be636697cba6134dfb20b4b9eb5542cd871a722c2d9a2ac53153dee9c7",
+        "size": 1707270
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4048,6 +4048,11 @@
         "path": "pages/concepts/privacy-preserving-inference-techniques.md",
         "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
         "size": 5483
+      },
+      {
+        "path": "pages/concepts/product-alignment-szn1-pitfalls-meeting.md",
+        "sha256": "b5e09365372d3ea0388f4265bee7de7f274a34a30cc63f452a2311a178d200c4",
+        "size": 4160
       },
       {
         "path": "pages/concepts/product-ops-design-marketing-call-resources.md",
@@ -7705,6 +7710,11 @@
         "size": 4105
       },
       {
+        "path": "pages/systems/numo-submissions-dashboard.md",
+        "sha256": "9fed68ad4b841c10449a4d87c32e5a5b88dd864a3f307bb3b2b0b645a020962e",
+        "size": 1881
+      },
+      {
         "path": "pages/systems/numo.md",
         "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
         "size": 1390
@@ -8009,8 +8019,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T12:03:50Z",
-  "file_count": 1600,
+  "exported_at": "2026-06-19T12:36:05Z",
+  "file_count": 1602,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11287,7 +11297,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "d5faf467876f537d635677386407e1838250d2c04c4092fb609296559355f757",
+  "previous_tree_hash": "c16911b56e12156e0275a5a86c84b2f2509bdc64be53d7332f45dacaf605c654",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11300,14 +11310,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c16911b56e12156e0275a5a86c84b2f2509bdc64be53d7332f45dacaf605c654",
+  "tree_hash": "37956c143f26ed0d4dd474134b22c13cf2fe2123e7cbe550854096b0bc842d4d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 946,
+  "wiki_file_count": 948,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11316,13 +11326,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2d1778702014e6ba4395bf9d0fb46da88b152139a9b758edb961759d6aa7a481",
-      "size": 973157
+      "sha256": "ac7a2629fffd42a6681b0906f8e49547ffce27c22d72f177e4f8d072b68e7fc9",
+      "size": 973867
     },
     {
       "path": "log.md",
-      "sha256": "fb37b7f12caa28dd3b70da1462a0810b6b5348e0e454b2d8963e83e527dd0027",
-      "size": 1706536
+      "sha256": "dafa88be636697cba6134dfb20b4b9eb5542cd871a722c2d9a2ac53153dee9c7",
+      "size": 1707270
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12083,6 +12093,11 @@
       "path": "pages/concepts/privacy-preserving-inference-techniques.md",
       "sha256": "0d83970afdef93d829d73f3863dd0cebe8aeb4035958a4cf0987a4be19b73d95",
       "size": 5483
+    },
+    {
+      "path": "pages/concepts/product-alignment-szn1-pitfalls-meeting.md",
+      "sha256": "b5e09365372d3ea0388f4265bee7de7f274a34a30cc63f452a2311a178d200c4",
+      "size": 4160
     },
     {
       "path": "pages/concepts/product-ops-design-marketing-call-resources.md",
@@ -15740,6 +15755,11 @@
       "size": 4105
     },
     {
+      "path": "pages/systems/numo-submissions-dashboard.md",
+      "sha256": "9fed68ad4b841c10449a4d87c32e5a5b88dd864a3f307bb3b2b0b645a020962e",
+      "size": 1881
+    },
+    {
       "path": "pages/systems/numo.md",
       "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
       "size": 1390
@@ -16041,5 +16061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "caf258aff70076323e9dc6577de3b5d4f7347145658ac6019d5b86d48cde4272"
+  "wiki_tree_hash": "140295f622d3042387afe50d3c7edf82556051662f73a79c62ac1ecee44f38dc"
 }
