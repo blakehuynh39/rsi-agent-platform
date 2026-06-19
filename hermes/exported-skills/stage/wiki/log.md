@@ -35294,3 +35294,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_381fa51054ba01e75f92f5afb62ae265
 - summary: Setup of developer account for Apple App Store and Google Play for Poseidon, requiring developer@psdn.ai email and matching DUNS number. Currently in progress.
 
+## [2026-06-19T22:33:27Z] synthesis | Admin Portal
+
+- status: published
+- slug: systems/admin-portal
+- wiki_revision_id: wikirev_d8f9f654b6d1b7f26250a87d0d398725
+- summary: The admin portal is a gated web application within the Numo monorepo used for viewing internal data, with access controlled by an email allowlist implemented in the depin-backend.
+

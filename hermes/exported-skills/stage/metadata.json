@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7ad33e9407feb924e6a268e2aad16c6023e6cdb0d08badf43dab5c7d03a85424",
-        "size": 999207
+        "sha256": "9ff77302f1edb955b71b215c7db96a9d54c86e8aba665c502ad56e09fd7242cf",
+        "size": 999549
       },
       {
         "path": "log.md",
-        "sha256": "1de7127611b90e552c7abb426ecd0490c4ed3930b4dcfc57af6f42f632a96f2b",
-        "size": 1736211
+        "sha256": "f9c4b4367943b1363b5f4ea041232c36770e53e2385c7a0d192e4fbdeb46ec04",
+        "size": 1736565
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7680,6 +7680,11 @@
         "size": 4492
       },
       {
+        "path": "pages/systems/admin-portal.md",
+        "sha256": "8a81365422f55bfdbfbee1614d0b31818a233f44a038ae7fc640ea09ef8a0d81",
+        "size": 3096
+      },
+      {
         "path": "pages/systems/aeneid-testnet-deployment-addresses.md",
         "sha256": "e1abf9c5ad67ed4d7115cd18b3440bea27394ab8d4a6554734c90e30451892f9",
         "size": 3601
@@ -8369,8 +8374,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T22:20:02Z",
-  "file_count": 1672,
+  "exported_at": "2026-06-19T22:36:34Z",
+  "file_count": 1673,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11647,7 +11652,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "0a95dfd42d2d4c1fa570b0afbda15242cb8ea0677eb5009d53eedf9a05b7c1db",
+  "previous_tree_hash": "8da7fb1ac47cebd2f73616d6edc5212625195b2d0fda07162d5e27352fdf3846",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11660,14 +11665,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8da7fb1ac47cebd2f73616d6edc5212625195b2d0fda07162d5e27352fdf3846",
+  "tree_hash": "07df8b64e5275eee1223a2410a81aeee3ad96d7f11c6b30229fb25cecee14b0f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1018,
+  "wiki_file_count": 1019,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11676,13 +11681,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7ad33e9407feb924e6a268e2aad16c6023e6cdb0d08badf43dab5c7d03a85424",
-      "size": 999207
+      "sha256": "9ff77302f1edb955b71b215c7db96a9d54c86e8aba665c502ad56e09fd7242cf",
+      "size": 999549
     },
     {
       "path": "log.md",
-      "sha256": "1de7127611b90e552c7abb426ecd0490c4ed3930b4dcfc57af6f42f632a96f2b",
-      "size": 1736211
+      "sha256": "f9c4b4367943b1363b5f4ea041232c36770e53e2385c7a0d192e4fbdeb46ec04",
+      "size": 1736565
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16075,6 +16080,11 @@
       "size": 4492
     },
     {
+      "path": "pages/systems/admin-portal.md",
+      "sha256": "8a81365422f55bfdbfbee1614d0b31818a233f44a038ae7fc640ea09ef8a0d81",
+      "size": 3096
+    },
+    {
       "path": "pages/systems/aeneid-testnet-deployment-addresses.md",
       "sha256": "e1abf9c5ad67ed4d7115cd18b3440bea27394ab8d4a6554734c90e30451892f9",
       "size": 3601
@@ -16761,5 +16771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1b4cd59b06517cec8e2949d3c25940d0b007ec8e6742e68c05ac345defa86c7e"
+  "wiki_tree_hash": "fb3eece87cd14652b466a4bec1dfb0e26a923948e5d725ea997a4ec0c1fbe1ec"
 }
