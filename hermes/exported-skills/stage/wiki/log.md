@@ -35159,3 +35159,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eb32a900d31f0ac44ea14e787d612ee5
 - summary: Discussion on implementing fraud detection and country-based access controls to prevent spam and farming in data collection campaigns. Topics include IP banning, shadow banning, co...
 
+## [2026-06-19T19:31:19Z] synthesis | CHiME 9 Collaboration with CMU
+
+- status: published
+- slug: projects/chime-9-cmu-collaboration
+- wiki_revision_id: wikirev_7681a5f2ff82e88c283bfc8831ea7ded
+- summary: Discussion and initial steps toward a collaboration with Prof. Shinji Watanabe of CMU on the CHiME 9 challenge, with a focus on contributing high-quality Indian language speech dat...
+

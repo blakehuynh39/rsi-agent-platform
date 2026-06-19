@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1f8d60fc2b1dfb13d66d669d0e5f548bd53800d000be0867575a2fa0a7fb4f95",
-        "size": 994056
+        "sha256": "a2cf326c8fb95f0ef89feef8737e4de6092a0756b64159847224568a2afac828",
+        "size": 994435
       },
       {
         "path": "log.md",
-        "sha256": "32f81d9a80f01b3b9d0c7af8b8a8a78a6abd9c990f3d15d85c1254822fe43867",
-        "size": 1729278
+        "sha256": "32076115bc375e6c055da50bd583b37c7bf2e7d27c4326f0985343a593dc1093",
+        "size": 1729668
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5603,6 +5603,11 @@
         "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
         "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
         "size": 3000
+      },
+      {
+        "path": "pages/projects/chime-9-cmu-collaboration.md",
+        "sha256": "668d6a41116033c002437ec20c730bfbeebf710bbf4574f7c946d648dba989cd",
+        "size": 9312
       },
       {
         "path": "pages/projects/community-badge.md",
@@ -8294,8 +8299,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T19:23:53Z",
-  "file_count": 1657,
+  "exported_at": "2026-06-19T19:35:36Z",
+  "file_count": 1658,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11572,7 +11577,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "2ae6029048165d14b5c7c8b98b0a353f50f60fd1542ce5341e669bd1674578c0",
+  "previous_tree_hash": "4e20bec1db4234603525d2e003e7d9fc561c225f9a571227585b27a9a625d48e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11585,14 +11590,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e20bec1db4234603525d2e003e7d9fc561c225f9a571227585b27a9a625d48e",
+  "tree_hash": "f470a7ab553011eefc2278b128e07c12449f3b0e5624dbc1cae616aec27e1020",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1003,
+  "wiki_file_count": 1004,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11601,13 +11606,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1f8d60fc2b1dfb13d66d669d0e5f548bd53800d000be0867575a2fa0a7fb4f95",
-      "size": 994056
+      "sha256": "a2cf326c8fb95f0ef89feef8737e4de6092a0756b64159847224568a2afac828",
+      "size": 994435
     },
     {
       "path": "log.md",
-      "sha256": "32f81d9a80f01b3b9d0c7af8b8a8a78a6abd9c990f3d15d85c1254822fe43867",
-      "size": 1729278
+      "sha256": "32076115bc375e6c055da50bd583b37c7bf2e7d27c4326f0985343a593dc1093",
+      "size": 1729668
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13923,6 +13928,11 @@
       "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
       "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
       "size": 3000
+    },
+    {
+      "path": "pages/projects/chime-9-cmu-collaboration.md",
+      "sha256": "668d6a41116033c002437ec20c730bfbeebf710bbf4574f7c946d648dba989cd",
+      "size": 9312
     },
     {
       "path": "pages/projects/community-badge.md",
@@ -16611,5 +16621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bb607dc0ea15afd129d097719c318b226acec10d8c2849933b2bb8a5548a6bd7"
+  "wiki_tree_hash": "e443f05b32f35a2e1b6dfe5d2bfd3238e94577b451f3d6f5740349dd7f6e7a20"
 }
