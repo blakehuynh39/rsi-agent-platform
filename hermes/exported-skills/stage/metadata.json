@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c65533ef338e6131ee661714aa42701576a77a589652d9ba8b9de32aff6950cc",
-        "size": 995491
+        "sha256": "ea89fb12d8dff35b8d53edae3edee00df5adf63d565c09d81f97e7165719b734",
+        "size": 996165
       },
       {
         "path": "log.md",
-        "sha256": "54a198fb733b41d305f74c0bcdec346e64afbdaef57e1e3f7f68698c1870a421",
-        "size": 1732020
+        "sha256": "98b624091f4357de2bee84155b78f9f8afe8964df7732cc18087774dd9c156ef",
+        "size": 1732718
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5080,6 +5080,11 @@
         "size": 1777
       },
       {
+        "path": "pages/open-questions/ex-poseidon-onboarding-flow.md",
+        "sha256": "0f0da4ed010215e3d683a4236ba0e5b13d5534f59cf738bd0312bf34a8fe3d26",
+        "size": 2834
+      },
+      {
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
         "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
         "size": 1497
@@ -5103,6 +5108,11 @@
         "path": "pages/open-questions/licensing-questions-to-ben.md",
         "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
         "size": 5471
+      },
+      {
+        "path": "pages/open-questions/login-error-staging-not-prod.md",
+        "sha256": "0e4f26b97d7a2c445cc23a16715e02c8d85d67cb0d96d1b1f9fdd961a44229a8",
+        "size": 1732
       },
       {
         "path": "pages/open-questions/multi-author-ipa-ownership.md",
@@ -8314,8 +8324,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T20:21:31Z",
-  "file_count": 1661,
+  "exported_at": "2026-06-19T20:33:01Z",
+  "file_count": 1663,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11592,7 +11602,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "468321f2345a0425474c10402513c35b079394a8b7247bd0ebfedb9310f6430b",
+  "previous_tree_hash": "a1e65b55ad3199e52f27aa4dad38f3eafbb8612c49933dfb464a78bbcb5018a7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11605,14 +11615,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a1e65b55ad3199e52f27aa4dad38f3eafbb8612c49933dfb464a78bbcb5018a7",
+  "tree_hash": "e43b7f01f46321eca11854b0dbdb305c21f20b76f92c213da83f328e879023e5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1007,
+  "wiki_file_count": 1009,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11621,13 +11631,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c65533ef338e6131ee661714aa42701576a77a589652d9ba8b9de32aff6950cc",
-      "size": 995491
+      "sha256": "ea89fb12d8dff35b8d53edae3edee00df5adf63d565c09d81f97e7165719b734",
+      "size": 996165
     },
     {
       "path": "log.md",
-      "sha256": "54a198fb733b41d305f74c0bcdec346e64afbdaef57e1e3f7f68698c1870a421",
-      "size": 1732020
+      "sha256": "98b624091f4357de2bee84155b78f9f8afe8964df7732cc18087774dd9c156ef",
+      "size": 1732718
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13420,6 +13430,11 @@
       "size": 1777
     },
     {
+      "path": "pages/open-questions/ex-poseidon-onboarding-flow.md",
+      "sha256": "0f0da4ed010215e3d683a4236ba0e5b13d5534f59cf738bd0312bf34a8fe3d26",
+      "size": 2834
+    },
+    {
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
       "sha256": "d346784e1df490af2f4c9ff9627e62a25ade81371ac2db699ae7b63a4f9792ae",
       "size": 1497
@@ -13443,6 +13458,11 @@
       "path": "pages/open-questions/licensing-questions-to-ben.md",
       "sha256": "9151804c35ca6fbe29201d83e965af71577e75a85d82493b748ded92c70a97e1",
       "size": 5471
+    },
+    {
+      "path": "pages/open-questions/login-error-staging-not-prod.md",
+      "sha256": "0e4f26b97d7a2c445cc23a16715e02c8d85d67cb0d96d1b1f9fdd961a44229a8",
+      "size": 1732
     },
     {
       "path": "pages/open-questions/multi-author-ipa-ownership.md",
@@ -16651,5 +16671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a57c48a4812c11871a8d6b4610904d020b1b17089d5ec81b20fc7ed6cbfd71ab"
+  "wiki_tree_hash": "b93bf14a943406f4b7d08a003a48f63bc84199d50c403d6d883bbf8bdafcbcfc"
 }

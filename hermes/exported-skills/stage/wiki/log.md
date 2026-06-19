@@ -35210,3 +35210,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e5da8c1cbeb0862ce5510df7a4d595d5
 - summary: Numo launched and rapidly acquired users and submissions. The team monitored milestones and prepared a public announcement.
 
+## [2026-06-19T20:31:21Z] synthesis | Ex-Poseidon User Onboarding Flow
+
+- status: published
+- slug: open-questions/ex-poseidon-onboarding-flow
+- wiki_revision_id: wikirev_235a694225c14fe6edf93d1e801df0ac
+- summary: Discussion about signup process for ex-Poseidon users, including email blast and onboarding flow with a multiplier.
+
+## [2026-06-19T20:32:06Z] synthesis | Login Error Due to Feature Not on Production
+
+- status: published
+- slug: open-questions/login-error-staging-not-prod
+- wiki_revision_id: wikirev_7b203280ecae8d0edbaffc1d06a1b1bf
+- summary: A user encountered a login error. A team member indicated the feature is likely not on production yet and they are currently on staging.
+
