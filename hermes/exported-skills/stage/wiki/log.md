@@ -34775,3 +34775,33 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2547770e6d7fa0149b2d1aa3f7145614
 - summary: Seed phrase is an audio recording of 10-20 seconds used for voice verification in Numo, required for every account. Numo is responsible for generating seed phrases, with implementa...
 
+## [2026-06-19T13:30:25Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_9f8395c246afdaa46424dd7b88d3d133
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_091428cef666f3b318df1b1f41e3c07c
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-19T13:30:50Z] synthesis | Intentional Code-switching in Transcripts for KGEN
+
+- status: published
+- slug: decisions/code-switching-transcripts-kgen
+- wiki_revision_id: wikirev_3396bd37d56bb8e545d462bf3d15489f
+- summary: The presence of random English words (code-switching) in transcripts is intentional, designed for the KGEN system.
+
+## [2026-06-19T13:32:37Z] synthesis | Poseidon Voice Campaigns
+
+- status: published
+- slug: projects/poseidon-voice-campaigns
+- wiki_revision_id: wikirev_bf1c2486b2897453199ccd79c4365b67
+- summary: Definition of three main campaign types for the Poseidon project and initial feasibility discussion.
+
+## [2026-06-19T13:32:37Z] synthesis | Voice AI Market Opportunities (2026)
+
+- status: published
+- slug: concepts/voice-ai-market-opportunities
+- wiki_revision_id: wikirev_1de188be0f2e725143b05af2112c5cb1
+- summary: Key voice AI opportunities identified from events, covering call center, healthcare, finance, multilingual, and legal sectors.
+
