@@ -35075,3 +35075,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8317e1efddf4bd661da0bebb4dbd8a33
 - summary: Discussion proposing a switch to Phosphor icons for consistency, with concerns about prioritization relative to other UX improvements from dogfooding feedback. General agreement on...
 
+## [2026-06-19T18:31:39Z] synthesis | Kled Pothole Task User Experience
+
+- status: published
+- slug: systems/kled-pothole-task-ux
+- wiki_revision_id: wikirev_d96ad3d9261e58d2c12eb218729de022
+- summary: Experience report of attempting a Kled pothole reporting task with 'High Pay' label. Upload was broken, location pin not validating, but the label was motivating. Insights on data ...
+
+## [2026-06-19T18:31:39Z] synthesis | Kled Pay Tier Labels
+
+- status: published
+- slug: concepts/kled-pay-tier-labels
+- wiki_revision_id: wikirev_d46a270c55907d4f763dade069d1c034
+- summary: The 'High Pay' and other pay tier labels were introduced in Kled's mastery release, likely to improve payment transparency, possibly due to user feedback or Apple App Store require...
+
+## [2026-06-19T18:31:39Z] synthesis | Kled Data Quality Concerns
+
+- status: published
+- slug: concepts/kled-data-quality-concerns
+- wiki_revision_id: wikirev_c458525f6baa7ecde79cfa6ae723706c
+- summary: There are concerns about the quality and quantity of data collected by Kled, which may present an opportunity for differentiation for RSI.
+
+## [2026-06-19T18:31:39Z] synthesis | NYC DOT - Kled Partnership Speculation
+
+- status: published
+- slug: open-questions/nyc-dot-kled-partnership-speculation
+- wiki_revision_id: wikirev_d3281bbe1d32c19df08bd17e678c0ce7
+- summary: Open questions about the nature of the relationship between Kled and the New York City Department of Transportation, including whether there is a formal agreement, licensing terms,...
+
+## [2026-06-19T18:31:40Z] synthesis | Data Labeling Secondary Market Value
+
+- status: published
+- slug: concepts/data-labeling-secondary-market-value
+- wiki_revision_id: wikirev_b6f5463372644505169b71d31b7faef7
+- summary: Photo submissions in task context provide low-signal training data but high-value labeling, opening a secondary market for urban data (e.g., with municipal departments). Task evalu...
+
+## [2026-06-19T18:33:18Z] synthesis | Hindi Translation Effort
+
+- status: published
+- slug: projects/hindi-translation-effort
+- wiki_revision_id: wikirev_189d00ff429de4143274346eded5cc2d
+- summary: Ongoing effort to translate web content into Hindi, involving direct code changes via pull requests and/or a mapping document approach. Contributors are coordinating access and fil...
+

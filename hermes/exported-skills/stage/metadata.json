@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "739eb60a56587595c2f98a738cd51b39f3493e1f0d16b898dc5974075784ccf7",
-        "size": 989708
+        "sha256": "4c6a53e9f5fbdafe6b3f63df443419a2a5ce3648f96aeb1e967836c10c45962a",
+        "size": 991945
       },
       {
         "path": "log.md",
-        "sha256": "4f465ad4012fba2dae59b709377dfd04fe9cf055c780c2c5f1a5b6b92768a2eb",
-        "size": 1724786
+        "sha256": "c3bb15cce617bd819d4d36a6eef3c39eefd5a5b9f608af2cd96b392824cb98bd",
+        "size": 1727095
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3473,6 +3473,11 @@
         "path": "pages/concepts/dashboard-explorer.md",
         "sha256": "a802367a103817ef9ff1ae3feeb99ff2524ee9e103e47dcb2d438c71732216e9",
         "size": 1740
+      },
+      {
+        "path": "pages/concepts/data-labeling-secondary-market-value.md",
+        "sha256": "32b68305f9fe8203da2dc63f81d1d796af127289d15ab5e6ffbddb47796841c2",
+        "size": 2277
       },
       {
         "path": "pages/concepts/data-preparation-and-training-research.md",
@@ -3768,6 +3773,16 @@
         "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
         "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
         "size": 3757
+      },
+      {
+        "path": "pages/concepts/kled-data-quality-concerns.md",
+        "sha256": "94a5e15012170e0394ce472252e6de59e0b00c35f2a78adb95af52c538f11e85",
+        "size": 1983
+      },
+      {
+        "path": "pages/concepts/kled-pay-tier-labels.md",
+        "sha256": "d1c158bd6cae7427d3f468ec69fb3625bb443df49a0cafb60a5ba6cf72e976ea",
+        "size": 2192
       },
       {
         "path": "pages/concepts/korea-launch-blocker-prioritization.md",
@@ -5115,6 +5130,11 @@
         "size": 2284
       },
       {
+        "path": "pages/open-questions/nyc-dot-kled-partnership-speculation.md",
+        "sha256": "d2bbed332ebcfb72da167cb0d54b7321f118565d5fa3c2bb17c0e4a6a9386589",
+        "size": 2342
+      },
+      {
         "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
         "sha256": "9a509677215bea999f6a45b64c8f2945d1a2f267d2b4bb577737643fcf04bee9",
         "size": 2539
@@ -5873,6 +5893,11 @@
         "path": "pages/projects/hindi-localization-numo.md",
         "sha256": "4c97eeac6891601ac81677ca7ebc6ba41860e1b4c78bf9b6b505564347e49231",
         "size": 2034
+      },
+      {
+        "path": "pages/projects/hindi-translation-effort.md",
+        "sha256": "0f5146aeea24ed78552b4b3aaa944333984dfb6c4a2debc4e828a20e9dedcc70",
+        "size": 5012
       },
       {
         "path": "pages/projects/hub-v1-backend.md",
@@ -7775,6 +7800,11 @@
         "size": 4768
       },
       {
+        "path": "pages/systems/kled-pothole-task-ux.md",
+        "sha256": "b7bc050ce7a753241ca3113503cd24840c873a6dc2ea9e58648b4956e5fa2690",
+        "size": 2920
+      },
+      {
         "path": "pages/systems/kled-trace-api.md",
         "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
         "size": 9118
@@ -8234,8 +8264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T18:24:43Z",
-  "file_count": 1645,
+  "exported_at": "2026-06-19T18:36:19Z",
+  "file_count": 1651,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11512,7 +11542,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-97d98c6bdmx",
-  "previous_tree_hash": "93342f114bf91804bff06dd2c37dfe0fdc8a7f3a56bda3a7ca932e53c9030cd0",
+  "previous_tree_hash": "5c440cee90008bb178cda3408adc6826cca140d5fd8799c8b6b17cec2b36a6c2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11525,14 +11555,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5c440cee90008bb178cda3408adc6826cca140d5fd8799c8b6b17cec2b36a6c2",
+  "tree_hash": "4e6d3e69209ef38ea398f5e25897f0a539a60d4e024f6ac30d41084b75bbf070",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 991,
+  "wiki_file_count": 997,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11541,13 +11571,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "739eb60a56587595c2f98a738cd51b39f3493e1f0d16b898dc5974075784ccf7",
-      "size": 989708
+      "sha256": "4c6a53e9f5fbdafe6b3f63df443419a2a5ce3648f96aeb1e967836c10c45962a",
+      "size": 991945
     },
     {
       "path": "log.md",
-      "sha256": "4f465ad4012fba2dae59b709377dfd04fe9cf055c780c2c5f1a5b6b92768a2eb",
-      "size": 1724786
+      "sha256": "c3bb15cce617bd819d4d36a6eef3c39eefd5a5b9f608af2cd96b392824cb98bd",
+      "size": 1727095
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11733,6 +11763,11 @@
       "path": "pages/concepts/dashboard-explorer.md",
       "sha256": "a802367a103817ef9ff1ae3feeb99ff2524ee9e103e47dcb2d438c71732216e9",
       "size": 1740
+    },
+    {
+      "path": "pages/concepts/data-labeling-secondary-market-value.md",
+      "sha256": "32b68305f9fe8203da2dc63f81d1d796af127289d15ab5e6ffbddb47796841c2",
+      "size": 2277
     },
     {
       "path": "pages/concepts/data-preparation-and-training-research.md",
@@ -12028,6 +12063,16 @@
       "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
       "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
       "size": 3757
+    },
+    {
+      "path": "pages/concepts/kled-data-quality-concerns.md",
+      "sha256": "94a5e15012170e0394ce472252e6de59e0b00c35f2a78adb95af52c538f11e85",
+      "size": 1983
+    },
+    {
+      "path": "pages/concepts/kled-pay-tier-labels.md",
+      "sha256": "d1c158bd6cae7427d3f468ec69fb3625bb443df49a0cafb60a5ba6cf72e976ea",
+      "size": 2192
     },
     {
       "path": "pages/concepts/korea-launch-blocker-prioritization.md",
@@ -13375,6 +13420,11 @@
       "size": 2284
     },
     {
+      "path": "pages/open-questions/nyc-dot-kled-partnership-speculation.md",
+      "sha256": "d2bbed332ebcfb72da167cb0d54b7321f118565d5fa3c2bb17c0e4a6a9386589",
+      "size": 2342
+    },
+    {
       "path": "pages/open-questions/open-questions-blast-and-sp-tokenomics.md",
       "sha256": "9a509677215bea999f6a45b64c8f2945d1a2f267d2b4bb577737643fcf04bee9",
       "size": 2539
@@ -14133,6 +14183,11 @@
       "path": "pages/projects/hindi-localization-numo.md",
       "sha256": "4c97eeac6891601ac81677ca7ebc6ba41860e1b4c78bf9b6b505564347e49231",
       "size": 2034
+    },
+    {
+      "path": "pages/projects/hindi-translation-effort.md",
+      "sha256": "0f5146aeea24ed78552b4b3aaa944333984dfb6c4a2debc4e828a20e9dedcc70",
+      "size": 5012
     },
     {
       "path": "pages/projects/hub-v1-backend.md",
@@ -16035,6 +16090,11 @@
       "size": 4768
     },
     {
+      "path": "pages/systems/kled-pothole-task-ux.md",
+      "sha256": "b7bc050ce7a753241ca3113503cd24840c873a6dc2ea9e58648b4956e5fa2690",
+      "size": 2920
+    },
+    {
       "path": "pages/systems/kled-trace-api.md",
       "sha256": "df9af9fdf83be87f2ab02c98c0ec190a61b36d686f9bd1f99f6c6505b7a17ffc",
       "size": 9118
@@ -16491,5 +16551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "25ea0532ea0cc8e3724da47718ffc3ab89dddadf1522cba4bb246dfa5c8f6ad9"
+  "wiki_tree_hash": "f8be873124095c82e3d2076c06b90f75b655d487000e86e5245bc1756f5ad867"
 }
