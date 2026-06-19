@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4c6a53e9f5fbdafe6b3f63df443419a2a5ce3648f96aeb1e967836c10c45962a",
-        "size": 991945
+        "sha256": "7921388b889d9e9f75ef336d8b8688f99d672a8b808953a0f7dff1b52519b14a",
+        "size": 992691
       },
       {
         "path": "log.md",
-        "sha256": "c3bb15cce617bd819d4d36a6eef3c39eefd5a5b9f608af2cd96b392824cb98bd",
-        "size": 1727095
+        "sha256": "51ca31777f373280e9f66cace54cccea6bb9a587f4f599de9e42425922b96f52",
+        "size": 1727865
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3303,6 +3303,11 @@
         "path": "pages/concepts/access-control-complexity-analysis.md",
         "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
         "size": 6422
+      },
+      {
+        "path": "pages/concepts/access-request-review-incident-20260414.md",
+        "sha256": "41d8dbbf7639ef36723c999bd507968b7f8231521d0c3a4dcb21ca40b37289a7",
+        "size": 2593
       },
       {
         "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
@@ -6980,6 +6985,11 @@
         "size": 5261
       },
       {
+        "path": "pages/projects/world-design-assets-handoff.md",
+        "sha256": "9c868522c2fc3058402c8ddb8e98d15f8103a13680a7baa8372227e8098b08b2",
+        "size": 2007
+      },
+      {
         "path": "pages/projects/world-launch.md",
         "sha256": "2b89f97a6cda4b0263b14c9ed36eb9a63ad8d46e7ad47932b2042400eff3dc0c",
         "size": 909
@@ -8264,8 +8274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T18:36:19Z",
-  "file_count": 1651,
+  "exported_at": "2026-06-19T18:49:54Z",
+  "file_count": 1653,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11541,8 +11551,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-97d98c6bdmx",
-  "previous_tree_hash": "5c440cee90008bb178cda3408adc6826cca140d5fd8799c8b6b17cec2b36a6c2",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
+  "previous_tree_hash": "4e6d3e69209ef38ea398f5e25897f0a539a60d4e024f6ac30d41084b75bbf070",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11555,14 +11565,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e6d3e69209ef38ea398f5e25897f0a539a60d4e024f6ac30d41084b75bbf070",
+  "tree_hash": "7fcc5ff4bc08fabf50f205223a1073492bd28e3acdfefc63b6a4e16d9ed0fad3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 997,
+  "wiki_file_count": 999,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11571,13 +11581,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4c6a53e9f5fbdafe6b3f63df443419a2a5ce3648f96aeb1e967836c10c45962a",
-      "size": 991945
+      "sha256": "7921388b889d9e9f75ef336d8b8688f99d672a8b808953a0f7dff1b52519b14a",
+      "size": 992691
     },
     {
       "path": "log.md",
-      "sha256": "c3bb15cce617bd819d4d36a6eef3c39eefd5a5b9f608af2cd96b392824cb98bd",
-      "size": 1727095
+      "sha256": "51ca31777f373280e9f66cace54cccea6bb9a587f4f599de9e42425922b96f52",
+      "size": 1727865
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11593,6 +11603,11 @@
       "path": "pages/concepts/access-control-complexity-analysis.md",
       "sha256": "69e6a45abd17b8bfd0febe293c9cced3afb35f6798a65ac7a97a3ebb7f7a5fe3",
       "size": 6422
+    },
+    {
+      "path": "pages/concepts/access-request-review-incident-20260414.md",
+      "sha256": "41d8dbbf7639ef36723c999bd507968b7f8231521d0c3a4dcb21ca40b37289a7",
+      "size": 2593
     },
     {
       "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
@@ -15270,6 +15285,11 @@
       "size": 5261
     },
     {
+      "path": "pages/projects/world-design-assets-handoff.md",
+      "sha256": "9c868522c2fc3058402c8ddb8e98d15f8103a13680a7baa8372227e8098b08b2",
+      "size": 2007
+    },
+    {
       "path": "pages/projects/world-launch.md",
       "sha256": "2b89f97a6cda4b0263b14c9ed36eb9a63ad8d46e7ad47932b2042400eff3dc0c",
       "size": 909
@@ -16551,5 +16571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f8be873124095c82e3d2076c06b90f75b655d487000e86e5245bc1756f5ad867"
+  "wiki_tree_hash": "039e9d6a39aec625f4f3bd045d286956d16b46887c560efab36f8caf5152c09d"
 }

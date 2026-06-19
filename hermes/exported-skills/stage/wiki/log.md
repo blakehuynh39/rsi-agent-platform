@@ -35117,3 +35117,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_189d00ff429de4143274346eded5cc2d
 - summary: Ongoing effort to translate web content into Hindi, involving direct code changes via pull requests and/or a mapping document approach. Contributors are coordinating access and fil...
 
+## [2026-06-19T18:45:55Z] synthesis | Access Request for Review Incident (2026-04-14)
+
+- status: published
+- slug: concepts/access-request-review-incident-20260414
+- wiki_revision_id: wikirev_385187254ce1cc6084b6b3a815c01f1f
+- summary: A Slack thread captured an informal access request for review materials, illustrating that obtaining access may require contacting specific individuals.
+
+## [2026-06-19T18:46:18Z] synthesis | World Design Assets Handoff
+
+- status: published
+- slug: projects/world-design-assets-handoff
+- wiki_revision_id: wikirev_36de3388cc19caeb152aefc5bd46e35f
+- summary: Design assets for World are being handed over: in-app assets already handed off by Lex today; marketing assets expected by Friday. Team should contact World to give heads up.
+
