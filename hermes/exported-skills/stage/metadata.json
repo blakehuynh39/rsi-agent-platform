@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49fbb500aaec338dd8ea4d39ca996a228eaec938761ce583a936906fe5e1847c",
-        "size": 979888
+        "sha256": "4beb33125b86229a7bcb32d618c4825223f6cca5da6fafa7fea9c778df9d49ef",
+        "size": 980659
       },
       {
         "path": "log.md",
-        "sha256": "bd1480b1d147160eb10ad8e8e5424f9ada4a6ddd7fd766dc084bd6769e07ae55",
-        "size": 1713964
+        "sha256": "068783b2d3ccea1063f14729e36aed753ad44e2274b25467360f201e9c8e03d9",
+        "size": 1714759
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4813,6 +4813,11 @@
         "path": "pages/decisions/smart-contract-design-proposal.md",
         "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
         "size": 1211
+      },
+      {
+        "path": "pages/decisions/spoken-transcripts-storage-decision.md",
+        "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
+        "size": 4404
       },
       {
         "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
@@ -6890,6 +6895,11 @@
         "size": 3582
       },
       {
+        "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
+        "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
+        "size": 4482
+      },
+      {
         "path": "pages/runbooks/aws-cli-setup.md",
         "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
         "size": 3333
@@ -8104,8 +8114,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T15:18:17Z",
-  "file_count": 1619,
+  "exported_at": "2026-06-19T15:35:12Z",
+  "file_count": 1621,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11382,7 +11392,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "a73e47965e58d88272ae3483c056b78003da1676eec4a43cce44dc206024e25b",
+  "previous_tree_hash": "9fea7e070f4ac1d766a6cc35693553bec491c469d93016206d9b60c942044324",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11395,14 +11405,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9fea7e070f4ac1d766a6cc35693553bec491c469d93016206d9b60c942044324",
+  "tree_hash": "08079a4c149d755860f00abcb6d275349ff8af23e13e8ba2a782fa084eb579a0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 965,
+  "wiki_file_count": 967,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11411,13 +11421,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49fbb500aaec338dd8ea4d39ca996a228eaec938761ce583a936906fe5e1847c",
-      "size": 979888
+      "sha256": "4beb33125b86229a7bcb32d618c4825223f6cca5da6fafa7fea9c778df9d49ef",
+      "size": 980659
     },
     {
       "path": "log.md",
-      "sha256": "bd1480b1d147160eb10ad8e8e5424f9ada4a6ddd7fd766dc084bd6769e07ae55",
-      "size": 1713964
+      "sha256": "068783b2d3ccea1063f14729e36aed753ad44e2274b25467360f201e9c8e03d9",
+      "size": 1714759
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12943,6 +12953,11 @@
       "path": "pages/decisions/smart-contract-design-proposal.md",
       "sha256": "a362b11caf7749f26c245e313e2b36aaa7a1204434d617199b085342ba0d8158",
       "size": 1211
+    },
+    {
+      "path": "pages/decisions/spoken-transcripts-storage-decision.md",
+      "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
+      "size": 4404
     },
     {
       "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
@@ -15020,6 +15035,11 @@
       "size": 3582
     },
     {
+      "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
+      "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
+      "size": 4482
+    },
+    {
       "path": "pages/runbooks/aws-cli-setup.md",
       "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
       "size": 3333
@@ -16231,5 +16251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ad0202d8dba876c2297d0afff1897107adbbf0b34fb3382c86d2ec136a80d936"
+  "wiki_tree_hash": "0d7ba7bbeb52f7051b470e48a52ffab91301e0249fda46684ea225d9d4fc303f"
 }

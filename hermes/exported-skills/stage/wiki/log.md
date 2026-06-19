@@ -34875,3 +34875,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d2c37e54c10cac25aaf16e7d554796e0
 - summary: A system that generates a daily digest, which experienced a failure that was fixed. It is scheduled to run at 9AM PST and 4PM PST, and the team can provide feedback on useful metri...
 
+## [2026-06-19T15:32:25Z] synthesis | Spoken Transcripts Storage Decision
+
+- status: published
+- slug: decisions/spoken-transcripts-storage-decision
+- wiki_revision_id: wikirev_197425eabf1caa5f50daa954a137e2fd
+- summary: The team decided to use AWS S3 over Cloudflare R2 for storing spoken transcripts. S3 offers better throughput scaling and more features, while egress costs are currently manageable...
+
+## [2026-06-19T15:33:05Z] synthesis | Pre-Dogfooding App Feedback
+
+- status: published
+- slug: runbooks/app-pre-dogfooding-feedback
+- wiki_revision_id: wikirev_38b7142f54880c0e0b8dde72fb66ee9b
+- summary: Collected feedback from pre-dogfooding review of the Story Protocol app, covering localization issues, a placeholder task for IP registration testing, UI placement suggestions, and...
+
