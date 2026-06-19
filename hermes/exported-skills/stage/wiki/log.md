@@ -34812,3 +34812,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_22a66232ae37af1e3884bacd9f75c418
 - summary: Defines seven rate limiting rules for numolabs.ai Cloudflare zone, covering authentication, reward actions, enumeration-prone reads, user data reads, profile, API global backstop, ...
 
+## [2026-06-19T14:02:05Z] synthesis | Anti-Spam Verification Strategy
+
+- status: published
+- slug: policies/anti-spam-verification-strategy
+- wiki_revision_id: wikirev_107633cf4001e6fa12e8459ab9deb7d0
+- summary: Strategy to combat spam submissions, using light touch methods (voice fingerprinting, language test) and escalating to payment block, informed by Pi Network and WeChat approaches, ...
+
