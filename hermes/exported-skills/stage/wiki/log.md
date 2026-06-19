@@ -34754,3 +34754,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3ac516a763d4759460dcaed5c761ce60
 - summary: Numo is a collaborative initiative between supply side (Poseidon) and demand side (Story), using a shared Slack channel for transparent communication to align on collection goals, ...
 
+## [2026-06-19T13:15:58Z] synthesis | Fix Account Deletion Bug (April 2026)
+
+- status: published
+- slug: decisions/fix-account-deletion-bug-april-2026
+- wiki_revision_id: wikirev_464638ce03f098e828af8eb688588843
+- summary: A user reported being unable to delete their account, citing concern about personal information. The issue was investigated, a fix was deployed, and the user confirmed the fix reso...
+
+## [2026-06-19T13:19:46Z] synthesis | Poseidon-Numo Product Alignment (April 2026)
+
+- status: published
+- slug: projects/poseidon-numo-product-alignment
+- wiki_revision_id: wikirev_f0f3cb89b3543c06348a4856521009e0
+- summary: Action items and decisions from the Poseidon-Numo product alignment meeting on April 21, 2026 regarding transcript delivery, data spec and regions, file format change, and seed phr...
+
+## [2026-06-19T13:19:46Z] synthesis | Seed Phrase
+
+- status: published
+- slug: concepts/seed-phrase
+- wiki_revision_id: wikirev_2547770e6d7fa0149b2d1aa3f7145614
+- summary: Seed phrase is an audio recording of 10-20 seconds used for voice verification in Numo, required for every account. Numo is responsible for generating seed phrases, with implementa...
+

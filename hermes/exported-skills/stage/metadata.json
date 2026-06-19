@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3feb0d3a64e277e47de6d486513da7fbb16e4696130466dbf580aaa595837fbd",
-        "size": 974220
+        "sha256": "0714b058bfadc38416fc72abf3f138bfea963f9fb4b2d66b999144e010f7ac20",
+        "size": 975359
       },
       {
         "path": "log.md",
-        "sha256": "b18614badd855d7359d36b5bf3fc39eeea857473c5ec76f0224aea161d374adc",
-        "size": 1707635
+        "sha256": "37bb53a3611695859e7c046ba9c8f943fe03344c59dff4d602ff2a31e696b72b",
+        "size": 1708810
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4175,6 +4175,11 @@
         "size": 1444
       },
       {
+        "path": "pages/concepts/seed-phrase.md",
+        "sha256": "025628f27f140d47d2bf195220101cc69346e89188a813204876ab14dfff35b9",
+        "size": 2748
+      },
+      {
         "path": "pages/concepts/serverless-design-expose-network-status.md",
         "sha256": "cdb4a4002ea074a2ce6fd642f3582381ae56d4ce16c918386f75067016b6f68e",
         "size": 5204
@@ -4518,6 +4523,11 @@
         "path": "pages/decisions/finance-legal-request-hold.md",
         "sha256": "d175ae7a62ece0c78ba75938e5d9e6ff2eafb8fe211982b8b53045e6852eef47",
         "size": 2830
+      },
+      {
+        "path": "pages/decisions/fix-account-deletion-bug-april-2026.md",
+        "sha256": "8472d8ff612347f332e4b3fa42baeded4636dfc6ceb250cbf098de10831be185",
+        "size": 2572
       },
       {
         "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
@@ -6295,6 +6305,11 @@
         "size": 8324
       },
       {
+        "path": "pages/projects/poseidon-numo-product-alignment.md",
+        "sha256": "e86483145b9a68c08f610b8f37ab563b5c618acf74844f096124e8c0647987ac",
+        "size": 5066
+      },
+      {
         "path": "pages/projects/poseidon-partner-devnet-crunch-oct-nov-2025.md",
         "sha256": "d24e0f6738ad080a70211e4d05a3c9a57ff0b1cfb5e988b9d7f05a700284ce49",
         "size": 9564
@@ -8024,8 +8039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T12:47:51Z",
-  "file_count": 1603,
+  "exported_at": "2026-06-19T13:20:02Z",
+  "file_count": 1606,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11302,7 +11317,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "37956c143f26ed0d4dd474134b22c13cf2fe2123e7cbe550854096b0bc842d4d",
+  "previous_tree_hash": "6df86ea6f1f0929bf652c1bd9c31450d280f1c70c7ab8f8bde84e5fde915fd41",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11315,14 +11330,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6df86ea6f1f0929bf652c1bd9c31450d280f1c70c7ab8f8bde84e5fde915fd41",
+  "tree_hash": "89f2c896226e9a99c434598b9b5d2bac32e40765963d7fe41b489a86c6babbd6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 949,
+  "wiki_file_count": 952,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11331,13 +11346,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3feb0d3a64e277e47de6d486513da7fbb16e4696130466dbf580aaa595837fbd",
-      "size": 974220
+      "sha256": "0714b058bfadc38416fc72abf3f138bfea963f9fb4b2d66b999144e010f7ac20",
+      "size": 975359
     },
     {
       "path": "log.md",
-      "sha256": "b18614badd855d7359d36b5bf3fc39eeea857473c5ec76f0224aea161d374adc",
-      "size": 1707635
+      "sha256": "37bb53a3611695859e7c046ba9c8f943fe03344c59dff4d602ff2a31e696b72b",
+      "size": 1708810
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12225,6 +12240,11 @@
       "size": 1444
     },
     {
+      "path": "pages/concepts/seed-phrase.md",
+      "sha256": "025628f27f140d47d2bf195220101cc69346e89188a813204876ab14dfff35b9",
+      "size": 2748
+    },
+    {
       "path": "pages/concepts/serverless-design-expose-network-status.md",
       "sha256": "cdb4a4002ea074a2ce6fd642f3582381ae56d4ce16c918386f75067016b6f68e",
       "size": 5204
@@ -12568,6 +12588,11 @@
       "path": "pages/decisions/finance-legal-request-hold.md",
       "sha256": "d175ae7a62ece0c78ba75938e5d9e6ff2eafb8fe211982b8b53045e6852eef47",
       "size": 2830
+    },
+    {
+      "path": "pages/decisions/fix-account-deletion-bug-april-2026.md",
+      "sha256": "8472d8ff612347f332e4b3fa42baeded4636dfc6ceb250cbf098de10831be185",
+      "size": 2572
     },
     {
       "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
@@ -14345,6 +14370,11 @@
       "size": 8324
     },
     {
+      "path": "pages/projects/poseidon-numo-product-alignment.md",
+      "sha256": "e86483145b9a68c08f610b8f37ab563b5c618acf74844f096124e8c0647987ac",
+      "size": 5066
+    },
+    {
       "path": "pages/projects/poseidon-partner-devnet-crunch-oct-nov-2025.md",
       "sha256": "d24e0f6738ad080a70211e4d05a3c9a57ff0b1cfb5e988b9d7f05a700284ce49",
       "size": 9564
@@ -16071,5 +16101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "691ad8363c297af00b10b5935c24a61f423487a454bbf507deee43b816706639"
+  "wiki_tree_hash": "44bde7894557695f6bd6dde54990db1847ddc664246d4c96de5a07c1de40e26e"
 }
