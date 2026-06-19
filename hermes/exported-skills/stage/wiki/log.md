@@ -34570,3 +34570,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c83c8c0bfde1be831fe49e0cad7c561f
 - summary: Decision to use Numo branding for the Stripe hosted onboarding pages on the Poseidon dashboard, after initial confusion between Poseidon AI and Numo branding.
 
+## [2026-06-19T09:31:44Z] synthesis | Global Rollout Strategy for Language Tasks and Ads
+
+- status: published
+- slug: projects/global-rollout-language-tasks-ads
+- wiki_revision_id: wikirev_81853c4ad98ceb10f2dbab4e8e883ed9
+- summary: Summary of decisions around global vs localized rollout for upload tasks, regional ads, and language task availability in specific regions, as discussed in April/June 2026.
+
