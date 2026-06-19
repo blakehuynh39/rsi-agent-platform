@@ -34805,3 +34805,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1de188be0f2e725143b05af2112c5cb1
 - summary: Key voice AI opportunities identified from events, covering call center, healthcare, finance, multilingual, and legal sectors.
 
+## [2026-06-19T13:49:49Z] synthesis | Rate Limiting Configuration for numolabs.ai
+
+- status: published
+- slug: decisions/rate-limiting-config-numolabs
+- wiki_revision_id: wikirev_22a66232ae37af1e3884bacd9f75c418
+- summary: Defines seven rate limiting rules for numolabs.ai Cloudflare zone, covering authentication, reward actions, enumeration-prone reads, user data reads, profile, API global backstop, ...
+

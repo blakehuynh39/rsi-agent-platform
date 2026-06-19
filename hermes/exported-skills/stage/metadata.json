@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9886cd47b4896b8b39169ccab7dc08dde2aa3b5a5d72f2cf547b6dc4d8debe8a",
-        "size": 976314
+        "sha256": "d972858cbd1d21e095eea0935a98fbf63ff664b83de70c4bbda667006ff22e98",
+        "size": 976710
       },
       {
         "path": "log.md",
-        "sha256": "f618c5a82ce70e998080d01fa66c3c934609f9ad6523c0cb72a3fbcb36905d9e",
-        "size": 1710270
+        "sha256": "ea08e70f2e4b6eebebc352b402f17172adb48930ecda7e1be92da63d9606ccca",
+        "size": 1710678
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4763,6 +4763,11 @@
         "path": "pages/decisions/protocol-fee-switch-configuration.md",
         "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
         "size": 2337
+      },
+      {
+        "path": "pages/decisions/rate-limiting-config-numolabs.md",
+        "sha256": "2b489034ed2d998bb16f907866fbd022d2cb08335e5bf337e94fdaf835b0c5ec",
+        "size": 4836
       },
       {
         "path": "pages/decisions/rebranding-to-data.md",
@@ -8054,8 +8059,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T13:38:42Z",
-  "file_count": 1609,
+  "exported_at": "2026-06-19T13:50:27Z",
+  "file_count": 1610,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11332,7 +11337,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4c688bd3e68934c5c438fc0638c2496d49a0caa2b47d6b491843b83ccacffcc2",
+  "previous_tree_hash": "206040c5eb1b59dfb1155e8c7510a399b00b683888b8d06c38e61fda15354e78",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11345,14 +11350,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "206040c5eb1b59dfb1155e8c7510a399b00b683888b8d06c38e61fda15354e78",
+  "tree_hash": "87c4b3702223b3a6ec0e5f979147e1b5ad1bb523c1fd10ecd7b45d44c4e96ebd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 955,
+  "wiki_file_count": 956,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11361,13 +11366,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9886cd47b4896b8b39169ccab7dc08dde2aa3b5a5d72f2cf547b6dc4d8debe8a",
-      "size": 976314
+      "sha256": "d972858cbd1d21e095eea0935a98fbf63ff664b83de70c4bbda667006ff22e98",
+      "size": 976710
     },
     {
       "path": "log.md",
-      "sha256": "f618c5a82ce70e998080d01fa66c3c934609f9ad6523c0cb72a3fbcb36905d9e",
-      "size": 1710270
+      "sha256": "ea08e70f2e4b6eebebc352b402f17172adb48930ecda7e1be92da63d9606ccca",
+      "size": 1710678
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12843,6 +12848,11 @@
       "path": "pages/decisions/protocol-fee-switch-configuration.md",
       "sha256": "fbe5b5ea42ebd0a87fb6aca9f61f054c6bf81661ade2f849466a9b454c051197",
       "size": 2337
+    },
+    {
+      "path": "pages/decisions/rate-limiting-config-numolabs.md",
+      "sha256": "2b489034ed2d998bb16f907866fbd022d2cb08335e5bf337e94fdaf835b0c5ec",
+      "size": 4836
     },
     {
       "path": "pages/decisions/rebranding-to-data.md",
@@ -16131,5 +16141,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "076b0227f7c2cea5c6257353768d9f99a7a54fc04519c56af883010aa2b4edfc"
+  "wiki_tree_hash": "cfae50d5e7df86e6e86b314630387ee22c9cc738113ce1cb247bc8ac79b8344f"
 }
