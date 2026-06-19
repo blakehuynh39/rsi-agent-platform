@@ -34377,3 +34377,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4b234abcedcc5fb85c058ec4516ded60
 - summary: The Numo Web 1.1 release is being dogfooded, featuring CV upload and Connect LinkedIn. Payments integration with Stripe, including KYC and W-8BEN forms for foreign citizens, is pre...
 
+## [2026-06-19T06:01:31Z] synthesis | Southeast Asian Language Transcript Generation
+
+- status: published
+- slug: projects/southeast-asian-language-transcript-generation
+- wiki_revision_id: wikirev_1cc9ca7a0bb3911d765a20890c2146cc
+- summary: Project to generate and upload transcripts for Indonesian, Malaysian, and Filipino languages, including seed phrase wordlists, with iterative feedback incorporating local slang and...
+
+## [2026-06-19T06:02:36Z] synthesis | Estimate of paying users for alternate W8/W9 services
+
+- status: published
+- slug: open-questions/estimate-of-paying-users-for-w8-w9-services
+- wiki_revision_id: wikirev_f43a582b5480f4523c90e9f976b80adc
+- summary: The team needs an estimate of how many users RSI will be paying in the next 1-2 months to evaluate alternate W8/W9 services while awaiting Stripe approval.
+
+## [2026-06-19T06:02:36Z] synthesis | Admin Dashboard User Measurement PR
+
+- status: published
+- slug: projects/admin-dashboard-user-measurement-update
+- wiki_revision_id: wikirev_8cf965b4bb67424afe0277441800f8c4
+- summary: A PR is being prepared to update the admin dashboard to improve the measurement of user counts for payment decisions. Merging is pending.
+

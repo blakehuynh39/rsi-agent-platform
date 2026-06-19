@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5812a434f780cf298b2b4033c7f69443b1c03ca7e98bf23b80ee4a8dbe1e6295",
-        "size": 1687856
+        "sha256": "70b405dc8ff172df26907db2a4310f84c7614758aa2739999a71216cf95b369b",
+        "size": 1688283
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6310,6 +6310,11 @@
         "size": 4050
       },
       {
+        "path": "pages/projects/southeast-asian-language-transcript-generation.md",
+        "sha256": "355bc55b2d2c2fedad67a8017fc66b57bdc229280af83908b9769667faaddf66",
+        "size": 4856
+      },
+      {
         "path": "pages/projects/sp-tokenomics-blast.md",
         "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
         "size": 4829
@@ -7774,8 +7779,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T05:49:59Z",
-  "file_count": 1553,
+  "exported_at": "2026-06-19T06:01:46Z",
+  "file_count": 1554,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11052,7 +11057,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "d185850a037c0c5261d9ef38e0a16285119d634c476aabe65952afbd4e35669c",
+  "previous_tree_hash": "3f3cca9e39217ddc85dbda06286bfa50b7d09100cc80b94362ae9821966517c8",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11065,14 +11070,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3f3cca9e39217ddc85dbda06286bfa50b7d09100cc80b94362ae9821966517c8",
+  "tree_hash": "ad7e9b5f9f4eae1c26021337066bcf350a9c531cc0b3e2196ae232529e2b5639",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 899,
+  "wiki_file_count": 900,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11086,8 +11091,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5812a434f780cf298b2b4033c7f69443b1c03ca7e98bf23b80ee4a8dbe1e6295",
-      "size": 1687856
+      "sha256": "70b405dc8ff172df26907db2a4310f84c7614758aa2739999a71216cf95b369b",
+      "size": 1688283
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14110,6 +14115,11 @@
       "size": 4050
     },
     {
+      "path": "pages/projects/southeast-asian-language-transcript-generation.md",
+      "sha256": "355bc55b2d2c2fedad67a8017fc66b57bdc229280af83908b9769667faaddf66",
+      "size": 4856
+    },
+    {
       "path": "pages/projects/sp-tokenomics-blast.md",
       "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
       "size": 4829
@@ -15571,5 +15581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7f8a865291d47e1bcf214b75da45dad09c832a97feb7266a721822513c12233f"
+  "wiki_tree_hash": "92f0586e020de9edbf00c96b289c44ddb64f0786d130fb25d4e2674b09c87ab9"
 }
