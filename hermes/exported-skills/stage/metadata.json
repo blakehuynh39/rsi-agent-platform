@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cb045379a34af09ed6ecd3605228a260976b404c3ea4ea709baf30e7847823f0",
+        "sha256": "36333c358deb7304264043845cb2a49e80fe077a2b72e8a1e437fcd632bf37ba",
         "size": 950096
       },
       {
         "path": "log.md",
-        "sha256": "439a3cb2dc889cb050209d5bfb1e97fcb3632d8af83f49dae76ae1183faab67f",
-        "size": 1678763
+        "sha256": "ad922ba7f60763110555620c4f71bf85a86de09bfb81a7b31eb09f317ac70a98",
+        "size": 1679667
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4788,6 +4788,11 @@
         "path": "pages/decisions/video-task-user-limit-requirement.md",
         "sha256": "57fb395b23b58ac0cee3ca9f76020a4302e08cc321bd7b160c2ff5a5d63c181b",
         "size": 1469
+      },
+      {
+        "path": "pages/decisions/vietnamese-font-fallback.md",
+        "sha256": "f8f17b1611711bf893352ccb8ee400f493a709009da49434dd1b8f52f90b5722",
+        "size": 5141
       },
       {
         "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
@@ -7684,8 +7689,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T01:54:46Z",
-  "file_count": 1535,
+  "exported_at": "2026-06-19T02:01:26Z",
+  "file_count": 1536,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10962,7 +10967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "55845fa2bccc7d78b8302987255b6ca76961629eb8cfaa6b2041da2330816ffc",
+  "previous_tree_hash": "cdf04513173e91350ebae80135a6e9205bdf7ba29f922891188ae04099c7f84e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -10975,14 +10980,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cdf04513173e91350ebae80135a6e9205bdf7ba29f922891188ae04099c7f84e",
+  "tree_hash": "4c77ffeca2871a41ad1c728c5fd2f5f24026383ad2484566680708b2b7fe9e2a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 881,
+  "wiki_file_count": 882,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -10991,13 +10996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cb045379a34af09ed6ecd3605228a260976b404c3ea4ea709baf30e7847823f0",
+      "sha256": "36333c358deb7304264043845cb2a49e80fe077a2b72e8a1e437fcd632bf37ba",
       "size": 950096
     },
     {
       "path": "log.md",
-      "sha256": "439a3cb2dc889cb050209d5bfb1e97fcb3632d8af83f49dae76ae1183faab67f",
-      "size": 1678763
+      "sha256": "ad922ba7f60763110555620c4f71bf85a86de09bfb81a7b31eb09f317ac70a98",
+      "size": 1679667
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12498,6 +12503,11 @@
       "path": "pages/decisions/video-task-user-limit-requirement.md",
       "sha256": "57fb395b23b58ac0cee3ca9f76020a4302e08cc321bd7b160c2ff5a5d63c181b",
       "size": 1469
+    },
+    {
+      "path": "pages/decisions/vietnamese-font-fallback.md",
+      "sha256": "f8f17b1611711bf893352ccb8ee400f493a709009da49434dd1b8f52f90b5722",
+      "size": 5141
     },
     {
       "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
@@ -15391,5 +15401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d3cf401c0c6fabe13548d4b5dca684151418bc3a78aabb9019dd9904f019090b"
+  "wiki_tree_hash": "1bd4042106b33fa34ee96b9a9b7d5d6f43a8fcfc7d5e7530f9aedf5a94e2d722"
 }

@@ -34207,3 +34207,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_86b113b57e59368696f8731db8d30fa1
 - summary: Initiatives to dogfood TaxBandits internally, including onboarding users, resolving Stripe issues for all countries, and ensuring W-8 BEN flow readiness.
 
+## [2026-06-19T02:00:21Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_dc9f22ac0062f6ed5873642836736bfd
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_437d5ab97295f554a5eab803926eb9b1
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
+## [2026-06-19T02:01:18Z] synthesis | Vietnamese Font Fallback for Diacritic Rendering
+
+- status: published
+- slug: decisions/vietnamese-font-fallback
+- wiki_revision_id: wikirev_c66b1d6ab43297140d5d890953614f60
+- summary: Vietnamese text rendered incorrectly due to missing stacked diacritic support in STK Bureau Sans/Serif fonts. A CSS override was deployed using Spectral as the fallback font for la...
+
