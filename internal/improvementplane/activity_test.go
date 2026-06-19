@@ -480,6 +480,101 @@ func TestTraceActivityProjectorClosesStartedToolWhenPhaseFails(t *testing.T) {
 	}
 }
 
+func TestTraceActivityProjectorDoesNotReopenCompletedToolWithDetachedProgressStart(t *testing.T) {
+	start := time.Date(2026, 6, 19, 18, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: start.Add(time.Minute)}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("tool-previous-start", 1, "tool.call.started", "running", start, map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-previous",
+			"args": map[string]any{
+				"command": "ls /workspace/company",
+			},
+		}),
+		ledgerEvent("tool-previous-done", 2, "tool.call.completed", "completed", start.Add(time.Second), map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-previous",
+			"args": map[string]any{
+				"command": "ls /workspace/company",
+			},
+			"result": `{"output":"ok","exit_code":0,"error":null}`,
+		}),
+		ledgerEvent("detached-next-start", 3, "tool.call.progress", "running", start.Add(2*time.Second), map[string]any{
+			"tool_name":      "terminal",
+			"progress_event": "tool.started",
+			"args": map[string]any{
+				"command": "gh pr create",
+			},
+		}),
+		ledgerEvent("tool-next-start", 4, "tool.call.started", "running", start.Add(3*time.Second), map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-next",
+			"args": map[string]any{
+				"command": "gh pr create",
+			},
+		}),
+		ledgerEvent("phase-1", 5, "phase.completed", "failed", start.Add(5*time.Second), map[string]any{
+			"termination_reason": "execution_error",
+		}),
+	})
+
+	previous := traceActivityItemByToolCallID(t, items, "call-previous")
+	if previous.Status != "completed" {
+		t.Fatalf("previous tool status=%q, want completed: %#v", previous.Status, previous)
+	}
+	if containsString(previous.SourceLedgerIDs, "detached-next-start") {
+		t.Fatalf("previous source ledger IDs=%#v, should not include next detached start", previous.SourceLedgerIDs)
+	}
+	if containsString(previous.SourceLedgerIDs, "phase-1") {
+		t.Fatalf("previous source ledger IDs=%#v, should not include terminal phase", previous.SourceLedgerIDs)
+	}
+	if _, ok := previous.Details["terminal_phase_event_id"]; ok {
+		t.Fatalf("previous details=%#v, should not include terminal phase details", previous.Details)
+	}
+
+	next := traceActivityItemByToolCallID(t, items, "call-next")
+	if next.Status != "failed" {
+		t.Fatalf("next tool status=%q, want failed: %#v", next.Status, next)
+	}
+	if !containsString(next.SourceLedgerIDs, "detached-next-start") {
+		t.Fatalf("next source ledger IDs=%#v, want detached start", next.SourceLedgerIDs)
+	}
+	if !containsString(next.SourceLedgerIDs, "phase-1") {
+		t.Fatalf("next source ledger IDs=%#v, want terminal phase", next.SourceLedgerIDs)
+	}
+}
+
+func TestTraceActivityInferStatusDoesNotDowngradeTerminalStatusToRunning(t *testing.T) {
+	start := time.Date(2026, 6, 19, 18, 0, 0, 0, time.UTC)
+	projector := traceActivityProjector{scope: "main", mode: "clean", now: start.Add(time.Minute)}
+	items, _ := projector.Project([]events.ExecutionLedgerEvent{
+		ledgerEvent("tool-start", 1, "tool.call.started", "running", start, map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-terminal",
+		}),
+		ledgerEvent("tool-done", 2, "tool.call.completed", "completed", start.Add(time.Second), map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-terminal",
+			"result":       `{"output":"ok","exit_code":0,"error":null}`,
+		}),
+		ledgerEvent("late-running-progress", 3, "tool.call.progress", "running", start.Add(2*time.Second), map[string]any{
+			"tool_name":    "terminal",
+			"tool_call_id": "call-terminal",
+		}),
+		ledgerEvent("phase-1", 4, "phase.completed", "failed", start.Add(5*time.Second), map[string]any{
+			"termination_reason": "execution_error",
+		}),
+	})
+
+	item := traceActivityItemByToolCallID(t, items, "call-terminal")
+	if item.Status != "completed" {
+		t.Fatalf("tool status=%q, want completed: %#v", item.Status, item)
+	}
+	if containsString(item.SourceLedgerIDs, "phase-1") {
+		t.Fatalf("source ledger IDs=%#v, should not include terminal phase", item.SourceLedgerIDs)
+	}
+}
+
 func TestTraceActivityTruncateKeepsUTF8Valid(t *testing.T) {
 	got := traceActivityTruncate("hello 世界 🚀", 9)
 	if !utf8.ValidString(got) {
@@ -491,6 +586,17 @@ func TestTraceActivityTruncateKeepsUTF8Valid(t *testing.T) {
 	if one := traceActivityTruncate("🚀x", 1); one != "…" || !utf8.ValidString(one) {
 		t.Fatalf("single-rune limit result=%q valid=%v, want ellipsis", one, utf8.ValidString(one))
 	}
+}
+
+func traceActivityItemByToolCallID(t *testing.T, items []TraceActivityItem, callID string) TraceActivityItem {
+	t.Helper()
+	for _, item := range items {
+		if item.ToolCallID == callID {
+			return item
+		}
+	}
+	t.Fatalf("missing activity item for tool_call_id=%s: %#v", callID, items)
+	return TraceActivityItem{}
 }
 
 func ledgerEvent(id string, seq int, kind string, status string, at time.Time, payload map[string]any) events.ExecutionLedgerEvent {

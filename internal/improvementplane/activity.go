@@ -298,7 +298,7 @@ func (p traceActivityProjector) projectToolGroups(items []events.ExecutionLedger
 	lastByName := map[string]string{}
 	for _, item := range items {
 		name := canonicalTraceActivityToolName(traceActivityToolName(item))
-		if item.Kind == "tool.generation.started" && name != "" {
+		if traceActivityDetachedToolStartEvent(item) && name != "" {
 			generationEvents = append(generationEvents, item)
 			continue
 		}
@@ -1134,6 +1134,17 @@ func traceActivityLooksLikeTool(item events.ExecutionLedgerEvent) bool {
 	return strings.Contains(kind, "tool") || traceActivityToolName(item) != ""
 }
 
+func traceActivityDetachedToolStartEvent(item events.ExecutionLedgerEvent) bool {
+	kind := strings.ToLower(strings.TrimSpace(item.Kind))
+	if kind == "tool.generation.started" {
+		return true
+	}
+	if kind != "tool.call.progress" || traceActivityToolCallID(item) != "" {
+		return false
+	}
+	return strings.EqualFold(strings.TrimSpace(stringValue(item.Payload["progress_event"])), "tool.started")
+}
+
 func traceActivityToolName(item events.ExecutionLedgerEvent) string {
 	return firstNonEmptyString(
 		stringValue(item.Payload["tool_name"]),
@@ -1271,6 +1282,9 @@ func traceActivityInferStatus(current string, eventStatus string, result map[str
 			return normalized
 		}
 		if normalized != "" {
+			if normalized == "running" && traceActivityTerminalToolStatus(current) {
+				continue
+			}
 			current = normalized
 		}
 	}
@@ -1284,6 +1298,15 @@ func traceActivityInferStatus(current string, eventStatus string, result map[str
 		return "failed"
 	}
 	return current
+}
+
+func traceActivityTerminalToolStatus(status string) bool {
+	switch traceActivityNormalizeStatus(status) {
+	case "completed", "failed", "cancelled":
+		return true
+	default:
+		return false
+	}
 }
 
 func traceActivityPlainResultError(payload map[string]any) string {
