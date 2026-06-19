@@ -34244,3 +34244,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2940183d16fe2191955ff186198c9f7f
 - summary: Explanation of the linguistic, political, and practical differences between Tagalog and Filipino, as discussed by the team.
 
+## [2026-06-19T03:04:54Z] synthesis | Stripe Integration
+
+- status: published
+- slug: projects/stripe-integration
+- wiki_revision_id: wikirev_c7908f717dcc2dc85740c7c6747df20e
+- summary: Integration of Stripe for fiat payouts, including live account setup, onboarding flow, live testing with Indian bank, compliance (W-8BEN), and exploration of Wise/Whop for cost red...
+
