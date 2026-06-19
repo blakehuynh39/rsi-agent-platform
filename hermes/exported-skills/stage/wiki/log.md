@@ -35273,3 +35273,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ffd8cca17c2feaa701c32af3c402786e
 - summary: Updated screens for Numo UI were shared and comments were made on the swirls.
 
+## [2026-06-19T22:01:54Z] synthesis | Numo IP Gas Tank Funding
+
+- status: published
+- slug: decisions/numo-ip-gastank-funding
+- wiki_revision_id: wikirev_fc0988a4410a6ac1b5f9cba071549447
+- summary: Funding of 500 IP to wallet 0xB6f315F1072781deBE4Af09B24D2CC7f796790de to cover gas fee spikes for Numo registrations, prompted by potential IP World launch impact. The wallet had ...
+

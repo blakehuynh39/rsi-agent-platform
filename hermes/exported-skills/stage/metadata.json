@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "551ee2847e60bf2ff5d780bf4aa040ed0c1cfbe282a3ba0962cf4faa223fee86",
-        "size": 1735164
+        "sha256": "347c5c9d219b04a9db2015a79b24c5d8a4152fec9d15bb05a58b61d2f88279ef",
+        "size": 1735547
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4758,6 +4758,11 @@
         "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
         "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
         "size": 3666
+      },
+      {
+        "path": "pages/decisions/numo-ip-gastank-funding.md",
+        "sha256": "8b1049ba2b92ebe24ff836e5ce2e1ada778eeafdf8e61f6c4f502376ad3c6ee1",
+        "size": 3948
       },
       {
         "path": "pages/decisions/numo-launch-day-metrics-terminology.md",
@@ -8354,8 +8359,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T21:50:44Z",
-  "file_count": 1669,
+  "exported_at": "2026-06-19T22:02:12Z",
+  "file_count": 1670,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11632,7 +11637,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "37a081b035117012c9ee5c4c6fc836c01d9ca2ce7fee5007cacb149e6551c9d7",
+  "previous_tree_hash": "021eef024162921af690e20c10b8ac7aecc501fcfef928eae77beb3cbfafd785",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11645,14 +11650,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "021eef024162921af690e20c10b8ac7aecc501fcfef928eae77beb3cbfafd785",
+  "tree_hash": "006ad830445854e7376678bc7748e9380e33d63cff4b1953474192c5fbea14b0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1015,
+  "wiki_file_count": 1016,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11666,8 +11671,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "551ee2847e60bf2ff5d780bf4aa040ed0c1cfbe282a3ba0962cf4faa223fee86",
-      "size": 1735164
+      "sha256": "347c5c9d219b04a9db2015a79b24c5d8a4152fec9d15bb05a58b61d2f88279ef",
+      "size": 1735547
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13138,6 +13143,11 @@
       "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
       "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
       "size": 3666
+    },
+    {
+      "path": "pages/decisions/numo-ip-gastank-funding.md",
+      "sha256": "8b1049ba2b92ebe24ff836e5ce2e1ada778eeafdf8e61f6c4f502376ad3c6ee1",
+      "size": 3948
     },
     {
       "path": "pages/decisions/numo-launch-day-metrics-terminology.md",
@@ -16731,5 +16741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bc88ec888529d90c57c2c3485beb09876c7ab29cab4f0dfb7cdb314547cc37ae"
+  "wiki_tree_hash": "c7c9d929c2be31cc2b591a24d668957ec4d0d3a203643381a873c4808ddcf0ca"
 }
