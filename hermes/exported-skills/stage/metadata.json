@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a1656c693ad8de6a347acc458aac573d3ac3e597057257380af42046071ebc5b",
-        "size": 979177
+        "sha256": "49fbb500aaec338dd8ea4d39ca996a228eaec938761ce583a936906fe5e1847c",
+        "size": 979888
       },
       {
         "path": "log.md",
-        "sha256": "85d268d7002cb70cc0305afd88c95940849c8f6490ba6feebc2cf21b47db4167",
-        "size": 1713229
+        "sha256": "bd1480b1d147160eb10ad8e8e5424f9ada4a6ddd7fd766dc084bd6769e07ae55",
+        "size": 1713964
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3433,6 +3433,11 @@
         "path": "pages/concepts/content-references.md",
         "sha256": "08b6345eba8a2ce256086f937d86752336ad3bda9f3bbe671b693c8ee09859a7",
         "size": 4891
+      },
+      {
+        "path": "pages/concepts/contributor-payout-status-multipliers.md",
+        "sha256": "180e7ae5c52e84f3424df3e1d3c3ae82a628097978de125b47d2471dcca9368e",
+        "size": 2483
       },
       {
         "path": "pages/concepts/core-sdk-requests.md",
@@ -7735,6 +7740,11 @@
         "size": 5752
       },
       {
+        "path": "pages/systems/numo-digest.md",
+        "sha256": "c82f90d5d6e9590a5a7704c045b996a6b649fdf18c87d3c63a0031f0e00acba5",
+        "size": 2410
+      },
+      {
         "path": "pages/systems/numo-expert-consensus-review.md",
         "sha256": "64e72bf0c5d5b5f6ddeb7e19534c9eaa9346935c4af119710a97745ed1bef124",
         "size": 3581
@@ -8094,8 +8104,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T15:06:23Z",
-  "file_count": 1617,
+  "exported_at": "2026-06-19T15:18:17Z",
+  "file_count": 1619,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11372,7 +11382,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "974c48d2c0654bca41e059a5f7e5f38d3cfcbe086a04ec68277c34a200ae6189",
+  "previous_tree_hash": "a73e47965e58d88272ae3483c056b78003da1676eec4a43cce44dc206024e25b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11385,14 +11395,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a73e47965e58d88272ae3483c056b78003da1676eec4a43cce44dc206024e25b",
+  "tree_hash": "9fea7e070f4ac1d766a6cc35693553bec491c469d93016206d9b60c942044324",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 963,
+  "wiki_file_count": 965,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11401,13 +11411,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a1656c693ad8de6a347acc458aac573d3ac3e597057257380af42046071ebc5b",
-      "size": 979177
+      "sha256": "49fbb500aaec338dd8ea4d39ca996a228eaec938761ce583a936906fe5e1847c",
+      "size": 979888
     },
     {
       "path": "log.md",
-      "sha256": "85d268d7002cb70cc0305afd88c95940849c8f6490ba6feebc2cf21b47db4167",
-      "size": 1713229
+      "sha256": "bd1480b1d147160eb10ad8e8e5424f9ada4a6ddd7fd766dc084bd6769e07ae55",
+      "size": 1713964
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11553,6 +11563,11 @@
       "path": "pages/concepts/content-references.md",
       "sha256": "08b6345eba8a2ce256086f937d86752336ad3bda9f3bbe671b693c8ee09859a7",
       "size": 4891
+    },
+    {
+      "path": "pages/concepts/contributor-payout-status-multipliers.md",
+      "sha256": "180e7ae5c52e84f3424df3e1d3c3ae82a628097978de125b47d2471dcca9368e",
+      "size": 2483
     },
     {
       "path": "pages/concepts/core-sdk-requests.md",
@@ -15855,6 +15870,11 @@
       "size": 5752
     },
     {
+      "path": "pages/systems/numo-digest.md",
+      "sha256": "c82f90d5d6e9590a5a7704c045b996a6b649fdf18c87d3c63a0031f0e00acba5",
+      "size": 2410
+    },
+    {
       "path": "pages/systems/numo-expert-consensus-review.md",
       "sha256": "64e72bf0c5d5b5f6ddeb7e19534c9eaa9346935c4af119710a97745ed1bef124",
       "size": 3581
@@ -16211,5 +16231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "19bf9d938a79be0a90d1717cd57ac84144c928972c42a1a6311f915d16559e65"
+  "wiki_tree_hash": "ad0202d8dba876c2297d0afff1897107adbbf0b34fb3382c86d2ec136a80d936"
 }

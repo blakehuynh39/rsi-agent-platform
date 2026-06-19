@@ -34861,3 +34861,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_114ccad5505475a1082ed357580ef628
 - summary: The Numo web app launch was postponed from Monday April 27 to Wednesday April 29 after a go/no-go review. Critical no-go items included security reviews, testing of referral/multip...
 
+## [2026-06-19T15:16:45Z] synthesis | Contributor Payout and Status Multipliers
+
+- status: published
+- slug: concepts/contributor-payout-status-multipliers
+- wiki_revision_id: wikirev_1be59f5a9ad38e95602457b3ff661303
+- summary: Proposed reward system where campaign payouts vary by data modality demand, and contributors earn maintainable status multipliers to boost retention.
+
+## [2026-06-19T15:18:04Z] synthesis | Numo Digest
+
+- status: published
+- slug: systems/numo-digest
+- wiki_revision_id: wikirev_d2c37e54c10cac25aaf16e7d554796e0
+- summary: A system that generates a daily digest, which experienced a failure that was fixed. It is scheduled to run at 9AM PST and 4PM PST, and the team can provide feedback on useful metri...
+
