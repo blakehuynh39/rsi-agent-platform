@@ -34363,3 +34363,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_59fa6e74b37304f30e5889b5459c826d
 - summary: The Numo Labs admin dashboard is accessible at https://admin.numolabs.ai/ using password `numopip`, after an admin adds the user's email address.
 
+## [2026-06-19T05:45:43Z] synthesis | Data Collection Project
+
+- status: published
+- slug: projects/data-collection-project
+- wiki_revision_id: wikirev_54ed3dea6c807dfa31c4be0884916ed7
+- summary: Project for data collection; current focus is on non-audio uploads starting with resumes.
+
+## [2026-06-19T05:46:24Z] synthesis | Numo Web 1.1 Release
+
+- status: published
+- slug: projects/numo-web-1-1-release
+- wiki_revision_id: wikirev_4b234abcedcc5fb85c058ec4516ded60
+- summary: The Numo Web 1.1 release is being dogfooded, featuring CV upload and Connect LinkedIn. Payments integration with Stripe, including KYC and W-8BEN forms for foreign citizens, is pre...
+
