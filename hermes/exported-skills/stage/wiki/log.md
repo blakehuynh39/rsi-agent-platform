@@ -35301,3 +35301,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d8f9f654b6d1b7f26250a87d0d398725
 - summary: The admin portal is a gated web application within the Numo monorepo used for viewing internal data, with access controlled by an email allowlist implemented in the depin-backend.
 
+## [2026-06-19T22:49:54Z] synthesis | Poseidon-to-Numo Migration Strategy
+
+- status: published
+- slug: decisions/poseidon-to-numo-migration-strategy
+- wiki_revision_id: wikirev_a147f70e5eeaa5ae92f39de0608bb1a8
+- summary: Strategy for migrating 83k Poseidon Season 1 users to Numo using a hybrid approach of multipliers based on contribution quality, with geographic and language constraints.
+
+## [2026-06-19T22:49:54Z] synthesis | Numo User Reward Formula
+
+- status: published
+- slug: systems/numo-user-reward-formula
+- wiki_revision_id: wikirev_3768ae555cd389585b6a09fc1f90f8ed
+- summary: Proposed formula for calculating user rewards in Numo: Reward = C * p * m, with pending and settled balances and a $25 minimum withdrawal threshold.
+

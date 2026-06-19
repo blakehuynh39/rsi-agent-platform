@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9ff77302f1edb955b71b215c7db96a9d54c86e8aba665c502ad56e09fd7242cf",
-        "size": 999549
+        "sha256": "6255274af8be0526329eeab48578d149d547e930475a324f569ce3183a3ac82b",
+        "size": 1000265
       },
       {
         "path": "log.md",
-        "sha256": "f9c4b4367943b1363b5f4ea041232c36770e53e2385c7a0d192e4fbdeb46ec04",
-        "size": 1736565
+        "sha256": "9949b7044391e5177aa4cd60bf30ea6aaa3251aeb1a3e40fa16584af9144cf3c",
+        "size": 1737305
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4833,6 +4833,11 @@
         "path": "pages/decisions/poseidon-multiplier-attribution.md",
         "sha256": "3cf9328ada9e1721e656f2f03197998d94e55e0382227d0208dc4cbac971a192",
         "size": 2832
+      },
+      {
+        "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
+        "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
+        "size": 4321
       },
       {
         "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -8070,6 +8075,11 @@
         "size": 1881
       },
       {
+        "path": "pages/systems/numo-user-reward-formula.md",
+        "sha256": "248baa8979cf5b51f908181fa6d7480e8c99d27d6214feded004b13baecb339e",
+        "size": 4815
+      },
+      {
         "path": "pages/systems/numo.md",
         "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
         "size": 1390
@@ -8374,8 +8384,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T22:36:34Z",
-  "file_count": 1673,
+  "exported_at": "2026-06-19T22:53:08Z",
+  "file_count": 1675,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11652,7 +11662,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "8da7fb1ac47cebd2f73616d6edc5212625195b2d0fda07162d5e27352fdf3846",
+  "previous_tree_hash": "07df8b64e5275eee1223a2410a81aeee3ad96d7f11c6b30229fb25cecee14b0f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11665,14 +11675,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "07df8b64e5275eee1223a2410a81aeee3ad96d7f11c6b30229fb25cecee14b0f",
+  "tree_hash": "6ae660449e336cc54cdb8812e1c57e49f247546d756aa8b4a4b6bd6247d1c3d0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1019,
+  "wiki_file_count": 1021,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11681,13 +11691,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9ff77302f1edb955b71b215c7db96a9d54c86e8aba665c502ad56e09fd7242cf",
-      "size": 999549
+      "sha256": "6255274af8be0526329eeab48578d149d547e930475a324f569ce3183a3ac82b",
+      "size": 1000265
     },
     {
       "path": "log.md",
-      "sha256": "f9c4b4367943b1363b5f4ea041232c36770e53e2385c7a0d192e4fbdeb46ec04",
-      "size": 1736565
+      "sha256": "9949b7044391e5177aa4cd60bf30ea6aaa3251aeb1a3e40fa16584af9144cf3c",
+      "size": 1737305
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13233,6 +13243,11 @@
       "path": "pages/decisions/poseidon-multiplier-attribution.md",
       "sha256": "3cf9328ada9e1721e656f2f03197998d94e55e0382227d0208dc4cbac971a192",
       "size": 2832
+    },
+    {
+      "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
+      "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
+      "size": 4321
     },
     {
       "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -16470,6 +16485,11 @@
       "size": 1881
     },
     {
+      "path": "pages/systems/numo-user-reward-formula.md",
+      "sha256": "248baa8979cf5b51f908181fa6d7480e8c99d27d6214feded004b13baecb339e",
+      "size": 4815
+    },
+    {
       "path": "pages/systems/numo.md",
       "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
       "size": 1390
@@ -16771,5 +16791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fb3eece87cd14652b466a4bec1dfb0e26a923948e5d725ea997a4ec0c1fbe1ec"
+  "wiki_tree_hash": "a957e2581130881f87687d775771869b2545e8e19b2aac1bb4b0dce8b07a5da0"
 }
