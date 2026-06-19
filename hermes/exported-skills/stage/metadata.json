@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7121a12a59a024bbb83a2f05dd9889847967c69ad92f9b778636e7caf8b573c5",
-        "size": 1696164
+        "sha256": "1fb2bab52eb601a2185fd550a2d5b256751b41b9c9061dc6c9dcbe7b265515f7",
+        "size": 1696441
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6035,6 +6035,11 @@
         "size": 7300
       },
       {
+        "path": "pages/projects/numo-user-funnel.md",
+        "sha256": "5cd75814fccc4cb8c5a74f63fa33442bab28adc9fedb89e3b53028017db3fa11",
+        "size": 1982
+      },
+      {
         "path": "pages/projects/numo-web-1-1-release.md",
         "sha256": "698e9ac5a5a53a64c12c014da7ee0745eec1d44bbe8e7edb20d514d81ccf8dd3",
         "size": 4396
@@ -7869,8 +7874,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T08:08:14Z",
-  "file_count": 1572,
+  "exported_at": "2026-06-19T08:20:07Z",
+  "file_count": 1573,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11147,7 +11152,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "c3c1efd28de5e95d461bcc4a958e7f7bae880ee031af0e2a2af918f6216c23f1",
+  "previous_tree_hash": "153d734525bdefe7999370a0a27b7ef3b565d646e25009cda1b581a2989ce1c3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11160,14 +11165,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "153d734525bdefe7999370a0a27b7ef3b565d646e25009cda1b581a2989ce1c3",
+  "tree_hash": "90b817ab2328f1d6056d82f5bddcefe3822bda1e4617223743d9759a8d20ebaa",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 918,
+  "wiki_file_count": 919,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11181,8 +11186,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7121a12a59a024bbb83a2f05dd9889847967c69ad92f9b778636e7caf8b573c5",
-      "size": 1696164
+      "sha256": "1fb2bab52eb601a2185fd550a2d5b256751b41b9c9061dc6c9dcbe7b265515f7",
+      "size": 1696441
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13930,6 +13935,11 @@
       "size": 7300
     },
     {
+      "path": "pages/projects/numo-user-funnel.md",
+      "sha256": "5cd75814fccc4cb8c5a74f63fa33442bab28adc9fedb89e3b53028017db3fa11",
+      "size": 1982
+    },
+    {
       "path": "pages/projects/numo-web-1-1-release.md",
       "sha256": "698e9ac5a5a53a64c12c014da7ee0745eec1d44bbe8e7edb20d514d81ccf8dd3",
       "size": 4396
@@ -15761,5 +15771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "36fb53e6431cf03457f9f01340d1942c1d0240b002d2826c0fbdcd5a889f602d"
+  "wiki_tree_hash": "c8ffc893285b27eab58b5888631d707bf286fb8560a5c7eb2cc06869da4f4abb"
 }

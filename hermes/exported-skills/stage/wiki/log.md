@@ -34528,3 +34528,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9324c3571ed24cf51c72b26a8f6a7039
 - summary: Policy prohibiting static AWS credentials for programmatic access; requires use of temporary STS credentials via aws-vault.
 
+## [2026-06-19T08:17:04Z] synthesis | Numo User Funnel
+
+- status: published
+- slug: projects/numo-user-funnel
+- wiki_revision_id: wikirev_42c212712dc714a54d5a793696cce81f
+- summary: Overview of Numo signup-to-submission conversion rates and top-line metrics as of 2026-05-05.
+
