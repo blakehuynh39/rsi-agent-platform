@@ -34549,3 +34549,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5eee7f1c457f8c992395d81bbac0bed5
 - summary: Tracking the migration of the payment system to v2 APIs, including international payouts support and country-specific end-to-end status.
 
+## [2026-06-19T09:02:26Z] synthesis | Dune Logo Addition to Story Ecosystem Page
+
+- status: published
+- slug: projects/dune-logo-addition-ecosystem-page
+- wiki_revision_id: wikirev_3948e7f1619163f754070fec8b74c1a1
+- summary: Task to add Dune logo and hyperlink to the Story Foundation ecosystem page under the 'infra' category, completed by <@U0AQZPN6ZQV>.
+

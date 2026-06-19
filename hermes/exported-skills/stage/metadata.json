@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "271cec420c41287951651c337e773a4a4167ba2014895ee1118156f464f3949a",
-        "size": 964545
+        "sha256": "e64667664e7b03e242675e156e013e6cc63b9861369c67c4973c652d2f926cf8",
+        "size": 964891
       },
       {
         "path": "log.md",
-        "sha256": "9abd4f773555815ca9a5558094ec01a8cd156245b23f19a30ab8ce834a613571",
-        "size": 1697157
+        "sha256": "a3b0f6bd481fb2d1ef5264afa460373d85cc6e3e5ae65fe0f9e20988a3552496",
+        "size": 1697515
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5533,6 +5533,11 @@
         "path": "pages/projects/drag-and-drop-upload-functionality.md",
         "sha256": "7b55947f3c3d7bc55d231079ba39d960dcdc265c4ef3504f972bf6b932031a7e",
         "size": 1259
+      },
+      {
+        "path": "pages/projects/dune-logo-addition-ecosystem-page.md",
+        "sha256": "d88ac8f533965f78fe73117e50eb2bdbac994a9a9c44bb238878454192c175da",
+        "size": 4352
       },
       {
         "path": "pages/projects/dydx-v4.md",
@@ -7884,8 +7889,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T08:55:28Z",
-  "file_count": 1575,
+  "exported_at": "2026-06-19T09:07:12Z",
+  "file_count": 1576,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11162,7 +11167,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7173f51b1939a837e8a979cc44f57abe590452a343b560693e17602943343db2",
+  "previous_tree_hash": "7b23f3654c616a58ac01e28f4ee89bf6b41b2007e98111d904bca48750185643",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11175,14 +11180,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7b23f3654c616a58ac01e28f4ee89bf6b41b2007e98111d904bca48750185643",
+  "tree_hash": "6945d26574b1f48e82e5a7336e00674a4a2479aed4609f974482d8c2ab491d00",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 921,
+  "wiki_file_count": 922,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11191,13 +11196,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "271cec420c41287951651c337e773a4a4167ba2014895ee1118156f464f3949a",
-      "size": 964545
+      "sha256": "e64667664e7b03e242675e156e013e6cc63b9861369c67c4973c652d2f926cf8",
+      "size": 964891
     },
     {
       "path": "log.md",
-      "sha256": "9abd4f773555815ca9a5558094ec01a8cd156245b23f19a30ab8ce834a613571",
-      "size": 1697157
+      "sha256": "a3b0f6bd481fb2d1ef5264afa460373d85cc6e3e5ae65fe0f9e20988a3552496",
+      "size": 1697515
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13443,6 +13448,11 @@
       "path": "pages/projects/drag-and-drop-upload-functionality.md",
       "sha256": "7b55947f3c3d7bc55d231079ba39d960dcdc265c4ef3504f972bf6b932031a7e",
       "size": 1259
+    },
+    {
+      "path": "pages/projects/dune-logo-addition-ecosystem-page.md",
+      "sha256": "d88ac8f533965f78fe73117e50eb2bdbac994a9a9c44bb238878454192c175da",
+      "size": 4352
     },
     {
       "path": "pages/projects/dydx-v4.md",
@@ -15791,5 +15801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "329bd08478adca3897bc0fc24c268ac8a3737bf866d9929466845640d0ac2b37"
+  "wiki_tree_hash": "a773c98f7516c7a2cf5ff57c36e637cc999e4079183ec6ee17aa2a77cdf3556f"
 }
