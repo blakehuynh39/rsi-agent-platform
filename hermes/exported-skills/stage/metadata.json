@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "630dfc299c0b6c83789210b3617863407f595a862d1ea261acdd5eaa3546f371",
-        "size": 983801
+        "sha256": "a0d6dfa197a19a41b89ab5dd396a7bdb737debd455ef127753149f6232a75810",
+        "size": 984606
       },
       {
         "path": "log.md",
-        "sha256": "3f007518e24f478477dd70d37944520ad7b838b2eeda441de7bef154d49a9558",
-        "size": 1718009
+        "sha256": "cec0cbeaa58216ce7d231bbec9d1b96e7eeb2d6a6d2da547994de7860af6f1bc",
+        "size": 1718837
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4718,6 +4718,11 @@
         "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
         "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
         "size": 3666
+      },
+      {
+        "path": "pages/decisions/numo-launch-day-metrics-terminology.md",
+        "sha256": "0af611445da6c15bbef279b92571edba7129d9fe33b3147a890b3bb3a98a4a03",
+        "size": 5289
       },
       {
         "path": "pages/decisions/numo-metrics-channel.md",
@@ -6585,6 +6590,11 @@
         "size": 2695
       },
       {
+        "path": "pages/projects/rsi-platform-v2-roadmap.md",
+        "sha256": "e52182b60c4677396172dff4b515183f30acc4685beb6a8609ad6ba7aacdd5fc",
+        "size": 7602
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -8159,8 +8169,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T16:39:31Z",
-  "file_count": 1630,
+  "exported_at": "2026-06-19T16:51:20Z",
+  "file_count": 1632,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11437,7 +11447,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "4dacd1eff207a2b1dcbb7288cc37a47f1f79af0229e2d3f5f8fa609e522bbabb",
+  "previous_tree_hash": "debd6b4d3e401dadd1a390cf9911f23ad0543fc125dad30a2a7ec28a0d9763c6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11450,14 +11460,14 @@
   ],
   "skill_tree_hash": "cf9429b2dbca48e14f3c1145db540b1c00cd0691b982c13fe250b5e2f5590b63",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "debd6b4d3e401dadd1a390cf9911f23ad0543fc125dad30a2a7ec28a0d9763c6",
+  "tree_hash": "2e2c2fe9a7deb39847089d2ff547269e23c5003ac0c65b481c1b9c62fae1844f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 976,
+  "wiki_file_count": 978,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11466,13 +11476,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "630dfc299c0b6c83789210b3617863407f595a862d1ea261acdd5eaa3546f371",
-      "size": 983801
+      "sha256": "a0d6dfa197a19a41b89ab5dd396a7bdb737debd455ef127753149f6232a75810",
+      "size": 984606
     },
     {
       "path": "log.md",
-      "sha256": "3f007518e24f478477dd70d37944520ad7b838b2eeda441de7bef154d49a9558",
-      "size": 1718009
+      "sha256": "cec0cbeaa58216ce7d231bbec9d1b96e7eeb2d6a6d2da547994de7860af6f1bc",
+      "size": 1718837
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12903,6 +12913,11 @@
       "path": "pages/decisions/numo-figma-access-elise-2026-06-08.md",
       "sha256": "ff1be5e57ffe942a08ccbff3cac1f204cc557531f925c851fa722af3b6f786ea",
       "size": 3666
+    },
+    {
+      "path": "pages/decisions/numo-launch-day-metrics-terminology.md",
+      "sha256": "0af611445da6c15bbef279b92571edba7129d9fe33b3147a890b3bb3a98a4a03",
+      "size": 5289
     },
     {
       "path": "pages/decisions/numo-metrics-channel.md",
@@ -14770,6 +14785,11 @@
       "size": 2695
     },
     {
+      "path": "pages/projects/rsi-platform-v2-roadmap.md",
+      "sha256": "e52182b60c4677396172dff4b515183f30acc4685beb6a8609ad6ba7aacdd5fc",
+      "size": 7602
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -16341,5 +16361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "37d4fd54771f9268bd3f7d27803be9b346befa93709bf0a9b709f6881b80c399"
+  "wiki_tree_hash": "4110d3ba385c20dab68808919dc8d880066e863846434319e281798aabc75056"
 }

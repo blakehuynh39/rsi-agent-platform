@@ -34952,3 +34952,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e66cd2f2a64834e38b8234b9e9fc28b9
 - summary: Project to reintroduce seed phrases in multiple languages (English + 4 Indic languages), using transcripts from the depin app transcript bucket.
 
+## [2026-06-19T16:47:03Z] synthesis | Numo Launch Day Metrics and Terminology Decision
+
+- status: published
+- slug: decisions/numo-launch-day-metrics-terminology
+- wiki_revision_id: wikirev_72693504d9124574ba110d90a77da001
+- summary: During Numo's launch day, the afternoon digest showed 6,314 submissions with 6,322 pending review. The team observed rapid growth, reaching 10,000 submissions within hours. A termi...
+
+## [2026-06-19T16:49:17Z] synthesis | RSI Platform v2 Roadmap and Post-Release Priorities
+
+- status: published
+- slug: projects/rsi-platform-v2-roadmap
+- wiki_revision_id: wikirev_5541ae2b689e5fa7f0b8d575e00f79a9
+- summary: Post-V1 release roadmap and priorities including seedphrase voice matching, multi-language support, world launch, native apps, payment integration, non-audio tasks, and analytics i...
+
