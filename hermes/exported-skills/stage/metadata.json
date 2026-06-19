@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "26ae8d5c5d07a6834cf3d70214d7b98cdaf5d24120f0d553bc035b8b91ba2b4b",
-        "size": 954097
+        "sha256": "478b8c787b964ff220ecd2ce6736e1aa2e35e9a1702b9dfab281503131a04711",
+        "size": 954821
       },
       {
         "path": "log.md",
-        "sha256": "95cfcb209680182b282fc09aa43e2059d4c92ae0f931bf3e93cab94bb912d5f7",
-        "size": 1685294
+        "sha256": "1f90a02998195d4f7a3ff82bf92d5719aafc4a87e550270097737c21c0d75605",
+        "size": 1686042
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4458,6 +4458,11 @@
         "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
         "sha256": "fb443dda03a0d080512c04dba22a9136684d3f9d13c9158fd8d28ac05111f4a3",
         "size": 1575
+      },
+      {
+        "path": "pages/decisions/finance-legal-request-hold.md",
+        "sha256": "d175ae7a62ece0c78ba75938e5d9e6ff2eafb8fe211982b8b53045e6852eef47",
+        "size": 2830
       },
       {
         "path": "pages/decisions/hook-registry-design.md",
@@ -6540,6 +6545,11 @@
         "size": 6148
       },
       {
+        "path": "pages/projects/vietnamese-low-unigram-investigation.md",
+        "sha256": "81c7ec315d4e77cac5fb1d605df9ca36ec86862eabae837b50f9fd8175b71cf4",
+        "size": 2818
+      },
+      {
         "path": "pages/projects/vietnamese-transcripts-generation.md",
         "sha256": "06743ce6008fae512731485559d2eb5fcb4e6085d7078cccac306bf5218608df",
         "size": 7760
@@ -7739,8 +7749,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T04:47:31Z",
-  "file_count": 1546,
+  "exported_at": "2026-06-19T05:04:28Z",
+  "file_count": 1548,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11017,7 +11027,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "b724ba912ff1768958d260e8d70682584dced24d0fe7ee463150085f1ee28f92",
+  "previous_tree_hash": "9053df78ca5b940a625b56bdcfdb9ca109a4f05ede64d1ff378f6b7e4a91453f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11030,14 +11040,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9053df78ca5b940a625b56bdcfdb9ca109a4f05ede64d1ff378f6b7e4a91453f",
+  "tree_hash": "8e8191d9e13634e243a2631e7fa1043a937c425674cdc2ca9d768bd654d5b96e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 892,
+  "wiki_file_count": 894,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11046,13 +11056,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "26ae8d5c5d07a6834cf3d70214d7b98cdaf5d24120f0d553bc035b8b91ba2b4b",
-      "size": 954097
+      "sha256": "478b8c787b964ff220ecd2ce6736e1aa2e35e9a1702b9dfab281503131a04711",
+      "size": 954821
     },
     {
       "path": "log.md",
-      "sha256": "95cfcb209680182b282fc09aa43e2059d4c92ae0f931bf3e93cab94bb912d5f7",
-      "size": 1685294
+      "sha256": "1f90a02998195d4f7a3ff82bf92d5719aafc4a87e550270097737c21c0d75605",
+      "size": 1686042
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12223,6 +12233,11 @@
       "path": "pages/decisions/finalize-non-audio-tasks-rollout-timeline.md",
       "sha256": "fb443dda03a0d080512c04dba22a9136684d3f9d13c9158fd8d28ac05111f4a3",
       "size": 1575
+    },
+    {
+      "path": "pages/decisions/finance-legal-request-hold.md",
+      "sha256": "d175ae7a62ece0c78ba75938e5d9e6ff2eafb8fe211982b8b53045e6852eef47",
+      "size": 2830
     },
     {
       "path": "pages/decisions/hook-registry-design.md",
@@ -14305,6 +14320,11 @@
       "size": 6148
     },
     {
+      "path": "pages/projects/vietnamese-low-unigram-investigation.md",
+      "sha256": "81c7ec315d4e77cac5fb1d605df9ca36ec86862eabae837b50f9fd8175b71cf4",
+      "size": 2818
+    },
+    {
       "path": "pages/projects/vietnamese-transcripts-generation.md",
       "sha256": "06743ce6008fae512731485559d2eb5fcb4e6085d7078cccac306bf5218608df",
       "size": 7760
@@ -15501,5 +15521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "07658d9a2de2ad11acdade694bd7140e27d1c7d0ff7874f995018939be09a1ef"
+  "wiki_tree_hash": "2cd464332d35a7d9c7a8bd5b93092ff7fd2abb29825ca7a6352b94b56f7e1d93"
 }

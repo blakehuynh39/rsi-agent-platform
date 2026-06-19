@@ -34328,3 +34328,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6fb7388b591202519953205bdf2caabe
 - summary: Investigation into using Disperse.app for cost-effective batch token transfers on Story, with potential for programmatic automation to handle crypto payouts.
 
+## [2026-06-19T05:01:12Z] synthesis | Vietnamese Low Unigram Score Investigation
+
+- status: published
+- slug: projects/vietnamese-low-unigram-investigation
+- wiki_revision_id: wikirev_347174787e2b844fb16ce156f0d6229e
+- summary: Investigation into low Vietnamese unigram scores, with an explanatory document and 40k transcripts made available.
+
+## [2026-06-19T05:02:28Z] synthesis | Pencils Down on Finance and Legal Requests
+
+- status: published
+- slug: decisions/finance-legal-request-hold
+- wiki_revision_id: wikirev_1dd2e868e961d9ca1196b675cd419500
+- summary: Leadership has halted new finance and legal requests ('pencils down') until a list of required workstreams for the next 2 weeks with DRI and prioritization is reviewed, following d...
+
