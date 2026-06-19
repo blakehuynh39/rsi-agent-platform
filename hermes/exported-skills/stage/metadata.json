@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ea89fb12d8dff35b8d53edae3edee00df5adf63d565c09d81f97e7165719b734",
-        "size": 996165
+        "sha256": "86fff5d378a04c5ba03e237750da40e32b5691d3473734e97b0d8df6e12893b7",
+        "size": 996858
       },
       {
         "path": "log.md",
-        "sha256": "98b624091f4357de2bee84155b78f9f8afe8964df7732cc18087774dd9c156ef",
-        "size": 1732718
+        "sha256": "b7797e494bb14c177c460825795bd9f971b8112cee0c5e2c900f7623f04d1761",
+        "size": 1733435
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5008,6 +5008,11 @@
         "path": "pages/decisions/transcript-generation-testing-approach.md",
         "sha256": "af7bf4b59c715550701f2f1a6ab0df0e39745732b879d1cc01de54cf573b0886",
         "size": 1575
+      },
+      {
+        "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
+        "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
+        "size": 2409
       },
       {
         "path": "pages/decisions/using-minio-for-mvp.md",
@@ -7840,6 +7845,11 @@
         "size": 4149
       },
       {
+        "path": "pages/systems/info-numolabs-ai-email-distribution.md",
+        "sha256": "544d3a7d4c44a99fd68c3c09cd0b12cdfaadbb323ee19c44a5d045422a47e1a8",
+        "size": 3570
+      },
+      {
         "path": "pages/systems/ip-graph-api.md",
         "sha256": "1c660ad193ab335e283d00763ed37d79f241b1ad4c08851f5ddcd441a8ec1bdd",
         "size": 4630
@@ -8324,8 +8334,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T20:33:01Z",
-  "file_count": 1663,
+  "exported_at": "2026-06-19T20:49:33Z",
+  "file_count": 1665,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11602,7 +11612,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a1e65b55ad3199e52f27aa4dad38f3eafbb8612c49933dfb464a78bbcb5018a7",
+  "previous_tree_hash": "e43b7f01f46321eca11854b0dbdb305c21f20b76f92c213da83f328e879023e5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11615,14 +11625,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e43b7f01f46321eca11854b0dbdb305c21f20b76f92c213da83f328e879023e5",
+  "tree_hash": "702c73075c6f9c9b523364ed87aad759ccfbb5ffdc7e2203253443954a029e61",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1009,
+  "wiki_file_count": 1011,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11631,13 +11641,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ea89fb12d8dff35b8d53edae3edee00df5adf63d565c09d81f97e7165719b734",
-      "size": 996165
+      "sha256": "86fff5d378a04c5ba03e237750da40e32b5691d3473734e97b0d8df6e12893b7",
+      "size": 996858
     },
     {
       "path": "log.md",
-      "sha256": "98b624091f4357de2bee84155b78f9f8afe8964df7732cc18087774dd9c156ef",
-      "size": 1732718
+      "sha256": "b7797e494bb14c177c460825795bd9f971b8112cee0c5e2c900f7623f04d1761",
+      "size": 1733435
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13358,6 +13368,11 @@
       "path": "pages/decisions/transcript-generation-testing-approach.md",
       "sha256": "af7bf4b59c715550701f2f1a6ab0df0e39745732b879d1cc01de54cf573b0886",
       "size": 1575
+    },
+    {
+      "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
+      "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
+      "size": 2409
     },
     {
       "path": "pages/decisions/using-minio-for-mvp.md",
@@ -16190,6 +16205,11 @@
       "size": 4149
     },
     {
+      "path": "pages/systems/info-numolabs-ai-email-distribution.md",
+      "sha256": "544d3a7d4c44a99fd68c3c09cd0b12cdfaadbb323ee19c44a5d045422a47e1a8",
+      "size": 3570
+    },
+    {
       "path": "pages/systems/ip-graph-api.md",
       "sha256": "1c660ad193ab335e283d00763ed37d79f241b1ad4c08851f5ddcd441a8ec1bdd",
       "size": 4630
@@ -16671,5 +16691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b93bf14a943406f4b7d08a003a48f63bc84199d50c403d6d883bbf8bdafcbcfc"
+  "wiki_tree_hash": "6af45cfb795b08f7e0bdfb2f5af02004f38246619efb79bbec21d71db8edafbf"
 }

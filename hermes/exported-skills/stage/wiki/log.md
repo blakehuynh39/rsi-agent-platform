@@ -35224,3 +35224,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7b203280ecae8d0edbaffc1d06a1b1bf
 - summary: A user encountered a login error. A team member indicated the feature is likely not on production yet and they are currently on staging.
 
+## [2026-06-19T20:46:29Z] synthesis | Milestone Tweet: 30k Tasks and 7k Users
+
+- status: published
+- slug: decisions/tweet-30k-tasks-7k-users
+- wiki_revision_id: wikirev_1cc6eed65a484ff6eb50d447f8ca8533
+- summary: Andrea was asked to lead a tweet highlighting 30k task submissions and 7k users, achieved in under 48 hours. The tweet was subsequently posted.
+
+## [2026-06-19T20:47:16Z] synthesis | info@numolabs.ai Email Distribution
+
+- status: published
+- slug: systems/info-numolabs-ai-email-distribution
+- wiki_revision_id: wikirev_4ef8da3855f7d3428e01b8f2c29506da
+- summary: info@numolabs.ai is a distribution list alias for info@piplabs.xyz. Emails are archived in Google Groups. Access is granted upon request.
+
