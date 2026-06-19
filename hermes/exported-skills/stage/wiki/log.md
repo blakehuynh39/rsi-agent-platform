@@ -34640,3 +34640,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6dce3f6c6a4cd76ead4a30fe6e96684a
 - summary: PR #431 introduces the ability to schedule a campaign with a start date, after which it automatically appears on the App.
 
+## [2026-06-19T10:47:07Z] synthesis | Task Planning and Backlog Scheduling
+
+- status: published
+- slug: decisions/task-planning-and-backlog-scheduling
+- wiki_revision_id: wikirev_fa844958249174459b84d380a9591357
+- summary: Team discussion to address confusion around task scheduling by creating a structured backlog and a calendar tool in the admin portal for visualizing rollout. Tasks will be repopula...
+
+## [2026-06-19T10:48:16Z] synthesis | Deepfake Detection
+
+- status: published
+- slug: projects/deepfake-detection
+- wiki_revision_id: wikirev_315b4d0302afba3360e11f06503d8d95
+- summary: Status of deepfake detection efforts, specifically for Bengali and Telugu audio files.
+

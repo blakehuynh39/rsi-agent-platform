@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "bc7e8d18c583ef67a32317a7da584efdc5c655683a1392e30bc6b087bc4ae85d",
-        "size": 969041
+        "sha256": "696a6d6eacdf415bf1c4854dd57a6368a108aadece5a4e84eb5a639fc8b7b6e1",
+        "size": 969699
       },
       {
         "path": "log.md",
-        "sha256": "604029ca66733d20caefe402b81b74e52eeb5b21373ed59632c9a72d5d407788",
-        "size": 1701807
+        "sha256": "6262d1a751f4201a4de11424085fbb4c6fb2a8c0d6f08ce4c6f9dd8b2ce059ac",
+        "size": 1702489
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4825,6 +4825,11 @@
         "size": 2071
       },
       {
+        "path": "pages/decisions/task-planning-and-backlog-scheduling.md",
+        "sha256": "9a648e85d444ec7cec6f104fb654445d18271a6e22fcbe321eeaea2a442677b8",
+        "size": 6182
+      },
+      {
         "path": "pages/decisions/tax-integration-provider-selection.md",
         "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
         "size": 4570
@@ -5498,6 +5503,11 @@
         "path": "pages/projects/decentralized-audio-workflow.md",
         "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
         "size": 8405
+      },
+      {
+        "path": "pages/projects/deepfake-detection.md",
+        "sha256": "bebe01b65a7d169869a7851a4f10d34ae0fa3dacae9aed6b5c2c783bf5bb510d",
+        "size": 2407
       },
       {
         "path": "pages/projects/depin-ai-data-research-initiative.md",
@@ -7949,8 +7959,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T10:34:27Z",
-  "file_count": 1588,
+  "exported_at": "2026-06-19T10:51:16Z",
+  "file_count": 1590,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11227,7 +11237,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "3596e35a8a3bfa6451c9f1aa4e03515ea781478ee39c6c2f8a1d628e8409211a",
+  "previous_tree_hash": "3e4c7668495e8feb596d04c7be0eb3fce5e8a4aea297034520f279f7396b04a2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11240,14 +11250,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3e4c7668495e8feb596d04c7be0eb3fce5e8a4aea297034520f279f7396b04a2",
+  "tree_hash": "fe55bf519db293428c98bf99ec7a715b5fb1aea7f193d27cb48e032c704b3b71",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 934,
+  "wiki_file_count": 936,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11256,13 +11266,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "bc7e8d18c583ef67a32317a7da584efdc5c655683a1392e30bc6b087bc4ae85d",
-      "size": 969041
+      "sha256": "696a6d6eacdf415bf1c4854dd57a6368a108aadece5a4e84eb5a639fc8b7b6e1",
+      "size": 969699
     },
     {
       "path": "log.md",
-      "sha256": "604029ca66733d20caefe402b81b74e52eeb5b21373ed59632c9a72d5d407788",
-      "size": 1701807
+      "sha256": "6262d1a751f4201a4de11424085fbb4c6fb2a8c0d6f08ce4c6f9dd8b2ce059ac",
+      "size": 1702489
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12800,6 +12810,11 @@
       "size": 2071
     },
     {
+      "path": "pages/decisions/task-planning-and-backlog-scheduling.md",
+      "sha256": "9a648e85d444ec7cec6f104fb654445d18271a6e22fcbe321eeaea2a442677b8",
+      "size": 6182
+    },
+    {
       "path": "pages/decisions/tax-integration-provider-selection.md",
       "sha256": "ae62ce83d10637ed1e2cf695f99b1c41f9edbaec91ff6ca2f3be8380e87adeb5",
       "size": 4570
@@ -13473,6 +13488,11 @@
       "path": "pages/projects/decentralized-audio-workflow.md",
       "sha256": "b9b7ad8891d98f4918038db336c8ff9a9afa8178557f39788eae45af646f5875",
       "size": 8405
+    },
+    {
+      "path": "pages/projects/deepfake-detection.md",
+      "sha256": "bebe01b65a7d169869a7851a4f10d34ae0fa3dacae9aed6b5c2c783bf5bb510d",
+      "size": 2407
     },
     {
       "path": "pages/projects/depin-ai-data-research-initiative.md",
@@ -15921,5 +15941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0a593e819e7e0da0d84eb08e45ade4f9f6a92a80239dc8c379df9fa0f925ce97"
+  "wiki_tree_hash": "b341b5c8033c0c6d56a5460c853b67b7de100815bb65c9474b9299f1197044fb"
 }
