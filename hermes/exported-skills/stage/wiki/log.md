@@ -34135,3 +34135,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a8ed68b44ba05901ff8459fb412d6244
 - summary: Daily automated digest of Numo processing statistics, posted in the morning PST (16:00 UTC). Built on the Poseidon platform's app, triggered via GitHub Actions. Originally in noisy...
 
+## [2026-06-19T00:01:07Z] synthesis | Numo Morning Digest
+
+- status: published
+- slug: systems/numo-morning-digest
+- wiki_revision_id: wikirev_1c4c7c24127509d743436c46cab25754
+- summary: The Numo morning digest automatically posts daily activity statistics. On 2026-06-05, it was reported that the digest was still posting to an incorrect channel. The issue was resol...
+
+## [2026-06-19T00:01:50Z] synthesis | Numo Meetings Calendar Access Request
+
+- status: published
+- slug: open-questions/numo-meetings-calendar-request
+- wiki_revision_id: wikirev_3dab41dcaa4acf57bce8589bc878a3c6
+- summary: A request was made on Slack to add the requester to Numo-related meetings on the calendar.
+
