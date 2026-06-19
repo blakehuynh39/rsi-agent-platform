@@ -34612,3 +34612,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3a3d973923cf24f63265a56544bc79c1
 - summary: Mu-Bench is an open multilingual transcription benchmark that includes metrics such as Word Error Rate (WER), Latency (P95), and UER (possibly Unit Error Rate). It is developed by ...
 
+## [2026-06-19T10:33:32Z] synthesis | Filipino Language Campaign
+
+- status: published
+- slug: projects/filipino-language-campaign
+- wiki_revision_id: wikirev_e5aafae8ab8b50342d0122517be7f82a
+- summary: New data collection campaign for Filipino language with 300 hours / 36k tasks, payout $0.07 per submission, 15%/85% advance/validated split.
+
+## [2026-06-19T10:33:32Z] synthesis | IP Registration Auto-Registration Issue
+
+- status: published
+- slug: runbooks/ip-registration-auto-registration-issue
+- wiki_revision_id: wikirev_d14e83df6636c1f60fefb78224762953
+- summary: Inactive campaigns were automatically registering IPs on-chain due to default ip_registration_status=OPEN.
+
+## [2026-06-19T10:33:32Z] synthesis | Staging Test Collection & Custom Images
+
+- status: published
+- slug: runbooks/staging-test-collection-custom-images
+- wiki_revision_id: wikirev_b4538dce051b9438c616708dc0a3efd1
+- summary: Process for testing IP registration and custom images on staging environment.
+
+## [2026-06-19T10:33:32Z] synthesis | Campaign Scheduling Feature (PR #431)
+
+- status: published
+- slug: projects/campaign-scheduling-feature-pr-431
+- wiki_revision_id: wikirev_6dce3f6c6a4cd76ead4a30fe6e96684a
+- summary: PR #431 introduces the ability to schedule a campaign with a start date, after which it automatically appears on the App.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f9d816f2a3c4c571498c7b06feec5f28eb88bb13a6ace289b0e6f38e4c920b0f",
-        "size": 967760
+        "sha256": "bc7e8d18c583ef67a32317a7da584efdc5c655683a1392e30bc6b087bc4ae85d",
+        "size": 969041
       },
       {
         "path": "log.md",
-        "sha256": "50614043f79e1c42e9f1dd45903b1643280d85e3fda9745291b27816ee64b0bd",
-        "size": 1700478
+        "sha256": "604029ca66733d20caefe402b81b74e52eeb5b21373ed59632c9a72d5d407788",
+        "size": 1701807
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5425,6 +5425,11 @@
         "size": 1927
       },
       {
+        "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
+        "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
+        "size": 3000
+      },
+      {
         "path": "pages/projects/community-badge.md",
         "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
         "size": 1733
@@ -5658,6 +5663,11 @@
         "path": "pages/projects/faucet-migration-to-aws.md",
         "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
         "size": 3967
+      },
+      {
+        "path": "pages/projects/filipino-language-campaign.md",
+        "sha256": "7a1414262c077634277b90591c3e59ecf2a9590f83a17673e65f33b4dfa9fdff",
+        "size": 3070
       },
       {
         "path": "pages/projects/filipino-language-task.md",
@@ -6955,6 +6965,11 @@
         "size": 1732
       },
       {
+        "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
+        "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
+        "size": 3278
+      },
+      {
         "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
         "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
         "size": 10780
@@ -7148,6 +7163,11 @@
         "path": "pages/runbooks/running-a-node.md",
         "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
         "size": 4260
+      },
+      {
+        "path": "pages/runbooks/staging-test-collection-custom-images.md",
+        "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
+        "size": 3584
       },
       {
         "path": "pages/runbooks/story-api-504-timeout-incident.md",
@@ -7929,8 +7949,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T10:27:48Z",
-  "file_count": 1584,
+  "exported_at": "2026-06-19T10:34:27Z",
+  "file_count": 1588,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11207,7 +11227,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "d9c5014d50bd7a18e5635e6fcce853592dc7772e11ad59c15dc728f1a1174e92",
+  "previous_tree_hash": "3596e35a8a3bfa6451c9f1aa4e03515ea781478ee39c6c2f8a1d628e8409211a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11220,14 +11240,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3596e35a8a3bfa6451c9f1aa4e03515ea781478ee39c6c2f8a1d628e8409211a",
+  "tree_hash": "3e4c7668495e8feb596d04c7be0eb3fce5e8a4aea297034520f279f7396b04a2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 930,
+  "wiki_file_count": 934,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11236,13 +11256,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f9d816f2a3c4c571498c7b06feec5f28eb88bb13a6ace289b0e6f38e4c920b0f",
-      "size": 967760
+      "sha256": "bc7e8d18c583ef67a32317a7da584efdc5c655683a1392e30bc6b087bc4ae85d",
+      "size": 969041
     },
     {
       "path": "log.md",
-      "sha256": "50614043f79e1c42e9f1dd45903b1643280d85e3fda9745291b27816ee64b0bd",
-      "size": 1700478
+      "sha256": "604029ca66733d20caefe402b81b74e52eeb5b21373ed59632c9a72d5d407788",
+      "size": 1701807
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13380,6 +13400,11 @@
       "size": 1927
     },
     {
+      "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
+      "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
+      "size": 3000
+    },
+    {
       "path": "pages/projects/community-badge.md",
       "sha256": "3441aadfde671762abefe0ae9c7f230abfa4909049f752bcf34892b7e5b99fa4",
       "size": 1733
@@ -13613,6 +13638,11 @@
       "path": "pages/projects/faucet-migration-to-aws.md",
       "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
       "size": 3967
+    },
+    {
+      "path": "pages/projects/filipino-language-campaign.md",
+      "sha256": "7a1414262c077634277b90591c3e59ecf2a9590f83a17673e65f33b4dfa9fdff",
+      "size": 3070
     },
     {
       "path": "pages/projects/filipino-language-task.md",
@@ -14910,6 +14940,11 @@
       "size": 1732
     },
     {
+      "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
+      "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
+      "size": 3278
+    },
+    {
       "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
       "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
       "size": 10780
@@ -15103,6 +15138,11 @@
       "path": "pages/runbooks/running-a-node.md",
       "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
       "size": 4260
+    },
+    {
+      "path": "pages/runbooks/staging-test-collection-custom-images.md",
+      "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
+      "size": 3584
     },
     {
       "path": "pages/runbooks/story-api-504-timeout-incident.md",
@@ -15881,5 +15921,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f35a6bdcf8d2bdbd90524af81bdcf3f0851d2cce57736fbed161ab230cdaf9b1"
+  "wiki_tree_hash": "0a593e819e7e0da0d84eb08e45ade4f9f6a92a80239dc8c379df9fa0f925ce97"
 }
