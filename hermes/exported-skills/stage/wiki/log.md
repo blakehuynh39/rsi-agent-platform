@@ -35145,3 +35145,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_79d3a162694eebeae9a77bdd8a6ebe37
 - summary: Manual and automated pentest of the app resulted in a report with 1 critical and 3 high severity findings, requiring further review.
 
+## [2026-06-19T19:17:02Z] synthesis | Stripe Payouts Integration
+
+- status: published
+- slug: projects/stripe-payouts-integration
+- wiki_revision_id: wikirev_0fe32e01c6e13e9ab5be91424c4533a2
+- summary: Integration of Stripe payouts to enable sending USD to Indian bank accounts in INR, with Stripe handling KYC and compliance.
+
+## [2026-06-19T19:17:43Z] synthesis | Fraud Detection and Country-Based Access Control Strategy
+
+- status: published
+- slug: decisions/fraud-detection-and-country-based-access-control-strategy
+- wiki_revision_id: wikirev_eb32a900d31f0ac44ea14e787d612ee5
+- summary: Discussion on implementing fraud detection and country-based access controls to prevent spam and farming in data collection campaigns. Topics include IP banning, shadow banning, co...
+

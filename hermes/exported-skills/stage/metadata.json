@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4f2388b4f56aae7e14357c8dbdac9ef6774c8dd1252dab52461cf6fa3ec8df83",
-        "size": 1728500
+        "sha256": "161f8bef71b83969973fb89d7761dfa9a3693ba0cf03c85ba53022cdbeafd805",
+        "size": 1728828
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6800,6 +6800,11 @@
         "size": 6356
       },
       {
+        "path": "pages/projects/stripe-payouts-integration.md",
+        "sha256": "0001404e73fc242b2492f5191c5aa18052533ee0a5bf3aba7bc71a62defeda72",
+        "size": 4441
+      },
+      {
         "path": "pages/projects/stripe-poc-payment-solution.md",
         "sha256": "747882131542ad6b471a85e5f9412884ae536264af15b4d2741647b32de2fedd",
         "size": 4212
@@ -8284,8 +8289,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T19:05:41Z",
-  "file_count": 1655,
+  "exported_at": "2026-06-19T19:17:19Z",
+  "file_count": 1656,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11562,7 +11567,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "7fcc5ff4bc08fabf50f205223a1073492bd28e3acdfefc63b6a4e16d9ed0fad3",
+  "previous_tree_hash": "987bac22f98e00a0f8da1d6b4aa6d76b5e20d2b3247720d868a221741d7d4bf0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11575,14 +11580,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "987bac22f98e00a0f8da1d6b4aa6d76b5e20d2b3247720d868a221741d7d4bf0",
+  "tree_hash": "2ae6029048165d14b5c7c8b98b0a353f50f60fd1542ce5341e669bd1674578c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1001,
+  "wiki_file_count": 1002,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11596,8 +11601,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4f2388b4f56aae7e14357c8dbdac9ef6774c8dd1252dab52461cf6fa3ec8df83",
-      "size": 1728500
+      "sha256": "161f8bef71b83969973fb89d7761dfa9a3693ba0cf03c85ba53022cdbeafd805",
+      "size": 1728828
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15110,6 +15115,11 @@
       "size": 6356
     },
     {
+      "path": "pages/projects/stripe-payouts-integration.md",
+      "sha256": "0001404e73fc242b2492f5191c5aa18052533ee0a5bf3aba7bc71a62defeda72",
+      "size": 4441
+    },
+    {
       "path": "pages/projects/stripe-poc-payment-solution.md",
       "sha256": "747882131542ad6b471a85e5f9412884ae536264af15b4d2741647b32de2fedd",
       "size": 4212
@@ -16591,5 +16601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "132dad10904591636165eba22aae15cb019700ca32017fae20790dcd25b277cc"
+  "wiki_tree_hash": "8c7ea591afbbbb1569deca4622a0f0d77b4c13b448dcbfa5fdf53ee09ceab2dd"
 }
