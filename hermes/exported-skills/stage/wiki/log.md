@@ -34903,3 +34903,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4388c771e72c15cb3bacea88d294fbb9
 - summary: Setup of the automated welcome email for Numo signups using Beehiiv, including API integration and email content creation.
 
+## [2026-06-19T16:16:36Z] synthesis | Numo Launch Timeline
+
+- status: published
+- slug: projects/numo-launch-timeline
+- wiki_revision_id: wikirev_8fc5783707aab0f2640d46762127ebf7
+- summary: Numo is targeting code complete and QA on April 13 in preparation for a hopeful April 20 launch. Testing work is being prepared, including backend API automation and load testing. ...
+
+## [2026-06-19T16:17:28Z] synthesis | Poseidon Multiplier Attribution
+
+- status: published
+- slug: decisions/poseidon-multiplier-attribution
+- wiki_revision_id: wikirev_0d7b8efe59874d455c53fb323be8f982
+- summary: Decision to automatically attribute Poseidon user multipliers using an email whitelist, with login page reminders.
+
