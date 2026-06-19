@@ -34307,3 +34307,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2d859aadb89ea6687f84d899188bd790
 - summary: Project to expand campaign health to include all campaigns instead of just top 3.
 
+## [2026-06-19T04:17:18Z] synthesis | Seed Phrase Word Pool Localization
+
+- status: published
+- slug: projects/seed-phrase-word-pool-localization
+- wiki_revision_id: wikirev_839073a0bb402a54b1c007f0952958eb
+- summary: Project to create and review word pools for generating seed phrases in Bengali, Hindi, Telugu, and Tamil, with initial review and expansion to 500 words per language.
+

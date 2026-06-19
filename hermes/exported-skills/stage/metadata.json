@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b945ccdbaecdf9ecc5fa1d25536b55ea2d05703f85f4a0360c186eeaaa3cb7fe",
-        "size": 1684082
+        "sha256": "00f865194f0ab3f808702eba71442a7f4c59c771ccc8286176e95b7dcf3a94d5",
+        "size": 1684468
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6270,6 +6270,11 @@
         "size": 5593
       },
       {
+        "path": "pages/projects/seed-phrase-word-pool-localization.md",
+        "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
+        "size": 4050
+      },
+      {
         "path": "pages/projects/sp-tokenomics-blast.md",
         "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
         "size": 4829
@@ -7724,8 +7729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T04:05:45Z",
-  "file_count": 1543,
+  "exported_at": "2026-06-19T04:17:29Z",
+  "file_count": 1544,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11002,7 +11007,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "ff5df8b6503185576fab006e19de743b55216c29b883348c6fc59dd0d6bb27f8",
+  "previous_tree_hash": "7de99a6ba7f87057bdc45d4bcdce3aff8ad3c6c4be7de711ed651441fbe7af1b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11015,14 +11020,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7de99a6ba7f87057bdc45d4bcdce3aff8ad3c6c4be7de711ed651441fbe7af1b",
+  "tree_hash": "0e12c90082cd4d0ee804d4a58fb608a9964aca79533e345bf282e178830f27cd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 889,
+  "wiki_file_count": 890,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11036,8 +11041,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b945ccdbaecdf9ecc5fa1d25536b55ea2d05703f85f4a0360c186eeaaa3cb7fe",
-      "size": 1684082
+      "sha256": "00f865194f0ab3f808702eba71442a7f4c59c771ccc8286176e95b7dcf3a94d5",
+      "size": 1684468
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14020,6 +14025,11 @@
       "size": 5593
     },
     {
+      "path": "pages/projects/seed-phrase-word-pool-localization.md",
+      "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
+      "size": 4050
+    },
+    {
       "path": "pages/projects/sp-tokenomics-blast.md",
       "sha256": "6246d9cf4f263f43cc7b076b705c89272b005b9fbcc8d47b123b568543bb144c",
       "size": 4829
@@ -15471,5 +15481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5772ac7455bc38b4baa5383592f8982e2b6dbaa1a84e1595cecf44f477e6905a"
+  "wiki_tree_hash": "5d56bf80a88240afb3937f0f6122420c96bd63a0279f182ed108109f1c3f13a5"
 }
