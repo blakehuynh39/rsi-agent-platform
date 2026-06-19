@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1873621bec8d9f3c4fe9a70b96ab15d8359889717805e7e39ed9f2d5f8b574b1",
-        "size": 960368
+        "sha256": "87a33b0ad650bcffe643fdd4a2ad5201028ba0cddcd52af130d16820b2de4384",
+        "size": 961147
       },
       {
         "path": "log.md",
-        "sha256": "732cccefaf7989c840bb7ef283b6efcd94fe68ae3147301878dcc7794598f462",
-        "size": 1691769
+        "sha256": "dce71c6b9986190e93e5306371a56076d3ca36c1588c039b1fb2d996e969e86a",
+        "size": 1692572
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5215,6 +5215,11 @@
         "size": 5155
       },
       {
+        "path": "pages/policies/w8ben-collection-policy.md",
+        "sha256": "1360dd5d0f4d83fec874b664cda6a27083c612c509233abadc17d4b78593188d",
+        "size": 1653
+      },
+      {
         "path": "pages/policies/withdrawal-safeguard-policy.md",
         "sha256": "4d16f76e0f9afdda25943b811edb68e446e3422d896110655657ddeb7bbb6f2a",
         "size": 2488
@@ -6615,6 +6620,11 @@
         "size": 2818
       },
       {
+        "path": "pages/projects/vietnamese-rollout-transcript-diversity-fix.md",
+        "sha256": "dc4e641f433d2833726a84ceffa24432726ea135b15846cad9a52820546ee46f",
+        "size": 3229
+      },
+      {
         "path": "pages/projects/vietnamese-transcripts-generation.md",
         "sha256": "06743ce6008fae512731485559d2eb5fcb4e6085d7078cccac306bf5218608df",
         "size": 7760
@@ -7824,8 +7834,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T07:05:34Z",
-  "file_count": 1563,
+  "exported_at": "2026-06-19T07:17:26Z",
+  "file_count": 1565,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11102,7 +11112,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "233cfdfd6f3d2b53ec260a0033b5133e815efe1e49a34184c58d7cd5f9840d1a",
+  "previous_tree_hash": "5d5441930770a5423202a4958b98ee53d14bd83283bb792da8d5385236eeb273",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11115,14 +11125,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5d5441930770a5423202a4958b98ee53d14bd83283bb792da8d5385236eeb273",
+  "tree_hash": "0b2b957dbbf2a869a92161c0c2fb320d75f38199111c4378e3d6e93400c79bdd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 909,
+  "wiki_file_count": 911,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11131,13 +11141,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1873621bec8d9f3c4fe9a70b96ab15d8359889717805e7e39ed9f2d5f8b574b1",
-      "size": 960368
+      "sha256": "87a33b0ad650bcffe643fdd4a2ad5201028ba0cddcd52af130d16820b2de4384",
+      "size": 961147
     },
     {
       "path": "log.md",
-      "sha256": "732cccefaf7989c840bb7ef283b6efcd94fe68ae3147301878dcc7794598f462",
-      "size": 1691769
+      "sha256": "dce71c6b9986190e93e5306371a56076d3ca36c1588c039b1fb2d996e969e86a",
+      "size": 1692572
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13065,6 +13075,11 @@
       "size": 5155
     },
     {
+      "path": "pages/policies/w8ben-collection-policy.md",
+      "sha256": "1360dd5d0f4d83fec874b664cda6a27083c612c509233abadc17d4b78593188d",
+      "size": 1653
+    },
+    {
       "path": "pages/policies/withdrawal-safeguard-policy.md",
       "sha256": "4d16f76e0f9afdda25943b811edb68e446e3422d896110655657ddeb7bbb6f2a",
       "size": 2488
@@ -14465,6 +14480,11 @@
       "size": 2818
     },
     {
+      "path": "pages/projects/vietnamese-rollout-transcript-diversity-fix.md",
+      "sha256": "dc4e641f433d2833726a84ceffa24432726ea135b15846cad9a52820546ee46f",
+      "size": 3229
+    },
+    {
       "path": "pages/projects/vietnamese-transcripts-generation.md",
       "sha256": "06743ce6008fae512731485559d2eb5fcb4e6085d7078cccac306bf5218608df",
       "size": 7760
@@ -15671,5 +15691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "08bd68d9741b2d59bcd6d4ce3dbf89acb66fa864fe7afb9071338f19359af9b0"
+  "wiki_tree_hash": "52fdf38d45d60d5e25d128cdbd0c377e7e45305867b45ae0e1abaa35643caddd"
 }

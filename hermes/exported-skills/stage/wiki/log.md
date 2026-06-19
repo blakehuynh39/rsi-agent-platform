@@ -34447,3 +34447,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_17eede662477d168584e1b329047ea75
 - summary: Design review for the payment flow, covering UI improvements to button layout and balance breakdown display. The flow is functional on staging with Stripe sandbox but needs design ...
 
+## [2026-06-19T07:15:35Z] synthesis | W-8BEN Collection Policy
+
+- status: published
+- slug: policies/w8ben-collection-policy
+- wiki_revision_id: wikirev_2d88b7e4ac6fa7ecf6dfb9178103e2b4
+- summary: Standard practice is to collect a valid Form W-8BEN before paying any amount to foreign vendors. A custom collection form is used as a stopgap if IRS access is not obtained in time...
+
+## [2026-06-19T07:16:44Z] synthesis | Vietnamese Rollout Transcript Diversity Fix
+
+- status: published
+- slug: projects/vietnamese-rollout-transcript-diversity-fix
+- wiki_revision_id: wikirev_e6217c0066205d053d9c2d9d816d24c7
+- summary: The Vietnamese rollout was paused due to a last-minute transcript diversity issue flagged by Poseidon. The team is working to correct it and activated the task for @U0866HDK755, ta...
+
