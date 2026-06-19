@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "cfc6906002ae5fa6ee9b50c335765eceb6d6c935a157b0cca6d1533e2ccb48a0",
-        "size": 1689873
+        "sha256": "fc571b3b99df901ab1059e8b861a45aadd217218fc89f5212cd8213f75e7e1f4",
+        "size": 1690568
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5645,6 +5645,11 @@
         "size": 11868
       },
       {
+        "path": "pages/projects/hindi-localization-numo.md",
+        "sha256": "4c97eeac6891601ac81677ca7ebc6ba41860e1b4c78bf9b6b505564347e49231",
+        "size": 2034
+      },
+      {
         "path": "pages/projects/hub-v1-backend.md",
         "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
         "size": 4080
@@ -7505,6 +7510,11 @@
         "size": 4105
       },
       {
+        "path": "pages/systems/numo.md",
+        "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
+        "size": 1390
+      },
+      {
         "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
         "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
         "size": 4631
@@ -7799,8 +7809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T06:35:27Z",
-  "file_count": 1558,
+  "exported_at": "2026-06-19T06:47:11Z",
+  "file_count": 1560,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11077,7 +11087,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "6dda54341be2d293fe933e7d1ffbc1cb2b480ff8bf9533f9618a89222f6ebf54",
+  "previous_tree_hash": "a8cdf825e160ea7f00e6285bd0c98a4402def42e7e022999cc94146183e1c2fe",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11090,14 +11100,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a8cdf825e160ea7f00e6285bd0c98a4402def42e7e022999cc94146183e1c2fe",
+  "tree_hash": "a319b4cb8d5fe2149b8530f528435b569a085646dc4ff09e3f244a0ea8d2f19a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 904,
+  "wiki_file_count": 906,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11111,8 +11121,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "cfc6906002ae5fa6ee9b50c335765eceb6d6c935a157b0cca6d1533e2ccb48a0",
-      "size": 1689873
+      "sha256": "fc571b3b99df901ab1059e8b861a45aadd217218fc89f5212cd8213f75e7e1f4",
+      "size": 1690568
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13470,6 +13480,11 @@
       "size": 11868
     },
     {
+      "path": "pages/projects/hindi-localization-numo.md",
+      "sha256": "4c97eeac6891601ac81677ca7ebc6ba41860e1b4c78bf9b6b505564347e49231",
+      "size": 2034
+    },
+    {
       "path": "pages/projects/hub-v1-backend.md",
       "sha256": "8ede055bdb6d80bab1e1eaed6232f857d8a5f73b86403e6c70512f32d623a945",
       "size": 4080
@@ -15330,6 +15345,11 @@
       "size": 4105
     },
     {
+      "path": "pages/systems/numo.md",
+      "sha256": "46851d59fcf9fe479a044c9326718bfe574602d56900cf3315f5cc80acd2d182",
+      "size": 1390
+    },
+    {
       "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
       "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
       "size": 4631
@@ -15621,5 +15641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "44b330395895b7496f5db1226cdca5d38ecf41ec6a620d91f0f0fbdefa5ed6a9"
+  "wiki_tree_hash": "b914b2f89dc3d8ad9a326e1748c71c636f07b195b484e038f575860a4f467c04"
 }

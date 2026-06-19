@@ -34412,3 +34412,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd1c60be8b7ad8bca361b161c89a185d
 - summary: Decision to generate 50-100 transcripts each for Malay and Indonesian, to be manually reviewed by existing team members before broader rollout. Other languages (e.g., Thai) are on ...
 
+## [2026-06-19T06:46:06Z] synthesis | Numo
+
+- status: published
+- slug: systems/numo
+- wiki_revision_id: wikirev_43ff07a21b1c43ee6d335ab7a705a998
+- summary: Numo is a platform that appears to handle submissions for review, possibly involving transcription or validation tasks. As of the afternoon digest on the Slack thread, there were 5...
+
+## [2026-06-19T06:46:06Z] synthesis | Hindi Localization on Numo
+
+- status: published
+- slug: projects/hindi-localization-numo
+- wiki_revision_id: wikirev_718a5deea90e348b87530f68b6f7b6e4
+- summary: Hindi localization effort on Numo is at 98% completion. An announcement is planned for Monday, and a tweet is prepared for when it is officially closed.
+
+## [2026-06-19T06:47:13Z] synthesis | Elevenlabs API Account Management for Story/Poseidon
+
+- status: published
+- slug: decisions/elevenlabs-api-account-management-for-story-poseidon
+- wiki_revision_id: wikirev_008fb72a3c8fe91fa6bb5c3b35975f9e
+- summary: Decision to create a new Elevenlabs business account under Vinod's ownership to address API rate limit exceeded for Story validation, with Krishna assisting in management.
+
