@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "de419d1492ed37b3ea1baee0138168534c78b1e4d0c363c05acd6fa894568e68",
-        "size": 975359
+        "sha256": "9886cd47b4896b8b39169ccab7dc08dde2aa3b5a5d72f2cf547b6dc4d8debe8a",
+        "size": 976314
       },
       {
         "path": "log.md",
-        "sha256": "77a2044a8792e85058000528606e49a400079b22d7ce5ce9baf0ccbd9475807e",
-        "size": 1709627
+        "sha256": "f618c5a82ce70e998080d01fa66c3c934609f9ad6523c0cb72a3fbcb36905d9e",
+        "size": 1710270
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4373,6 +4373,11 @@
         "path": "pages/concepts/virtual-machine-execution-environments.md",
         "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
         "size": 2000
+      },
+      {
+        "path": "pages/concepts/voice-ai-market-opportunities.md",
+        "sha256": "a9309938adacacc188d985e5adc06bb7a7e26be650f57b99349b2bf64006c385",
+        "size": 3324
       },
       {
         "path": "pages/concepts/voice-verification-limitations.md",
@@ -6360,6 +6365,11 @@
         "size": 2999
       },
       {
+        "path": "pages/projects/poseidon-voice-campaigns.md",
+        "sha256": "d74178b8a8d3f4af5bb643d417378bdb009baf58efcfd7acb498b10d5dde56d5",
+        "size": 1730
+      },
+      {
         "path": "pages/projects/poseidon.md",
         "sha256": "869d739d3b1a2fc7f5686aec4de8f377548247a5ed2361ee5548ceed6654fb3e",
         "size": 9941
@@ -8044,8 +8054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T13:31:54Z",
-  "file_count": 1607,
+  "exported_at": "2026-06-19T13:38:42Z",
+  "file_count": 1609,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11322,7 +11332,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "89f2c896226e9a99c434598b9b5d2bac32e40765963d7fe41b489a86c6babbd6",
+  "previous_tree_hash": "4c688bd3e68934c5c438fc0638c2496d49a0caa2b47d6b491843b83ccacffcc2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11335,14 +11345,14 @@
   ],
   "skill_tree_hash": "87504c03441f87dcd6302fb3c7806fc03bf5b81ecd3c0973075639701741144d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4c688bd3e68934c5c438fc0638c2496d49a0caa2b47d6b491843b83ccacffcc2",
+  "tree_hash": "206040c5eb1b59dfb1155e8c7510a399b00b683888b8d06c38e61fda15354e78",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 953,
+  "wiki_file_count": 955,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11351,13 +11361,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "de419d1492ed37b3ea1baee0138168534c78b1e4d0c363c05acd6fa894568e68",
-      "size": 975359
+      "sha256": "9886cd47b4896b8b39169ccab7dc08dde2aa3b5a5d72f2cf547b6dc4d8debe8a",
+      "size": 976314
     },
     {
       "path": "log.md",
-      "sha256": "77a2044a8792e85058000528606e49a400079b22d7ce5ce9baf0ccbd9475807e",
-      "size": 1709627
+      "sha256": "f618c5a82ce70e998080d01fa66c3c934609f9ad6523c0cb72a3fbcb36905d9e",
+      "size": 1710270
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12443,6 +12453,11 @@
       "path": "pages/concepts/virtual-machine-execution-environments.md",
       "sha256": "ad9cc14555f239605bf5d9043436e1273c82444ebea4ce7097f8645c31a5f231",
       "size": 2000
+    },
+    {
+      "path": "pages/concepts/voice-ai-market-opportunities.md",
+      "sha256": "a9309938adacacc188d985e5adc06bb7a7e26be650f57b99349b2bf64006c385",
+      "size": 3324
     },
     {
       "path": "pages/concepts/voice-verification-limitations.md",
@@ -14430,6 +14445,11 @@
       "size": 2999
     },
     {
+      "path": "pages/projects/poseidon-voice-campaigns.md",
+      "sha256": "d74178b8a8d3f4af5bb643d417378bdb009baf58efcfd7acb498b10d5dde56d5",
+      "size": 1730
+    },
+    {
       "path": "pages/projects/poseidon.md",
       "sha256": "869d739d3b1a2fc7f5686aec4de8f377548247a5ed2361ee5548ceed6654fb3e",
       "size": 9941
@@ -16111,5 +16131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ef3c43c18847e571cad375e7923575e77a071dc6a22bf8ad6a50f9f2eb002f6c"
+  "wiki_tree_hash": "076b0227f7c2cea5c6257353768d9f99a7a54fc04519c56af883010aa2b4edfc"
 }
