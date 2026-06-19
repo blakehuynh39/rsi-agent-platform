@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a3b0f6bd481fb2d1ef5264afa460373d85cc6e3e5ae65fe0f9e20988a3552496",
-        "size": 1697515
+        "sha256": "8a22d80f8d5257d06c60703a52787790b381dcb44e5c7e3e715f93de999c057c",
+        "size": 1697915
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7330,6 +7330,11 @@
         "size": 6097
       },
       {
+        "path": "pages/systems/citadel-data-quality-architecture.md",
+        "sha256": "2f17167966c97aa422db77573ea1db5cbe784f779133d2f84f3227c00475a29b",
+        "size": 3469
+      },
+      {
         "path": "pages/systems/client-features-v1-7-0-to-feature.md",
         "sha256": "f2c24bed3af1e0810414146c57fc88139b0f99c11f06634edd45b0cb87dc47df",
         "size": 6830
@@ -7889,8 +7894,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T09:07:12Z",
-  "file_count": 1576,
+  "exported_at": "2026-06-19T09:19:00Z",
+  "file_count": 1577,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11167,7 +11172,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "7b23f3654c616a58ac01e28f4ee89bf6b41b2007e98111d904bca48750185643",
+  "previous_tree_hash": "6945d26574b1f48e82e5a7336e00674a4a2479aed4609f974482d8c2ab491d00",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11180,14 +11185,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6945d26574b1f48e82e5a7336e00674a4a2479aed4609f974482d8c2ab491d00",
+  "tree_hash": "ae6537086a9328f2acf4c253549d4cdaa4afb1997327ee6e572c2c844a0dda1d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 922,
+  "wiki_file_count": 923,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11201,8 +11206,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a3b0f6bd481fb2d1ef5264afa460373d85cc6e3e5ae65fe0f9e20988a3552496",
-      "size": 1697515
+      "sha256": "8a22d80f8d5257d06c60703a52787790b381dcb44e5c7e3e715f93de999c057c",
+      "size": 1697915
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15245,6 +15250,11 @@
       "size": 6097
     },
     {
+      "path": "pages/systems/citadel-data-quality-architecture.md",
+      "sha256": "2f17167966c97aa422db77573ea1db5cbe784f779133d2f84f3227c00475a29b",
+      "size": 3469
+    },
+    {
       "path": "pages/systems/client-features-v1-7-0-to-feature.md",
       "sha256": "f2c24bed3af1e0810414146c57fc88139b0f99c11f06634edd45b0cb87dc47df",
       "size": 6830
@@ -15801,5 +15811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a773c98f7516c7a2cf5ff57c36e637cc999e4079183ec6ee17aa2a77cdf3556f"
+  "wiki_tree_hash": "d4df9f357551a9a76e6c5e2772fce3977d046c5ada555e8c5aac2529b80f3ec9"
 }

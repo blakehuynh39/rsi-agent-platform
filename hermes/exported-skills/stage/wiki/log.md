@@ -34556,3 +34556,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3948e7f1619163f754070fec8b74c1a1
 - summary: Task to add Dune logo and hyperlink to the Story Foundation ecosystem page under the 'infra' category, completed by <@U0AQZPN6ZQV>.
 
+## [2026-06-19T09:17:01Z] synthesis | Citadel Data Quality Architecture
+
+- status: published
+- slug: systems/citadel-data-quality-architecture
+- wiki_revision_id: wikirev_6ffe59b7f74a6e1e049de22abac253d7
+- summary: Proposed multi-layer architecture for improving data quality and minimizing costs, consisting of Sentry, Incentive, and Processing layers. Includes Castle location service, user me...
+
+## [2026-06-19T09:19:28Z] synthesis | Stripe Live Branding for Numo
+
+- status: published
+- slug: decisions/stripe-live-branding-numo
+- wiki_revision_id: wikirev_c83c8c0bfde1be831fe49e0cad7c561f
+- summary: Decision to use Numo branding for the Stripe hosted onboarding pages on the Poseidon dashboard, after initial confusion between Poseidon AI and Numo branding.
+
