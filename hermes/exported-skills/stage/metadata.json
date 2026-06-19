@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "200cece0ab0b329ad407c5d3cc002b7ee31f8bd9c2cdd6287d5b40483f1de114",
-        "size": 957738
+        "sha256": "2dc0784e6ded5d3c0649ae6d888f8a929e7caa74685c8b1d4ded1d98aa6205d4",
+        "size": 958532
       },
       {
         "path": "log.md",
-        "sha256": "a7cf2db61e2eac7b047b19b2754bfe98cb20559ad36b3075c6275e18852c7ca8",
-        "size": 1689055
+        "sha256": "cfc6906002ae5fa6ee9b50c335765eceb6d6c935a157b0cca6d1533e2ccb48a0",
+        "size": 1689873
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4545,6 +4545,11 @@
         "size": 5721
       },
       {
+        "path": "pages/decisions/language-expansion-for-task-payouts.md",
+        "sha256": "f12552a9073bf12839d377efdbc06c47c47b71ba93f0b26f7a433379591a4f6e",
+        "size": 2271
+      },
+      {
         "path": "pages/decisions/license-registry-nft-contract-relationship.md",
         "sha256": "e5a087085a0273f5c9f501773b51dc29906f2e273efc0a250e508becad165e3e",
         "size": 6525
@@ -4788,6 +4793,11 @@
         "path": "pages/decisions/token-distribution-vendor.md",
         "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
         "size": 1226
+      },
+      {
+        "path": "pages/decisions/transcript-generation-malay-indonesian-rollout.md",
+        "sha256": "116c8c9a306e59066817148f78748d804e41036810ab49d7770932caebac26d8",
+        "size": 4308
       },
       {
         "path": "pages/decisions/transcript-generation-testing-approach.md",
@@ -7789,8 +7799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T06:08:23Z",
-  "file_count": 1556,
+  "exported_at": "2026-06-19T06:35:27Z",
+  "file_count": 1558,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11067,7 +11077,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "ad7e9b5f9f4eae1c26021337066bcf350a9c531cc0b3e2196ae232529e2b5639",
+  "previous_tree_hash": "6dda54341be2d293fe933e7d1ffbc1cb2b480ff8bf9533f9618a89222f6ebf54",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11080,14 +11090,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6dda54341be2d293fe933e7d1ffbc1cb2b480ff8bf9533f9618a89222f6ebf54",
+  "tree_hash": "a8cdf825e160ea7f00e6285bd0c98a4402def42e7e022999cc94146183e1c2fe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 902,
+  "wiki_file_count": 904,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11096,13 +11106,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "200cece0ab0b329ad407c5d3cc002b7ee31f8bd9c2cdd6287d5b40483f1de114",
-      "size": 957738
+      "sha256": "2dc0784e6ded5d3c0649ae6d888f8a929e7caa74685c8b1d4ded1d98aa6205d4",
+      "size": 958532
     },
     {
       "path": "log.md",
-      "sha256": "a7cf2db61e2eac7b047b19b2754bfe98cb20559ad36b3075c6275e18852c7ca8",
-      "size": 1689055
+      "sha256": "cfc6906002ae5fa6ee9b50c335765eceb6d6c935a157b0cca6d1533e2ccb48a0",
+      "size": 1689873
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12360,6 +12370,11 @@
       "size": 5721
     },
     {
+      "path": "pages/decisions/language-expansion-for-task-payouts.md",
+      "sha256": "f12552a9073bf12839d377efdbc06c47c47b71ba93f0b26f7a433379591a4f6e",
+      "size": 2271
+    },
+    {
       "path": "pages/decisions/license-registry-nft-contract-relationship.md",
       "sha256": "e5a087085a0273f5c9f501773b51dc29906f2e273efc0a250e508becad165e3e",
       "size": 6525
@@ -12603,6 +12618,11 @@
       "path": "pages/decisions/token-distribution-vendor.md",
       "sha256": "bfea8e3717bdfeb59556ad994f0f5b0f85f2be77fe9d28f7e5a9067511ebf64f",
       "size": 1226
+    },
+    {
+      "path": "pages/decisions/transcript-generation-malay-indonesian-rollout.md",
+      "sha256": "116c8c9a306e59066817148f78748d804e41036810ab49d7770932caebac26d8",
+      "size": 4308
     },
     {
       "path": "pages/decisions/transcript-generation-testing-approach.md",
@@ -15601,5 +15621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "56f03f1be227c6738625f3a3da2e19b12c6bf4d01784525b80020afffe2ffadd"
+  "wiki_tree_hash": "44b330395895b7496f5db1226cdca5d38ecf41ec6a620d91f0f0fbdefa5ed6a9"
 }

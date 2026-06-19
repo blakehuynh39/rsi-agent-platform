@@ -34398,3 +34398,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8cf965b4bb67424afe0277441800f8c4
 - summary: A PR is being prepared to update the admin dashboard to improve the measurement of user counts for payment decisions. Merging is pending.
 
+## [2026-06-19T06:31:16Z] synthesis | Language Expansion for Task Payouts
+
+- status: published
+- slug: decisions/language-expansion-for-task-payouts
+- wiki_revision_id: wikirev_9d4ff75467cab5f6b10fd810e8a1c295
+- summary: Discussion on adding new languages (English, Korean) to task payouts, balancing volume increase against brand equity risk and proposing minimal payout amounts.
+
+## [2026-06-19T06:32:12Z] synthesis | Transcript Generation Rollout for Malay and Indonesian
+
+- status: published
+- slug: decisions/transcript-generation-malay-indonesian-rollout
+- wiki_revision_id: wikirev_dd1c60be8b7ad8bca361b161c89a185d
+- summary: Decision to generate 50-100 transcripts each for Malay and Indonesian, to be manually reviewed by existing team members before broader rollout. Other languages (e.g., Thai) are on ...
+
