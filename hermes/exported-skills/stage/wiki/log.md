@@ -35238,3 +35238,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4ef8da3855f7d3428e01b8f2c29506da
 - summary: info@numolabs.ai is a distribution list alias for info@piplabs.xyz. Emails are archived in Google Groups. Access is granted upon request.
 
+## [2026-06-19T21:01:06Z] synthesis | Numo Twitter Account Decision
+
+- status: published
+- slug: decisions/numo-twitter-account-decision
+- wiki_revision_id: wikirev_4e06f9d991fcca173b1a31a7065f98be
+- summary: Decision that Numo will not have its own Twitter account initially, as it is a product launched under Poseidon's umbrella.
+
