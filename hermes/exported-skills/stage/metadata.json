@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3fb1418f9db70d0b88bcaf603840504c8a78b8e43e0067407009ee1045b27fad",
-        "size": 1682592
+        "sha256": "33921f8b4a4a935a4eca0e6ecc8ca684b00ee56f3bf2c8c08ffc366e77eea9a7",
+        "size": 1683020
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5338,6 +5338,11 @@
         "path": "pages/projects/crunch-time-daily-meetings.md",
         "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
         "size": 1476
+      },
+      {
+        "path": "pages/projects/cv-upload-linkedin-login-precommittal-tasks.md",
+        "sha256": "7b32df32f316ca7c230ffc5d09bdd071a9e9e144eaf6bcbb6d25f7a45e4fa0e4",
+        "size": 2278
       },
       {
         "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
@@ -7709,8 +7714,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T03:35:35Z",
-  "file_count": 1540,
+  "exported_at": "2026-06-19T03:47:20Z",
+  "file_count": 1541,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -10987,7 +10992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "6873c4145db5b7aff340e4bc5339843d6295e45547a2ac2acfb89933dfa6c8b1",
+  "previous_tree_hash": "801eea4f08f5d516aacd772cb565563f0210880b0bbd211e8acf1a9dd201a224",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11000,14 +11005,14 @@
   ],
   "skill_tree_hash": "9fcdc557c8598754e6669c256959c328320d18c37e9ab7bf60d15ef65e3b8ed0",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "801eea4f08f5d516aacd772cb565563f0210880b0bbd211e8acf1a9dd201a224",
+  "tree_hash": "572fa2b1ff50e2325e8c965b1e01b574cef3a021dc8971ed8334d7d09940cbee",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 886,
+  "wiki_file_count": 887,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11021,8 +11026,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3fb1418f9db70d0b88bcaf603840504c8a78b8e43e0067407009ee1045b27fad",
-      "size": 1682592
+      "sha256": "33921f8b4a4a935a4eca0e6ecc8ca684b00ee56f3bf2c8c08ffc366e77eea9a7",
+      "size": 1683020
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13073,6 +13078,11 @@
       "path": "pages/projects/crunch-time-daily-meetings.md",
       "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
       "size": 1476
+    },
+    {
+      "path": "pages/projects/cv-upload-linkedin-login-precommittal-tasks.md",
+      "sha256": "7b32df32f316ca7c230ffc5d09bdd071a9e9e144eaf6bcbb6d25f7a45e4fa0e4",
+      "size": 2278
     },
     {
       "path": "pages/projects/dashboard-creator-tool-execution-plan.md",
@@ -15441,5 +15451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "253e54401be113cb8e8c366809bdac6547c198736e1dbba7506597f8304f0ea7"
+  "wiki_tree_hash": "4c746e86d95f39aeb3ce85381b29b7d718b761d0a8064f04935b4b8e4fb88441"
 }

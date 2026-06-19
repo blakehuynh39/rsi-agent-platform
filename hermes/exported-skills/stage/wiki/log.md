@@ -34279,3 +34279,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7ae6f0d2aad75ff5e876f201e20f62ed
 - summary: U0A2D9U625V is the designated responsible individual (DRI) for transcript generation and validation, and will attend standups to provide updates.
 
+## [2026-06-19T03:46:33Z] synthesis | CV Upload, LinkedIn Login, and Pre-committal Tasks
+
+- status: published
+- slug: projects/cv-upload-linkedin-login-precommittal-tasks
+- wiki_revision_id: wikirev_1b4eae0d3a6fed20ad26d532460ac3bb
+- summary: Development of CV upload, LinkedIn login integration, and pre-committal tasks for the recruitment platform. Features are code-complete but need light testing. Resume task is being ...
+
+## [2026-06-19T03:47:44Z] synthesis | Closing Language Contribution Tasks
+
+- status: published
+- slug: decisions/closing-language-contribution-tasks
+- wiki_revision_id: wikirev_c2996797831d6947b4a127cbe43f68b6
+- summary: Decision to close language contribution tasks for Hindi, Telugu, and Vietnamese after they reached 100% of the contribution target. The target was already set to 3x the requirement...
+
