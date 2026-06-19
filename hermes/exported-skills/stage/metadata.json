@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "83f719e3b71b6c67f3f84323217b530768825eb2ef0ec39304871921d11b785d",
-        "size": 988272
+        "sha256": "739eb60a56587595c2f98a738cd51b39f3493e1f0d16b898dc5974075784ccf7",
+        "size": 989708
       },
       {
         "path": "log.md",
-        "sha256": "e74be90138118c03edf9b1731f005a857d265f05ff5b1617edecb44952117386",
-        "size": 1723302
+        "sha256": "4f465ad4012fba2dae59b709377dfd04fe9cf055c780c2c5f1a5b6b92768a2eb",
+        "size": 1724786
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4558,6 +4558,11 @@
         "path": "pages/decisions/hook-registry-design.md",
         "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
         "size": 4857
+      },
+      {
+        "path": "pages/decisions/icon-library-migration-to-phosphor.md",
+        "sha256": "4da11c5569b51492d261c670274eee0e41ea54d616097eaa8a55201d7101e04c",
+        "size": 3137
       },
       {
         "path": "pages/decisions/iliad-binary-aug-10-incident-retro.md",
@@ -6640,6 +6645,11 @@
         "size": 5593
       },
       {
+        "path": "pages/projects/security-audit-scope-anchored-inflation-cubic-staking-weight.md",
+        "sha256": "657379b2a4383569376e42188b8aa153c1b4239a11c9330c4295561bca8029ad",
+        "size": 6509
+      },
+      {
         "path": "pages/projects/seed-phrase-word-pool-localization.md",
         "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
         "size": 4050
@@ -7555,6 +7565,11 @@
         "size": 4563
       },
       {
+        "path": "pages/systems/anchored-inflation.md",
+        "sha256": "ff95eff9afabac57a5fe61d4bb4b7626ed65ce76e3e253ce50402afdc10e0751",
+        "size": 4433
+      },
+      {
         "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
         "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
         "size": 11422
@@ -7638,6 +7653,11 @@
         "path": "pages/systems/core-sdk.md",
         "sha256": "d316266ef87b0c94542266ecda5154511458cda622e913e8260cab74ae17b886",
         "size": 2819
+      },
+      {
+        "path": "pages/systems/cubic-staking-weight.md",
+        "sha256": "211d7d4401d66685619de46d8b75d9c878fb062ddd1a520a4185cd4385b4985a",
+        "size": 5166
       },
       {
         "path": "pages/systems/customer-support-ticketing-system.md",
@@ -8214,8 +8234,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-19T18:04:37Z",
-  "file_count": 1641,
+  "exported_at": "2026-06-19T18:18:14Z",
+  "file_count": 1645,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11491,8 +11511,8 @@
   "git_base_branch": "main",
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
-  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-685796lmbcb",
-  "previous_tree_hash": "cae3243dbf41cfee88b7e0f8d47a8530ca3ea16bbe29a1edcc76334ffc7e14f3",
+  "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-97d98c6bdmx",
+  "previous_tree_hash": "607a74e7461c02e7436e7ec92ce3bd48e7d0ac7c032edd6e8ba5ed5e26bca9e3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11505,14 +11525,14 @@
   ],
   "skill_tree_hash": "0cd403a69b245c289c02e1a3ca9eab1afe7c413b1c22d63abe25c12c31f9a4d8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "607a74e7461c02e7436e7ec92ce3bd48e7d0ac7c032edd6e8ba5ed5e26bca9e3",
+  "tree_hash": "93342f114bf91804bff06dd2c37dfe0fdc8a7f3a56bda3a7ca932e53c9030cd0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 987,
+  "wiki_file_count": 991,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11521,13 +11541,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "83f719e3b71b6c67f3f84323217b530768825eb2ef0ec39304871921d11b785d",
-      "size": 988272
+      "sha256": "739eb60a56587595c2f98a738cd51b39f3493e1f0d16b898dc5974075784ccf7",
+      "size": 989708
     },
     {
       "path": "log.md",
-      "sha256": "e74be90138118c03edf9b1731f005a857d265f05ff5b1617edecb44952117386",
-      "size": 1723302
+      "sha256": "4f465ad4012fba2dae59b709377dfd04fe9cf055c780c2c5f1a5b6b92768a2eb",
+      "size": 1724786
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12798,6 +12818,11 @@
       "path": "pages/decisions/hook-registry-design.md",
       "sha256": "28630b4f58ef1c151d6f9870e36f29248f14efd8c77c5ee136556d061b62321a",
       "size": 4857
+    },
+    {
+      "path": "pages/decisions/icon-library-migration-to-phosphor.md",
+      "sha256": "4da11c5569b51492d261c670274eee0e41ea54d616097eaa8a55201d7101e04c",
+      "size": 3137
     },
     {
       "path": "pages/decisions/iliad-binary-aug-10-incident-retro.md",
@@ -14880,6 +14905,11 @@
       "size": 5593
     },
     {
+      "path": "pages/projects/security-audit-scope-anchored-inflation-cubic-staking-weight.md",
+      "sha256": "657379b2a4383569376e42188b8aa153c1b4239a11c9330c4295561bca8029ad",
+      "size": 6509
+    },
+    {
       "path": "pages/projects/seed-phrase-word-pool-localization.md",
       "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
       "size": 4050
@@ -15795,6 +15825,11 @@
       "size": 4563
     },
     {
+      "path": "pages/systems/anchored-inflation.md",
+      "sha256": "ff95eff9afabac57a5fe61d4bb4b7626ed65ce76e3e253ce50402afdc10e0751",
+      "size": 4433
+    },
+    {
       "path": "pages/systems/arweave-content-moderation-and-compliance-on-nodes.md",
       "sha256": "239bb412b5c5ec2647a63ba3e4585a5b5127e4c648d237423d946c42a22f7bb7",
       "size": 11422
@@ -15878,6 +15913,11 @@
       "path": "pages/systems/core-sdk.md",
       "sha256": "d316266ef87b0c94542266ecda5154511458cda622e913e8260cab74ae17b886",
       "size": 2819
+    },
+    {
+      "path": "pages/systems/cubic-staking-weight.md",
+      "sha256": "211d7d4401d66685619de46d8b75d9c878fb062ddd1a520a4185cd4385b4985a",
+      "size": 5166
     },
     {
       "path": "pages/systems/customer-support-ticketing-system.md",
@@ -16451,5 +16491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7932416db04a3fd1bc329f817d6d5159ebcd71d131593d787ef388a58caaab2d"
+  "wiki_tree_hash": "25ea0532ea0cc8e3724da47718ffc3ab89dddadf1522cba4bb246dfa5c8f6ad9"
 }

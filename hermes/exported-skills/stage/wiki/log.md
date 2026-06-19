@@ -35047,3 +35047,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_df484f4412f0324e02cafb2b84bf089e
 - summary: On April 27, 2026, a team lead announced that today is the last day for any site changes (design, Q&A, marketing) to avoid launch risk or bugs. Non-urgent, non-bug-fix items not co...
 
+## [2026-06-19T18:16:37Z] synthesis | Anchored Inflation
+
+- status: published
+- slug: systems/anchored-inflation
+- wiki_revision_id: wikirev_c0de2cb417f239b8c1d881e92bb50c82
+- summary: Decaying-rate inflation schedule applied per-block to a compounding supply, anchored by a v1.9.0 upgrade handler.
+
+## [2026-06-19T18:16:37Z] synthesis | Cubic Staking Weight (SIP-12)
+
+- status: published
+- slug: systems/cubic-staking-weight
+- wiki_revision_id: wikirev_ef38dc1313957893abc5d58aed38ed95
+- summary: A validator's reward weight scales with the cube of stake, with cubic-aware reward-share accounting, partial-unbond reduction, and slashing.
+
+## [2026-06-19T18:16:37Z] synthesis | Security Audit Scope: Anchored Inflation and Cubic Staking Weight
+
+- status: published
+- slug: projects/security-audit-scope-anchored-inflation-cubic-staking-weight
+- wiki_revision_id: wikirev_4c545357af9edface196904ccfc4bbfe
+- summary: External security audit of two features: anchored inflation and cubic staking weight (SIP-12), implemented across two private forks with cross-cutting interaction.
+
+## [2026-06-19T18:17:19Z] synthesis | Icon Library Migration to Phosphor
+
+- status: published
+- slug: decisions/icon-library-migration-to-phosphor
+- wiki_revision_id: wikirev_8317e1efddf4bd661da0bebb4dbd8a33
+- summary: Discussion proposing a switch to Phosphor icons for consistency, with concerns about prioritization relative to other UX improvements from dogfooding feedback. General agreement on...
+
