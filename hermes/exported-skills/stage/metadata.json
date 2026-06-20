@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "606ee715f320983170b38974031e4f0ca68460fee393e869fc8a34a87bf9efc3",
-        "size": 1004737
+        "sha256": "0bd0de3ff233645ad3b86580e169c5ce256e93c0d201afe9de8434c965fbd447",
+        "size": 1005498
       },
       {
         "path": "log.md",
-        "sha256": "dd58089633a4b703d30f229aabd1fd3f29d6d2bcc381d63d8d6c64b7dbf5bc5b",
-        "size": 1743536
+        "sha256": "965d8afc5e604a9d5e876f70aed918b457d0c5569bfa2c60a84828c8aecc6c96",
+        "size": 1744321
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3568,6 +3568,11 @@
         "path": "pages/concepts/eigen-token.md",
         "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
         "size": 3908
+      },
+      {
+        "path": "pages/concepts/elevenlabs-conversation-cost-estimate.md",
+        "sha256": "70b251c7f9c40f225a8abae3ff6e15c58a3c7305d766ba6a7eaec5feadc410ac",
+        "size": 1689
       },
       {
         "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
@@ -4698,6 +4703,11 @@
         "path": "pages/decisions/launch-time-scheduling.md",
         "sha256": "89146d33903ab492261ce4b81b187438c15bbceef414fda56de392b62970a050",
         "size": 3334
+      },
+      {
+        "path": "pages/decisions/legal-compliance-strategy-indic-audio.md",
+        "sha256": "62939b92107a88fd7a53c83d1c61a590b549c0377ba11e40ad13717255bf1914",
+        "size": 6288
       },
       {
         "path": "pages/decisions/license-registry-nft-contract-relationship.md",
@@ -8449,8 +8459,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T00:46:43Z",
-  "file_count": 1688,
+  "exported_at": "2026-06-20T01:03:19Z",
+  "file_count": 1690,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11727,7 +11737,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "ac34b8158caa8e1feba84a3b865d35256385922c743f4447957d8b397e15e58b",
+  "previous_tree_hash": "fd1c85448125d7ab178c2129850f687d7330b970c7ed21262ee7c1396d066d28",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11740,14 +11750,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fd1c85448125d7ab178c2129850f687d7330b970c7ed21262ee7c1396d066d28",
+  "tree_hash": "b0ddb365c15e1296fdc62dbdc7997be58d542efd1fe6d2afe5faca2256c5c033",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1034,
+  "wiki_file_count": 1036,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11756,13 +11766,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "606ee715f320983170b38974031e4f0ca68460fee393e869fc8a34a87bf9efc3",
-      "size": 1004737
+      "sha256": "0bd0de3ff233645ad3b86580e169c5ce256e93c0d201afe9de8434c965fbd447",
+      "size": 1005498
     },
     {
       "path": "log.md",
-      "sha256": "dd58089633a4b703d30f229aabd1fd3f29d6d2bcc381d63d8d6c64b7dbf5bc5b",
-      "size": 1743536
+      "sha256": "965d8afc5e604a9d5e876f70aed918b457d0c5569bfa2c60a84828c8aecc6c96",
+      "size": 1744321
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12043,6 +12053,11 @@
       "path": "pages/concepts/eigen-token.md",
       "sha256": "d8675a0f57ebaf16b252832a3d172bbda6314899c73f36ee9f1e66ed24ddd064",
       "size": 3908
+    },
+    {
+      "path": "pages/concepts/elevenlabs-conversation-cost-estimate.md",
+      "sha256": "70b251c7f9c40f225a8abae3ff6e15c58a3c7305d766ba6a7eaec5feadc410ac",
+      "size": 1689
     },
     {
       "path": "pages/concepts/elevenlabs-voice-agent-orchestration-paths.md",
@@ -13173,6 +13188,11 @@
       "path": "pages/decisions/launch-time-scheduling.md",
       "sha256": "89146d33903ab492261ce4b81b187438c15bbceef414fda56de392b62970a050",
       "size": 3334
+    },
+    {
+      "path": "pages/decisions/legal-compliance-strategy-indic-audio.md",
+      "sha256": "62939b92107a88fd7a53c83d1c61a590b549c0377ba11e40ad13717255bf1914",
+      "size": 6288
     },
     {
       "path": "pages/decisions/license-registry-nft-contract-relationship.md",
@@ -16921,5 +16941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b129186e332521b20697744e120e6cadd491a77adc9d8250f3ea8d1af1a69ba9"
+  "wiki_tree_hash": "e06cefdaedd2bf03244248335a6c122f798b6d66a72150dfa47ad3105608ed5f"
 }

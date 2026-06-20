@@ -35436,3 +35436,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7d8f450af2abeb07861b6137b134e49
 - summary: Decision to focus the jobs app agent on 10 cross-functional tech roles, agreed to be very desirable with users willing to pay premium.
 
+## [2026-06-20T01:01:37Z] synthesis | Elevenlabs Conversation Cost Estimate
+
+- status: published
+- slug: concepts/elevenlabs-conversation-cost-estimate
+- wiki_revision_id: wikirev_07a90a46ee71975508a92f063f4c302b
+- summary: Cost estimates for Elevenlabs voice agent conversation minutes, based on $0.09/min rate, with an open question about measurement.
+
+## [2026-06-20T01:03:12Z] synthesis | Legal & Compliance Strategy: DePIN Indic Audio Collection
+
+- status: published
+- slug: decisions/legal-compliance-strategy-indic-audio
+- wiki_revision_id: wikirev_d3eb0d8cf1a6128485a18fcccb310fde
+- summary: Overview of legal requirements and compliance strategy for the Indic audio collection project, focusing on India's DPDP Act and SPDI/IT Rules, consent management, data protection, ...
+
