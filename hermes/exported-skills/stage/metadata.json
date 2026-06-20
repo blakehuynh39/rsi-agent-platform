@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6c0e5f4e57273741e51c0d07d8f27658b6933c759d3fc5b0278e41d964b83803",
-        "size": 1013575
+        "sha256": "8b28f96e7fc2945aa7dfedcee806eca46397643d52c835b426dd1c6390339073",
+        "size": 1014340
       },
       {
         "path": "log.md",
-        "sha256": "10cb128143872c0a2e0c08730f43782f76d1860e422dfa45a0281a264b2654c2",
-        "size": 1752674
+        "sha256": "e61be3cc98bd704056be620c03e98cfdf07ac13b19989a4bff8d69c9a62c8d6b",
+        "size": 1753463
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3633,6 +3633,11 @@
         "path": "pages/concepts/finding-numo-app-idea.md",
         "sha256": "e7b8ad4ae596e1439d38de2f27e76b8c9316dfb7bf92791514a2bf61bb633518",
         "size": 1580
+      },
+      {
+        "path": "pages/concepts/fractional-ownership-wrapper-proposal.md",
+        "sha256": "1fcda71b81c7206332ce0c6848653380cde51a82e651fb926b2b70de65511590",
+        "size": 3412
       },
       {
         "path": "pages/concepts/frontend-periphery-contracts.md",
@@ -7495,6 +7500,11 @@
         "size": 4353
       },
       {
+        "path": "pages/runbooks/ip-faucet-testnet-outage-2025-04-02.md",
+        "sha256": "70353dee37effed1bc2b4b239ae3a3fab2956d9f1e6806c87b9998440a010fc1",
+        "size": 3966
+      },
+      {
         "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
         "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
         "size": 3278
@@ -8574,8 +8584,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T04:38:56Z",
-  "file_count": 1713,
+  "exported_at": "2026-06-20T04:50:30Z",
+  "file_count": 1715,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11852,7 +11862,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "8dc1afe3949385b7e6835078d4ff487541e214dd48a0512bba81647bbcbbdfad",
+  "previous_tree_hash": "b5f4b4379b593bdfdc60f6a54a6343ab83f8214a9a9b41d53da7e38dd5f7f13e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11865,14 +11875,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b5f4b4379b593bdfdc60f6a54a6343ab83f8214a9a9b41d53da7e38dd5f7f13e",
+  "tree_hash": "425e3e2d257ff230e1313942d2b3f58be054c0491f57f20cfd60bd02d13e6d68",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1059,
+  "wiki_file_count": 1061,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11881,13 +11891,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6c0e5f4e57273741e51c0d07d8f27658b6933c759d3fc5b0278e41d964b83803",
-      "size": 1013575
+      "sha256": "8b28f96e7fc2945aa7dfedcee806eca46397643d52c835b426dd1c6390339073",
+      "size": 1014340
     },
     {
       "path": "log.md",
-      "sha256": "10cb128143872c0a2e0c08730f43782f76d1860e422dfa45a0281a264b2654c2",
-      "size": 1752674
+      "sha256": "e61be3cc98bd704056be620c03e98cfdf07ac13b19989a4bff8d69c9a62c8d6b",
+      "size": 1753463
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12233,6 +12243,11 @@
       "path": "pages/concepts/finding-numo-app-idea.md",
       "sha256": "e7b8ad4ae596e1439d38de2f27e76b8c9316dfb7bf92791514a2bf61bb633518",
       "size": 1580
+    },
+    {
+      "path": "pages/concepts/fractional-ownership-wrapper-proposal.md",
+      "sha256": "1fcda71b81c7206332ce0c6848653380cde51a82e651fb926b2b70de65511590",
+      "size": 3412
     },
     {
       "path": "pages/concepts/frontend-periphery-contracts.md",
@@ -16095,6 +16110,11 @@
       "size": 4353
     },
     {
+      "path": "pages/runbooks/ip-faucet-testnet-outage-2025-04-02.md",
+      "sha256": "70353dee37effed1bc2b4b239ae3a3fab2956d9f1e6806c87b9998440a010fc1",
+      "size": 3966
+    },
+    {
       "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
       "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
       "size": 3278
@@ -17171,5 +17191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bb50583c58105706ba8384d91b5584c0a8bc67b78b269fe5f6f98d8dc688f5c7"
+  "wiki_tree_hash": "f8516e990be76df3bf687f40fb4645de18b926afd81ffddcbfb064ba2f1710b9"
 }

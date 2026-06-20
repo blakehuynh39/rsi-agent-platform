@@ -35611,3 +35611,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_baacff0454f398d3a1973f94f0c83ad1
 - summary: A Slack discussion asking about the difference and use-case between the smart contract functions `transferToVault` and `payRoyaltyOnBehalf`, with a follow-up question about `transf...
 
+## [2026-06-20T04:46:55Z] synthesis | $IP Faucet Testnet Outage (April 2, 2025)
+
+- status: published
+- slug: runbooks/ip-faucet-testnet-outage-2025-04-02
+- wiki_revision_id: wikirev_dbaa925c10244df109bda4a16fba44da
+- summary: On April 2, 2025, the Story Protocol testnet faucet at faucet.story.foundation returned errors, preventing users from claiming $IP tokens. The outage coincided with an AWS migratio...
+
+## [2026-06-20T04:48:15Z] synthesis | Aria Fractional Ownership Wrapper Proposal
+
+- status: published
+- slug: concepts/fractional-ownership-wrapper-proposal
+- wiki_revision_id: wikirev_041f13cd68affc053602eea04cb0b02d
+- summary: Design discussion on using a custom ERC-721 wrapper to enable fractional ownership and revenue distribution for IP Assets without protocol changes.
+
