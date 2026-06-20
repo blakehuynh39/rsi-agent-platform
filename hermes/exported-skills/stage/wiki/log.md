@@ -35730,3 +35730,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_279a1072806bbf5f36ddf57b0e82b8f6
 - summary: A pull request #17 in the repository piplabs/story-localnet is pending review from @U0AKJV8710S. The reviewer responded with a fearful face emoji, causing ambiguity. The requester ...
 
+## [2026-06-20T08:31:53Z] synthesis | Access Request Policy
+
+- status: published
+- slug: policies/access-request-policy
+- wiki_revision_id: wikirev_dd1c1c6184484f8d86948463f1877322
+- summary: Policy for requesting access to Claude Platform and Google Groups, using SecBot self-service with admin oversight. Discussed best practices for API management.
+
