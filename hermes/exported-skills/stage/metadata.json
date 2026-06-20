@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "286d742fecf238110e40fb42774fb9182bbe651330fd61eed441ded33cc299a9",
-        "size": 1017310
+        "sha256": "0154ec448e500abfa5bd7b99f9257f1f346e336eccdf963a2f7024b002884e47",
+        "size": 1017728
       },
       {
         "path": "log.md",
-        "sha256": "87d64449a83e7d963d3c53c1a5421d253a3d986057bd57a5d0fd7835ad3956d9",
-        "size": 1756529
+        "sha256": "0ad5d9666ceb0e005aad08a146b87029e654f62aec4bc9a2ca3a991097b4c6a1",
+        "size": 1756959
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7745,6 +7745,11 @@
         "size": 3477
       },
       {
+        "path": "pages/runbooks/staging-depin-avatar-upload-400.md",
+        "sha256": "1338d29b1b97ef97c9096db838b0cd09e469ce5065446400e899f9781043efa1",
+        "size": 5772
+      },
+      {
         "path": "pages/runbooks/staging-test-collection-custom-images.md",
         "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
         "size": 3584
@@ -8624,8 +8629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T06:38:06Z",
-  "file_count": 1723,
+  "exported_at": "2026-06-20T07:04:51Z",
+  "file_count": 1724,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11902,7 +11907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "875e7171e01d7c17b15be3ab753235169f3fcf132871abe28c5a9f9d01eb9674",
+  "previous_tree_hash": "9120eb68c74f4fdf421bef7107b16298a586ad512760c0768f5bc7ef19a45566",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11915,14 +11920,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9120eb68c74f4fdf421bef7107b16298a586ad512760c0768f5bc7ef19a45566",
+  "tree_hash": "cd100ca2a157bac9c0a668388668b3577097917f0dd9dc6c914d2f3716002371",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1069,
+  "wiki_file_count": 1070,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11931,13 +11936,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "286d742fecf238110e40fb42774fb9182bbe651330fd61eed441ded33cc299a9",
-      "size": 1017310
+      "sha256": "0154ec448e500abfa5bd7b99f9257f1f346e336eccdf963a2f7024b002884e47",
+      "size": 1017728
     },
     {
       "path": "log.md",
-      "sha256": "87d64449a83e7d963d3c53c1a5421d253a3d986057bd57a5d0fd7835ad3956d9",
-      "size": 1756529
+      "sha256": "0ad5d9666ceb0e005aad08a146b87029e654f62aec4bc9a2ca3a991097b4c6a1",
+      "size": 1756959
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16395,6 +16400,11 @@
       "size": 3477
     },
     {
+      "path": "pages/runbooks/staging-depin-avatar-upload-400.md",
+      "sha256": "1338d29b1b97ef97c9096db838b0cd09e469ce5065446400e899f9781043efa1",
+      "size": 5772
+    },
+    {
       "path": "pages/runbooks/staging-test-collection-custom-images.md",
       "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
       "size": 3584
@@ -17271,5 +17281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4d28891f71dfb50ad47722b07a00f1ea7abe71478047ef0490d798ec663ad13d"
+  "wiki_tree_hash": "174dd7820fde7e158b34596cf36735799a7527ea55690039feb3a9216d44586e"
 }

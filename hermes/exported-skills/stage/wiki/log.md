@@ -35681,3 +35681,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e085ee93b62b8da4c94396a60dee6e81
 - summary: The Story Orchestration Service (SOS) CI/CD pipeline failed on 2026-04-08 due to missing exec approval for a heredoc command in GitHub Actions. The SOS service itself remained heal...
 
+## [2026-06-20T07:01:54Z] synthesis | Diagnosing 400 Errors on Avatar Upload for Staging Depin Backend
+
+- status: published
+- slug: runbooks/staging-depin-avatar-upload-400
+- wiki_revision_id: wikirev_700abcfe8ad6963b195df1d9e95dfa0f
+- summary: A 5MB avatar image upload to staging-depin.storyprotocol.net /v1/me/complete-intro returns HTTP 400 with Starlette error "Error parsing multipart/form-data". Investigation reveals ...
+
