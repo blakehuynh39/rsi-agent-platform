@@ -35912,3 +35912,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_592e82ee60893fefb11bc2e38560871f
 - summary: On 2026-05-08, Meng agent was reported down with a network connection error. Investigation revealed the runtime host was stopped after migration. The issue was resolved by the repo...
 
+## [2026-06-20T13:17:22Z] synthesis | AWS QA Dev Access Grant Request for shen.wang and yingyang.xu
+
+- status: published
+- slug: runbooks/aws-qa-dev-access-grant-request-for-shen-wang-and-yingyang-xu
+- wiki_revision_id: wikirev_bd1413bd6989b4cced214070284215ed
+- summary: Yao Wang requested AWS-QA-Dev-Access role for shen.wang@piplabs.xyz and yingyang.xu@piplabs.xyz, assigned P1 priority. IT admin was offline. A Terraform PR (storyprotocol/AWS-Organ...
+
+## [2026-06-20T13:18:28Z] synthesis | AWS Access Request Workflow
+
+- status: published
+- slug: runbooks/aws-access-request-workflow
+- wiki_revision_id: wikirev_112f553eed04b82ae39f2dd676fe2590
+- summary: How to request AWS SSM access to EC2 instances, including self-service via SecurityBot and admin-level PRs in the aws-organization repo.
+
+## [2026-06-20T13:18:28Z] synthesis | SecurityBot
+
+- status: published
+- slug: systems/securitybot
+- wiki_revision_id: wikirev_5fac84b58e264256aa84ec5c656aebbe
+- summary: Self-service Slack bot for AWS access management. Users request access directly; it cannot process requests on behalf of others.
+
+## [2026-06-20T13:18:28Z] synthesis | aws-organization Repository
+
+- status: published
+- slug: systems/aws-organization-repo
+- wiki_revision_id: wikirev_64f37d61ffff5908eff501c31e64627a
+- summary: Terraform repository for managing the AWS organization. Admins can add SSM permissions by opening PRs and applying with `plan` and `apply` comments.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b5fd5704f4e90f30544388555820f9098ee0fe6ab3c059ebac97adaf5072e005",
-        "size": 1029514
+        "sha256": "eb603439b4c93881ad6a1ed4678d148952fbb72e3faa76deecbe391f44dce5fb",
+        "size": 1030913
       },
       {
         "path": "log.md",
-        "sha256": "19699ad2c77ef57b6648c5f7748afbd96c3b7b5728c6a5789974f3228f48063a",
-        "size": 1769127
+        "sha256": "3fb373dd14688e2ed051701de391eded185bb8ad9cc9016c5c99fbd3c057dc2c",
+        "size": 1770574
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7385,9 +7385,19 @@
         "size": 4482
       },
       {
+        "path": "pages/runbooks/aws-access-request-workflow.md",
+        "sha256": "cd0963d55181db59039a390b7f0a8622bb5d4ec5ae506025eec89080e944bd24",
+        "size": 4508
+      },
+      {
         "path": "pages/runbooks/aws-cli-setup.md",
         "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
         "size": 3333
+      },
+      {
+        "path": "pages/runbooks/aws-qa-dev-access-grant-request-for-shen-wang-and-yingyang-xu.md",
+        "sha256": "57db1314e8c120912394f1020b86005f93a8e769530c6362d5745730920a1398",
+        "size": 4793
       },
       {
         "path": "pages/runbooks/backend-onboarding.md",
@@ -8070,6 +8080,11 @@
         "size": 6457
       },
       {
+        "path": "pages/systems/aws-organization-repo.md",
+        "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
+        "size": 2316
+      },
+      {
         "path": "pages/systems/back-end-designs.md",
         "sha256": "024d036a71205ee0f64364edcbb6f0fab54cd0bda0ad2634dad42fc124726ab4",
         "size": 1502
@@ -8615,6 +8630,11 @@
         "size": 3173
       },
       {
+        "path": "pages/systems/securitybot.md",
+        "sha256": "c4f5837a279a2b0bd47fbcf2555cdab0e0f46ff21981c7b90cf9375bf123dddf",
+        "size": 2675
+      },
+      {
         "path": "pages/systems/shared-poseidon-infrastructure.md",
         "sha256": "5fd4cc96f1f1d85bd48b2ccdef0eebd16ecb7b1f83c146dfcdc9c292a944a85c",
         "size": 3033
@@ -8789,8 +8809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T13:02:58Z",
-  "file_count": 1756,
+  "exported_at": "2026-06-20T13:19:31Z",
+  "file_count": 1760,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12067,7 +12087,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a22e2f98fb3aa83a78d425d5a5a5fcf2a503f7d3d049c57b62d9fbbf55497b4c",
+  "previous_tree_hash": "1f41a245523aa76ef887ad995040bd612e5d247b1984bb5a5b4f5df360daf6c6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12080,14 +12100,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1f41a245523aa76ef887ad995040bd612e5d247b1984bb5a5b4f5df360daf6c6",
+  "tree_hash": "a2fed465e9a0b616bf7baa4f7ad8b4db4dd8decc1e8300d3988f8636f7ecaeb6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1102,
+  "wiki_file_count": 1106,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12096,13 +12116,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b5fd5704f4e90f30544388555820f9098ee0fe6ab3c059ebac97adaf5072e005",
-      "size": 1029514
+      "sha256": "eb603439b4c93881ad6a1ed4678d148952fbb72e3faa76deecbe391f44dce5fb",
+      "size": 1030913
     },
     {
       "path": "log.md",
-      "sha256": "19699ad2c77ef57b6648c5f7748afbd96c3b7b5728c6a5789974f3228f48063a",
-      "size": 1769127
+      "sha256": "3fb373dd14688e2ed051701de391eded185bb8ad9cc9016c5c99fbd3c057dc2c",
+      "size": 1770574
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16200,9 +16220,19 @@
       "size": 4482
     },
     {
+      "path": "pages/runbooks/aws-access-request-workflow.md",
+      "sha256": "cd0963d55181db59039a390b7f0a8622bb5d4ec5ae506025eec89080e944bd24",
+      "size": 4508
+    },
+    {
       "path": "pages/runbooks/aws-cli-setup.md",
       "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
       "size": 3333
+    },
+    {
+      "path": "pages/runbooks/aws-qa-dev-access-grant-request-for-shen-wang-and-yingyang-xu.md",
+      "sha256": "57db1314e8c120912394f1020b86005f93a8e769530c6362d5745730920a1398",
+      "size": 4793
     },
     {
       "path": "pages/runbooks/backend-onboarding.md",
@@ -16885,6 +16915,11 @@
       "size": 6457
     },
     {
+      "path": "pages/systems/aws-organization-repo.md",
+      "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
+      "size": 2316
+    },
+    {
       "path": "pages/systems/back-end-designs.md",
       "sha256": "024d036a71205ee0f64364edcbb6f0fab54cd0bda0ad2634dad42fc124726ab4",
       "size": 1502
@@ -17430,6 +17465,11 @@
       "size": 3173
     },
     {
+      "path": "pages/systems/securitybot.md",
+      "sha256": "c4f5837a279a2b0bd47fbcf2555cdab0e0f46ff21981c7b90cf9375bf123dddf",
+      "size": 2675
+    },
+    {
       "path": "pages/systems/shared-poseidon-infrastructure.md",
       "sha256": "5fd4cc96f1f1d85bd48b2ccdef0eebd16ecb7b1f83c146dfcdc9c292a944a85c",
       "size": 3033
@@ -17601,5 +17641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b8fe35f334a9555a1227b00f1542520f53ec998ea3b98693e3cbefc843f7dbd4"
+  "wiki_tree_hash": "7dc1269e900b2647754d749d1856c1806cdfe2112d57ef11db435318dc5d072a"
 }
