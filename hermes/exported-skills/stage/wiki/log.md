@@ -35415,3 +35415,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6c2c779954ebd4faa923c121feb25051
 - summary: Evaluation of Stripe versus Payoneer for paying out contributors in Philippines, Vietnam, and India, following an informational session with Stripe.
 
+## [2026-06-20T00:45:48Z] synthesis | Sarick Insight Session (2026-03-12)
+
+- status: published
+- slug: projects/sarick-insight-session-2026-03-12
+- wiki_revision_id: wikirev_30582791972b1052f241309c1b3ad068
+- summary: An insight session with Sarick on 2026-03-12 led to updates on the running research page and new insights/open questions.
+
+## [2026-06-20T00:45:48Z] synthesis | Code Switching in Audio Voice
+
+- status: published
+- slug: concepts/code-switching-audio-voice
+- wiki_revision_id: wikirev_dfdfb133e9bf8ee124a92d2431bc7402
+- summary: Code switching in audio voice is the practice of injecting bits of one language into a conversation primarily in another language.
+
+## [2026-06-20T00:46:36Z] synthesis | Agent for Jobs App: Role Prioritization
+
+- status: published
+- slug: decisions/agent-jobs-app-role-prioritization
+- wiki_revision_id: wikirev_c7d8f450af2abeb07861b6137b134e49
+- summary: Decision to focus the jobs app agent on 10 cross-functional tech roles, agreed to be very desirable with users willing to pay premium.
+

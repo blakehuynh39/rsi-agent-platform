@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a38e12d5f13dd9582b9c6ece026c994d463ffeab55105b87100adadf64550a9a",
-        "size": 1003735
+        "sha256": "606ee715f320983170b38974031e4f0ca68460fee393e869fc8a34a87bf9efc3",
+        "size": 1004737
       },
       {
         "path": "log.md",
-        "sha256": "771c05e3086a0d189543dc994d693b077648404720f8c2e5ee67ef27ba3a754d",
-        "size": 1742498
+        "sha256": "dd58089633a4b703d30f229aabd1fd3f29d6d2bcc381d63d8d6c64b7dbf5bc5b",
+        "size": 1743536
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3408,6 +3408,11 @@
         "path": "pages/concepts/cli-design.md",
         "sha256": "170cf87dab2d5cb052df4e8bc2a9c81ad4e05ed5dbbd1f6cab735239584209ce",
         "size": 1036
+      },
+      {
+        "path": "pages/concepts/code-switching-audio-voice.md",
+        "sha256": "cf07edc7892eea1ea00b303cb3dde04988535d99a04580becd35052c380c0c87",
+        "size": 1198
       },
       {
         "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -4443,6 +4448,11 @@
         "path": "pages/decisions/access-control-acl.md",
         "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
         "size": 6118
+      },
+      {
+        "path": "pages/decisions/agent-jobs-app-role-prioritization.md",
+        "sha256": "6cc005ea138cbc35bd2c20ac54bbc797b2146afa0a224edbb74dc0b68011016b",
+        "size": 1991
       },
       {
         "path": "pages/decisions/ai-model-pil-term-decision.md",
@@ -6785,6 +6795,11 @@
         "size": 7602
       },
       {
+        "path": "pages/projects/sarick-insight-session-2026-03-12.md",
+        "sha256": "5be53c2387545150617fd3d6a8dbec54b5a2205248202d3ff0d4fa760d5e0901",
+        "size": 2335
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -8434,8 +8449,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T00:35:13Z",
-  "file_count": 1685,
+  "exported_at": "2026-06-20T00:46:43Z",
+  "file_count": 1688,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11712,7 +11727,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "203b0038cc294213be18da2bb961bbfffcb476fe83c71307cdfa9efb991b4239",
+  "previous_tree_hash": "ac34b8158caa8e1feba84a3b865d35256385922c743f4447957d8b397e15e58b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11725,14 +11740,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ac34b8158caa8e1feba84a3b865d35256385922c743f4447957d8b397e15e58b",
+  "tree_hash": "fd1c85448125d7ab178c2129850f687d7330b970c7ed21262ee7c1396d066d28",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1031,
+  "wiki_file_count": 1034,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11741,13 +11756,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a38e12d5f13dd9582b9c6ece026c994d463ffeab55105b87100adadf64550a9a",
-      "size": 1003735
+      "sha256": "606ee715f320983170b38974031e4f0ca68460fee393e869fc8a34a87bf9efc3",
+      "size": 1004737
     },
     {
       "path": "log.md",
-      "sha256": "771c05e3086a0d189543dc994d693b077648404720f8c2e5ee67ef27ba3a754d",
-      "size": 1742498
+      "sha256": "dd58089633a4b703d30f229aabd1fd3f29d6d2bcc381d63d8d6c64b7dbf5bc5b",
+      "size": 1743536
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -11868,6 +11883,11 @@
       "path": "pages/concepts/cli-design.md",
       "sha256": "170cf87dab2d5cb052df4e8bc2a9c81ad4e05ed5dbbd1f6cab735239584209ce",
       "size": 1036
+    },
+    {
+      "path": "pages/concepts/code-switching-audio-voice.md",
+      "sha256": "cf07edc7892eea1ea00b303cb3dde04988535d99a04580becd35052c380c0c87",
+      "size": 1198
     },
     {
       "path": "pages/concepts/coming-soon-placeholder-tasks.md",
@@ -12903,6 +12923,11 @@
       "path": "pages/decisions/access-control-acl.md",
       "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
       "size": 6118
+    },
+    {
+      "path": "pages/decisions/agent-jobs-app-role-prioritization.md",
+      "sha256": "6cc005ea138cbc35bd2c20ac54bbc797b2146afa0a224edbb74dc0b68011016b",
+      "size": 1991
     },
     {
       "path": "pages/decisions/ai-model-pil-term-decision.md",
@@ -15245,6 +15270,11 @@
       "size": 7602
     },
     {
+      "path": "pages/projects/sarick-insight-session-2026-03-12.md",
+      "sha256": "5be53c2387545150617fd3d6a8dbec54b5a2205248202d3ff0d4fa760d5e0901",
+      "size": 2335
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -16891,5 +16921,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "275b9f88764f28e3481d39ff4de0de8380bb8d03f8da81cad52bac99b91fd725"
+  "wiki_tree_hash": "b129186e332521b20697744e120e6cadd491a77adc9d8250f3ea8d1af1a69ba9"
 }
