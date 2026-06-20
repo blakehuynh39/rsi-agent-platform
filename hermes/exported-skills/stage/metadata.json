@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7a720bc070849e73c65854808b93c415c3b3296e3641ac13d817d98bcef49c4a",
-        "size": 1754520
+        "sha256": "790b8edd427e7e5274807d19b13569d30f13e975a3c908c03de787452bfbc453",
+        "size": 1754913
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7830,6 +7830,11 @@
         "size": 4946
       },
       {
+        "path": "pages/runbooks/storyscan-websocket-waf-block.md",
+        "sha256": "fe165c9687e136c8ce65454acbf975c20fc93566de304b2c205e2bd58e925e8e",
+        "size": 3890
+      },
+      {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
         "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
         "size": 14752
@@ -8599,8 +8604,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T05:35:18Z",
-  "file_count": 1718,
+  "exported_at": "2026-06-20T05:46:51Z",
+  "file_count": 1719,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11877,7 +11882,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5ba39fcbd8ea187d541f4bd9bf89e4c00dee41f0f44e2989130451af2bf747b3",
+  "previous_tree_hash": "361a37f73ac1692d02d1a4a16fa47304836b0e44ede2bf266b8a14b0f496be74",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11890,14 +11895,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "361a37f73ac1692d02d1a4a16fa47304836b0e44ede2bf266b8a14b0f496be74",
+  "tree_hash": "d951060ea472f1032969e94c2febc443bc2301c67ceafa12bae6d64211a6fd69",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1064,
+  "wiki_file_count": 1065,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11911,8 +11916,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7a720bc070849e73c65854808b93c415c3b3296e3641ac13d817d98bcef49c4a",
-      "size": 1754520
+      "sha256": "790b8edd427e7e5274807d19b13569d30f13e975a3c908c03de787452bfbc453",
+      "size": 1754913
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16455,6 +16460,11 @@
       "size": 4946
     },
     {
+      "path": "pages/runbooks/storyscan-websocket-waf-block.md",
+      "sha256": "fe165c9687e136c8ce65454acbf975c20fc93566de304b2c205e2bd58e925e8e",
+      "size": 3890
+    },
+    {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
       "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
       "size": 14752
@@ -17221,5 +17231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "371227414451bde700533b2c3351042bd0296aab6fb0cbfa4d6e00e190a9557e"
+  "wiki_tree_hash": "dd3dede97000e5586f8f24d92b52e8892b137a7d4ebcb7bfc5931ca936b1d6ff"
 }

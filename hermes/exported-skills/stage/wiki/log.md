@@ -35646,3 +35646,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0ab20edcaa939dbd64dfd2aaef0131e3
 - summary: On 2026-06-17, users reported Aeneid testnet transactions failing despite the chain producing blocks. Investigation showed public RPC responsive, blocks advancing, but 0 txs includ...
 
+## [2026-06-20T05:46:25Z] synthesis | Storyscan WebSocket access blocked by Cloudflare WAF
+
+- status: published
+- slug: runbooks/storyscan-websocket-waf-block
+- wiki_revision_id: wikirev_84783f5808013aa350328f1e85984db2
+- summary: Investigation and resolution steps for when WebSocket connections to storyscan are blocked by Cloudflare WAF, affecting homepage block/transaction list loading.
+
