@@ -35513,3 +35513,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_95cf7eb2d268fa02980ba17c11c2888c
 - summary: Recap of Q2 DePIN product stream kickoff meeting: team decided to prioritize audio datasets over video, validate requirements with Poseidon pipeline and buyers (multi-speaker, unsc...
 
+## [2026-06-20T02:31:23Z] synthesis | Voice Chat Debate Analysis
+
+- status: published
+- slug: projects/voice-chat-debate-analysis
+- wiki_revision_id: wikirev_7a4595e593836c2c46735dd7a46878d6
+- summary: A system that enables two users to debate via voice chat, with an AI agent analyzing the debate to declare a winner.
+
+## [2026-06-20T02:31:23Z] synthesis | Voice Debate Recording Approach
+
+- status: published
+- slug: open-questions/voice-debate-recording-approach
+- wiki_revision_id: wikirev_08a491a76901093f53146c724d6667f9
+- summary: Discussion on the optimal method for capturing audio during voice debates, balancing ease of analysis and user experience.
+

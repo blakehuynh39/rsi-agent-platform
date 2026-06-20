@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "916892c8eefb14b519e92138977730b6f0c436c2e085202e0e436a470b09eb45",
-        "size": 1008574
+        "sha256": "557694f18b5741d7645c4f6baec760cb4438bcb325f2b1ff601020ef6bb97bf3",
+        "size": 1009212
       },
       {
         "path": "log.md",
-        "sha256": "92bbaf7266e13f3131270fc2ba6cd0bf1566a6fbc00e4f59afc8cc5a390c428e",
-        "size": 1747505
+        "sha256": "955b98fa3f1b5cb10729bc7c33c57cfa07cc331f514fbae40f08933c32d7336a",
+        "size": 1748167
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5310,6 +5310,11 @@
         "size": 1918
       },
       {
+        "path": "pages/open-questions/voice-debate-recording-approach.md",
+        "sha256": "76beaccc9aba64735d7da32d218f946072fa620baa402d41248f4200accf6d5e",
+        "size": 2085
+      },
+      {
         "path": "pages/open-questions/w8-form-collection-open-issues.md",
         "sha256": "4610095a47594e80e114029ec1465fab5ea3ad1955bace84f25b69659c6e4afa",
         "size": 2409
@@ -7150,6 +7155,11 @@
         "size": 7760
       },
       {
+        "path": "pages/projects/voice-chat-debate-analysis.md",
+        "sha256": "c7f2eef8ed80a8a2025ef14b6063becd1a0742fda50177ca2f585f3cd2d996c4",
+        "size": 3190
+      },
+      {
         "path": "pages/projects/w8-form-collection-workstream.md",
         "sha256": "40aae0642e539c669828ddfb7c231cbac5dbb3b839aa4e6c8cd6f18066df7de6",
         "size": 4778
@@ -8504,8 +8514,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T02:22:27Z",
-  "file_count": 1699,
+  "exported_at": "2026-06-20T02:33:53Z",
+  "file_count": 1701,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11782,7 +11792,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "7e78d591e143b09797cd3f78293837b41d9185e95d43af0483caf441464ed30e",
+  "previous_tree_hash": "f26a3e741bba8250c1a16f9363efad5c477e5d4048d8d73db470b2a6caa89b0d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11795,14 +11805,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f26a3e741bba8250c1a16f9363efad5c477e5d4048d8d73db470b2a6caa89b0d",
+  "tree_hash": "d4885f7a6e52e56ed0936786906afae5b01773b7a4241350301005ecaf419024",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1045,
+  "wiki_file_count": 1047,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11811,13 +11821,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "916892c8eefb14b519e92138977730b6f0c436c2e085202e0e436a470b09eb45",
-      "size": 1008574
+      "sha256": "557694f18b5741d7645c4f6baec760cb4438bcb325f2b1ff601020ef6bb97bf3",
+      "size": 1009212
     },
     {
       "path": "log.md",
-      "sha256": "92bbaf7266e13f3131270fc2ba6cd0bf1566a6fbc00e4f59afc8cc5a390c428e",
-      "size": 1747505
+      "sha256": "955b98fa3f1b5cb10729bc7c33c57cfa07cc331f514fbae40f08933c32d7336a",
+      "size": 1748167
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13840,6 +13850,11 @@
       "size": 1918
     },
     {
+      "path": "pages/open-questions/voice-debate-recording-approach.md",
+      "sha256": "76beaccc9aba64735d7da32d218f946072fa620baa402d41248f4200accf6d5e",
+      "size": 2085
+    },
+    {
       "path": "pages/open-questions/w8-form-collection-open-issues.md",
       "sha256": "4610095a47594e80e114029ec1465fab5ea3ad1955bace84f25b69659c6e4afa",
       "size": 2409
@@ -15680,6 +15695,11 @@
       "size": 7760
     },
     {
+      "path": "pages/projects/voice-chat-debate-analysis.md",
+      "sha256": "c7f2eef8ed80a8a2025ef14b6063becd1a0742fda50177ca2f585f3cd2d996c4",
+      "size": 3190
+    },
+    {
       "path": "pages/projects/w8-form-collection-workstream.md",
       "sha256": "40aae0642e539c669828ddfb7c231cbac5dbb3b839aa4e6c8cd6f18066df7de6",
       "size": 4778
@@ -17031,5 +17051,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7a3ed11efa3bc24d3bdf2f6c8427cc606fd8a423d7a15ff62f9848ee1a4333cc"
+  "wiki_tree_hash": "313ee07f7617b7d66c538063a39748739c2250e6c0029c30a416a82d963c2f03"
 }
