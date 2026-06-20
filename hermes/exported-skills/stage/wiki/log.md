@@ -35723,3 +35723,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b11de80f8f78f5cd221588051f504ee2
 - summary: Allocated 82 Elastic IPs in us-east-1 (account 408766208637) for QA devnet, covering validators, bootnode, and RPC. Quota increased from 12 to 100. Cost ~$298/month. Needed until e...
 
+## [2026-06-20T08:17:58Z] synthesis | PR #17 Review Status
+
+- status: published
+- slug: open-questions/pr-17-review-status
+- wiki_revision_id: wikirev_279a1072806bbf5f36ddf57b0e82b8f6
+- summary: A pull request #17 in the repository piplabs/story-localnet is pending review from @U0AKJV8710S. The reviewer responded with a fearful face emoji, causing ambiguity. The requester ...
+
