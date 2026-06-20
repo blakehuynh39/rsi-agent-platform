@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "56970a76215c8f9f5731cc6ce46a75b7202ddc82959fab5cff36b88a5b5d115a",
-        "size": 1003359
+        "sha256": "a38e12d5f13dd9582b9c6ece026c994d463ffeab55105b87100adadf64550a9a",
+        "size": 1003735
       },
       {
         "path": "log.md",
-        "sha256": "07cd7d716ccf79f832dbed76853f9932de9c7802bf12894f3d98891166ae7345",
-        "size": 1742110
+        "sha256": "771c05e3086a0d189543dc994d693b077648404720f8c2e5ee67ef27ba3a754d",
+        "size": 1742498
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4978,6 +4978,11 @@
         "path": "pages/decisions/stripe-payouts-integration.md",
         "sha256": "e6456ec3df4b0a84720250aef1e116764ca80eba37b011e9cac05bef987cd644",
         "size": 5973
+      },
+      {
+        "path": "pages/decisions/stripe-vs-payoneer-payouts-evaluation.md",
+        "sha256": "a07191643b958d78f3c32ff19f0bf06dc9b7a6c682e92876705ab1587ff60892",
+        "size": 4014
       },
       {
         "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
@@ -8429,8 +8434,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T00:18:38Z",
-  "file_count": 1684,
+  "exported_at": "2026-06-20T00:35:13Z",
+  "file_count": 1685,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11707,7 +11712,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "22028389dc12c69655bd7715a68d1df91508d3867d2363291dd05f1099137501",
+  "previous_tree_hash": "203b0038cc294213be18da2bb961bbfffcb476fe83c71307cdfa9efb991b4239",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11720,14 +11725,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "203b0038cc294213be18da2bb961bbfffcb476fe83c71307cdfa9efb991b4239",
+  "tree_hash": "ac34b8158caa8e1feba84a3b865d35256385922c743f4447957d8b397e15e58b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1030,
+  "wiki_file_count": 1031,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11736,13 +11741,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "56970a76215c8f9f5731cc6ce46a75b7202ddc82959fab5cff36b88a5b5d115a",
-      "size": 1003359
+      "sha256": "a38e12d5f13dd9582b9c6ece026c994d463ffeab55105b87100adadf64550a9a",
+      "size": 1003735
     },
     {
       "path": "log.md",
-      "sha256": "07cd7d716ccf79f832dbed76853f9932de9c7802bf12894f3d98891166ae7345",
-      "size": 1742110
+      "sha256": "771c05e3086a0d189543dc994d693b077648404720f8c2e5ee67ef27ba3a754d",
+      "size": 1742498
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13433,6 +13438,11 @@
       "path": "pages/decisions/stripe-payouts-integration.md",
       "sha256": "e6456ec3df4b0a84720250aef1e116764ca80eba37b011e9cac05bef987cd644",
       "size": 5973
+    },
+    {
+      "path": "pages/decisions/stripe-vs-payoneer-payouts-evaluation.md",
+      "sha256": "a07191643b958d78f3c32ff19f0bf06dc9b7a6c682e92876705ab1587ff60892",
+      "size": 4014
     },
     {
       "path": "pages/decisions/subnet-2-0-rewards-and-incentivization.md",
@@ -16881,5 +16891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c4af6739eb339008539b642f361ffb48fb45d8bd542f89137fa0f761ea426607"
+  "wiki_tree_hash": "275b9f88764f28e3481d39ff4de0de8380bb8d03f8da81cad52bac99b91fd725"
 }

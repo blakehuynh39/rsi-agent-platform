@@ -35408,3 +35408,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7e8dfe77d1f3dc4be875e57bcd591405
 - summary: WIP mobile app for personality testing via voice conversation with AI agent Aura, using LLM to analyze transcription and provide results.
 
+## [2026-06-20T00:32:26Z] synthesis | Stripe vs Payoneer Payouts Evaluation (PH, VN, IN)
+
+- status: published
+- slug: decisions/stripe-vs-payoneer-payouts-evaluation
+- wiki_revision_id: wikirev_6c2c779954ebd4faa923c121feb25051
+- summary: Evaluation of Stripe versus Payoneer for paying out contributors in Philippines, Vietnam, and India, following an informational session with Stripe.
+
