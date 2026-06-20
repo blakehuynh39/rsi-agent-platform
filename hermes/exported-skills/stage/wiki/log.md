@@ -35394,3 +35394,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_69c267fd5f8d96ee3fae1597d5f17832
 - summary: A four-tier country risk assessment framework for evaluating jurisdictions when acquiring data from various countries. Due diligence should focus on Tiers 3 and 4.
 
+## [2026-06-20T00:16:03Z] synthesis | Data Seeding English Task Status
+
+- status: published
+- slug: decisions/data-seeding-english-task-status
+- wiki_revision_id: wikirev_ee9624abc656a3da797db85c3b1d5a09
+- summary: The team confirmed they do not need assistance with English data seeding. A shared task for Indic languages is planned but not yet launched.
+
+## [2026-06-20T00:17:51Z] synthesis | Aura App
+
+- status: published
+- slug: projects/aura-app
+- wiki_revision_id: wikirev_7e8dfe77d1f3dc4be875e57bcd591405
+- summary: WIP mobile app for personality testing via voice conversation with AI agent Aura, using LLM to analyze transcription and provide results.
+

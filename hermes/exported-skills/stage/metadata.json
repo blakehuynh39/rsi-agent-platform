@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "856bb4a9e07cd974adb27483f5ee0fdb3d718fcd25b489462d10826246a6a8b2",
-        "size": 1002721
+        "sha256": "56970a76215c8f9f5731cc6ce46a75b7202ddc82959fab5cff36b88a5b5d115a",
+        "size": 1003359
       },
       {
         "path": "log.md",
-        "sha256": "5dc555fe4971560496ff41214a9a01ce3f5ec71c5cd50520c9788b3529d22353",
-        "size": 1741448
+        "sha256": "07cd7d716ccf79f832dbed76853f9932de9c7802bf12894f3d98891166ae7345",
+        "size": 1742110
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4510,6 +4510,11 @@
         "size": 3191
       },
       {
+        "path": "pages/decisions/data-seeding-english-task-status.md",
+        "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
+        "size": 2297
+      },
+      {
         "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
         "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
         "size": 2563
@@ -5618,6 +5623,11 @@
         "path": "pages/projects/atlas.md",
         "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
         "size": 1596
+      },
+      {
+        "path": "pages/projects/aura-app.md",
+        "sha256": "b80e7d6ff23760acff15ef98f82375c0ba899ee105353b955babf41c3b1ed680",
+        "size": 4506
       },
       {
         "path": "pages/projects/aura.md",
@@ -8419,8 +8429,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T00:07:05Z",
-  "file_count": 1682,
+  "exported_at": "2026-06-20T00:18:38Z",
+  "file_count": 1684,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11697,7 +11707,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "1678f15572464c45dd838b236f4eadfa8f6e265df66a112cbc7208dde69921f2",
+  "previous_tree_hash": "22028389dc12c69655bd7715a68d1df91508d3867d2363291dd05f1099137501",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11710,14 +11720,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "22028389dc12c69655bd7715a68d1df91508d3867d2363291dd05f1099137501",
+  "tree_hash": "203b0038cc294213be18da2bb961bbfffcb476fe83c71307cdfa9efb991b4239",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1028,
+  "wiki_file_count": 1030,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11726,13 +11736,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "856bb4a9e07cd974adb27483f5ee0fdb3d718fcd25b489462d10826246a6a8b2",
-      "size": 1002721
+      "sha256": "56970a76215c8f9f5731cc6ce46a75b7202ddc82959fab5cff36b88a5b5d115a",
+      "size": 1003359
     },
     {
       "path": "log.md",
-      "sha256": "5dc555fe4971560496ff41214a9a01ce3f5ec71c5cd50520c9788b3529d22353",
-      "size": 1741448
+      "sha256": "07cd7d716ccf79f832dbed76853f9932de9c7802bf12894f3d98891166ae7345",
+      "size": 1742110
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12955,6 +12965,11 @@
       "size": 3191
     },
     {
+      "path": "pages/decisions/data-seeding-english-task-status.md",
+      "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
+      "size": 2297
+    },
+    {
       "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
       "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
       "size": 2563
@@ -14063,6 +14078,11 @@
       "path": "pages/projects/atlas.md",
       "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
       "size": 1596
+    },
+    {
+      "path": "pages/projects/aura-app.md",
+      "sha256": "b80e7d6ff23760acff15ef98f82375c0ba899ee105353b955babf41c3b1ed680",
+      "size": 4506
     },
     {
       "path": "pages/projects/aura.md",
@@ -16861,5 +16881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "60e23bbec293f255baa3bf0e2c59a8e8a22a4c33d90b7d105f0920faa6236317"
+  "wiki_tree_hash": "c4af6739eb339008539b642f361ffb48fb45d8bd542f89137fa0f761ea426607"
 }
