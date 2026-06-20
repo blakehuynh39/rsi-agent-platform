@@ -35653,3 +35653,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_84783f5808013aa350328f1e85984db2
 - summary: Investigation and resolution steps for when WebSocket connections to storyscan are blocked by Cloudflare WAF, affecting homepage block/transaction list loading.
 
+## [2026-06-20T06:16:32Z] synthesis | cdr-sdk GitHub Access Request (April 2026)
+
+- status: published
+- slug: decisions/2026-04-13-cdr-sdk-github-access-request
+- wiki_revision_id: wikirev_afe1f69b5d5b1a91c288c869a3ce2110
+- summary: Slack discussion about transferring ownership and changing permissions for the cdr-sdk repo, resulting in a permission change for @U067QP5PD6J and the requester retracting the requ...
+
+## [2026-06-20T06:18:45Z] synthesis | Aeneid Staking API (Legacy)
+
+- status: published
+- slug: systems/aeneid-staking-api-legacy
+- wiki_revision_id: wikirev_7cd26dfe5e32b2104fbd762209129f34
+- summary: The legacy staking API service at staking-aeneid.storyapis.com serves the Aeneid devnet staking dashboard. On 2026-04-30, it was found to be misconfigured with mainnet archive node...
+

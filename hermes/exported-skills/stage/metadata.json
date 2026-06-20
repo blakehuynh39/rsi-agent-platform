@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "679ab4c8bd1f99e203111d7427b0a5e93b9d6c57d95dea6e4d444ac250ab000e",
-        "size": 1015742
+        "sha256": "cab621ae9778c0592fd79413663420141a10a23b8c7c687e55c11a549d64d1a6",
+        "size": 1016522
       },
       {
         "path": "log.md",
-        "sha256": "790b8edd427e7e5274807d19b13569d30f13e975a3c908c03de787452bfbc453",
-        "size": 1754913
+        "sha256": "32d828d586a15e2f73a830c4b81dcd1faa39aa4442f777ddb731776c1cf7e942",
+        "size": 1755717
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4478,6 +4478,11 @@
         "path": "pages/concepts/zk-primitive.md",
         "sha256": "4d78434786f418f150d7f76609cebb01b83eba963d91879cf78c0806f0a74453",
         "size": 1735
+      },
+      {
+        "path": "pages/decisions/2026-04-13-cdr-sdk-github-access-request.md",
+        "sha256": "75364365f5b79773287a31b415a51d394db343ee4b10d4aa395c64cc24256d3d",
+        "size": 3736
       },
       {
         "path": "pages/decisions/access-control-acl.md",
@@ -7895,6 +7900,11 @@
         "size": 3096
       },
       {
+        "path": "pages/systems/aeneid-staking-api-legacy.md",
+        "sha256": "4043bb427e50ec5013f08e37f45067b94ed49c0199676c3e15384e05bf95cf0e",
+        "size": 4652
+      },
+      {
         "path": "pages/systems/aeneid-testnet-deployment-addresses.md",
         "sha256": "e1abf9c5ad67ed4d7115cd18b3440bea27394ab8d4a6554734c90e30451892f9",
         "size": 3601
@@ -8604,8 +8614,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T05:53:18Z",
-  "file_count": 1719,
+  "exported_at": "2026-06-20T06:20:04Z",
+  "file_count": 1721,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11882,7 +11892,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d951060ea472f1032969e94c2febc443bc2301c67ceafa12bae6d64211a6fd69",
+  "previous_tree_hash": "2351d6fbcb5f9c53cbb192d0f3b5a31f0353ed59d5b02c4dc5dffa11a9a0e783",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11895,14 +11905,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2351d6fbcb5f9c53cbb192d0f3b5a31f0353ed59d5b02c4dc5dffa11a9a0e783",
+  "tree_hash": "2fa081258d33f9aa0dff0d9eb802433279d6210a1d9e9f8ce51f59e1054a0087",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1065,
+  "wiki_file_count": 1067,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11911,13 +11921,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "679ab4c8bd1f99e203111d7427b0a5e93b9d6c57d95dea6e4d444ac250ab000e",
-      "size": 1015742
+      "sha256": "cab621ae9778c0592fd79413663420141a10a23b8c7c687e55c11a549d64d1a6",
+      "size": 1016522
     },
     {
       "path": "log.md",
-      "sha256": "790b8edd427e7e5274807d19b13569d30f13e975a3c908c03de787452bfbc453",
-      "size": 1754913
+      "sha256": "32d828d586a15e2f73a830c4b81dcd1faa39aa4442f777ddb731776c1cf7e942",
+      "size": 1755717
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13108,6 +13118,11 @@
       "path": "pages/concepts/zk-primitive.md",
       "sha256": "4d78434786f418f150d7f76609cebb01b83eba963d91879cf78c0806f0a74453",
       "size": 1735
+    },
+    {
+      "path": "pages/decisions/2026-04-13-cdr-sdk-github-access-request.md",
+      "sha256": "75364365f5b79773287a31b415a51d394db343ee4b10d4aa395c64cc24256d3d",
+      "size": 3736
     },
     {
       "path": "pages/decisions/access-control-acl.md",
@@ -16525,6 +16540,11 @@
       "size": 3096
     },
     {
+      "path": "pages/systems/aeneid-staking-api-legacy.md",
+      "sha256": "4043bb427e50ec5013f08e37f45067b94ed49c0199676c3e15384e05bf95cf0e",
+      "size": 4652
+    },
+    {
       "path": "pages/systems/aeneid-testnet-deployment-addresses.md",
       "sha256": "e1abf9c5ad67ed4d7115cd18b3440bea27394ab8d4a6554734c90e30451892f9",
       "size": 3601
@@ -17231,5 +17251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "57b4c3687126cc462405c2e7ff9f5695af16827d33d856cff023c81be81ff1fa"
+  "wiki_tree_hash": "d41af0ce52c2020c9d2183244387c229cd9ca4a092a4e78fdad7b57143ef3284"
 }
