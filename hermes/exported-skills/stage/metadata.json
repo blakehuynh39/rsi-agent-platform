@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "df4ab72b82d0b15f946eb9a3af59da2d1fc47994fb597733d7488bf2928251ba",
-        "size": 1009925
+        "sha256": "26b4306a4e327c37fe9f39de26c82de56e61a71953f24aba4e90fd8b72f26db7",
+        "size": 1010281
       },
       {
         "path": "log.md",
-        "sha256": "a26351117abaa073d73506786c1cb7c5cdcbdf14f105ecd139ea5502226b87a2",
-        "size": 1748904
+        "sha256": "2dd7883362fa9bb4eaefbf5d7173dd90b1ebd0bd3a764d6cce962fa01442730f",
+        "size": 1749272
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4258,6 +4258,11 @@
         "path": "pages/concepts/standard-commercial-license-ip-assets.md",
         "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
         "size": 3256
+      },
+      {
+        "path": "pages/concepts/stitch-google-design-tool-evaluation.md",
+        "sha256": "87627bc08579038b77525c4a4d2c133fb683f1500f94beac4c43f686abd1026d",
+        "size": 4403
       },
       {
         "path": "pages/concepts/storj.md",
@@ -8524,8 +8529,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T02:50:25Z",
-  "file_count": 1703,
+  "exported_at": "2026-06-20T03:06:56Z",
+  "file_count": 1704,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11802,7 +11807,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d4885f7a6e52e56ed0936786906afae5b01773b7a4241350301005ecaf419024",
+  "previous_tree_hash": "1ce55874dd7843afa03541841fe1239ddb4cb8c3949522c106d971719f681a50",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11815,14 +11820,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1ce55874dd7843afa03541841fe1239ddb4cb8c3949522c106d971719f681a50",
+  "tree_hash": "711d30272645628d2bb3b4b93f81962839d8386d0eb60d52eb92e259fd702cf3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1049,
+  "wiki_file_count": 1050,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11831,13 +11836,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "df4ab72b82d0b15f946eb9a3af59da2d1fc47994fb597733d7488bf2928251ba",
-      "size": 1009925
+      "sha256": "26b4306a4e327c37fe9f39de26c82de56e61a71953f24aba4e90fd8b72f26db7",
+      "size": 1010281
     },
     {
       "path": "log.md",
-      "sha256": "a26351117abaa073d73506786c1cb7c5cdcbdf14f105ecd139ea5502226b87a2",
-      "size": 1748904
+      "sha256": "2dd7883362fa9bb4eaefbf5d7173dd90b1ebd0bd3a764d6cce962fa01442730f",
+      "size": 1749272
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12808,6 +12813,11 @@
       "path": "pages/concepts/standard-commercial-license-ip-assets.md",
       "sha256": "19d900e8b5b82691104a2bc7b5bcfd9b08a2610066b821d584cf878c40cc41d1",
       "size": 3256
+    },
+    {
+      "path": "pages/concepts/stitch-google-design-tool-evaluation.md",
+      "sha256": "87627bc08579038b77525c4a4d2c133fb683f1500f94beac4c43f686abd1026d",
+      "size": 4403
     },
     {
       "path": "pages/concepts/storj.md",
@@ -17071,5 +17081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "876879142d7fa440370f0f77297eb98ab19e4fed3d169ac85c1c16588ed8748c"
+  "wiki_tree_hash": "a08a1d8a0ae316c3bcded75841332bfa103a1f14d7527ea512d874fcd73d2221"
 }
