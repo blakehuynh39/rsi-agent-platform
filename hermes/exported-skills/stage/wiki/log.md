@@ -35828,3 +35828,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f007a703f31c0651e00dbb4b09b277d4
 - summary: Process for diagnosing and resolving Notion API credit limit issues in the RSI workspace.
 
+## [2026-06-20T11:31:28Z] synthesis | Loki Logging System
+
+- status: published
+- slug: systems/loki-logging-system
+- wiki_revision_id: wikirev_f89787245e9f8e18032d003d195ef09e
+- summary: Centralized logging system using Loki. As of 2026-04-27, experiencing memberlist ring instability due to subnet IP exhaustion on 10.0.101.0/24, causing intra-component communicatio...
+
+## [2026-06-20T11:31:28Z] synthesis | Grafana Loki Query Timeout Troubleshooting
+
+- status: published
+- slug: runbooks/grafana-loki-query-timeout
+- wiki_revision_id: wikirev_6769056c9b5c017c914148f3c911782c
+- summary: Grafana queries to Loki datasources may timeout due to requesting excessive raw log lines over large time ranges. Mitigation involves reducing the time window, applying a line limi...
+

@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "f0bbc43335d59c525d723818b6408ddef03e60d4015dbb473b8c1c3681c9b2fb",
-        "size": 1764558
+        "sha256": "409373e553662d530e2359e8dc7de612f91a988a3716f09338224aab1025d6fe",
+        "size": 1765333
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7565,6 +7565,11 @@
         "size": 6826
       },
       {
+        "path": "pages/runbooks/grafana-loki-query-timeout.md",
+        "sha256": "7334b0b089eb9755730bd6fa17335518a40025d3ad554da4d645c031ad1a3c00",
+        "size": 2744
+      },
+      {
         "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
         "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
         "size": 1395
@@ -8290,6 +8295,11 @@
         "size": 3301
       },
       {
+        "path": "pages/systems/loki-logging-system.md",
+        "sha256": "cbcf9f602364b63c799d79c4655af765ffe7a3ae79c027b6a1c6d7719c8682ce",
+        "size": 3922
+      },
+      {
         "path": "pages/systems/module-system.md",
         "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
         "size": 3760
@@ -8729,8 +8739,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T11:05:18Z",
-  "file_count": 1744,
+  "exported_at": "2026-06-20T11:32:03Z",
+  "file_count": 1746,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12007,7 +12017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "c72260d24acdaa28c0c494df0d099496b47862e604e5c8f9c54aa5557dff087d",
+  "previous_tree_hash": "e72327d5826212be211e6160e99c5d67d4b6fc46a5f0fe91d77ca7cce878a9a6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12020,14 +12030,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e72327d5826212be211e6160e99c5d67d4b6fc46a5f0fe91d77ca7cce878a9a6",
+  "tree_hash": "03343a7125f32aa7be0ca4f4e3e494f2b870e3e79ce63656750db73ba312f0cf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1090,
+  "wiki_file_count": 1092,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12041,8 +12051,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "f0bbc43335d59c525d723818b6408ddef03e60d4015dbb473b8c1c3681c9b2fb",
-      "size": 1764558
+      "sha256": "409373e553662d530e2359e8dc7de612f91a988a3716f09338224aab1025d6fe",
+      "size": 1765333
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16320,6 +16330,11 @@
       "size": 6826
     },
     {
+      "path": "pages/runbooks/grafana-loki-query-timeout.md",
+      "sha256": "7334b0b089eb9755730bd6fa17335518a40025d3ad554da4d645c031ad1a3c00",
+      "size": 2744
+    },
+    {
       "path": "pages/runbooks/how-to-handle-smart-contract-update.md",
       "sha256": "381fb80fecdb86c03c73268101ba15963d90872090a690c36189ce51a021ace1",
       "size": 1395
@@ -17045,6 +17060,11 @@
       "size": 3301
     },
     {
+      "path": "pages/systems/loki-logging-system.md",
+      "sha256": "cbcf9f602364b63c799d79c4655af765ffe7a3ae79c027b6a1c6d7719c8682ce",
+      "size": 3922
+    },
+    {
       "path": "pages/systems/module-system.md",
       "sha256": "5e787b105c2c29a9d0b8b8a4c2ae98671d501521797c484ee2578b4c5781b852",
       "size": 3760
@@ -17481,5 +17501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3c1158ced058efa368b83bd5921c6f885f5aa1f00f6116c0a6dce3276e8fafc7"
+  "wiki_tree_hash": "e98f6927a6ef244d338c601f968b8b677d83747c69dc0007c8fad2fdfd6379be"
 }
