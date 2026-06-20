@@ -35583,3 +35583,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9eef4f11524179ea04638bbe69dbce1d
 - summary: Discussion on whether IP disputes can be raised for non-commercial works, current limitations, and potential use of Attestation to flag infringing works on Portal.
 
+## [2026-06-20T04:16:08Z] synthesis | Non-Commercial IP Dispute Limitations
+
+- status: published
+- slug: open-questions/non-commercial-ip-disputes
+- wiki_revision_id: wikirev_f429d1f3bbb27ef3c8a86a30c1e9a762
+- summary: Discussion on whether disputes can be raised for non-commercial IP, the current limitation on the Portal, and how Magma can flag stolen IP registered by its users.
+
+## [2026-06-20T04:18:21Z] synthesis | Non-Commercial IP Dispute Support
+
+- status: published
+- slug: open-questions/non-commercial-ip-dispute-support
+- wiki_revision_id: wikirev_7eb828156d741acd449ffab9ec7754d2
+- summary: Discussion about whether disputes can be raised for non-commercial IP, current limitations, and Magma's use case of protecting user artworks.
+
