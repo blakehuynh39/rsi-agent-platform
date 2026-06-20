@@ -35856,3 +35856,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e0f3e23a9dc8b3732e06a3bce8bd3c81
 - summary: The staking-devnet repository (story-deployments/staking-devnet/staking-api-devnet) appears to be a deprecated deployment for staking API testing. It is associated with a legacy co...
 
+## [2026-06-20T12:02:27Z] synthesis | Indexing Infrastructure
+
+- status: published
+- slug: systems/indexing-infrastructure
+- wiki_revision_id: wikirev_c96c923d83bd61e387e526f647353a1d
+- summary: Overview of indexing services used by RSI, including an internal Temporal‑based indexer, BlockScout, and the external Goldsky service.
+
+## [2026-06-20T12:02:28Z] synthesis | Goldsky
+
+- status: published
+- slug: systems/goldsky
+- wiki_revision_id: wikirev_a7b1a5021abb003d71bdc2de32654686
+- summary: Goldsky is an external, self‑serve indexing service used by RSI and its ecosystem partners, primarily for DEX event indexing.
+

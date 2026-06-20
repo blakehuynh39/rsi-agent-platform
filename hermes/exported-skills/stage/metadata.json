@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2b2eec970fe081b7f0d8dcb6b3bceaf207f6a4ba74a909012e58b0ec02797847",
-        "size": 1026508
+        "sha256": "aaca3e3584cc802b5e2e43f1fec0b206b6d7023574ecaa6c769c924ebc025826",
+        "size": 1027109
       },
       {
         "path": "log.md",
-        "sha256": "41511fce446956417fdceaaf140e235a4e73529b669afbf7929974cb2f540c8f",
-        "size": 1766025
+        "sha256": "be6c18835c0afec83aabb0652ff783a60b7dce1aa96be4b90f69dfea869d664a",
+        "size": 1766650
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8205,6 +8205,11 @@
         "size": 1301
       },
       {
+        "path": "pages/systems/goldsky.md",
+        "sha256": "28185584d9901d57ee8760373537822090d41ae35d6edce7023f96a44f83b9fb",
+        "size": 2997
+      },
+      {
         "path": "pages/systems/group-ipa.md",
         "sha256": "e38110ac103f59ae5a7cd8d30837ce35ffd7614b99c5e77a29e58116bb27f99a",
         "size": 3337
@@ -8228,6 +8233,11 @@
         "path": "pages/systems/human-agent-poc-web.md",
         "sha256": "085d2258a5fcd348e05123f272830f9dd3ef03381ae7860e65935993e8cc6b19",
         "size": 1449
+      },
+      {
+        "path": "pages/systems/indexing-infrastructure.md",
+        "sha256": "9407db54c415e403327d039c553e358739996d639513e7a41f33de88d88ebe0f",
+        "size": 4868
       },
       {
         "path": "pages/systems/info-numolabs-ai-email-distribution.md",
@@ -8749,8 +8759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T11:50:05Z",
-  "file_count": 1748,
+  "exported_at": "2026-06-20T12:06:42Z",
+  "file_count": 1750,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12027,7 +12037,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "e119e700312c9a6cc51fb61e14121b41277af91f974b39bb731be6978b644ef3",
+  "previous_tree_hash": "61c051e10d0d273ec88afdf3391c8da5be161c6a62e69d6783fd14b50120b3c3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12040,14 +12050,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "61c051e10d0d273ec88afdf3391c8da5be161c6a62e69d6783fd14b50120b3c3",
+  "tree_hash": "6c46c54ed63e9fdbe2fae0eb227dd2263dd9be85f45ab13fc8e6715e4b40dea4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1094,
+  "wiki_file_count": 1096,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12056,13 +12066,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2b2eec970fe081b7f0d8dcb6b3bceaf207f6a4ba74a909012e58b0ec02797847",
-      "size": 1026508
+      "sha256": "aaca3e3584cc802b5e2e43f1fec0b206b6d7023574ecaa6c769c924ebc025826",
+      "size": 1027109
     },
     {
       "path": "log.md",
-      "sha256": "41511fce446956417fdceaaf140e235a4e73529b669afbf7929974cb2f540c8f",
-      "size": 1766025
+      "sha256": "be6c18835c0afec83aabb0652ff783a60b7dce1aa96be4b90f69dfea869d664a",
+      "size": 1766650
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16980,6 +16990,11 @@
       "size": 1301
     },
     {
+      "path": "pages/systems/goldsky.md",
+      "sha256": "28185584d9901d57ee8760373537822090d41ae35d6edce7023f96a44f83b9fb",
+      "size": 2997
+    },
+    {
       "path": "pages/systems/group-ipa.md",
       "sha256": "e38110ac103f59ae5a7cd8d30837ce35ffd7614b99c5e77a29e58116bb27f99a",
       "size": 3337
@@ -17003,6 +17018,11 @@
       "path": "pages/systems/human-agent-poc-web.md",
       "sha256": "085d2258a5fcd348e05123f272830f9dd3ef03381ae7860e65935993e8cc6b19",
       "size": 1449
+    },
+    {
+      "path": "pages/systems/indexing-infrastructure.md",
+      "sha256": "9407db54c415e403327d039c553e358739996d639513e7a41f33de88d88ebe0f",
+      "size": 4868
     },
     {
       "path": "pages/systems/info-numolabs-ai-email-distribution.md",
@@ -17521,5 +17541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "23216aa9280436d6764361cb2dced734570338914ea5463a0d6f3ab4b81bd289"
+  "wiki_tree_hash": "063c5fb91f7e1931a73eae3ea59bf8f81c3c93509e1d99a28de53b3a49793b3b"
 }
