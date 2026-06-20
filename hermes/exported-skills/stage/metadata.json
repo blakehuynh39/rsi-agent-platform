@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cb89aa537d75bc9a06562c19058dce7705f2ead0bad8535a06c12a0ebc88d167",
-        "size": 1025088
+        "sha256": "90eb9c7f061f42752ffb9d9418719f9ee7a805e7511bc841165d3225ef5b0b80",
+        "size": 1026158
       },
       {
         "path": "log.md",
-        "sha256": "409373e553662d530e2359e8dc7de612f91a988a3716f09338224aab1025d6fe",
-        "size": 1765333
+        "sha256": "2acbad4043005e27f68f4eb0b9afad318a84a26ce5d24fce0aeacd925127ea49",
+        "size": 1765663
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6235,6 +6235,11 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/ip-registration-numo-deployment.md",
+        "sha256": "b6dd25929507977dd25c83743d41e6eff93267b1ce7259b7f6d7ca915f7d2e1f",
+        "size": 7027
+      },
+      {
         "path": "pages/projects/ip-vault.md",
         "sha256": "1eb676730a0dd6a97dfe2cfaa922eafe33611844b30c59a835dc3d6d38d493fb",
         "size": 1136
@@ -8739,8 +8744,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T11:32:03Z",
-  "file_count": 1746,
+  "exported_at": "2026-06-20T11:38:32Z",
+  "file_count": 1747,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12017,7 +12022,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "e72327d5826212be211e6160e99c5d67d4b6fc46a5f0fe91d77ca7cce878a9a6",
+  "previous_tree_hash": "03343a7125f32aa7be0ca4f4e3e494f2b870e3e79ce63656750db73ba312f0cf",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12030,14 +12035,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "03343a7125f32aa7be0ca4f4e3e494f2b870e3e79ce63656750db73ba312f0cf",
+  "tree_hash": "e119e700312c9a6cc51fb61e14121b41277af91f974b39bb731be6978b644ef3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1092,
+  "wiki_file_count": 1093,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12046,13 +12051,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cb89aa537d75bc9a06562c19058dce7705f2ead0bad8535a06c12a0ebc88d167",
-      "size": 1025088
+      "sha256": "90eb9c7f061f42752ffb9d9418719f9ee7a805e7511bc841165d3225ef5b0b80",
+      "size": 1026158
     },
     {
       "path": "log.md",
-      "sha256": "409373e553662d530e2359e8dc7de612f91a988a3716f09338224aab1025d6fe",
-      "size": 1765333
+      "sha256": "2acbad4043005e27f68f4eb0b9afad318a84a26ce5d24fce0aeacd925127ea49",
+      "size": 1765663
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15000,6 +15005,11 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/ip-registration-numo-deployment.md",
+      "sha256": "b6dd25929507977dd25c83743d41e6eff93267b1ce7259b7f6d7ca915f7d2e1f",
+      "size": 7027
+    },
+    {
       "path": "pages/projects/ip-vault.md",
       "sha256": "1eb676730a0dd6a97dfe2cfaa922eafe33611844b30c59a835dc3d6d38d493fb",
       "size": 1136
@@ -17501,5 +17511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e98f6927a6ef244d338c601f968b8b677d83747c69dc0007c8fad2fdfd6379be"
+  "wiki_tree_hash": "d9d28d175d19ce135800fcf81ec739d21e181e2a21973ce6162812c226b2dff2"
 }

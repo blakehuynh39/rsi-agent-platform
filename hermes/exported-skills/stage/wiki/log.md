@@ -35842,3 +35842,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6769056c9b5c017c914148f3c911782c
 - summary: Grafana queries to Loki datasources may timeout due to requesting excessive raw log lines over large time ranges. Mitigation involves reducing the time window, applying a line limi...
 
+## [2026-06-20T11:33:16Z] synthesis | IP Registration Numo Cluster Deployment
+
+- status: published
+- slug: projects/ip-registration-numo-deployment
+- wiki_revision_id: wikirev_4cd4609ee18567676da9dd59fd21e5b7
+- summary: Deploying the IP Registration service to the numo Kubernetes cluster and setting up monitoring with Grafana.
+
