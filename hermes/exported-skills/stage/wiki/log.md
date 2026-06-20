@@ -35716,3 +35716,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5c5a666a2aad9b1614a8d7ffe21d2a9f
 - summary: Process for handling Claude usage limits (session caps, token quotas) on the Team plan. Admins Woojin and Vinod can adjust credits and plan tiers. Vinod is on vacation until April ...
 
+## [2026-06-20T08:02:59Z] synthesis | QA Devnet Elastic IP Allocation
+
+- status: published
+- slug: projects/qa-devnet-eip-allocation
+- wiki_revision_id: wikirev_b11de80f8f78f5cd221588051f504ee2
+- summary: Allocated 82 Elastic IPs in us-east-1 (account 408766208637) for QA devnet, covering validators, bootnode, and RPC. Quota increased from 12 to 100. Cost ~$298/month. Needed until e...
+

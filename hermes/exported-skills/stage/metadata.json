@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f2ee9c214fa2dc9c8f9c8d725d81ad3f4e649517d097e1b73410398ff9a4f3c5",
-        "size": 1019227
+        "sha256": "99a44c3302d4519c0322912957de5710e92b634820c69bba6d77e56ef22aef30",
+        "size": 1019605
       },
       {
         "path": "log.md",
-        "sha256": "673afd7332d067d2f7239fa60f89c1ed186e05092e7a04f2aff809eddef4e84c",
-        "size": 1758505
+        "sha256": "82ebf3347e7a49b58af817b42b30d9bb71f25beb3ee390579b298414312285cd",
+        "size": 1758895
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6870,6 +6870,11 @@
         "size": 4577
       },
       {
+        "path": "pages/projects/qa-devnet-eip-allocation.md",
+        "sha256": "0505655e16281f493306e47713c640972fef7e2190dc6a9de0fa9672cc9704f9",
+        "size": 3541
+      },
+      {
         "path": "pages/projects/rcade-music-app.md",
         "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
         "size": 1058
@@ -8649,8 +8654,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T07:38:04Z",
-  "file_count": 1728,
+  "exported_at": "2026-06-20T08:04:51Z",
+  "file_count": 1729,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11927,7 +11932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "02564eef8272f67c1b4b59fbe266aaf4151c79b32e5fe71894efbd897e4905be",
+  "previous_tree_hash": "f4cb55d9b4254020c6df1c0ec1814e74d89c8b384140595b39c171f42f76ea22",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11940,14 +11945,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f4cb55d9b4254020c6df1c0ec1814e74d89c8b384140595b39c171f42f76ea22",
+  "tree_hash": "93779e490ab099f6336eec98fe021e3b31c635bfef79bdf553d2d842f52b997b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1074,
+  "wiki_file_count": 1075,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11956,13 +11961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f2ee9c214fa2dc9c8f9c8d725d81ad3f4e649517d097e1b73410398ff9a4f3c5",
-      "size": 1019227
+      "sha256": "99a44c3302d4519c0322912957de5710e92b634820c69bba6d77e56ef22aef30",
+      "size": 1019605
     },
     {
       "path": "log.md",
-      "sha256": "673afd7332d067d2f7239fa60f89c1ed186e05092e7a04f2aff809eddef4e84c",
-      "size": 1758505
+      "sha256": "82ebf3347e7a49b58af817b42b30d9bb71f25beb3ee390579b298414312285cd",
+      "size": 1758895
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15545,6 +15550,11 @@
       "size": 4577
     },
     {
+      "path": "pages/projects/qa-devnet-eip-allocation.md",
+      "sha256": "0505655e16281f493306e47713c640972fef7e2190dc6a9de0fa9672cc9704f9",
+      "size": 3541
+    },
+    {
       "path": "pages/projects/rcade-music-app.md",
       "sha256": "976f84736524cb60b8b8153797190cda98ab6a932bf921221b557bd969818c25",
       "size": 1058
@@ -17321,5 +17331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "031d376e7b7a97bcf2d1c76283be2f71f9c501c0c4ab3f6037181b51c2d8f88f"
+  "wiki_tree_hash": "15ba5632142a41cbcb4722b7e4dc7bc7ddd960bab18f765b9b1b9d8be6cb9d52"
 }
