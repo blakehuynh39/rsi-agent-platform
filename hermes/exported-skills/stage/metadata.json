@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8b28f96e7fc2945aa7dfedcee806eca46397643d52c835b426dd1c6390339073",
-        "size": 1014340
+        "sha256": "0faaa5c110c04cbf3370386b3ee346c60e824475dedc36309f4c86d7dadefe46",
+        "size": 1014609
       },
       {
         "path": "log.md",
-        "sha256": "e61be3cc98bd704056be620c03e98cfdf07ac13b19989a4bff8d69c9a62c8d6b",
-        "size": 1753463
+        "sha256": "a50bc1da0906c8c53c0e8af631c8077182177cf38b0c6e15172d7c89b03facfd",
+        "size": 1753744
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5373,6 +5373,11 @@
         "path": "pages/people/jon-rogers.md",
         "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
         "size": 3758
+      },
+      {
+        "path": "pages/people/shenwang-pip.md",
+        "sha256": "ab584387d896a92176c92157270bca8b5170c167c583db8cac0a700611ba12ea",
+        "size": 1483
       },
       {
         "path": "pages/people/u0a2d9u625v.md",
@@ -8584,8 +8589,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T04:50:30Z",
-  "file_count": 1715,
+  "exported_at": "2026-06-20T05:07:07Z",
+  "file_count": 1716,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11862,7 +11867,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b5f4b4379b593bdfdc60f6a54a6343ab83f8214a9a9b41d53da7e38dd5f7f13e",
+  "previous_tree_hash": "425e3e2d257ff230e1313942d2b3f58be054c0491f57f20cfd60bd02d13e6d68",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11875,14 +11880,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "425e3e2d257ff230e1313942d2b3f58be054c0491f57f20cfd60bd02d13e6d68",
+  "tree_hash": "cdb4180a5211b7d289de0132c36d97f932f5e7e80bee5c6941e094f910368714",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1061,
+  "wiki_file_count": 1062,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11891,13 +11896,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8b28f96e7fc2945aa7dfedcee806eca46397643d52c835b426dd1c6390339073",
-      "size": 1014340
+      "sha256": "0faaa5c110c04cbf3370386b3ee346c60e824475dedc36309f4c86d7dadefe46",
+      "size": 1014609
     },
     {
       "path": "log.md",
-      "sha256": "e61be3cc98bd704056be620c03e98cfdf07ac13b19989a4bff8d69c9a62c8d6b",
-      "size": 1753463
+      "sha256": "a50bc1da0906c8c53c0e8af631c8077182177cf38b0c6e15172d7c89b03facfd",
+      "size": 1753744
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13983,6 +13988,11 @@
       "path": "pages/people/jon-rogers.md",
       "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
       "size": 3758
+    },
+    {
+      "path": "pages/people/shenwang-pip.md",
+      "sha256": "ab584387d896a92176c92157270bca8b5170c167c583db8cac0a700611ba12ea",
+      "size": 1483
     },
     {
       "path": "pages/people/u0a2d9u625v.md",
@@ -17191,5 +17201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f8516e990be76df3bf687f40fb4645de18b926afd81ffddcbfb064ba2f1710b9"
+  "wiki_tree_hash": "0543b09da47ba9cd322bfee5249dd9569f8423373ebee1bc8714235eff9fc1b4"
 }

@@ -35625,3 +35625,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_041f13cd68affc053602eea04cb0b02d
 - summary: Design discussion on using a custom ERC-721 wrapper to enable fractional ownership and revenue distribution for IP Assets without protocol changes.
 
+## [2026-06-20T05:03:35Z] synthesis | ShenWang-PiP
+
+- status: published
+- slug: people/shenwang-pip
+- wiki_revision_id: wikirev_14bfccbfa29518af7c1c2eee14e9ee0b
+- summary: GitHub user @ShenWang-PiP requested and was granted access to the piplabs/cdr-sdk repository on 2026-04-08.
+
