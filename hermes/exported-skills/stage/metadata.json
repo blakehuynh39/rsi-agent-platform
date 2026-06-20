@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7423084a412685149e9d0e51e1b9a5aa3baf8dcb2b3167e3f1a84f4c059b1ce0",
-        "size": 1011011
+        "sha256": "a8ec9a28da5214d4879befc08ce5cb7b82774a84af5148a8b6ad4e0c63bf6872",
+        "size": 1011382
       },
       {
         "path": "log.md",
-        "sha256": "9135d3522cd81288781c4d0fbd0340ec52e04e04256b266b4a6b5998be05e41c",
-        "size": 1750026
+        "sha256": "39a10f41b1851b88c87eb2c7d2d34d5c6542d535825acd6173c40bd84ec476a0",
+        "size": 1750409
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5678,6 +5678,11 @@
         "path": "pages/projects/atlas.md",
         "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
         "size": 1596
+      },
+      {
+        "path": "pages/projects/audio-capture-initiative.md",
+        "sha256": "0541c6ff6683322dc4149ed479a54b8df1a7589d35abb86fc6986cf2fed1f96d",
+        "size": 5581
       },
       {
         "path": "pages/projects/aura-app.md",
@@ -8539,8 +8544,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T03:24:50Z",
-  "file_count": 1706,
+  "exported_at": "2026-06-20T03:36:19Z",
+  "file_count": 1707,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11817,7 +11822,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "e91c9eecf068e30d82076263d917dd9c43d19502fb927351984b7eb354c0ea88",
+  "previous_tree_hash": "035f8c18b601d70cba8afe97c73f1b8a2bc16cdf749a9d4d821514d7845d7e45",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11830,14 +11835,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "035f8c18b601d70cba8afe97c73f1b8a2bc16cdf749a9d4d821514d7845d7e45",
+  "tree_hash": "2946244e7b1b5f2d1c7401bc961d4034fcc6e90a5154d4a9f28d87cf5ede97dc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1052,
+  "wiki_file_count": 1053,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11846,13 +11851,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7423084a412685149e9d0e51e1b9a5aa3baf8dcb2b3167e3f1a84f4c059b1ce0",
-      "size": 1011011
+      "sha256": "a8ec9a28da5214d4879befc08ce5cb7b82774a84af5148a8b6ad4e0c63bf6872",
+      "size": 1011382
     },
     {
       "path": "log.md",
-      "sha256": "9135d3522cd81288781c4d0fbd0340ec52e04e04256b266b4a6b5998be05e41c",
-      "size": 1750026
+      "sha256": "39a10f41b1851b88c87eb2c7d2d34d5c6542d535825acd6173c40bd84ec476a0",
+      "size": 1750409
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14243,6 +14248,11 @@
       "path": "pages/projects/atlas.md",
       "sha256": "5d34bbbc0ccbfbe3f5a0bf70703634fc79199b8b401e42c80e06a00a30caa528",
       "size": 1596
+    },
+    {
+      "path": "pages/projects/audio-capture-initiative.md",
+      "sha256": "0541c6ff6683322dc4149ed479a54b8df1a7589d35abb86fc6986cf2fed1f96d",
+      "size": 5581
     },
     {
       "path": "pages/projects/aura-app.md",
@@ -17101,5 +17111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ef79913524d08180a5cd4f903584d28b3f49cea79ac8130b2bc48dedec3b4d3"
+  "wiki_tree_hash": "cb81bde27528a3325e0acbfc0a1a901bb9e23246ce44769d0923f4a895f73c12"
 }

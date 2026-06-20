@@ -35562,3 +35562,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9ebea0649079e7804e0028a04696fabc
 - summary: Internal prototype of Scout careers web app, with dashboard, sign-in, and ongoing UX feedback. Goal is data collection via voice agents. Project milestone on 4/10.
 
+## [2026-06-20T03:32:50Z] synthesis | Audio Capture Initiative
+
+- status: published
+- slug: projects/audio-capture-initiative
+- wiki_revision_id: wikirev_2c8379fc2d493db6e1c317cfc911a0a0
+- summary: Initiative to collect audio data for speech-to-speech model training. A framework for scoping the audio capture was shared on 2026-03-11. The team identified multiple risks during ...
+
