@@ -35821,3 +35821,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9af201c3917a0755c82e678c43a9b540
 - summary: The Staking API service, deployed via Docker containers. The Docker image is built from a public repository and pushed to a container registry, then pulled by an AWS EC2 instance.
 
+## [2026-06-20T11:03:53Z] synthesis | Notion API Credit Limit Runbook
+
+- status: published
+- slug: runbooks/notion-api-credit-limit-runbook
+- wiki_revision_id: wikirev_f007a703f31c0651e00dbb4b09b277d4
+- summary: Process for diagnosing and resolving Notion API credit limit issues in the RSI workspace.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4d5eba57da0edff3c81a5010d3ba272fa61397e7830f266ceea06adf14cb788f",
-        "size": 1024797
+        "sha256": "cb89aa537d75bc9a06562c19058dce7705f2ead0bad8535a06c12a0ebc88d167",
+        "size": 1025088
       },
       {
         "path": "log.md",
-        "sha256": "4df0503108fc3769d6288977990bf7c1432bd378154bbf6c5adae50bbb9103e0",
-        "size": 1764255
+        "sha256": "f0bbc43335d59c525d723818b6408ddef03e60d4015dbb473b8c1c3681c9b2fb",
+        "size": 1764558
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7665,6 +7665,11 @@
         "size": 6068
       },
       {
+        "path": "pages/runbooks/notion-api-credit-limit-runbook.md",
+        "sha256": "96eb3e6c2911c12cb563694b1dd3ef8e3de6245e1c841ef485c27f31d3e67637",
+        "size": 4059
+      },
+      {
         "path": "pages/runbooks/numo-1-1-dogfooding-guide.md",
         "sha256": "49a3b9c0a713260e6f40915e64ff707fc36d558514a3cf4d5b50adf5fa50e452",
         "size": 8202
@@ -8724,8 +8729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T10:53:49Z",
-  "file_count": 1743,
+  "exported_at": "2026-06-20T11:05:18Z",
+  "file_count": 1744,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12002,7 +12007,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "9e2e49bb1b1cf33a9499d19beb1b22a209f76cd0197eec6025da0144b3e7fc02",
+  "previous_tree_hash": "c72260d24acdaa28c0c494df0d099496b47862e604e5c8f9c54aa5557dff087d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12015,14 +12020,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c72260d24acdaa28c0c494df0d099496b47862e604e5c8f9c54aa5557dff087d",
+  "tree_hash": "e72327d5826212be211e6160e99c5d67d4b6fc46a5f0fe91d77ca7cce878a9a6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1089,
+  "wiki_file_count": 1090,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12031,13 +12036,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4d5eba57da0edff3c81a5010d3ba272fa61397e7830f266ceea06adf14cb788f",
-      "size": 1024797
+      "sha256": "cb89aa537d75bc9a06562c19058dce7705f2ead0bad8535a06c12a0ebc88d167",
+      "size": 1025088
     },
     {
       "path": "log.md",
-      "sha256": "4df0503108fc3769d6288977990bf7c1432bd378154bbf6c5adae50bbb9103e0",
-      "size": 1764255
+      "sha256": "f0bbc43335d59c525d723818b6408ddef03e60d4015dbb473b8c1c3681c9b2fb",
+      "size": 1764558
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16415,6 +16420,11 @@
       "size": 6068
     },
     {
+      "path": "pages/runbooks/notion-api-credit-limit-runbook.md",
+      "sha256": "96eb3e6c2911c12cb563694b1dd3ef8e3de6245e1c841ef485c27f31d3e67637",
+      "size": 4059
+    },
+    {
       "path": "pages/runbooks/numo-1-1-dogfooding-guide.md",
       "sha256": "49a3b9c0a713260e6f40915e64ff707fc36d558514a3cf4d5b50adf5fa50e452",
       "size": 8202
@@ -17471,5 +17481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "09c352e9457d7545e289c182d3124c32fa849ce4b3933985be130b90c425840f"
+  "wiki_tree_hash": "3c1158ced058efa368b83bd5921c6f885f5aa1f00f6116c0a6dce3276e8fafc7"
 }
