@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "26b4306a4e327c37fe9f39de26c82de56e61a71953f24aba4e90fd8b72f26db7",
-        "size": 1010281
+        "sha256": "7423084a412685149e9d0e51e1b9a5aa3baf8dcb2b3167e3f1a84f4c059b1ce0",
+        "size": 1011011
       },
       {
         "path": "log.md",
-        "sha256": "4f42c57661e8c02f81fd4724d7c00c32ba159595c1e6255b28b3ea65eee7455e",
-        "size": 1749657
+        "sha256": "9135d3522cd81288781c4d0fbd0340ec52e04e04256b266b4a6b5998be05e41c",
+        "size": 1750026
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6870,6 +6870,11 @@
         "size": 2335
       },
       {
+        "path": "pages/projects/scout-careers-web-prototype.md",
+        "sha256": "1a1b14e62610bb659b34dc698a3bd9516b3e65eeaab3c70b6d4c44370fad6873",
+        "size": 6230
+      },
+      {
         "path": "pages/projects/sdk-designs.md",
         "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
         "size": 2579
@@ -8534,8 +8539,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T03:18:26Z",
-  "file_count": 1705,
+  "exported_at": "2026-06-20T03:24:50Z",
+  "file_count": 1706,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11812,7 +11817,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "711d30272645628d2bb3b4b93f81962839d8386d0eb60d52eb92e259fd702cf3",
+  "previous_tree_hash": "e91c9eecf068e30d82076263d917dd9c43d19502fb927351984b7eb354c0ea88",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11825,14 +11830,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e91c9eecf068e30d82076263d917dd9c43d19502fb927351984b7eb354c0ea88",
+  "tree_hash": "035f8c18b601d70cba8afe97c73f1b8a2bc16cdf749a9d4d821514d7845d7e45",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1051,
+  "wiki_file_count": 1052,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11841,13 +11846,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "26b4306a4e327c37fe9f39de26c82de56e61a71953f24aba4e90fd8b72f26db7",
-      "size": 1010281
+      "sha256": "7423084a412685149e9d0e51e1b9a5aa3baf8dcb2b3167e3f1a84f4c059b1ce0",
+      "size": 1011011
     },
     {
       "path": "log.md",
-      "sha256": "4f42c57661e8c02f81fd4724d7c00c32ba159595c1e6255b28b3ea65eee7455e",
-      "size": 1749657
+      "sha256": "9135d3522cd81288781c4d0fbd0340ec52e04e04256b266b4a6b5998be05e41c",
+      "size": 1750026
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15430,6 +15435,11 @@
       "size": 2335
     },
     {
+      "path": "pages/projects/scout-careers-web-prototype.md",
+      "sha256": "1a1b14e62610bb659b34dc698a3bd9516b3e65eeaab3c70b6d4c44370fad6873",
+      "size": 6230
+    },
+    {
       "path": "pages/projects/sdk-designs.md",
       "sha256": "38b6328ab927b8f6feb0e69730c561d2ca3f06bd4af8a28b3d0c6b40b5d0d551",
       "size": 2579
@@ -17091,5 +17101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4fc4af2d58ebee5ad2803c29614591b179b828c641d9ae0c548b15b9a2bc7551"
+  "wiki_tree_hash": "1ef79913524d08180a5cd4f903584d28b3f49cea79ac8130b2bc48dedec3b4d3"
 }
