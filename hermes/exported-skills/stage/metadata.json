@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fa51eda1329e8a19d73805c328f66abdc52ea1ae40499be50793569ded2dc965",
-        "size": 1021130
+        "sha256": "0c5f582eebc81601c43cf5ff7030bdc4f7ff7f1998835164b4bafce23d9d4a05",
+        "size": 1021450
       },
       {
         "path": "log.md",
-        "sha256": "2aad83cec957e22df190b5d59366ba7e03be5852df810ac630e29822fd3e3f08",
-        "size": 1760468
+        "sha256": "69f77258898547405631aed086a12933d3afc6645d77c00d9211585a8fbcf09f",
+        "size": 1760800
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7530,6 +7530,11 @@
         "size": 3669
       },
       {
+        "path": "pages/runbooks/geth-disk-full-recovery-runbook.md",
+        "sha256": "f3a03af8d3b73678637b33efb8a4f629da1eb2f9b4cc80dc7b1042f1b8cea947",
+        "size": 2837
+      },
+      {
         "path": "pages/runbooks/github-commit-ssh-key-signing.md",
         "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
         "size": 6826
@@ -8674,8 +8679,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T08:52:25Z",
-  "file_count": 1733,
+  "exported_at": "2026-06-20T09:09:02Z",
+  "file_count": 1734,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11952,7 +11957,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a681deda009b4ac7827b8a63d306167e55bedae380eaedfd0c228bfef8375dd7",
+  "previous_tree_hash": "6193d74e02370373ba5b6b492a44f6d0741fd338279d98749007293682828b32",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11965,14 +11970,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6193d74e02370373ba5b6b492a44f6d0741fd338279d98749007293682828b32",
+  "tree_hash": "bb5841107d9ce525d31438b34e23f592289c3d02f50546a2f2202b5092028c9e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1079,
+  "wiki_file_count": 1080,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11981,13 +11986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fa51eda1329e8a19d73805c328f66abdc52ea1ae40499be50793569ded2dc965",
-      "size": 1021130
+      "sha256": "0c5f582eebc81601c43cf5ff7030bdc4f7ff7f1998835164b4bafce23d9d4a05",
+      "size": 1021450
     },
     {
       "path": "log.md",
-      "sha256": "2aad83cec957e22df190b5d59366ba7e03be5852df810ac630e29822fd3e3f08",
-      "size": 1760468
+      "sha256": "69f77258898547405631aed086a12933d3afc6645d77c00d9211585a8fbcf09f",
+      "size": 1760800
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16230,6 +16235,11 @@
       "size": 3669
     },
     {
+      "path": "pages/runbooks/geth-disk-full-recovery-runbook.md",
+      "sha256": "f3a03af8d3b73678637b33efb8a4f629da1eb2f9b4cc80dc7b1042f1b8cea947",
+      "size": 2837
+    },
+    {
       "path": "pages/runbooks/github-commit-ssh-key-signing.md",
       "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
       "size": 6826
@@ -17371,5 +17381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2ee88bfb533e11d268a68a6c3e543edcb72aa09011e1a3b71cea246c498f7955"
+  "wiki_tree_hash": "334d35c58d97c9b6a7e2d7229bb92b949a339d566a47aeb43153b20fb3ebbfb9"
 }

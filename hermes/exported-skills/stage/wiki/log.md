@@ -35751,3 +35751,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd4e9193bdb3184624f2f08e5466a592
 - summary: Procedure to clean up stale GCP resources (SSD volumes and snapshots) from employee-managed validator nodes that have been moved to AWS, saving approximately $2k per month.
 
+## [2026-06-20T09:04:00Z] synthesis | Geth Disk Full Recovery on steven-vm
+
+- status: published
+- slug: runbooks/geth-disk-full-recovery-runbook
+- wiki_revision_id: wikirev_1d82670dbfe0d468955697d5341cc495
+- summary: Steps to recover geth node on steven-vm when root disk is full, by increasing EBS volume and resizing filesystem.
+
