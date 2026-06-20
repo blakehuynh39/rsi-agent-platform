@@ -35870,3 +35870,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a7b1a5021abb003d71bdc2de32654686
 - summary: Goldsky is an external, self‑serve indexing service used by RSI and its ecosystem partners, primarily for DEX event indexing.
 
+## [2026-06-20T12:31:55Z] synthesis | Write Access Grant for lucas2brh to piplabs/wdata-oft-bridge
+
+- status: published
+- slug: decisions/github-write-access-grant-for-lucas2brh-to-piplabs-wdata-oft-bridge
+- wiki_revision_id: wikirev_1beb2a370e992550cc32b2779fedf70b
+- summary: Yao (yao.wang, GitHub: lucas2brh) requested write access to piplabs/wdata-oft-bridge. Jinn Agent initially diagnosed read-only permission and declined to grant write without approv...
+
+## [2026-06-20T12:33:28Z] synthesis | EVMStaking Queue Depth Monitoring
+
+- status: published
+- slug: runbooks/evmstaking-queue-monitoring
+- wiki_revision_id: wikirev_259b219328e0f4c1ef1ad0253e85bcf6
+- summary: Grafana dashboard and alert configuration for monitoring EVMStaking withdrawal and reward queue depths, created for the Seneca validator reduction and mainnet-only ongoing use.
+
