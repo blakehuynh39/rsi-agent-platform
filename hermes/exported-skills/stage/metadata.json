@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0c6d6b1ae4e68d5fcbfed60cc4fcee8faa47f8a14fde80a480a583079d7ba367",
-        "size": 1746832
+        "sha256": "9889e9e6c0f3fb1cb82170377de8b66a1d46eb28b478333c7002d4b9fc74519f",
+        "size": 1747096
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6565,6 +6565,11 @@
         "size": 2769
       },
       {
+        "path": "pages/projects/personality-test-app.md",
+        "sha256": "d9a144219afa6e67205389073653db2b379a5d47b1f7367ed1f92f9d3a33ca06",
+        "size": 1394
+      },
+      {
         "path": "pages/projects/pfp-engineering-specs.md",
         "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
@@ -8494,8 +8499,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T02:04:34Z",
-  "file_count": 1697,
+  "exported_at": "2026-06-20T02:16:04Z",
+  "file_count": 1698,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11772,7 +11777,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "cf7362df2411bfaea8d6312b2002c4358cb9dd19ccada141c031d7ad18942555",
+  "previous_tree_hash": "d9f8b6d4eb676685f9f03fde849ad8fc702b0e30d6d3aced981ead4cf9d97ac7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11785,14 +11790,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d9f8b6d4eb676685f9f03fde849ad8fc702b0e30d6d3aced981ead4cf9d97ac7",
+  "tree_hash": "7e78d591e143b09797cd3f78293837b41d9185e95d43af0483caf441464ed30e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1043,
+  "wiki_file_count": 1044,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11806,8 +11811,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0c6d6b1ae4e68d5fcbfed60cc4fcee8faa47f8a14fde80a480a583079d7ba367",
-      "size": 1746832
+      "sha256": "9889e9e6c0f3fb1cb82170377de8b66a1d46eb28b478333c7002d4b9fc74519f",
+      "size": 1747096
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15085,6 +15090,11 @@
       "size": 2769
     },
     {
+      "path": "pages/projects/personality-test-app.md",
+      "sha256": "d9a144219afa6e67205389073653db2b379a5d47b1f7367ed1f92f9d3a33ca06",
+      "size": 1394
+    },
+    {
       "path": "pages/projects/pfp-engineering-specs.md",
       "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
@@ -17011,5 +17021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d28cfabd5b590e5a0bd89d0dec3b56b66982b1a83ddaaf9f478e4c60e650fd2b"
+  "wiki_tree_hash": "f20796ec37f852742163d1f3a4376e2cdc4bffa5d8cc2bafcc16540c682a72ca"
 }
