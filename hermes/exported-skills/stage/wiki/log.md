@@ -36010,3 +36010,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_793e7f010f6a83cc7c165909cd7d1c47
 - summary: Request to turn off aiwei bot comments on PRs due to spamming, will be handled same day.
 
+## [2026-06-20T14:32:09Z] synthesis | Email Whitelisting Status Request
+
+- status: published
+- slug: open-questions/email-whitelisting-status-request
+- wiki_revision_id: wikirev_a9a1f57c55bc1be25e34862e1c89e3e8
+- summary: A request for the latest status on email whitelisting and to grant access to several email addresses.
+
