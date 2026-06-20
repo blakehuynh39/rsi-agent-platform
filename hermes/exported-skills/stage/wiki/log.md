@@ -35576,3 +35576,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9502953d74216d449d9dc8dd9c1afd4e
 - summary: Clarify whether disputes can be raised for non-commercial IP, and how Magma can flag stolen user artworks registered on Story.
 
+## [2026-06-20T04:00:52Z] synthesis | Can disputes be raised for non-commercial IP?
+
+- status: published
+- slug: open-questions/non-commercial-ip-dispute-eligibility
+- wiki_revision_id: wikirev_9eef4f11524179ea04638bbe69dbce1d
+- summary: Discussion on whether IP disputes can be raised for non-commercial works, current limitations, and potential use of Attestation to flag infringing works on Portal.
+

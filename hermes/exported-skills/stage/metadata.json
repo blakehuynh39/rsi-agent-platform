@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a85b0f5c014c8c1de5531d2f6b252ac7070d58cba5ecd362e95f7b7eb2c028ba",
-        "size": 1011715
+        "sha256": "9bd82a0152d02f66c9f6bb0f4b768c52325d8dcec08a3010e14f9ff001e957e6",
+        "size": 1012106
       },
       {
         "path": "log.md",
-        "sha256": "f51d293cd6c595e57380c06743d5a4c4daff7639592b8cf15e414ff3207c3f2f",
-        "size": 1750754
+        "sha256": "487c97de0177509d1c187ea466e8c6375969087f3af1b705e73178537e2f15b9",
+        "size": 1751157
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5233,6 +5233,11 @@
         "path": "pages/open-questions/nft-feedback-color.md",
         "sha256": "4d01489b9897b53db28065c751ec49655e6dfa2a192e9cbc6f672c031c2e29eb",
         "size": 5138
+      },
+      {
+        "path": "pages/open-questions/non-commercial-ip-dispute-eligibility.md",
+        "sha256": "89084455ed345b1dc3a08417f158686b42123452399e7dab6ee245159c80387d",
+        "size": 2734
       },
       {
         "path": "pages/open-questions/non-commercial-ip-dispute-limitations.md",
@@ -8549,8 +8554,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T03:47:48Z",
-  "file_count": 1708,
+  "exported_at": "2026-06-20T04:04:22Z",
+  "file_count": 1709,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11827,7 +11832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "2946244e7b1b5f2d1c7401bc961d4034fcc6e90a5154d4a9f28d87cf5ede97dc",
+  "previous_tree_hash": "2c93768809e2907484b99c35af7f2f303984d8826bfa748c847ec16587ea9dfb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11840,14 +11845,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2c93768809e2907484b99c35af7f2f303984d8826bfa748c847ec16587ea9dfb",
+  "tree_hash": "660c1257e9b51d2343bfa85c8803ca81423b0e180c5374e5397f15f6803a1bf2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1054,
+  "wiki_file_count": 1055,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11856,13 +11861,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a85b0f5c014c8c1de5531d2f6b252ac7070d58cba5ecd362e95f7b7eb2c028ba",
-      "size": 1011715
+      "sha256": "9bd82a0152d02f66c9f6bb0f4b768c52325d8dcec08a3010e14f9ff001e957e6",
+      "size": 1012106
     },
     {
       "path": "log.md",
-      "sha256": "f51d293cd6c595e57380c06743d5a4c4daff7639592b8cf15e414ff3207c3f2f",
-      "size": 1750754
+      "sha256": "487c97de0177509d1c187ea466e8c6375969087f3af1b705e73178537e2f15b9",
+      "size": 1751157
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13808,6 +13813,11 @@
       "path": "pages/open-questions/nft-feedback-color.md",
       "sha256": "4d01489b9897b53db28065c751ec49655e6dfa2a192e9cbc6f672c031c2e29eb",
       "size": 5138
+    },
+    {
+      "path": "pages/open-questions/non-commercial-ip-dispute-eligibility.md",
+      "sha256": "89084455ed345b1dc3a08417f158686b42123452399e7dab6ee245159c80387d",
+      "size": 2734
     },
     {
       "path": "pages/open-questions/non-commercial-ip-dispute-limitations.md",
@@ -17121,5 +17131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3f9741b7629a4d32e6bf45517e1bfad38e4a5a0a63af67c451dcfde301072aa9"
+  "wiki_tree_hash": "50bc20526a888da33aff86ecdce29e45ffdc8bf6878bc6f33da7c9aea4b70160"
 }
