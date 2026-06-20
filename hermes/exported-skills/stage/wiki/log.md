@@ -35954,3 +35954,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b38786059f7ea57b30f2dbb4452eb96c
 - summary: Testing Intel TDX support for story-kernel using Azure VMs; not part of the 05/13 upgrade.
 
+## [2026-06-20T14:03:39Z] synthesis | EC2 Reserved Instance Savings Analysis for Story Network Nodes (2026)
+
+- status: published
+- slug: decisions/ec2-ri-savings-analysis-story-network-2026
+- wiki_revision_id: wikirev_dd0d765f84b491f61ebf2d749a206610
+- summary: Analysis of converting on-demand EC2 instances to 1-year All Upfront Reserved Instances for RPC, validator, and bootnode nodes across story-mainnet and story-testnet accounts, show...
+
+## [2026-06-20T14:03:39Z] synthesis | AWS Credits Usage YTD 2026
+
+- status: published
+- slug: systems/aws-credits-usage-2026
+- wiki_revision_id: wikirev_985f451d0ba40c214029d92591ef5a99
+- summary: Tracking of AWS credit consumption across all accounts for January 1 to March 27, 2026, showing total $87,710.54 used, accelerating burn rate, and projected exhaustion by next mont...
+
+## [2026-06-20T14:04:45Z] synthesis | Story Orchestration Service (SOS)
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_9614bc14e67c01500980ed838e29aad0
+- summary: SOS is the orchestration layer for ETL workflows that extract on-chain events and compute derivative graphs, built on Temporal Cloud.
+
+## [2026-06-20T14:04:45Z] synthesis | Temporal Self-Hosting Migration Plan
+
+- status: published
+- slug: projects/temporal-self-hosting-migration
+- wiki_revision_id: wikirev_8d571c7706e1aae37a203db34712af85
+- summary: Proposal to migrate from Temporal Cloud to self-hosted Temporal on EKS to reduce orchestration costs, with a break-even point estimated at 30–50M Actions/month.
+

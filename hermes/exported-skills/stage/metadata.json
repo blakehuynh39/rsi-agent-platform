@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "39deb68751281379b621b6ec717bc6e8f334d83dde34a1d2dbfcfa526878deb8",
-        "size": 1771297
+        "sha256": "2d7868247cbe663422c855135486e1e442d0b7a376a11e4d754ee1af9e1dd1d2",
+        "size": 1772126
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4618,6 +4618,11 @@
         "path": "pages/decisions/documentation-platform-evaluation.md",
         "sha256": "95ae874e626fd0276e02b3018d3a4434ca2dbdb7bbedae1ae8ca0846e6b9d6a3",
         "size": 4504
+      },
+      {
+        "path": "pages/decisions/ec2-ri-savings-analysis-story-network-2026.md",
+        "sha256": "b2e45a672cac00b7f0ba23301043d60893a47e21505fc6f6df7cef34ee00c3bf",
+        "size": 4794
       },
       {
         "path": "pages/decisions/eip-7212-precompile.md",
@@ -8090,6 +8095,11 @@
         "size": 6457
       },
       {
+        "path": "pages/systems/aws-credits-usage-2026.md",
+        "sha256": "3df3392592dd81b23a3013d2fe48bd61e99af6c260ed1d651d22b4d726055450",
+        "size": 3149
+      },
+      {
         "path": "pages/systems/aws-organization-repo.md",
         "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
         "size": 2316
@@ -8819,8 +8829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T13:52:40Z",
-  "file_count": 1762,
+  "exported_at": "2026-06-20T14:04:09Z",
+  "file_count": 1764,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12097,7 +12107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "12fba7dba6ef43c0ec55b316c56d2eb0008e2e8c5bbf3bdf45ed7c8984e504c2",
+  "previous_tree_hash": "6a037849a103411db9ab14d728e74c8c81dab733c1b103ca52805d6163f7498a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12110,14 +12120,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6a037849a103411db9ab14d728e74c8c81dab733c1b103ca52805d6163f7498a",
+  "tree_hash": "73a79c41c31b9da94a070a259e2d0d20392c48a725407826597ab417a7e464a4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1108,
+  "wiki_file_count": 1110,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12131,8 +12141,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "39deb68751281379b621b6ec717bc6e8f334d83dde34a1d2dbfcfa526878deb8",
-      "size": 1771297
+      "sha256": "2d7868247cbe663422c855135486e1e442d0b7a376a11e4d754ee1af9e1dd1d2",
+      "size": 1772126
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13463,6 +13473,11 @@
       "path": "pages/decisions/documentation-platform-evaluation.md",
       "sha256": "95ae874e626fd0276e02b3018d3a4434ca2dbdb7bbedae1ae8ca0846e6b9d6a3",
       "size": 4504
+    },
+    {
+      "path": "pages/decisions/ec2-ri-savings-analysis-story-network-2026.md",
+      "sha256": "b2e45a672cac00b7f0ba23301043d60893a47e21505fc6f6df7cef34ee00c3bf",
+      "size": 4794
     },
     {
       "path": "pages/decisions/eip-7212-precompile.md",
@@ -16935,6 +16950,11 @@
       "size": 6457
     },
     {
+      "path": "pages/systems/aws-credits-usage-2026.md",
+      "sha256": "3df3392592dd81b23a3013d2fe48bd61e99af6c260ed1d651d22b4d726055450",
+      "size": 3149
+    },
+    {
       "path": "pages/systems/aws-organization-repo.md",
       "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
       "size": 2316
@@ -17661,5 +17681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bbae7aaa84348e3a48c56bccad1a255d149ec075e211866667d51c99cfa77cab"
+  "wiki_tree_hash": "3aa7201e7c858cbe9114a4c4f0ea04ba107b7688249b307e1888ebb10a72be67"
 }
