@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7fa6e2ea3d3cce7a0e431003c4510f1f600c453cf7dc6be113cb48e42ee8e277",
-        "size": 1022213
+        "sha256": "11b703066ee56154776700bd4cdfeab7603fd418c7ebac17dd9cdb7c085ff47e",
+        "size": 1022816
       },
       {
         "path": "log.md",
-        "sha256": "2f0d957eaa2bc0c38d58de83c66bd6589f979cf3fa96f77ffdad81877ff94879",
-        "size": 1761587
+        "sha256": "2d25559d7c5e765d4e49aae63de3a42f3934bf54f0a1167fadcf5e61da92b0e6",
+        "size": 1762214
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4708,6 +4708,11 @@
         "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
         "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
         "size": 5521
+      },
+      {
+        "path": "pages/decisions/issue-830-deletion-decision.md",
+        "sha256": "cc15438a30003e2db6f4135e718bc3d370d82550251c79930bcb9d6d6de2b9d3",
+        "size": 2623
       },
       {
         "path": "pages/decisions/l1-network-reset-aug-25.md",
@@ -8680,6 +8685,11 @@
         "size": 1069
       },
       {
+        "path": "pages/systems/vercel.md",
+        "sha256": "4bc96f3eef43e0f352f761c7553d3f13dba105911cb19f599319e8e7eb142dd1",
+        "size": 3515
+      },
+      {
         "path": "pages/systems/web2-infra-threat-model.md",
         "sha256": "18620f9aca8ccec643a3a5db37d26e8fb18da8af97d7541a8e333ce137167bf8",
         "size": 7123
@@ -8689,8 +8699,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T09:20:35Z",
-  "file_count": 1736,
+  "exported_at": "2026-06-20T09:32:07Z",
+  "file_count": 1738,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11967,7 +11977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "bb5841107d9ce525d31438b34e23f592289c3d02f50546a2f2202b5092028c9e",
+  "previous_tree_hash": "3dd6129380ab0bce9405f33c5dbfb21f8e590ab1124842640c74819fc8e30fe5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11980,14 +11990,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3dd6129380ab0bce9405f33c5dbfb21f8e590ab1124842640c74819fc8e30fe5",
+  "tree_hash": "28de0bfa5947a8e29b20830be7b12b2d57f9db27963bd7781f5491de11289bc7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1082,
+  "wiki_file_count": 1084,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11996,13 +12006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7fa6e2ea3d3cce7a0e431003c4510f1f600c453cf7dc6be113cb48e42ee8e277",
-      "size": 1022213
+      "sha256": "11b703066ee56154776700bd4cdfeab7603fd418c7ebac17dd9cdb7c085ff47e",
+      "size": 1022816
     },
     {
       "path": "log.md",
-      "sha256": "2f0d957eaa2bc0c38d58de83c66bd6589f979cf3fa96f77ffdad81877ff94879",
-      "size": 1761587
+      "sha256": "2d25559d7c5e765d4e49aae63de3a42f3934bf54f0a1167fadcf5e61da92b0e6",
+      "size": 1762214
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13423,6 +13433,11 @@
       "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
       "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
       "size": 5521
+    },
+    {
+      "path": "pages/decisions/issue-830-deletion-decision.md",
+      "sha256": "cc15438a30003e2db6f4135e718bc3d370d82550251c79930bcb9d6d6de2b9d3",
+      "size": 2623
     },
     {
       "path": "pages/decisions/l1-network-reset-aug-25.md",
@@ -17395,11 +17410,16 @@
       "size": 1069
     },
     {
+      "path": "pages/systems/vercel.md",
+      "sha256": "4bc96f3eef43e0f352f761c7553d3f13dba105911cb19f599319e8e7eb142dd1",
+      "size": 3515
+    },
+    {
       "path": "pages/systems/web2-infra-threat-model.md",
       "sha256": "18620f9aca8ccec643a3a5db37d26e8fb18da8af97d7541a8e333ce137167bf8",
       "size": 7123
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "da9136bff07f9ecbc6e68a14f306ffd7d8bb205a63623bd8f1cf0ba1adf450d9"
+  "wiki_tree_hash": "20aac856293b5ca2c46ea72a826a75592542aac5e5c84229c6fc3afd7941fc8d"
 }

@@ -35772,3 +35772,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4ea64801d1906b3d62e9abe5b8627558
 - summary: GitHub Actions workflow for building release artifacts. Access requested and granted due to primary manager being unavailable.
 
+## [2026-06-20T09:30:56Z] synthesis | Vercel
+
+- status: published
+- slug: systems/vercel
+- wiki_revision_id: wikirev_94de2a77bc32375667d60051c7625939
+- summary: Company Vercel account and how to request access.
+
+## [2026-06-20T09:31:35Z] synthesis | Decision to Remove Issue #830 from Public Repository
+
+- status: published
+- slug: decisions/issue-830-deletion-decision
+- wiki_revision_id: wikirev_4198d6c15d3f576e44f94d43cbbc28ae
+- summary: Request and execution of removal of Issue #830 from the public piplabs/story GitHub repository due to public visibility concerns. The issue was closed but still public, and require...
+
