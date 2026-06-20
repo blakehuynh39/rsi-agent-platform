@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "72c7c70ccffb41f7794c846d535c9b05bd6bdae4d5857173a2ab3c5d64e2758d",
-        "size": 1006796
+        "sha256": "ab22731ce1034e72380d0bf1339221673bd66f8c48f614ad332fecca446d6097",
+        "size": 1007925
       },
       {
         "path": "log.md",
-        "sha256": "0c6fac625e1a6f57ff5907cc62a0e2c6857fc09f7bb08013904b1b18638e47c9",
-        "size": 1745667
+        "sha256": "0c6d6b1ae4e68d5fcbfed60cc4fcee8faa47f8a14fde80a480a583079d7ba367",
+        "size": 1746832
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3708,6 +3708,11 @@
         "path": "pages/concepts/image-resizing-solution.md",
         "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
         "size": 1950
+      },
+      {
+        "path": "pages/concepts/indian-speech-data-collection-opportunity.md",
+        "sha256": "96a2f85dc7336cf2a36483e05c676e9e438756e092bf9c8d9a8d82ddd1982b81",
+        "size": 4210
       },
       {
         "path": "pages/concepts/infrastructure-team-old.md",
@@ -4178,6 +4183,11 @@
         "path": "pages/concepts/revenue-distribution-to-vaults.md",
         "sha256": "50a70d17e3a80dec17500e39d25bc10e9aa607183f4891f450bc6da6dc47148c",
         "size": 2305
+      },
+      {
+        "path": "pages/concepts/ringo-granola-competitor.md",
+        "sha256": "b0d76957cb6caa2a62241a37f4b65f5f7b97dd28bde18ce34732e5ff6edad976",
+        "size": 6920
       },
       {
         "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -7915,6 +7925,11 @@
         "size": 2341
       },
       {
+        "path": "pages/systems/depin-bd-partnerships-pipeline.md",
+        "sha256": "905267064a98fc1a035624c28d99a5c92fe8c37ad8db2da32563ef21a96adc0e",
+        "size": 1657
+      },
+      {
         "path": "pages/systems/depin-wallet-balance-monitoring.md",
         "sha256": "6d2ea4a8ddab5943fb5764b007fa401a57e90f4e2395cea18bc427e230bbe3b6",
         "size": 6335
@@ -8479,8 +8494,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T01:48:04Z",
-  "file_count": 1694,
+  "exported_at": "2026-06-20T02:04:34Z",
+  "file_count": 1697,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11757,7 +11772,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5e7daef4a8b50f76361aa618e01719d937cfb62c05ea8e2d61c70c9489af74f0",
+  "previous_tree_hash": "cf7362df2411bfaea8d6312b2002c4358cb9dd19ccada141c031d7ad18942555",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11770,14 +11785,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cf7362df2411bfaea8d6312b2002c4358cb9dd19ccada141c031d7ad18942555",
+  "tree_hash": "d9f8b6d4eb676685f9f03fde849ad8fc702b0e30d6d3aced981ead4cf9d97ac7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1040,
+  "wiki_file_count": 1043,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11786,13 +11801,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "72c7c70ccffb41f7794c846d535c9b05bd6bdae4d5857173a2ab3c5d64e2758d",
-      "size": 1006796
+      "sha256": "ab22731ce1034e72380d0bf1339221673bd66f8c48f614ad332fecca446d6097",
+      "size": 1007925
     },
     {
       "path": "log.md",
-      "sha256": "0c6fac625e1a6f57ff5907cc62a0e2c6857fc09f7bb08013904b1b18638e47c9",
-      "size": 1745667
+      "sha256": "0c6d6b1ae4e68d5fcbfed60cc4fcee8faa47f8a14fde80a480a583079d7ba367",
+      "size": 1746832
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12213,6 +12228,11 @@
       "path": "pages/concepts/image-resizing-solution.md",
       "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
       "size": 1950
+    },
+    {
+      "path": "pages/concepts/indian-speech-data-collection-opportunity.md",
+      "sha256": "96a2f85dc7336cf2a36483e05c676e9e438756e092bf9c8d9a8d82ddd1982b81",
+      "size": 4210
     },
     {
       "path": "pages/concepts/infrastructure-team-old.md",
@@ -12683,6 +12703,11 @@
       "path": "pages/concepts/revenue-distribution-to-vaults.md",
       "sha256": "50a70d17e3a80dec17500e39d25bc10e9aa607183f4891f450bc6da6dc47148c",
       "size": 2305
+    },
+    {
+      "path": "pages/concepts/ringo-granola-competitor.md",
+      "sha256": "b0d76957cb6caa2a62241a37f4b65f5f7b97dd28bde18ce34732e5ff6edad976",
+      "size": 6920
     },
     {
       "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -16420,6 +16445,11 @@
       "size": 2341
     },
     {
+      "path": "pages/systems/depin-bd-partnerships-pipeline.md",
+      "sha256": "905267064a98fc1a035624c28d99a5c92fe8c37ad8db2da32563ef21a96adc0e",
+      "size": 1657
+    },
+    {
       "path": "pages/systems/depin-wallet-balance-monitoring.md",
       "sha256": "6d2ea4a8ddab5943fb5764b007fa401a57e90f4e2395cea18bc427e230bbe3b6",
       "size": 6335
@@ -16981,5 +17011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f515569eb9428269354cd22052bec6a306ac3e249bad7532cb258561e155576a"
+  "wiki_tree_hash": "d28cfabd5b590e5a0bd89d0dec3b56b66982b1a83ddaaf9f478e4c60e650fd2b"
 }

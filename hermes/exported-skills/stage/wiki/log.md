@@ -35478,3 +35478,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0827e884513aeb9d7a0142dbde7d6242
 - summary: Initial test of MBTI voice agent successful: transcript pasted to ChatGPT returned correct answer first time.
 
+## [2026-06-20T02:01:04Z] synthesis | Indian Speech Data Collection Opportunity
+
+- status: published
+- slug: concepts/indian-speech-data-collection-opportunity
+- wiki_revision_id: wikirev_d096d0c947a2f87528c70ca84437622e
+- summary: An unmet need exists for in-situ, code-switched, multi-speaker, environment-tagged, commercially licensed conversational audio data across Indian languages. Current ASR models fail...
+
+## [2026-06-20T02:01:59Z] synthesis | Ringo (Granola Competitor)
+
+- status: published
+- slug: concepts/ringo-granola-competitor
+- wiki_revision_id: wikirev_d2e9d551908b0b964e47a8dd185cfd73
+- summary: Ringo is an AI note-taking and voice agent platform being developed by Launcher team. It competes with Granola, offering multilingual support, voice interfaces, and situational sum...
+
+## [2026-06-20T02:02:00Z] synthesis | DePIN BD & Partnerships Pipeline
+
+- status: published
+- slug: systems/depin-bd-partnerships-pipeline
+- wiki_revision_id: wikirev_8979aef58b2633a6024a6a42ed2628f1
+- summary: A Notion-based pipeline tracker for business development and partnership conversations related to DePIN. The tracker is linked in the Source of Truth.
+
