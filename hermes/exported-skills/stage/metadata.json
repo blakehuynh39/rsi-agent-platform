@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a69341bf5cf982d818323a8488ce8d7eca8af26a265fe1c663394c367078abc",
-        "size": 1005829
+        "sha256": "8eb98290bb1a7f452ccc6d6cca4be347c43dcdde320e3e560c4e1cb7c1f23605",
+        "size": 1006249
       },
       {
         "path": "log.md",
-        "sha256": "c49ee33fc19d65731be1a0592a1cd09c67332bf0e67260838ccf534821ad7633",
-        "size": 1744664
+        "sha256": "f6ff7d50aca32c9bbd27973559f48469a947639b791113477f9a0f81cbc3cea7",
+        "size": 1745096
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4728,6 +4728,11 @@
         "path": "pages/decisions/licensing-simplification-design.md",
         "sha256": "d291c9315e4271e578c54e6192fdab477db778ad3d22c698d851400ee6d10707",
         "size": 5812
+      },
+      {
+        "path": "pages/decisions/llm-selection-strategy-for-depin-indic-audio-app.md",
+        "sha256": "1594f6b90ff00af1b4f8ebe5896dd5bd092343dea18b19f526def5704f337f4a",
+        "size": 4830
       },
       {
         "path": "pages/decisions/localization-language-coverage.md",
@@ -8464,8 +8469,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T01:19:55Z",
-  "file_count": 1691,
+  "exported_at": "2026-06-20T01:36:32Z",
+  "file_count": 1692,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11742,7 +11747,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b0ddb365c15e1296fdc62dbdc7997be58d542efd1fe6d2afe5faca2256c5c033",
+  "previous_tree_hash": "cfc8bc1a98ab55927e6aba6ecd2daf60d993f5f737ff469b1c36f499a58fce2e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11755,14 +11760,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cfc8bc1a98ab55927e6aba6ecd2daf60d993f5f737ff469b1c36f499a58fce2e",
+  "tree_hash": "5e7daef4a8b50f76361aa618e01719d937cfb62c05ea8e2d61c70c9489af74f0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1037,
+  "wiki_file_count": 1038,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11771,13 +11776,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a69341bf5cf982d818323a8488ce8d7eca8af26a265fe1c663394c367078abc",
-      "size": 1005829
+      "sha256": "8eb98290bb1a7f452ccc6d6cca4be347c43dcdde320e3e560c4e1cb7c1f23605",
+      "size": 1006249
     },
     {
       "path": "log.md",
-      "sha256": "c49ee33fc19d65731be1a0592a1cd09c67332bf0e67260838ccf534821ad7633",
-      "size": 1744664
+      "sha256": "f6ff7d50aca32c9bbd27973559f48469a947639b791113477f9a0f81cbc3cea7",
+      "size": 1745096
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13218,6 +13223,11 @@
       "path": "pages/decisions/licensing-simplification-design.md",
       "sha256": "d291c9315e4271e578c54e6192fdab477db778ad3d22c698d851400ee6d10707",
       "size": 5812
+    },
+    {
+      "path": "pages/decisions/llm-selection-strategy-for-depin-indic-audio-app.md",
+      "sha256": "1594f6b90ff00af1b4f8ebe5896dd5bd092343dea18b19f526def5704f337f4a",
+      "size": 4830
     },
     {
       "path": "pages/decisions/localization-language-coverage.md",
@@ -16951,5 +16961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0824f4a8f3697b75890c333d6d557f14452d456f2dd5d900daa2e79c73655338"
+  "wiki_tree_hash": "30edaf83690dabc7d546f79a50e763b8c18780e6c402925b97cbb70d34fef08f"
 }

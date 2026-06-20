@@ -35457,3 +35457,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c18852e4be61648c6dd4e60a95dad498
 - summary: A proof-of-concept web application for human-agent interaction, accessible at https://human-agent-poc-web.vercel.app/. Protected with password: tigerteam.
 
+## [2026-06-20T01:31:26Z] synthesis | LLM Selection Strategy for DePIN Indic Audio App
+
+- status: published
+- slug: decisions/llm-selection-strategy-for-depin-indic-audio-app
+- wiki_revision_id: wikirev_ec6c06a0c8cc61e05e5dbc39f4228f37
+- summary: A strategy document to select separate speech-to-text (STT), large language model (LLM), and text-to-speech (TTS) models for low-resource Indic languages, covering deployment optio...
+
