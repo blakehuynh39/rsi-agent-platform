@@ -35884,3 +35884,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_259b219328e0f4c1ef1ad0253e85bcf6
 - summary: Grafana dashboard and alert configuration for monitoring EVMStaking withdrawal and reward queue depths, created for the Seneca validator reduction and mainnet-only ongoing use.
 
+## [2026-06-20T12:46:36Z] synthesis | Story Deployments Cleanup (Legacy Settings)
+
+- status: published
+- slug: projects/story-deployments-cleanup-legacy-settings
+- wiki_revision_id: wikirev_5265e61979db54f81ab18bdbd8e7ffbc
+- summary: Discussion regarding cleaning up legacy settings in story-deployments, focusing on whether to keep the staking-api-private-fork mainnet deployment based on use1-prod.yaml while Bit...
+
+## [2026-06-20T12:48:50Z] synthesis | Vault Kubernetes Auth Namespace Whitelist Drift – May 2026
+
+- status: published
+- slug: runbooks/vault-auth-namespace-whitelist-drift-2026-05
+- wiki_revision_id: wikirev_014c54f514be97b36050c9005d8321d9
+- summary: Investigation of staking-api deployments crashing with 'namespace not authorized' Vault auth error. Root cause: new Kubernetes namespaces not allowed in Vault role default, compoun...
+

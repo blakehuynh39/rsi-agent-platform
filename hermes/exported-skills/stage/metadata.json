@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5f0ef593dbf5237880d2919c1894cd08c111db45787c7f0939ce2776a7b55ed3",
-        "size": 1027936
+        "sha256": "eb8a3933d3d7cb6ccb2bd631c5fb82685d4cca1794e9431aa6a9af76dadb7a85",
+        "size": 1028770
       },
       {
         "path": "log.md",
-        "sha256": "391d4bb1b9e97415046eb471713f394b2eaaf41184eb99431884d9bbcbb12c43",
-        "size": 1767501
+        "sha256": "fe7137d5375670341e2f51554ff3dc25d2f8b09372ecc91383a4076ac7f25cc3",
+        "size": 1768359
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7055,6 +7055,11 @@
         "size": 8940
       },
       {
+        "path": "pages/projects/story-deployments-cleanup-legacy-settings.md",
+        "sha256": "f3314de7f41efe252464c748d4b370d812ab5dbd91276a485a2a649040a439da",
+        "size": 3653
+      },
+      {
         "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
         "sha256": "61d2240b94e29f6368bec23db10dcb7a3106eab68b0645b077b097b56a43b44a",
         "size": 5051
@@ -7995,6 +8000,11 @@
         "size": 3393
       },
       {
+        "path": "pages/runbooks/vault-auth-namespace-whitelist-drift-2026-05.md",
+        "sha256": "95b8e78fa92047de5f3c51d36615002d3ba46a1b4c0811fee96fac37f1aa59b2",
+        "size": 4001
+      },
+      {
         "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
         "sha256": "570b590827e325b8ad5046129a7d76d7f694c1b8d6aa9f2837abe98591a47327",
         "size": 3701
@@ -8769,8 +8779,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T12:39:56Z",
-  "file_count": 1752,
+  "exported_at": "2026-06-20T12:51:29Z",
+  "file_count": 1754,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12047,7 +12057,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "650b047280186fa61182bc66bd6738606a7c340aa55d492fac3901c4ed9b1468",
+  "previous_tree_hash": "4740a1071fe580f4492ee9485a3106c469cc46ce49e1e9e1d5533fa1d48b8672",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12060,14 +12070,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4740a1071fe580f4492ee9485a3106c469cc46ce49e1e9e1d5533fa1d48b8672",
+  "tree_hash": "a22e2f98fb3aa83a78d425d5a5a5fcf2a503f7d3d049c57b62d9fbbf55497b4c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1098,
+  "wiki_file_count": 1100,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12076,13 +12086,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5f0ef593dbf5237880d2919c1894cd08c111db45787c7f0939ce2776a7b55ed3",
-      "size": 1027936
+      "sha256": "eb8a3933d3d7cb6ccb2bd631c5fb82685d4cca1794e9431aa6a9af76dadb7a85",
+      "size": 1028770
     },
     {
       "path": "log.md",
-      "sha256": "391d4bb1b9e97415046eb471713f394b2eaaf41184eb99431884d9bbcbb12c43",
-      "size": 1767501
+      "sha256": "fe7137d5375670341e2f51554ff3dc25d2f8b09372ecc91383a4076ac7f25cc3",
+      "size": 1768359
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15850,6 +15860,11 @@
       "size": 8940
     },
     {
+      "path": "pages/projects/story-deployments-cleanup-legacy-settings.md",
+      "sha256": "f3314de7f41efe252464c748d4b370d812ab5dbd91276a485a2a649040a439da",
+      "size": 3653
+    },
+    {
       "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
       "sha256": "61d2240b94e29f6368bec23db10dcb7a3106eab68b0645b077b097b56a43b44a",
       "size": 5051
@@ -16790,6 +16805,11 @@
       "size": 3393
     },
     {
+      "path": "pages/runbooks/vault-auth-namespace-whitelist-drift-2026-05.md",
+      "sha256": "95b8e78fa92047de5f3c51d36615002d3ba46a1b4c0811fee96fac37f1aa59b2",
+      "size": 4001
+    },
+    {
       "path": "pages/runbooks/velia-node-provisioning-prerequisites.md",
       "sha256": "570b590827e325b8ad5046129a7d76d7f694c1b8d6aa9f2837abe98591a47327",
       "size": 3701
@@ -17561,5 +17581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ba73ac05e83e621255a088bc2fa3b13fbca0a0e4bd5af8341e9c1db86c5c9a73"
+  "wiki_tree_hash": "6200e1650923cc1910c5a1493c4fa0ba9c9d429c949c009324a2707bcdb38ff3"
 }
