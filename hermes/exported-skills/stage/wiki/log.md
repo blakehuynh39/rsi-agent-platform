@@ -35639,3 +35639,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_268b130f095860a2777e52119782b11e
 - summary: Guidelines for setting up OpenRouter access and managing costs, including credit card addition, initial credit, and model selection.
 
+## [2026-06-20T05:34:05Z] synthesis | Aeneid Transaction Failure Incident (2026-06-17)
+
+- status: published
+- slug: runbooks/aeneid-tx-failure-incident-2026-06-17
+- wiki_revision_id: wikirev_0ab20edcaa939dbd64dfd2aaef0131e3
+- summary: On 2026-06-17, users reported Aeneid testnet transactions failing despite the chain producing blocks. Investigation showed public RPC responsive, blocks advancing, but 0 txs includ...
+

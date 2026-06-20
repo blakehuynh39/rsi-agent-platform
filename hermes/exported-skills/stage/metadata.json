@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6106831540ae3e0326edb17870fe60f8290b1ad8a567ff597014bbde7e4fe997",
-        "size": 1014953
+        "sha256": "75c70f302ddf11c0218cf73fc82680add23b7a8b2b6c82febe61b6de91dc222a",
+        "size": 1015361
       },
       {
         "path": "log.md",
-        "sha256": "cc3e537532324e80f9e383eda5a616bfe429888fc6b656d4897dc3f49b300ad1",
-        "size": 1754100
+        "sha256": "7a720bc070849e73c65854808b93c415c3b3296e3641ac13d817d98bcef49c4a",
+        "size": 1754520
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7290,6 +7290,11 @@
         "size": 3582
       },
       {
+        "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
+        "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
+        "size": 4304
+      },
+      {
         "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
         "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
         "size": 4482
@@ -8594,8 +8599,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T05:23:44Z",
-  "file_count": 1717,
+  "exported_at": "2026-06-20T05:35:18Z",
+  "file_count": 1718,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11872,7 +11877,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "cdb4180a5211b7d289de0132c36d97f932f5e7e80bee5c6941e094f910368714",
+  "previous_tree_hash": "5ba39fcbd8ea187d541f4bd9bf89e4c00dee41f0f44e2989130451af2bf747b3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11885,14 +11890,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5ba39fcbd8ea187d541f4bd9bf89e4c00dee41f0f44e2989130451af2bf747b3",
+  "tree_hash": "361a37f73ac1692d02d1a4a16fa47304836b0e44ede2bf266b8a14b0f496be74",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1063,
+  "wiki_file_count": 1064,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11901,13 +11906,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6106831540ae3e0326edb17870fe60f8290b1ad8a567ff597014bbde7e4fe997",
-      "size": 1014953
+      "sha256": "75c70f302ddf11c0218cf73fc82680add23b7a8b2b6c82febe61b6de91dc222a",
+      "size": 1015361
     },
     {
       "path": "log.md",
-      "sha256": "cc3e537532324e80f9e383eda5a616bfe429888fc6b656d4897dc3f49b300ad1",
-      "size": 1754100
+      "sha256": "7a720bc070849e73c65854808b93c415c3b3296e3641ac13d817d98bcef49c4a",
+      "size": 1754520
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15910,6 +15915,11 @@
       "size": 3582
     },
     {
+      "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
+      "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
+      "size": 4304
+    },
+    {
       "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
       "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
       "size": 4482
@@ -17211,5 +17221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "370695c90d047065cad5ae178d7191fde5d7be7f89f34e881a4215c19089ba4b"
+  "wiki_tree_hash": "371227414451bde700533b2c3351042bd0296aab6fb0cbfa4d6e00e190a9557e"
 }
