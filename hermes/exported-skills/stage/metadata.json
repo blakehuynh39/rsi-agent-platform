@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c3c816bb013e73e93ca4a0c690cecdd475f093469c907bcbbff33b265245e5f3",
-        "size": 1031612
+        "sha256": "ad68318ec96df02ee02d32b2e849a226fd3ab1495bda4cc9b07bb0e8af02960e",
+        "size": 1032805
       },
       {
         "path": "log.md",
-        "sha256": "2d7868247cbe663422c855135486e1e442d0b7a376a11e4d754ee1af9e1dd1d2",
-        "size": 1772126
+        "sha256": "2d90f89ea2e98f70e120bd54dfd93081f304db9366872507bb228bf3a54fc5d6",
+        "size": 1772851
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7210,6 +7210,11 @@
         "size": 2249
       },
       {
+        "path": "pages/projects/temporal-self-hosting-migration.md",
+        "sha256": "ca3ed519fa665820bf7fa48324f37faa040567978379d5ff5cda1dc3a929c9a3",
+        "size": 2935
+      },
+      {
         "path": "pages/projects/testnet-launch-checklist.md",
         "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
         "size": 2926
@@ -8716,8 +8721,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "c8536d3790aabfec2ade02fd86be58b7cf7d596c2ebdf0d0262f7827b120fdb7",
-        "size": 1524
+        "sha256": "00868425a1278ccecd3072161dfde9e93e9b81f2e5642433dd0d45a40af464c7",
+        "size": 3169
       },
       {
         "path": "pages/systems/story-protocol-core-architecture.md",
@@ -8829,8 +8834,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T14:04:09Z",
-  "file_count": 1764,
+  "exported_at": "2026-06-20T14:10:36Z",
+  "file_count": 1765,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12107,7 +12112,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6a037849a103411db9ab14d728e74c8c81dab733c1b103ca52805d6163f7498a",
+  "previous_tree_hash": "73a79c41c31b9da94a070a259e2d0d20392c48a725407826597ab417a7e464a4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12120,14 +12125,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "73a79c41c31b9da94a070a259e2d0d20392c48a725407826597ab417a7e464a4",
+  "tree_hash": "abf0a2747750b38f46cc6f02e586dfe1f5d3fe5f157d1aec5fab4837ee86e2d0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1110,
+  "wiki_file_count": 1111,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12136,13 +12141,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c3c816bb013e73e93ca4a0c690cecdd475f093469c907bcbbff33b265245e5f3",
-      "size": 1031612
+      "sha256": "ad68318ec96df02ee02d32b2e849a226fd3ab1495bda4cc9b07bb0e8af02960e",
+      "size": 1032805
     },
     {
       "path": "log.md",
-      "sha256": "2d7868247cbe663422c855135486e1e442d0b7a376a11e4d754ee1af9e1dd1d2",
-      "size": 1772126
+      "sha256": "2d90f89ea2e98f70e120bd54dfd93081f304db9366872507bb228bf3a54fc5d6",
+      "size": 1772851
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16065,6 +16070,11 @@
       "size": 2249
     },
     {
+      "path": "pages/projects/temporal-self-hosting-migration.md",
+      "sha256": "ca3ed519fa665820bf7fa48324f37faa040567978379d5ff5cda1dc3a929c9a3",
+      "size": 2935
+    },
+    {
       "path": "pages/projects/testnet-launch-checklist.md",
       "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
       "size": 2926
@@ -17571,8 +17581,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "c8536d3790aabfec2ade02fd86be58b7cf7d596c2ebdf0d0262f7827b120fdb7",
-      "size": 1524
+      "sha256": "00868425a1278ccecd3072161dfde9e93e9b81f2e5642433dd0d45a40af464c7",
+      "size": 3169
     },
     {
       "path": "pages/systems/story-protocol-core-architecture.md",
@@ -17681,5 +17691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3aa7201e7c858cbe9114a4c4f0ea04ba107b7688249b307e1888ebb10a72be67"
+  "wiki_tree_hash": "fce8d7daa91aa2e4697cc33666627763fb2bfbfa6f6ae751eca84494118761a8"
 }
