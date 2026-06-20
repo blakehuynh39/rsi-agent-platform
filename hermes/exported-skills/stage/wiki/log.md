@@ -35947,3 +35947,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ee1bf3c236fb0a41488d28319f5438f6
 - summary: In response to a request from lucas2brh, a pull request (#16) was created to add @lucas2brh as a code owner of the story-localnet repository alongside the existing owner @wo-o. Woo...
 
+## [2026-06-20T13:48:31Z] synthesis | Story Kernel Intel TDX Testing
+
+- status: published
+- slug: projects/story-kernel-tdx-testing
+- wiki_revision_id: wikirev_b38786059f7ea57b30f2dbb4452eb96c
+- summary: Testing Intel TDX support for story-kernel using Azure VMs; not part of the 05/13 upgrade.
+

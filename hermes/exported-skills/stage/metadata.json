@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "eb603439b4c93881ad6a1ed4678d148952fbb72e3faa76deecbe391f44dce5fb",
-        "size": 1030913
+        "sha256": "c3c816bb013e73e93ca4a0c690cecdd475f093469c907bcbbff33b265245e5f3",
+        "size": 1031612
       },
       {
         "path": "log.md",
-        "sha256": "686066b2eb78df1870cc68f65411aff0ccc8859c8e7975f3913701a943971c1f",
-        "size": 1771001
+        "sha256": "39deb68751281379b621b6ec717bc6e8f334d83dde34a1d2dbfcfa526878deb8",
+        "size": 1771297
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7080,6 +7080,11 @@
         "size": 4986
       },
       {
+        "path": "pages/projects/story-kernel-tdx-testing.md",
+        "sha256": "cab2806ade9f0262e3dc295dab0185201392a7b7264f4454907533545572ed9c",
+        "size": 4274
+      },
+      {
         "path": "pages/projects/story-kernel-v0-1-0-feature-changes.md",
         "sha256": "b276b72a63dca0f6699c41429c720a60f1c5d893a745615ebbdecdf14b6e2153",
         "size": 5303
@@ -8814,8 +8819,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T13:46:16Z",
-  "file_count": 1761,
+  "exported_at": "2026-06-20T13:52:40Z",
+  "file_count": 1762,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12092,7 +12097,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a2fed465e9a0b616bf7baa4f7ad8b4db4dd8decc1e8300d3988f8636f7ecaeb6",
+  "previous_tree_hash": "12fba7dba6ef43c0ec55b316c56d2eb0008e2e8c5bbf3bdf45ed7c8984e504c2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12105,14 +12110,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "12fba7dba6ef43c0ec55b316c56d2eb0008e2e8c5bbf3bdf45ed7c8984e504c2",
+  "tree_hash": "6a037849a103411db9ab14d728e74c8c81dab733c1b103ca52805d6163f7498a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1107,
+  "wiki_file_count": 1108,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12121,13 +12126,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "eb603439b4c93881ad6a1ed4678d148952fbb72e3faa76deecbe391f44dce5fb",
-      "size": 1030913
+      "sha256": "c3c816bb013e73e93ca4a0c690cecdd475f093469c907bcbbff33b265245e5f3",
+      "size": 1031612
     },
     {
       "path": "log.md",
-      "sha256": "686066b2eb78df1870cc68f65411aff0ccc8859c8e7975f3913701a943971c1f",
-      "size": 1771001
+      "sha256": "39deb68751281379b621b6ec717bc6e8f334d83dde34a1d2dbfcfa526878deb8",
+      "size": 1771297
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15920,6 +15925,11 @@
       "size": 4986
     },
     {
+      "path": "pages/projects/story-kernel-tdx-testing.md",
+      "sha256": "cab2806ade9f0262e3dc295dab0185201392a7b7264f4454907533545572ed9c",
+      "size": 4274
+    },
+    {
       "path": "pages/projects/story-kernel-v0-1-0-feature-changes.md",
       "sha256": "b276b72a63dca0f6699c41429c720a60f1c5d893a745615ebbdecdf14b6e2153",
       "size": 5303
@@ -17651,5 +17661,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4325973c4d784965f3e14d91bd9db42bf0fa902f0424e6fc1c71517fcbf8d8c2"
+  "wiki_tree_hash": "bbae7aaa84348e3a48c56bccad1a255d149ec075e211866667d51c99cfa77cab"
 }
