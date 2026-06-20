@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0154ec448e500abfa5bd7b99f9257f1f346e336eccdf963a2f7024b002884e47",
-        "size": 1017728
+        "sha256": "49f1c6077bcbe6a61354f6f49238b2decfc31ce3675e4ffcd42428f2835b9b7f",
+        "size": 1018456
       },
       {
         "path": "log.md",
-        "sha256": "0ad5d9666ceb0e005aad08a146b87029e654f62aec4bc9a2ca3a991097b4c6a1",
-        "size": 1756959
+        "sha256": "2d5f5704c7298e2da44cdeeeb8358c0bca74333fe3ccdc481878a1dfe58ddf52",
+        "size": 1757711
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4805,6 +4805,11 @@
         "size": 5617
       },
       {
+        "path": "pages/decisions/network-cleanup-jpe-lcfb.md",
+        "sha256": "860cf39ad704257627d4df880b3cfba484300a931ba479d60b8eaadc20984d99",
+        "size": 2501
+      },
+      {
         "path": "pages/decisions/new-ci-process.md",
         "sha256": "7c295e8823ded9df913128b6eb489d089aa8b5ec693bfb908ba1f45a5b62314f",
         "size": 5856
@@ -4978,6 +4983,11 @@
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
+      },
+      {
+        "path": "pages/decisions/server-decommissioning-april-2026.md",
+        "sha256": "457e7d9d84b742a36ecafe53459f9a080cf9bf84dcfe235864d9d2d17f5645ad",
+        "size": 4730
       },
       {
         "path": "pages/decisions/shared-email-numo-psdn.md",
@@ -8629,8 +8639,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T07:04:51Z",
-  "file_count": 1724,
+  "exported_at": "2026-06-20T07:21:28Z",
+  "file_count": 1726,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11907,7 +11917,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "9120eb68c74f4fdf421bef7107b16298a586ad512760c0768f5bc7ef19a45566",
+  "previous_tree_hash": "cd100ca2a157bac9c0a668388668b3577097917f0dd9dc6c914d2f3716002371",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11920,14 +11930,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cd100ca2a157bac9c0a668388668b3577097917f0dd9dc6c914d2f3716002371",
+  "tree_hash": "02564eef8272f67c1b4b59fbe266aaf4151c79b32e5fe71894efbd897e4905be",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1070,
+  "wiki_file_count": 1072,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11936,13 +11946,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0154ec448e500abfa5bd7b99f9257f1f346e336eccdf963a2f7024b002884e47",
-      "size": 1017728
+      "sha256": "49f1c6077bcbe6a61354f6f49238b2decfc31ce3675e4ffcd42428f2835b9b7f",
+      "size": 1018456
     },
     {
       "path": "log.md",
-      "sha256": "0ad5d9666ceb0e005aad08a146b87029e654f62aec4bc9a2ca3a991097b4c6a1",
-      "size": 1756959
+      "sha256": "2d5f5704c7298e2da44cdeeeb8358c0bca74333fe3ccdc481878a1dfe58ddf52",
+      "size": 1757711
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13460,6 +13470,11 @@
       "size": 5617
     },
     {
+      "path": "pages/decisions/network-cleanup-jpe-lcfb.md",
+      "sha256": "860cf39ad704257627d4df880b3cfba484300a931ba479d60b8eaadc20984d99",
+      "size": 2501
+    },
+    {
       "path": "pages/decisions/new-ci-process.md",
       "sha256": "7c295e8823ded9df913128b6eb489d089aa8b5ec693bfb908ba1f45a5b62314f",
       "size": 5856
@@ -13633,6 +13648,11 @@
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
+    },
+    {
+      "path": "pages/decisions/server-decommissioning-april-2026.md",
+      "sha256": "457e7d9d84b742a36ecafe53459f9a080cf9bf84dcfe235864d9d2d17f5645ad",
+      "size": 4730
     },
     {
       "path": "pages/decisions/shared-email-numo-psdn.md",
@@ -17281,5 +17301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "174dd7820fde7e158b34596cf36735799a7527ea55690039feb3a9216d44586e"
+  "wiki_tree_hash": "9d5cc9094efddcfb2e01f17e8428f64640c8869e655268555b7c4b6ab4f398f1"
 }

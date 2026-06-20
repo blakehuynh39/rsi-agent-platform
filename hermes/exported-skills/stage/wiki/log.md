@@ -35688,3 +35688,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_700abcfe8ad6963b195df1d9e95dfa0f
 - summary: A 5MB avatar image upload to staging-depin.storyprotocol.net /v1/me/complete-intro returns HTTP 400 with Starlette error "Error parsing multipart/form-data". Investigation reveals ...
 
+## [2026-06-20T07:16:26Z] synthesis | Network Cleanup for jpe-lcfb Servers
+
+- status: published
+- slug: decisions/network-cleanup-jpe-lcfb
+- wiki_revision_id: wikirev_0328dd2dcba29b36651e5308e3476f2e
+- summary: Decision to remove unused networks associated with jpe-lcfb-* servers that were set up via story-cdr-e2e for testing purposes.
+
+## [2026-06-20T07:20:40Z] synthesis | Server Decommissioning Decision (April 2026)
+
+- status: published
+- slug: decisions/server-decommissioning-april-2026
+- wiki_revision_id: wikirev_4711dfc4096cd6ed85946ff57a1e8946
+- summary: In April 2026, the team decided to decommission most development/test server groups, retaining only QA (JPE-QA-RG) and Yingyang (JPE-YINGYANG-RG) environments for ongoing testing. ...
+
