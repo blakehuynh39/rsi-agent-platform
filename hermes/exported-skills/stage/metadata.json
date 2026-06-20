@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "3fb373dd14688e2ed051701de391eded185bb8ad9cc9016c5c99fbd3c057dc2c",
-        "size": 1770574
+        "sha256": "686066b2eb78df1870cc68f65411aff0ccc8859c8e7975f3913701a943971c1f",
+        "size": 1771001
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4573,6 +4573,11 @@
         "path": "pages/decisions/data-seeding-english-task-status.md",
         "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
         "size": 2297
+      },
+      {
+        "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
+        "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
+        "size": 3391
       },
       {
         "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
@@ -8809,8 +8814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T13:19:31Z",
-  "file_count": 1760,
+  "exported_at": "2026-06-20T13:46:16Z",
+  "file_count": 1761,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12087,7 +12092,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "1f41a245523aa76ef887ad995040bd612e5d247b1984bb5a5b4f5df360daf6c6",
+  "previous_tree_hash": "a2fed465e9a0b616bf7baa4f7ad8b4db4dd8decc1e8300d3988f8636f7ecaeb6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12100,14 +12105,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a2fed465e9a0b616bf7baa4f7ad8b4db4dd8decc1e8300d3988f8636f7ecaeb6",
+  "tree_hash": "12fba7dba6ef43c0ec55b316c56d2eb0008e2e8c5bbf3bdf45ed7c8984e504c2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1106,
+  "wiki_file_count": 1107,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12121,8 +12126,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "3fb373dd14688e2ed051701de391eded185bb8ad9cc9016c5c99fbd3c057dc2c",
-      "size": 1770574
+      "sha256": "686066b2eb78df1870cc68f65411aff0ccc8859c8e7975f3913701a943971c1f",
+      "size": 1771001
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13408,6 +13413,11 @@
       "path": "pages/decisions/data-seeding-english-task-status.md",
       "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
       "size": 2297
+    },
+    {
+      "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
+      "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
+      "size": 3391
     },
     {
       "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
@@ -17641,5 +17651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7dc1269e900b2647754d749d1856c1806cdfe2112d57ef11db435318dc5d072a"
+  "wiki_tree_hash": "4325973c4d784965f3e14d91bd9db42bf0fa902f0424e6fc1c71517fcbf8d8c2"
 }

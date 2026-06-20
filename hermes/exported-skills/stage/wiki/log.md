@@ -35940,3 +35940,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_64f37d61ffff5908eff501c31e64627a
 - summary: Terraform repository for managing the AWS organization. Admins can add SSM permissions by opening PRs and applying with `plan` and `apply` comments.
 
+## [2026-06-20T13:46:07Z] synthesis | Add lucas2brh as CODEOWNER of story-localnet
+
+- status: published
+- slug: decisions/decision-add-lucas2brh-codeowner-story-localnet
+- wiki_revision_id: wikirev_ee1bf3c236fb0a41488d28319f5438f6
+- summary: In response to a request from lucas2brh, a pull request (#16) was created to add @lucas2brh as a code owner of the story-localnet repository alongside the existing owner @wo-o. Woo...
+
