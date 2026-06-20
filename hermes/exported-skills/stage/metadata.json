@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ad68318ec96df02ee02d32b2e849a226fd3ab1495bda4cc9b07bb0e8af02960e",
-        "size": 1032805
+        "sha256": "7893c63f2eff8154d4ec42151fbfd3acf65bcbb74800f648ebeb14af31eebc6f",
+        "size": 1034122
       },
       {
         "path": "log.md",
-        "sha256": "2d90f89ea2e98f70e120bd54dfd93081f304db9366872507bb228bf3a54fc5d6",
-        "size": 1772851
+        "sha256": "55f78ddd1cedcac68bfdcf8e5f6a55c7a40b7013a6944d708d3f4a3bbd2f9e54",
+        "size": 1774216
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4605,6 +4605,11 @@
         "size": 1380
       },
       {
+        "path": "pages/decisions/disable-aiwei-bot-pr-commenting.md",
+        "sha256": "1e788c1e3c9ec9ee0b1f9ae08475b4a2812fcd12f5681130ee5c96ac9769f98f",
+        "size": 1920
+      },
+      {
         "path": "pages/decisions/dispute-policy-immutability.md",
         "sha256": "a056ac3df1df77b3a2f653fdc266155efc77ee0cb6a7e9f4375bef46bc4bad60",
         "size": 3037
@@ -5438,6 +5443,11 @@
         "path": "pages/people/jon-rogers.md",
         "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
         "size": 3758
+      },
+      {
+        "path": "pages/people/leo-chen.md",
+        "sha256": "5be10ee227c7774ad4d2aec24009d981b0ad060b7ef89c908fea5738a061c5b4",
+        "size": 2656
       },
       {
         "path": "pages/people/shenwang-pip.md",
@@ -8050,9 +8060,19 @@
         "size": 3701
       },
       {
+        "path": "pages/runbooks/vercel-access-request-process.md",
+        "sha256": "2863de89b2c6c8b336079fc8e644e674e8d1f111eeef550855dfb332efe963f1",
+        "size": 4695
+      },
+      {
         "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
         "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
         "size": 1741
+      },
+      {
+        "path": "pages/systems/access-provisioning-bot.md",
+        "sha256": "d0d6a2cd7324cf6aec4f8090e37c13feee51f2ec7ffbaad65b6d61663dc98875",
+        "size": 4257
       },
       {
         "path": "pages/systems/adaptive-trust-sampling.md",
@@ -8834,8 +8854,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T14:10:36Z",
-  "file_count": 1765,
+  "exported_at": "2026-06-20T14:22:06Z",
+  "file_count": 1769,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12112,7 +12132,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "73a79c41c31b9da94a070a259e2d0d20392c48a725407826597ab417a7e464a4",
+  "previous_tree_hash": "abf0a2747750b38f46cc6f02e586dfe1f5d3fe5f157d1aec5fab4837ee86e2d0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12125,14 +12145,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "abf0a2747750b38f46cc6f02e586dfe1f5d3fe5f157d1aec5fab4837ee86e2d0",
+  "tree_hash": "c85592354eb99613eef1b63642b239fc4991123ee78fae1591f63f0df243e4bf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1111,
+  "wiki_file_count": 1115,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12141,13 +12161,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ad68318ec96df02ee02d32b2e849a226fd3ab1495bda4cc9b07bb0e8af02960e",
-      "size": 1032805
+      "sha256": "7893c63f2eff8154d4ec42151fbfd3acf65bcbb74800f648ebeb14af31eebc6f",
+      "size": 1034122
     },
     {
       "path": "log.md",
-      "sha256": "2d90f89ea2e98f70e120bd54dfd93081f304db9366872507bb228bf3a54fc5d6",
-      "size": 1772851
+      "sha256": "55f78ddd1cedcac68bfdcf8e5f6a55c7a40b7013a6944d708d3f4a3bbd2f9e54",
+      "size": 1774216
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13465,6 +13485,11 @@
       "size": 1380
     },
     {
+      "path": "pages/decisions/disable-aiwei-bot-pr-commenting.md",
+      "sha256": "1e788c1e3c9ec9ee0b1f9ae08475b4a2812fcd12f5681130ee5c96ac9769f98f",
+      "size": 1920
+    },
+    {
       "path": "pages/decisions/dispute-policy-immutability.md",
       "sha256": "a056ac3df1df77b3a2f653fdc266155efc77ee0cb6a7e9f4375bef46bc4bad60",
       "size": 3037
@@ -14298,6 +14323,11 @@
       "path": "pages/people/jon-rogers.md",
       "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
       "size": 3758
+    },
+    {
+      "path": "pages/people/leo-chen.md",
+      "sha256": "5be10ee227c7774ad4d2aec24009d981b0ad060b7ef89c908fea5738a061c5b4",
+      "size": 2656
     },
     {
       "path": "pages/people/shenwang-pip.md",
@@ -16910,9 +16940,19 @@
       "size": 3701
     },
     {
+      "path": "pages/runbooks/vercel-access-request-process.md",
+      "sha256": "2863de89b2c6c8b336079fc8e644e674e8d1f111eeef550855dfb332efe963f1",
+      "size": 4695
+    },
+    {
       "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
       "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
       "size": 1741
+    },
+    {
+      "path": "pages/systems/access-provisioning-bot.md",
+      "sha256": "d0d6a2cd7324cf6aec4f8090e37c13feee51f2ec7ffbaad65b6d61663dc98875",
+      "size": 4257
     },
     {
       "path": "pages/systems/adaptive-trust-sampling.md",
@@ -17691,5 +17731,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fce8d7daa91aa2e4697cc33666627763fb2bfbfa6f6ae751eca84494118761a8"
+  "wiki_tree_hash": "d065292546a297a97cd3487e8e3cdaed860b0d562f020ee735f49358fd4a1981"
 }

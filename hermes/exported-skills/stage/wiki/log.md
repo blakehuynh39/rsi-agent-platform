@@ -35982,3 +35982,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d571c7706e1aae37a203db34712af85
 - summary: Proposal to migrate from Temporal Cloud to self-hosted Temporal on EKS to reduce orchestration costs, with a break-even point estimated at 30–50M Actions/month.
 
+## [2026-06-20T14:17:48Z] synthesis | Leo Chen
+
+- status: published
+- slug: people/leo-chen
+- wiki_revision_id: wikirev_36ce9ec5cf6fbff05a57c4ce58a4f871
+- summary: Employee who requested Vercel access for their GitHub account LeoHChen with urgency P1. The access was resolved after Vinod manually sent an invite.
+
+## [2026-06-20T14:17:48Z] synthesis | Vercel Access Request Process
+
+- status: published
+- slug: runbooks/vercel-access-request-process
+- wiki_revision_id: wikirev_b37db3731b0098ef9581cb1901d7631d
+- summary: Process for requesting access to the company Vercel account. Involves a bot creating a tracking task and a human admin (Vinod) manually sending an invitation.
+
+## [2026-06-20T14:17:49Z] synthesis | Access Provisioning Bot
+
+- status: published
+- slug: systems/access-provisioning-bot
+- wiki_revision_id: wikirev_de33445df95ee247fb5707df193be601
+- summary: A bot that automates access requests by creating tasks and PRs for various applications. Currently supports GitHub, AWS, Google Workspace, 1Password, and Notion, with a goal to add...
+
+## [2026-06-20T14:18:35Z] synthesis | Disable aiwei bot PR commenting
+
+- status: published
+- slug: decisions/disable-aiwei-bot-pr-commenting
+- wiki_revision_id: wikirev_793e7f010f6a83cc7c165909cd7d1c47
+- summary: Request to turn off aiwei bot comments on PRs due to spamming, will be handled same day.
+
