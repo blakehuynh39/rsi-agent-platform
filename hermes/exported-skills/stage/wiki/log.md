@@ -35758,3 +35758,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1d82670dbfe0d468955697d5341cc495
 - summary: Steps to recover geth node on steven-vm when root disk is full, by increasing EBS volume and resizing filesystem.
 
+## [2026-06-20T09:16:08Z] synthesis | Decision to remove circulation-supply.storyapis.com from Cloudflare
+
+- status: published
+- slug: decisions/remove-deprecated-circulation-supply-domain
+- wiki_revision_id: wikirev_2e27498947326dbddae77284f43e9392
+- summary: Approved removal of the deprecated domain circulation-supply.storyapis.com from Cloudflare configuration (PR #176) after confirming successful migration to mainnet-circulation-supp...
+
+## [2026-06-20T09:16:47Z] synthesis | Build-Release-Artifacts Workflow
+
+- status: published
+- slug: systems/build-release-artifacts-workflow
+- wiki_revision_id: wikirev_4ea64801d1906b3d62e9abe5b8627558
+- summary: GitHub Actions workflow for building release artifacts. Access requested and granted due to primary manager being unavailable.
+

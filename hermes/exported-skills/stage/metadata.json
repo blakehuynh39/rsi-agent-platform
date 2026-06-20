@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0c5f582eebc81601c43cf5ff7030bdc4f7ff7f1998835164b4bafce23d9d4a05",
-        "size": 1021450
+        "sha256": "7fa6e2ea3d3cce7a0e431003c4510f1f600c453cf7dc6be113cb48e42ee8e277",
+        "size": 1022213
       },
       {
         "path": "log.md",
-        "sha256": "69f77258898547405631aed086a12933d3afc6645d77c00d9211585a8fbcf09f",
-        "size": 1760800
+        "sha256": "2f0d957eaa2bc0c38d58de83c66bd6589f979cf3fa96f77ffdad81877ff94879",
+        "size": 1761587
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4973,6 +4973,11 @@
         "path": "pages/decisions/referral-automation-risk-signal.md",
         "sha256": "babf6774c2b8946105d2dbf2be242f7f3e2c60f1806be07ef95ed2db05f188ae",
         "size": 2251
+      },
+      {
+        "path": "pages/decisions/remove-deprecated-circulation-supply-domain.md",
+        "sha256": "401cbdf697b916cd7aba1c4d2f4e04358bcef3a98d3071766bbc4ab74fc8ad28",
+        "size": 3575
       },
       {
         "path": "pages/decisions/remove-jacob-from-numo-standup.md",
@@ -8025,6 +8030,11 @@
         "size": 11937
       },
       {
+        "path": "pages/systems/build-release-artifacts-workflow.md",
+        "sha256": "91c5e557eb082a0db0f9e032f25d0970382f0aee16e0ae46b5f644d4d0187cbc",
+        "size": 1583
+      },
+      {
         "path": "pages/systems/calendar.md",
         "sha256": "89b263f113a8e488560664a92674b2b8d44f081a46eae2b7252b18853a59494e",
         "size": 1050
@@ -8679,8 +8689,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T09:09:02Z",
-  "file_count": 1734,
+  "exported_at": "2026-06-20T09:20:35Z",
+  "file_count": 1736,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11957,7 +11967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6193d74e02370373ba5b6b492a44f6d0741fd338279d98749007293682828b32",
+  "previous_tree_hash": "bb5841107d9ce525d31438b34e23f592289c3d02f50546a2f2202b5092028c9e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11970,14 +11980,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bb5841107d9ce525d31438b34e23f592289c3d02f50546a2f2202b5092028c9e",
+  "tree_hash": "3dd6129380ab0bce9405f33c5dbfb21f8e590ab1124842640c74819fc8e30fe5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1080,
+  "wiki_file_count": 1082,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11986,13 +11996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0c5f582eebc81601c43cf5ff7030bdc4f7ff7f1998835164b4bafce23d9d4a05",
-      "size": 1021450
+      "sha256": "7fa6e2ea3d3cce7a0e431003c4510f1f600c453cf7dc6be113cb48e42ee8e277",
+      "size": 1022213
     },
     {
       "path": "log.md",
-      "sha256": "69f77258898547405631aed086a12933d3afc6645d77c00d9211585a8fbcf09f",
-      "size": 1760800
+      "sha256": "2f0d957eaa2bc0c38d58de83c66bd6589f979cf3fa96f77ffdad81877ff94879",
+      "size": 1761587
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13678,6 +13688,11 @@
       "path": "pages/decisions/referral-automation-risk-signal.md",
       "sha256": "babf6774c2b8946105d2dbf2be242f7f3e2c60f1806be07ef95ed2db05f188ae",
       "size": 2251
+    },
+    {
+      "path": "pages/decisions/remove-deprecated-circulation-supply-domain.md",
+      "sha256": "401cbdf697b916cd7aba1c4d2f4e04358bcef3a98d3071766bbc4ab74fc8ad28",
+      "size": 3575
     },
     {
       "path": "pages/decisions/remove-jacob-from-numo-standup.md",
@@ -16730,6 +16745,11 @@
       "size": 11937
     },
     {
+      "path": "pages/systems/build-release-artifacts-workflow.md",
+      "sha256": "91c5e557eb082a0db0f9e032f25d0970382f0aee16e0ae46b5f644d4d0187cbc",
+      "size": 1583
+    },
+    {
       "path": "pages/systems/calendar.md",
       "sha256": "89b263f113a8e488560664a92674b2b8d44f081a46eae2b7252b18853a59494e",
       "size": 1050
@@ -17381,5 +17401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "334d35c58d97c9b6a7e2d7229bb92b949a339d566a47aeb43153b20fb3ebbfb9"
+  "wiki_tree_hash": "da9136bff07f9ecbc6e68a14f306ffd7d8bb205a63623bd8f1cf0ba1adf450d9"
 }
