@@ -35569,3 +35569,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2c8379fc2d493db6e1c317cfc911a0a0
 - summary: Initiative to collect audio data for speech-to-speech model training. A framework for scoping the audio capture was shared on 2026-03-11. The team identified multiple risks during ...
 
+## [2026-06-20T03:47:21Z] synthesis | Non-Commercial IP Dispute Capability
+
+- status: published
+- slug: open-questions/non-commercial-ip-dispute
+- wiki_revision_id: wikirev_9502953d74216d449d9dc8dd9c1afd4e
+- summary: Clarify whether disputes can be raised for non-commercial IP, and how Magma can flag stolen user artworks registered on Story.
+
