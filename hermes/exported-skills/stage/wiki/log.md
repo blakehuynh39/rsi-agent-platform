@@ -35380,3 +35380,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9aef232458842f6fe82154b3ef643d64
 - summary: Design feedback comments were added in Figma on April 22, 2026, as part of an ongoing design review process.
 
+## [2026-06-20T00:03:06Z] synthesis | Numo
+
+- status: published
+- slug: projects/numo
+- wiki_revision_id: wikirev_4cfa22ac5db3e350cae8b48bc6de2c8c
+- summary: Numo is a crypto project that processes user submissions, validates them, and pays rewards. It uses TaxBandits for W-8/W-9 tax forms and maintains daily statistics on submissions a...
+
+## [2026-06-20T00:04:04Z] synthesis | Country Risk Tiers for Data Acquisition
+
+- status: published
+- slug: policies/country-risk-tiers-data-acquisition
+- wiki_revision_id: wikirev_69c267fd5f8d96ee3fae1597d5f17832
+- summary: A four-tier country risk assessment framework for evaluating jurisdictions when acquiring data from various countries. Due diligence should focus on Tiers 3 and 4.
+
