@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "557694f18b5741d7645c4f6baec760cb4438bcb325f2b1ff601020ef6bb97bf3",
-        "size": 1009212
+        "sha256": "df4ab72b82d0b15f946eb9a3af59da2d1fc47994fb597733d7488bf2928251ba",
+        "size": 1009925
       },
       {
         "path": "log.md",
-        "sha256": "955b98fa3f1b5cb10729bc7c33c57cfa07cc331f514fbae40f08933c32d7336a",
-        "size": 1748167
+        "sha256": "a26351117abaa073d73506786c1cb7c5cdcbdf14f105ecd139ea5502226b87a2",
+        "size": 1748904
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5120,6 +5120,11 @@
         "size": 5141
       },
       {
+        "path": "pages/decisions/voice-generation-mvp-decision.md",
+        "sha256": "ad98318d27ab98404cf874eb0283bd45d13b3e38dc72404e1a6df9b73447bc00",
+        "size": 3032
+      },
+      {
         "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
         "sha256": "d2605c15184cc973c36d801c9c3f9ba90ff64cb0a589b448edc0c85964dafc72",
         "size": 3861
@@ -5828,6 +5833,11 @@
         "path": "pages/projects/depin-project.md",
         "sha256": "af7176c55823368f18da32a47f9c96789a4d5ca009d68a3dd248bf0d4330c3ab",
         "size": 2217
+      },
+      {
+        "path": "pages/projects/depin-qa-dogfooding-schedule.md",
+        "sha256": "f4dbe120f15a1981540c26825b1ad881e648d774b938a4e990fa39813b7601c0",
+        "size": 2459
       },
       {
         "path": "pages/projects/depin-release-v1-0-0.md",
@@ -8514,8 +8524,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T02:33:53Z",
-  "file_count": 1701,
+  "exported_at": "2026-06-20T02:50:25Z",
+  "file_count": 1703,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11792,7 +11802,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "f26a3e741bba8250c1a16f9363efad5c477e5d4048d8d73db470b2a6caa89b0d",
+  "previous_tree_hash": "d4885f7a6e52e56ed0936786906afae5b01773b7a4241350301005ecaf419024",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11805,14 +11815,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d4885f7a6e52e56ed0936786906afae5b01773b7a4241350301005ecaf419024",
+  "tree_hash": "1ce55874dd7843afa03541841fe1239ddb4cb8c3949522c106d971719f681a50",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1047,
+  "wiki_file_count": 1049,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11821,13 +11831,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "557694f18b5741d7645c4f6baec760cb4438bcb325f2b1ff601020ef6bb97bf3",
-      "size": 1009212
+      "sha256": "df4ab72b82d0b15f946eb9a3af59da2d1fc47994fb597733d7488bf2928251ba",
+      "size": 1009925
     },
     {
       "path": "log.md",
-      "sha256": "955b98fa3f1b5cb10729bc7c33c57cfa07cc331f514fbae40f08933c32d7336a",
-      "size": 1748167
+      "sha256": "a26351117abaa073d73506786c1cb7c5cdcbdf14f105ecd139ea5502226b87a2",
+      "size": 1748904
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13660,6 +13670,11 @@
       "size": 5141
     },
     {
+      "path": "pages/decisions/voice-generation-mvp-decision.md",
+      "sha256": "ad98318d27ab98404cf874eb0283bd45d13b3e38dc72404e1a6df9b73447bc00",
+      "size": 3032
+    },
+    {
       "path": "pages/decisions/vote-ip-asset-interaction-levels.md",
       "sha256": "d2605c15184cc973c36d801c9c3f9ba90ff64cb0a589b448edc0c85964dafc72",
       "size": 3861
@@ -14368,6 +14383,11 @@
       "path": "pages/projects/depin-project.md",
       "sha256": "af7176c55823368f18da32a47f9c96789a4d5ca009d68a3dd248bf0d4330c3ab",
       "size": 2217
+    },
+    {
+      "path": "pages/projects/depin-qa-dogfooding-schedule.md",
+      "sha256": "f4dbe120f15a1981540c26825b1ad881e648d774b938a4e990fa39813b7601c0",
+      "size": 2459
     },
     {
       "path": "pages/projects/depin-release-v1-0-0.md",
@@ -17051,5 +17071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "313ee07f7617b7d66c538063a39748739c2250e6c0029c30a416a82d963c2f03"
+  "wiki_tree_hash": "876879142d7fa440370f0f77297eb98ab19e4fed3d169ac85c1c16588ed8748c"
 }

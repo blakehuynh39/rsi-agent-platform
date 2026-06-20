@@ -35527,3 +35527,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_08a491a76901093f53146c724d6667f9
 - summary: Discussion on the optimal method for capturing audio during voice debates, balancing ease of analysis and user experience.
 
+## [2026-06-20T02:46:31Z] synthesis | Voice Generation MVP: Eleven Labs Selection
+
+- status: published
+- slug: decisions/voice-generation-mvp-decision
+- wiki_revision_id: wikirev_c9a38102f36ec24794c07b7258d80631
+- summary: The team decided to use Eleven Labs for the MVP voice generation, with a POC for custom infrastructure as backup, given the April 10 deadline. A free-tier client-side LLM alternati...
+
+## [2026-06-20T02:47:23Z] synthesis | DePIN QA Dogfooding Schedule
+
+- status: published
+- slug: projects/depin-qa-dogfooding-schedule
+- wiki_revision_id: wikirev_627773f31b03ba822fc110a22451f7c0
+- summary: QA dogfooding timeline for two DePIN applications: MBTI/personality app and Job app, with a target date of April 2, 2026.
+
