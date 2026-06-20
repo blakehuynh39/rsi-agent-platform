@@ -35849,3 +35849,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4cd4609ee18567676da9dd59fd21e5b7
 - summary: Deploying the IP Registration service to the numo Kubernetes cluster and setting up monitoring with Grafana.
 
+## [2026-06-20T11:48:10Z] synthesis | Staking Devnet
+
+- status: published
+- slug: systems/staking-devnet
+- wiki_revision_id: wikirev_e0f3e23a9dc8b3732e06a3bce8bd3c81
+- summary: The staking-devnet repository (story-deployments/staking-devnet/staking-api-devnet) appears to be a deprecated deployment for staking API testing. It is associated with a legacy co...
+

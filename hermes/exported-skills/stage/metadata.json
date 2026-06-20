@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "90eb9c7f061f42752ffb9d9418719f9ee7a805e7511bc841165d3225ef5b0b80",
-        "size": 1026158
+        "sha256": "2b2eec970fe081b7f0d8dcb6b3bceaf207f6a4ba74a909012e58b0ec02797847",
+        "size": 1026508
       },
       {
         "path": "log.md",
-        "sha256": "2acbad4043005e27f68f4eb0b9afad318a84a26ce5d24fce0aeacd925127ea49",
-        "size": 1765663
+        "sha256": "41511fce446956417fdceaaf140e235a4e73529b669afbf7929974cb2f540c8f",
+        "size": 1766025
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8580,6 +8580,11 @@
         "size": 3033
       },
       {
+        "path": "pages/systems/staking-devnet.md",
+        "sha256": "5f1e069bdc5ec10d50ad7ac731055a4547ab2f0623d5dc660a5ab60bb723611b",
+        "size": 3425
+      },
+      {
         "path": "pages/systems/story-api-assets-post-500-error.md",
         "sha256": "31330f2077d4b44ba226288ab5235490cf4110e43c47b1ba71a47776c88f8779",
         "size": 1201
@@ -8744,8 +8749,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T11:38:32Z",
-  "file_count": 1747,
+  "exported_at": "2026-06-20T11:50:05Z",
+  "file_count": 1748,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12022,7 +12027,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "03343a7125f32aa7be0ca4f4e3e494f2b870e3e79ce63656750db73ba312f0cf",
+  "previous_tree_hash": "e119e700312c9a6cc51fb61e14121b41277af91f974b39bb731be6978b644ef3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12035,14 +12040,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e119e700312c9a6cc51fb61e14121b41277af91f974b39bb731be6978b644ef3",
+  "tree_hash": "61c051e10d0d273ec88afdf3391c8da5be161c6a62e69d6783fd14b50120b3c3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1093,
+  "wiki_file_count": 1094,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12051,13 +12056,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "90eb9c7f061f42752ffb9d9418719f9ee7a805e7511bc841165d3225ef5b0b80",
-      "size": 1026158
+      "sha256": "2b2eec970fe081b7f0d8dcb6b3bceaf207f6a4ba74a909012e58b0ec02797847",
+      "size": 1026508
     },
     {
       "path": "log.md",
-      "sha256": "2acbad4043005e27f68f4eb0b9afad318a84a26ce5d24fce0aeacd925127ea49",
-      "size": 1765663
+      "sha256": "41511fce446956417fdceaaf140e235a4e73529b669afbf7929974cb2f540c8f",
+      "size": 1766025
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17350,6 +17355,11 @@
       "size": 3033
     },
     {
+      "path": "pages/systems/staking-devnet.md",
+      "sha256": "5f1e069bdc5ec10d50ad7ac731055a4547ab2f0623d5dc660a5ab60bb723611b",
+      "size": 3425
+    },
+    {
       "path": "pages/systems/story-api-assets-post-500-error.md",
       "sha256": "31330f2077d4b44ba226288ab5235490cf4110e43c47b1ba71a47776c88f8779",
       "size": 1201
@@ -17511,5 +17521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d9d28d175d19ce135800fcf81ec739d21e181e2a21973ce6162812c226b2dff2"
+  "wiki_tree_hash": "23216aa9280436d6764361cb2dced734570338914ea5463a0d6f3ab4b81bd289"
 }
