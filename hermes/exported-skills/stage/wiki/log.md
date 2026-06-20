@@ -35464,3 +35464,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec6c06a0c8cc61e05e5dbc39f4228f37
 - summary: A strategy document to select separate speech-to-text (STT), large language model (LLM), and text-to-speech (TTS) models for low-resource Indic languages, covering deployment optio...
 
+## [2026-06-20T01:45:47Z] synthesis | Pencil.dev Evaluation
+
+- status: published
+- slug: projects/pencil-dev-evaluation
+- wiki_revision_id: wikirev_cdc7e9c8d662f90d7ff7624576a4ddfb
+- summary: Initial exploration and evaluation of the pencil.dev tool, shared by Sam for review.
+
+## [2026-06-20T01:46:27Z] synthesis | MBTI Voice Agent
+
+- status: published
+- slug: projects/mbti-voice-agent
+- wiki_revision_id: wikirev_0827e884513aeb9d7a0142dbde7d6242
+- summary: Initial test of MBTI voice agent successful: transcript pasted to ChatGPT returned correct answer first time.
+

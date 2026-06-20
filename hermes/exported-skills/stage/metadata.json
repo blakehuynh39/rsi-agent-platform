@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8eb98290bb1a7f452ccc6d6cca4be347c43dcdde320e3e560c4e1cb7c1f23605",
-        "size": 1006249
+        "sha256": "72c7c70ccffb41f7794c846d535c9b05bd6bdae4d5857173a2ab3c5d64e2758d",
+        "size": 1006796
       },
       {
         "path": "log.md",
-        "sha256": "f6ff7d50aca32c9bbd27973559f48469a947639b791113477f9a0f81cbc3cea7",
-        "size": 1745096
+        "sha256": "0c6fac625e1a6f57ff5907cc62a0e2c6857fc09f7bb08013904b1b18638e47c9",
+        "size": 1745667
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6255,6 +6255,11 @@
         "size": 3808
       },
       {
+        "path": "pages/projects/mbti-voice-agent.md",
+        "sha256": "ac3a5ab10d20a3d5de713aa26680d847b8c48517ee6300048fb20b9a3ed909b2",
+        "size": 1634
+      },
+      {
         "path": "pages/projects/mercor-reference-project.md",
         "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
         "size": 2789
@@ -6538,6 +6543,11 @@
         "path": "pages/projects/payout-wave-1-email-selection.md",
         "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
         "size": 4054
+      },
+      {
+        "path": "pages/projects/pencil-dev-evaluation.md",
+        "sha256": "6ca1d372ff94ddced4e3356b8947a2a3a2637f3ba34c0ceb474534738438a987",
+        "size": 1560
       },
       {
         "path": "pages/projects/pentest-report-april-2025.md",
@@ -8469,8 +8479,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T01:36:32Z",
-  "file_count": 1692,
+  "exported_at": "2026-06-20T01:48:04Z",
+  "file_count": 1694,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11747,7 +11757,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "cfc8bc1a98ab55927e6aba6ecd2daf60d993f5f737ff469b1c36f499a58fce2e",
+  "previous_tree_hash": "5e7daef4a8b50f76361aa618e01719d937cfb62c05ea8e2d61c70c9489af74f0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11760,14 +11770,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5e7daef4a8b50f76361aa618e01719d937cfb62c05ea8e2d61c70c9489af74f0",
+  "tree_hash": "cf7362df2411bfaea8d6312b2002c4358cb9dd19ccada141c031d7ad18942555",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1038,
+  "wiki_file_count": 1040,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11776,13 +11786,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8eb98290bb1a7f452ccc6d6cca4be347c43dcdde320e3e560c4e1cb7c1f23605",
-      "size": 1006249
+      "sha256": "72c7c70ccffb41f7794c846d535c9b05bd6bdae4d5857173a2ab3c5d64e2758d",
+      "size": 1006796
     },
     {
       "path": "log.md",
-      "sha256": "f6ff7d50aca32c9bbd27973559f48469a947639b791113477f9a0f81cbc3cea7",
-      "size": 1745096
+      "sha256": "0c6fac625e1a6f57ff5907cc62a0e2c6857fc09f7bb08013904b1b18638e47c9",
+      "size": 1745667
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14750,6 +14760,11 @@
       "size": 3808
     },
     {
+      "path": "pages/projects/mbti-voice-agent.md",
+      "sha256": "ac3a5ab10d20a3d5de713aa26680d847b8c48517ee6300048fb20b9a3ed909b2",
+      "size": 1634
+    },
+    {
       "path": "pages/projects/mercor-reference-project.md",
       "sha256": "ac5f835349a8b25e345e3b7bea4b13e8bdee89865455b0fb0f1fd6f04dc2c38a",
       "size": 2789
@@ -15033,6 +15048,11 @@
       "path": "pages/projects/payout-wave-1-email-selection.md",
       "sha256": "35fc3daa1d5d260caf6499517ed8a91144e0bd4dd457462528e46bbfb64337c3",
       "size": 4054
+    },
+    {
+      "path": "pages/projects/pencil-dev-evaluation.md",
+      "sha256": "6ca1d372ff94ddced4e3356b8947a2a3a2637f3ba34c0ceb474534738438a987",
+      "size": 1560
     },
     {
       "path": "pages/projects/pentest-report-april-2025.md",
@@ -16961,5 +16981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "30edaf83690dabc7d546f79a50e763b8c18780e6c402925b97cbb70d34fef08f"
+  "wiki_tree_hash": "f515569eb9428269354cd22052bec6a306ac3e249bad7532cb258561e155576a"
 }
