@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0bd0de3ff233645ad3b86580e169c5ce256e93c0d201afe9de8434c965fbd447",
-        "size": 1005498
+        "sha256": "0a69341bf5cf982d818323a8488ce8d7eca8af26a265fe1c663394c367078abc",
+        "size": 1005829
       },
       {
         "path": "log.md",
-        "sha256": "965d8afc5e604a9d5e876f70aed918b457d0c5569bfa2c60a84828c8aecc6c96",
-        "size": 1744321
+        "sha256": "c49ee33fc19d65731be1a0592a1cd09c67332bf0e67260838ccf534821ad7633",
+        "size": 1744664
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7960,6 +7960,11 @@
         "size": 4149
       },
       {
+        "path": "pages/systems/human-agent-poc-web.md",
+        "sha256": "085d2258a5fcd348e05123f272830f9dd3ef03381ae7860e65935993e8cc6b19",
+        "size": 1449
+      },
+      {
         "path": "pages/systems/info-numolabs-ai-email-distribution.md",
         "sha256": "544d3a7d4c44a99fd68c3c09cd0b12cdfaadbb323ee19c44a5d045422a47e1a8",
         "size": 3570
@@ -8459,8 +8464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T01:03:19Z",
-  "file_count": 1690,
+  "exported_at": "2026-06-20T01:19:55Z",
+  "file_count": 1691,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11737,7 +11742,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "fd1c85448125d7ab178c2129850f687d7330b970c7ed21262ee7c1396d066d28",
+  "previous_tree_hash": "b0ddb365c15e1296fdc62dbdc7997be58d542efd1fe6d2afe5faca2256c5c033",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11750,14 +11755,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b0ddb365c15e1296fdc62dbdc7997be58d542efd1fe6d2afe5faca2256c5c033",
+  "tree_hash": "cfc8bc1a98ab55927e6aba6ecd2daf60d993f5f737ff469b1c36f499a58fce2e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1036,
+  "wiki_file_count": 1037,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11766,13 +11771,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0bd0de3ff233645ad3b86580e169c5ce256e93c0d201afe9de8434c965fbd447",
-      "size": 1005498
+      "sha256": "0a69341bf5cf982d818323a8488ce8d7eca8af26a265fe1c663394c367078abc",
+      "size": 1005829
     },
     {
       "path": "log.md",
-      "sha256": "965d8afc5e604a9d5e876f70aed918b457d0c5569bfa2c60a84828c8aecc6c96",
-      "size": 1744321
+      "sha256": "c49ee33fc19d65731be1a0592a1cd09c67332bf0e67260838ccf534821ad7633",
+      "size": 1744664
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16445,6 +16450,11 @@
       "size": 4149
     },
     {
+      "path": "pages/systems/human-agent-poc-web.md",
+      "sha256": "085d2258a5fcd348e05123f272830f9dd3ef03381ae7860e65935993e8cc6b19",
+      "size": 1449
+    },
+    {
       "path": "pages/systems/info-numolabs-ai-email-distribution.md",
       "sha256": "544d3a7d4c44a99fd68c3c09cd0b12cdfaadbb323ee19c44a5d045422a47e1a8",
       "size": 3570
@@ -16941,5 +16951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e06cefdaedd2bf03244248335a6c122f798b6d66a72150dfa47ad3105608ed5f"
+  "wiki_tree_hash": "0824f4a8f3697b75890c333d6d557f14452d456f2dd5d900daa2e79c73655338"
 }

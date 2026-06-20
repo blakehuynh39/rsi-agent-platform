@@ -35450,3 +35450,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d3eb0d8cf1a6128485a18fcccb310fde
 - summary: Overview of legal requirements and compliance strategy for the Indic audio collection project, focusing on India's DPDP Act and SPDI/IT Rules, consent management, data protection, ...
 
+## [2026-06-20T01:16:13Z] synthesis | Human-Agent POC Web
+
+- status: published
+- slug: systems/human-agent-poc-web
+- wiki_revision_id: wikirev_c18852e4be61648c6dd4e60a95dad498
+- summary: A proof-of-concept web application for human-agent interaction, accessible at https://human-agent-poc-web.vercel.app/. Protected with password: tigerteam.
+
