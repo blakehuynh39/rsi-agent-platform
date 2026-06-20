@@ -35506,3 +35506,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3034bab41a0d0c45de5336667905940d
 - summary: A quick project created via Stitch, described as a personality test app.
 
+## [2026-06-20T02:17:08Z] synthesis | Q2 DePIN Audio Dataset Prioritization Kickoff
+
+- status: published
+- slug: projects/depin-audio-prioritization-q2
+- wiki_revision_id: wikirev_95cf7eb2d268fa02980ba17c11c2888c
+- summary: Recap of Q2 DePIN product stream kickoff meeting: team decided to prioritize audio datasets over video, validate requirements with Poseidon pipeline and buyers (multi-speaker, unsc...
+

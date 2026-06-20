@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ab22731ce1034e72380d0bf1339221673bd66f8c48f614ad332fecca446d6097",
-        "size": 1007925
+        "sha256": "916892c8eefb14b519e92138977730b6f0c436c2e085202e0e436a470b09eb45",
+        "size": 1008574
       },
       {
         "path": "log.md",
-        "sha256": "9889e9e6c0f3fb1cb82170377de8b66a1d46eb28b478333c7002d4b9fc74519f",
-        "size": 1747096
+        "sha256": "92bbaf7266e13f3131270fc2ba6cd0bf1566a6fbc00e4f59afc8cc5a390c428e",
+        "size": 1747505
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5813,6 +5813,11 @@
         "path": "pages/projects/depin-application-season-one.md",
         "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
         "size": 1270
+      },
+      {
+        "path": "pages/projects/depin-audio-prioritization-q2.md",
+        "sha256": "b8839179500198e5dbbcabaffa8ec7d205a1fc5f2c407f0bc052181969e92ffe",
+        "size": 4166
       },
       {
         "path": "pages/projects/depin-project.md",
@@ -8499,8 +8504,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T02:16:04Z",
-  "file_count": 1698,
+  "exported_at": "2026-06-20T02:22:27Z",
+  "file_count": 1699,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11777,7 +11782,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d9f8b6d4eb676685f9f03fde849ad8fc702b0e30d6d3aced981ead4cf9d97ac7",
+  "previous_tree_hash": "7e78d591e143b09797cd3f78293837b41d9185e95d43af0483caf441464ed30e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11790,14 +11795,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7e78d591e143b09797cd3f78293837b41d9185e95d43af0483caf441464ed30e",
+  "tree_hash": "f26a3e741bba8250c1a16f9363efad5c477e5d4048d8d73db470b2a6caa89b0d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1044,
+  "wiki_file_count": 1045,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11806,13 +11811,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ab22731ce1034e72380d0bf1339221673bd66f8c48f614ad332fecca446d6097",
-      "size": 1007925
+      "sha256": "916892c8eefb14b519e92138977730b6f0c436c2e085202e0e436a470b09eb45",
+      "size": 1008574
     },
     {
       "path": "log.md",
-      "sha256": "9889e9e6c0f3fb1cb82170377de8b66a1d46eb28b478333c7002d4b9fc74519f",
-      "size": 1747096
+      "sha256": "92bbaf7266e13f3131270fc2ba6cd0bf1566a6fbc00e4f59afc8cc5a390c428e",
+      "size": 1747505
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14338,6 +14343,11 @@
       "path": "pages/projects/depin-application-season-one.md",
       "sha256": "21e56fbafd4852b5adae3a47aeefc36f1774369954795b2009b3ff8e8002be5d",
       "size": 1270
+    },
+    {
+      "path": "pages/projects/depin-audio-prioritization-q2.md",
+      "sha256": "b8839179500198e5dbbcabaffa8ec7d205a1fc5f2c407f0bc052181969e92ffe",
+      "size": 4166
     },
     {
       "path": "pages/projects/depin-project.md",
@@ -17021,5 +17031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f20796ec37f852742163d1f3a4376e2cdc4bffa5d8cc2bafcc16540c682a72ca"
+  "wiki_tree_hash": "7a3ed11efa3bc24d3bdf2f6c8427cc606fd8a423d7a15ff62f9848ee1a4333cc"
 }
