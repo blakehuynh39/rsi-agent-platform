@@ -35632,3 +35632,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_14bfccbfa29518af7c1c2eee14e9ee0b
 - summary: GitHub user @ShenWang-PiP requested and was granted access to the piplabs/cdr-sdk repository on 2026-04-08.
 
+## [2026-06-20T05:20:31Z] synthesis | OpenRouter Setup and Cost Management
+
+- status: published
+- slug: runbooks/openrouter-setup-and-cost-management
+- wiki_revision_id: wikirev_268b130f095860a2777e52119782b11e
+- summary: Guidelines for setting up OpenRouter access and managing costs, including credit card addition, initial credit, and model selection.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0faaa5c110c04cbf3370386b3ee346c60e824475dedc36309f4c86d7dadefe46",
-        "size": 1014609
+        "sha256": "6106831540ae3e0326edb17870fe60f8290b1ad8a567ff597014bbde7e4fe997",
+        "size": 1014953
       },
       {
         "path": "log.md",
-        "sha256": "a50bc1da0906c8c53c0e8af631c8077182177cf38b0c6e15172d7c89b03facfd",
-        "size": 1753744
+        "sha256": "cc3e537532324e80f9e383eda5a616bfe429888fc6b656d4897dc3f49b300ad1",
+        "size": 1754100
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7620,6 +7620,11 @@
         "size": 3344
       },
       {
+        "path": "pages/runbooks/openrouter-setup-and-cost-management.md",
+        "sha256": "5f562df44d0695b5f80c21b40f0ac6a0989079917e025c31d5340258f6145687",
+        "size": 4218
+      },
+      {
         "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
         "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
         "size": 4162
@@ -8589,8 +8594,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T05:07:07Z",
-  "file_count": 1716,
+  "exported_at": "2026-06-20T05:23:44Z",
+  "file_count": 1717,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11867,7 +11872,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "425e3e2d257ff230e1313942d2b3f58be054c0491f57f20cfd60bd02d13e6d68",
+  "previous_tree_hash": "cdb4180a5211b7d289de0132c36d97f932f5e7e80bee5c6941e094f910368714",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11880,14 +11885,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cdb4180a5211b7d289de0132c36d97f932f5e7e80bee5c6941e094f910368714",
+  "tree_hash": "5ba39fcbd8ea187d541f4bd9bf89e4c00dee41f0f44e2989130451af2bf747b3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1062,
+  "wiki_file_count": 1063,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11896,13 +11901,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0faaa5c110c04cbf3370386b3ee346c60e824475dedc36309f4c86d7dadefe46",
-      "size": 1014609
+      "sha256": "6106831540ae3e0326edb17870fe60f8290b1ad8a567ff597014bbde7e4fe997",
+      "size": 1014953
     },
     {
       "path": "log.md",
-      "sha256": "a50bc1da0906c8c53c0e8af631c8077182177cf38b0c6e15172d7c89b03facfd",
-      "size": 1753744
+      "sha256": "cc3e537532324e80f9e383eda5a616bfe429888fc6b656d4897dc3f49b300ad1",
+      "size": 1754100
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16235,6 +16240,11 @@
       "size": 3344
     },
     {
+      "path": "pages/runbooks/openrouter-setup-and-cost-management.md",
+      "sha256": "5f562df44d0695b5f80c21b40f0ac6a0989079917e025c31d5340258f6145687",
+      "size": 4218
+    },
+    {
       "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
       "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
       "size": 4162
@@ -17201,5 +17211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0543b09da47ba9cd322bfee5249dd9569f8423373ebee1bc8714235eff9fc1b4"
+  "wiki_tree_hash": "370695c90d047065cad5ae178d7191fde5d7be7f89f34e881a4215c19089ba4b"
 }
