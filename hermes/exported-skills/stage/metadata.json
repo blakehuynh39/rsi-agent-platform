@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cab621ae9778c0592fd79413663420141a10a23b8c7c687e55c11a549d64d1a6",
-        "size": 1016522
+        "sha256": "286d742fecf238110e40fb42774fb9182bbe651330fd61eed441ded33cc299a9",
+        "size": 1017310
       },
       {
         "path": "log.md",
-        "sha256": "ba737fcac18342c58d29057e2b816e48a5c4e083a5651096f01f4fd978f40224",
-        "size": 1756114
+        "sha256": "87d64449a83e7d963d3c53c1a5421d253a3d986057bd57a5d0fd7835ad3956d9",
+        "size": 1756529
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7740,6 +7740,11 @@
         "size": 4260
       },
       {
+        "path": "pages/runbooks/sos-ci-cd-deployment-failure-2026-04-08.md",
+        "sha256": "8306d5f13106de6b88e8a7c8c84239ece62ef49c816994e76559b023d0538c06",
+        "size": 3477
+      },
+      {
         "path": "pages/runbooks/staging-test-collection-custom-images.md",
         "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
         "size": 3584
@@ -8619,8 +8624,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T06:31:37Z",
-  "file_count": 1722,
+  "exported_at": "2026-06-20T06:38:06Z",
+  "file_count": 1723,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11897,7 +11902,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "2fa081258d33f9aa0dff0d9eb802433279d6210a1d9e9f8ce51f59e1054a0087",
+  "previous_tree_hash": "875e7171e01d7c17b15be3ab753235169f3fcf132871abe28c5a9f9d01eb9674",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11910,14 +11915,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "875e7171e01d7c17b15be3ab753235169f3fcf132871abe28c5a9f9d01eb9674",
+  "tree_hash": "9120eb68c74f4fdf421bef7107b16298a586ad512760c0768f5bc7ef19a45566",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1068,
+  "wiki_file_count": 1069,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11926,13 +11931,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cab621ae9778c0592fd79413663420141a10a23b8c7c687e55c11a549d64d1a6",
-      "size": 1016522
+      "sha256": "286d742fecf238110e40fb42774fb9182bbe651330fd61eed441ded33cc299a9",
+      "size": 1017310
     },
     {
       "path": "log.md",
-      "sha256": "ba737fcac18342c58d29057e2b816e48a5c4e083a5651096f01f4fd978f40224",
-      "size": 1756114
+      "sha256": "87d64449a83e7d963d3c53c1a5421d253a3d986057bd57a5d0fd7835ad3956d9",
+      "size": 1756529
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16385,6 +16390,11 @@
       "size": 4260
     },
     {
+      "path": "pages/runbooks/sos-ci-cd-deployment-failure-2026-04-08.md",
+      "sha256": "8306d5f13106de6b88e8a7c8c84239ece62ef49c816994e76559b023d0538c06",
+      "size": 3477
+    },
+    {
       "path": "pages/runbooks/staging-test-collection-custom-images.md",
       "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
       "size": 3584
@@ -17261,5 +17271,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0d986f944406b27753873531d3044313ad76e6c0b1b773753abc029cd8426766"
+  "wiki_tree_hash": "4d28891f71dfb50ad47722b07a00f1ea7abe71478047ef0490d798ec663ad13d"
 }

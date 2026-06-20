@@ -35674,3 +35674,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_86b331fba6ed1657c41e2af3e50cfe60
 - summary: Policy and process for testing with IP tokens on mainnet: use dedicated fresh wallets, fund only the minimum amount needed, never reuse infra/operator wallets or share private keys...
 
+## [2026-06-20T06:32:40Z] synthesis | SOS CI/CD Deployment Failure (2026-04-08)
+
+- status: published
+- slug: runbooks/sos-ci-cd-deployment-failure-2026-04-08
+- wiki_revision_id: wikirev_e085ee93b62b8da4c94396a60dee6e81
+- summary: The Story Orchestration Service (SOS) CI/CD pipeline failed on 2026-04-08 due to missing exec approval for a heredoc command in GitHub Actions. The SOS service itself remained heal...
+
