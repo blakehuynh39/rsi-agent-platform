@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "11b703066ee56154776700bd4cdfeab7603fd418c7ebac17dd9cdb7c085ff47e",
-        "size": 1022816
+        "sha256": "7fe69ec7383f59daed2586baab3b6da1286dcc35049fe0a95997c1fa59edd4c0",
+        "size": 1023227
       },
       {
         "path": "log.md",
-        "sha256": "2d25559d7c5e765d4e49aae63de3a42f3934bf54f0a1167fadcf5e61da92b0e6",
-        "size": 1762214
+        "sha256": "34706f9a27a7e2b06a14e8a8a2732efc3611a297de9f72aad4dc74fc1802915e",
+        "size": 1762637
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4558,6 +4558,11 @@
         "path": "pages/decisions/core-vs-periphery-divisions.md",
         "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
+      },
+      {
+        "path": "pages/decisions/dangling-dns-cleanup-decision-2026-03.md",
+        "sha256": "6db65725de2c7fb2ce2db80fda0c11525ea9f6fbfcdcecf6904f456e6e98d30a",
+        "size": 3722
       },
       {
         "path": "pages/decisions/data-seeding-english-task-status.md",
@@ -8699,8 +8704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T09:32:07Z",
-  "file_count": 1738,
+  "exported_at": "2026-06-20T09:53:48Z",
+  "file_count": 1739,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11977,7 +11982,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "3dd6129380ab0bce9405f33c5dbfb21f8e590ab1124842640c74819fc8e30fe5",
+  "previous_tree_hash": "28de0bfa5947a8e29b20830be7b12b2d57f9db27963bd7781f5491de11289bc7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11990,14 +11995,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "28de0bfa5947a8e29b20830be7b12b2d57f9db27963bd7781f5491de11289bc7",
+  "tree_hash": "b1f505a626de129ba4469de61cf81a18876e97300a63ac0b08a90a1fcb01737f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1084,
+  "wiki_file_count": 1085,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12006,13 +12011,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "11b703066ee56154776700bd4cdfeab7603fd418c7ebac17dd9cdb7c085ff47e",
-      "size": 1022816
+      "sha256": "7fe69ec7383f59daed2586baab3b6da1286dcc35049fe0a95997c1fa59edd4c0",
+      "size": 1023227
     },
     {
       "path": "log.md",
-      "sha256": "2d25559d7c5e765d4e49aae63de3a42f3934bf54f0a1167fadcf5e61da92b0e6",
-      "size": 1762214
+      "sha256": "34706f9a27a7e2b06a14e8a8a2732efc3611a297de9f72aad4dc74fc1802915e",
+      "size": 1762637
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13283,6 +13288,11 @@
       "path": "pages/decisions/core-vs-periphery-divisions.md",
       "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
+    },
+    {
+      "path": "pages/decisions/dangling-dns-cleanup-decision-2026-03.md",
+      "sha256": "6db65725de2c7fb2ce2db80fda0c11525ea9f6fbfcdcecf6904f456e6e98d30a",
+      "size": 3722
     },
     {
       "path": "pages/decisions/data-seeding-english-task-status.md",
@@ -17421,5 +17431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "20aac856293b5ca2c46ea72a826a75592542aac5e5c84229c6fc3afd7941fc8d"
+  "wiki_tree_hash": "9c34cc96f34500bfbdb29e66d8caf96d8beaf4258e4737f288105cffc137a330"
 }

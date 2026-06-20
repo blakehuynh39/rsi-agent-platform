@@ -35786,3 +35786,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4198d6c15d3f576e44f94d43cbbc28ae
 - summary: Request and execution of removal of Issue #830 from the public piplabs/story GitHub repository due to public visibility concerns. The issue was closed but still public, and require...
 
+## [2026-06-20T09:50:58Z] synthesis | Decision: Remove Dangling DNS Domains (March 2026)
+
+- status: published
+- slug: decisions/dangling-dns-cleanup-decision-2026-03
+- wiki_revision_id: wikirev_6cdbcbaa5cf2a1458967688c47eafa2d
+- summary: The team reviewed a list of 23 dangling DNS domains under storyapis.com and storyprotocol.net and decided to remove them, with explicit caution noted for domains that might be temp...
+
