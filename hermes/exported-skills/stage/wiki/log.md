@@ -35807,3 +35807,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a24a17545cfb590423398d73f6eff980
 - summary: On 2026-06-10, a user revived the OpenClaw Slack bot. Runtime and gateway were operational, but config recovery failures, a CRITICAL security audit flag for group policy/tools, Com...
 
+## [2026-06-20T10:46:30Z] synthesis | Use Public GitHub Container Registry for Devnet Staking API Deployment
+
+- status: published
+- slug: decisions/use-public-ghcr-for-devnet-staking-api-deployment
+- wiki_revision_id: wikirev_bc5f4202058a3ae187b9fc22eb42c4e2
+- summary: Temporarily make the story-staking-api package public on GitHub Container Registry to unblock devnet deployment while waiting for AWS ECR access.
+
+## [2026-06-20T10:46:30Z] synthesis | Story Staking API
+
+- status: published
+- slug: systems/story-staking-api
+- wiki_revision_id: wikirev_9af201c3917a0755c82e678c43a9b540
+- summary: The Staking API service, deployed via Docker containers. The Docker image is built from a public repository and pushed to a container registry, then pulled by an AWS EC2 instance.
+

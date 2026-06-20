@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "853cc0e088fd76387afaa2ae6a0da862676d7199d4c0a586fa15406d9baf54ff",
-        "size": 1763474
+        "sha256": "4df0503108fc3769d6288977990bf7c1432bd378154bbf6c5adae50bbb9103e0",
+        "size": 1764255
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5148,6 +5148,11 @@
         "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
         "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
         "size": 2409
+      },
+      {
+        "path": "pages/decisions/use-public-ghcr-for-devnet-staking-api-deployment.md",
+        "sha256": "adb7b60cc5135c4591136fab4307f22d4af0f3a7b6a396d4c67c023b942732c0",
+        "size": 5539
       },
       {
         "path": "pages/decisions/using-minio-for-mvp.md",
@@ -8625,6 +8630,11 @@
         "size": 3026
       },
       {
+        "path": "pages/systems/story-staking-api.md",
+        "sha256": "01d1fedc5b2e85d31c8aa125c2ee2a80f80d153e6562dcdc590169db42bba591",
+        "size": 2420
+      },
+      {
         "path": "pages/systems/stripe-payment-integration.md",
         "sha256": "cfa3a22a03a0483249d818b212f1116342e30f01accdcc78942773834e49184d",
         "size": 4797
@@ -8714,8 +8724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T10:20:36Z",
-  "file_count": 1741,
+  "exported_at": "2026-06-20T10:47:24Z",
+  "file_count": 1743,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11992,7 +12002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b1f505a626de129ba4469de61cf81a18876e97300a63ac0b08a90a1fcb01737f",
+  "previous_tree_hash": "7df98aed4afbbab920effb2bdf71616a680aeee4bd99de55040ffc2927aebbad",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12005,14 +12015,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7df98aed4afbbab920effb2bdf71616a680aeee4bd99de55040ffc2927aebbad",
+  "tree_hash": "9e2e49bb1b1cf33a9499d19beb1b22a209f76cd0197eec6025da0144b3e7fc02",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1087,
+  "wiki_file_count": 1089,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12026,8 +12036,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "853cc0e088fd76387afaa2ae6a0da862676d7199d4c0a586fa15406d9baf54ff",
-      "size": 1763474
+      "sha256": "4df0503108fc3769d6288977990bf7c1432bd378154bbf6c5adae50bbb9103e0",
+      "size": 1764255
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13888,6 +13898,11 @@
       "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
       "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
       "size": 2409
+    },
+    {
+      "path": "pages/decisions/use-public-ghcr-for-devnet-staking-api-deployment.md",
+      "sha256": "adb7b60cc5135c4591136fab4307f22d4af0f3a7b6a396d4c67c023b942732c0",
+      "size": 5539
     },
     {
       "path": "pages/decisions/using-minio-for-mvp.md",
@@ -17365,6 +17380,11 @@
       "size": 3026
     },
     {
+      "path": "pages/systems/story-staking-api.md",
+      "sha256": "01d1fedc5b2e85d31c8aa125c2ee2a80f80d153e6562dcdc590169db42bba591",
+      "size": 2420
+    },
+    {
       "path": "pages/systems/stripe-payment-integration.md",
       "sha256": "cfa3a22a03a0483249d818b212f1116342e30f01accdcc78942773834e49184d",
       "size": 4797
@@ -17451,5 +17471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "927bbeb378fe1711e422c3c52d0320e8b065de7fd5f7950472eac61e3f19d36c"
+  "wiki_tree_hash": "c3261e063690cd1c84cef4f54c99da9e14f50ba563e38b08ed86d259b4a251b1"
 }
