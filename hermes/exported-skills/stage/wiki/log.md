@@ -35667,3 +35667,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7cd26dfe5e32b2104fbd762209129f34
 - summary: The legacy staking API service at staking-aeneid.storyapis.com serves the Aeneid devnet staking dashboard. On 2026-04-30, it was found to be misconfigured with mainnet archive node...
 
+## [2026-06-20T06:31:17Z] synthesis | Test Wallet Policy for Mainnet IP
+
+- status: published
+- slug: policies/test-wallet-policy-mainnet-ip
+- wiki_revision_id: wikirev_86b331fba6ed1657c41e2af3e50cfe60
+- summary: Policy and process for testing with IP tokens on mainnet: use dedicated fresh wallets, fund only the minimum amount needed, never reuse infra/operator wallets or share private keys...
+

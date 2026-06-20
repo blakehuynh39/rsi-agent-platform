@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "32d828d586a15e2f73a830c4b81dcd1faa39aa4442f777ddb731776c1cf7e942",
-        "size": 1755717
+        "sha256": "ba737fcac18342c58d29057e2b816e48a5c4e083a5651096f01f4fd978f40224",
+        "size": 1756114
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5583,6 +5583,11 @@
         "path": "pages/policies/technical-vendor-intake-process.md",
         "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
         "size": 6574
+      },
+      {
+        "path": "pages/policies/test-wallet-policy-mainnet-ip.md",
+        "sha256": "e5e5ccbf7926b4ab516da9b7dc8c292a594dd332b802537286c58fade1834509",
+        "size": 3934
       },
       {
         "path": "pages/policies/turnstile-issue-handling-policy.md",
@@ -8614,8 +8619,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T06:20:04Z",
-  "file_count": 1721,
+  "exported_at": "2026-06-20T06:31:37Z",
+  "file_count": 1722,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11892,7 +11897,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "2351d6fbcb5f9c53cbb192d0f3b5a31f0353ed59d5b02c4dc5dffa11a9a0e783",
+  "previous_tree_hash": "2fa081258d33f9aa0dff0d9eb802433279d6210a1d9e9f8ce51f59e1054a0087",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11905,14 +11910,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2fa081258d33f9aa0dff0d9eb802433279d6210a1d9e9f8ce51f59e1054a0087",
+  "tree_hash": "875e7171e01d7c17b15be3ab753235169f3fcf132871abe28c5a9f9d01eb9674",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1067,
+  "wiki_file_count": 1068,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11926,8 +11931,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "32d828d586a15e2f73a830c4b81dcd1faa39aa4442f777ddb731776c1cf7e942",
-      "size": 1755717
+      "sha256": "ba737fcac18342c58d29057e2b816e48a5c4e083a5651096f01f4fd978f40224",
+      "size": 1756114
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14223,6 +14228,11 @@
       "path": "pages/policies/technical-vendor-intake-process.md",
       "sha256": "602dd23243fdb0d27049ece3813bf2af8fc00dfd1303e45bae7f6972b4091338",
       "size": 6574
+    },
+    {
+      "path": "pages/policies/test-wallet-policy-mainnet-ip.md",
+      "sha256": "e5e5ccbf7926b4ab516da9b7dc8c292a594dd332b802537286c58fade1834509",
+      "size": 3934
     },
     {
       "path": "pages/policies/turnstile-issue-handling-policy.md",
@@ -17251,5 +17261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d41af0ce52c2020c9d2183244387c229cd9ca4a092a4e78fdad7b57143ef3284"
+  "wiki_tree_hash": "0d986f944406b27753873531d3044313ad76e6c0b1b773753abc029cd8426766"
 }
