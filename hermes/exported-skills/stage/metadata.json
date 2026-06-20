@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49f1c6077bcbe6a61354f6f49238b2decfc31ce3675e4ffcd42428f2835b9b7f",
-        "size": 1018456
+        "sha256": "f2ee9c214fa2dc9c8f9c8d725d81ad3f4e649517d097e1b73410398ff9a4f3c5",
+        "size": 1019227
       },
       {
         "path": "log.md",
-        "sha256": "2d5f5704c7298e2da44cdeeeb8358c0bca74333fe3ccdc481878a1dfe58ddf52",
-        "size": 1757711
+        "sha256": "673afd7332d067d2f7239fa60f89c1ed186e05092e7a04f2aff809eddef4e84c",
+        "size": 1758505
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6090,6 +6090,11 @@
         "size": 1336
       },
       {
+        "path": "pages/projects/gcp-to-aws-vm-migration.md",
+        "sha256": "a0ac128573da764eaa2df420a52d6cd0c003e99263a1c0fbb0d28e1812b75c84",
+        "size": 5219
+      },
+      {
         "path": "pages/projects/gensyn.md",
         "sha256": "f4133dfea0310709611914bf70b876e0c7168c3d76573b68bd5d12bb53ef68ce",
         "size": 8099
@@ -7363,6 +7368,11 @@
         "path": "pages/runbooks/claim-backend-runbook.md",
         "sha256": "ffc963795729252a8b3c514b412cdf31d36dc837d2babae6036cc7104164414b",
         "size": 7242
+      },
+      {
+        "path": "pages/runbooks/claude-usage-limits-and-upgrade-process.md",
+        "sha256": "8e6968be338a5388dc93c4af747cfe60bc84093e25fec3744b30357c0e77d047",
+        "size": 6775
       },
       {
         "path": "pages/runbooks/configure-a-validator.md",
@@ -8639,8 +8649,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T07:21:28Z",
-  "file_count": 1726,
+  "exported_at": "2026-06-20T07:38:04Z",
+  "file_count": 1728,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11917,7 +11927,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "cd100ca2a157bac9c0a668388668b3577097917f0dd9dc6c914d2f3716002371",
+  "previous_tree_hash": "02564eef8272f67c1b4b59fbe266aaf4151c79b32e5fe71894efbd897e4905be",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11930,14 +11940,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "02564eef8272f67c1b4b59fbe266aaf4151c79b32e5fe71894efbd897e4905be",
+  "tree_hash": "f4cb55d9b4254020c6df1c0ec1814e74d89c8b384140595b39c171f42f76ea22",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1072,
+  "wiki_file_count": 1074,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11946,13 +11956,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49f1c6077bcbe6a61354f6f49238b2decfc31ce3675e4ffcd42428f2835b9b7f",
-      "size": 1018456
+      "sha256": "f2ee9c214fa2dc9c8f9c8d725d81ad3f4e649517d097e1b73410398ff9a4f3c5",
+      "size": 1019227
     },
     {
       "path": "log.md",
-      "sha256": "2d5f5704c7298e2da44cdeeeb8358c0bca74333fe3ccdc481878a1dfe58ddf52",
-      "size": 1757711
+      "sha256": "673afd7332d067d2f7239fa60f89c1ed186e05092e7a04f2aff809eddef4e84c",
+      "size": 1758505
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14755,6 +14765,11 @@
       "size": 1336
     },
     {
+      "path": "pages/projects/gcp-to-aws-vm-migration.md",
+      "sha256": "a0ac128573da764eaa2df420a52d6cd0c003e99263a1c0fbb0d28e1812b75c84",
+      "size": 5219
+    },
+    {
       "path": "pages/projects/gensyn.md",
       "sha256": "f4133dfea0310709611914bf70b876e0c7168c3d76573b68bd5d12bb53ef68ce",
       "size": 8099
@@ -16030,6 +16045,11 @@
       "size": 7242
     },
     {
+      "path": "pages/runbooks/claude-usage-limits-and-upgrade-process.md",
+      "sha256": "8e6968be338a5388dc93c4af747cfe60bc84093e25fec3744b30357c0e77d047",
+      "size": 6775
+    },
+    {
       "path": "pages/runbooks/configure-a-validator.md",
       "sha256": "3ac48c818d3ecf3ca07dd0f470ef8169e555e8fcc80be246157b4bda78b38a34",
       "size": 3408
@@ -17301,5 +17321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9d5cc9094efddcfb2e01f17e8428f64640c8869e655268555b7c4b6ab4f398f1"
+  "wiki_tree_hash": "031d376e7b7a97bcf2d1c76283be2f71f9c501c0c4ab3f6037181b51c2d8f88f"
 }

@@ -35702,3 +35702,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4711dfc4096cd6ed85946ff57a1e8946
 - summary: In April 2026, the team decided to decommission most development/test server groups, retaining only QA (JPE-QA-RG) and Yingyang (JPE-YINGYANG-RG) environments for ongoing testing. ...
 
+## [2026-06-20T07:33:05Z] synthesis | GCP to AWS VM Migration
+
+- status: published
+- slug: projects/gcp-to-aws-vm-migration
+- wiki_revision_id: wikirev_4bda10123a5179a036d80a9ad727c716
+- summary: Migration of VMs from GCP to AWS, covering instance mappings, verification steps, and subsequent adjustments to termination plans. Some VMs were retained for testing after initial ...
+
+## [2026-06-20T07:34:26Z] synthesis | Claude Usage Limits and Upgrade Process
+
+- status: published
+- slug: runbooks/claude-usage-limits-and-upgrade-process
+- wiki_revision_id: wikirev_5c5a666a2aad9b1614a8d7ffe21d2a9f
+- summary: Process for handling Claude usage limits (session caps, token quotas) on the Team plan. Admins Woojin and Vinod can adjust credits and plan tiers. Vinod is on vacation until April ...
+
