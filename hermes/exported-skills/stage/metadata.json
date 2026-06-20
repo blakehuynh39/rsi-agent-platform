@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d1c356e57a5e5f40215c63bc43d66d3cc841551224c1669fd1f029cc5b2172a3",
-        "size": 1751906
+        "sha256": "524da015c022c966bcc829af09e16c86ea5047a228188b572a4e61e034304ff7",
+        "size": 1752264
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3948,6 +3948,11 @@
         "path": "pages/concepts/non-commercial-ip-dispute-capabilities.md",
         "sha256": "fd4fb17fed5c66aed8ca3b03de0d21845da311722bf3b07c563a3ff83ae50858",
         "size": 4001
+      },
+      {
+        "path": "pages/concepts/non-commercial-ip-dispute-support.md",
+        "sha256": "8516d4c450080085b26078740e2aeec1411ae18cf7f740132b3c6b0265a3f603",
+        "size": 3012
       },
       {
         "path": "pages/concepts/non-commercial-ip-dispute.md",
@@ -8564,8 +8569,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T04:20:57Z",
-  "file_count": 1711,
+  "exported_at": "2026-06-20T04:32:29Z",
+  "file_count": 1712,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11842,7 +11847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "660c1257e9b51d2343bfa85c8803ca81423b0e180c5374e5397f15f6803a1bf2",
+  "previous_tree_hash": "467c09a6501a76250e58896b1198ea2f858495d8cfbe7d6341975490f58ac13b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11855,14 +11860,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "467c09a6501a76250e58896b1198ea2f858495d8cfbe7d6341975490f58ac13b",
+  "tree_hash": "8dc1afe3949385b7e6835078d4ff487541e214dd48a0512bba81647bbcbbdfad",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1057,
+  "wiki_file_count": 1058,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11876,8 +11881,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d1c356e57a5e5f40215c63bc43d66d3cc841551224c1669fd1f029cc5b2172a3",
-      "size": 1751906
+      "sha256": "524da015c022c966bcc829af09e16c86ea5047a228188b572a4e61e034304ff7",
+      "size": 1752264
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12538,6 +12543,11 @@
       "path": "pages/concepts/non-commercial-ip-dispute-capabilities.md",
       "sha256": "fd4fb17fed5c66aed8ca3b03de0d21845da311722bf3b07c563a3ff83ae50858",
       "size": 4001
+    },
+    {
+      "path": "pages/concepts/non-commercial-ip-dispute-support.md",
+      "sha256": "8516d4c450080085b26078740e2aeec1411ae18cf7f740132b3c6b0265a3f603",
+      "size": 3012
     },
     {
       "path": "pages/concepts/non-commercial-ip-dispute.md",
@@ -17151,5 +17161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a44819a7142217443bcaa5a6b535afe90cd609b39ed2e20e24b5889f8ef27613"
+  "wiki_tree_hash": "64bfb61b5676df377561538a569c81c61c1ce9053e37a17b50b3c8f363aa04d5"
 }

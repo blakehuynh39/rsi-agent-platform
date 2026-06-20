@@ -35597,3 +35597,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7eb828156d741acd449ffab9ec7754d2
 - summary: Discussion about whether disputes can be raised for non-commercial IP, current limitations, and Magma's use case of protecting user artworks.
 
+## [2026-06-20T04:32:05Z] synthesis | Non-commercial IP Dispute Support
+
+- status: published
+- slug: concepts/non-commercial-ip-dispute-support
+- wiki_revision_id: wikirev_c5838acc22744085d4146950cf02c3d8
+- summary: Overview of the current limitations and discussions around supporting IP disputes for non-commercial works, including a use case from Magma.
+
+## [2026-06-20T04:32:54Z] synthesis | transferToVault vs payRoyaltyOnBehalf
+
+- status: published
+- slug: concepts/transfertovault-and-payroyaltyonbehalf
+- wiki_revision_id: wikirev_baacff0454f398d3a1973f94f0c83ad1
+- summary: A Slack discussion asking about the difference and use-case between the smart contract functions `transferToVault` and `payRoyaltyOnBehalf`, with a follow-up question about `transf...
+
