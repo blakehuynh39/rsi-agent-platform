@@ -35744,3 +35744,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_848e3faad0689e762d24b49712550eef
 - summary: The domains ff-backend.storyapis.com and use1-stage-tlv-backend.storyapis.com, previously owned by Don, were confirmed for removal from Cloudflare configuration via PR #206.
 
+## [2026-06-20T08:46:59Z] synthesis | GCP Stale Validator Resource Cleanup Runbook
+
+- status: published
+- slug: runbooks/gcp-stale-validator-cleanup-runbook
+- wiki_revision_id: wikirev_dd4e9193bdb3184624f2f08e5466a592
+- summary: Procedure to clean up stale GCP resources (SSD volumes and snapshots) from employee-managed validator nodes that have been moved to AWS, saving approximately $2k per month.
+

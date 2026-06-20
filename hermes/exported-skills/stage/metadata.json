@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "82d15c17bad7d67eca03e8cccc01e31da4b2c0d1dbe252b37dbfc56e730195a3",
-        "size": 1020314
+        "sha256": "fa51eda1329e8a19d73805c328f66abdc52ea1ae40499be50793569ded2dc965",
+        "size": 1021130
       },
       {
         "path": "log.md",
-        "sha256": "f3a71161e1842c202a11b12b88a80e34009e2d92179559ec6c88d7fabc4e7cea",
-        "size": 1760065
+        "sha256": "2aad83cec957e22df190b5d59366ba7e03be5852df810ac630e29822fd3e3f08",
+        "size": 1760468
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7525,6 +7525,11 @@
         "size": 8481
       },
       {
+        "path": "pages/runbooks/gcp-stale-validator-cleanup-runbook.md",
+        "sha256": "4e8b02f484fed34f91033a5b813caf60d0109fb77803b5dff73140cdc2b0118e",
+        "size": 3669
+      },
+      {
         "path": "pages/runbooks/github-commit-ssh-key-signing.md",
         "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
         "size": 6826
@@ -8669,8 +8674,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T08:45:58Z",
-  "file_count": 1732,
+  "exported_at": "2026-06-20T08:52:25Z",
+  "file_count": 1733,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11947,7 +11952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "1664f7b5ebb66e2b284776ec94073366c6d4e442b8bd154030bb997f441ea16d",
+  "previous_tree_hash": "a681deda009b4ac7827b8a63d306167e55bedae380eaedfd0c228bfef8375dd7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11960,14 +11965,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a681deda009b4ac7827b8a63d306167e55bedae380eaedfd0c228bfef8375dd7",
+  "tree_hash": "6193d74e02370373ba5b6b492a44f6d0741fd338279d98749007293682828b32",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1078,
+  "wiki_file_count": 1079,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11976,13 +11981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "82d15c17bad7d67eca03e8cccc01e31da4b2c0d1dbe252b37dbfc56e730195a3",
-      "size": 1020314
+      "sha256": "fa51eda1329e8a19d73805c328f66abdc52ea1ae40499be50793569ded2dc965",
+      "size": 1021130
     },
     {
       "path": "log.md",
-      "sha256": "f3a71161e1842c202a11b12b88a80e34009e2d92179559ec6c88d7fabc4e7cea",
-      "size": 1760065
+      "sha256": "2aad83cec957e22df190b5d59366ba7e03be5852df810ac630e29822fd3e3f08",
+      "size": 1760468
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16220,6 +16225,11 @@
       "size": 8481
     },
     {
+      "path": "pages/runbooks/gcp-stale-validator-cleanup-runbook.md",
+      "sha256": "4e8b02f484fed34f91033a5b813caf60d0109fb77803b5dff73140cdc2b0118e",
+      "size": 3669
+    },
+    {
       "path": "pages/runbooks/github-commit-ssh-key-signing.md",
       "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
       "size": 6826
@@ -17361,5 +17371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "be024c10b6e91707140f8076e5517d0cde1b979b93d63c4f80d9fffcd672967f"
+  "wiki_tree_hash": "2ee88bfb533e11d268a68a6c3e543edcb72aa09011e1a3b71cea246c498f7955"
 }
