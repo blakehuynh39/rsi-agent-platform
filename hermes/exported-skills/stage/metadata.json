@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2dd7883362fa9bb4eaefbf5d7173dd90b1ebd0bd3a764d6cce962fa01442730f",
-        "size": 1749272
+        "sha256": "4f42c57661e8c02f81fd4724d7c00c32ba159595c1e6255b28b3ea65eee7455e",
+        "size": 1749657
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5833,6 +5833,11 @@
         "path": "pages/projects/depin-audio-prioritization-q2.md",
         "sha256": "b8839179500198e5dbbcabaffa8ec7d205a1fc5f2c407f0bc052181969e92ffe",
         "size": 4166
+      },
+      {
+        "path": "pages/projects/depin-competitor-research.md",
+        "sha256": "37a74bec8dbec457adb93b25162c8612bfa7602df79de562a816562fdda77510",
+        "size": 3961
       },
       {
         "path": "pages/projects/depin-project.md",
@@ -8529,8 +8534,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T03:06:56Z",
-  "file_count": 1704,
+  "exported_at": "2026-06-20T03:18:26Z",
+  "file_count": 1705,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11807,7 +11812,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "1ce55874dd7843afa03541841fe1239ddb4cb8c3949522c106d971719f681a50",
+  "previous_tree_hash": "711d30272645628d2bb3b4b93f81962839d8386d0eb60d52eb92e259fd702cf3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11820,14 +11825,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "711d30272645628d2bb3b4b93f81962839d8386d0eb60d52eb92e259fd702cf3",
+  "tree_hash": "e91c9eecf068e30d82076263d917dd9c43d19502fb927351984b7eb354c0ea88",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1050,
+  "wiki_file_count": 1051,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11841,8 +11846,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2dd7883362fa9bb4eaefbf5d7173dd90b1ebd0bd3a764d6cce962fa01442730f",
-      "size": 1749272
+      "sha256": "4f42c57661e8c02f81fd4724d7c00c32ba159595c1e6255b28b3ea65eee7455e",
+      "size": 1749657
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14388,6 +14393,11 @@
       "path": "pages/projects/depin-audio-prioritization-q2.md",
       "sha256": "b8839179500198e5dbbcabaffa8ec7d205a1fc5f2c407f0bc052181969e92ffe",
       "size": 4166
+    },
+    {
+      "path": "pages/projects/depin-competitor-research.md",
+      "sha256": "37a74bec8dbec457adb93b25162c8612bfa7602df79de562a816562fdda77510",
+      "size": 3961
     },
     {
       "path": "pages/projects/depin-project.md",
@@ -17081,5 +17091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a08a1d8a0ae316c3bcded75841332bfa103a1f14d7527ea512d874fcd73d2221"
+  "wiki_tree_hash": "4fc4af2d58ebee5ad2803c29614591b179b828c641d9ae0c548b15b9a2bc7551"
 }

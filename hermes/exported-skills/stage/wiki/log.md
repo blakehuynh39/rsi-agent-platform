@@ -35548,3 +35548,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b85d1e7a42ca85308afdfbfdaaeeb08e
 - summary: Initial team reactions and comparisons to Google's Stitch design tool, including discussions on vibe coding limitations and alternative tools.
 
+## [2026-06-20T03:16:16Z] synthesis | DePIN Competitor Research
+
+- status: published
+- slug: projects/depin-competitor-research
+- wiki_revision_id: wikirev_549313f42d700336327a55acbe233446
+- summary: A research project identifying and analyzing competitors in the DePIN space, including KLED, Mercor, Listen Labs, Silencio, and Mundo, with insights on user interviews, agentic int...
+
+## [2026-06-20T03:18:25Z] synthesis | Scout Careers Web Prototype
+
+- status: published
+- slug: projects/scout-careers-web-prototype
+- wiki_revision_id: wikirev_9ebea0649079e7804e0028a04696fabc
+- summary: Internal prototype of Scout careers web app, with dashboard, sign-in, and ongoing UX feedback. Goal is data collection via voice agents. Project milestone on 4/10.
+
