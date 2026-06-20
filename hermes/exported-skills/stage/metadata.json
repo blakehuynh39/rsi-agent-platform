@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aaca3e3584cc802b5e2e43f1fec0b206b6d7023574ecaa6c769c924ebc025826",
-        "size": 1027109
+        "sha256": "5f0ef593dbf5237880d2919c1894cd08c111db45787c7f0939ce2776a7b55ed3",
+        "size": 1027936
       },
       {
         "path": "log.md",
-        "sha256": "0328e5cc71ba33799b1ab648fa6cb2bcb19e2fbf1a87bd1c972d4aaca0958a8a",
-        "size": 1767113
+        "sha256": "391d4bb1b9e97415046eb471713f394b2eaaf41184eb99431884d9bbcbb12c43",
+        "size": 1767501
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7520,6 +7520,11 @@
         "size": 3640
       },
       {
+        "path": "pages/runbooks/evmstaking-queue-monitoring.md",
+        "sha256": "09c5173a616dac9f586b801ca522fa8dd920be05562046f051b1c8e08216a605",
+        "size": 3846
+      },
+      {
         "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
         "sha256": "0d64616300ef482f3de93593b0f23f7da3ee135cf12e31ca7c093a44526c0d13",
         "size": 3005
@@ -8764,8 +8769,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T12:33:29Z",
-  "file_count": 1751,
+  "exported_at": "2026-06-20T12:39:56Z",
+  "file_count": 1752,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12042,7 +12047,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6c46c54ed63e9fdbe2fae0eb227dd2263dd9be85f45ab13fc8e6715e4b40dea4",
+  "previous_tree_hash": "650b047280186fa61182bc66bd6738606a7c340aa55d492fac3901c4ed9b1468",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12055,14 +12060,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "650b047280186fa61182bc66bd6738606a7c340aa55d492fac3901c4ed9b1468",
+  "tree_hash": "4740a1071fe580f4492ee9485a3106c469cc46ce49e1e9e1d5533fa1d48b8672",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1097,
+  "wiki_file_count": 1098,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12071,13 +12076,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aaca3e3584cc802b5e2e43f1fec0b206b6d7023574ecaa6c769c924ebc025826",
-      "size": 1027109
+      "sha256": "5f0ef593dbf5237880d2919c1894cd08c111db45787c7f0939ce2776a7b55ed3",
+      "size": 1027936
     },
     {
       "path": "log.md",
-      "sha256": "0328e5cc71ba33799b1ab648fa6cb2bcb19e2fbf1a87bd1c972d4aaca0958a8a",
-      "size": 1767113
+      "sha256": "391d4bb1b9e97415046eb471713f394b2eaaf41184eb99431884d9bbcbb12c43",
+      "size": 1767501
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16310,6 +16315,11 @@
       "size": 3640
     },
     {
+      "path": "pages/runbooks/evmstaking-queue-monitoring.md",
+      "sha256": "09c5173a616dac9f586b801ca522fa8dd920be05562046f051b1c8e08216a605",
+      "size": 3846
+    },
+    {
       "path": "pages/runbooks/explorer-docker-cleanup-cronjob.md",
       "sha256": "0d64616300ef482f3de93593b0f23f7da3ee135cf12e31ca7c093a44526c0d13",
       "size": 3005
@@ -17551,5 +17561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4ca198339d32aea453839e16866bba2d99600c891421045356d4b542b95e83b2"
+  "wiki_tree_hash": "ba73ac05e83e621255a088bc2fa3b13fbca0a0e4bd5af8341e9c1db86c5c9a73"
 }
