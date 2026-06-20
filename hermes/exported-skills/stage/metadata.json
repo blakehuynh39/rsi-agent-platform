@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7fe69ec7383f59daed2586baab3b6da1286dcc35049fe0a95997c1fa59edd4c0",
-        "size": 1023227
+        "sha256": "958b603f2694d1e5e08fb325407f267d97b9abf5b74af9d29bf048efb995b88c",
+        "size": 1024040
       },
       {
         "path": "log.md",
-        "sha256": "34706f9a27a7e2b06a14e8a8a2732efc3611a297de9f72aad4dc74fc1802915e",
-        "size": 1762637
+        "sha256": "853cc0e088fd76387afaa2ae6a0da862676d7199d4c0a586fa15406d9baf54ff",
+        "size": 1763474
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7550,6 +7550,11 @@
         "size": 2837
       },
       {
+        "path": "pages/runbooks/github-actions-pr-approvals-enablement.md",
+        "sha256": "dda2f48afdf4be5f95f0ca3f7f1ab4316123342d8e591d2ef45efa06c6a13875",
+        "size": 2902
+      },
+      {
         "path": "pages/runbooks/github-commit-ssh-key-signing.md",
         "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
         "size": 6826
@@ -7698,6 +7703,11 @@
         "path": "pages/runbooks/official-release-guide.md",
         "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
         "size": 3344
+      },
+      {
+        "path": "pages/runbooks/openclaw-bot-revival-2026-06-10.md",
+        "sha256": "b796b0566962b7f6f503661b39b4f1d9760b44ae07312542d91291a915ba803d",
+        "size": 3431
       },
       {
         "path": "pages/runbooks/openrouter-setup-and-cost-management.md",
@@ -8704,8 +8714,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T09:53:48Z",
-  "file_count": 1739,
+  "exported_at": "2026-06-20T10:20:36Z",
+  "file_count": 1741,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11982,7 +11992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "28de0bfa5947a8e29b20830be7b12b2d57f9db27963bd7781f5491de11289bc7",
+  "previous_tree_hash": "b1f505a626de129ba4469de61cf81a18876e97300a63ac0b08a90a1fcb01737f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11995,14 +12005,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b1f505a626de129ba4469de61cf81a18876e97300a63ac0b08a90a1fcb01737f",
+  "tree_hash": "7df98aed4afbbab920effb2bdf71616a680aeee4bd99de55040ffc2927aebbad",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1085,
+  "wiki_file_count": 1087,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12011,13 +12021,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7fe69ec7383f59daed2586baab3b6da1286dcc35049fe0a95997c1fa59edd4c0",
-      "size": 1023227
+      "sha256": "958b603f2694d1e5e08fb325407f267d97b9abf5b74af9d29bf048efb995b88c",
+      "size": 1024040
     },
     {
       "path": "log.md",
-      "sha256": "34706f9a27a7e2b06a14e8a8a2732efc3611a297de9f72aad4dc74fc1802915e",
-      "size": 1762637
+      "sha256": "853cc0e088fd76387afaa2ae6a0da862676d7199d4c0a586fa15406d9baf54ff",
+      "size": 1763474
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16280,6 +16290,11 @@
       "size": 2837
     },
     {
+      "path": "pages/runbooks/github-actions-pr-approvals-enablement.md",
+      "sha256": "dda2f48afdf4be5f95f0ca3f7f1ab4316123342d8e591d2ef45efa06c6a13875",
+      "size": 2902
+    },
+    {
       "path": "pages/runbooks/github-commit-ssh-key-signing.md",
       "sha256": "b012d1cd7c14514bfdbec70a01c1a063a0dd650ae882fce6008e5e8df4e2e43f",
       "size": 6826
@@ -16428,6 +16443,11 @@
       "path": "pages/runbooks/official-release-guide.md",
       "sha256": "3dc891e71473566e20ea06cf70f4ae704cc69c51b4c188b7313b833ca63f30ad",
       "size": 3344
+    },
+    {
+      "path": "pages/runbooks/openclaw-bot-revival-2026-06-10.md",
+      "sha256": "b796b0566962b7f6f503661b39b4f1d9760b44ae07312542d91291a915ba803d",
+      "size": 3431
     },
     {
       "path": "pages/runbooks/openrouter-setup-and-cost-management.md",
@@ -17431,5 +17451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9c34cc96f34500bfbdb29e66d8caf96d8beaf4258e4737f288105cffc137a330"
+  "wiki_tree_hash": "927bbeb378fe1711e422c3c52d0320e8b065de7fd5f7950472eac61e3f19d36c"
 }

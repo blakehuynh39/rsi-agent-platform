@@ -35793,3 +35793,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6cdbcbaa5cf2a1458967688c47eafa2d
 - summary: The team reviewed a list of 23 dangling DNS domains under storyapis.com and storyprotocol.net and decided to remove them, with explicit caution noted for domains that might be temp...
 
+## [2026-06-20T10:15:45Z] synthesis | Enabling GitHub Actions Create and Approve Pull Requests
+
+- status: published
+- slug: runbooks/github-actions-pr-approvals-enablement
+- wiki_revision_id: wikirev_bfd6c6ce3daeb76f3db8d4616de89b7d
+- summary: Steps to enable GitHub Actions to create and approve pull requests, required for automated release pipelines like changesets/action. Involves org-level and enterprise-level setting...
+
+## [2026-06-20T10:17:26Z] synthesis | OpenClaw Bot Revival Incident (2026-06-10)
+
+- status: published
+- slug: runbooks/openclaw-bot-revival-2026-06-10
+- wiki_revision_id: wikirev_a24a17545cfb590423398d73f6eff980
+- summary: On 2026-06-10, a user revived the OpenClaw Slack bot. Runtime and gateway were operational, but config recovery failures, a CRITICAL security audit flag for group policy/tools, Com...
+
