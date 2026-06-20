@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "eb8a3933d3d7cb6ccb2bd631c5fb82685d4cca1794e9431aa6a9af76dadb7a85",
-        "size": 1028770
+        "sha256": "b5fd5704f4e90f30544388555820f9098ee0fe6ab3c059ebac97adaf5072e005",
+        "size": 1029514
       },
       {
         "path": "log.md",
-        "sha256": "fe7137d5375670341e2f51554ff3dc25d2f8b09372ecc91383a4076ac7f25cc3",
-        "size": 1768359
+        "sha256": "19699ad2c77ef57b6648c5f7748afbd96c3b7b5728c6a5789974f3228f48063a",
+        "size": 1769127
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4528,6 +4528,11 @@
         "path": "pages/decisions/block-explorer-vendor-evaluation.md",
         "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
         "size": 12799
+      },
+      {
+        "path": "pages/decisions/cdr-sdk-pr-28-review.md",
+        "sha256": "4cb3056cd91180e25b1fa96ab52e0c57a1309aa39b1e05d28a3f953769ad7b05",
+        "size": 4648
       },
       {
         "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -7670,6 +7675,11 @@
         "size": 1920
       },
       {
+        "path": "pages/runbooks/meng-agent-outage-2026-05-08.md",
+        "sha256": "ee67ca8128a457266a13b0dc45223efd15c96f3253ee0951ea7bd36f46637392",
+        "size": 2140
+      },
+      {
         "path": "pages/runbooks/mininet-network-configuration.md",
         "sha256": "a495d3160c4e528be4fccb7e24b8e0487fd68a1605a80fb5f1e1082428a09adc",
         "size": 2299
@@ -8779,8 +8789,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T12:51:29Z",
-  "file_count": 1754,
+  "exported_at": "2026-06-20T13:02:58Z",
+  "file_count": 1756,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12057,7 +12067,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "4740a1071fe580f4492ee9485a3106c469cc46ce49e1e9e1d5533fa1d48b8672",
+  "previous_tree_hash": "a22e2f98fb3aa83a78d425d5a5a5fcf2a503f7d3d049c57b62d9fbbf55497b4c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12070,14 +12080,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a22e2f98fb3aa83a78d425d5a5a5fcf2a503f7d3d049c57b62d9fbbf55497b4c",
+  "tree_hash": "1f41a245523aa76ef887ad995040bd612e5d247b1984bb5a5b4f5df360daf6c6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1100,
+  "wiki_file_count": 1102,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12086,13 +12096,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "eb8a3933d3d7cb6ccb2bd631c5fb82685d4cca1794e9431aa6a9af76dadb7a85",
-      "size": 1028770
+      "sha256": "b5fd5704f4e90f30544388555820f9098ee0fe6ab3c059ebac97adaf5072e005",
+      "size": 1029514
     },
     {
       "path": "log.md",
-      "sha256": "fe7137d5375670341e2f51554ff3dc25d2f8b09372ecc91383a4076ac7f25cc3",
-      "size": 1768359
+      "sha256": "19699ad2c77ef57b6648c5f7748afbd96c3b7b5728c6a5789974f3228f48063a",
+      "size": 1769127
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13333,6 +13343,11 @@
       "path": "pages/decisions/block-explorer-vendor-evaluation.md",
       "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
       "size": 12799
+    },
+    {
+      "path": "pages/decisions/cdr-sdk-pr-28-review.md",
+      "sha256": "4cb3056cd91180e25b1fa96ab52e0c57a1309aa39b1e05d28a3f953769ad7b05",
+      "size": 4648
     },
     {
       "path": "pages/decisions/character-backstory-orchestrator.md",
@@ -16475,6 +16490,11 @@
       "size": 1920
     },
     {
+      "path": "pages/runbooks/meng-agent-outage-2026-05-08.md",
+      "sha256": "ee67ca8128a457266a13b0dc45223efd15c96f3253ee0951ea7bd36f46637392",
+      "size": 2140
+    },
+    {
       "path": "pages/runbooks/mininet-network-configuration.md",
       "sha256": "a495d3160c4e528be4fccb7e24b8e0487fd68a1605a80fb5f1e1082428a09adc",
       "size": 2299
@@ -17581,5 +17601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6200e1650923cc1910c5a1493c4fa0ba9c9d429c949c009324a2707bcdb38ff3"
+  "wiki_tree_hash": "b8fe35f334a9555a1227b00f1542520f53ec998ea3b98693e3cbefc843f7dbd4"
 }

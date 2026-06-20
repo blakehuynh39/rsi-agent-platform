@@ -35898,3 +35898,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_014c54f514be97b36050c9005d8321d9
 - summary: Investigation of staking-api deployments crashing with 'namespace not authorized' Vault auth error. Root cause: new Kubernetes namespaces not allowed in Vault role default, compoun...
 
+## [2026-06-20T13:01:12Z] synthesis | CDR SDK PR #28 Review
+
+- status: published
+- slug: decisions/cdr-sdk-pr-28-review
+- wiki_revision_id: wikirev_1d7cdeef6ae41ccfe093772ca1f2fd98
+- summary: Automated review of PR #28 for piplabs/cdr-sdk identified key issues: DKG validator key lookback window may drop old validators, `verifyAttestation` is a no‑op, `skipHashCheck` nee...
+
+## [2026-06-20T13:02:22Z] synthesis | Meng Agent Outage May 2026
+
+- status: published
+- slug: runbooks/meng-agent-outage-2026-05-08
+- wiki_revision_id: wikirev_592e82ee60893fefb11bc2e38560871f
+- summary: On 2026-05-08, Meng agent was reported down with a network connection error. Investigation revealed the runtime host was stopped after migration. The issue was resolved by the repo...
+
