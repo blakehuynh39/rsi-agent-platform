@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "60c8c0c24a0380e7e2978742862277bc20bddb03dc060d090d49e3406e67a22e",
-        "size": 1759628
+        "sha256": "f3a71161e1842c202a11b12b88a80e34009e2d92179559ec6c88d7fabc4e7cea",
+        "size": 1760065
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4573,6 +4573,11 @@
         "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
         "sha256": "4143542761702c44c3bc666aaba711c795e20a9bfbbc971bdae8bf94bf5506fc",
         "size": 8054
+      },
+      {
+        "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
+        "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
+        "size": 3065
       },
       {
         "path": "pages/decisions/deployment-chain-decision.md",
@@ -8664,8 +8669,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T08:39:29Z",
-  "file_count": 1731,
+  "exported_at": "2026-06-20T08:45:58Z",
+  "file_count": 1732,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11942,7 +11947,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5f902509446fd9d1ff7aab7baaec62d7d83a727c6fed077f304c2f56b7e77c35",
+  "previous_tree_hash": "1664f7b5ebb66e2b284776ec94073366c6d4e442b8bd154030bb997f441ea16d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11955,14 +11960,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1664f7b5ebb66e2b284776ec94073366c6d4e442b8bd154030bb997f441ea16d",
+  "tree_hash": "a681deda009b4ac7827b8a63d306167e55bedae380eaedfd0c228bfef8375dd7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1077,
+  "wiki_file_count": 1078,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11976,8 +11981,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "60c8c0c24a0380e7e2978742862277bc20bddb03dc060d090d49e3406e67a22e",
-      "size": 1759628
+      "sha256": "f3a71161e1842c202a11b12b88a80e34009e2d92179559ec6c88d7fabc4e7cea",
+      "size": 1760065
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13263,6 +13268,11 @@
       "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
       "sha256": "4143542761702c44c3bc666aaba711c795e20a9bfbbc971bdae8bf94bf5506fc",
       "size": 8054
+    },
+    {
+      "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
+      "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
+      "size": 3065
     },
     {
       "path": "pages/decisions/deployment-chain-decision.md",
@@ -17351,5 +17361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "33f4f2f00e877741c4f5f7814b3c9638fe2b07761e050c618ee5893dc7e6c354"
+  "wiki_tree_hash": "be024c10b6e91707140f8076e5517d0cde1b979b93d63c4f80d9fffcd672967f"
 }

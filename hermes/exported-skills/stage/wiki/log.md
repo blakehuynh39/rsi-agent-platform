@@ -35737,3 +35737,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dd1c1c6184484f8d86948463f1877322
 - summary: Policy for requesting access to Claude Platform and Google Groups, using SecBot self-service with admin oversight. Discussed best practices for API management.
 
+## [2026-06-20T08:45:45Z] synthesis | Decision: Remove storyapis.com TLV backend domains from Cloudflare
+
+- status: published
+- slug: decisions/decision-remove-storyapis-tlv-backend-domains
+- wiki_revision_id: wikirev_848e3faad0689e762d24b49712550eef
+- summary: The domains ff-backend.storyapis.com and use1-stage-tlv-backend.storyapis.com, previously owned by Don, were confirmed for removal from Cloudflare configuration via PR #206.
+
