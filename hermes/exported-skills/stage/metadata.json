@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fac5daef923b58ea710c5169f27bcc78be1890a83a1735816e864d3ca3303944",
-        "size": 1012831
+        "sha256": "6c0e5f4e57273741e51c0d07d8f27658b6933c759d3fc5b0278e41d964b83803",
+        "size": 1013575
       },
       {
         "path": "log.md",
-        "sha256": "524da015c022c966bcc829af09e16c86ea5047a228188b572a4e61e034304ff7",
-        "size": 1752264
+        "sha256": "10cb128143872c0a2e0c08730f43782f76d1860e422dfa45a0281a264b2654c2",
+        "size": 1752674
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4393,6 +4393,11 @@
         "path": "pages/concepts/transfer-to-vault-function.md",
         "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
         "size": 3648
+      },
+      {
+        "path": "pages/concepts/transfertovault-and-payroyaltyonbehalf.md",
+        "sha256": "b770b31368fb4316c9e03ce26c7e79db6165f7f9bc03c3d059a51560f610b51f",
+        "size": 1857
       },
       {
         "path": "pages/concepts/ui-translations.md",
@@ -8569,8 +8574,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T04:32:29Z",
-  "file_count": 1712,
+  "exported_at": "2026-06-20T04:38:56Z",
+  "file_count": 1713,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -11847,7 +11852,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "467c09a6501a76250e58896b1198ea2f858495d8cfbe7d6341975490f58ac13b",
+  "previous_tree_hash": "8dc1afe3949385b7e6835078d4ff487541e214dd48a0512bba81647bbcbbdfad",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -11860,14 +11865,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8dc1afe3949385b7e6835078d4ff487541e214dd48a0512bba81647bbcbbdfad",
+  "tree_hash": "b5f4b4379b593bdfdc60f6a54a6343ab83f8214a9a9b41d53da7e38dd5f7f13e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1058,
+  "wiki_file_count": 1059,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -11876,13 +11881,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fac5daef923b58ea710c5169f27bcc78be1890a83a1735816e864d3ca3303944",
-      "size": 1012831
+      "sha256": "6c0e5f4e57273741e51c0d07d8f27658b6933c759d3fc5b0278e41d964b83803",
+      "size": 1013575
     },
     {
       "path": "log.md",
-      "sha256": "524da015c022c966bcc829af09e16c86ea5047a228188b572a4e61e034304ff7",
-      "size": 1752264
+      "sha256": "10cb128143872c0a2e0c08730f43782f76d1860e422dfa45a0281a264b2654c2",
+      "size": 1752674
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12988,6 +12993,11 @@
       "path": "pages/concepts/transfer-to-vault-function.md",
       "sha256": "9b2d9dbec4d1805961de2831e3e35e99baba1f22ff98dbafb5fbdfed743e7f17",
       "size": 3648
+    },
+    {
+      "path": "pages/concepts/transfertovault-and-payroyaltyonbehalf.md",
+      "sha256": "b770b31368fb4316c9e03ce26c7e79db6165f7f9bc03c3d059a51560f610b51f",
+      "size": 1857
     },
     {
       "path": "pages/concepts/ui-translations.md",
@@ -17161,5 +17171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "64bfb61b5676df377561538a569c81c61c1ce9053e37a17b50b3c8f363aa04d5"
+  "wiki_tree_hash": "bb50583c58105706ba8384d91b5584c0a8bc67b78b269fe5f6f98d8dc688f5c7"
 }
