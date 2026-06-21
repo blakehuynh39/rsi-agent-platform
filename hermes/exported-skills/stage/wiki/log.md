@@ -36066,3 +36066,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e3bb7b4384eff77d191dec9888a4905d
 - summary: Notable pull requests shared for review in the Story Protocol Core v1 repository.
 
+## [2026-06-21T21:30:51Z] synthesis | Querying Royalty Token Holders for an IP
+
+- status: published
+- slug: concepts/query-royalty-token-holders
+- wiki_revision_id: wikirev_3d6d44d7b48b38b96843d312c26739b6
+- summary: There is no on-chain function to list all addresses holding royalty tokens for a given IP royalty vault. However, off-chain solutions exist using an indexer, backend API, or the Bl...
+
+## [2026-06-21T21:31:20Z] synthesis | Listing Royalty Token Holders for an IP Vault
+
+- status: published
+- slug: concepts/list-royalty-token-holders
+- wiki_revision_id: wikirev_a0188bcdc8cd6a978c35f99cc2bc31d2
+- summary: There is no on-chain function to list all addresses and their royalty token balances for a given IP ID. Off-chain solutions include using an indexer/backend API or blockscout explo...
+
