@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6d6b9883293c43dff9a09c3ca8c8240d6e04190ab9828174969a0d6dffaa9cf9",
-        "size": 1035151
+        "sha256": "3ec4704ea4d7707854aa54e6240cc2baedc1dccfdd0a19b3f2179225dbaabf67",
+        "size": 1036333
       },
       {
         "path": "log.md",
-        "sha256": "6a25ee085f35f5db463951117c6c8d438c603e4dff7be0d5a3b0b4541275329d",
-        "size": 1775632
+        "sha256": "c45d88064d486b2d6d0bd927266dfa1f57d995e808166b17f47121e6599249c6",
+        "size": 1776906
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4218,6 +4218,11 @@
         "path": "pages/concepts/royalty-token-distribution-workflows.md",
         "sha256": "620f74be495e6f01beeb2b9291ab1b6147b70aec540bbd63c1ee453233e545fa",
         "size": 1587
+      },
+      {
+        "path": "pages/concepts/royalty-token-vault-balance-query.md",
+        "sha256": "41a1fcae0a8ec48d8478a10f361acfb763821094cecd0c002d0cf00365217338",
+        "size": 1240
       },
       {
         "path": "pages/concepts/royalty-transfer-to-vault.md",
@@ -5620,6 +5625,11 @@
         "size": 8606
       },
       {
+        "path": "pages/policies/pil-versioning-and-canonical-url.md",
+        "sha256": "a07a1c2e67bdd24989a9d987f5f237d50d6d5c3030accef25c311c4ab62bf544",
+        "size": 2322
+      },
+      {
         "path": "pages/policies/platform-team-secrets-access.md",
         "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
         "size": 1269
@@ -6918,6 +6928,11 @@
         "path": "pages/projects/protocol-beta-mainnet.md",
         "sha256": "98773cfccb7ca951f70451ace5a6df453073fad726e4dff281cf415aa2cb43fb",
         "size": 4862
+      },
+      {
+        "path": "pages/projects/protocol-core-v1-development.md",
+        "sha256": "d376f065324b4f5ba7effe3b2d5f6563bfa9c056936f38549ee9ede4185ae6ab",
+        "size": 1459
       },
       {
         "path": "pages/projects/protocol-periphery-sot.md",
@@ -8815,6 +8830,11 @@
         "size": 4770
       },
       {
+        "path": "pages/systems/testnet-ip-faucet.md",
+        "sha256": "a982965fe367a573983af880c56df6b83d49977d77b6f9003a5f523993aeb5ce",
+        "size": 3434
+      },
+      {
         "path": "pages/systems/tmkms.md",
         "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
         "size": 4668
@@ -8869,8 +8889,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-21T21:17:18Z",
-  "file_count": 1772,
+  "exported_at": "2026-06-21T21:23:45Z",
+  "file_count": 1776,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12147,7 +12167,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a157b6cfede54409822bb70c7bc9525e209c9a8a45b27f21120aab5ad7cf121b",
+  "previous_tree_hash": "176a214f81d40d2d0b35164015b50a6298424715d69c467694846b5197d16e4b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12160,14 +12180,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "176a214f81d40d2d0b35164015b50a6298424715d69c467694846b5197d16e4b",
+  "tree_hash": "3472df616653d95de55db043181a338c0d38aeaf5dd0fa996e0fd46fc2748833",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1118,
+  "wiki_file_count": 1122,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12176,13 +12196,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6d6b9883293c43dff9a09c3ca8c8240d6e04190ab9828174969a0d6dffaa9cf9",
-      "size": 1035151
+      "sha256": "3ec4704ea4d7707854aa54e6240cc2baedc1dccfdd0a19b3f2179225dbaabf67",
+      "size": 1036333
     },
     {
       "path": "log.md",
-      "sha256": "6a25ee085f35f5db463951117c6c8d438c603e4dff7be0d5a3b0b4541275329d",
-      "size": 1775632
+      "sha256": "c45d88064d486b2d6d0bd927266dfa1f57d995e808166b17f47121e6599249c6",
+      "size": 1776906
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13113,6 +13133,11 @@
       "path": "pages/concepts/royalty-token-distribution-workflows.md",
       "sha256": "620f74be495e6f01beeb2b9291ab1b6147b70aec540bbd63c1ee453233e545fa",
       "size": 1587
+    },
+    {
+      "path": "pages/concepts/royalty-token-vault-balance-query.md",
+      "sha256": "41a1fcae0a8ec48d8478a10f361acfb763821094cecd0c002d0cf00365217338",
+      "size": 1240
     },
     {
       "path": "pages/concepts/royalty-transfer-to-vault.md",
@@ -14515,6 +14540,11 @@
       "size": 8606
     },
     {
+      "path": "pages/policies/pil-versioning-and-canonical-url.md",
+      "sha256": "a07a1c2e67bdd24989a9d987f5f237d50d6d5c3030accef25c311c4ab62bf544",
+      "size": 2322
+    },
+    {
       "path": "pages/policies/platform-team-secrets-access.md",
       "sha256": "b9e972091c12f86d26263d18339f7b9fdd885580494f4b30f479fc26a95be88c",
       "size": 1269
@@ -15813,6 +15843,11 @@
       "path": "pages/projects/protocol-beta-mainnet.md",
       "sha256": "98773cfccb7ca951f70451ace5a6df453073fad726e4dff281cf415aa2cb43fb",
       "size": 4862
+    },
+    {
+      "path": "pages/projects/protocol-core-v1-development.md",
+      "sha256": "d376f065324b4f5ba7effe3b2d5f6563bfa9c056936f38549ee9ede4185ae6ab",
+      "size": 1459
     },
     {
       "path": "pages/projects/protocol-periphery-sot.md",
@@ -17710,6 +17745,11 @@
       "size": 4770
     },
     {
+      "path": "pages/systems/testnet-ip-faucet.md",
+      "sha256": "a982965fe367a573983af880c56df6b83d49977d77b6f9003a5f523993aeb5ce",
+      "size": 3434
+    },
+    {
       "path": "pages/systems/tmkms.md",
       "sha256": "6001f868c157137aaf3aaaa7dced56102d50d16cccdce109cf241868ba218387",
       "size": 4668
@@ -17761,5 +17801,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0ef1c1c294bc7e76ba4b9e979d83dbccbece0bc3af4340c4e527582db3f80622"
+  "wiki_tree_hash": "2ace79036f0adeb4b1905d608f04c14a8386da7b52b95447a1c9da663fdec49c"
 }

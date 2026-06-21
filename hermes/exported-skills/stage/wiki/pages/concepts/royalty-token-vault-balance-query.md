@@ -1,0 +1,36 @@
+---
+title: "Querying Royalty Token Balances for a Vault"
+type: "concept"
+slug: "concepts/royalty-token-vault-balance-query"
+freshness: "2026-01-18T19:15:49Z"
+tags:
+  - "query"
+  - "royalty"
+  - "token"
+  - "vault"
+owners: []
+source_revision_ids:
+  - "srcrev_9a523de58f35281175c64f7b2c1044d7"
+conflict_state: "none"
+---
+
+# Querying Royalty Token Balances for a Vault
+
+## Summary
+
+Questions about how to retrieve all addresses and their Royalty Token amounts for a specific vault.
+
+## Claims
+
+- A team member inquired whether there is a way to get all addresses and their Royalty Token amounts for a certain vault. `claim:claim_3_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_0708298813917544f78c01e06c230684` `source_revision_id=srcrev_9a523de58f35281175c64f7b2c1044d7` `chunk_id=srcchunk_48ca7b13050a92477dac237b06b91ffc` `native_locator=slack:C04T5307FNU:1768763749.981999:1768763749.981999` `source_timestamp=2026-01-18T19:15:49Z`
+
+## Open Questions
+
+- How can developers obtain this information?
+- Is there an existing method or API to query royalty token balances per vault?
+
+## Sources
+
+- `source_document_id`: `srcdoc_0708298813917544f78c01e06c230684`
+- `source_revision_id`: `srcrev_9a523de58f35281175c64f7b2c1044d7`
