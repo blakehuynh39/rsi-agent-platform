@@ -36031,3 +36031,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_39166b80a6b10909db23a2881598cc29
 - summary: Pull request #479 in storyprotocol/protocol-core-v1 is awaiting review. The author has requested review and sent multiple reminders.
 
+## [2026-06-21T21:15:43Z] synthesis | Review of protocol-core-v1 PR #479
+
+- status: published
+- slug: projects/pr-479-review
+- wiki_revision_id: wikirev_808231f624f9af45d8761deddf34ab83
+- summary: A pull request #479 in storyprotocol/protocol-core-v1 is ready for review. Reviewers have been pinged via Slack, and there has been some reply activity.
+
