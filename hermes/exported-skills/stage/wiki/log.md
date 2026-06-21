@@ -36024,3 +36024,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_43a1f4c1e84224d450a2deaedbfc269c
 - summary: A proposed pattern to enable fractional IP ownership and revenue distribution on Story Protocol while respecting the protocol's canonical IPAsset owner. It involves a custom ERC-72...
 
+## [2026-06-21T21:01:49Z] synthesis | PR #479 Review Request
+
+- status: published
+- slug: projects/pr-479-review-request
+- wiki_revision_id: wikirev_39166b80a6b10909db23a2881598cc29
+- summary: Pull request #479 in storyprotocol/protocol-core-v1 is awaiting review. The author has requested review and sent multiple reminders.
+
