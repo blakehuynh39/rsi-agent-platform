@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "502d1b6ae26f1e232ac0728988c2e389d9181aa1ef8d7e20450f559a26bdf925",
-        "size": 1034435
+        "sha256": "d833fb413a894e225e3e5edd0eb7259fc1528dde3810e34cdc8b257d33936fea",
+        "size": 1034836
       },
       {
         "path": "log.md",
-        "sha256": "0a2a8da4b9cedd5d782a9f99c22a325682793d2408e69aec563be9cb8545ad94",
-        "size": 1774541
+        "sha256": "af90569ad73b652ae1facc32353e7c107b72a9d2d8a924bf34304e89f978d5dc",
+        "size": 1774954
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3748,6 +3748,11 @@
         "path": "pages/concepts/ip-dispute-non-commercial-limitations.md",
         "sha256": "ef472e3d79ae03ef19a99610e98617064585e4aa13085d244d7cd43ed8fb808e",
         "size": 3475
+      },
+      {
+        "path": "pages/concepts/ip-fractional-ownership-wrapper-pattern.md",
+        "sha256": "48a8adb418874020a3eb018fc561a26e0ad9a529fdfe75d4c1788d22117a6e32",
+        "size": 3753
       },
       {
         "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -8859,8 +8864,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-20T14:33:37Z",
-  "file_count": 1770,
+  "exported_at": "2026-06-21T20:33:53Z",
+  "file_count": 1771,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12137,7 +12142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "c85592354eb99613eef1b63642b239fc4991123ee78fae1591f63f0df243e4bf",
+  "previous_tree_hash": "4df61dd0e4659e8d085acd7f7f81a69670d77b9ae37a9181b2038b7e7c8ee526",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12150,14 +12155,14 @@
   ],
   "skill_tree_hash": "763594774b3c14f169c8a231b4c60618ce35be79c8868ceb6aef054447b10156",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4df61dd0e4659e8d085acd7f7f81a69670d77b9ae37a9181b2038b7e7c8ee526",
+  "tree_hash": "e60c4df5235a7458474afeecc41a7d24200a4932bf9ce18586584efd85fb8d1a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1116,
+  "wiki_file_count": 1117,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12166,13 +12171,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "502d1b6ae26f1e232ac0728988c2e389d9181aa1ef8d7e20450f559a26bdf925",
-      "size": 1034435
+      "sha256": "d833fb413a894e225e3e5edd0eb7259fc1528dde3810e34cdc8b257d33936fea",
+      "size": 1034836
     },
     {
       "path": "log.md",
-      "sha256": "0a2a8da4b9cedd5d782a9f99c22a325682793d2408e69aec563be9cb8545ad94",
-      "size": 1774541
+      "sha256": "af90569ad73b652ae1facc32353e7c107b72a9d2d8a924bf34304e89f978d5dc",
+      "size": 1774954
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12633,6 +12638,11 @@
       "path": "pages/concepts/ip-dispute-non-commercial-limitations.md",
       "sha256": "ef472e3d79ae03ef19a99610e98617064585e4aa13085d244d7cd43ed8fb808e",
       "size": 3475
+    },
+    {
+      "path": "pages/concepts/ip-fractional-ownership-wrapper-pattern.md",
+      "sha256": "48a8adb418874020a3eb018fc561a26e0ad9a529fdfe75d4c1788d22117a6e32",
+      "size": 3753
     },
     {
       "path": "pages/concepts/ip-graph-node-verification-merkle-tree.md",
@@ -17741,5 +17751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "18827bcf4f057f27660b874b4b02b45fef81204816167b72627bf19ca39f8356"
+  "wiki_tree_hash": "f5f7b100d0eedf68350c5eb38942d40090350db656cc6d1d2982cf87b22f4b62"
 }

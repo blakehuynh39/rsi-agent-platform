@@ -36017,3 +36017,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a9a1f57c55bc1be25e34862e1c89e3e8
 - summary: A request for the latest status on email whitelisting and to grant access to several email addresses.
 
+## [2026-06-21T20:32:04Z] synthesis | IP Fractional Ownership Wrapper Pattern
+
+- status: published
+- slug: concepts/ip-fractional-ownership-wrapper-pattern
+- wiki_revision_id: wikirev_43a1f4c1e84224d450a2deaedbfc269c
+- summary: A proposed pattern to enable fractional IP ownership and revenue distribution on Story Protocol while respecting the protocol's canonical IPAsset owner. It involves a custom ERC-72...
+
