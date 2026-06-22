@@ -36676,3 +36676,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_475c999651f9e91c1b2fd55e64674cc2
 - summary: Overview of the tables in sos-royalty-graph-prod and story-blockchain-prod databases as observed on 2026-05-15.
 
+## [2026-06-22T20:47:14Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_911febd1f5698bfaed3b7d5bacc14950
+- summary: The Tiger Team is a cross-functional group responsible for building and managing DePIN apps, including Scout Careers, Aura, DePIN Backend, and DePIN Admin. They also plan future ap...
+
+## [2026-06-22T20:47:14Z] synthesis | Trace Backend Architecture
+
+- status: published
+- slug: systems/trace-backend-architecture
+- wiki_revision_id: wikirev_8444b2111777787c44bcd0241d04a7db
+- summary: Overview of the Trace backend system architecture, including staging deployment verified June 3, 2026 UTC, write/read paths, SQS-based ingestion, idempotency, search indexing, vers...
+
