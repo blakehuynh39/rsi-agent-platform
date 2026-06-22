@@ -36625,3 +36625,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7acc240e9396eed9f0365d0751d1cd2f
 - summary: Investigation reveals limited observability into Royalty Graph, IP Graph, and POC Modules usage. No internal dashboards for royalty/POC exist; Temporal namespace access is broken; ...
 
+## [2026-06-22T19:47:09Z] synthesis | Royalty Graph v1/v2
+
+- status: published
+- slug: systems/royalty-graph-v1-v2
+- wiki_revision_id: wikirev_9e1e579421d59d534a888759c4fc56a1
+- summary: Royalty Graph component handles royalty calculations and related workflows. It is deployed across multiple Temporal namespaces (v1 and v2), but currently lacks an internal dashboar...
+
+## [2026-06-22T19:47:09Z] synthesis | IP Graph
+
+- status: published
+- slug: systems/ip-graph
+- wiki_revision_id: wikirev_bb36e9d0f5da2aca2133dc6773b49101
+- summary: IP Graph is the component that indexes IP assets. Monitoring is partially covered by the Story Indexer Grafana dashboard and a Temporal namespace, but no dedicated dashboard or Pro...
+
+## [2026-06-22T19:47:09Z] synthesis | POC Modules Collection, Licensing, Royalties
+
+- status: published
+- slug: systems/poc-modules-collection-licensing-royalties
+- wiki_revision_id: wikirev_aea76fed1b7f2b14ee1dff4a2e5d1fa1
+- summary: POC Modules (Collection, Licensing, Royalties) are protocol‑layer features with on‑chain usage data. No Grafana dashboards exist; metrics are expected via Dune Analytics or interna...
+
+## [2026-06-22T19:47:09Z] synthesis | RSI Investigation: Usage Data for Royalty Graph, IP Graph, POC Modules (2026-05-15)
+
+- status: published
+- slug: runbooks/rsi-investigation-2026-05-15-usage-data
+- wiki_revision_id: wikirev_c13192dd898a9c1f2b21ceb4065e5fdc
+- summary: On 2026-05-15, Yao requested usage data for Royalty Graph v1/v2, IP Graph, and POC Modules. RSI investigated available monitoring and data sources, revealing severe limitations in ...
+

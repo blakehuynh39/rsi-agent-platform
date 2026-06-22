@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aaf23445c7f80700a23470c3b1122a13ff9ecc4fc87a39ea77e4a6d5c7c52814",
-        "size": 1058743
+        "sha256": "1ebb5a36d0859e9c8782bfbffc6172266a3c4af45c1f59b8cecf1de50786573c",
+        "size": 1059968
       },
       {
         "path": "log.md",
-        "sha256": "075f4d6c33d4cc8076de5631caf2a829559ecd21c88393395630d8ea433a9646",
-        "size": 1806026
+        "sha256": "4a6f860bd0337c3671060a42c9eb6f93f4af93ba9fbfa1e9d7b0c83d0d1eb288",
+        "size": 1807629
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8130,6 +8130,11 @@
         "size": 3616
       },
       {
+        "path": "pages/runbooks/rsi-investigation-2026-05-15-usage-data.md",
+        "sha256": "7fe100dc2082ff291a945b3434633f2dc8d895a06aa8dcc1a5cd1d1bab5af570",
+        "size": 5980
+      },
+      {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
         "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
         "size": 1280
@@ -8621,8 +8626,8 @@
       },
       {
         "path": "pages/systems/ip-graph.md",
-        "sha256": "e016de69ac2b9b206c46b0322299a516328b3ad845255562bef34010d44da3c8",
-        "size": 2540
+        "sha256": "8b229b88e5edecb1ac360aadc2807094de5db21f11c6a7490192fa3aa1cff855",
+        "size": 2602
       },
       {
         "path": "pages/systems/ipa-staking.md",
@@ -8840,6 +8845,11 @@
         "size": 2831
       },
       {
+        "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
+        "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
+        "size": 2443
+      },
+      {
         "path": "pages/systems/poc-modules.md",
         "sha256": "eff1043fbe955bed17e81d1efca4edd87e819915e06b57b2c66133ad4cf6df92",
         "size": 2281
@@ -8978,6 +8988,11 @@
         "path": "pages/systems/royalty-graph-monitoring.md",
         "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
         "size": 5243
+      },
+      {
+        "path": "pages/systems/royalty-graph-v1-v2.md",
+        "sha256": "05203dd186a873b6b739e47952e6d34e730d5a9257c905dde9f1c7fc92904bbe",
+        "size": 3377
       },
       {
         "path": "pages/systems/royalty-graph.md",
@@ -9204,8 +9219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T19:38:50Z",
-  "file_count": 1839,
+  "exported_at": "2026-06-22T19:50:29Z",
+  "file_count": 1842,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12482,7 +12497,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "472931ce1a32a112309e963f6f2c7190d243fc0e8c71e7ee13b43054a7d516fe",
+  "previous_tree_hash": "c9e020b67d79061c77e7271f6946e81d357b5e61570c1d72f6113082bdd88a3d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12495,14 +12510,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c9e020b67d79061c77e7271f6946e81d357b5e61570c1d72f6113082bdd88a3d",
+  "tree_hash": "36cff30be85b9831a74dfeae09441249a8a084e360a2c5c07ce8827b27521c84",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1185,
+  "wiki_file_count": 1188,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12511,13 +12526,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aaf23445c7f80700a23470c3b1122a13ff9ecc4fc87a39ea77e4a6d5c7c52814",
-      "size": 1058743
+      "sha256": "1ebb5a36d0859e9c8782bfbffc6172266a3c4af45c1f59b8cecf1de50786573c",
+      "size": 1059968
     },
     {
       "path": "log.md",
-      "sha256": "075f4d6c33d4cc8076de5631caf2a829559ecd21c88393395630d8ea433a9646",
-      "size": 1806026
+      "sha256": "4a6f860bd0337c3671060a42c9eb6f93f4af93ba9fbfa1e9d7b0c83d0d1eb288",
+      "size": 1807629
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17360,6 +17375,11 @@
       "size": 3616
     },
     {
+      "path": "pages/runbooks/rsi-investigation-2026-05-15-usage-data.md",
+      "sha256": "7fe100dc2082ff291a945b3434633f2dc8d895a06aa8dcc1a5cd1d1bab5af570",
+      "size": 5980
+    },
+    {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
       "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
       "size": 1280
@@ -17851,8 +17871,8 @@
     },
     {
       "path": "pages/systems/ip-graph.md",
-      "sha256": "e016de69ac2b9b206c46b0322299a516328b3ad845255562bef34010d44da3c8",
-      "size": 2540
+      "sha256": "8b229b88e5edecb1ac360aadc2807094de5db21f11c6a7490192fa3aa1cff855",
+      "size": 2602
     },
     {
       "path": "pages/systems/ipa-staking.md",
@@ -18070,6 +18090,11 @@
       "size": 2831
     },
     {
+      "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
+      "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
+      "size": 2443
+    },
+    {
       "path": "pages/systems/poc-modules.md",
       "sha256": "eff1043fbe955bed17e81d1efca4edd87e819915e06b57b2c66133ad4cf6df92",
       "size": 2281
@@ -18208,6 +18233,11 @@
       "path": "pages/systems/royalty-graph-monitoring.md",
       "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
       "size": 5243
+    },
+    {
+      "path": "pages/systems/royalty-graph-v1-v2.md",
+      "sha256": "05203dd186a873b6b739e47952e6d34e730d5a9257c905dde9f1c7fc92904bbe",
+      "size": 3377
     },
     {
       "path": "pages/systems/royalty-graph.md",
@@ -18431,5 +18461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "983dd182f1e4f45e28c06ba96111e7b6cd4a8d9b2c708b67868bad42c633dbdb"
+  "wiki_tree_hash": "bd7de42dcda171abc98cb9c73853f06e6a7e9080e15a64c00d2741604ada94bd"
 }
