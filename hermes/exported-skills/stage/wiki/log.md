@@ -36534,3 +36534,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f7f3d07847020722efe35ea1054e1469
 - summary: Assessment of available usage monitoring for Royalty Graph (v1/v2), IP Graph, and POC Modules. No dedicated dashboards, limited database access, no Prometheus metrics, and broken T...
 
+## [2026-06-22T17:32:05Z] synthesis | RSI Agent
+
+- status: published
+- slug: people/rsi-agent
+- wiki_revision_id: wikirev_aebe8de3829115ed9f44bc853fc15a44
+- summary: RSI is an AI assistant that can answer questions using available data sources. Its current access is limited to the depin database and Grafana dashboards; it cannot read from SOS o...
+
+## [2026-06-22T17:32:05Z] synthesis | Royalty Graph, IP Graph, and POC Module Usage Monitoring
+
+- status: published
+- slug: systems/royalty-graph-monitoring
+- wiki_revision_id: wikirev_aac43799e03ce6fe55a2a1f5e3abd21a
+- summary: Current observability landscape for Royalty Graph, IP Graph, and POC Modules as of May 2026. No internal dashboards exist for royalty or POC metrics; IP Graph has partial Grafana c...
+

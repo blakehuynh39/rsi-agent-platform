@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7e86b7bf7e96c4650ab92af3b2597a551dc5904f300e8435934d746955165876",
-        "size": 1054652
+        "sha256": "38f96fc6ceae6d170fb7676b81d8ca850ee22b4602058460a3a621b74670edbe",
+        "size": 1055393
       },
       {
         "path": "log.md",
-        "sha256": "a3d3ef264937827c01faf918d32cde4e9f64ece659552c13d871373872e1a938",
-        "size": 1800690
+        "sha256": "0303a8bd1a6de9034ee430acf2450af98d51ddc0382be799c8a46c20ccf41f91",
+        "size": 1801455
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5573,6 +5573,11 @@
         "path": "pages/people/leo-chen.md",
         "sha256": "5be10ee227c7774ad4d2aec24009d981b0ad060b7ef89c908fea5738a061c5b4",
         "size": 2656
+      },
+      {
+        "path": "pages/people/rsi-agent.md",
+        "sha256": "c5932e4886703164b30b63d2dd9753eefa5092e3618b3ebc187a8ed7a0899843",
+        "size": 3216
       },
       {
         "path": "pages/people/shenwang-pip.md",
@@ -8935,6 +8940,11 @@
         "size": 6675
       },
       {
+        "path": "pages/systems/royalty-graph-monitoring.md",
+        "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
+        "size": 5243
+      },
+      {
         "path": "pages/systems/royalty-graph.md",
         "sha256": "06528d2ea247b7c0b980082c9e8f487aa948fefc08db1fd0e549fabbd11cd61a",
         "size": 4591
@@ -9154,8 +9164,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T17:19:29Z",
-  "file_count": 1829,
+  "exported_at": "2026-06-22T17:36:11Z",
+  "file_count": 1831,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12432,7 +12442,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d0c5d584cde852c61fe3c64df37939c6473af4bd02dfd097828a957e4ba2733f",
+  "previous_tree_hash": "83ee40dfd7d8744af53df34cdffc087666b4df7b9b7c74e62b97596d463e9891",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12445,14 +12455,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "83ee40dfd7d8744af53df34cdffc087666b4df7b9b7c74e62b97596d463e9891",
+  "tree_hash": "3d2d4ad07fadcfade6af844895dca62d2239e97eab8896c40a7cc1e9f141fa64",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1175,
+  "wiki_file_count": 1177,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12461,13 +12471,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7e86b7bf7e96c4650ab92af3b2597a551dc5904f300e8435934d746955165876",
-      "size": 1054652
+      "sha256": "38f96fc6ceae6d170fb7676b81d8ca850ee22b4602058460a3a621b74670edbe",
+      "size": 1055393
     },
     {
       "path": "log.md",
-      "sha256": "a3d3ef264937827c01faf918d32cde4e9f64ece659552c13d871373872e1a938",
-      "size": 1800690
+      "sha256": "0303a8bd1a6de9034ee430acf2450af98d51ddc0382be799c8a46c20ccf41f91",
+      "size": 1801455
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14753,6 +14763,11 @@
       "path": "pages/people/leo-chen.md",
       "sha256": "5be10ee227c7774ad4d2aec24009d981b0ad060b7ef89c908fea5738a061c5b4",
       "size": 2656
+    },
+    {
+      "path": "pages/people/rsi-agent.md",
+      "sha256": "c5932e4886703164b30b63d2dd9753eefa5092e3618b3ebc187a8ed7a0899843",
+      "size": 3216
     },
     {
       "path": "pages/people/shenwang-pip.md",
@@ -18115,6 +18130,11 @@
       "size": 6675
     },
     {
+      "path": "pages/systems/royalty-graph-monitoring.md",
+      "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
+      "size": 5243
+    },
+    {
       "path": "pages/systems/royalty-graph.md",
       "sha256": "06528d2ea247b7c0b980082c9e8f487aa948fefc08db1fd0e549fabbd11cd61a",
       "size": 4591
@@ -18331,5 +18351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "383c6da3c32a801d41a889299bc2a9b9cfb8fda6c000b7d5d951e0bd6f1ddc6c"
+  "wiki_tree_hash": "ca12c10642a38bd6be13d4b7023a988ae3608b946145beb3f354b69fd86f09fb"
 }
