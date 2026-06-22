@@ -36233,3 +36233,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_595e068d3262ddeb68900c42835852bc
 - summary: There is no on-chain function to enumerate all addresses holding Royalty Tokens (RTs) for a given IP Royalty Vault; off-chain solutions like indexers or Blockscout's REST API can p...
 
+## [2026-06-22T11:01:16Z] synthesis | How to Check Available Royalties
+
+- status: published
+- slug: runbooks/check-available-royalties
+- wiki_revision_id: wikirev_62f9aedc07be8b8316540df8f030cd83
+- summary: Steps to determine if an account has unclaimed royalties using the Story Foundation portal.
+
