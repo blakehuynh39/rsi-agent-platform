@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "916b81e5682a9a427e8311a6d74fa17dd2506625486377eaab95f1ca0e6cdb24",
-        "size": 1045185
+        "sha256": "8458b7a632a232d638a12c7f6939d89533a0378271932102309b5a26b37eec4f",
+        "size": 1045850
       },
       {
         "path": "log.md",
-        "sha256": "9b4c039979d58f41b0842f024aa6006a1990436f834ba682a02f18aa6662d8ab",
-        "size": 1787975
+        "sha256": "424a0313ed018142f06e6f6fa5e9cfe9bfc4c28a0a182a343edd98d0d45aa2d3",
+        "size": 1788664
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4103,6 +4103,11 @@
         "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
         "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
         "size": 2786
+      },
+      {
+        "path": "pages/concepts/pil-license-url-convention-proposal.md",
+        "sha256": "6dee4a9c84676037b4083654e795fbde818cf0a68a8c3aac63e5e7717bee2991",
+        "size": 1673
       },
       {
         "path": "pages/concepts/platform-api-a.md",
@@ -8160,6 +8165,11 @@
         "size": 4251
       },
       {
+        "path": "pages/runbooks/testnet-faucet-outage-workaround.md",
+        "sha256": "ead4858344f767d744ab516a0bad47a48ec2de4587a2b348ceb614842388e608",
+        "size": 2607
+      },
+      {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
         "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
         "size": 14752
@@ -9019,8 +9029,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T11:54:27Z",
-  "file_count": 1802,
+  "exported_at": "2026-06-22T12:41:37Z",
+  "file_count": 1804,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12297,7 +12307,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "1dca56f55292cf12aa2ee406dc07ffb82cbbd9431bc6a3f3a571ba61dedb26c8",
+  "previous_tree_hash": "5142b9cf75208798373da288162c057cfe628b6b53eff6f342fc1b2174b49b76",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12310,14 +12320,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5142b9cf75208798373da288162c057cfe628b6b53eff6f342fc1b2174b49b76",
+  "tree_hash": "678f012aa77b5360eb005d3beb4f54cbfb8cf5380fce82acd08b702e0af8c8d8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1148,
+  "wiki_file_count": 1150,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12326,13 +12336,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "916b81e5682a9a427e8311a6d74fa17dd2506625486377eaab95f1ca0e6cdb24",
-      "size": 1045185
+      "sha256": "8458b7a632a232d638a12c7f6939d89533a0378271932102309b5a26b37eec4f",
+      "size": 1045850
     },
     {
       "path": "log.md",
-      "sha256": "9b4c039979d58f41b0842f024aa6006a1990436f834ba682a02f18aa6662d8ab",
-      "size": 1787975
+      "sha256": "424a0313ed018142f06e6f6fa5e9cfe9bfc4c28a0a182a343edd98d0d45aa2d3",
+      "size": 1788664
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13148,6 +13158,11 @@
       "path": "pages/concepts/pil-derivative-commercial-rev-share-override.md",
       "sha256": "f22a65018e5101ef42f05b05cb9c24797aaf403ebf23a37a7123697dcacd8fcb",
       "size": 2786
+    },
+    {
+      "path": "pages/concepts/pil-license-url-convention-proposal.md",
+      "sha256": "6dee4a9c84676037b4083654e795fbde818cf0a68a8c3aac63e5e7717bee2991",
+      "size": 1673
     },
     {
       "path": "pages/concepts/platform-api-a.md",
@@ -17205,6 +17220,11 @@
       "size": 4251
     },
     {
+      "path": "pages/runbooks/testnet-faucet-outage-workaround.md",
+      "sha256": "ead4858344f767d744ab516a0bad47a48ec2de4587a2b348ceb614842388e608",
+      "size": 2607
+    },
+    {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
       "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
       "size": 14752
@@ -18061,5 +18081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "59a8d7f24f8fb3948c2ba5dc7bef2da9fbac3ae7bd5ef6a5047543b0cae3b3fd"
+  "wiki_tree_hash": "71082cdd34d45e8b641a27837cb46157f6c6f388d61377a9f8db6d4d358cd466"
 }

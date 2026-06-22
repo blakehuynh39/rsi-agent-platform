@@ -36289,3 +36289,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_821b58de2d31a94d385b75b9e3805bd0
 - summary: A user asked the protocol team how to retrieve all addresses and their Royalty Token amounts for a given vault.
 
+## [2026-06-22T12:38:49Z] synthesis | Testnet Faucet Outage and Workaround
+
+- status: published
+- slug: runbooks/testnet-faucet-outage-workaround
+- wiki_revision_id: wikirev_f0b3b846d85109ed3d3168d8bffd1eb7
+- summary: Incident where Story Protocol testnet IP faucet was down; workaround to obtain WIP tokens via direct contract interaction.
+
+## [2026-06-22T12:38:49Z] synthesis | PIL License URL Convention Proposal
+
+- status: published
+- slug: concepts/pil-license-url-convention-proposal
+- wiki_revision_id: wikirev_05f72df07a7bae5b81ccb3b9e95c9df6
+- summary: Proposal to establish clean, versioned, and canonical URLs for the Programmable IP License instead of long GitHub blob links.
+
