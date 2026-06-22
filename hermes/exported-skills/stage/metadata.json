@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5036679754987f5e8ebb0300a0efbb29f2a5d7300c65014f6520d914f48d466b",
-        "size": 1046969
+        "sha256": "8a185a9be08ad43c9a2ce110f2e19b906225e7912cf7e139eb977b0566bec56a",
+        "size": 1047285
       },
       {
         "path": "log.md",
-        "sha256": "b117e62b93dc42269311d6b29d735831e193f25d73b45caef3cef6ff6652268d",
-        "size": 1790589
+        "sha256": "30ecb1c208f820927c5819792b764c604027ded00a07e0099a087700f6ff5c31",
+        "size": 1790917
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8185,6 +8185,11 @@
         "size": 2607
       },
       {
+        "path": "pages/runbooks/testnet-ip-procurement.md",
+        "sha256": "5f379efd12661a6bb50e82b29342444a6522596ff71a581986d7afe1facf2579",
+        "size": 4459
+      },
+      {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
         "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
         "size": 14752
@@ -9044,8 +9049,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T13:39:43Z",
-  "file_count": 1807,
+  "exported_at": "2026-06-22T14:06:30Z",
+  "file_count": 1808,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12322,7 +12327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "0fa35f46578985f8ef2ca8c3f56727b6eb84ebe79b48cb0d3a24016b91138182",
+  "previous_tree_hash": "234af1378eb5294d3228a44279118f1e560e09d1e2ef39e3ce7ea5744845b868",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12335,14 +12340,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "234af1378eb5294d3228a44279118f1e560e09d1e2ef39e3ce7ea5744845b868",
+  "tree_hash": "750746b2ccdd38950e475278d1a3b3a160948ffcae49f203b34c4268da7a1cf4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1153,
+  "wiki_file_count": 1154,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12351,13 +12356,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5036679754987f5e8ebb0300a0efbb29f2a5d7300c65014f6520d914f48d466b",
-      "size": 1046969
+      "sha256": "8a185a9be08ad43c9a2ce110f2e19b906225e7912cf7e139eb977b0566bec56a",
+      "size": 1047285
     },
     {
       "path": "log.md",
-      "sha256": "b117e62b93dc42269311d6b29d735831e193f25d73b45caef3cef6ff6652268d",
-      "size": 1790589
+      "sha256": "30ecb1c208f820927c5819792b764c604027ded00a07e0099a087700f6ff5c31",
+      "size": 1790917
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17255,6 +17260,11 @@
       "size": 2607
     },
     {
+      "path": "pages/runbooks/testnet-ip-procurement.md",
+      "sha256": "5f379efd12661a6bb50e82b29342444a6522596ff71a581986d7afe1facf2579",
+      "size": 4459
+    },
+    {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
       "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
       "size": 14752
@@ -18111,5 +18121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c25ab58316ff49a54d4d84da9d21c2549a135ed8358622d9bd91b9b92fb1c794"
+  "wiki_tree_hash": "9354dc64abb6c44c045bc36c3da920116671f080ca3b1d22661c35fbe1bba1a2"
 }

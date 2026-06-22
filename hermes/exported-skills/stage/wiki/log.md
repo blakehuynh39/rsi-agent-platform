@@ -36338,3 +36338,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b42739d61718c1dab449cc0fced4487c
 - summary: This project migrates the faucet server from Google Cloud Platform to Amazon Web Services to reduce costs. The migration involves backend and frontend changes. Issues have been enc...
 
+## [2026-06-22T14:04:18Z] synthesis | Testnet IP Token Procurement
+
+- status: published
+- slug: runbooks/testnet-ip-procurement
+- wiki_revision_id: wikirev_473cd14e24fcbe0b38b86658185ef861
+- summary: Process for bypassing faucet restrictions to obtain large amounts of testnet IP tokens for testing, by contacting U07A7AUGL5V.
+
