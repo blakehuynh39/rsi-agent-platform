@@ -36268,3 +36268,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d28c1913db465cf9a683aac44e9d1b9d
 - summary: The Story Protocol testnet faucet provides native IP tokens but has had reliability issues. WIP tokens must be obtained via direct contract interaction.
 
+## [2026-06-22T11:46:47Z] synthesis | Testnet Faucet Issues
+
+- status: published
+- slug: runbooks/testnet-faucet-issues
+- wiki_revision_id: wikirev_ec3b04a0f08a591db3b059b45ab7a9a9
+- summary: The testnet faucet (faucet.story.foundation) provides native IP tokens, but was observed to be non-functional around April 2025. WIP tokens must be obtained via direct contract int...
+
+## [2026-06-22T11:46:47Z] synthesis | PIL Canonical URL Scheme
+
+- status: published
+- slug: policies/pil-canonical-urls
+- wiki_revision_id: wikirev_986633a2f82c6c49b3cde33fd2b535de
+- summary: Adopt clean, versioned URLs for the Programmable IP License (PIL) and a canonical latest version redirect.
+
+## [2026-06-22T11:46:47Z] synthesis | Royalty Token Vault Address Query
+
+- status: published
+- slug: open-questions/royalty-token-vault-addresses
+- wiki_revision_id: wikirev_821b58de2d31a94d385b75b9e3805bd0
+- summary: A user asked the protocol team how to retrieve all addresses and their Royalty Token amounts for a given vault.
+

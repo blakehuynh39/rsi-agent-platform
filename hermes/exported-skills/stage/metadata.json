@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "2cbaf58ea6e3f25916493d55fe73031b30aa370929b395e67db6d1d5505c8301",
-        "size": 1786967
+        "sha256": "9b4c039979d58f41b0842f024aa6006a1990436f834ba682a02f18aa6662d8ab",
+        "size": 1787975
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5495,6 +5495,11 @@
         "size": 2853
       },
       {
+        "path": "pages/open-questions/royalty-token-vault-addresses.md",
+        "sha256": "1f634ef673998f89850f8a8ddf9ed1d03a827df16c7e9611c031b97852b1ac41",
+        "size": 1279
+      },
+      {
         "path": "pages/open-questions/shared-ownership-of-ip-assets.md",
         "sha256": "249ec74d699ac00746ff52e182f96534fba599c780628214e17f3b6bcb19e30b",
         "size": 3854
@@ -5703,6 +5708,11 @@
         "path": "pages/policies/off-chain-terms.md",
         "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
+      },
+      {
+        "path": "pages/policies/pil-canonical-urls.md",
+        "sha256": "1ee6e682eda73a210fd6d679faa936c21eb6b08502cb8b27954ce5ffdb9423da",
+        "size": 2383
       },
       {
         "path": "pages/policies/pil-license-canonical-url.md",
@@ -8145,6 +8155,11 @@
         "size": 3890
       },
       {
+        "path": "pages/runbooks/testnet-faucet-issues.md",
+        "sha256": "0a989191ded3f21448b9ceedf4a3992595f1e873c4e8de2a65256aa04c1b1454",
+        "size": 4251
+      },
+      {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
         "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
         "size": 14752
@@ -9004,8 +9019,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T11:36:23Z",
-  "file_count": 1799,
+  "exported_at": "2026-06-22T11:47:57Z",
+  "file_count": 1802,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12282,7 +12297,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "bc7cc03b8124d8a04a9334e8ba7a908a46f742e36ebcddd32e0f26356bd75449",
+  "previous_tree_hash": "e80671e3d4b78849b8030fbad927c76e4f48cd0171b2e1b5eb0dae43d721cfc7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12295,14 +12310,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e80671e3d4b78849b8030fbad927c76e4f48cd0171b2e1b5eb0dae43d721cfc7",
+  "tree_hash": "1dca56f55292cf12aa2ee406dc07ffb82cbbd9431bc6a3f3a571ba61dedb26c8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1145,
+  "wiki_file_count": 1148,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12316,8 +12331,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "2cbaf58ea6e3f25916493d55fe73031b30aa370929b395e67db6d1d5505c8301",
-      "size": 1786967
+      "sha256": "9b4c039979d58f41b0842f024aa6006a1990436f834ba682a02f18aa6662d8ab",
+      "size": 1787975
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14525,6 +14540,11 @@
       "size": 2853
     },
     {
+      "path": "pages/open-questions/royalty-token-vault-addresses.md",
+      "sha256": "1f634ef673998f89850f8a8ddf9ed1d03a827df16c7e9611c031b97852b1ac41",
+      "size": 1279
+    },
+    {
       "path": "pages/open-questions/shared-ownership-of-ip-assets.md",
       "sha256": "249ec74d699ac00746ff52e182f96534fba599c780628214e17f3b6bcb19e30b",
       "size": 3854
@@ -14733,6 +14753,11 @@
       "path": "pages/policies/off-chain-terms.md",
       "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
+    },
+    {
+      "path": "pages/policies/pil-canonical-urls.md",
+      "sha256": "1ee6e682eda73a210fd6d679faa936c21eb6b08502cb8b27954ce5ffdb9423da",
+      "size": 2383
     },
     {
       "path": "pages/policies/pil-license-canonical-url.md",
@@ -17175,6 +17200,11 @@
       "size": 3890
     },
     {
+      "path": "pages/runbooks/testnet-faucet-issues.md",
+      "sha256": "0a989191ded3f21448b9ceedf4a3992595f1e873c4e8de2a65256aa04c1b1454",
+      "size": 4251
+    },
+    {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
       "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
       "size": 14752
@@ -18031,5 +18061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "47416b5282c5b3fb35cd12e1d752ffd299f54461faf3e36ab35d8f746eeaa48e"
+  "wiki_tree_hash": "85508c0fade96b4660efb0c1f597f9dd10fc1b847e41ef44017f13434c86b8eb"
 }
