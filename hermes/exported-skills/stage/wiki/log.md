@@ -36331,3 +36331,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_020ad02c767aa57a550b8a80ca22ef1e
 - summary: Ongoing project to migrate the company faucet service from GCP to AWS due to cost concerns. Includes backend and handler migration, with observed frontend issues.
 
+## [2026-06-22T13:32:07Z] synthesis | Faucet Migration from GCP to AWS
+
+- status: published
+- slug: projects/faucet-migration-gcp-to-aws
+- wiki_revision_id: wikirev_b42739d61718c1dab449cc0fced4487c
+- summary: This project migrates the faucet server from Google Cloud Platform to Amazon Web Services to reduce costs. The migration involves backend and frontend changes. Issues have been enc...
+
