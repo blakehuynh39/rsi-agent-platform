@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "dfb1b3412bcb3cc0471162ea8d4a24bac9a51fccaa2d215b8b0e9d871dd2b390",
-        "size": 1043574
+        "sha256": "72d73007107232cd1f8d7af5d96a649fcb83f43867fb080ea0b229ff9ffdaeb5",
+        "size": 1043894
       },
       {
         "path": "log.md",
-        "sha256": "0287979f097a2ca6bf3758d67cbd3a3eabec18ffd4fb9f89517ac3bececf77ec",
-        "size": 1785995
+        "sha256": "f9069b1402b0acc29a1cf4b86e927f3e3ec667db2c68c63cfad31bc7c214a2bb",
+        "size": 1786636
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4263,6 +4263,11 @@
         "path": "pages/concepts/ringo-granola-competitor.md",
         "sha256": "b0d76957cb6caa2a62241a37f4b65f5f7b97dd28bde18ce34732e5ff6edad976",
         "size": 6920
+      },
+      {
+        "path": "pages/concepts/royalty-claim-availability-check.md",
+        "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
+        "size": 2586
       },
       {
         "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -7586,8 +7591,8 @@
       },
       {
         "path": "pages/runbooks/checking-available-royalty-claims.md",
-        "sha256": "99dff3a3e7fbe5afe2c433047b7ec6e2ddd1a3e5b8d955a802cc100b8f3984c5",
-        "size": 2510
+        "sha256": "2d022a65c9646e72785ed5f068aa25814c4ef3f58c3ef05885d58671628e84f4",
+        "size": 2244
       },
       {
         "path": "pages/runbooks/claim-backend-runbook.md",
@@ -8994,8 +8999,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T11:08:03Z",
-  "file_count": 1797,
+  "exported_at": "2026-06-22T11:19:41Z",
+  "file_count": 1798,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12272,7 +12277,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5e569d5a00b6fc7c23a347b9643c4febb2d3f596d8e00a038f712406e322e199",
+  "previous_tree_hash": "ea935df7e966b01645deba95d718a1f88e92c7f0a08e14732e1a9ba3f4f5293b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12285,14 +12290,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ea935df7e966b01645deba95d718a1f88e92c7f0a08e14732e1a9ba3f4f5293b",
+  "tree_hash": "bc7cc03b8124d8a04a9334e8ba7a908a46f742e36ebcddd32e0f26356bd75449",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1143,
+  "wiki_file_count": 1144,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12301,13 +12306,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "dfb1b3412bcb3cc0471162ea8d4a24bac9a51fccaa2d215b8b0e9d871dd2b390",
-      "size": 1043574
+      "sha256": "72d73007107232cd1f8d7af5d96a649fcb83f43867fb080ea0b229ff9ffdaeb5",
+      "size": 1043894
     },
     {
       "path": "log.md",
-      "sha256": "0287979f097a2ca6bf3758d67cbd3a3eabec18ffd4fb9f89517ac3bececf77ec",
-      "size": 1785995
+      "sha256": "f9069b1402b0acc29a1cf4b86e927f3e3ec667db2c68c63cfad31bc7c214a2bb",
+      "size": 1786636
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13283,6 +13288,11 @@
       "path": "pages/concepts/ringo-granola-competitor.md",
       "sha256": "b0d76957cb6caa2a62241a37f4b65f5f7b97dd28bde18ce34732e5ff6edad976",
       "size": 6920
+    },
+    {
+      "path": "pages/concepts/royalty-claim-availability-check.md",
+      "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
+      "size": 2586
     },
     {
       "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -16606,8 +16616,8 @@
     },
     {
       "path": "pages/runbooks/checking-available-royalty-claims.md",
-      "sha256": "99dff3a3e7fbe5afe2c433047b7ec6e2ddd1a3e5b8d955a802cc100b8f3984c5",
-      "size": 2510
+      "sha256": "2d022a65c9646e72785ed5f068aa25814c4ef3f58c3ef05885d58671628e84f4",
+      "size": 2244
     },
     {
       "path": "pages/runbooks/claim-backend-runbook.md",
@@ -18011,5 +18021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c2a5bf565bddbd5b1895616ac3bbace73a582a7e74b340ef83ada91bd3c54107"
+  "wiki_tree_hash": "a7e2b3db747c9ea5a580b96f1747d252ca67ecadcff373623881dfb4fc09dc05"
 }

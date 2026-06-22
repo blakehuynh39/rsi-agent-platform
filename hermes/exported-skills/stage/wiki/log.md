@@ -36247,3 +36247,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_59d5c5da07bcedabaf6a33417e0b4fa5
 - summary: Documentation of the current state of access to usage and monitoring data for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties). Includes available ...
 
+## [2026-06-22T11:16:17Z] synthesis | Checking Available Royalty Claims
+
+- status: published
+- slug: runbooks/checking-available-royalty-claims
+- wiki_revision_id: wikirev_152ff956ba969995360d92b08911e7f1
+- summary: Guide for checking if a Story Protocol account has available royalties to claim, using the official portal.
+
+## [2026-06-22T11:17:26Z] synthesis | Royalty Claim Availability Check
+
+- status: published
+- slug: concepts/royalty-claim-availability-check
+- wiki_revision_id: wikirev_502c2fa2da5b494d7fa2801faab56506
+- summary: Instructions for checking whether an account has available royalty to claim, using the Story Portal.
+
