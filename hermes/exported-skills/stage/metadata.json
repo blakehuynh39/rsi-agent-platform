@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5687152d2f91b1abe2e19808bcf9fafc10dc4a65b7b29aec6d2c3e19293126b5",
-        "size": 1784860
+        "sha256": "570b4b362070e122482f6d1c6a8d689c14ebc9133a84e333f01d366f5953cf12",
+        "size": 1785253
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3913,6 +3913,11 @@
         "path": "pages/concepts/listing-royalty-token-holders-for-ip-vault.md",
         "sha256": "d8bb65d6d908e2e086b67d7e6f8475331fc62102075c3947484653cde8a71445",
         "size": 3043
+      },
+      {
+        "path": "pages/concepts/listing-royalty-token-holders.md",
+        "sha256": "e47cbcde952b1b1f044ab1d89acdf23817e32ffedacf386532888ed02f7ccc0c",
+        "size": 3674
       },
       {
         "path": "pages/concepts/listing-rt-holders-for-ip-vault.md",
@@ -8979,8 +8984,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T10:41:59Z",
-  "file_count": 1794,
+  "exported_at": "2026-06-22T10:48:29Z",
+  "file_count": 1795,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12257,7 +12262,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "66abe5042bcffd092666a7fcdb5c5dd4d979d1eb5f3d4d9a193b3b087ec596b9",
+  "previous_tree_hash": "e19f589f2a15aa008e0cafa407452b17b90b3bd8d934a45d2e830e7ee584d029",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12270,14 +12275,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e19f589f2a15aa008e0cafa407452b17b90b3bd8d934a45d2e830e7ee584d029",
+  "tree_hash": "91d1c92078a503a912441b153823e441c3ea1fc438afb22829d02c56a01c08c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1140,
+  "wiki_file_count": 1141,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12291,8 +12296,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5687152d2f91b1abe2e19808bcf9fafc10dc4a65b7b29aec6d2c3e19293126b5",
-      "size": 1784860
+      "sha256": "570b4b362070e122482f6d1c6a8d689c14ebc9133a84e333f01d366f5953cf12",
+      "size": 1785253
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12918,6 +12923,11 @@
       "path": "pages/concepts/listing-royalty-token-holders-for-ip-vault.md",
       "sha256": "d8bb65d6d908e2e086b67d7e6f8475331fc62102075c3947484653cde8a71445",
       "size": 3043
+    },
+    {
+      "path": "pages/concepts/listing-royalty-token-holders.md",
+      "sha256": "e47cbcde952b1b1f044ab1d89acdf23817e32ffedacf386532888ed02f7ccc0c",
+      "size": 3674
     },
     {
       "path": "pages/concepts/listing-rt-holders-for-ip-vault.md",
@@ -17981,5 +17991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e1b1082444c540ef5f7bc4bafd0349e261d8821494a7fa947e723a79e3035b1f"
+  "wiki_tree_hash": "a721cbbed29f8b66e04d316aa1b0cf5615580953bdd14017fd9e34e80be4db47"
 }
