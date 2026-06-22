@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "32a0fadbf4bacbc9cdd364a0e14369fd3dc3636a23765d4789cec8b2dfe4ca91",
-        "size": 1049879
+        "sha256": "27cd2fa2fbabd40f090009ef64be450e71b6e7b7eed298292d3e3ef89f145efb",
+        "size": 1050618
       },
       {
         "path": "log.md",
-        "sha256": "b09fbff10d27cd5ddbf1fb16d1b864aaf71b877654c6c8422d21267ce4db0380",
-        "size": 1793992
+        "sha256": "55edaa65fa55bbce769751b1006b527e360f64e0db8f2308c7e39eca3b5a6ec6",
+        "size": 1794367
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7945,6 +7945,11 @@
         "size": 3907
       },
       {
+        "path": "pages/runbooks/obtaining-ip-tokens-for-testing.md",
+        "sha256": "61adf9b946974a72a199243523e54903ca1dcc898e6bbf0f1c4748cc76cf507d",
+        "size": 5851
+      },
+      {
         "path": "pages/runbooks/odyssey-devnet-runbook.md",
         "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
         "size": 6053
@@ -9094,8 +9099,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T15:48:01Z",
-  "file_count": 1817,
+  "exported_at": "2026-06-22T15:54:37Z",
+  "file_count": 1818,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12372,7 +12377,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "3ec88266163d3b6150d64b3425fc0919a1ae5c01f6d2e1ffa87a7591c8758a46",
+  "previous_tree_hash": "011dd162b09623cd5c577a0175d024b4ddb5c03dd2ebb06205ee68506f2a41d9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12385,14 +12390,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "011dd162b09623cd5c577a0175d024b4ddb5c03dd2ebb06205ee68506f2a41d9",
+  "tree_hash": "96548bd7143dbb4e6a7a5736ec3bd02912916ec058dcc88db7dfd92ce45c1061",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1163,
+  "wiki_file_count": 1164,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12401,13 +12406,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "32a0fadbf4bacbc9cdd364a0e14369fd3dc3636a23765d4789cec8b2dfe4ca91",
-      "size": 1049879
+      "sha256": "27cd2fa2fbabd40f090009ef64be450e71b6e7b7eed298292d3e3ef89f145efb",
+      "size": 1050618
     },
     {
       "path": "log.md",
-      "sha256": "b09fbff10d27cd5ddbf1fb16d1b864aaf71b877654c6c8422d21267ce4db0380",
-      "size": 1793992
+      "sha256": "55edaa65fa55bbce769751b1006b527e360f64e0db8f2308c7e39eca3b5a6ec6",
+      "size": 1794367
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17065,6 +17070,11 @@
       "size": 3907
     },
     {
+      "path": "pages/runbooks/obtaining-ip-tokens-for-testing.md",
+      "sha256": "61adf9b946974a72a199243523e54903ca1dcc898e6bbf0f1c4748cc76cf507d",
+      "size": 5851
+    },
+    {
       "path": "pages/runbooks/odyssey-devnet-runbook.md",
       "sha256": "38a3d00c001042c0f23c97ef841f7c1614eeac2287c4c5ddedde159b31610bd8",
       "size": 6053
@@ -18211,5 +18221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f7a4d75c6f4c44439ddf62d7b819d1855216e10907475e2c18a4cc18f9681b00"
+  "wiki_tree_hash": "cce76fce71ed6995e32df7926ce875e6cfbc70ad137e0212d775e0c1f9e85a2a"
 }
