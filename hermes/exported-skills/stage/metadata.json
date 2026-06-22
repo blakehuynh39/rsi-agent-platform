@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8458b7a632a232d638a12c7f6939d89533a0378271932102309b5a26b37eec4f",
-        "size": 1045850
+        "sha256": "91f6b716b9c51cf83e3a6bf2f651faaf83c0564b3d5cd7cc68848e0d9e521d47",
+        "size": 1045855
       },
       {
         "path": "log.md",
-        "sha256": "424a0313ed018142f06e6f6fa5e9cfe9bfc4c28a0a182a343edd98d0d45aa2d3",
-        "size": 1788664
+        "sha256": "e1ed832ac2c45b065d07505377620daca77b49b87289afd6119c6029b28cb92f",
+        "size": 1789045
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6246,8 +6246,8 @@
       },
       {
         "path": "pages/projects/faucet-migration-to-aws.md",
-        "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
-        "size": 3967
+        "sha256": "d4cc2aa316f76732045d46f4561052214fde5698eb1067054696d16fb4cd55af",
+        "size": 4645
       },
       {
         "path": "pages/projects/filipino-language-campaign.md",
@@ -9029,7 +9029,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T12:41:37Z",
+  "exported_at": "2026-06-22T12:53:13Z",
   "file_count": 1804,
   "files": [
     {
@@ -12307,7 +12307,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5142b9cf75208798373da288162c057cfe628b6b53eff6f342fc1b2174b49b76",
+  "previous_tree_hash": "678f012aa77b5360eb005d3beb4f54cbfb8cf5380fce82acd08b702e0af8c8d8",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12320,7 +12320,7 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "678f012aa77b5360eb005d3beb4f54cbfb8cf5380fce82acd08b702e0af8c8d8",
+  "tree_hash": "d1eda529145c1d659cfead7c17620183b66b3b2b9b4c68faf4f89ca373fd0d23",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -12336,13 +12336,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8458b7a632a232d638a12c7f6939d89533a0378271932102309b5a26b37eec4f",
-      "size": 1045850
+      "sha256": "91f6b716b9c51cf83e3a6bf2f651faaf83c0564b3d5cd7cc68848e0d9e521d47",
+      "size": 1045855
     },
     {
       "path": "log.md",
-      "sha256": "424a0313ed018142f06e6f6fa5e9cfe9bfc4c28a0a182a343edd98d0d45aa2d3",
-      "size": 1788664
+      "sha256": "e1ed832ac2c45b065d07505377620daca77b49b87289afd6119c6029b28cb92f",
+      "size": 1789045
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15301,8 +15301,8 @@
     },
     {
       "path": "pages/projects/faucet-migration-to-aws.md",
-      "sha256": "94e58f1e6ce963e1dca94feeb8a63676c8c1c4c6bd63b6021e13709c1edd947a",
-      "size": 3967
+      "sha256": "d4cc2aa316f76732045d46f4561052214fde5698eb1067054696d16fb4cd55af",
+      "size": 4645
     },
     {
       "path": "pages/projects/filipino-language-campaign.md",
@@ -18081,5 +18081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "71082cdd34d45e8b641a27837cb46157f6c6f388d61377a9f8db6d4d358cd466"
+  "wiki_tree_hash": "67a252b6a614602b490a31c399f730dfe4757a99bf9783806af2eaff1dcdde33"
 }

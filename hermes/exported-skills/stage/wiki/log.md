@@ -36303,3 +36303,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_05f72df07a7bae5b81ccb3b9e95c9df6
 - summary: Proposal to establish clean, versioned, and canonical URLs for the Programmable IP License instead of long GitHub blob links.
 
+## [2026-06-22T12:49:12Z] synthesis | Faucet Migration to AWS
+
+- status: published
+- slug: projects/faucet-migration-to-aws
+- wiki_revision_id: wikirev_7217f53cf67f1fb1b65138f80dcf25f3
+- summary: Ongoing migration of the faucet service from Google Cloud Platform (GCP) to Amazon Web Services (AWS), involving frontend and backend changes, with ongoing user issues and remainin...
+
