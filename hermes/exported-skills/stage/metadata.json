@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "27cd2fa2fbabd40f090009ef64be450e71b6e7b7eed298292d3e3ef89f145efb",
-        "size": 1050618
+        "sha256": "aa82bd93089d441148d4031fcd54c62fddc0d82b32ae92d7960e0b32cdd15687",
+        "size": 1051038
       },
       {
         "path": "log.md",
-        "sha256": "55edaa65fa55bbce769751b1006b527e360f64e0db8f2308c7e39eca3b5a6ec6",
-        "size": 1794367
+        "sha256": "7642faeab85e640d650e92112c20f7d5e5fff8b05b24875d3f6204706e449801",
+        "size": 1794799
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8760,6 +8760,11 @@
         "size": 1390
       },
       {
+        "path": "pages/systems/observability-royalty-graph-ip-graph-poc.md",
+        "sha256": "2385fedad189c3ed484754dc78df1cf46ee73fe98399a6680eaeaa2b0d56d0f0",
+        "size": 7319
+      },
+      {
         "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
         "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
         "size": 4631
@@ -9099,8 +9104,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T15:54:37Z",
-  "file_count": 1818,
+  "exported_at": "2026-06-22T16:06:13Z",
+  "file_count": 1819,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12377,7 +12382,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "011dd162b09623cd5c577a0175d024b4ddb5c03dd2ebb06205ee68506f2a41d9",
+  "previous_tree_hash": "96548bd7143dbb4e6a7a5736ec3bd02912916ec058dcc88db7dfd92ce45c1061",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12390,14 +12395,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "96548bd7143dbb4e6a7a5736ec3bd02912916ec058dcc88db7dfd92ce45c1061",
+  "tree_hash": "db0eb1c1faefd6dcaba2fa2a831df476b32c78078679020e94abb55fefee9cf7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1164,
+  "wiki_file_count": 1165,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12406,13 +12411,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "27cd2fa2fbabd40f090009ef64be450e71b6e7b7eed298292d3e3ef89f145efb",
-      "size": 1050618
+      "sha256": "aa82bd93089d441148d4031fcd54c62fddc0d82b32ae92d7960e0b32cdd15687",
+      "size": 1051038
     },
     {
       "path": "log.md",
-      "sha256": "55edaa65fa55bbce769751b1006b527e360f64e0db8f2308c7e39eca3b5a6ec6",
-      "size": 1794367
+      "sha256": "7642faeab85e640d650e92112c20f7d5e5fff8b05b24875d3f6204706e449801",
+      "size": 1794799
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17885,6 +17890,11 @@
       "size": 1390
     },
     {
+      "path": "pages/systems/observability-royalty-graph-ip-graph-poc.md",
+      "sha256": "2385fedad189c3ed484754dc78df1cf46ee73fe98399a6680eaeaa2b0d56d0f0",
+      "size": 7319
+    },
+    {
       "path": "pages/systems/odyssey-devnet-protocol-v1-3.md",
       "sha256": "6e671a1a1b141fc8028ebca0fd36e1d0ab70b0a2f7406ffad6ae1c1d3503c8bc",
       "size": 4631
@@ -18221,5 +18231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cce76fce71ed6995e32df7926ce875e6cfbc70ad137e0212d775e0c1f9e85a2a"
+  "wiki_tree_hash": "03638ab2d8b02079c941d564573b830edb2d13507442f3840944a922961bcc73"
 }

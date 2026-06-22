@@ -36415,3 +36415,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_79b2125cade711a611902d10190ff5aa
 - summary: When the IP token faucet imposes restrictions, team members can request large amounts of testnet or mainnet IP tokens directly from colleagues who hold reserves.
 
+## [2026-06-22T16:04:57Z] synthesis | Observability for Royalty Graph, IP Graph, and POC Modules
+
+- status: published
+- slug: systems/observability-royalty-graph-ip-graph-poc
+- wiki_revision_id: wikirev_29797b93583e2bb3f1b98ec72213e3df
+- summary: Current state of usage data sources for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties) as of 2026-05-15. RSI lacks access to most data sources; o...
+
