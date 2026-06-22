@@ -36261,3 +36261,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_502c2fa2da5b494d7fa2801faab56506
 - summary: Instructions for checking whether an account has available royalty to claim, using the Story Portal.
 
+## [2026-06-22T11:35:10Z] synthesis | Testnet Faucet
+
+- status: published
+- slug: systems/testnet-faucet
+- wiki_revision_id: wikirev_d28c1913db465cf9a683aac44e9d1b9d
+- summary: The Story Protocol testnet faucet provides native IP tokens but has had reliability issues. WIP tokens must be obtained via direct contract interaction.
+

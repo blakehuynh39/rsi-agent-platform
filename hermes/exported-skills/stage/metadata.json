@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "72d73007107232cd1f8d7af5d96a649fcb83f43867fb080ea0b229ff9ffdaeb5",
-        "size": 1043894
+        "sha256": "afdf0c9a0ec1a6fafbce2d814a5071a9d7feb7d988dc9c49bac0995dc8de222b",
+        "size": 1044213
       },
       {
         "path": "log.md",
-        "sha256": "f9069b1402b0acc29a1cf4b86e927f3e3ec667db2c68c63cfad31bc7c214a2bb",
-        "size": 1786636
+        "sha256": "2cbaf58ea6e3f25916493d55fe73031b30aa370929b395e67db6d1d5505c8301",
+        "size": 1786967
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8935,6 +8935,11 @@
         "size": 4770
       },
       {
+        "path": "pages/systems/testnet-faucet.md",
+        "sha256": "cf7bbe9961dff432e8eda942f379843f0d8e409e2817db4c3f7e7efd80fa4394",
+        "size": 2466
+      },
+      {
         "path": "pages/systems/testnet-ip-faucet.md",
         "sha256": "a982965fe367a573983af880c56df6b83d49977d77b6f9003a5f523993aeb5ce",
         "size": 3434
@@ -8999,8 +9004,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T11:19:41Z",
-  "file_count": 1798,
+  "exported_at": "2026-06-22T11:36:23Z",
+  "file_count": 1799,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12277,7 +12282,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "ea935df7e966b01645deba95d718a1f88e92c7f0a08e14732e1a9ba3f4f5293b",
+  "previous_tree_hash": "bc7cc03b8124d8a04a9334e8ba7a908a46f742e36ebcddd32e0f26356bd75449",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12290,14 +12295,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bc7cc03b8124d8a04a9334e8ba7a908a46f742e36ebcddd32e0f26356bd75449",
+  "tree_hash": "e80671e3d4b78849b8030fbad927c76e4f48cd0171b2e1b5eb0dae43d721cfc7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1144,
+  "wiki_file_count": 1145,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12306,13 +12311,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "72d73007107232cd1f8d7af5d96a649fcb83f43867fb080ea0b229ff9ffdaeb5",
-      "size": 1043894
+      "sha256": "afdf0c9a0ec1a6fafbce2d814a5071a9d7feb7d988dc9c49bac0995dc8de222b",
+      "size": 1044213
     },
     {
       "path": "log.md",
-      "sha256": "f9069b1402b0acc29a1cf4b86e927f3e3ec667db2c68c63cfad31bc7c214a2bb",
-      "size": 1786636
+      "sha256": "2cbaf58ea6e3f25916493d55fe73031b30aa370929b395e67db6d1d5505c8301",
+      "size": 1786967
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17960,6 +17965,11 @@
       "size": 4770
     },
     {
+      "path": "pages/systems/testnet-faucet.md",
+      "sha256": "cf7bbe9961dff432e8eda942f379843f0d8e409e2817db4c3f7e7efd80fa4394",
+      "size": 2466
+    },
+    {
       "path": "pages/systems/testnet-ip-faucet.md",
       "sha256": "a982965fe367a573983af880c56df6b83d49977d77b6f9003a5f523993aeb5ce",
       "size": 3434
@@ -18021,5 +18031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a7e2b3db747c9ea5a580b96f1747d252ca67ecadcff373623881dfb4fc09dc05"
+  "wiki_tree_hash": "47416b5282c5b3fb35cd12e1d752ffd299f54461faf3e36ab35d8f746eeaa48e"
 }
