@@ -36725,3 +36725,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_87b8a4a382f88fa9a8e9aaa12545e020
 - summary: On 2026-05-15, an RSI task was initiated to produce high-level usage stats for the Story Protocol over the last 2 years, using data from sos-royalty-graph-prod and story-blockchain...
 
+## [2026-06-22T22:49:04Z] synthesis | Story Protocol Database Exploration (2026-05-15)
+
+- status: published
+- slug: runbooks/story-protocol-database-exploration-20260515
+- wiki_revision_id: wikirev_b6d8b0cc59b8a150554671e772af2400
+- summary: Execution of queries to gather high-level usage statistics for Story Protocol from production databases 'story-blockchain-prod' and 'sos-royalty-graph-prod' on 2026-05-15. The SQL ...
+
