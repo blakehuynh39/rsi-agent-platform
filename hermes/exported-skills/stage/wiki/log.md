@@ -36485,3 +36485,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c5cdb32e5d48153973825b6ca226243
 - summary: RSI is an AI agent integrated into Slack, capable of accessing certain data sources like Grafana, Temporal, and depin database, but lacks access to SOS and blockchain databases. It...
 
+## [2026-06-22T17:04:07Z] synthesis | Royalty Graph and IP Graph Usage Data Sources
+
+- status: published
+- slug: systems/royalty-graph-ip-graph-usage-data
+- wiki_revision_id: wikirev_ffbc57c4dfc2d236dac1ff22f21f2e21
+- summary: Documents the available and unavailable sources for usage data of Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties). No internal dashboards were fou...
+
