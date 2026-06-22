@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "44f50924c6dfcf044848775f2176ebff4ce17d49630c5008f88246d6215c022a",
-        "size": 1780454
+        "sha256": "8735137920ea1e73a92054e53fcbd00282824be5bff68e52df91ddcec6e9feb5",
+        "size": 1780752
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3808,6 +3808,11 @@
         "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
         "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
         "size": 3757
+      },
+      {
+        "path": "pages/concepts/jab-related-bruise-observation.md",
+        "sha256": "498729e88a4f68072eb1211437ffade7244547d38a79b5222377cc9c53297272",
+        "size": 1457
       },
       {
         "path": "pages/concepts/kled-data-quality-concerns.md",
@@ -8919,8 +8924,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T09:07:41Z",
-  "file_count": 1782,
+  "exported_at": "2026-06-22T09:19:20Z",
+  "file_count": 1783,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12197,7 +12202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "4f6cce822b5535368415c96cba283c6427d6b80a3c9e5f74e1ac74f455edc73f",
+  "previous_tree_hash": "45c9f5d4a6f620b677c479dec904834164cd8ab927658430993241a02dcfdfb1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12210,14 +12215,14 @@
   ],
   "skill_tree_hash": "9702857c14b8a590e13ff6075e3530f50916bc4a4852a0b25ada93197e5a4417",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "45c9f5d4a6f620b677c479dec904834164cd8ab927658430993241a02dcfdfb1",
+  "tree_hash": "11a14e1ecf0bb2713612d223fc5a8acae6ce3c7dcc858e03178896a884a2b937",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1128,
+  "wiki_file_count": 1129,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12231,8 +12236,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "44f50924c6dfcf044848775f2176ebff4ce17d49630c5008f88246d6215c022a",
-      "size": 1780454
+      "sha256": "8735137920ea1e73a92054e53fcbd00282824be5bff68e52df91ddcec6e9feb5",
+      "size": 1780752
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12753,6 +12758,11 @@
       "path": "pages/concepts/iptokenstaking-contract-ownership-delegation-rules.md",
       "sha256": "da70b258c4f4af171747acc29d08bfff5690e7598a77656fd8bd7fa3536b3193",
       "size": 3757
+    },
+    {
+      "path": "pages/concepts/jab-related-bruise-observation.md",
+      "sha256": "498729e88a4f68072eb1211437ffade7244547d38a79b5222377cc9c53297272",
+      "size": 1457
     },
     {
       "path": "pages/concepts/kled-data-quality-concerns.md",
@@ -17861,5 +17871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1705f8f527818ff7654d0d11ae754715f3421eea0f8c62db8feb15e27242ba2c"
+  "wiki_tree_hash": "99f994a38ae49bd8e4c4f350c6de7e0e46db8c83e52c304e5d7e1efdc405aa64"
 }

@@ -36135,3 +36135,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b9c06d82322b7fea407e4bd0c71b7089
 - summary: A suggested peptide popsicle product called Poptide.
 
+## [2026-06-22T09:16:09Z] synthesis | Jab-Related Bruise Observation
+
+- status: published
+- slug: concepts/jab-related-bruise-observation
+- wiki_revision_id: wikirev_87eb14abbc15c8c1faae696d16ad8ed1
+- summary: Observation of a bruise after a self-jab, later clarified as no bruise but tenderness.
+
