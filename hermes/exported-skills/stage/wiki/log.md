@@ -36401,3 +36401,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ade1f1e0f5c79112d740e5e2f91e6a41
 - summary: When public faucets impose restrictions, RSI team members can request testnet and mainnet IP tokens directly from internal token holders for testing purposes.
 
+## [2026-06-22T15:46:07Z] synthesis | Requesting Large IP Token Amounts for Testing
+
+- status: published
+- slug: runbooks/requesting-large-ip-token-amounts
+- wiki_revision_id: wikirev_e83b4796d7e4ab97f975be0583cd8d5b
+- summary: How developers can request larger amounts of IP tokens for testnet and mainnet testing, bypassing faucet restrictions, by contacting designated team members.
+
+## [2026-06-22T15:47:59Z] synthesis | Obtaining IP Tokens for Testing
+
+- status: published
+- slug: runbooks/obtaining-ip-tokens-for-testing
+- wiki_revision_id: wikirev_79b2125cade711a611902d10190ff5aa
+- summary: When the IP token faucet imposes restrictions, team members can request large amounts of testnet or mainnet IP tokens directly from colleagues who hold reserves.
+
