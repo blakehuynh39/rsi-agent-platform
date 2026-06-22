@@ -36732,3 +36732,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b6d8b0cc59b8a150554671e772af2400
 - summary: Execution of queries to gather high-level usage statistics for Story Protocol from production databases 'story-blockchain-prod' and 'sos-royalty-graph-prod' on 2026-05-15. The SQL ...
 
+## [2026-06-22T23:03:19Z] synthesis | Querying Story Protocol Usage Metrics
+
+- status: published
+- slug: runbooks/querying-story-protocol-usage-metrics
+- wiki_revision_id: wikirev_8c6aa79ed6d77fb673e1bcbb1452dd85
+- summary: How to efficiently pull high-level usage stats for Story Protocol from production databases using Hermes.
+
