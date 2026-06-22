@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "be6c8e15ac74ab302c2f548b2d14d594d25226f9a981900312b442d38ff33365",
-        "size": 1049503
+        "sha256": "32a0fadbf4bacbc9cdd364a0e14369fd3dc3636a23765d4789cec8b2dfe4ca91",
+        "size": 1049879
       },
       {
         "path": "log.md",
-        "sha256": "88d140e3b80eb1955235f5f5dbedd645df49b60e07931ae917728da62046cc4f",
-        "size": 1793217
+        "sha256": "383cf25d89073f0bd376c83e4ca0ca8dbc3c1474c60981f8a4ba9b45c3c5ff47",
+        "size": 1793605
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5678,6 +5678,11 @@
         "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
         "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
         "size": 2928
+      },
+      {
+        "path": "pages/policies/internal-token-distribution-for-testing.md",
+        "sha256": "7024f9e6e54967ed7e9064045e22287c4956ca549fdc9425e169238df166dcd2",
+        "size": 4332
       },
       {
         "path": "pages/policies/jed-korean-team-onboarding-access.md",
@@ -9084,8 +9089,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T15:09:34Z",
-  "file_count": 1815,
+  "exported_at": "2026-06-22T15:36:26Z",
+  "file_count": 1816,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12362,7 +12367,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "81f974dfa0202740e343dd7ea93d81a0fb6fe2c9a5748572b805a6d08595c400",
+  "previous_tree_hash": "2e76113236e0a02211b9ea9972fa1bb98ac5ffb0c7cc713febe723481b192e3c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12375,14 +12380,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2e76113236e0a02211b9ea9972fa1bb98ac5ffb0c7cc713febe723481b192e3c",
+  "tree_hash": "3ec88266163d3b6150d64b3425fc0919a1ae5c01f6d2e1ffa87a7591c8758a46",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1161,
+  "wiki_file_count": 1162,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12391,13 +12396,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "be6c8e15ac74ab302c2f548b2d14d594d25226f9a981900312b442d38ff33365",
-      "size": 1049503
+      "sha256": "32a0fadbf4bacbc9cdd364a0e14369fd3dc3636a23765d4789cec8b2dfe4ca91",
+      "size": 1049879
     },
     {
       "path": "log.md",
-      "sha256": "88d140e3b80eb1955235f5f5dbedd645df49b60e07931ae917728da62046cc4f",
-      "size": 1793217
+      "sha256": "383cf25d89073f0bd376c83e4ca0ca8dbc3c1474c60981f8a4ba9b45c3c5ff47",
+      "size": 1793605
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14788,6 +14793,11 @@
       "path": "pages/policies/infra-research-evaluation-matrix-guide.md",
       "sha256": "755d9683eb05bf40a701933b234e0d987e9e0c605c57c438825b31059b813fc9",
       "size": 2928
+    },
+    {
+      "path": "pages/policies/internal-token-distribution-for-testing.md",
+      "sha256": "7024f9e6e54967ed7e9064045e22287c4956ca549fdc9425e169238df166dcd2",
+      "size": 4332
     },
     {
       "path": "pages/policies/jed-korean-team-onboarding-access.md",
@@ -18191,5 +18201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d5c62b8d35258c83349dc2f3cfc80dafd47519d2cea777ad7a35c457ae2915f5"
+  "wiki_tree_hash": "d0b5bb7e5e3763d52e69a8f28930d38ff905b5b17479751959def23fb34849ad"
 }

@@ -36394,3 +36394,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f1f6251a312927d08eca944b36e272bf
 - summary: Process for requesting and receiving testnet (and mainnet) IP tokens for testing purposes. Tokens are distributed manually by a team member upon request.
 
+## [2026-06-22T15:31:25Z] synthesis | Internal Token Distribution for Testing
+
+- status: published
+- slug: policies/internal-token-distribution-for-testing
+- wiki_revision_id: wikirev_ade1f1e0f5c79112d740e5e2f91e6a41
+- summary: When public faucets impose restrictions, RSI team members can request testnet and mainnet IP tokens directly from internal token holders for testing purposes.
+
