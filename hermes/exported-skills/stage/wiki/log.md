@@ -36711,3 +36711,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_db4092134d742d324eb0c1e184683e6d
 - summary: Documents the queries executed on 2026-05-15 to retrieve high-level usage metrics for the Story Protocol from production databases (story-blockchain-prod and sos-royalty-graph-prod...
 
+## [2026-06-22T21:47:08Z] synthesis | Protocol Usage Analytics Data Sources
+
+- status: published
+- slug: runbooks/usage-analytics-data-sources
+- wiki_revision_id: wikirev_f578dfe592142ea9530e1265b1054dbb
+- summary: Data sources and queries explored for generating protocol usage graphs for the last 2 years, per Yao's request. Covers sos-royalty-graph-prod and story-blockchain-prod databases.
+
