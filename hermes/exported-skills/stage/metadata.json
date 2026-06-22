@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8a185a9be08ad43c9a2ce110f2e19b906225e7912cf7e139eb977b0566bec56a",
-        "size": 1047285
+        "sha256": "a227f99c52405e2811c3cfa1bd6567cd2a0765ac4dc2749682819c69b3b5621d",
+        "size": 1048139
       },
       {
         "path": "log.md",
-        "sha256": "94ed1b7e2e51d2800d0cb66f16cfb9883161dddb6168b291a545ad41bc41f3d1",
-        "size": 1791254
+        "sha256": "41205049c27d2be1fc461b946d77c98ae21b5eaeaed1a3d60e233881e2838d42",
+        "size": 1791806
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5568,6 +5568,11 @@
         "path": "pages/people/shenwang-pip.md",
         "sha256": "ab584387d896a92176c92157270bca8b5170c167c583db8cac0a700611ba12ea",
         "size": 1483
+      },
+      {
+        "path": "pages/people/u07a7au-gl5v.md",
+        "sha256": "7797aee25bf942af86060bd39be41da74c3c0ef993a6948c8e7a33afe6ae5997",
+        "size": 2126
       },
       {
         "path": "pages/people/u0a2d9u625v.md",
@@ -8195,6 +8200,11 @@
         "size": 4459
       },
       {
+        "path": "pages/runbooks/testnet-ip-token-requests.md",
+        "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
+        "size": 3931
+      },
+      {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
         "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
         "size": 14752
@@ -9054,8 +9064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T14:18:06Z",
-  "file_count": 1809,
+  "exported_at": "2026-06-22T14:24:37Z",
+  "file_count": 1811,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12332,7 +12342,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "750746b2ccdd38950e475278d1a3b3a160948ffcae49f203b34c4268da7a1cf4",
+  "previous_tree_hash": "09ee18bfc0356c94f421f309bf5fbed91ec13999fac6ceb37105983f3816f07b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12345,14 +12355,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "09ee18bfc0356c94f421f309bf5fbed91ec13999fac6ceb37105983f3816f07b",
+  "tree_hash": "de1b38f764fea9aa93c089cefad67255e80cc7d2eaf59c60952b9c9dcd63544c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1155,
+  "wiki_file_count": 1157,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12361,13 +12371,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8a185a9be08ad43c9a2ce110f2e19b906225e7912cf7e139eb977b0566bec56a",
-      "size": 1047285
+      "sha256": "a227f99c52405e2811c3cfa1bd6567cd2a0765ac4dc2749682819c69b3b5621d",
+      "size": 1048139
     },
     {
       "path": "log.md",
-      "sha256": "94ed1b7e2e51d2800d0cb66f16cfb9883161dddb6168b291a545ad41bc41f3d1",
-      "size": 1791254
+      "sha256": "41205049c27d2be1fc461b946d77c98ae21b5eaeaed1a3d60e233881e2838d42",
+      "size": 1791806
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14648,6 +14658,11 @@
       "path": "pages/people/shenwang-pip.md",
       "sha256": "ab584387d896a92176c92157270bca8b5170c167c583db8cac0a700611ba12ea",
       "size": 1483
+    },
+    {
+      "path": "pages/people/u07a7au-gl5v.md",
+      "sha256": "7797aee25bf942af86060bd39be41da74c3c0ef993a6948c8e7a33afe6ae5997",
+      "size": 2126
     },
     {
       "path": "pages/people/u0a2d9u625v.md",
@@ -17275,6 +17290,11 @@
       "size": 4459
     },
     {
+      "path": "pages/runbooks/testnet-ip-token-requests.md",
+      "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
+      "size": 3931
+    },
+    {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
       "sha256": "2d5c7981808b9b1e61b0c4612711d120de2ecb5c924e75e19d76f0eda5aa90b7",
       "size": 14752
@@ -18131,5 +18151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "42087aed4cb0a5d4339ff4cec7718055587990f25ade04bacce4ac084dba490b"
+  "wiki_tree_hash": "0fa285eabef8a80de8ffc4a52792b80379db43c314339f91d721d49be8a8cb34"
 }

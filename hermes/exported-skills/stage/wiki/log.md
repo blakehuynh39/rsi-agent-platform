@@ -36352,3 +36352,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6c1d616456e3b70e3101b6c9638d7450
 - summary: Manual distribution of Story Protocol testnet IP tokens to bypass faucet restrictions for functional and concurrency testing.
 
+## [2026-06-22T14:19:37Z] synthesis | How to request testnet IP tokens
+
+- status: published
+- slug: runbooks/testnet-ip-token-requests
+- wiki_revision_id: wikirev_2aad0407e12639efac620c9b2acceae8
+- summary: Use this process to request testnet IP tokens from the internal faucet provider (contact U07A7AUGL5V).
+
+## [2026-06-22T14:19:38Z] synthesis | U07A7AUGL5V
+
+- status: published
+- slug: people/u07a7au-gl5v
+- wiki_revision_id: wikirev_41463ef4e3eacf50c5f68c8f6617a335
+- summary: Provides testnet and mainnet IP tokens to team members upon request.
+
