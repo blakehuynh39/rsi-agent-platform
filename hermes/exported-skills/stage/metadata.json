@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4c1e854089d4cac1371c2a141307b6c282842d91163dc080deea9847b54f319b",
-        "size": 1051712
+        "sha256": "9eba7b831bf9c38ecf4f6ee5dc5ba36784fab4da8b17adc438e44af6b8645ec6",
+        "size": 1053482
       },
       {
         "path": "log.md",
-        "sha256": "3abcf9649f0d3c9a5f575efe56c857ce7e8e67e5f28585fccf833b1fdfdb9c40",
-        "size": 1795497
+        "sha256": "5dbb5323b88bab69c2bbd8277918218d7e32a48c31e46c089c33b4d913282edd",
+        "size": 1798031
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6295,6 +6295,11 @@
         "size": 5834
       },
       {
+        "path": "pages/projects/finding-numo.md",
+        "sha256": "80cfaec4920700077f71f28b928e160be5adb82900c7e306c09a48f3bfcac000",
+        "size": 1778
+      },
+      {
         "path": "pages/projects/first-party-app.md",
         "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
         "size": 2358
@@ -6806,8 +6811,8 @@
       },
       {
         "path": "pages/projects/numo.md",
-        "sha256": "5ab502291b48464553b71e7f5293ca4c4ff8ba6990dfffb558c2b8ce762dfe6a",
-        "size": 7174
+        "sha256": "ae611c6943235553a23c0ded5001436b30018f7fcad6992f3e7bc35cbef4c002",
+        "size": 7751
       },
       {
         "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -7396,8 +7401,8 @@
       },
       {
         "path": "pages/projects/taxbandits-integration.md",
-        "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
-        "size": 2249
+        "sha256": "4e7de33fd6a4ace0e3b44dd325ee693184819dc7648400aa09a7f94936e9e4f7",
+        "size": 3121
       },
       {
         "path": "pages/projects/temporal-self-hosting-migration.md",
@@ -8575,6 +8580,11 @@
         "size": 4630
       },
       {
+        "path": "pages/systems/ip-graph.md",
+        "sha256": "355d3cf9a8de371680cb966f303aa029f0e12ca3bbce2e196700da4b6cba2a22",
+        "size": 3914
+      },
+      {
         "path": "pages/systems/ipa-staking.md",
         "sha256": "0c2d558cf1ecae1c83143e15a5ce204956adc5727ba8e60518a7ecc26d0ef076",
         "size": 6199
@@ -8790,6 +8800,11 @@
         "size": 2831
       },
       {
+        "path": "pages/systems/poc-modules.md",
+        "sha256": "531cb25aca8970cf31aa39ba42d2194086b87eccc9e9bc5e4bd725491f06df5b",
+        "size": 3133
+      },
+      {
         "path": "pages/systems/polygon-token-oracle-backend.md",
         "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
         "size": 2631
@@ -8903,6 +8918,16 @@
         "path": "pages/systems/reward-backward-compatibility-patch.md",
         "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
         "size": 6925
+      },
+      {
+        "path": "pages/systems/royalty-graph.md",
+        "sha256": "a33c4c02f46f97c83fffc95828734462ef90271f391a2e49d6fe346fadc669fa",
+        "size": 4288
+      },
+      {
+        "path": "pages/systems/rsi-agent.md",
+        "sha256": "1d8bdd7c02f25dd516c17ec2f024f8d283c631d0f35e9f2d65275755506be43a",
+        "size": 4534
       },
       {
         "path": "pages/systems/rsi-ai-longevity.md",
@@ -9114,8 +9139,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T16:34:29Z",
-  "file_count": 1821,
+  "exported_at": "2026-06-22T16:51:10Z",
+  "file_count": 1826,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12392,7 +12417,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "418457043fbb6ebe21a4b7968d12e0bcc36f1d604cfef126a4a4ec161dd047f0",
+  "previous_tree_hash": "55284f7d080972b42317a7b36a6c489833ac7de82094d69b341db2ac2d0687cc",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12405,14 +12430,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "55284f7d080972b42317a7b36a6c489833ac7de82094d69b341db2ac2d0687cc",
+  "tree_hash": "b95a4a96e74ada76c5559c46f3c291d55ede416d6eacf0d6e87b701395961ec1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1167,
+  "wiki_file_count": 1172,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12421,13 +12446,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4c1e854089d4cac1371c2a141307b6c282842d91163dc080deea9847b54f319b",
-      "size": 1051712
+      "sha256": "9eba7b831bf9c38ecf4f6ee5dc5ba36784fab4da8b17adc438e44af6b8645ec6",
+      "size": 1053482
     },
     {
       "path": "log.md",
-      "sha256": "3abcf9649f0d3c9a5f575efe56c857ce7e8e67e5f28585fccf833b1fdfdb9c40",
-      "size": 1795497
+      "sha256": "5dbb5323b88bab69c2bbd8277918218d7e32a48c31e46c089c33b4d913282edd",
+      "size": 1798031
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15435,6 +15460,11 @@
       "size": 5834
     },
     {
+      "path": "pages/projects/finding-numo.md",
+      "sha256": "80cfaec4920700077f71f28b928e160be5adb82900c7e306c09a48f3bfcac000",
+      "size": 1778
+    },
+    {
       "path": "pages/projects/first-party-app.md",
       "sha256": "462778e0b8c5efdec1f1faf19d021b7b4ca7494b2ea62e881d0c06417f502954",
       "size": 2358
@@ -15946,8 +15976,8 @@
     },
     {
       "path": "pages/projects/numo.md",
-      "sha256": "5ab502291b48464553b71e7f5293ca4c4ff8ba6990dfffb558c2b8ce762dfe6a",
-      "size": 7174
+      "sha256": "ae611c6943235553a23c0ded5001436b30018f7fcad6992f3e7bc35cbef4c002",
+      "size": 7751
     },
     {
       "path": "pages/projects/numoexpert-implementation-goals.md",
@@ -16536,8 +16566,8 @@
     },
     {
       "path": "pages/projects/taxbandits-integration.md",
-      "sha256": "d2ccef65cbbc239e88bfd961f97309dcbfba7263977ef7e39dbdf44bfa22b55c",
-      "size": 2249
+      "sha256": "4e7de33fd6a4ace0e3b44dd325ee693184819dc7648400aa09a7f94936e9e4f7",
+      "size": 3121
     },
     {
       "path": "pages/projects/temporal-self-hosting-migration.md",
@@ -17715,6 +17745,11 @@
       "size": 4630
     },
     {
+      "path": "pages/systems/ip-graph.md",
+      "sha256": "355d3cf9a8de371680cb966f303aa029f0e12ca3bbce2e196700da4b6cba2a22",
+      "size": 3914
+    },
+    {
       "path": "pages/systems/ipa-staking.md",
       "sha256": "0c2d558cf1ecae1c83143e15a5ce204956adc5727ba8e60518a7ecc26d0ef076",
       "size": 6199
@@ -17930,6 +17965,11 @@
       "size": 2831
     },
     {
+      "path": "pages/systems/poc-modules.md",
+      "sha256": "531cb25aca8970cf31aa39ba42d2194086b87eccc9e9bc5e4bd725491f06df5b",
+      "size": 3133
+    },
+    {
       "path": "pages/systems/polygon-token-oracle-backend.md",
       "sha256": "83718fc1d4c010695fc0825ed6004816d3ad5f9bc9b8392a563bc77c23684cfd",
       "size": 2631
@@ -18043,6 +18083,16 @@
       "path": "pages/systems/reward-backward-compatibility-patch.md",
       "sha256": "2d29228805696c2a088dc2adec374c8e8374bb6b0acb2a8fce403a42de2e06e1",
       "size": 6925
+    },
+    {
+      "path": "pages/systems/royalty-graph.md",
+      "sha256": "a33c4c02f46f97c83fffc95828734462ef90271f391a2e49d6fe346fadc669fa",
+      "size": 4288
+    },
+    {
+      "path": "pages/systems/rsi-agent.md",
+      "sha256": "1d8bdd7c02f25dd516c17ec2f024f8d283c631d0f35e9f2d65275755506be43a",
+      "size": 4534
     },
     {
       "path": "pages/systems/rsi-ai-longevity.md",
@@ -18251,5 +18301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c9cb0cb0fbf74b276fcc0f859f6146c6dc3d2906b8984fdc0765baee77a77ab6"
+  "wiki_tree_hash": "9c851dd9762fad051a4bf9756084440ea9f4b577a5552746a6dc04aabd0ab636"
 }

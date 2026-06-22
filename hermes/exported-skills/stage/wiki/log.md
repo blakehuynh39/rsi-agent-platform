@@ -36436,3 +36436,52 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_983f0bb6b7aed87f6e77c2a1bf2737cb
 - summary: Current state of available dashboards, metrics, and data access for Royalty Graph, IP Graph, and POC Modules.
 
+## [2026-06-22T16:47:08Z] synthesis | Numo
+
+- status: published
+- slug: projects/numo
+- wiki_revision_id: wikirev_e937512b6ef2460c5060653c775d1c6d
+- summary: Numo is a data validation or microtask platform. Daily digests report submissions, pending reviews, and validated vs. unvalidated amounts. There is $0.24 validated per submission, ...
+
+## [2026-06-22T16:47:09Z] synthesis | TaxBandits Integration
+
+- status: published
+- slug: projects/taxbandits-integration
+- wiki_revision_id: wikirev_6221f77928926784c4d1f25529ecff15
+- summary: Integration with TaxBandits for W-8/W-9 tax form collection. Includes MNDA signing, POC UX testing, and go-live preparations. Also exploring Stripe and stable coin rails for cheape...
+
+## [2026-06-22T16:47:09Z] synthesis | Finding Numo
+
+- status: published
+- slug: projects/finding-numo
+- wiki_revision_id: wikirev_af2e129c41582778d7eb38f68830c870
+- summary: Concept for a visual app called 'Finding Numo' that surfaced from internal discussion around deepfake-generated data. Includes saving quirky/interesting deepfakes for showcase to a...
+
+## [2026-06-22T16:48:58Z] synthesis | Royalty Graph
+
+- status: published
+- slug: systems/royalty-graph
+- wiki_revision_id: wikirev_39a0c35844fa931685d73bca7fba8cd3
+- summary: Royalty Graph processes royalty calculations and transactions, with v1 and v2 versions. Usage data is primarily accessed via Temporal Cloud namespace; internal dashboards for trans...
+
+## [2026-06-22T16:48:58Z] synthesis | IP Graph
+
+- status: published
+- slug: systems/ip-graph
+- wiki_revision_id: wikirev_17a1120ab07834eb2f35b3efc4d579fd
+- summary: IP Graph is a system likely built on top of an indexer Temporal namespace and database. Partial monitoring coverage exists via the Story Indexer Grafana dashboard, but no Prometheu...
+
+## [2026-06-22T16:48:58Z] synthesis | POC Modules (Collection, Licensing, Royalties)
+
+- status: published
+- slug: systems/poc-modules
+- wiki_revision_id: wikirev_3fb390d6cb24c9396d30e742b05c3714
+- summary: POC Modules encompass Collection, Licensing, and Royalties components. Their usage data is primarily on-chain. No internal dashboards or Prometheus metrics are available. RSI lacks...
+
+## [2026-06-22T16:48:58Z] synthesis | RSI Agent
+
+- status: published
+- slug: systems/rsi-agent
+- wiki_revision_id: wikirev_4c5cdb32e5d48153973825b6ca226243
+- summary: RSI is an AI agent integrated into Slack, capable of accessing certain data sources like Grafana, Temporal, and depin database, but lacks access to SOS and blockchain databases. It...
+
