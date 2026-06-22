@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "30ecb1c208f820927c5819792b764c604027ded00a07e0099a087700f6ff5c31",
-        "size": 1790917
+        "sha256": "94ed1b7e2e51d2800d0cb66f16cfb9883161dddb6168b291a545ad41bc41f3d1",
+        "size": 1791254
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6580,6 +6580,11 @@
         "size": 3808
       },
       {
+        "path": "pages/projects/manual-testnet-ip-distribution.md",
+        "sha256": "70e0a0ee57d7e56f1a699dafa6af4567a56528618fb36d5a671c039d05fd1262",
+        "size": 6185
+      },
+      {
         "path": "pages/projects/mbti-voice-agent.md",
         "sha256": "ac3a5ab10d20a3d5de713aa26680d847b8c48517ee6300048fb20b9a3ed909b2",
         "size": 1634
@@ -9049,8 +9054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T14:06:30Z",
-  "file_count": 1808,
+  "exported_at": "2026-06-22T14:18:06Z",
+  "file_count": 1809,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12327,7 +12332,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "234af1378eb5294d3228a44279118f1e560e09d1e2ef39e3ce7ea5744845b868",
+  "previous_tree_hash": "750746b2ccdd38950e475278d1a3b3a160948ffcae49f203b34c4268da7a1cf4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12340,14 +12345,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "750746b2ccdd38950e475278d1a3b3a160948ffcae49f203b34c4268da7a1cf4",
+  "tree_hash": "09ee18bfc0356c94f421f309bf5fbed91ec13999fac6ceb37105983f3816f07b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1154,
+  "wiki_file_count": 1155,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12361,8 +12366,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "30ecb1c208f820927c5819792b764c604027ded00a07e0099a087700f6ff5c31",
-      "size": 1790917
+      "sha256": "94ed1b7e2e51d2800d0cb66f16cfb9883161dddb6168b291a545ad41bc41f3d1",
+      "size": 1791254
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15655,6 +15660,11 @@
       "size": 3808
     },
     {
+      "path": "pages/projects/manual-testnet-ip-distribution.md",
+      "sha256": "70e0a0ee57d7e56f1a699dafa6af4567a56528618fb36d5a671c039d05fd1262",
+      "size": 6185
+    },
+    {
       "path": "pages/projects/mbti-voice-agent.md",
       "sha256": "ac3a5ab10d20a3d5de713aa26680d847b8c48517ee6300048fb20b9a3ed909b2",
       "size": 1634
@@ -18121,5 +18131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9354dc64abb6c44c045bc36c3da920116671f080ca3b1d22661c35fbe1bba1a2"
+  "wiki_tree_hash": "42087aed4cb0a5d4339ff4cec7718055587990f25ade04bacce4ac084dba490b"
 }

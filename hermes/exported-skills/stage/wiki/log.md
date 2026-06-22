@@ -36345,3 +36345,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_473cd14e24fcbe0b38b86658185ef861
 - summary: Process for bypassing faucet restrictions to obtain large amounts of testnet IP tokens for testing, by contacting U07A7AUGL5V.
 
+## [2026-06-22T14:17:26Z] synthesis | Manual Testnet IP Distribution
+
+- status: published
+- slug: projects/manual-testnet-ip-distribution
+- wiki_revision_id: wikirev_6c1d616456e3b70e3101b6c9638d7450
+- summary: Manual distribution of Story Protocol testnet IP tokens to bypass faucet restrictions for functional and concurrency testing.
+
