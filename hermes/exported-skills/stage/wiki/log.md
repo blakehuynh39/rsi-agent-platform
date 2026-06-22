@@ -36114,3 +36114,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6ad5cf4f77dbefc748633aca46fbf8df
 - summary: A Slack thread discussion about face care recommendations for preventing and reversing wrinkles, including retinoid, salicylic acid, Korean SPF 50 sunscreen, snail mucin/hyaluronic...
 
+## [2026-06-22T09:01:37Z] synthesis | Jdub
+
+- status: published
+- slug: people/jdub
+- wiki_revision_id: wikirev_7dd66a288bea9c82091b072448bc3345
+- summary: A person known for not watching movies, only coding.
+
+## [2026-06-22T09:01:37Z] synthesis | Longevity (project)
+
+- status: published
+- slug: projects/longevity-project
+- wiki_revision_id: wikirev_4bd7f7b3a50cfec39eecb91350ac4ee5
+- summary: A project or product currently known as Longevity. A rebranding to 'Biohackr' has been suggested.
+
