@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4a6f860bd0337c3671060a42c9eb6f93f4af93ba9fbfa1e9d7b0c83d0d1eb288",
-        "size": 1807629
+        "sha256": "7a4608c10340d72271efb592950210157e37222b40909b25cb87406064c34986",
+        "size": 1808021
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7100,6 +7100,11 @@
         "size": 1109
       },
       {
+        "path": "pages/projects/proof-of-creativity-usage-analysis-run.md",
+        "sha256": "fa1923a43a681a8c37c965b08cd5ee4b244253eb407f973f134684c356217e34",
+        "size": 11271
+      },
+      {
         "path": "pages/projects/proteus-2-0-planning.md",
         "sha256": "f425b2d275785d4ce589c91ba00471d19ea647e0ae7dfb8c1b5482f0eeb37f50",
         "size": 7289
@@ -9219,8 +9224,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T19:50:29Z",
-  "file_count": 1842,
+  "exported_at": "2026-06-22T20:17:21Z",
+  "file_count": 1843,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12497,7 +12502,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "c9e020b67d79061c77e7271f6946e81d357b5e61570c1d72f6113082bdd88a3d",
+  "previous_tree_hash": "36cff30be85b9831a74dfeae09441249a8a084e360a2c5c07ce8827b27521c84",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12510,14 +12515,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "36cff30be85b9831a74dfeae09441249a8a084e360a2c5c07ce8827b27521c84",
+  "tree_hash": "951d2b8492bb3bfb6fec868523ef4f2f363d3929768c051acb47ee512e7bc93b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1188,
+  "wiki_file_count": 1189,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12531,8 +12536,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4a6f860bd0337c3671060a42c9eb6f93f4af93ba9fbfa1e9d7b0c83d0d1eb288",
-      "size": 1807629
+      "sha256": "7a4608c10340d72271efb592950210157e37222b40909b25cb87406064c34986",
+      "size": 1808021
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16345,6 +16350,11 @@
       "size": 1109
     },
     {
+      "path": "pages/projects/proof-of-creativity-usage-analysis-run.md",
+      "sha256": "fa1923a43a681a8c37c965b08cd5ee4b244253eb407f973f134684c356217e34",
+      "size": 11271
+    },
+    {
       "path": "pages/projects/proteus-2-0-planning.md",
       "sha256": "f425b2d275785d4ce589c91ba00471d19ea647e0ae7dfb8c1b5482f0eeb37f50",
       "size": 7289
@@ -18461,5 +18471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bd7de42dcda171abc98cb9c73853f06e6a7e9080e15a64c00d2741604ada94bd"
+  "wiki_tree_hash": "1c125793e94e158524119ecd889f9097f7e6f7f4ecf34bec981ffd8d7e59ad80"
 }

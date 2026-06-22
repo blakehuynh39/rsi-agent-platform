@@ -36653,3 +36653,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c13192dd898a9c1f2b21ceb4065e5fdc
 - summary: On 2026-05-15, Yao requested usage data for Royalty Graph v1/v2, IP Graph, and POC Modules. RSI investigated available monitoring and data sources, revealing severe limitations in ...
 
+## [2026-06-22T20:16:15Z] synthesis | Proof of Creativity Usage Analysis Run
+
+- status: published
+- slug: projects/proof-of-creativity-usage-analysis-run
+- wiki_revision_id: wikirev_14cae395ae3bfb424283fc26231db86f
+- summary: RSI run to collect high-level usage statistics for Story Protocol over the last 2 years, using data from sos-royalty-graph-prod and story-blockchain-prod databases.
+
