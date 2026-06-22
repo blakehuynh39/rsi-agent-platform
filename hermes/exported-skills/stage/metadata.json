@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ff06fb2d9807b0c38c97a50ab626bcada8d7d62a776522b2ba9b9a33f545f21c",
-        "size": 1040902
+        "sha256": "27a320e84d7341dd1c214b56dbe0482db4602ad08fe9759a77f3f68c9bbf9fb2",
+        "size": 1041277
       },
       {
         "path": "log.md",
-        "sha256": "38d07a9a865fba6b41c61bfa16ab60cda691259ba1bd7d8c86be3e6f4c7e9fbd",
-        "size": 1782850
+        "sha256": "7c6af89e1e606abafbf8de2ff2874db7fa8f62ae600743caecd5c61f1919d5e7",
+        "size": 1783237
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4213,6 +4213,11 @@
         "path": "pages/concepts/query-royalty-token-holders.md",
         "sha256": "498e19209ce6e22e43e28f42128bc27b2172334b447f2a87b8bfcbb36b88e2c2",
         "size": 3070
+      },
+      {
+        "path": "pages/concepts/querying-royalty-token-holders.md",
+        "sha256": "1de2b42a8e76360e39beb95efcba851a461d179d4ca565b79fe1aa254beb74ea",
+        "size": 3472
       },
       {
         "path": "pages/concepts/relationship-definition-template.md",
@@ -8959,8 +8964,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T09:49:07Z",
-  "file_count": 1790,
+  "exported_at": "2026-06-22T10:05:47Z",
+  "file_count": 1791,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12237,7 +12242,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "00839f009702fa7848a098f8e2b8db7482b8b8d8b47e3585404ac32e5ea4d349",
+  "previous_tree_hash": "886084cf23d6f11322c179a82f6267d52a6a20c579816504772974102df187a1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12250,14 +12255,14 @@
   ],
   "skill_tree_hash": "9702857c14b8a590e13ff6075e3530f50916bc4a4852a0b25ada93197e5a4417",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "886084cf23d6f11322c179a82f6267d52a6a20c579816504772974102df187a1",
+  "tree_hash": "6675a57a2164dc62c464f60116f95f7d89fdf626088cc1d8938dda0b66d462cf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1136,
+  "wiki_file_count": 1137,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12266,13 +12271,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ff06fb2d9807b0c38c97a50ab626bcada8d7d62a776522b2ba9b9a33f545f21c",
-      "size": 1040902
+      "sha256": "27a320e84d7341dd1c214b56dbe0482db4602ad08fe9759a77f3f68c9bbf9fb2",
+      "size": 1041277
     },
     {
       "path": "log.md",
-      "sha256": "38d07a9a865fba6b41c61bfa16ab60cda691259ba1bd7d8c86be3e6f4c7e9fbd",
-      "size": 1782850
+      "sha256": "7c6af89e1e606abafbf8de2ff2874db7fa8f62ae600743caecd5c61f1919d5e7",
+      "size": 1783237
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13198,6 +13203,11 @@
       "path": "pages/concepts/query-royalty-token-holders.md",
       "sha256": "498e19209ce6e22e43e28f42128bc27b2172334b447f2a87b8bfcbb36b88e2c2",
       "size": 3070
+    },
+    {
+      "path": "pages/concepts/querying-royalty-token-holders.md",
+      "sha256": "1de2b42a8e76360e39beb95efcba851a461d179d4ca565b79fe1aa254beb74ea",
+      "size": 3472
     },
     {
       "path": "pages/concepts/relationship-definition-template.md",
@@ -17941,5 +17951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4e6318ad414f7fd638d38e057dd7f9d4fb051ca277ba9e8bacbc93c0404faa14"
+  "wiki_tree_hash": "78d0b858966d70079f0137f48fa768990ec93163dccf5d2e5e4904c297b7e17b"
 }

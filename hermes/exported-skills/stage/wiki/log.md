@@ -36191,3 +36191,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_93da084b247e2d0457cbfe2632c9c314
 - summary: How to retrieve the list of addresses and amounts of Royalty Tokens (RTs) for a given IP Royalty Vault. No on-chain function exists, but off-chain solutions like Blockscout API can...
 
+## [2026-06-22T10:03:33Z] synthesis | Querying Royalty Token Holders
+
+- status: published
+- slug: concepts/querying-royalty-token-holders
+- wiki_revision_id: wikirev_0c176391117f0ad75977884a225dd94b
+- summary: No on-chain function exists to list all addresses holding RTs for a given IP Royalty Vault. Off-chain retrieval is possible via Blockscout API or a custom indexer/backend API.
+
