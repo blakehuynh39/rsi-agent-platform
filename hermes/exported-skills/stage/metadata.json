@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "38f96fc6ceae6d170fb7676b81d8ca850ee22b4602058460a3a621b74670edbe",
-        "size": 1055393
+        "sha256": "115c509889ab3cc2ac3ed9762b3873fd1a634605cb865c1b2c78389932f086c3",
+        "size": 1056234
       },
       {
         "path": "log.md",
-        "sha256": "08163cb841cbb49ca21c8f6d72ee129ccecbb87802d2f49eec65da1cc6396976",
-        "size": 1801883
+        "sha256": "3d47643a392b826e50953d72c266a8a4069b4fe62db94e21b15cf169b9cda81f",
+        "size": 1802320
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5398,6 +5398,11 @@
         "path": "pages/open-questions/login-error-staging-not-prod.md",
         "sha256": "0e4f26b97d7a2c445cc23a16715e02c8d85d67cb0d96d1b1f9fdd961a44229a8",
         "size": 1732
+      },
+      {
+        "path": "pages/open-questions/monitoring-usage-data-royalty-graph-ip-graph.md",
+        "sha256": "c2f847da32aafc3bbe8fb4bec782aaf83f6838049d61c20d20efc5ba79c06591",
+        "size": 5549
       },
       {
         "path": "pages/open-questions/multi-author-ipa-ownership.md",
@@ -9169,8 +9174,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T17:47:46Z",
-  "file_count": 1832,
+  "exported_at": "2026-06-22T17:54:17Z",
+  "file_count": 1833,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12447,7 +12452,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "3d2d4ad07fadcfade6af844895dca62d2239e97eab8896c40a7cc1e9f141fa64",
+  "previous_tree_hash": "5de4276f75f5283dc79a5454bf7e971b6f563fddeb98200f84b689702b56ac76",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12460,14 +12465,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5de4276f75f5283dc79a5454bf7e971b6f563fddeb98200f84b689702b56ac76",
+  "tree_hash": "ab8a7fa1329453be1a85e4e3fe6105fae41432daeee144f4aa232ad2cebedbe2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1178,
+  "wiki_file_count": 1179,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12476,13 +12481,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "38f96fc6ceae6d170fb7676b81d8ca850ee22b4602058460a3a621b74670edbe",
-      "size": 1055393
+      "sha256": "115c509889ab3cc2ac3ed9762b3873fd1a634605cb865c1b2c78389932f086c3",
+      "size": 1056234
     },
     {
       "path": "log.md",
-      "sha256": "08163cb841cbb49ca21c8f6d72ee129ccecbb87802d2f49eec65da1cc6396976",
-      "size": 1801883
+      "sha256": "3d47643a392b826e50953d72c266a8a4069b4fe62db94e21b15cf169b9cda81f",
+      "size": 1802320
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14593,6 +14598,11 @@
       "path": "pages/open-questions/login-error-staging-not-prod.md",
       "sha256": "0e4f26b97d7a2c445cc23a16715e02c8d85d67cb0d96d1b1f9fdd961a44229a8",
       "size": 1732
+    },
+    {
+      "path": "pages/open-questions/monitoring-usage-data-royalty-graph-ip-graph.md",
+      "sha256": "c2f847da32aafc3bbe8fb4bec782aaf83f6838049d61c20d20efc5ba79c06591",
+      "size": 5549
     },
     {
       "path": "pages/open-questions/multi-author-ipa-ownership.md",
@@ -18361,5 +18371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "aaf1f0628b992f138d26ad6f7f1498e0fbd25759efd2eda3b2503f6370c31291"
+  "wiki_tree_hash": "cf68af627b030bed7408a6daeec58ec0e900b8efd1826903c15bc20f9b491ab9"
 }

@@ -36555,3 +36555,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c042e61c544a75abf290ef1207bb0673
 - summary: Current state of usage data and dashboards for Royalty Graph, IP Graph, and POC Modules as of 2026-05-15. No dedicated internal dashboards exist; partial IP Graph coverage via Stor...
 
+## [2026-06-22T17:49:02Z] synthesis | Monitoring Usage Data for Royalty Graph and IP Graph
+
+- status: published
+- slug: open-questions/monitoring-usage-data-royalty-graph-ip-graph
+- wiki_revision_id: wikirev_376550de7439484e04d04742c6a74c01
+- summary: As of 2026-05-15, there is no internal business dashboard for Royalty Graph (royalties/transactions), only a Temporal Cloud namespace link. IP Graph has partial coverage via Grafan...
+
