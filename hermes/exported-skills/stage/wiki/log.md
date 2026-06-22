@@ -36387,3 +36387,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3ebc23b774ad2408959350b4f93b92e3
 - summary: How to request IP tokens for functional and concurrency testing on testnet and mainnet when the standard faucet is insufficient.
 
+## [2026-06-22T15:03:53Z] synthesis | Testnet IP Token Distribution Runbook
+
+- status: published
+- slug: runbooks/testnet-ip-token-distribution
+- wiki_revision_id: wikirev_f1f6251a312927d08eca944b36e272bf
+- summary: Process for requesting and receiving testnet (and mainnet) IP tokens for testing purposes. Tokens are distributed manually by a team member upon request.
+

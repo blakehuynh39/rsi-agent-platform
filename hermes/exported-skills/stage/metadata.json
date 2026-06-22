@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b4d6949be1a6c23e3f387b65e5df6ccc557f2b46ab7feb28a3c36f1cf7ac4999",
-        "size": 1048816
+        "sha256": "be6c8e15ac74ab302c2f548b2d14d594d25226f9a981900312b442d38ff33365",
+        "size": 1049503
       },
       {
         "path": "log.md",
-        "sha256": "c94c368a4eca22b2a986d8f6d27204bc94b6859720bab26211d21eec3cb0b8bc",
-        "size": 1792846
+        "sha256": "88d140e3b80eb1955235f5f5dbedd645df49b60e07931ae917728da62046cc4f",
+        "size": 1793217
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8210,6 +8210,11 @@
         "size": 4459
       },
       {
+        "path": "pages/runbooks/testnet-ip-token-distribution.md",
+        "sha256": "2c5b11201b5997b5d33ed69d68e3a741443a8a515f1a477b498434af8053e1dc",
+        "size": 4611
+      },
+      {
         "path": "pages/runbooks/testnet-ip-token-requests.md",
         "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
         "size": 3931
@@ -9079,8 +9084,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T15:03:02Z",
-  "file_count": 1814,
+  "exported_at": "2026-06-22T15:09:34Z",
+  "file_count": 1815,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12357,7 +12362,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "90d729315f6d4f0c0028eafbfc131b6f6adf0250a7adad9e17fb395d04f57691",
+  "previous_tree_hash": "81f974dfa0202740e343dd7ea93d81a0fb6fe2c9a5748572b805a6d08595c400",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12370,14 +12375,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "81f974dfa0202740e343dd7ea93d81a0fb6fe2c9a5748572b805a6d08595c400",
+  "tree_hash": "2e76113236e0a02211b9ea9972fa1bb98ac5ffb0c7cc713febe723481b192e3c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1160,
+  "wiki_file_count": 1161,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12386,13 +12391,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b4d6949be1a6c23e3f387b65e5df6ccc557f2b46ab7feb28a3c36f1cf7ac4999",
-      "size": 1048816
+      "sha256": "be6c8e15ac74ab302c2f548b2d14d594d25226f9a981900312b442d38ff33365",
+      "size": 1049503
     },
     {
       "path": "log.md",
-      "sha256": "c94c368a4eca22b2a986d8f6d27204bc94b6859720bab26211d21eec3cb0b8bc",
-      "size": 1792846
+      "sha256": "88d140e3b80eb1955235f5f5dbedd645df49b60e07931ae917728da62046cc4f",
+      "size": 1793217
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17315,6 +17320,11 @@
       "size": 4459
     },
     {
+      "path": "pages/runbooks/testnet-ip-token-distribution.md",
+      "sha256": "2c5b11201b5997b5d33ed69d68e3a741443a8a515f1a477b498434af8053e1dc",
+      "size": 4611
+    },
+    {
       "path": "pages/runbooks/testnet-ip-token-requests.md",
       "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
       "size": 3931
@@ -18181,5 +18191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b5f442c979f6250c7d7d74360a10c8a3979599cdadb5033013a92e4d13d46073"
+  "wiki_tree_hash": "d5c62b8d35258c83349dc2f3cfc80dafd47519d2cea777ad7a35c457ae2915f5"
 }
