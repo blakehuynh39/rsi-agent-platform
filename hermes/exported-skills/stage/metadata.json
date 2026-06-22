@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aa82bd93089d441148d4031fcd54c62fddc0d82b32ae92d7960e0b32cdd15687",
-        "size": 1051038
+        "sha256": "553597caa60a2ba23a2a1741db69e7a084afc2ae71e84923c41205fd7375a6cf",
+        "size": 1051383
       },
       {
         "path": "log.md",
-        "sha256": "7642faeab85e640d650e92112c20f7d5e5fff8b05b24875d3f6204706e449801",
-        "size": 1794799
+        "sha256": "b0c1bcd21ef2b2ac770ac43eeec73e34e38a20f264703d70e0265c76016fdb2e",
+        "size": 1795156
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4273,6 +4273,11 @@
         "path": "pages/concepts/royalty-claim-availability-check.md",
         "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
         "size": 2586
+      },
+      {
+        "path": "pages/concepts/royalty-ip-graph-monitoring.md",
+        "sha256": "ffd0956e81be560f47b3ed883bc514f854bb9fd48d3a89d518c62a5659d831ff",
+        "size": 4390
       },
       {
         "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -9104,8 +9109,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T16:06:13Z",
-  "file_count": 1819,
+  "exported_at": "2026-06-22T16:22:53Z",
+  "file_count": 1820,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12382,7 +12387,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "96548bd7143dbb4e6a7a5736ec3bd02912916ec058dcc88db7dfd92ce45c1061",
+  "previous_tree_hash": "db0eb1c1faefd6dcaba2fa2a831df476b32c78078679020e94abb55fefee9cf7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12395,14 +12400,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "db0eb1c1faefd6dcaba2fa2a831df476b32c78078679020e94abb55fefee9cf7",
+  "tree_hash": "418457043fbb6ebe21a4b7968d12e0bcc36f1d604cfef126a4a4ec161dd047f0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1165,
+  "wiki_file_count": 1166,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12411,13 +12416,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aa82bd93089d441148d4031fcd54c62fddc0d82b32ae92d7960e0b32cdd15687",
-      "size": 1051038
+      "sha256": "553597caa60a2ba23a2a1741db69e7a084afc2ae71e84923c41205fd7375a6cf",
+      "size": 1051383
     },
     {
       "path": "log.md",
-      "sha256": "7642faeab85e640d650e92112c20f7d5e5fff8b05b24875d3f6204706e449801",
-      "size": 1794799
+      "sha256": "b0c1bcd21ef2b2ac770ac43eeec73e34e38a20f264703d70e0265c76016fdb2e",
+      "size": 1795156
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13403,6 +13408,11 @@
       "path": "pages/concepts/royalty-claim-availability-check.md",
       "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
       "size": 2586
+    },
+    {
+      "path": "pages/concepts/royalty-ip-graph-monitoring.md",
+      "sha256": "ffd0956e81be560f47b3ed883bc514f854bb9fd48d3a89d518c62a5659d831ff",
+      "size": 4390
     },
     {
       "path": "pages/concepts/royalty-module-revenue-flow.md",
@@ -18231,5 +18241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "03638ab2d8b02079c941d564573b830edb2d13507442f3840944a922961bcc73"
+  "wiki_tree_hash": "93cde476c03a567d95d8e3fdfe4e987e38c7beaaf07c84eb2b168df5b2b48b3f"
 }

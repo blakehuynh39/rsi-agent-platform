@@ -36422,3 +36422,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_29797b93583e2bb3f1b98ec72213e3df
 - summary: Current state of usage data sources for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties) as of 2026-05-15. RSI lacks access to most data sources; o...
 
+## [2026-06-22T16:19:31Z] synthesis | Royalty and IP Graph Monitoring
+
+- status: published
+- slug: concepts/royalty-ip-graph-monitoring
+- wiki_revision_id: wikirev_23a9953a936b018ce3a94b613e310025
+- summary: Current state of monitoring and data access for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties) as of 2026-05-15.
+
