@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "91f6b716b9c51cf83e3a6bf2f651faaf83c0564b3d5cd7cc68848e0d9e521d47",
-        "size": 1045855
+        "sha256": "cdcc866d49b5aaff53953678f816ca7897bd1431e3e085972f77b8d157afbf1d",
+        "size": 1046613
       },
       {
         "path": "log.md",
-        "sha256": "e1ed832ac2c45b065d07505377620daca77b49b87289afd6119c6029b28cb92f",
-        "size": 1789045
+        "sha256": "febff1a2e9a4b2ca5d3fe3f359c68e0f11e6eb5a8eb6afb9852bff649fc844b1",
+        "size": 1789827
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6245,9 +6245,19 @@
         "size": 2920
       },
       {
+        "path": "pages/projects/faucet-migration-gcp-to-aws.md",
+        "sha256": "8ab048255c62f56cb9e33fe3bd02bee6ab93d3e9a510fd5027154edd9f97e87b",
+        "size": 5134
+      },
+      {
         "path": "pages/projects/faucet-migration-to-aws.md",
         "sha256": "d4cc2aa316f76732045d46f4561052214fde5698eb1067054696d16fb4cd55af",
         "size": 4645
+      },
+      {
+        "path": "pages/projects/faucet-server-migration.md",
+        "sha256": "13ad975aedc4ca4a88e9dc37c555c9b228eaea290efe121e42f8c3a6bada87db",
+        "size": 4401
       },
       {
         "path": "pages/projects/filipino-language-campaign.md",
@@ -9029,8 +9039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T12:53:13Z",
-  "file_count": 1804,
+  "exported_at": "2026-06-22T13:04:50Z",
+  "file_count": 1806,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12307,7 +12317,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "678f012aa77b5360eb005d3beb4f54cbfb8cf5380fce82acd08b702e0af8c8d8",
+  "previous_tree_hash": "d1eda529145c1d659cfead7c17620183b66b3b2b9b4c68faf4f89ca373fd0d23",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12320,14 +12330,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d1eda529145c1d659cfead7c17620183b66b3b2b9b4c68faf4f89ca373fd0d23",
+  "tree_hash": "5fe6ca4f096d28b7ee2f2f5a5fde9cd86290f7f7d8308482a9ac800df8b1e132",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1150,
+  "wiki_file_count": 1152,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12336,13 +12346,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "91f6b716b9c51cf83e3a6bf2f651faaf83c0564b3d5cd7cc68848e0d9e521d47",
-      "size": 1045855
+      "sha256": "cdcc866d49b5aaff53953678f816ca7897bd1431e3e085972f77b8d157afbf1d",
+      "size": 1046613
     },
     {
       "path": "log.md",
-      "sha256": "e1ed832ac2c45b065d07505377620daca77b49b87289afd6119c6029b28cb92f",
-      "size": 1789045
+      "sha256": "febff1a2e9a4b2ca5d3fe3f359c68e0f11e6eb5a8eb6afb9852bff649fc844b1",
+      "size": 1789827
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15300,9 +15310,19 @@
       "size": 2920
     },
     {
+      "path": "pages/projects/faucet-migration-gcp-to-aws.md",
+      "sha256": "8ab048255c62f56cb9e33fe3bd02bee6ab93d3e9a510fd5027154edd9f97e87b",
+      "size": 5134
+    },
+    {
       "path": "pages/projects/faucet-migration-to-aws.md",
       "sha256": "d4cc2aa316f76732045d46f4561052214fde5698eb1067054696d16fb4cd55af",
       "size": 4645
+    },
+    {
+      "path": "pages/projects/faucet-server-migration.md",
+      "sha256": "13ad975aedc4ca4a88e9dc37c555c9b228eaea290efe121e42f8c3a6bada87db",
+      "size": 4401
     },
     {
       "path": "pages/projects/filipino-language-campaign.md",
@@ -18081,5 +18101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67a252b6a614602b490a31c399f730dfe4757a99bf9783806af2eaff1dcdde33"
+  "wiki_tree_hash": "5a2278d7f60856ac8c46aca75bdae19750c95b95291e21440f9aafde773319bb"
 }
