@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d94725e715283f1f04a026b99a4170ce2dd347cd894ccdccfa21931f83d6c373",
-        "size": 1803523
+        "sha256": "0afdc41ebb53ebfe742fe0cdb4282bd1cff4645a66ca98b9aa8a8282b9d90e45",
+        "size": 1803966
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4273,6 +4273,11 @@
         "path": "pages/concepts/royalty-claim-availability-check.md",
         "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
         "size": 2586
+      },
+      {
+        "path": "pages/concepts/royalty-graph-ip-graph-poc-usage-data-sources.md",
+        "sha256": "5a3ef12c36d55d95b14f82f646f962f13968ea7a589f4e33cdc7af2ddc0be3e5",
+        "size": 5758
       },
       {
         "path": "pages/concepts/royalty-ip-graph-monitoring.md",
@@ -9184,8 +9189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T18:05:57Z",
-  "file_count": 1835,
+  "exported_at": "2026-06-22T18:17:34Z",
+  "file_count": 1836,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12462,7 +12467,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "ab8a7fa1329453be1a85e4e3fe6105fae41432daeee144f4aa232ad2cebedbe2",
+  "previous_tree_hash": "5cb552bd555d0e2e8aa6e3debf2d52dde32c6d8d30e909b02947a1284e254e31",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12475,14 +12480,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5cb552bd555d0e2e8aa6e3debf2d52dde32c6d8d30e909b02947a1284e254e31",
+  "tree_hash": "5e192d50ff44e923f5b58eafdad7a53288d5970a1539dd8095403bb47a82659e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1181,
+  "wiki_file_count": 1182,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12496,8 +12501,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d94725e715283f1f04a026b99a4170ce2dd347cd894ccdccfa21931f83d6c373",
-      "size": 1803523
+      "sha256": "0afdc41ebb53ebfe742fe0cdb4282bd1cff4645a66ca98b9aa8a8282b9d90e45",
+      "size": 1803966
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13483,6 +13488,11 @@
       "path": "pages/concepts/royalty-claim-availability-check.md",
       "sha256": "fb6cfd265814efc1dc8a48e05a66ffd751ae9a3827e57d58490c93d37099fc04",
       "size": 2586
+    },
+    {
+      "path": "pages/concepts/royalty-graph-ip-graph-poc-usage-data-sources.md",
+      "sha256": "5a3ef12c36d55d95b14f82f646f962f13968ea7a589f4e33cdc7af2ddc0be3e5",
+      "size": 5758
     },
     {
       "path": "pages/concepts/royalty-ip-graph-monitoring.md",
@@ -18391,5 +18401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4344ea53468cad6ddab863d1b04bf8a9db737b599d18f1d2512741d180f0bea4"
+  "wiki_tree_hash": "239030d73e5995c5ab49c7449738f20de3f280464fd329e16d79fc2386d9ce05"
 }

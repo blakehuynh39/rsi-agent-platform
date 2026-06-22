@@ -36583,3 +36583,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c4a9e9d5073058e9e5c8ea9f8a8dc6f8
 - summary: When calling registerDerivative with max_revenue_share=100, the SDK validation raises ValueError because the parent IP's royalty percent exceeds the provided max_revenue_share. Thi...
 
+## [2026-06-22T18:17:00Z] synthesis | Usage Data Sources for Royalty Graph, IP Graph, and POC Modules
+
+- status: published
+- slug: concepts/royalty-graph-ip-graph-poc-usage-data-sources
+- wiki_revision_id: wikirev_a6e9f7481da309fb6cadfb452af19782
+- summary: Information gathered about available data sources for Royalty Graph v1/v2, IP Graph, and POC Modules usage data. As of 2026-05-15, no dedicated dashboards or database access exist ...
+
