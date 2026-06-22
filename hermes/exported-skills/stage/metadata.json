@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2dc0c442333eb78d59c422f619d710a593ceaea2e86c10bdc2a35744bcabb82c",
-        "size": 1057896
+        "sha256": "136a3fbc9a2f4d9a1b1783ce65ea54128fa787bb3e83a22e5d1530511f6092e4",
+        "size": 1058306
       },
       {
         "path": "log.md",
-        "sha256": "e528e01076964e31f5de122f590670e0561673c25b23ca0cb9f2c5c266202446",
-        "size": 1804798
+        "sha256": "7fd6ee83cd129a2c5e37f3f21ce709fc3b32d79e9969bd9bd483702eeeef4475",
+        "size": 1805220
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8325,6 +8325,11 @@
         "size": 3393
       },
       {
+        "path": "pages/runbooks/usage-metrics-sources.md",
+        "sha256": "0be0ebb1dc6dab0b5933984b9f64b897b597f4fd5c109a4354557ac382868eeb",
+        "size": 6070
+      },
+      {
         "path": "pages/runbooks/vault-auth-namespace-whitelist-drift-2026-05.md",
         "sha256": "95b8e78fa92047de5f3c51d36615002d3ba46a1b4c0811fee96fac37f1aa59b2",
         "size": 4001
@@ -9194,8 +9199,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T18:35:43Z",
-  "file_count": 1837,
+  "exported_at": "2026-06-22T18:52:25Z",
+  "file_count": 1838,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12472,7 +12477,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "64c089ea47f91175a288cbd9c97a865744aeffcf84db402a1eb05df2ccbeef22",
+  "previous_tree_hash": "6cc45993d6df27bfe8899bd37e5d648bc1c3c24a698922ddd96f8ef06002be9c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12485,14 +12490,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6cc45993d6df27bfe8899bd37e5d648bc1c3c24a698922ddd96f8ef06002be9c",
+  "tree_hash": "12c84d043a8ece6cab16449af24d5a2b55a39785d1846e862d7f2be92b740f9e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1183,
+  "wiki_file_count": 1184,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12501,13 +12506,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2dc0c442333eb78d59c422f619d710a593ceaea2e86c10bdc2a35744bcabb82c",
-      "size": 1057896
+      "sha256": "136a3fbc9a2f4d9a1b1783ce65ea54128fa787bb3e83a22e5d1530511f6092e4",
+      "size": 1058306
     },
     {
       "path": "log.md",
-      "sha256": "e528e01076964e31f5de122f590670e0561673c25b23ca0cb9f2c5c266202446",
-      "size": 1804798
+      "sha256": "7fd6ee83cd129a2c5e37f3f21ce709fc3b32d79e9969bd9bd483702eeeef4475",
+      "size": 1805220
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17545,6 +17550,11 @@
       "size": 3393
     },
     {
+      "path": "pages/runbooks/usage-metrics-sources.md",
+      "sha256": "0be0ebb1dc6dab0b5933984b9f64b897b597f4fd5c109a4354557ac382868eeb",
+      "size": 6070
+    },
+    {
       "path": "pages/runbooks/vault-auth-namespace-whitelist-drift-2026-05.md",
       "sha256": "95b8e78fa92047de5f3c51d36615002d3ba46a1b4c0811fee96fac37f1aa59b2",
       "size": 4001
@@ -18411,5 +18421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4fe20bb22499366ccb8d09060d38bee69cf62dd8467f52ee7b74c3e453558cd8"
+  "wiki_tree_hash": "28bf405c315e6000ccf99eaa0c4643db9f6f38d701fc5b67f6c41868b80b5e2c"
 }
