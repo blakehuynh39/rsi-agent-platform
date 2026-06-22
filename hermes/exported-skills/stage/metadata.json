@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "27a320e84d7341dd1c214b56dbe0482db4602ad08fe9759a77f3f68c9bbf9fb2",
-        "size": 1041277
+        "sha256": "ae4558b07ec9bca1e8227c68cd05ebe61426df5dd78f3fe5ca35bb9d3308a32d",
+        "size": 1041664
       },
       {
         "path": "log.md",
-        "sha256": "17c3e47b67cf8c330df6294baa9f6c8b37fe279575780d048c8da3f63aa95607",
-        "size": 1783636
+        "sha256": "a0586f4d5546fe8198dd3bcbf56ee009915a9a04815ce058e358ecf06f04f476",
+        "size": 1784025
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4271,8 +4271,8 @@
       },
       {
         "path": "pages/concepts/royalty-token-holder-lookup.md",
-        "sha256": "ffd566b348a34fc152f8a686baf0e549faec54e49fe2ea30bf33a01a5267601e",
-        "size": 3237
+        "sha256": "7333e570a98755b3e7ad14e512df4acc7cd3f976cd61fbc26ca990c146f81745",
+        "size": 2666
       },
       {
         "path": "pages/concepts/royalty-token-vault-balance-query.md",
@@ -8969,7 +8969,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T10:17:21Z",
+  "exported_at": "2026-06-22T10:23:54Z",
   "file_count": 1792,
   "files": [
     {
@@ -12247,7 +12247,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6675a57a2164dc62c464f60116f95f7d89fdf626088cc1d8938dda0b66d462cf",
+  "previous_tree_hash": "4e8b31db792528f4dc89fcd99f021ca6eb9e17071040e9a2f52917d2e8974c7f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12260,7 +12260,7 @@
   ],
   "skill_tree_hash": "9702857c14b8a590e13ff6075e3530f50916bc4a4852a0b25ada93197e5a4417",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4e8b31db792528f4dc89fcd99f021ca6eb9e17071040e9a2f52917d2e8974c7f",
+  "tree_hash": "30dafc19eac546f7accd079fec2a3d2c1c3c3fc57bc67f7e88ef0a24769ba76b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -12276,13 +12276,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "27a320e84d7341dd1c214b56dbe0482db4602ad08fe9759a77f3f68c9bbf9fb2",
-      "size": 1041277
+      "sha256": "ae4558b07ec9bca1e8227c68cd05ebe61426df5dd78f3fe5ca35bb9d3308a32d",
+      "size": 1041664
     },
     {
       "path": "log.md",
-      "sha256": "17c3e47b67cf8c330df6294baa9f6c8b37fe279575780d048c8da3f63aa95607",
-      "size": 1783636
+      "sha256": "a0586f4d5546fe8198dd3bcbf56ee009915a9a04815ce058e358ecf06f04f476",
+      "size": 1784025
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13266,8 +13266,8 @@
     },
     {
       "path": "pages/concepts/royalty-token-holder-lookup.md",
-      "sha256": "ffd566b348a34fc152f8a686baf0e549faec54e49fe2ea30bf33a01a5267601e",
-      "size": 3237
+      "sha256": "7333e570a98755b3e7ad14e512df4acc7cd3f976cd61fbc26ca990c146f81745",
+      "size": 2666
     },
     {
       "path": "pages/concepts/royalty-token-vault-balance-query.md",
@@ -17961,5 +17961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e1dc38646294d5535afcb5a5022ede308d425083f1617b37bc514452cd4f187a"
+  "wiki_tree_hash": "b1fead735863f0b77a7e83334383f4906ab05b3156633a8d3d863ec7f109225f"
 }
