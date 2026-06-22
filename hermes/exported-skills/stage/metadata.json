@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "462a964ace82ebca33b9f374f6ba81f9cf962d6ad3a564376c29e3fd09a40c6d",
-        "size": 1792506
+        "sha256": "c94c368a4eca22b2a986d8f6d27204bc94b6859720bab26211d21eec3cb0b8bc",
+        "size": 1792846
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8055,6 +8055,11 @@
         "size": 3533
       },
       {
+        "path": "pages/runbooks/requesting-ip-tokens-testing.md",
+        "sha256": "ce68c37a3b4ba91ba4a6162d531710cdb61a9375dbf5aff2ffe517a952027664",
+        "size": 4731
+      },
+      {
         "path": "pages/runbooks/rsi-executor-commit-signing.md",
         "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
         "size": 3616
@@ -9074,8 +9079,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T14:51:26Z",
-  "file_count": 1813,
+  "exported_at": "2026-06-22T15:03:02Z",
+  "file_count": 1814,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12352,7 +12357,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "de1b38f764fea9aa93c089cefad67255e80cc7d2eaf59c60952b9c9dcd63544c",
+  "previous_tree_hash": "90d729315f6d4f0c0028eafbfc131b6f6adf0250a7adad9e17fb395d04f57691",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12365,14 +12370,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "90d729315f6d4f0c0028eafbfc131b6f6adf0250a7adad9e17fb395d04f57691",
+  "tree_hash": "81f974dfa0202740e343dd7ea93d81a0fb6fe2c9a5748572b805a6d08595c400",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1159,
+  "wiki_file_count": 1160,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12386,8 +12391,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "462a964ace82ebca33b9f374f6ba81f9cf962d6ad3a564376c29e3fd09a40c6d",
-      "size": 1792506
+      "sha256": "c94c368a4eca22b2a986d8f6d27204bc94b6859720bab26211d21eec3cb0b8bc",
+      "size": 1792846
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17155,6 +17160,11 @@
       "size": 3533
     },
     {
+      "path": "pages/runbooks/requesting-ip-tokens-testing.md",
+      "sha256": "ce68c37a3b4ba91ba4a6162d531710cdb61a9375dbf5aff2ffe517a952027664",
+      "size": 4731
+    },
+    {
       "path": "pages/runbooks/rsi-executor-commit-signing.md",
       "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
       "size": 3616
@@ -18171,5 +18181,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c2d79b4e38eb6e9c63b9cc6b4d240e2c6893ed8f44b54220756104fcefe4057b"
+  "wiki_tree_hash": "b5f442c979f6250c7d7d74360a10c8a3979599cdadb5033013a92e4d13d46073"
 }
