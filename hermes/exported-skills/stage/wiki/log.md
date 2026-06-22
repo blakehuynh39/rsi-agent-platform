@@ -36690,3 +36690,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8444b2111777787c44bcd0241d04a7db
 - summary: Overview of the Trace backend system architecture, including staging deployment verified June 3, 2026 UTC, write/read paths, SQS-based ingestion, idempotency, search indexing, vers...
 
+## [2026-06-22T20:49:44Z] synthesis | Runbook: Protocol Usage Data Queries
+
+- status: published
+- slug: runbooks/runbook-protocol-usage-data-queries
+- wiki_revision_id: wikirev_1462032d2a7492ee654165fafd37f3b8
+- summary: How to query overall protocol usage statistics from the production databases sos-royalty-graph-prod and story-blockchain-prod.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f76f655220357c07f69e595af1e9cdb6da87d3c5c8e4fdead11e97dae192ec28",
-        "size": 1060673
+        "sha256": "a2a9d3fffe9300a7287a661af29a6635f6da00ce91a69ed116567ed9fcec86e7",
+        "size": 1061011
       },
       {
         "path": "log.md",
-        "sha256": "92973bda1cb7836ecb7cd54b7517934f31a2d352d9454642bc5286f11ed0388b",
-        "size": 1808800
+        "sha256": "270ab68f860f203cd38aa37f0a9a0ebf41c63a0e71c1431e265191bfdd85b209",
+        "size": 1809890
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7451,8 +7451,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "02a69c57159c65227a01bfda4f588bb9644ceecdda5870447fdb3e3540e9f87d",
-        "size": 30695
+        "sha256": "923cea0233ad3f5f19b093341c5e04daf85d3593c943bfb09e77f7963ff382e9",
+        "size": 30303
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -8148,6 +8148,11 @@
         "path": "pages/runbooks/runbook-node-storage-low.md",
         "sha256": "f2c95d12bd2795d5cd950372dd93fb96d9399f99aa867cd809709d769da740a7",
         "size": 3043
+      },
+      {
+        "path": "pages/runbooks/runbook-protocol-usage-data-queries.md",
+        "sha256": "daaa48b5d2cd99b2c3457e59e30d7f4a35e9518573d2c86030bd462f8ef53895",
+        "size": 5811
       },
       {
         "path": "pages/runbooks/running-a-node.md",
@@ -9176,8 +9181,8 @@
       },
       {
         "path": "pages/systems/trace-backend-architecture.md",
-        "sha256": "13f5a3c3d4cab8aeca67f988a50ff738a62c3b8413f18e45926d40ee96d99b43",
-        "size": 15168
+        "sha256": "d94292e34f658b9685dc3a4dff48fc5ae85d811201600258acaaa3ce0f50abbd",
+        "size": 31527
       },
       {
         "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -9229,8 +9234,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T20:47:07Z",
-  "file_count": 1844,
+  "exported_at": "2026-06-22T20:53:39Z",
+  "file_count": 1845,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12507,7 +12512,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "ed89914c0c229262a0cd3395c36f279b6c49b8377da8d5e76a21cc5fe83ad352",
+  "previous_tree_hash": "792761701dc80ff79231d27ef9ec311656ea7945010100b85bb5c4bdd8cfbe22",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12520,14 +12525,14 @@
   ],
   "skill_tree_hash": "f0b48a96d2cba80a54546ee7061a565ec41c6cd9fda469c75f7cc062da49db62",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "792761701dc80ff79231d27ef9ec311656ea7945010100b85bb5c4bdd8cfbe22",
+  "tree_hash": "6c222288b6d202bebde4bbab8fe61b943fcb02f5db77aea06d6ed8c5367ccf0f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1190,
+  "wiki_file_count": 1191,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12536,13 +12541,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f76f655220357c07f69e595af1e9cdb6da87d3c5c8e4fdead11e97dae192ec28",
-      "size": 1060673
+      "sha256": "a2a9d3fffe9300a7287a661af29a6635f6da00ce91a69ed116567ed9fcec86e7",
+      "size": 1061011
     },
     {
       "path": "log.md",
-      "sha256": "92973bda1cb7836ecb7cd54b7517934f31a2d352d9454642bc5286f11ed0388b",
-      "size": 1808800
+      "sha256": "270ab68f860f203cd38aa37f0a9a0ebf41c63a0e71c1431e265191bfdd85b209",
+      "size": 1809890
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16706,8 +16711,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "02a69c57159c65227a01bfda4f588bb9644ceecdda5870447fdb3e3540e9f87d",
-      "size": 30695
+      "sha256": "923cea0233ad3f5f19b093341c5e04daf85d3593c943bfb09e77f7963ff382e9",
+      "size": 30303
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -17403,6 +17408,11 @@
       "path": "pages/runbooks/runbook-node-storage-low.md",
       "sha256": "f2c95d12bd2795d5cd950372dd93fb96d9399f99aa867cd809709d769da740a7",
       "size": 3043
+    },
+    {
+      "path": "pages/runbooks/runbook-protocol-usage-data-queries.md",
+      "sha256": "daaa48b5d2cd99b2c3457e59e30d7f4a35e9518573d2c86030bd462f8ef53895",
+      "size": 5811
     },
     {
       "path": "pages/runbooks/running-a-node.md",
@@ -18431,8 +18441,8 @@
     },
     {
       "path": "pages/systems/trace-backend-architecture.md",
-      "sha256": "13f5a3c3d4cab8aeca67f988a50ff738a62c3b8413f18e45926d40ee96d99b43",
-      "size": 15168
+      "sha256": "d94292e34f658b9685dc3a4dff48fc5ae85d811201600258acaaa3ce0f50abbd",
+      "size": 31527
     },
     {
       "path": "pages/systems/twitter-oracle-backend-server.md",
@@ -18481,5 +18491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d4a205e956c0290581b0d3c0e1fc728251e523618015314677c4fa54d85f4466"
+  "wiki_tree_hash": "4c15a16f0cd74a05c2a6e59f028fc5e2278c77b526703da64275fc5ae2a7edb7"
 }
