@@ -36548,3 +36548,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aac43799e03ce6fe55a2a1f5e3abd21a
 - summary: Current observability landscape for Royalty Graph, IP Graph, and POC Modules as of May 2026. No internal dashboards exist for royalty or POC metrics; IP Graph has partial Grafana c...
 
+## [2026-06-22T17:47:05Z] synthesis | Royalty Graph and IP Graph Usage Data Availability
+
+- status: published
+- slug: open-questions/royalty-graph-usage-data-availability
+- wiki_revision_id: wikirev_c042e61c544a75abf290ef1207bb0673
+- summary: Current state of usage data and dashboards for Royalty Graph, IP Graph, and POC Modules as of 2026-05-15. No dedicated internal dashboards exist; partial IP Graph coverage via Stor...
+

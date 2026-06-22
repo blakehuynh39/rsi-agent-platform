@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0303a8bd1a6de9034ee430acf2450af98d51ddc0382be799c8a46c20ccf41f91",
-        "size": 1801455
+        "sha256": "08163cb841cbb49ca21c8f6d72ee129ccecbb87802d2f49eec65da1cc6396976",
+        "size": 1801883
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5508,6 +5508,11 @@
         "path": "pages/open-questions/royalty-dilution-feedback.md",
         "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
         "size": 2853
+      },
+      {
+        "path": "pages/open-questions/royalty-graph-usage-data-availability.md",
+        "sha256": "41c3a4f2c647f561dad6312c30b5c5cd5ec78edf41651d605b863a772cfeb0ef",
+        "size": 5335
       },
       {
         "path": "pages/open-questions/royalty-token-vault-addresses.md",
@@ -9164,8 +9169,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T17:36:11Z",
-  "file_count": 1831,
+  "exported_at": "2026-06-22T17:47:46Z",
+  "file_count": 1832,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12442,7 +12447,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "83ee40dfd7d8744af53df34cdffc087666b4df7b9b7c74e62b97596d463e9891",
+  "previous_tree_hash": "3d2d4ad07fadcfade6af844895dca62d2239e97eab8896c40a7cc1e9f141fa64",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12455,14 +12460,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3d2d4ad07fadcfade6af844895dca62d2239e97eab8896c40a7cc1e9f141fa64",
+  "tree_hash": "5de4276f75f5283dc79a5454bf7e971b6f563fddeb98200f84b689702b56ac76",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1177,
+  "wiki_file_count": 1178,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12476,8 +12481,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0303a8bd1a6de9034ee430acf2450af98d51ddc0382be799c8a46c20ccf41f91",
-      "size": 1801455
+      "sha256": "08163cb841cbb49ca21c8f6d72ee129ccecbb87802d2f49eec65da1cc6396976",
+      "size": 1801883
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14698,6 +14703,11 @@
       "path": "pages/open-questions/royalty-dilution-feedback.md",
       "sha256": "d64caaafdd7d709baacc137c47f5f03cd234b6e0c11c456526e1c86d30555b22",
       "size": 2853
+    },
+    {
+      "path": "pages/open-questions/royalty-graph-usage-data-availability.md",
+      "sha256": "41c3a4f2c647f561dad6312c30b5c5cd5ec78edf41651d605b863a772cfeb0ef",
+      "size": 5335
     },
     {
       "path": "pages/open-questions/royalty-token-vault-addresses.md",
@@ -18351,5 +18361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ca12c10642a38bd6be13d4b7023a988ae3608b946145beb3f354b69fd86f09fb"
+  "wiki_tree_hash": "aaf1f0628b992f138d26ad6f7f1498e0fbd25759efd2eda3b2503f6370c31291"
 }
