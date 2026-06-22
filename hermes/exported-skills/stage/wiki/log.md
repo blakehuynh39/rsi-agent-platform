@@ -36660,3 +36660,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_14cae395ae3bfb424283fc26231db86f
 - summary: RSI run to collect high-level usage statistics for Story Protocol over the last 2 years, using data from sos-royalty-graph-prod and story-blockchain-prod databases.
 
+## [2026-06-22T20:30:47Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_544dccbe171d4a6467ec4f52b779b0c5
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_fa85c19c8df7226333c292c678bea0b2
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-22T20:34:31Z] synthesis | Production Database Schemas (May 2026)
+
+- status: published
+- slug: systems/production-database-schemas-may-2026
+- wiki_revision_id: wikirev_475c999651f9e91c1b2fd55e64674cc2
+- summary: Overview of the tables in sos-royalty-graph-prod and story-blockchain-prod databases as observed on 2026-05-15.
+
