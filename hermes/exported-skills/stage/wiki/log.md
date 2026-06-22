@@ -36429,3 +36429,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_23a9953a936b018ce3a94b613e310025
 - summary: Current state of monitoring and data access for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties) as of 2026-05-15.
 
+## [2026-06-22T16:33:33Z] synthesis | Usage Data for Royalty Graph, IP Graph, and POC Modules
+
+- status: published
+- slug: concepts/royalty-ip-poc-usage-data
+- wiki_revision_id: wikirev_983f0bb6b7aed87f6e77c2a1bf2737cb
+- summary: Current state of available dashboards, metrics, and data access for Royalty Graph, IP Graph, and POC Modules.
+
