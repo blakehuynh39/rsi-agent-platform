@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b544e62b60e9d6af7299fbc83f9c3f1e300efd293b9eefdafae702aba722716b",
-        "size": 1057061
+        "sha256": "14794c15bc59cfd728f0f6c7211756f530804e0e12851617e66a26d85f35f35a",
+        "size": 1057897
       },
       {
         "path": "log.md",
-        "sha256": "0afdc41ebb53ebfe742fe0cdb4282bd1cff4645a66ca98b9aa8a8282b9d90e45",
-        "size": 1803966
+        "sha256": "17a80dfc8cb04567b8bf6cee887da4fa3a7b761ac2bece23f25fa3a1c0464759",
+        "size": 1804382
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8965,6 +8965,11 @@
         "size": 6675
       },
       {
+        "path": "pages/systems/royalty-graph-ip-graph-usage-monitoring.md",
+        "sha256": "0cc2a7826c625531370b05514c6135f3b4357431ea9788a347e209c998b8dd83",
+        "size": 9398
+      },
+      {
         "path": "pages/systems/royalty-graph-monitoring.md",
         "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
         "size": 5243
@@ -9189,8 +9194,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T18:17:34Z",
-  "file_count": 1836,
+  "exported_at": "2026-06-22T18:24:06Z",
+  "file_count": 1837,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12467,7 +12472,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5cb552bd555d0e2e8aa6e3debf2d52dde32c6d8d30e909b02947a1284e254e31",
+  "previous_tree_hash": "5e192d50ff44e923f5b58eafdad7a53288d5970a1539dd8095403bb47a82659e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12480,14 +12485,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5e192d50ff44e923f5b58eafdad7a53288d5970a1539dd8095403bb47a82659e",
+  "tree_hash": "64c089ea47f91175a288cbd9c97a865744aeffcf84db402a1eb05df2ccbeef22",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1182,
+  "wiki_file_count": 1183,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12496,13 +12501,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b544e62b60e9d6af7299fbc83f9c3f1e300efd293b9eefdafae702aba722716b",
-      "size": 1057061
+      "sha256": "14794c15bc59cfd728f0f6c7211756f530804e0e12851617e66a26d85f35f35a",
+      "size": 1057897
     },
     {
       "path": "log.md",
-      "sha256": "0afdc41ebb53ebfe742fe0cdb4282bd1cff4645a66ca98b9aa8a8282b9d90e45",
-      "size": 1803966
+      "sha256": "17a80dfc8cb04567b8bf6cee887da4fa3a7b761ac2bece23f25fa3a1c0464759",
+      "size": 1804382
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18180,6 +18185,11 @@
       "size": 6675
     },
     {
+      "path": "pages/systems/royalty-graph-ip-graph-usage-monitoring.md",
+      "sha256": "0cc2a7826c625531370b05514c6135f3b4357431ea9788a347e209c998b8dd83",
+      "size": 9398
+    },
+    {
       "path": "pages/systems/royalty-graph-monitoring.md",
       "sha256": "784b0ac3418e5d46543d9e12091a8d5d55d14d30cc56b4808a13be340e085791",
       "size": 5243
@@ -18401,5 +18411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "239030d73e5995c5ab49c7449738f20de3f280464fd329e16d79fc2386d9ce05"
+  "wiki_tree_hash": "9a4e8b19e4cf1538efa32e99ad4288cde2d0bea31c7c5c194e2c5846990a0f91"
 }

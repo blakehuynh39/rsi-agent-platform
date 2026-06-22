@@ -36590,3 +36590,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a6e9f7481da309fb6cadfb452af19782
 - summary: Information gathered about available data sources for Royalty Graph v1/v2, IP Graph, and POC Modules usage data. As of 2026-05-15, no dedicated dashboards or database access exist ...
 
+## [2026-06-22T18:19:26Z] synthesis | Royalty Graph and IP Graph Usage Monitoring
+
+- status: published
+- slug: systems/royalty-graph-ip-graph-usage-monitoring
+- wiki_revision_id: wikirev_b4a60a1d85ce2c6dcc71189210f11297
+- summary: Documents the current state of observability and data sources for Royalty Graph v1/v2, IP Graph, and POC Modules Collection, Licensing and Royalties usage data, as investigated in ...
+
