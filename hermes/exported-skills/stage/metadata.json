@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "115c509889ab3cc2ac3ed9762b3873fd1a634605cb865c1b2c78389932f086c3",
-        "size": 1056234
+        "sha256": "b544e62b60e9d6af7299fbc83f9c3f1e300efd293b9eefdafae702aba722716b",
+        "size": 1057061
       },
       {
         "path": "log.md",
-        "sha256": "3d47643a392b826e50953d72c266a8a4069b4fe62db94e21b15cf169b9cda81f",
-        "size": 1802320
+        "sha256": "d94725e715283f1f04a026b99a4170ce2dd347cd894ccdccfa21931f83d6c373",
+        "size": 1803523
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4533,6 +4533,11 @@
         "path": "pages/concepts/upload-submission-errors.md",
         "sha256": "0b3e7786c92b1d57c834027e062262dde0fc5225ec4293f8a83798cf7896a84b",
         "size": 1054
+      },
+      {
+        "path": "pages/concepts/usage-data-monitoring.md",
+        "sha256": "a5f7040c808206a3bd98058adaaf312415f1bd87786ff29352ca7ebdb94b7ff3",
+        "size": 8048
       },
       {
         "path": "pages/concepts/user-personas-first-party-app.md",
@@ -8095,6 +8100,11 @@
         "size": 2850
       },
       {
+        "path": "pages/runbooks/register-derivative-max-revenue-share-error.md",
+        "sha256": "b9a1f610a6fa015f283aa30fec21f817a69601eea00e0b762ce9e7b9b5f2b6bb",
+        "size": 3555
+      },
+      {
         "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
         "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
         "size": 3533
@@ -8961,8 +8971,8 @@
       },
       {
         "path": "pages/systems/rsi-agent.md",
-        "sha256": "479367f9944570b002b4c3ef3eb79638d12edcb9c339be5c5f4d413cefe89878",
-        "size": 2072
+        "sha256": "8cbd83ed6e38efdb57283c01c60fcf10f38866367b3008b16c17a200863f2ad3",
+        "size": 4388
       },
       {
         "path": "pages/systems/rsi-ai-longevity.md",
@@ -9174,8 +9184,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T17:54:17Z",
-  "file_count": 1833,
+  "exported_at": "2026-06-22T18:05:57Z",
+  "file_count": 1835,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12452,7 +12462,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "5de4276f75f5283dc79a5454bf7e971b6f563fddeb98200f84b689702b56ac76",
+  "previous_tree_hash": "ab8a7fa1329453be1a85e4e3fe6105fae41432daeee144f4aa232ad2cebedbe2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12465,14 +12475,14 @@
   ],
   "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ab8a7fa1329453be1a85e4e3fe6105fae41432daeee144f4aa232ad2cebedbe2",
+  "tree_hash": "5cb552bd555d0e2e8aa6e3debf2d52dde32c6d8d30e909b02947a1284e254e31",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1179,
+  "wiki_file_count": 1181,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12481,13 +12491,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "115c509889ab3cc2ac3ed9762b3873fd1a634605cb865c1b2c78389932f086c3",
-      "size": 1056234
+      "sha256": "b544e62b60e9d6af7299fbc83f9c3f1e300efd293b9eefdafae702aba722716b",
+      "size": 1057061
     },
     {
       "path": "log.md",
-      "sha256": "3d47643a392b826e50953d72c266a8a4069b4fe62db94e21b15cf169b9cda81f",
-      "size": 1802320
+      "sha256": "d94725e715283f1f04a026b99a4170ce2dd347cd894ccdccfa21931f83d6c373",
+      "size": 1803523
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13733,6 +13743,11 @@
       "path": "pages/concepts/upload-submission-errors.md",
       "sha256": "0b3e7786c92b1d57c834027e062262dde0fc5225ec4293f8a83798cf7896a84b",
       "size": 1054
+    },
+    {
+      "path": "pages/concepts/usage-data-monitoring.md",
+      "sha256": "a5f7040c808206a3bd98058adaaf312415f1bd87786ff29352ca7ebdb94b7ff3",
+      "size": 8048
     },
     {
       "path": "pages/concepts/user-personas-first-party-app.md",
@@ -17295,6 +17310,11 @@
       "size": 2850
     },
     {
+      "path": "pages/runbooks/register-derivative-max-revenue-share-error.md",
+      "sha256": "b9a1f610a6fa015f283aa30fec21f817a69601eea00e0b762ce9e7b9b5f2b6bb",
+      "size": 3555
+    },
+    {
       "path": "pages/runbooks/register-derivative-royalty-percent-exceeds-max-revenue-share.md",
       "sha256": "7ed5ec54d42d09ff0cbf75e8775be13474cf07d4294fa028dc5d5eec0e76c99f",
       "size": 3533
@@ -18161,8 +18181,8 @@
     },
     {
       "path": "pages/systems/rsi-agent.md",
-      "sha256": "479367f9944570b002b4c3ef3eb79638d12edcb9c339be5c5f4d413cefe89878",
-      "size": 2072
+      "sha256": "8cbd83ed6e38efdb57283c01c60fcf10f38866367b3008b16c17a200863f2ad3",
+      "size": 4388
     },
     {
       "path": "pages/systems/rsi-ai-longevity.md",
@@ -18371,5 +18391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cf68af627b030bed7408a6daeec58ec0e900b8efd1826903c15bc20f9b491ab9"
+  "wiki_tree_hash": "4344ea53468cad6ddab863d1b04bf8a9db737b599d18f1d2512741d180f0bea4"
 }

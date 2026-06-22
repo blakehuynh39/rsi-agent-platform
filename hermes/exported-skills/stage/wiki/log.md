@@ -36562,3 +36562,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_376550de7439484e04d04742c6a74c01
 - summary: As of 2026-05-15, there is no internal business dashboard for Royalty Graph (royalties/transactions), only a Temporal Cloud namespace link. IP Graph has partial coverage via Grafan...
 
+## [2026-06-22T18:01:27Z] synthesis | Story Protocol Usage Data Monitoring
+
+- status: published
+- slug: concepts/usage-data-monitoring
+- wiki_revision_id: wikirev_c503103f9424d9a95813a26d1579dc87
+- summary: Current state of monitoring and data availability for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties). As of the investigation, no internal dashbo...
+
+## [2026-06-22T18:01:28Z] synthesis | RSI Agent
+
+- status: published
+- slug: systems/rsi-agent
+- wiki_revision_id: wikirev_c7e2fc5f748b0365caff689ea650332b
+- summary: The RSI (Research & Support Intelligence) agent is an internal bot that assists with investigations. As of this thread, its capabilities include Slack interaction, Temporal namespa...
+
+## [2026-06-22T18:02:41Z] synthesis | Error: royalty percent greater than max revenue share when registering derivative
+
+- status: published
+- slug: runbooks/register-derivative-max-revenue-share-error
+- wiki_revision_id: wikirev_c4a9e9d5073058e9e5c8ea9f8a8dc6f8
+- summary: When calling registerDerivative with max_revenue_share=100, the SDK validation raises ValueError because the parent IP's royalty percent exceeds the provided max_revenue_share. Thi...
+
