@@ -36597,3 +36597,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b4a60a1d85ce2c6dcc71189210f11297
 - summary: Documents the current state of observability and data sources for Royalty Graph v1/v2, IP Graph, and POC Modules Collection, Licensing and Royalties usage data, as investigated in ...
 
+## [2026-06-22T18:32:43Z] synthesis | Royalty Graph and IP Graph Usage Monitoring
+
+- status: published
+- slug: systems/royalty-graph-ip-graph-usage-monitoring
+- wiki_revision_id: wikirev_85bcefc78eaa2f317659ee232325066b
+- summary: No internal dashboard exists for royalty transactions or POC module usage. Royalty Graph v2 has a Temporal namespace with workflow monitoring. Grafana's Story Indexer provides part...
+
