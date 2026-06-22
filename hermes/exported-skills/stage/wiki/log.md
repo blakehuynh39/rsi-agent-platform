@@ -36324,3 +36324,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ba5aa83db7399d3efd41cf6c6be6e428
 - summary: Migrating the RSI faucet service from Google Cloud Platform (GCP) to Amazon Web Services (AWS) to avoid high GCP fees. The migration is led by @U07TNT9N4JC, with backend support fr...
 
+## [2026-06-22T13:19:47Z] synthesis | Faucet GCP-to-AWS Migration
+
+- status: published
+- slug: projects/faucet-gcp-to-aws-migration
+- wiki_revision_id: wikirev_020ad02c767aa57a550b8a80ca22ef1e
+- summary: Ongoing project to migrate the company faucet service from GCP to AWS due to cost concerns. Includes backend and handler migration, with observed frontend issues.
+

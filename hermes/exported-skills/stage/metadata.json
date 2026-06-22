@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cdcc866d49b5aaff53953678f816ca7897bd1431e3e085972f77b8d157afbf1d",
-        "size": 1046613
+        "sha256": "de07fb3213b4c2aea120b0b84a06031f342a45a7dfe02dd44517da2e1ed80f93",
+        "size": 1046969
       },
       {
         "path": "log.md",
-        "sha256": "febff1a2e9a4b2ca5d3fe3f359c68e0f11e6eb5a8eb6afb9852bff649fc844b1",
-        "size": 1789827
+        "sha256": "d1ff4819be8bfdffec28802767a05aeee94e9d25d082fa4f154fed81a675864f",
+        "size": 1790195
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6245,6 +6245,11 @@
         "size": 2920
       },
       {
+        "path": "pages/projects/faucet-gcp-to-aws-migration.md",
+        "sha256": "b0750159d5af024616c828df08efe85f508be662b1b68767b4758e5580d766f2",
+        "size": 4208
+      },
+      {
         "path": "pages/projects/faucet-migration-gcp-to-aws.md",
         "sha256": "8ab048255c62f56cb9e33fe3bd02bee6ab93d3e9a510fd5027154edd9f97e87b",
         "size": 5134
@@ -9039,8 +9044,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T13:04:50Z",
-  "file_count": 1806,
+  "exported_at": "2026-06-22T13:21:32Z",
+  "file_count": 1807,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12317,7 +12322,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d1eda529145c1d659cfead7c17620183b66b3b2b9b4c68faf4f89ca373fd0d23",
+  "previous_tree_hash": "5fe6ca4f096d28b7ee2f2f5a5fde9cd86290f7f7d8308482a9ac800df8b1e132",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12330,14 +12335,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5fe6ca4f096d28b7ee2f2f5a5fde9cd86290f7f7d8308482a9ac800df8b1e132",
+  "tree_hash": "5f5bea96b7edf2de6718e711e9ab0d4371202e90c557f7c7b3341835f4d4e305",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1152,
+  "wiki_file_count": 1153,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12346,13 +12351,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cdcc866d49b5aaff53953678f816ca7897bd1431e3e085972f77b8d157afbf1d",
-      "size": 1046613
+      "sha256": "de07fb3213b4c2aea120b0b84a06031f342a45a7dfe02dd44517da2e1ed80f93",
+      "size": 1046969
     },
     {
       "path": "log.md",
-      "sha256": "febff1a2e9a4b2ca5d3fe3f359c68e0f11e6eb5a8eb6afb9852bff649fc844b1",
-      "size": 1789827
+      "sha256": "d1ff4819be8bfdffec28802767a05aeee94e9d25d082fa4f154fed81a675864f",
+      "size": 1790195
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15310,6 +15315,11 @@
       "size": 2920
     },
     {
+      "path": "pages/projects/faucet-gcp-to-aws-migration.md",
+      "sha256": "b0750159d5af024616c828df08efe85f508be662b1b68767b4758e5580d766f2",
+      "size": 4208
+    },
+    {
       "path": "pages/projects/faucet-migration-gcp-to-aws.md",
       "sha256": "8ab048255c62f56cb9e33fe3bd02bee6ab93d3e9a510fd5027154edd9f97e87b",
       "size": 5134
@@ -18101,5 +18111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5a2278d7f60856ac8c46aca75bdae19750c95b95291e21440f9aafde773319bb"
+  "wiki_tree_hash": "660c215a5d1646bf28fba0bd03ea0fc82b96380c780ed9225b6504222e911dcd"
 }
