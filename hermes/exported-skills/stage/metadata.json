@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d75786ebfebd23beeffe50aec45e7737af1c584fddc34cb332e24fe3566e4de8",
-        "size": 1037925
+        "sha256": "1c23619f44abef2fb78123286476d49300fe168aadeb1f948079fdf3e62d2380",
+        "size": 1038602
       },
       {
         "path": "log.md",
-        "sha256": "945ee49fedc496bd5db552293324128d549d0b1682e25d022849fbc4d334dd01",
-        "size": 1779741
+        "sha256": "44f50924c6dfcf044848775f2176ebff4ce17d49630c5008f88246d6215c022a",
+        "size": 1780454
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4073,6 +4073,11 @@
         "path": "pages/concepts/platform-api-a.md",
         "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
         "size": 1152
+      },
+      {
+        "path": "pages/concepts/poptide.md",
+        "sha256": "0adddf84ef1bc2d4bf9ae77fe5aea6aaa128c3c1a3846a33b1936c143deff4d9",
+        "size": 1422
       },
       {
         "path": "pages/concepts/poseidon-season-1-multiplier-system.md",
@@ -5470,6 +5475,11 @@
         "size": 1026
       },
       {
+        "path": "pages/people/jdub.md",
+        "sha256": "32cbd06776d5130dc284d2f7a926435a8ac1ff4960d559b951d5d5743a2dfcb0",
+        "size": 1227
+      },
+      {
         "path": "pages/people/jon-rogers.md",
         "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
         "size": 3758
@@ -6448,6 +6458,11 @@
         "path": "pages/projects/localization-initiative.md",
         "sha256": "f6ae5a4272e21c1e7eeb3b43223d9f073084e5b283b39a24de846826c153b94b",
         "size": 3385
+      },
+      {
+        "path": "pages/projects/longevity-project.md",
+        "sha256": "c6c138aec692288b5cd4b20a7bb3bc32f61c9cc5c55246b5f7a8fc10d897025f",
+        "size": 1084
       },
       {
         "path": "pages/projects/mainnet-api.md",
@@ -8904,8 +8919,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T09:01:08Z",
-  "file_count": 1779,
+  "exported_at": "2026-06-22T09:07:41Z",
+  "file_count": 1782,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12182,7 +12197,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "e93c4576b2a8e91fd932e98c948026f8b7e7c48587fd60115a2cce1302ff3de2",
+  "previous_tree_hash": "4f6cce822b5535368415c96cba283c6427d6b80a3c9e5f74e1ac74f455edc73f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12195,14 +12210,14 @@
   ],
   "skill_tree_hash": "9702857c14b8a590e13ff6075e3530f50916bc4a4852a0b25ada93197e5a4417",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4f6cce822b5535368415c96cba283c6427d6b80a3c9e5f74e1ac74f455edc73f",
+  "tree_hash": "45c9f5d4a6f620b677c479dec904834164cd8ab927658430993241a02dcfdfb1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1125,
+  "wiki_file_count": 1128,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12211,13 +12226,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d75786ebfebd23beeffe50aec45e7737af1c584fddc34cb332e24fe3566e4de8",
-      "size": 1037925
+      "sha256": "1c23619f44abef2fb78123286476d49300fe168aadeb1f948079fdf3e62d2380",
+      "size": 1038602
     },
     {
       "path": "log.md",
-      "sha256": "945ee49fedc496bd5db552293324128d549d0b1682e25d022849fbc4d334dd01",
-      "size": 1779741
+      "sha256": "44f50924c6dfcf044848775f2176ebff4ce17d49630c5008f88246d6215c022a",
+      "size": 1780454
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13003,6 +13018,11 @@
       "path": "pages/concepts/platform-api-a.md",
       "sha256": "6c771442070077f3829cf776fcbebf7ff4deb9c6c9aae71314187136d0f0cb18",
       "size": 1152
+    },
+    {
+      "path": "pages/concepts/poptide.md",
+      "sha256": "0adddf84ef1bc2d4bf9ae77fe5aea6aaa128c3c1a3846a33b1936c143deff4d9",
+      "size": 1422
     },
     {
       "path": "pages/concepts/poseidon-season-1-multiplier-system.md",
@@ -14400,6 +14420,11 @@
       "size": 1026
     },
     {
+      "path": "pages/people/jdub.md",
+      "sha256": "32cbd06776d5130dc284d2f7a926435a8ac1ff4960d559b951d5d5743a2dfcb0",
+      "size": 1227
+    },
+    {
       "path": "pages/people/jon-rogers.md",
       "sha256": "dbc058056976983ea312e607b998951e197da6e980f76c7276e50b59a6e0b706",
       "size": 3758
@@ -15378,6 +15403,11 @@
       "path": "pages/projects/localization-initiative.md",
       "sha256": "f6ae5a4272e21c1e7eeb3b43223d9f073084e5b283b39a24de846826c153b94b",
       "size": 3385
+    },
+    {
+      "path": "pages/projects/longevity-project.md",
+      "sha256": "c6c138aec692288b5cd4b20a7bb3bc32f61c9cc5c55246b5f7a8fc10d897025f",
+      "size": 1084
     },
     {
       "path": "pages/projects/mainnet-api.md",
@@ -17831,5 +17861,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "56be73133eefeef2cc1c13ad51d3b23df0cb1c03841de51fcbc4a9aa87079213"
+  "wiki_tree_hash": "1705f8f527818ff7654d0d11ae754715f3421eea0f8c62db8feb15e27242ba2c"
 }

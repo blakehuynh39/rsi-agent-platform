@@ -36128,3 +36128,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4bd7f7b3a50cfec39eecb91350ac4ee5
 - summary: A project or product currently known as Longevity. A rebranding to 'Biohackr' has been suggested.
 
+## [2026-06-22T09:02:36Z] synthesis | Poptide
+
+- status: published
+- slug: concepts/poptide
+- wiki_revision_id: wikirev_b9c06d82322b7fea407e4bd0c71b7089
+- summary: A suggested peptide popsicle product called Poptide.
+
