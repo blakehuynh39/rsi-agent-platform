@@ -36212,3 +36212,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_276d779621b6bb9172d824b8496a1fdb
 - summary: How to programmatically obtain all addresses and their royalty token balances for a given IP asset's IpRoyaltyVault. There is no direct on-chain function, but Blockscout block expl...
 
+## [2026-06-22T10:30:57Z] synthesis | Listing Royalty Token Holders for an IP Vault
+
+- status: published
+- slug: concepts/listing-royalty-token-holders-for-ip-vault
+- wiki_revision_id: wikirev_24e294bf5fcc07b14fc1e5448a21998d
+- summary: On-chain lookup of all addresses holding royalty tokens for a specific IP vault is not directly supported by the smart contract. Off-chain solutions like indexers, backend APIs, or...
+
+## [2026-06-22T10:31:36Z] synthesis | Querying Royalty Token Holders for IP Royalty Vault
+
+- status: published
+- slug: concepts/royalty-token-holders-query
+- wiki_revision_id: wikirev_cc904021d9bde76787bec886e24c5c53
+- summary: Discussion on how to retrieve all addresses and their royalty token (RT) balances for a given IP Royalty Vault. No on-chain function exists; off-chain indexing or external APIs (li...
+
