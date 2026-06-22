@@ -36240,3 +36240,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_62f9aedc07be8b8316540df8f030cd83
 - summary: Steps to determine if an account has unclaimed royalties using the Story Foundation portal.
 
+## [2026-06-22T11:03:32Z] synthesis | Usage Monitoring Data for Royalty Graph, IP Graph, and POC Modules
+
+- status: published
+- slug: systems/usage-monitoring-data-royalty-ip-graph-poc
+- wiki_revision_id: wikirev_59d5c5da07bcedabaf6a33417e0b4fa5
+- summary: Documentation of the current state of access to usage and monitoring data for Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties). Includes available ...
+
