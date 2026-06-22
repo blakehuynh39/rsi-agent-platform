@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "0ca6eff770eec27f995d72066725800752538ab95dbd88b06cf72aae32773d92",
-        "size": 1779336
+        "sha256": "945ee49fedc496bd5db552293324128d549d0b1682e25d022849fbc4d334dd01",
+        "size": 1779741
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4273,6 +4273,11 @@
         "path": "pages/concepts/shared-ipa-ownership-in-magma.md",
         "sha256": "b4443f08eac633acba26e05a57689e3545257ce5f61bf5e8be9fff78f8791f14",
         "size": 3306
+      },
+      {
+        "path": "pages/concepts/skincare-anti-aging-routine.md",
+        "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
+        "size": 4293
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
@@ -8899,8 +8904,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T06:49:46Z",
-  "file_count": 1778,
+  "exported_at": "2026-06-22T08:48:07Z",
+  "file_count": 1779,
   "files": [
     {
       "path": ".curator_backups/2026-05-18T09-01-06Z/manifest.json",
@@ -12177,7 +12182,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "6c7fb44f41bba407f0841233dc4eb9bf74294eb557ac89e93da5a6a11e55e91c",
+  "previous_tree_hash": "18da3f7c21ed2e541c472e93f0cc919da04b39716ea9e877d7f69fc18f9c8eb6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12190,14 +12195,14 @@
   ],
   "skill_tree_hash": "729dc26b5407ef7c59850b739fc76fd11c2cb2a3538b5d54e81262ba688a554d",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "18da3f7c21ed2e541c472e93f0cc919da04b39716ea9e877d7f69fc18f9c8eb6",
+  "tree_hash": "95700aedbbe8639cb732cc2908f192823261c48b99d6f38f842e11a37bf60e4c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1124,
+  "wiki_file_count": 1125,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12211,8 +12216,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "0ca6eff770eec27f995d72066725800752538ab95dbd88b06cf72aae32773d92",
-      "size": 1779336
+      "sha256": "945ee49fedc496bd5db552293324128d549d0b1682e25d022849fbc4d334dd01",
+      "size": 1779741
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13198,6 +13203,11 @@
       "path": "pages/concepts/shared-ipa-ownership-in-magma.md",
       "sha256": "b4443f08eac633acba26e05a57689e3545257ce5f61bf5e8be9fff78f8791f14",
       "size": 3306
+    },
+    {
+      "path": "pages/concepts/skincare-anti-aging-routine.md",
+      "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
+      "size": 4293
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
@@ -17821,5 +17831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7fbd3646090b5a2ed1c39ddd989a1574d4385dfce386182e95bf8f9cbfaff7b1"
+  "wiki_tree_hash": "985147cb4a980064900f77de7fbcd52629f954cf14f441f59c3b312739e943c5"
 }

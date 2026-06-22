@@ -36107,3 +36107,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d2206f899ee6d4bf628a26ee577a5150
 - summary: *DB read `dbread_10065c3a-f197-454e-994e-4e60a0a0dffa`*: succeeded; rows=11 truncated=false Target: `depin-prod` Requester: <@U05A515NBFC> via Hermes *Exact SQL:* ```SELECT column_...
 
+## [2026-06-22T08:46:15Z] synthesis | Skincare Anti-Aging Routine Recommendations
+
+- status: published
+- slug: concepts/skincare-anti-aging-routine
+- wiki_revision_id: wikirev_6ad5cf4f77dbefc748633aca46fbf8df
+- summary: A Slack thread discussion about face care recommendations for preventing and reversing wrinkles, including retinoid, salicylic acid, Korean SPF 50 sunscreen, snail mucin/hyaluronic...
+
