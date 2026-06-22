@@ -36492,3 +36492,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ffbc57c4dfc2d236dac1ff22f21f2e21
 - summary: Documents the available and unavailable sources for usage data of Royalty Graph v1/v2, IP Graph, and POC Modules (Collection, Licensing, Royalties). No internal dashboards were fou...
 
+## [2026-06-22T17:16:56Z] synthesis | Royalty Graph
+
+- status: published
+- slug: systems/royalty-graph
+- wiki_revision_id: wikirev_1c2f59af39be92d84a1c3417182e6fc8
+- summary: System handling royalty calculations (v1/v2). Monitoring relies on Temporal namespaces; no internal transaction/royalty dashboard currently exists. RSI and Aiwei Agent have encount...
+
+## [2026-06-22T17:16:56Z] synthesis | IP Graph
+
+- status: published
+- slug: systems/ip-graph
+- wiki_revision_id: wikirev_eec2b0976b350cff43f13578e9f423f8
+- summary: IP Graph indexing system. Partial monitoring via Story Indexer Grafana dashboard; additional data in indexer Temporal namespace and DB tables. No dedicated Prometheus metrics.
+
+## [2026-06-22T17:16:56Z] synthesis | POC Modules (Collection, Licensing, Royalties)
+
+- status: published
+- slug: systems/poc-modules
+- wiki_revision_id: wikirev_a1fb53a37b9f3171a2c9225bc27a4f5f
+- summary: Protocol‑level modules for collection, licensing, and royalties. Usage data is on‑chain and can be queried via Dune Analytics or internal blockchain indexing dashboards. No Grafana...
+
+## [2026-06-22T17:16:57Z] synthesis | Monitoring and Usage Data Sources
+
+- status: published
+- slug: runbooks/monitoring-usage-data
+- wiki_revision_id: wikirev_ec579be01249666abd390d37f97324ab
+- summary: Runbook for finding usage data for Royalty Graph, IP Graph, and POC Modules. Lists known dashboards, database access limitations, and recommended analytics tools.
+
+## [2026-06-22T17:16:57Z] synthesis | RSI Agent
+
+- status: published
+- slug: systems/rsi-agent
+- wiki_revision_id: wikirev_ea36cf14f6724cf086a284f340c606cf
+- summary: RSI is a bot that investigated usage data availability. It has read access to `depin-prod` database, can query Grafana, but lacks access to SOS, blockchain DBs, and Temporal namesp...
+
+## [2026-06-22T17:18:05Z] synthesis | Royalty Graph and IP Graph Usage Monitoring Status
+
+- status: published
+- slug: systems/royalty-graph-ip-graph-usage-monitoring-status
+- wiki_revision_id: wikirev_f7f3d07847020722efe35ea1054e1469
+- summary: Assessment of available usage monitoring for Royalty Graph (v1/v2), IP Graph, and POC Modules. No dedicated dashboards, limited database access, no Prometheus metrics, and broken T...
+

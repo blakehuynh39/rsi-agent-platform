@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "7b4281a875ad5767f180b7680e80eae7b63e17917a7a553a3ef0fc9fa457e8cf",
+        "sha256": "c98593491736d16eb9ed7833cd3d1bd47662c376b59198d45a7607427dcd6a18",
         "size": 31921
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3359307b7edae7c464f43e603211e9a8420dc5d80fb66d1303bd76c925d1b65c",
-        "size": 1053882
+        "sha256": "7e86b7bf7e96c4650ab92af3b2597a551dc5904f300e8435934d746955165876",
+        "size": 1054652
       },
       {
         "path": "log.md",
-        "sha256": "ca6a4d87485f4daab17ce09da294d7297c1cb7fb4d9c4d0bede22eca00a94696",
-        "size": 1798443
+        "sha256": "a3d3ef264937827c01faf918d32cde4e9f64ece659552c13d871373872e1a938",
+        "size": 1800690
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7920,6 +7920,11 @@
         "size": 2299
       },
       {
+        "path": "pages/runbooks/monitoring-usage-data.md",
+        "sha256": "c5ffba7eab96e9a43b07fc609cdc0b6c26960cff35d10eae67122381ac6b2c6d",
+        "size": 3808
+      },
+      {
         "path": "pages/runbooks/network-rolling-upgrade.md",
         "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
         "size": 1372
@@ -8581,8 +8586,8 @@
       },
       {
         "path": "pages/systems/ip-graph.md",
-        "sha256": "355d3cf9a8de371680cb966f303aa029f0e12ca3bbce2e196700da4b6cba2a22",
-        "size": 3914
+        "sha256": "e016de69ac2b9b206c46b0322299a516328b3ad845255562bef34010d44da3c8",
+        "size": 2540
       },
       {
         "path": "pages/systems/ipa-staking.md",
@@ -8801,8 +8806,8 @@
       },
       {
         "path": "pages/systems/poc-modules.md",
-        "sha256": "531cb25aca8970cf31aa39ba42d2194086b87eccc9e9bc5e4bd725491f06df5b",
-        "size": 3133
+        "sha256": "eff1043fbe955bed17e81d1efca4edd87e819915e06b57b2c66133ad4cf6df92",
+        "size": 2281
       },
       {
         "path": "pages/systems/polygon-token-oracle-backend.md",
@@ -8925,14 +8930,19 @@
         "size": 6780
       },
       {
+        "path": "pages/systems/royalty-graph-ip-graph-usage-monitoring-status.md",
+        "sha256": "f99af1475c01cb1ae71c61bac3c5080838876fcab0adb6d1be5b614c72196c5f",
+        "size": 6675
+      },
+      {
         "path": "pages/systems/royalty-graph.md",
-        "sha256": "a33c4c02f46f97c83fffc95828734462ef90271f391a2e49d6fe346fadc669fa",
-        "size": 4288
+        "sha256": "06528d2ea247b7c0b980082c9e8f487aa948fefc08db1fd0e549fabbd11cd61a",
+        "size": 4591
       },
       {
         "path": "pages/systems/rsi-agent.md",
-        "sha256": "1d8bdd7c02f25dd516c17ec2f024f8d283c631d0f35e9f2d65275755506be43a",
-        "size": 4534
+        "sha256": "479367f9944570b002b4c3ef3eb79638d12edcb9c339be5c5f4d413cefe89878",
+        "size": 2072
       },
       {
         "path": "pages/systems/rsi-ai-longevity.md",
@@ -9144,8 +9154,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T17:07:50Z",
-  "file_count": 1827,
+  "exported_at": "2026-06-22T17:19:29Z",
+  "file_count": 1829,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -9204,7 +9214,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "7b4281a875ad5767f180b7680e80eae7b63e17917a7a553a3ef0fc9fa457e8cf",
+      "sha256": "c98593491736d16eb9ed7833cd3d1bd47662c376b59198d45a7607427dcd6a18",
       "size": 31921
     },
     {
@@ -12422,7 +12432,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "b95a4a96e74ada76c5559c46f3c291d55ede416d6eacf0d6e87b701395961ec1",
+  "previous_tree_hash": "d0c5d584cde852c61fe3c64df37939c6473af4bd02dfd097828a957e4ba2733f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12433,16 +12443,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
+  "skill_tree_hash": "e62ca18b0a5a75c1106d58b91173392bef2233f1aba4435c449f1a2edc536049",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d0c5d584cde852c61fe3c64df37939c6473af4bd02dfd097828a957e4ba2733f",
+  "tree_hash": "83ee40dfd7d8744af53df34cdffc087666b4df7b9b7c74e62b97596d463e9891",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1173,
+  "wiki_file_count": 1175,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12451,13 +12461,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3359307b7edae7c464f43e603211e9a8420dc5d80fb66d1303bd76c925d1b65c",
-      "size": 1053882
+      "sha256": "7e86b7bf7e96c4650ab92af3b2597a551dc5904f300e8435934d746955165876",
+      "size": 1054652
     },
     {
       "path": "log.md",
-      "sha256": "ca6a4d87485f4daab17ce09da294d7297c1cb7fb4d9c4d0bede22eca00a94696",
-      "size": 1798443
+      "sha256": "a3d3ef264937827c01faf918d32cde4e9f64ece659552c13d871373872e1a938",
+      "size": 1800690
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17090,6 +17100,11 @@
       "size": 2299
     },
     {
+      "path": "pages/runbooks/monitoring-usage-data.md",
+      "sha256": "c5ffba7eab96e9a43b07fc609cdc0b6c26960cff35d10eae67122381ac6b2c6d",
+      "size": 3808
+    },
+    {
       "path": "pages/runbooks/network-rolling-upgrade.md",
       "sha256": "4391f56af86cef9fad79985b4eab0e898cedb82da41329f0317244897395cef7",
       "size": 1372
@@ -17751,8 +17766,8 @@
     },
     {
       "path": "pages/systems/ip-graph.md",
-      "sha256": "355d3cf9a8de371680cb966f303aa029f0e12ca3bbce2e196700da4b6cba2a22",
-      "size": 3914
+      "sha256": "e016de69ac2b9b206c46b0322299a516328b3ad845255562bef34010d44da3c8",
+      "size": 2540
     },
     {
       "path": "pages/systems/ipa-staking.md",
@@ -17971,8 +17986,8 @@
     },
     {
       "path": "pages/systems/poc-modules.md",
-      "sha256": "531cb25aca8970cf31aa39ba42d2194086b87eccc9e9bc5e4bd725491f06df5b",
-      "size": 3133
+      "sha256": "eff1043fbe955bed17e81d1efca4edd87e819915e06b57b2c66133ad4cf6df92",
+      "size": 2281
     },
     {
       "path": "pages/systems/polygon-token-oracle-backend.md",
@@ -18095,14 +18110,19 @@
       "size": 6780
     },
     {
+      "path": "pages/systems/royalty-graph-ip-graph-usage-monitoring-status.md",
+      "sha256": "f99af1475c01cb1ae71c61bac3c5080838876fcab0adb6d1be5b614c72196c5f",
+      "size": 6675
+    },
+    {
       "path": "pages/systems/royalty-graph.md",
-      "sha256": "a33c4c02f46f97c83fffc95828734462ef90271f391a2e49d6fe346fadc669fa",
-      "size": 4288
+      "sha256": "06528d2ea247b7c0b980082c9e8f487aa948fefc08db1fd0e549fabbd11cd61a",
+      "size": 4591
     },
     {
       "path": "pages/systems/rsi-agent.md",
-      "sha256": "1d8bdd7c02f25dd516c17ec2f024f8d283c631d0f35e9f2d65275755506be43a",
-      "size": 4534
+      "sha256": "479367f9944570b002b4c3ef3eb79638d12edcb9c339be5c5f4d413cefe89878",
+      "size": 2072
     },
     {
       "path": "pages/systems/rsi-ai-longevity.md",
@@ -18311,5 +18331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0755c0c64124920b175d1c02e3bc3073036860e7e2cb310864e96dcb480c477b"
+  "wiki_tree_hash": "383c6da3c32a801d41a889299bc2a9b9cfb8fda6c000b7d5d951e0bd6f1ddc6c"
 }
