@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a2a9d3fffe9300a7287a661af29a6635f6da00ce91a69ed116567ed9fcec86e7",
-        "size": 1061011
+        "sha256": "f97c29188723056eb405972abc4bd87af4dbda2d70bc441e55addef54b6dfb96",
+        "size": 1061811
       },
       {
         "path": "log.md",
-        "sha256": "270ab68f860f203cd38aa37f0a9a0ebf41c63a0e71c1431e265191bfdd85b209",
-        "size": 1809890
+        "sha256": "2ce9337e3f3977b8e3f553775eb5e6f0cfd8d5c34b7639eca46aee4ec912adef",
+        "size": 1810712
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8265,6 +8265,16 @@
         "size": 2417
       },
       {
+        "path": "pages/runbooks/story-protocol-usage-queries.md",
+        "sha256": "52b55c5bccad6b2f3c1fd40ff82ed8a0502f391c12c68dd95634a03ef3c73d7c",
+        "size": 13343
+      },
+      {
+        "path": "pages/runbooks/story-protocol-usage-statistics-query-runbook.md",
+        "sha256": "cd0099dfec56b0b9894ea1ba1f15d7386623db17158eabef004ea10d3acaa64d",
+        "size": 12820
+      },
+      {
         "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
         "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
         "size": 4946
@@ -9234,8 +9244,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T20:53:39Z",
-  "file_count": 1845,
+  "exported_at": "2026-06-22T21:05:17Z",
+  "file_count": 1847,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12512,7 +12522,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "792761701dc80ff79231d27ef9ec311656ea7945010100b85bb5c4bdd8cfbe22",
+  "previous_tree_hash": "6c222288b6d202bebde4bbab8fe61b943fcb02f5db77aea06d6ed8c5367ccf0f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12525,14 +12535,14 @@
   ],
   "skill_tree_hash": "f0b48a96d2cba80a54546ee7061a565ec41c6cd9fda469c75f7cc062da49db62",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6c222288b6d202bebde4bbab8fe61b943fcb02f5db77aea06d6ed8c5367ccf0f",
+  "tree_hash": "6a1555d376e0d6ca34f993b4264e4a2e357580e2ef277a049d201aad90e8c579",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1191,
+  "wiki_file_count": 1193,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12541,13 +12551,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a2a9d3fffe9300a7287a661af29a6635f6da00ce91a69ed116567ed9fcec86e7",
-      "size": 1061011
+      "sha256": "f97c29188723056eb405972abc4bd87af4dbda2d70bc441e55addef54b6dfb96",
+      "size": 1061811
     },
     {
       "path": "log.md",
-      "sha256": "270ab68f860f203cd38aa37f0a9a0ebf41c63a0e71c1431e265191bfdd85b209",
-      "size": 1809890
+      "sha256": "2ce9337e3f3977b8e3f553775eb5e6f0cfd8d5c34b7639eca46aee4ec912adef",
+      "size": 1810712
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17525,6 +17535,16 @@
       "size": 2417
     },
     {
+      "path": "pages/runbooks/story-protocol-usage-queries.md",
+      "sha256": "52b55c5bccad6b2f3c1fd40ff82ed8a0502f391c12c68dd95634a03ef3c73d7c",
+      "size": 13343
+    },
+    {
+      "path": "pages/runbooks/story-protocol-usage-statistics-query-runbook.md",
+      "sha256": "cd0099dfec56b0b9894ea1ba1f15d7386623db17158eabef004ea10d3acaa64d",
+      "size": 12820
+    },
+    {
       "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
       "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
       "size": 4946
@@ -18491,5 +18511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c15a16f0cd74a05c2a6e59f028fc5e2278c77b526703da64275fc5ae2a7edb7"
+  "wiki_tree_hash": "f3d741c72ac146de97c5d6c5a10ccb739ac7795aedf13c1a4b80a6506f405fef"
 }
