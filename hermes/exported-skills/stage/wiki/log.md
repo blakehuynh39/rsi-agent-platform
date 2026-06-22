@@ -36366,3 +36366,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_41463ef4e3eacf50c5f68c8f6617a335
 - summary: Provides testnet and mainnet IP tokens to team members upon request.
 
+## [2026-06-22T14:48:00Z] synthesis | IP Token Testing Distribution
+
+- status: published
+- slug: runbooks/ip-token-testing-distribution
+- wiki_revision_id: wikirev_3c9250ab6419918aae57d3e152025a1c
+- summary: Documentation of how to request IP tokens for testing purposes, including testnet and mainnet transfers, with record of wallet addresses and amounts.
+
+## [2026-06-22T14:50:24Z] synthesis | Test Token Distribution
+
+- status: published
+- slug: runbooks/testnet-token-distribution
+- wiki_revision_id: wikirev_c5fa4eb8bc89fbd2142202939686a87c
+- summary: Process for requesting testnet IP tokens from the team, including typical quantities, wallet addresses, and handling of mainnet test tokens.
+

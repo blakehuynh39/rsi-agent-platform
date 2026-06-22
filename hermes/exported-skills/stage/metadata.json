@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a227f99c52405e2811c3cfa1bd6567cd2a0765ac4dc2749682819c69b3b5621d",
-        "size": 1048139
+        "sha256": "b4d6949be1a6c23e3f387b65e5df6ccc557f2b46ab7feb28a3c36f1cf7ac4999",
+        "size": 1048816
       },
       {
         "path": "log.md",
-        "sha256": "41205049c27d2be1fc461b946d77c98ae21b5eaeaed1a3d60e233881e2838d42",
-        "size": 1791806
+        "sha256": "462a964ace82ebca33b9f374f6ba81f9cf962d6ad3a564376c29e3fd09a40c6d",
+        "size": 1792506
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7845,6 +7845,11 @@
         "size": 3278
       },
       {
+        "path": "pages/runbooks/ip-token-testing-distribution.md",
+        "sha256": "c47781023de484f039e2f7a31414e7b38c8e6ac625921b87a1eda050e9c9db4a",
+        "size": 5487
+      },
+      {
         "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
         "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
         "size": 10780
@@ -8203,6 +8208,11 @@
         "path": "pages/runbooks/testnet-ip-token-requests.md",
         "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
         "size": 3931
+      },
+      {
+        "path": "pages/runbooks/testnet-token-distribution.md",
+        "sha256": "8c4a18fa32855d802845f500d63ce5598af2c82189cf97eeac047dd8c5b5b217",
+        "size": 2982
       },
       {
         "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
@@ -9064,8 +9074,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T14:24:37Z",
-  "file_count": 1811,
+  "exported_at": "2026-06-22T14:51:26Z",
+  "file_count": 1813,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12342,7 +12352,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "09ee18bfc0356c94f421f309bf5fbed91ec13999fac6ceb37105983f3816f07b",
+  "previous_tree_hash": "de1b38f764fea9aa93c089cefad67255e80cc7d2eaf59c60952b9c9dcd63544c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12355,14 +12365,14 @@
   ],
   "skill_tree_hash": "ed1e1c5c76872ec4510aca386d1975b329d1516acea8860a5a337abfcbc75313",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "de1b38f764fea9aa93c089cefad67255e80cc7d2eaf59c60952b9c9dcd63544c",
+  "tree_hash": "90d729315f6d4f0c0028eafbfc131b6f6adf0250a7adad9e17fb395d04f57691",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1157,
+  "wiki_file_count": 1159,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12371,13 +12381,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a227f99c52405e2811c3cfa1bd6567cd2a0765ac4dc2749682819c69b3b5621d",
-      "size": 1048139
+      "sha256": "b4d6949be1a6c23e3f387b65e5df6ccc557f2b46ab7feb28a3c36f1cf7ac4999",
+      "size": 1048816
     },
     {
       "path": "log.md",
-      "sha256": "41205049c27d2be1fc461b946d77c98ae21b5eaeaed1a3d60e233881e2838d42",
-      "size": 1791806
+      "sha256": "462a964ace82ebca33b9f374f6ba81f9cf962d6ad3a564376c29e3fd09a40c6d",
+      "size": 1792506
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16935,6 +16945,11 @@
       "size": 3278
     },
     {
+      "path": "pages/runbooks/ip-token-testing-distribution.md",
+      "sha256": "c47781023de484f039e2f7a31414e7b38c8e6ac625921b87a1eda050e9c9db4a",
+      "size": 5487
+    },
+    {
       "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
       "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
       "size": 10780
@@ -17293,6 +17308,11 @@
       "path": "pages/runbooks/testnet-ip-token-requests.md",
       "sha256": "aa79874d027db5eb0fce740dd9d5a91ca54f8ad621282181c577d8ebcb90c082",
       "size": 3931
+    },
+    {
+      "path": "pages/runbooks/testnet-token-distribution.md",
+      "sha256": "8c4a18fa32855d802845f500d63ce5598af2c82189cf97eeac047dd8c5b5b217",
+      "size": 2982
     },
     {
       "path": "pages/runbooks/the-hub-operational-readiness-checklist.md",
@@ -18151,5 +18171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0fa285eabef8a80de8ffc4a52792b80379db43c314339f91d721d49be8a8cb34"
+  "wiki_tree_hash": "c2d79b4e38eb6e9c63b9cc6b4d240e2c6893ed8f44b54220756104fcefe4057b"
 }
