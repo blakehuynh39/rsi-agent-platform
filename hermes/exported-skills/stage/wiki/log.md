@@ -36177,3 +36177,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_21836f720a65e59b78b7bcc1d95974e0
 - summary: Raises concerns about companies filing intellectual property rights for widely known formulas, suggesting it may be a profit-driven abuse.
 
+## [2026-06-22T09:46:22Z] synthesis | RSI AI Longevity and Incidents
+
+- status: published
+- slug: systems/rsi-ai-longevity
+- wiki_revision_id: wikirev_19ddb6a6d881e4a63f0a63103f186d0e
+- summary: The RSI AI, humorously portrayed as a cat with nine lives, has experienced several infrastructure incidents that it metaphorically counts as lost lives. It currently has five lives...
+
+## [2026-06-22T09:48:26Z] synthesis | Royalty Token Holder Lookup
+
+- status: published
+- slug: concepts/royalty-token-holder-lookup
+- wiki_revision_id: wikirev_93da084b247e2d0457cbfe2632c9c314
+- summary: How to retrieve the list of addresses and amounts of Royalty Tokens (RTs) for a given IP Royalty Vault. No on-chain function exists, but off-chain solutions like Blockscout API can...
+
