@@ -36142,3 +36142,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_87eb14abbc15c8c1faae696d16ad8ed1
 - summary: Observation of a bruise after a self-jab, later clarified as no bruise but tenderness.
 
+## [2026-06-22T09:31:33Z] synthesis | Glow Stack
+
+- status: published
+- slug: concepts/glow-stack
+- wiki_revision_id: wikirev_49a9e2a670406219abf2e75a55f2160c
+- summary: Glow Stack is an unapproved injectable peptide blend; avoid use.
+
+## [2026-06-22T09:31:33Z] synthesis | Retatrutide
+
+- status: published
+- slug: concepts/retatrutide
+- wiki_revision_id: wikirev_7b6f59fcee91705ef0b17afa70833859
+- summary: Retatrutide is a promising Phase 3 triple agonist for weight loss, not yet available.
+
+## [2026-06-22T09:31:33Z] synthesis | Epithalon
+
+- status: published
+- slug: concepts/epithalon
+- wiki_revision_id: wikirev_d2c330f27fbb58b5bde8dcc5d4d054cb
+- summary: Epithalon is a longevity tetrapeptide with interesting but uneven evidence.
+
+## [2026-06-22T09:31:33Z] synthesis | NAD+
+
+- status: published
+- slug: concepts/nad-plus
+- wiki_revision_id: wikirev_e31802bc5e4291d3ae14f38a225c5277
+- summary: NAD+ is a cellular coenzyme with moderate supplement evidence.
+
+## [2026-06-22T09:32:18Z] synthesis | Well-Known Formulas and Intellectual Property
+
+- status: published
+- slug: open-questions/well-known-formulas-ip
+- wiki_revision_id: wikirev_21836f720a65e59b78b7bcc1d95974e0
+- summary: Raises concerns about companies filing intellectual property rights for widely known formulas, suggesting it may be a profit-driven abuse.
+
