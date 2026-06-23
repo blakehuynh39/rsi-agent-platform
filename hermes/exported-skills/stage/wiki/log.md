@@ -36760,3 +36760,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_51e98a971c0ae26c15d64eca3bca3248
 - summary: Details of the sos-royalty-graph-prod and story-blockchain-prod databases as observed during a May 2026 analysis run.
 
+## [2026-06-23T00:45:25Z] ingest | Slack thread C0AL7EKNHDF 1782175304.729949
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-1782175304-729949-a28eb388
+- wiki_revision_id: wikirev_821a845da2b69c7d7389a99ad909566f
+- source_document_id: srcdoc_23c16c751868fc7495b1d67fa28eb388
+- source_revision_id: srcrev_9229499da7bc5af2a55111b4bee1c4f9
+- summary: *DB read `dbread_0a507522-c31a-47d1-a436-ac754a214ff9`*: succeeded; rows=83 truncated=false Target: `depin-prod` Requester: <@U09QGMMUDPC> via Hermes *Exact SQL:* ```SELECT column_...
+
