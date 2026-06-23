@@ -36825,3 +36825,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36ec60aca8c48813578ec8c6c57089d1
 - summary: Procedure for whitelisting IP addresses to access restricted internal RPC endpoints for testnet and mainnet, used for IP registration load testing. Not managed by Pulumi; manual ch...
 
+## [2026-06-23T01:47:30Z] synthesis | Whitelisting IPs for RPC Endpoints
+
+- status: published
+- slug: runbooks/whitelisting-ips-for-rpc-endpoints
+- wiki_revision_id: wikirev_69ccd05781cbd16f149c9a2e43c8d047
+- summary: Procedure for whitelisting IP addresses for restricted internal RPC endpoints, including testnet (aeneid) and mainnet (poseidon). Involves creating a Linear ticket and submitting a...
+

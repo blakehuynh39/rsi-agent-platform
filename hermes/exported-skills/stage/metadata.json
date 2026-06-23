@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "82464516a3c9dade553881cb17f660d14eeee6e0eb6847543d11c6e49844fd17",
-        "size": 1816990
+        "sha256": "601279c1bf03f757d004b8b0fbc14b7f54897747dae39a0961eecb9f2c461f0a",
+        "size": 1817393
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8435,6 +8435,11 @@
         "size": 1741
       },
       {
+        "path": "pages/runbooks/whitelisting-ips-for-rpc-endpoints.md",
+        "sha256": "6b397cf1eb14c29b6b5ab496f4c69084d0be8509a875f6e4bd28efb7e85f811c",
+        "size": 7794
+      },
+      {
         "path": "pages/systems/access-provisioning-bot.md",
         "sha256": "d0d6a2cd7324cf6aec4f8090e37c13feee51f2ec7ffbaad65b6d61663dc98875",
         "size": 4257
@@ -9319,8 +9324,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T01:36:28Z",
-  "file_count": 1862,
+  "exported_at": "2026-06-23T01:48:14Z",
+  "file_count": 1863,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12597,7 +12602,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "976bbc2dfbc9342491d927b9d6feccdb93a39acdd7cc9c409b84c2b9ae39f0f8",
+  "previous_tree_hash": "9b165ae93372cdfb8851d0e36749d4153a790c4eeab544677f4035714db348ec",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12610,14 +12615,14 @@
   ],
   "skill_tree_hash": "78f6e720812ea2ce86c0fd8541cfd985f05407d58cb6172023949f19b7ffc040",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9b165ae93372cdfb8851d0e36749d4153a790c4eeab544677f4035714db348ec",
+  "tree_hash": "a719a5c5ce459da7884cb36a372f0f8800f29b4095955c47e229c07b802b62af",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1208,
+  "wiki_file_count": 1209,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12631,8 +12636,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "82464516a3c9dade553881cb17f660d14eeee6e0eb6847543d11c6e49844fd17",
-      "size": 1816990
+      "sha256": "601279c1bf03f757d004b8b0fbc14b7f54897747dae39a0961eecb9f2c461f0a",
+      "size": 1817393
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17780,6 +17785,11 @@
       "size": 1741
     },
     {
+      "path": "pages/runbooks/whitelisting-ips-for-rpc-endpoints.md",
+      "sha256": "6b397cf1eb14c29b6b5ab496f4c69084d0be8509a875f6e4bd28efb7e85f811c",
+      "size": 7794
+    },
+    {
       "path": "pages/systems/access-provisioning-bot.md",
       "sha256": "d0d6a2cd7324cf6aec4f8090e37c13feee51f2ec7ffbaad65b6d61663dc98875",
       "size": 4257
@@ -18661,5 +18671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bddff7b7328e41207298e800f3fca5687819649ab7e1571b65428c6eb7632ab4"
+  "wiki_tree_hash": "4a4bc0eccf632d7c67d0f330ab778726f5d90863ed7193e49b945d4c9e84c09c"
 }
