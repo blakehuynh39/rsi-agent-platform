@@ -37060,3 +37060,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aaeacdc4a6d7b085053232162a91766b
 - summary: Decision to deploy the mainnet global site in ap-northeast-2 (Seoul) and eu-central-1 (Frankfurt). The initial proposal included ap-northeast-1 (Tokyo) and eu-central-1, but after ...
 
+## [2026-06-23T07:20:17Z] synthesis | Mainnet Global Site AWS Region Selection
+
+- status: published
+- slug: decisions/mainnet-global-site-aws-region-selection
+- wiki_revision_id: wikirev_36338d74f8ab760a3b98fb54dbf94b12
+- summary: Decision to use the Korean AWS region (ap-northeast-2) for the mainnet global site, superseding the initial plan to use Tokyo and Frankfurt, driven by company strategy to support K...
+
