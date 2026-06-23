@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5b6c953c4eb43c711adb8ce501773627c589e1c64fbc218d7800959573e67787",
-        "size": 1097173
+        "sha256": "a6f15924be2a5fee9ee1c6684f73c7a48bd2583aa06488c7a210bee6dc9e1ca7",
+        "size": 1097427
       },
       {
         "path": "log.md",
-        "sha256": "ea375c5aa0f0aed74091d275d847afe306a6a31e93c4a0ff307f4bbba1c45bf3",
-        "size": 1854274
+        "sha256": "8965411934960aff39383e64280928fbc63ff68827c8b3f011c61dff3fb3ad4e",
+        "size": 1855229
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6386,8 +6386,8 @@
       },
       {
         "path": "pages/projects/devnet-migration-to-aws.md",
-        "sha256": "1281a036ab1734340fdf78d1048f469f78f6d5bab2f35713fd9ab4b72bcf1e83",
-        "size": 4269
+        "sha256": "c051db21d48e4ed2b6677962067d0b73749768b14406d8e1dfca652b3551cd06",
+        "size": 5803
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -6961,8 +6961,8 @@
       },
       {
         "path": "pages/projects/numo-expert.md",
-        "sha256": "4140757b3ded1fd5353adcdb7463ad5c35dfeef06cd572ce024c77f4d31b7543",
-        "size": 5603
+        "sha256": "f408108f56c5911eb93733b52be23acbfc818d8f6e60230c1e526386c1c79792",
+        "size": 4212
       },
       {
         "path": "pages/projects/numo-indic-languages-audio-processing.md",
@@ -7913,6 +7913,11 @@
         "path": "pages/runbooks/aws-qa-dev-access-grant-request-for-shen-wang-and-yingyang-xu.md",
         "sha256": "57db1314e8c120912394f1020b86005f93a8e769530c6362d5745730920a1398",
         "size": 4793
+      },
+      {
+        "path": "pages/runbooks/aws-server-access-guide.md",
+        "sha256": "7a7090130f87aa3e5248c690d124657d4b3e500a5e3e3519c2798ec105eb94df",
+        "size": 3337
       },
       {
         "path": "pages/runbooks/backend-onboarding.md",
@@ -9714,8 +9719,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T20:35:56Z",
-  "file_count": 1941,
+  "exported_at": "2026-06-23T20:52:44Z",
+  "file_count": 1942,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12992,7 +12997,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "cf207e9b7a3bb9a47e06200c3cbc7a73c722cfc8556b680ce4e6545b560068ca",
+  "previous_tree_hash": "a2e235aefdea8918f9390fe6e3c8164c58a6beb322a52222a939b7d51ded1448",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13005,14 +13010,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a2e235aefdea8918f9390fe6e3c8164c58a6beb322a52222a939b7d51ded1448",
+  "tree_hash": "bc7b867a0e4feb873188b269374de4fefb21b970b3881dda3827ebff66fe5f10",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1287,
+  "wiki_file_count": 1288,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13021,13 +13026,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5b6c953c4eb43c711adb8ce501773627c589e1c64fbc218d7800959573e67787",
-      "size": 1097173
+      "sha256": "a6f15924be2a5fee9ee1c6684f73c7a48bd2583aa06488c7a210bee6dc9e1ca7",
+      "size": 1097427
     },
     {
       "path": "log.md",
-      "sha256": "ea375c5aa0f0aed74091d275d847afe306a6a31e93c4a0ff307f4bbba1c45bf3",
-      "size": 1854274
+      "sha256": "8965411934960aff39383e64280928fbc63ff68827c8b3f011c61dff3fb3ad4e",
+      "size": 1855229
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16126,8 +16131,8 @@
     },
     {
       "path": "pages/projects/devnet-migration-to-aws.md",
-      "sha256": "1281a036ab1734340fdf78d1048f469f78f6d5bab2f35713fd9ab4b72bcf1e83",
-      "size": 4269
+      "sha256": "c051db21d48e4ed2b6677962067d0b73749768b14406d8e1dfca652b3551cd06",
+      "size": 5803
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -16701,8 +16706,8 @@
     },
     {
       "path": "pages/projects/numo-expert.md",
-      "sha256": "4140757b3ded1fd5353adcdb7463ad5c35dfeef06cd572ce024c77f4d31b7543",
-      "size": 5603
+      "sha256": "f408108f56c5911eb93733b52be23acbfc818d8f6e60230c1e526386c1c79792",
+      "size": 4212
     },
     {
       "path": "pages/projects/numo-indic-languages-audio-processing.md",
@@ -17653,6 +17658,11 @@
       "path": "pages/runbooks/aws-qa-dev-access-grant-request-for-shen-wang-and-yingyang-xu.md",
       "sha256": "57db1314e8c120912394f1020b86005f93a8e769530c6362d5745730920a1398",
       "size": 4793
+    },
+    {
+      "path": "pages/runbooks/aws-server-access-guide.md",
+      "sha256": "7a7090130f87aa3e5248c690d124657d4b3e500a5e3e3519c2798ec105eb94df",
+      "size": 3337
     },
     {
       "path": "pages/runbooks/backend-onboarding.md",
@@ -19451,5 +19461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5e226e23d8ff7108a9b0a2a81c0504ac7761cfe041dc1a6b71adf31d91c620fa"
+  "wiki_tree_hash": "0ea2bf1093c4f9d59dd7981ac3951c80e3e6f03c50532a62d07e979f140821f7"
 }

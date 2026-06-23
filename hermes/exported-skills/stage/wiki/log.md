@@ -37528,3 +37528,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1cc244dd6ffdaf06e9c79eee7b64194f
 - summary: Setting up the Story devnet environment on AWS, including repo creation, access permissions, and genesis scripts.
 
+## [2026-06-23T20:48:32Z] synthesis | Numo Expert
+
+- status: published
+- slug: projects/numo-expert
+- wiki_revision_id: wikirev_b6e5c10e342dc5b8614f411539faa510
+- summary: Numo Expert is the public-facing evolution of Poseidon's internal annotation platform, building a scalable, permissionless, reputation-based human-in-the-loop network starting with...
+
+## [2026-06-23T20:50:14Z] synthesis | Devnet Migration to AWS
+
+- status: published
+- slug: projects/devnet-migration-to-aws
+- wiki_revision_id: wikirev_0c53ccf4f4c735afb064d506950d211d
+- summary: Project to migrate devnet from GCP to AWS, including provisioning code, domains, and access setup.
+
+## [2026-06-23T20:50:14Z] synthesis | AWS Server Access Guide
+
+- status: published
+- slug: runbooks/aws-server-access-guide
+- wiki_revision_id: wikirev_d3c0501758da58a3238b5c2c1777a6a7
+- summary: Guide and troubleshooting for accessing AWS devnet servers, including SSM setup and permission policies.
+
