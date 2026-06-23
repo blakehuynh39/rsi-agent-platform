@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f3a346784e1786c61a3ddcd3a879ea57a2d767cc31445163bb0835d073f96db7",
-        "size": 1088632
+        "sha256": "9b5548090f1d6a2cf683293dd812b4997c6af092de6771599da40b8575975e9e",
+        "size": 1089032
       },
       {
         "path": "log.md",
-        "sha256": "5b7a5724258e9381f61582a016214fae4aae73279615ad0fd97a24f4bacabde5",
-        "size": 1840692
+        "sha256": "c8763c2e165059fb6d2e4f282c580e9628a3b78553656f3306d7972594eefa8b",
+        "size": 1841103
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8795,6 +8795,11 @@
         "size": 1848
       },
       {
+        "path": "pages/systems/cdr-bootnode-aws-recovery-and-azure-migration.md",
+        "sha256": "d0f5b48cbf9c5e74bbec7fc2102bd8f8155077b4e174c6d095b446667fd99b9a",
+        "size": 8542
+      },
+      {
         "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
         "sha256": "605ce46a0912db8e7e78de18220691b88273808334dd3740f5365532a2e258ad",
         "size": 6627
@@ -9604,8 +9609,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T12:38:14Z",
-  "file_count": 1919,
+  "exported_at": "2026-06-23T13:05:14Z",
+  "file_count": 1920,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12882,7 +12887,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "25fe52afbea58e90681604cc551c1ab7c9f5f8fb16cfa26c73845ea96050ae2a",
+  "previous_tree_hash": "214f5e892254e5cce527cde389845c990d510ec349b9f01396e69f8d25782d05",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12895,14 +12900,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "214f5e892254e5cce527cde389845c990d510ec349b9f01396e69f8d25782d05",
+  "tree_hash": "9b466eaf31cc87cea6512cee7db0f93d475518ac68f42975ba78e8d736c192ec",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1265,
+  "wiki_file_count": 1266,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12911,13 +12916,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f3a346784e1786c61a3ddcd3a879ea57a2d767cc31445163bb0835d073f96db7",
-      "size": 1088632
+      "sha256": "9b5548090f1d6a2cf683293dd812b4997c6af092de6771599da40b8575975e9e",
+      "size": 1089032
     },
     {
       "path": "log.md",
-      "sha256": "5b7a5724258e9381f61582a016214fae4aae73279615ad0fd97a24f4bacabde5",
-      "size": 1840692
+      "sha256": "c8763c2e165059fb6d2e4f282c580e9628a3b78553656f3306d7972594eefa8b",
+      "size": 1841103
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18425,6 +18430,11 @@
       "size": 1848
     },
     {
+      "path": "pages/systems/cdr-bootnode-aws-recovery-and-azure-migration.md",
+      "sha256": "d0f5b48cbf9c5e74bbec7fc2102bd8f8155077b4e174c6d095b446667fd99b9a",
+      "size": 8542
+    },
+    {
       "path": "pages/systems/cdr-story-client-v1-7-0-to-feature-changes.md",
       "sha256": "605ce46a0912db8e7e78de18220691b88273808334dd3740f5365532a2e258ad",
       "size": 6627
@@ -19231,5 +19241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ccf6ef17694050a8204f2911ab17fb656b53d8eaf41f8db11e40694c7b33989"
+  "wiki_tree_hash": "d629058566e6d2a80888e38ddf3ea766ff50a4f376c87e35e44e5254953d4358"
 }

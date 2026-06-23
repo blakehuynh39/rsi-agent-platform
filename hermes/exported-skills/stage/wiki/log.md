@@ -37270,3 +37270,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6e7f224d735fe8a418a7402bc0614369
 - summary: Story-api service observations from monitoring channel. Includes spike protection events and internal server errors.
 
+## [2026-06-23T13:01:39Z] synthesis | CDR Bootnode AWS Recovery and Azure Migration
+
+- status: published
+- slug: systems/cdr-bootnode-aws-recovery-and-azure-migration
+- wiki_revision_id: wikirev_d2dd9676513e0b4cf591ee4ab5776b8c
+- summary: Incident report and recovery steps for the CDR bootnode after accidental AWS account closure, along with the plan to migrate the bootnode to a company Azure subscription.
+
