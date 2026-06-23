@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3b6d58dc9573edc4dbd62642571a0ef6e0ae8efd69cbc70d52354e3c705133ff",
-        "size": 1092035
+        "sha256": "f59482641edc0101c54ae3d53678d5b77f550568a786f26c6d6af3262ac3062e",
+        "size": 1092456
       },
       {
         "path": "log.md",
-        "sha256": "19815b7546f09bc2593ac83cefc73accf7152e0aa8707c6019970fd5775c1ee0",
-        "size": 1844195
+        "sha256": "9a4cb2911aa040cbafacbe1743286085c025bce9c349b54a2dd3423a5f68e7b5",
+        "size": 1844627
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7850,6 +7850,11 @@
         "size": 4508
       },
       {
+        "path": "pages/runbooks/aws-account-closure-recovery-cdr-bootnode.md",
+        "sha256": "c0df5cb74ecca7f40bf1d9dc651bedea5a2cb829895846df6874e29c449a88f9",
+        "size": 5700
+      },
+      {
         "path": "pages/runbooks/aws-account-recovery-cdr-bootnode.md",
         "sha256": "343f48e9e6932e9c3a999276483339546efd1942a6859c26d5e05bd0998c4798",
         "size": 5599
@@ -9649,8 +9654,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T14:42:49Z",
-  "file_count": 1928,
+  "exported_at": "2026-06-23T14:54:32Z",
+  "file_count": 1929,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12927,7 +12932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3721ca4d8854d93b05d69fdfc9ab73c99ba949eb3791693b29ac0ebd662b10f2",
+  "previous_tree_hash": "3a2403ae4a874d61f8e836601d31a2dc6c15a461ebec062fff99123e1c6e6585",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12940,14 +12945,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3a2403ae4a874d61f8e836601d31a2dc6c15a461ebec062fff99123e1c6e6585",
+  "tree_hash": "4390b8e00ffd1e804df77834ffd2ae9b680f9891bba9eda47bebd5a04af2c499",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1274,
+  "wiki_file_count": 1275,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12956,13 +12961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3b6d58dc9573edc4dbd62642571a0ef6e0ae8efd69cbc70d52354e3c705133ff",
-      "size": 1092035
+      "sha256": "f59482641edc0101c54ae3d53678d5b77f550568a786f26c6d6af3262ac3062e",
+      "size": 1092456
     },
     {
       "path": "log.md",
-      "sha256": "19815b7546f09bc2593ac83cefc73accf7152e0aa8707c6019970fd5775c1ee0",
-      "size": 1844195
+      "sha256": "9a4cb2911aa040cbafacbe1743286085c025bce9c349b54a2dd3423a5f68e7b5",
+      "size": 1844627
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17525,6 +17530,11 @@
       "size": 4508
     },
     {
+      "path": "pages/runbooks/aws-account-closure-recovery-cdr-bootnode.md",
+      "sha256": "c0df5cb74ecca7f40bf1d9dc651bedea5a2cb829895846df6874e29c449a88f9",
+      "size": 5700
+    },
+    {
       "path": "pages/runbooks/aws-account-recovery-cdr-bootnode.md",
       "sha256": "343f48e9e6932e9c3a999276483339546efd1942a6859c26d5e05bd0998c4798",
       "size": 5599
@@ -19321,5 +19331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b5a3de3b0a5dcee53e0309d02b2c372ffa6b7af6bc0f14bc9f7b50a54ad709f7"
+  "wiki_tree_hash": "778622d2ed285c1bdc21710b4b06b1b80c3b15ae67f7782c215ded3d6e9f449f"
 }

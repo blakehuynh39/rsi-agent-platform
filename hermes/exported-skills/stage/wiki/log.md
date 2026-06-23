@@ -37333,3 +37333,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bfe0cf5d5a4f0943659cbead33fc4d00
 - summary: The CDR bootnode in an AWS account (story-services-staging) was lost after the account was prematurely closed. The account was restored, the bootnode IP changed to 54.153.69.163, a...
 
+## [2026-06-23T14:51:35Z] synthesis | AWS Account Closure Recovery and CDR Bootnode Relocation
+
+- status: published
+- slug: runbooks/aws-account-closure-recovery-cdr-bootnode
+- wiki_revision_id: wikirev_0b02c5e6b294a5ce6baa9d8e81cc6d64
+- summary: Runbook for recovering a closed AWS account hosting a CDR bootnode, locating the bootnode in an alternative account, updating configuration with new IP, and planning migration to A...
+
