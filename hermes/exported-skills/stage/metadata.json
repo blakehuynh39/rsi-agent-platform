@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49c5f4d701d2a10026b2a6a3523c998c57c4f7b91107938130faf5871861ed5e",
-        "size": 1083294
+        "sha256": "b3253902f0d6cc9c675afb56d33137da3b4238292c3df44f33a496eb905563d9",
+        "size": 1083655
       },
       {
         "path": "log.md",
-        "sha256": "bdd3a1f074b964075899f2dbcaa5989c0f8accdecc83f2c664873de45b5d0448",
-        "size": 1834450
+        "sha256": "269c9c27099d6e38d388731952f5be032af133b3de302f3b6aa905fea6dff75a",
+        "size": 1834823
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8855,6 +8855,11 @@
         "size": 3060
       },
       {
+        "path": "pages/systems/github-pat-rotation-story-private-fork.md",
+        "sha256": "dce12e7888b3d9a77c200563d18089a8c3600bae9af91df70e5423523a207fb3",
+        "size": 2968
+      },
+      {
         "path": "pages/systems/go-swagger-story-api.md",
         "sha256": "4cf68d8e1a0003bbdc839684fb01ed710b886a77e67150c780203c6e74c18407",
         "size": 1301
@@ -9529,8 +9534,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T09:35:13Z",
-  "file_count": 1904,
+  "exported_at": "2026-06-23T09:52:00Z",
+  "file_count": 1905,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12807,7 +12812,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a8dec8d7ee4d1244cf5b797f4cf0a973f3bbb9057eac02c2d171de9fc36b96ec",
+  "previous_tree_hash": "edea56e6e636c5c4128124993e68863e05cc4c06990a090089eab2de994dadf1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12820,14 +12825,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "edea56e6e636c5c4128124993e68863e05cc4c06990a090089eab2de994dadf1",
+  "tree_hash": "039d1af3fd0d9cdd7c0ef00e0ff4b676d9b27b533679839a3eb2a6dbb0154b88",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1250,
+  "wiki_file_count": 1251,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12836,13 +12841,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49c5f4d701d2a10026b2a6a3523c998c57c4f7b91107938130faf5871861ed5e",
-      "size": 1083294
+      "sha256": "b3253902f0d6cc9c675afb56d33137da3b4238292c3df44f33a496eb905563d9",
+      "size": 1083655
     },
     {
       "path": "log.md",
-      "sha256": "bdd3a1f074b964075899f2dbcaa5989c0f8accdecc83f2c664873de45b5d0448",
-      "size": 1834450
+      "sha256": "269c9c27099d6e38d388731952f5be032af133b3de302f3b6aa905fea6dff75a",
+      "size": 1834823
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18410,6 +18415,11 @@
       "size": 3060
     },
     {
+      "path": "pages/systems/github-pat-rotation-story-private-fork.md",
+      "sha256": "dce12e7888b3d9a77c200563d18089a8c3600bae9af91df70e5423523a207fb3",
+      "size": 2968
+    },
+    {
       "path": "pages/systems/go-swagger-story-api.md",
       "sha256": "4cf68d8e1a0003bbdc839684fb01ed710b886a77e67150c780203c6e74c18407",
       "size": 1301
@@ -19081,5 +19091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0d718b2ff6f956530ee5b6bb03941a866be186b00f2ae2de2f6e66cf896902b5"
+  "wiki_tree_hash": "4f48d0e73c4171b98a7315aa5e2bfc16b2ca88e35e736157f7015aa0b10d0695"
 }

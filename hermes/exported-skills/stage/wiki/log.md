@@ -37151,3 +37151,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1d19298cad9d11abfff2ca93ed161399
 - summary: An urgent rotation of the GitHub Personal Access Token (PAT) used in the CI/CD pipeline for the story-private-fork repository was performed. The original PAT was possibly created a...
 
+## [2026-06-23T09:49:15Z] synthesis | GitHub Personal Access Token Rotation for story-private-fork
+
+- status: published
+- slug: systems/github-pat-rotation-story-private-fork
+- wiki_revision_id: wikirev_cadd4b111746ae7ca8b0a3125c3a6ae1
+- summary: Urgent rotation of a GitHub personal access token (PAT) used in the story-private-fork repository's GitHub Actions workflow.
+
