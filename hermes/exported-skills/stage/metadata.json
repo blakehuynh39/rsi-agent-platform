@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b3253902f0d6cc9c675afb56d33137da3b4238292c3df44f33a496eb905563d9",
-        "size": 1083655
+        "sha256": "30732c8d2fc0e11ad4ce6788762310f2c47e9e03f58bdb31f7b3a1d9a99b0430",
+        "size": 1084458
       },
       {
         "path": "log.md",
-        "sha256": "269c9c27099d6e38d388731952f5be032af133b3de302f3b6aa905fea6dff75a",
-        "size": 1834823
+        "sha256": "9c719ec7526052cd7aa88d1940903222855348cc33752b18a80ce8021974a377",
+        "size": 1835650
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4818,6 +4818,16 @@
         "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
         "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
         "size": 5434
+      },
+      {
+        "path": "pages/decisions/github-pat-rotation-story-private-fork-2026-01-15.md",
+        "sha256": "da7faa1db5263807efdf743f679f151408478a9e1c78fb5eabad8cc0ca3e3a42",
+        "size": 2740
+      },
+      {
+        "path": "pages/decisions/github-pat-story-private-fork-rotation-jan-2026.md",
+        "sha256": "f2d60198aef0df6710610bcc85eb0686793ab671117b7d28e98bb49ba29b9dfd",
+        "size": 2834
       },
       {
         "path": "pages/decisions/github-write-access-grant-for-lucas2brh-to-piplabs-wdata-oft-bridge.md",
@@ -9534,8 +9544,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T09:52:00Z",
-  "file_count": 1905,
+  "exported_at": "2026-06-23T10:03:43Z",
+  "file_count": 1907,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12812,7 +12822,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "edea56e6e636c5c4128124993e68863e05cc4c06990a090089eab2de994dadf1",
+  "previous_tree_hash": "039d1af3fd0d9cdd7c0ef00e0ff4b676d9b27b533679839a3eb2a6dbb0154b88",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12825,14 +12835,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "039d1af3fd0d9cdd7c0ef00e0ff4b676d9b27b533679839a3eb2a6dbb0154b88",
+  "tree_hash": "cb962d9db2f5ebd12997de5769cd15877f8dad78ac2bc5b83eeeba0fdaf74df1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1251,
+  "wiki_file_count": 1253,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12841,13 +12851,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b3253902f0d6cc9c675afb56d33137da3b4238292c3df44f33a496eb905563d9",
-      "size": 1083655
+      "sha256": "30732c8d2fc0e11ad4ce6788762310f2c47e9e03f58bdb31f7b3a1d9a99b0430",
+      "size": 1084458
     },
     {
       "path": "log.md",
-      "sha256": "269c9c27099d6e38d388731952f5be032af133b3de302f3b6aa905fea6dff75a",
-      "size": 1834823
+      "sha256": "9c719ec7526052cd7aa88d1940903222855348cc33752b18a80ce8021974a377",
+      "size": 1835650
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14378,6 +14388,16 @@
       "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
       "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
       "size": 5434
+    },
+    {
+      "path": "pages/decisions/github-pat-rotation-story-private-fork-2026-01-15.md",
+      "sha256": "da7faa1db5263807efdf743f679f151408478a9e1c78fb5eabad8cc0ca3e3a42",
+      "size": 2740
+    },
+    {
+      "path": "pages/decisions/github-pat-story-private-fork-rotation-jan-2026.md",
+      "sha256": "f2d60198aef0df6710610bcc85eb0686793ab671117b7d28e98bb49ba29b9dfd",
+      "size": 2834
     },
     {
       "path": "pages/decisions/github-write-access-grant-for-lucas2brh-to-piplabs-wdata-oft-bridge.md",
@@ -19091,5 +19111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4f48d0e73c4171b98a7315aa5e2bfc16b2ca88e35e736157f7015aa0b10d0695"
+  "wiki_tree_hash": "e0e37a361e50f92fc49192e3e7038cd4e1c0cbddb7931c9561e32d2a529e6a9b"
 }
