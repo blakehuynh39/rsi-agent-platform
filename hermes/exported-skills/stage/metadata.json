@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "427d835a517af63d483e26bc77a4231d220b26f48d3c3478a7aefd0da54b5fc0",
-        "size": 1097830
+        "sha256": "b7fcdb5103a903cfe0b1e8525011fb644548dbe2d0343dd574f90e1423a1d058",
+        "size": 1098519
       },
       {
         "path": "log.md",
-        "sha256": "3a84b96dd6ac38506ed5506aac3682decd681416f0d33352940c3aadafb6b539",
-        "size": 1855950
+        "sha256": "3b7cca8446b6f2db274c0f3a6c2d631e1afced5cbdb4602f0e66b728885c41e1",
+        "size": 1856663
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8130,6 +8130,11 @@
         "size": 3207
       },
       {
+        "path": "pages/runbooks/gas-price-monitor-rpc-failure.md",
+        "sha256": "423af68e5bc9418dc41ad32dc5c2fb304563efd5fcf482a1b064ba3c0eda40d3",
+        "size": 1650
+      },
+      {
         "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
         "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
         "size": 1296
@@ -9530,6 +9535,11 @@
         "size": 1201
       },
       {
+        "path": "pages/systems/story-api-block-util-observer-rpc-failure.md",
+        "sha256": "1d1012cd9983ab14ac07cb89bf5a4a504e549831f3e0c8d2f91fab62b8736dc9",
+        "size": 2379
+      },
+      {
         "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
         "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
         "size": 2019
@@ -9724,8 +9734,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T22:10:16Z",
-  "file_count": 1943,
+  "exported_at": "2026-06-23T22:16:56Z",
+  "file_count": 1945,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13002,7 +13012,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b4306fab41ae2b71689501c6bc1f02c2a97f9994d297ef72dcd2bd336203f886",
+  "previous_tree_hash": "7f753b811c010c80393c95d98ede159b7e082bc5eb3b05f485a872adf440b47d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13015,14 +13025,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7f753b811c010c80393c95d98ede159b7e082bc5eb3b05f485a872adf440b47d",
+  "tree_hash": "27ea27204a4645925a1a9ede2e29302adfdf856152bbcc5b5a626518c47ac43d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1289,
+  "wiki_file_count": 1291,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13031,13 +13041,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "427d835a517af63d483e26bc77a4231d220b26f48d3c3478a7aefd0da54b5fc0",
-      "size": 1097830
+      "sha256": "b7fcdb5103a903cfe0b1e8525011fb644548dbe2d0343dd574f90e1423a1d058",
+      "size": 1098519
     },
     {
       "path": "log.md",
-      "sha256": "3a84b96dd6ac38506ed5506aac3682decd681416f0d33352940c3aadafb6b539",
-      "size": 1855950
+      "sha256": "3b7cca8446b6f2db274c0f3a6c2d631e1afced5cbdb4602f0e66b728885c41e1",
+      "size": 1856663
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17880,6 +17890,11 @@
       "size": 3207
     },
     {
+      "path": "pages/runbooks/gas-price-monitor-rpc-failure.md",
+      "sha256": "423af68e5bc9418dc41ad32dc5c2fb304563efd5fcf482a1b064ba3c0eda40d3",
+      "size": 1650
+    },
+    {
       "path": "pages/runbooks/gcp-internal-l1-testnet-setup.md",
       "sha256": "1db82297ef0699c37de93ed809e0b2ef11dee240613375c1cd812f510eabc6c1",
       "size": 1296
@@ -19280,6 +19295,11 @@
       "size": 1201
     },
     {
+      "path": "pages/systems/story-api-block-util-observer-rpc-failure.md",
+      "sha256": "1d1012cd9983ab14ac07cb89bf5a4a504e549831f3e0c8d2f91fab62b8736dc9",
+      "size": 2379
+    },
+    {
       "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
       "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
       "size": 2019
@@ -19471,5 +19491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b34ddac3275bae7f282525f20949b00a481f65cc8ab3137b852e3d9b793db252"
+  "wiki_tree_hash": "f398e41cb676f48e67d0a1aba84eb98ffa40fadd8bb6b0b059abc4b15221e44d"
 }

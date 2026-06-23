@@ -37563,3 +37563,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_639234122988469d796f1b316673043d
 - summary: Migration of the Story Protocol devnet from GCP to AWS using the story-devnet-aws repository. Involves setting up new domains and granting AWS permissions to team members.
 
+## [2026-06-23T22:15:42Z] synthesis | Gas-Price Monitor RPC Failure Incident
+
+- status: published
+- slug: runbooks/gas-price-monitor-rpc-failure
+- wiki_revision_id: wikirev_3f5307e93da100e008b150b4e5dba972
+- summary: Alert of gas-price monitor RPC failure; system holds last-good snapshot and gate vote. Issue later resolved by Blake Huynh.
+
+## [2026-06-23T22:16:07Z] synthesis | Story-API Block-Util Observer RPC Failure
+
+- status: published
+- slug: systems/story-api-block-util-observer-rpc-failure
+- wiki_revision_id: wikirev_610862240f6c455d9d212f5c23a0f58d
+- summary: The story-api block-util observer experienced an RPC failure, causing the gate to fail open. The issue was marked resolved by Blake Huynh.
+
