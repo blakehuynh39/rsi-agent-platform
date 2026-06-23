@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "075439254c4203665fcc2fd54c71be8e1526f5c942f5d34557a598320d7cb9fa",
-        "size": 1078243
+        "sha256": "a2de533f65a889df73bcf7af67ae089369fd1d8e648430da314cdfb1029ca262",
+        "size": 1078657
       },
       {
         "path": "log.md",
-        "sha256": "e99a1ebbaece7733854a21697d8fc6a319d13d3ecbb352b5ca4eeabf86f42e2c",
-        "size": 1828837
+        "sha256": "5e9bcf370c3588e1a8a978cb190ffde6c93c03abb5ae54c7177b422c43f4d559",
+        "size": 1829253
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4978,6 +4978,11 @@
         "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
         "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
         "size": 4141
+      },
+      {
+        "path": "pages/decisions/mainnet-global-site-aws-region-selection.md",
+        "sha256": "43e5d3f4497bfa551080d185521116c4116859d61734ecca52971e4d77103935",
+        "size": 4130
       },
       {
         "path": "pages/decisions/mainnet-global-site-aws-regions.md",
@@ -9464,8 +9469,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T07:06:10Z",
-  "file_count": 1891,
+  "exported_at": "2026-06-23T07:12:46Z",
+  "file_count": 1892,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12742,7 +12747,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "9c978937f09f2b98fe2e04681ea20f23e22600b08629a4c2d9397b52709aaa81",
+  "previous_tree_hash": "24ee9f7a53b9ab25173ac61ecad9caeb864c467d2c4f57901b8b326a1888babc",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12755,14 +12760,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "24ee9f7a53b9ab25173ac61ecad9caeb864c467d2c4f57901b8b326a1888babc",
+  "tree_hash": "8d6ff4722120551df387d15ae116bd97b3c8d7c0d5fe2dcc143461bf1ed3fb86",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1237,
+  "wiki_file_count": 1238,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12771,13 +12776,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "075439254c4203665fcc2fd54c71be8e1526f5c942f5d34557a598320d7cb9fa",
-      "size": 1078243
+      "sha256": "a2de533f65a889df73bcf7af67ae089369fd1d8e648430da314cdfb1029ca262",
+      "size": 1078657
     },
     {
       "path": "log.md",
-      "sha256": "e99a1ebbaece7733854a21697d8fc6a319d13d3ecbb352b5ca4eeabf86f42e2c",
-      "size": 1828837
+      "sha256": "5e9bcf370c3588e1a8a978cb190ffde6c93c03abb5ae54c7177b422c43f4d559",
+      "size": 1829253
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14468,6 +14473,11 @@
       "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
       "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
       "size": 4141
+    },
+    {
+      "path": "pages/decisions/mainnet-global-site-aws-region-selection.md",
+      "sha256": "43e5d3f4497bfa551080d185521116c4116859d61734ecca52971e4d77103935",
+      "size": 4130
     },
     {
       "path": "pages/decisions/mainnet-global-site-aws-regions.md",
@@ -18951,5 +18961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "620b0c842c372287f510f30049f95ffd0ac7e6f5f19fd53e0e32534da5b3bd5d"
+  "wiki_tree_hash": "88b88415a70f0a059f12a984e6f7e9d4ea76f1a530f4b7038e4459306a9764a1"
 }

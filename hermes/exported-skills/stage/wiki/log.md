@@ -37053,3 +37053,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_da80018ce91c08a5e1168a0eb1708b3f
 - summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
 
+## [2026-06-23T07:08:20Z] synthesis | Mainnet Global Site AWS Region Selection
+
+- status: published
+- slug: decisions/mainnet-global-site-aws-region-selection
+- wiki_revision_id: wikirev_aaeacdc4a6d7b085053232162a91766b
+- summary: Decision to deploy the mainnet global site in ap-northeast-2 (Seoul) and eu-central-1 (Frankfurt). The initial proposal included ap-northeast-1 (Tokyo) and eu-central-1, but after ...
+
