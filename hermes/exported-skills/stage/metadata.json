@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2d3cc6250047bbc580311171704b751c158034a601aec8e7138368268f22623b",
-        "size": 1086249
+        "sha256": "39af692515ec25d76fd7373e25e243d846667adff9e6d1ae43c6008ef989d308",
+        "size": 1086257
       },
       {
         "path": "log.md",
-        "sha256": "a877244a56fbf726b4d7f346be55c5e1aca80fdf365ebb9ee39cdf04894742c3",
-        "size": 1837501
+        "sha256": "aa179f14778052316d79949126f152c980cb0b30febcd2773430db0bb5e6f56b",
+        "size": 1837882
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7876,8 +7876,8 @@
       },
       {
         "path": "pages/runbooks/cursor-bugbot-setup.md",
-        "sha256": "57df6d8523e74c53599c3bc3ce024d546b4ad10dbc57ea9cde0896eea48c0e6a",
-        "size": 3420
+        "sha256": "c96dea86e7b817e9a372ffef7726b33a42bd968e30bdc9a942bc25c1e06c083b",
+        "size": 4510
       },
       {
         "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
@@ -9569,7 +9569,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T10:50:44Z",
+  "exported_at": "2026-06-23T11:07:31Z",
   "file_count": 1912,
   "files": [
     {
@@ -12847,7 +12847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ee545bde9c729482512da055ddbc309e409e7094c0ee88f312e1920f864052f9",
+  "previous_tree_hash": "b2395d5d8a41663b82de84400b5d89f942ab7e8e421fe080e6f7f4ffe2f16821",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12860,7 +12860,7 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b2395d5d8a41663b82de84400b5d89f942ab7e8e421fe080e6f7f4ffe2f16821",
+  "tree_hash": "b1c2210bf0b657a94901e7a2087d643590ae23c2ddb7290f52c46f340273d09a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -12876,13 +12876,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2d3cc6250047bbc580311171704b751c158034a601aec8e7138368268f22623b",
-      "size": 1086249
+      "sha256": "39af692515ec25d76fd7373e25e243d846667adff9e6d1ae43c6008ef989d308",
+      "size": 1086257
     },
     {
       "path": "log.md",
-      "sha256": "a877244a56fbf726b4d7f346be55c5e1aca80fdf365ebb9ee39cdf04894742c3",
-      "size": 1837501
+      "sha256": "aa179f14778052316d79949126f152c980cb0b30febcd2773430db0bb5e6f56b",
+      "size": 1837882
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17471,8 +17471,8 @@
     },
     {
       "path": "pages/runbooks/cursor-bugbot-setup.md",
-      "sha256": "57df6d8523e74c53599c3bc3ce024d546b4ad10dbc57ea9cde0896eea48c0e6a",
-      "size": 3420
+      "sha256": "c96dea86e7b817e9a372ffef7726b33a42bd968e30bdc9a942bc25c1e06c083b",
+      "size": 4510
     },
     {
       "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
@@ -19161,5 +19161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6dc7f539d09c5823e7faabbdb2d8171ed3d9ff3cd89c0e6719e595d4f41dbb11"
+  "wiki_tree_hash": "167777c13585dd07679f7da7df91305fa99f124deee43f4b6566cd103cfdf274"
 }
