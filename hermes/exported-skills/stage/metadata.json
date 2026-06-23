@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "feb6fab096fb4c7a940eded43e0a808b27d6ee0750aef9ed76bf0f095c92bd4a",
-        "size": 1078978
+        "sha256": "9f69a2f43357491753e3850e09bdb11742e1127b01328cba73a5c4fa38ece7b4",
+        "size": 1079730
       },
       {
         "path": "log.md",
-        "sha256": "5e1c146a6e0d91cc86b50b4305c18c0a747aefdbf508e54f700abd12b9591978",
-        "size": 1830369
+        "sha256": "85becee3a02af61217f22473ff623c42624b832217d650b52e77d4442e5589c5",
+        "size": 1830778
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7545,6 +7545,11 @@
         "size": 2935
       },
       {
+        "path": "pages/projects/temporal-staging-cert-renewal.md",
+        "sha256": "a890d449f804e01856d83aea664f5bc937452e117d57e4ec9fbc1c0df6d3184e",
+        "size": 3345
+      },
+      {
         "path": "pages/projects/testnet-launch-checklist.md",
         "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
         "size": 2926
@@ -9479,8 +9484,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T08:03:06Z",
-  "file_count": 1894,
+  "exported_at": "2026-06-23T08:09:43Z",
+  "file_count": 1895,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12757,7 +12762,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0149e696b14c589b29f27dcea1d2f207c7a893b21a155722dd984f29babbc002",
+  "previous_tree_hash": "65d64266354143b4cfe8361274711121f3c60997f8f932ab53a1fd7e1265257b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12770,14 +12775,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "65d64266354143b4cfe8361274711121f3c60997f8f932ab53a1fd7e1265257b",
+  "tree_hash": "0823169728beca2cad4d0be4ca049410d1e75178e6d35879c3e0cac0f2006dff",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1240,
+  "wiki_file_count": 1241,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12786,13 +12791,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "feb6fab096fb4c7a940eded43e0a808b27d6ee0750aef9ed76bf0f095c92bd4a",
-      "size": 1078978
+      "sha256": "9f69a2f43357491753e3850e09bdb11742e1127b01328cba73a5c4fa38ece7b4",
+      "size": 1079730
     },
     {
       "path": "log.md",
-      "sha256": "5e1c146a6e0d91cc86b50b4305c18c0a747aefdbf508e54f700abd12b9591978",
-      "size": 1830369
+      "sha256": "85becee3a02af61217f22473ff623c42624b832217d650b52e77d4442e5589c5",
+      "size": 1830778
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17050,6 +17055,11 @@
       "size": 2935
     },
     {
+      "path": "pages/projects/temporal-staging-cert-renewal.md",
+      "sha256": "a890d449f804e01856d83aea664f5bc937452e117d57e4ec9fbc1c0df6d3184e",
+      "size": 3345
+    },
+    {
       "path": "pages/projects/testnet-launch-checklist.md",
       "sha256": "109f8b06fffb6cd81277b3e13cc88c8a306319047bef740afc1231b907899c3e",
       "size": 2926
@@ -18981,5 +18991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3078e140a54d4580d596f1aa6c153111a77426e01add8bda80117072037f10f9"
+  "wiki_tree_hash": "93ac7eb71a047d76bc1daa49c472a00fc14a32585ed4fddb61a33b33fbc9e245"
 }
