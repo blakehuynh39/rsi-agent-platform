@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fc08116aac32907c3ce4436d1fa0a7343610d067f3365ac053ed51a1fccbe88a",
-        "size": 1068169
+        "sha256": "4fb2fcb0c601a2e0b3a9cca9dacc249a370cc45d0a3f8f32a354266f8693ffa9",
+        "size": 1068566
       },
       {
         "path": "log.md",
-        "sha256": "601279c1bf03f757d004b8b0fbc14b7f54897747dae39a0961eecb9f2c461f0a",
-        "size": 1817393
+        "sha256": "8610ea266aba3d131efd7b5fd42cf1ae206f53ea1c946e9e0d279ff37851c9c5",
+        "size": 1817801
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7930,6 +7930,11 @@
         "size": 5137
       },
       {
+        "path": "pages/runbooks/ip-whitelisting-story-rpc.md",
+        "sha256": "5672995415582aa199cb322ddc6d5b9fd56ca39409dae4648258e229a52fbb3c",
+        "size": 5860
+      },
+      {
         "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
         "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
         "size": 10780
@@ -9324,8 +9329,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T01:54:46Z",
-  "file_count": 1863,
+  "exported_at": "2026-06-23T02:11:33Z",
+  "file_count": 1864,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12602,7 +12607,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "a719a5c5ce459da7884cb36a372f0f8800f29b4095955c47e229c07b802b62af",
+  "previous_tree_hash": "d22bae592c8e21c54dc43069fa4249641cb94bf5922abe5b12f41a4c993bf8e0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12615,14 +12620,14 @@
   ],
   "skill_tree_hash": "78f6e720812ea2ce86c0fd8541cfd985f05407d58cb6172023949f19b7ffc040",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d22bae592c8e21c54dc43069fa4249641cb94bf5922abe5b12f41a4c993bf8e0",
+  "tree_hash": "56d4fd4aa9d1c33273b1a818c4b34df813a865fc51a8dea2192e6910ba5f6db9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1209,
+  "wiki_file_count": 1210,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12631,13 +12636,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fc08116aac32907c3ce4436d1fa0a7343610d067f3365ac053ed51a1fccbe88a",
-      "size": 1068169
+      "sha256": "4fb2fcb0c601a2e0b3a9cca9dacc249a370cc45d0a3f8f32a354266f8693ffa9",
+      "size": 1068566
     },
     {
       "path": "log.md",
-      "sha256": "601279c1bf03f757d004b8b0fbc14b7f54897747dae39a0961eecb9f2c461f0a",
-      "size": 1817393
+      "sha256": "8610ea266aba3d131efd7b5fd42cf1ae206f53ea1c946e9e0d279ff37851c9c5",
+      "size": 1817801
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17280,6 +17285,11 @@
       "size": 5137
     },
     {
+      "path": "pages/runbooks/ip-whitelisting-story-rpc.md",
+      "sha256": "5672995415582aa199cb322ddc6d5b9fd56ca39409dae4648258e229a52fbb3c",
+      "size": 5860
+    },
+    {
       "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
       "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
       "size": 10780
@@ -18671,5 +18681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "734ff581b5e25da1cefeb1204f4aaf8adec90baef6fc276e5627d4b88eca17b5"
+  "wiki_tree_hash": "cf5c603ec37ef25868d64aa523278f5ec9ae1e6df1fc37ab3d2af2f2d5746958"
 }

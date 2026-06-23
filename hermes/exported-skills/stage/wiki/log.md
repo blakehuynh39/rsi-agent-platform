@@ -36832,3 +36832,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_69ccd05781cbd16f149c9a2e43c8d047
 - summary: Procedure for whitelisting IP addresses for restricted internal RPC endpoints, including testnet (aeneid) and mainnet (poseidon). Involves creating a Linear ticket and submitting a...
 
+## [2026-06-23T02:07:41Z] synthesis | IP Whitelisting for Story Protocol RPC Endpoints
+
+- status: published
+- slug: runbooks/ip-whitelisting-story-rpc
+- wiki_revision_id: wikirev_0b86b6a708311ef388a46b6a9322ed8e
+- summary: Request to whitelist three IP addresses (3.224.178.198, 34.225.11.164, 34.206.178.84) for Story Protocol's internal RPC endpoints to support IP registration load testing. The IPs c...
+
