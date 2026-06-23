@@ -37130,3 +37130,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ab625131a6961dc6960ed9b206a5fd27
 - summary: Deployment of story-staking-api-private-fork to mainnet was requested, postponed to next week due to bandwidth, with urgency from BitGo/investors. Assignment passed to @U09M2SPUTSL...
 
+## [2026-06-23T09:19:26Z] synthesis | Staking API Private Fork Mainnet Deployment
+
+- status: published
+- slug: projects/staking-api-private-fork-mainnet-deployment
+- wiki_revision_id: wikirev_180e584ab9886048a8a14e02ddcf6ae9
+- summary: Request to deploy the story-staking-api-private-fork repository to the Story mainnet. The deployment uses a newly synced archive node and is needed by the BitGo team under investor...
+

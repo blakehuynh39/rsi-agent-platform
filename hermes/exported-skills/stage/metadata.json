@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b265dc1551c555605fad680243a21ed517ef9d361fc0155cb611a67be3a1959e",
-        "size": 1082094
+        "sha256": "6bdaa9ac6e876a9b6d8e6fe7e22f4fc20348436ee93b661b83d7381fa7137574",
+        "size": 1082503
       },
       {
         "path": "log.md",
-        "sha256": "dd524a0518fd975dd92341f36c62bb33e48c7d1d8104f6589fe12b2b5cf3e10e",
-        "size": 1833214
+        "sha256": "02f07bcca345a66874564fe4a86d9db4163ebf18bd9edea9d81f2b5009951706",
+        "size": 1833635
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7400,6 +7400,11 @@
         "size": 5707
       },
       {
+        "path": "pages/projects/staking-api-private-fork-mainnet-deployment.md",
+        "sha256": "2052084bda68099a4ddc55edb1785329f84846638055a3a63db144ad1947280d",
+        "size": 4607
+      },
+      {
         "path": "pages/projects/status-page-section.md",
         "sha256": "81d69d97a660dcbe7b20d62451df64a6c23629b7b065041fafd0d6101b3252ab",
         "size": 7071
@@ -9514,8 +9519,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T09:06:40Z",
-  "file_count": 1901,
+  "exported_at": "2026-06-23T09:23:29Z",
+  "file_count": 1902,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12792,7 +12797,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "30a3b23044c97d1707e8bcf8961316a448a29682a18338616740faa4c17839a8",
+  "previous_tree_hash": "3d133fba4f8d90c53215895df2b8dbff6072b032974b40858d574ad05d6940fd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12805,14 +12810,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3d133fba4f8d90c53215895df2b8dbff6072b032974b40858d574ad05d6940fd",
+  "tree_hash": "a8dec8d7ee4d1244cf5b797f4cf0a973f3bbb9057eac02c2d171de9fc36b96ec",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1247,
+  "wiki_file_count": 1248,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12821,13 +12826,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b265dc1551c555605fad680243a21ed517ef9d361fc0155cb611a67be3a1959e",
-      "size": 1082094
+      "sha256": "6bdaa9ac6e876a9b6d8e6fe7e22f4fc20348436ee93b661b83d7381fa7137574",
+      "size": 1082503
     },
     {
       "path": "log.md",
-      "sha256": "dd524a0518fd975dd92341f36c62bb33e48c7d1d8104f6589fe12b2b5cf3e10e",
-      "size": 1833214
+      "sha256": "02f07bcca345a66874564fe4a86d9db4163ebf18bd9edea9d81f2b5009951706",
+      "size": 1833635
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16940,6 +16945,11 @@
       "size": 5707
     },
     {
+      "path": "pages/projects/staking-api-private-fork-mainnet-deployment.md",
+      "sha256": "2052084bda68099a4ddc55edb1785329f84846638055a3a63db144ad1947280d",
+      "size": 4607
+    },
+    {
       "path": "pages/projects/status-page-section.md",
       "sha256": "81d69d97a660dcbe7b20d62451df64a6c23629b7b065041fafd0d6101b3252ab",
       "size": 7071
@@ -19051,5 +19061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0f0b606314ba13f7c0789b5895ef955e5d85edf926d745b290d519ff2a23fbf5"
+  "wiki_tree_hash": "9b94b386ef4a346d20703c7686506f10a979e6bf7fc85718a7cc11e2e0febf2f"
 }
