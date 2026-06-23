@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6a666df7243deb5a7489f563ab981b96f500a782dae8bdf12bd8bda9271ff916",
-        "size": 1095416
+        "sha256": "304eb07fca35392099bae2704f58cbad8fc6d3c2f08b2d80981b2cadc8fb5433",
+        "size": 1095415
       },
       {
         "path": "log.md",
-        "sha256": "c2a14a096b021d4d8d213ff0d86c125b4912b55c5256e0e776f1ba7747caa69f",
-        "size": 1849364
+        "sha256": "aefe29ed9d9164e33ac6be7cf0bd7387c2c8c3b57adb4ed833aae5b9a7e7f979",
+        "size": 1849677
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6361,8 +6361,8 @@
       },
       {
         "path": "pages/projects/devnet-aws-migration.md",
-        "sha256": "112d15ee13cb608415cb1a82aa7460bc08489838395b2637d8fab93d28d023bb",
-        "size": 5911
+        "sha256": "bfab4503419748fcfc661392d8b1d0a8df48fd1fc7502439343abaa66785f810",
+        "size": 6701
       },
       {
         "path": "pages/projects/devnet-migration-pr-112.md",
@@ -9694,7 +9694,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T18:18:01Z",
+  "exported_at": "2026-06-23T18:24:42Z",
   "file_count": 1937,
   "files": [
     {
@@ -12972,7 +12972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6d55492042cb5ebd3b1eb6c918f94d7a749f86cade35d77c2d31cdeee151f3ed",
+  "previous_tree_hash": "8446359bb7b465e4a9d456a765c32cd07587cb2c978257cde9a78029cb2e2c4e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12985,7 +12985,7 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8446359bb7b465e4a9d456a765c32cd07587cb2c978257cde9a78029cb2e2c4e",
+  "tree_hash": "bd3ad79241442cd731777134cddf50bc89aeabe549a9155e550551b8109990dd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13001,13 +13001,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6a666df7243deb5a7489f563ab981b96f500a782dae8bdf12bd8bda9271ff916",
-      "size": 1095416
+      "sha256": "304eb07fca35392099bae2704f58cbad8fc6d3c2f08b2d80981b2cadc8fb5433",
+      "size": 1095415
     },
     {
       "path": "log.md",
-      "sha256": "c2a14a096b021d4d8d213ff0d86c125b4912b55c5256e0e776f1ba7747caa69f",
-      "size": 1849364
+      "sha256": "aefe29ed9d9164e33ac6be7cf0bd7387c2c8c3b57adb4ed833aae5b9a7e7f979",
+      "size": 1849677
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16081,8 +16081,8 @@
     },
     {
       "path": "pages/projects/devnet-aws-migration.md",
-      "sha256": "112d15ee13cb608415cb1a82aa7460bc08489838395b2637d8fab93d28d023bb",
-      "size": 5911
+      "sha256": "bfab4503419748fcfc661392d8b1d0a8df48fd1fc7502439343abaa66785f810",
+      "size": 6701
     },
     {
       "path": "pages/projects/devnet-migration-pr-112.md",
@@ -19411,5 +19411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2e053c0553d38dead784f39231e2757b44d0a963f9b2a044e031ecbe0514843a"
+  "wiki_tree_hash": "a4b81927040b6aa984dd4b5248a54d4dc40ee759d08f93dac64d4ccfa1517731"
 }

@@ -37431,3 +37431,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aea7c0fdf48725a7622fd34e191243b1
 - summary: Migration of devnet infrastructure from Google Cloud Platform (GCP) to Amazon Web Services (AWS). Covers the new provisioning repository, genesis scripts, domain changes, and acces...
 
+## [2026-06-23T18:19:36Z] synthesis | Devnet AWS Migration
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_fc6529e3c4a93d6538bc684647c98a33
+- summary: Migration of Story Protocol devnet from GCP to AWS, including repository setup, access configuration, and domain updates.
+
