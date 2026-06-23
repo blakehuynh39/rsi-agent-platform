@@ -37577,3 +37577,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_610862240f6c455d9d212f5c23a0f58d
 - summary: The story-api block-util observer experienced an RPC failure, causing the gate to fail open. The issue was marked resolved by Blake Huynh.
 
+## [2026-06-23T23:04:29Z] synthesis | Devnet AWS Migration
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_e3ee291c6694fbec7f118ac119830053
+- summary: Migration of the Story Protocol devnet from GCP to AWS, including repository setup, domain configuration, access provisioning, and troubleshooting of AWS permissions for instance l...
+
