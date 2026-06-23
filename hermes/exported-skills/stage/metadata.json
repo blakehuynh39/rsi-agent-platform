@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "844384d9900aef9aa70ef80271a966c1a2623d3828b50b322778a99d45e8629c",
-        "size": 1094362
+        "sha256": "7b480e5b4885b0d2791af8de052266b73c43925185d5e975697923570b14aaba",
+        "size": 1094676
       },
       {
         "path": "log.md",
-        "sha256": "3b25da344fc9abb984a13d5ee4b0e34ae49aa4a0d6426a1cd85dce4af7cc5dfa",
-        "size": 1847252
+        "sha256": "1e258fa6bf499a8c655dde7f31551673e0894d26e767118acc71f09af0452e0e",
+        "size": 1847578
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6368,6 +6368,11 @@
         "path": "pages/projects/devnet-migration-pr-112.md",
         "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
         "size": 1964
+      },
+      {
+        "path": "pages/projects/devnet-migration-to-aws.md",
+        "sha256": "ee1ab75fdd9103a02258793912244ded089e068f2010e9945e998b124ce1dc6b",
+        "size": 6264
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -9679,8 +9684,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T16:50:44Z",
-  "file_count": 1934,
+  "exported_at": "2026-06-23T17:07:32Z",
+  "file_count": 1935,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12957,7 +12962,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5a3eed7aa5e8e115a3bb469862ca31db143346cc0c27e87826d8ae7c851dfbe8",
+  "previous_tree_hash": "3abf0e7d944e11e4b0bbfb815f96b2ef90ac478273bc99ef63808ede85eab453",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12970,14 +12975,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3abf0e7d944e11e4b0bbfb815f96b2ef90ac478273bc99ef63808ede85eab453",
+  "tree_hash": "73d4958b514e925addb775547d8a1fde8e664600e4fd8332b31480936c86d2a1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1280,
+  "wiki_file_count": 1281,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12986,13 +12991,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "844384d9900aef9aa70ef80271a966c1a2623d3828b50b322778a99d45e8629c",
-      "size": 1094362
+      "sha256": "7b480e5b4885b0d2791af8de052266b73c43925185d5e975697923570b14aaba",
+      "size": 1094676
     },
     {
       "path": "log.md",
-      "sha256": "3b25da344fc9abb984a13d5ee4b0e34ae49aa4a0d6426a1cd85dce4af7cc5dfa",
-      "size": 1847252
+      "sha256": "1e258fa6bf499a8c655dde7f31551673e0894d26e767118acc71f09af0452e0e",
+      "size": 1847578
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16073,6 +16078,11 @@
       "path": "pages/projects/devnet-migration-pr-112.md",
       "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
       "size": 1964
+    },
+    {
+      "path": "pages/projects/devnet-migration-to-aws.md",
+      "sha256": "ee1ab75fdd9103a02258793912244ded089e068f2010e9945e998b124ce1dc6b",
+      "size": 6264
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -19381,5 +19391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b7f2095ddab07e947bb0909a0421ff3bf65ef51dd0c3b383562647e27aaa40dc"
+  "wiki_tree_hash": "74721c1b6a1f88311b709b385a247076dff5217dd46f759b51b0f1945e63013b"
 }
