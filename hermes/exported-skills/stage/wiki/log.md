@@ -37074,3 +37074,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bb5c13509a37192d0af02b746823b1df
 - summary: Runbook for handling Temporal certificate expiry, including notification, permission escalation, and renewal.
 
+## [2026-06-23T08:02:31Z] synthesis | staging-gcp.koyiy TLS Certificate Expiry
+
+- status: published
+- slug: systems/staging-gcp-koyiy-tls-cert-expiry
+- wiki_revision_id: wikirev_add2d2787da215ac46c4f2196b35afef
+- summary: The TLS certificate for staging-gcp.koyiy is expiring and requires renewal. Admin permissions were requested and granted to facilitate renewal.
+
+## [2026-06-23T08:03:30Z] synthesis | Renew staging-gcp.koyiy TLS cert for Temporal
+
+- status: published
+- slug: projects/temporal-staging-cert-renewal
+- wiki_revision_id: wikirev_c7f560b99f82d17056b3afa6a4f3a733
+- summary: The TLS certificate for the Temporal instance staging-gcp.koyiy is expiring. U07TNT9N4JC, who only had write permissions, notified the team and was later granted admin access to ha...
+

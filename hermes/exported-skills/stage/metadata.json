@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "bfabc5c6a93c3f9d84ed07dfe7e1e83fc0263c3850666a80736bf0b82ac17849",
-        "size": 1830002
+        "sha256": "5e1c146a6e0d91cc86b50b4305c18c0a747aefdbf508e54f700abd12b9591978",
+        "size": 1830369
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9280,6 +9280,11 @@
         "size": 3033
       },
       {
+        "path": "pages/systems/staging-gcp-koyiy-tls-cert-expiry.md",
+        "sha256": "d09561bd0c5a30f5b573ea8e31d0691bb8d168456eb78b3457260f68bd1bcb11",
+        "size": 3054
+      },
+      {
         "path": "pages/systems/staking-devnet.md",
         "sha256": "5f1e069bdc5ec10d50ad7ac731055a4547ab2f0623d5dc660a5ab60bb723611b",
         "size": 3425
@@ -9474,8 +9479,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T07:51:24Z",
-  "file_count": 1893,
+  "exported_at": "2026-06-23T08:03:06Z",
+  "file_count": 1894,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12752,7 +12757,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b8e75cf9e307ff8a4d7fc7487b788acd29b76d622944aa202f3e75a3c300e088",
+  "previous_tree_hash": "0149e696b14c589b29f27dcea1d2f207c7a893b21a155722dd984f29babbc002",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12765,14 +12770,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0149e696b14c589b29f27dcea1d2f207c7a893b21a155722dd984f29babbc002",
+  "tree_hash": "65d64266354143b4cfe8361274711121f3c60997f8f932ab53a1fd7e1265257b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1239,
+  "wiki_file_count": 1240,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12786,8 +12791,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "bfabc5c6a93c3f9d84ed07dfe7e1e83fc0263c3850666a80736bf0b82ac17849",
-      "size": 1830002
+      "sha256": "5e1c146a6e0d91cc86b50b4305c18c0a747aefdbf508e54f700abd12b9591978",
+      "size": 1830369
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18780,6 +18785,11 @@
       "size": 3033
     },
     {
+      "path": "pages/systems/staging-gcp-koyiy-tls-cert-expiry.md",
+      "sha256": "d09561bd0c5a30f5b573ea8e31d0691bb8d168456eb78b3457260f68bd1bcb11",
+      "size": 3054
+    },
+    {
       "path": "pages/systems/staking-devnet.md",
       "sha256": "5f1e069bdc5ec10d50ad7ac731055a4547ab2f0623d5dc660a5ab60bb723611b",
       "size": 3425
@@ -18971,5 +18981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "db12570983a77b9206b16278ccdc679db4fc70df715f22d39a67b2ed68892134"
+  "wiki_tree_hash": "3078e140a54d4580d596f1aa6c153111a77426e01add8bda80117072037f10f9"
 }
