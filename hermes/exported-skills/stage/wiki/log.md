@@ -37438,3 +37438,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fc6529e3c4a93d6538bc684647c98a33
 - summary: Migration of Story Protocol devnet from GCP to AWS, including repository setup, access configuration, and domain updates.
 
+## [2026-06-23T18:33:45Z] synthesis | Devnet AWS Migration
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_fe699ab328ae1880202a01f19fc17e2c
+- summary: Migration of Story Protocol's devnet from GCP to AWS, including repository creation, access setup, and domain changes.
+
