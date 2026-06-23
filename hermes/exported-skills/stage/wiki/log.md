@@ -37032,3 +37032,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_219a85e026268cc6ccfaec770d74dff0
 - summary: Review and approval of pull request #110 for Mainnet AWS ACM. The change does not affect current mainnet RPC usage, and multiple reviewers have approved.
 
+## [2026-06-23T06:35:37Z] synthesis | PR 110: Mainnet AWS ACM
+
+- status: published
+- slug: decisions/pr-110-mainnet-aws-acm
+- wiki_revision_id: wikirev_670fc05f7379e39914fa6dc899c59e43
+- summary: Review of pull request #110 for Mainnet AWS ACM. The change does not affect current mainnet RPC usage. Two approvals have been given.
+
