@@ -37326,3 +37326,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_148befe4184c6b0a0674266fe4e7c169
 - summary: Recovery of CDR bootnode after accidental closure of AWS accounts, and migration to Azure.
 
+## [2026-06-23T14:34:11Z] synthesis | CDR Bootnode AWS to Azure Migration (2026-01-20)
+
+- status: published
+- slug: projects/cdr-bootnode-aws-azure-migration-2026-01-20
+- wiki_revision_id: wikirev_bfe0cf5d5a4f0943659cbead33fc4d00
+- summary: The CDR bootnode in an AWS account (story-services-staging) was lost after the account was prematurely closed. The account was restored, the bootnode IP changed to 54.153.69.163, a...
+

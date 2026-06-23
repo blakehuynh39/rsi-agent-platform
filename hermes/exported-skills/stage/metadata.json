@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "49ade1e10c2d855a997b910ea9c1677d20daff6cdfe1b94c9fc37b90e4a97103",
-        "size": 1843769
+        "sha256": "19815b7546f09bc2593ac83cefc73accf7152e0aa8707c6019970fd5775c1ee0",
+        "size": 1844195
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6188,6 +6188,11 @@
         "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
         "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
         "size": 3000
+      },
+      {
+        "path": "pages/projects/cdr-bootnode-aws-azure-migration-2026-01-20.md",
+        "sha256": "c14e8f89dbc593caaa7a88628dc5dd4239f6a222399dadc426d6b5cc5500bcc5",
+        "size": 9621
       },
       {
         "path": "pages/projects/cdr-bootnode-migration.md",
@@ -9644,8 +9649,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T14:24:30Z",
-  "file_count": 1927,
+  "exported_at": "2026-06-23T14:36:13Z",
+  "file_count": 1928,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12922,7 +12927,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6b946c32955e807086e954bc5e9fa02af8f716f7a145f2d356def302bf1ba61c",
+  "previous_tree_hash": "b70f9298e9664d8dd9ee14643e9b1797770b8e6a867d305bd61d67271ad70882",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12935,14 +12940,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b70f9298e9664d8dd9ee14643e9b1797770b8e6a867d305bd61d67271ad70882",
+  "tree_hash": "3721ca4d8854d93b05d69fdfc9ab73c99ba949eb3791693b29ac0ebd662b10f2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1273,
+  "wiki_file_count": 1274,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12956,8 +12961,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "49ade1e10c2d855a997b910ea9c1677d20daff6cdfe1b94c9fc37b90e4a97103",
-      "size": 1843769
+      "sha256": "19815b7546f09bc2593ac83cefc73accf7152e0aa8707c6019970fd5775c1ee0",
+      "size": 1844195
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15858,6 +15863,11 @@
       "path": "pages/projects/campaign-scheduling-feature-pr-431.md",
       "sha256": "2c75ead53af15848edec4544d186eb2b2c964bbe69c5a118009ab06135529ceb",
       "size": 3000
+    },
+    {
+      "path": "pages/projects/cdr-bootnode-aws-azure-migration-2026-01-20.md",
+      "sha256": "c14e8f89dbc593caaa7a88628dc5dd4239f6a222399dadc426d6b5cc5500bcc5",
+      "size": 9621
     },
     {
       "path": "pages/projects/cdr-bootnode-migration.md",
@@ -19311,5 +19321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "77888bf7d5d606aa3c890ca4bd1254a4be29cb82b007391fd806fc8f16e82ed7"
+  "wiki_tree_hash": "b61efa6c2264415c388d85412e321cbeb3e579f426045f4606ce10a38fd04f47"
 }
