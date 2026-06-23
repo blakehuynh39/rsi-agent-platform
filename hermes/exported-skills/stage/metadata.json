@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fd0c827d7e6c0e6d4796f3e656036c07040769050d3faa1a294ccf24be3f9caa",
-        "size": 1063725
+        "sha256": "1921770bff658c73da17daee9b8835873edb2b56c74c25427b4d51e69895ad46",
+        "size": 1064137
       },
       {
         "path": "log.md",
-        "sha256": "3156d181800435d12363728221e2ca79280d434ce7910264298bfa4a0b3a1f84",
-        "size": 1812682
+        "sha256": "19753ec1e386d2421504dfba3091eed20de53f84437082e95e17362f1db74985",
+        "size": 1813105
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8100,6 +8100,11 @@
         "size": 10032
       },
       {
+        "path": "pages/runbooks/proof-of-creativity-usage-analysis-may-2026.md",
+        "sha256": "c7de994998c1db81c75cc166767ba92311381b104021b64aeb92706e949f274b",
+        "size": 12496
+      },
+      {
         "path": "pages/runbooks/protocol-usage-data-exploration-2026-05-15.md",
         "sha256": "f21da2bebbfad70ea8aa4c9a820ac5c5957a190315067f77c664168e3e85e919",
         "size": 8298
@@ -9269,8 +9274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T00:08:23Z",
-  "file_count": 1852,
+  "exported_at": "2026-06-23T00:20:04Z",
+  "file_count": 1853,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12547,7 +12552,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d01c5e14f821ea5408a34717bf2e889cadb91bcf4a85d9e216be24f2b2166346",
+  "previous_tree_hash": "e68787576c321aee513c46feb3e255fceeab449593b295ef3f74b1e7fb151288",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12560,14 +12565,14 @@
   ],
   "skill_tree_hash": "5182a7191a42b40838910028fca4dd72ac364f9dc0256704eb8f06c79fef3142",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e68787576c321aee513c46feb3e255fceeab449593b295ef3f74b1e7fb151288",
+  "tree_hash": "066ab6516f028c3f7c8d697511b507d7d39c496bf07dffc4f62904d25f6e8a3f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1198,
+  "wiki_file_count": 1199,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12576,13 +12581,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fd0c827d7e6c0e6d4796f3e656036c07040769050d3faa1a294ccf24be3f9caa",
-      "size": 1063725
+      "sha256": "1921770bff658c73da17daee9b8835873edb2b56c74c25427b4d51e69895ad46",
+      "size": 1064137
     },
     {
       "path": "log.md",
-      "sha256": "3156d181800435d12363728221e2ca79280d434ce7910264298bfa4a0b3a1f84",
-      "size": 1812682
+      "sha256": "19753ec1e386d2421504dfba3091eed20de53f84437082e95e17362f1db74985",
+      "size": 1813105
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17395,6 +17400,11 @@
       "size": 10032
     },
     {
+      "path": "pages/runbooks/proof-of-creativity-usage-analysis-may-2026.md",
+      "sha256": "c7de994998c1db81c75cc166767ba92311381b104021b64aeb92706e949f274b",
+      "size": 12496
+    },
+    {
       "path": "pages/runbooks/protocol-usage-data-exploration-2026-05-15.md",
       "sha256": "f21da2bebbfad70ea8aa4c9a820ac5c5957a190315067f77c664168e3e85e919",
       "size": 8298
@@ -18561,5 +18571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9dccec7c15bbd82a551316db238f56fb9bce5d1d39f890c560223188580d0f7a"
+  "wiki_tree_hash": "c53399a660121e4d3ae236490c5230eab1b1917010a3efccaa890f6edeab4423"
 }

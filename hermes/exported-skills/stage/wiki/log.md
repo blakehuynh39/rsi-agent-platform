@@ -36746,3 +36746,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ca94b55658bc6b56ac714d6e91ea8240
 - summary: Runbook for querying usage statistics of the Story Protocol IP graph and blockchain events from production databases sos-royalty-graph-prod and story-blockchain-prod. Covers table ...
 
+## [2026-06-23T00:16:37Z] synthesis | Proof of Creativity Usage Analysis (May 2026)
+
+- status: published
+- slug: runbooks/proof-of-creativity-usage-analysis-may-2026
+- wiki_revision_id: wikirev_9e27438002b8a067dacb6b00fd479f20
+- summary: A data analysis task to obtain high-level usage statistics for the Story Protocol IP graph/Proof of Creativity features over the last 2 years, utilizing sos-royalty-graph-prod and ...
+
