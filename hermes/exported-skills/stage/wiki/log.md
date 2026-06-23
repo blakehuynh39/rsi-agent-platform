@@ -37221,3 +37221,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2366c1deb4c52080ffb060bf713a40ed
 - summary: On 2025-12-22, the story-api encountered an 'errors.fundamental: invalid field: twitter_handle' error. The issue was identified and marked as resolved by Blake Huynh.
 
+## [2026-06-23T11:20:46Z] synthesis | Story Mainnet RPC
+
+- status: published
+- slug: systems/story-mainnet-rpc
+- wiki_revision_id: wikirev_aa188130d4c744100b7fbb5919a4d814
+- summary: Public RPC endpoint for Story mainnet at mainnet.storyrpc.io. Maintained by Story Protocol team.
+
