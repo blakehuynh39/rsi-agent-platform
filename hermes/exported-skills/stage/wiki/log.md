@@ -37263,3 +37263,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2943a2e08065468d4c599e518856d723
 - summary: After accidental closure of an AWS account, the CDR bootnode was recovered from the old story-services-staging account and is being migrated to a company Azure subscription. The bo...
 
+## [2026-06-23T12:36:29Z] synthesis | story-api
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_6e7f224d735fe8a418a7402bc0614369
+- summary: Story-api service observations from monitoring channel. Includes spike protection events and internal server errors.
+
