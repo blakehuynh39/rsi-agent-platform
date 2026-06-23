@@ -36846,3 +36846,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_66c363e6e9d6176518559a4278e4e7f2
 - summary: Procedure for requesting and implementing IP whitelist additions for Story Protocol RPC endpoints.
 
+## [2026-06-23T02:30:24Z] ingest | Slack thread C0AKH5SNGKH 1782181094.189069
+
+- status: published
+- slug: slack_message/slack-thread-c0akh5sngkh-1782181094-189069-2046f7fa
+- wiki_revision_id: wikirev_98787ebe0893db1b6c82d6ead8780000
+- source_document_id: srcdoc_dfe83aad2c8b16b68dc4ca3b2046f7fa
+- source_revision_id: srcrev_4d8558cebd1c05c93b90d0c953591392
+- summary: what the status of the Trace api <@U08HVGL6LDR> <@U0772SH7BRA>, will prod be ready by Thursday? we're pulling some real Trace data into the new website landing page, I'm seeing tha...
+
+## [2026-06-23T02:33:01Z] synthesis | IP Whitelisting for RPC Endpoints
+
+- status: published
+- slug: runbooks/ip-whitelisting-for-rpc-endpoints
+- wiki_revision_id: wikirev_5b0f1eef7e501d94cd1c71c1ad4a33ce
+- summary: Process and decisions around whitelisting NAT gateway IP addresses for accessing internal RPC endpoints for IP registration load testing on testnet (aeneid) and mainnet (poseidon).
+
