@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "64aa01b4bfe1b68d2b2fad99d82120f30344a812bfb14cc3a62adaa2ed351be1",
-        "size": 1063340
+        "sha256": "fd0c827d7e6c0e6d4796f3e656036c07040769050d3faa1a294ccf24be3f9caa",
+        "size": 1063725
       },
       {
         "path": "log.md",
-        "sha256": "9ecc8e5cfc581c4ad79894cd3f390c0588a1fe98e70e6cd31057600ab73b13c3",
-        "size": 1812286
+        "sha256": "3156d181800435d12363728221e2ca79280d434ce7910264298bfa4a0b3a1f84",
+        "size": 1812682
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7890,6 +7890,11 @@
         "size": 3966
       },
       {
+        "path": "pages/runbooks/ip-graph-usage-stats-runbook.md",
+        "sha256": "f86da04680ecde8eda6cd4777423191003058a625d5f602e46624cb2bbfac53c",
+        "size": 10930
+      },
+      {
         "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
         "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
         "size": 3278
@@ -9264,8 +9269,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-22T23:05:58Z",
-  "file_count": 1851,
+  "exported_at": "2026-06-23T00:08:23Z",
+  "file_count": 1852,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12542,7 +12547,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "11170b660b58ce5c7a874d13aa1de5c44afc3ee212f17ec28e501a116a3084b2",
+  "previous_tree_hash": "d01c5e14f821ea5408a34717bf2e889cadb91bcf4a85d9e216be24f2b2166346",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12555,14 +12560,14 @@
   ],
   "skill_tree_hash": "5182a7191a42b40838910028fca4dd72ac364f9dc0256704eb8f06c79fef3142",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d01c5e14f821ea5408a34717bf2e889cadb91bcf4a85d9e216be24f2b2166346",
+  "tree_hash": "e68787576c321aee513c46feb3e255fceeab449593b295ef3f74b1e7fb151288",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1197,
+  "wiki_file_count": 1198,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12571,13 +12576,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "64aa01b4bfe1b68d2b2fad99d82120f30344a812bfb14cc3a62adaa2ed351be1",
-      "size": 1063340
+      "sha256": "fd0c827d7e6c0e6d4796f3e656036c07040769050d3faa1a294ccf24be3f9caa",
+      "size": 1063725
     },
     {
       "path": "log.md",
-      "sha256": "9ecc8e5cfc581c4ad79894cd3f390c0588a1fe98e70e6cd31057600ab73b13c3",
-      "size": 1812286
+      "sha256": "3156d181800435d12363728221e2ca79280d434ce7910264298bfa4a0b3a1f84",
+      "size": 1812682
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17180,6 +17185,11 @@
       "size": 3966
     },
     {
+      "path": "pages/runbooks/ip-graph-usage-stats-runbook.md",
+      "sha256": "f86da04680ecde8eda6cd4777423191003058a625d5f602e46624cb2bbfac53c",
+      "size": 10930
+    },
+    {
       "path": "pages/runbooks/ip-registration-auto-registration-issue.md",
       "sha256": "53f90e7f9ede86d724d9a195ec8e3fb4c0f9572f62d79f112d24ac64531476d3",
       "size": 3278
@@ -18551,5 +18561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f9b475f8282ca88b6620cd11fd5c60d45b76747493530ec2080f85b411cc42f6"
+  "wiki_tree_hash": "9dccec7c15bbd82a551316db238f56fb9bce5d1d39f890c560223188580d0f7a"
 }

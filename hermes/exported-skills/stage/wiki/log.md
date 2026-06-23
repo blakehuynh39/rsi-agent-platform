@@ -36739,3 +36739,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8c6aa79ed6d77fb673e1bcbb1452dd85
 - summary: How to efficiently pull high-level usage stats for Story Protocol from production databases using Hermes.
 
+## [2026-06-23T00:04:36Z] synthesis | IP Graph Usage Statistics Runbook
+
+- status: published
+- slug: runbooks/ip-graph-usage-stats-runbook
+- wiki_revision_id: wikirev_ca94b55658bc6b56ac714d6e91ea8240
+- summary: Runbook for querying usage statistics of the Story Protocol IP graph and blockchain events from production databases sos-royalty-graph-prod and story-blockchain-prod. Covers table ...
+
