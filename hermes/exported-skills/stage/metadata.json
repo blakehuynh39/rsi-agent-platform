@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d35ce58c25a06c301d18f8af432a7768de9f9e252b3e4dcaf0b7e7cf4e7eb445",
-        "size": 1080554
+        "sha256": "966e23afcb330b9da74c2dd589e24a42ac40f401e7f526a3af2baff07c8443a5",
+        "size": 1081323
       },
       {
         "path": "log.md",
-        "sha256": "f97a51a27c84bc153b57178758e82ef419ac1e7a356368b8d808b1342dff0946",
-        "size": 1832055
+        "sha256": "54ab57b9c1d1b20a9118de3c6ee14de22f943ef827d4f2b83b080ae206063c8c",
+        "size": 1832419
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4738,6 +4738,11 @@
         "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
         "sha256": "d187f74a6a9febb1d288cddda7c6637c7e299241653a09e3ea6adadcb9482c08",
         "size": 2971
+      },
+      {
+        "path": "pages/decisions/deploy-staking-api-fork-mainnet.md",
+        "sha256": "a9941b56ee082e2f44f8e7f33f06056946c9918ee186836575d01ffae4844660",
+        "size": 4001
       },
       {
         "path": "pages/decisions/deployment-chain-decision.md",
@@ -9499,8 +9504,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T08:48:24Z",
-  "file_count": 1898,
+  "exported_at": "2026-06-23T08:54:59Z",
+  "file_count": 1899,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12777,7 +12782,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e0523cdb1025fc4de35fd4c99423e2ca530793eeccaa79b52d29112ba648e1a7",
+  "previous_tree_hash": "de1b86d8be831064674f1e489ca720c18f3edb214fae25cbc7b0915418dae4ff",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12790,14 +12795,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "de1b86d8be831064674f1e489ca720c18f3edb214fae25cbc7b0915418dae4ff",
+  "tree_hash": "30a3b23044c97d1707e8bcf8961316a448a29682a18338616740faa4c17839a8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1244,
+  "wiki_file_count": 1245,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12806,13 +12811,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d35ce58c25a06c301d18f8af432a7768de9f9e252b3e4dcaf0b7e7cf4e7eb445",
-      "size": 1080554
+      "sha256": "966e23afcb330b9da74c2dd589e24a42ac40f401e7f526a3af2baff07c8443a5",
+      "size": 1081323
     },
     {
       "path": "log.md",
-      "sha256": "f97a51a27c84bc153b57178758e82ef419ac1e7a356368b8d808b1342dff0946",
-      "size": 1832055
+      "sha256": "54ab57b9c1d1b20a9118de3c6ee14de22f943ef827d4f2b83b080ae206063c8c",
+      "size": 1832419
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14263,6 +14268,11 @@
       "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
       "sha256": "d187f74a6a9febb1d288cddda7c6637c7e299241653a09e3ea6adadcb9482c08",
       "size": 2971
+    },
+    {
+      "path": "pages/decisions/deploy-staking-api-fork-mainnet.md",
+      "sha256": "a9941b56ee082e2f44f8e7f33f06056946c9918ee186836575d01ffae4844660",
+      "size": 4001
     },
     {
       "path": "pages/decisions/deployment-chain-decision.md",
@@ -19021,5 +19031,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e9bf2895f3c6315714123f37dbd3b630bf79719847c8195969f65b2805d8d570"
+  "wiki_tree_hash": "0eaa7938dae5620d6e57731ad0be67a6e7a9d2d43dfa186aef405a6cc40fe001"
 }
