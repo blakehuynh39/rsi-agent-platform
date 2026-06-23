@@ -328,7 +328,7 @@ func processSessionTitleEffect(cfg config.Config, store storepkg.Store, runnerCl
 	return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:session-title", ctx.trace.Summary.TraceID))
 }
 
-func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) error {
+func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runnerClients map[string]*clients.RunnerClient, effect transition.EffectExecution) (err error) {
 	ctx, queueName, err := loadWorkflowContextForEffect(store, effect)
 	if err != nil {
 		_ = failClaimedEffect(store, effect, err.Error())
@@ -365,12 +365,52 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		runnerTask.ExternalToolResume = resumePayload
 	}
 	resumePauseID := strings.TrimSpace(stringValueFromMap(effect.Payload, "external_tool_pause_id"))
+	resumeAttemptStarted := false
+	resumeAttemptOutcome := ""
+	resumeAttemptMessage := ""
+	finishExternalToolResumeAttemptSucceeded := func() {
+		if resumeAttemptStarted {
+			resumeAttemptOutcome = "succeeded"
+			resumeAttemptMessage = ""
+		}
+	}
+	finishExternalToolResumeAttemptFailed := func(message string) {
+		if resumeAttemptStarted {
+			resumeAttemptOutcome = "failed"
+			resumeAttemptMessage = message
+		}
+	}
+	finishExternalToolResumeAttemptFromRunner := func(resp clients.RunnerResponse) {
+		if resp.OK {
+			finishExternalToolResumeAttemptSucceeded()
+			return
+		}
+		finishExternalToolResumeAttemptFailed(firstNonEmpty(strings.TrimSpace(resp.Message), "runner resume attempt failed"))
+	}
 	if resumePauseID != "" && len(runnerTask.ExternalToolResume) > 0 {
 		_, _ = store.UpdateExternalToolPause(resumePauseID, func(item *storepkg.ExternalToolPause) error {
 			item.ResumeStatus = storepkg.ExternalToolResumeRunning
 			return nil
 		})
+		resumeAttemptStarted = true
 	}
+	defer func() {
+		if !resumeAttemptStarted {
+			return
+		}
+		if errors.Is(err, errHermesExecutionStillRunning) {
+			return
+		}
+		if err != nil {
+			markExternalToolResumeAttemptFailed(store, resumePauseID, err.Error())
+			return
+		}
+		if resumeAttemptOutcome == "failed" {
+			markExternalToolResumeAttemptFailed(store, resumePauseID, resumeAttemptMessage)
+			return
+		}
+		markExternalToolResumeAttemptSucceeded(store, resumePauseID)
+	}()
 	executorClient := runnerClient
 	if useHermesExecutor {
 		executorClient = clients.NewRunnerClientWithTimeout(hermesExecutorBaseURL, cfg.RunnerTimeoutForRole(runnerRole))
@@ -438,13 +478,13 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return runnerPostProcessingFailure("refresh_workflow_context_after_harness_execution", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	if workflowTerminationReason(runnerResp.Raw) == "external_tool_pending" {
-		markExternalToolResumeAttemptFinished(store, resumePauseID, runnerResp)
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return handleExternalToolPendingRunnerResult(cfg, store, ctx, effect, runnerResp, runnerStarted)
 	}
-	markExternalToolResumeAttemptFinished(store, resumePauseID, runnerResp)
 	if !runnerResp.OK {
 		if strings.TrimSpace(stringValue(runnerResp.Raw["failure_class"])) == "runner_reply_delivery_uncertain" {
 			runnerCompleted := time.Now().UTC()
@@ -452,7 +492,9 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
 			runnerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromRunnerRaw(runnerResp.Raw), ctx.trace, ctx.workflow)
 			if useLedgerFirst {
-				runnerToolCalls = bindRunnerToolCallRecords(toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted), ctx.trace, ctx.workflow)
+				if ledgerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted), ctx.trace, ctx.workflow); len(ledgerToolCalls) > 0 {
+					runnerToolCalls = ledgerToolCalls
+				}
 			}
 			payload := map[string]any{
 				"last_error":         firstNonEmpty(strings.TrimSpace(runnerResp.Message), "runner reply delivery became uncertain after a native Slack send attempt"),
@@ -502,7 +544,85 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 				return err
 			}
+			finishExternalToolResumeAttemptFromRunner(runnerResp)
 			return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-reply-delivery-uncertain", ctx.trace.Summary.TraceID))
+		}
+		runnerCompleted := time.Now().UTC()
+		runnerDiagnostics := cloneStringAnyMap(mapValue(runnerResp.Raw["runner_diagnostics"]))
+		runnerDiagnostics = mergeWorkflowRunnerDiagnostics(runnerDiagnostics, runnerResp.Raw)
+		rawRunnerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromRunnerRaw(runnerResp.Raw), ctx.trace, ctx.workflow)
+		runnerToolCalls := rawRunnerToolCalls
+		recoveredToolCalls := runnerToolCalls
+		if useLedgerFirst {
+			if ledgerToolCalls := bindRunnerToolCallRecords(toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted), ctx.trace, ctx.workflow); len(ledgerToolCalls) > 0 {
+				runnerToolCalls = ledgerToolCalls
+				recoveredToolCalls = ledgerToolCalls
+			}
+		}
+		replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, runnerCompleted)
+		if !hasReplyDelivery || !isRSINativeSlackDelivery(replyDelivery) {
+			if toolDelivery, ok := workflowReplyDeliveryFromNativeSlackToolCalls(runnerToolCalls, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, runnerCompleted); ok {
+				replyDelivery = toolDelivery
+				hasReplyDelivery = true
+			}
+		}
+		if (!hasReplyDelivery || !isRSINativeSlackDelivery(replyDelivery)) && len(rawRunnerToolCalls) > 0 {
+			if toolDelivery, ok := workflowReplyDeliveryFromNativeSlackToolCalls(rawRunnerToolCalls, ctx.ingestion.ChannelID, ctx.ingestion.ThreadTS, runnerCompleted); ok {
+				replyDelivery = toolDelivery
+				hasReplyDelivery = true
+				recoveredToolCalls = mergeRunnerToolCallRecords(runnerToolCalls, rawRunnerToolCalls)
+			}
+		}
+		if hasReplyDelivery && isRSINativeSlackDelivery(replyDelivery) {
+			replyDelivery.TraceID = ctx.trace.Summary.TraceID
+			replyDelivery.WorkflowID = ctx.workflow.ID
+			replyDelivery.ConversationID = ctx.trace.Summary.ConversationID
+			replyDelivery.CaseID = ctx.trace.Summary.CaseID
+			replyDelivery.PolicyVerdict = firstNonEmpty(replyDelivery.PolicyVerdict, "native_slack_delivery_recorded")
+			replyDelivery.CreatedAt = runnerCompleted
+			runnerEvents := []events.TraceEvent{
+				{
+					TraceID:     ctx.trace.Summary.TraceID,
+					IngestionID: ctx.trace.Summary.IngestionID,
+					WorkflowID:  ctx.trace.Summary.WorkflowID,
+					Plane:       "execution",
+					Service:     "runner",
+					Actor:       ctx.workflow.AssignedBot,
+					EventType:   "runner.completed",
+					Status:      events.StatusCompleted,
+					StartedAt:   runnerStarted,
+					EndedAt:     &runnerCompleted,
+					Description: "Runner delivered the Slack reply through an RSI native Slack tool before returning a non-OK completion envelope.",
+				},
+			}
+			finalReasoning := []events.ReasoningStep{
+				{
+					ID:         fmt.Sprintf("reason-reply-delivery-recovered-%d", runnerCompleted.UnixNano()),
+					TraceID:    ctx.trace.Summary.TraceID,
+					WorkflowID: ctx.trace.Summary.WorkflowID,
+					StepType:   "reply_delivery",
+					Summary:    runnerReplyDeliveryReasoningSummary(true),
+					Confidence: 1.0,
+					Decision:   "native_slack_delivery_recorded",
+					CreatedAt:  runnerCompleted,
+				},
+			}
+			if _, err := submitWorkflowCommand(store, ctx.workflow.ID, transition.CommandWorkflowExecutionCompletedNoReply, cfg.ServiceName, runnerCompleted, map[string]any{
+				"repair_attempted":   boolValue(runnerResp.Raw["repair_attempted"]),
+				"repair_succeeded":   boolValue(runnerResp.Raw["repair_succeeded"]),
+				"runner_diagnostics": runnerDiagnostics,
+				"trace_events":       runnerEvents,
+				"reasoning_steps":    finalReasoning,
+				"tool_calls":         recoveredToolCalls,
+				"slack_actions":      []events.SlackActionRecord{replyDelivery},
+			}); err != nil {
+				return runnerPostProcessingFailure("submit_runner_completion_after_native_delivery", err)
+			}
+			if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
+				return err
+			}
+			finishExternalToolResumeAttemptSucceeded()
+			return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-native-delivery-recorded", ctx.trace.Summary.TraceID))
 		}
 		failure := workflowFailureFromRunnerResponse(runnerResp)
 		if !nativeStrictEnvelopeFailure(runnerResp.Raw) {
@@ -528,10 +648,12 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 				}
 			}
 		}
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return &workflowFailureError{failure: failure}
 	}
 	runnerOutput, err := workflowRunnerOutput(runnerResp)
 	if err != nil {
+		finishExternalToolResumeAttemptFailed(err.Error())
 		return &workflowFailureError{failure: workflowFailureFromStructuredOutputError(runnerResp, err)}
 	}
 	completionVerdict := workflowCompletionVerdict(runnerResp.Raw)
@@ -543,6 +665,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return runnerPostProcessingFailure("refresh_workflow_context_after_structured_output", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	runnerCompleted := time.Now().UTC()
@@ -583,20 +706,31 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 	replyDelivery, hasReplyDelivery := workflowReplyDeliveryProjection(runnerResp.Raw, ledgerEvents, useLedgerFirst, replyChannelID, replyThreadTS, runnerCompleted)
 	replyDeliverySucceeded := hasReplyDelivery && events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
 	nativeSlackDeliverySucceeded := replyDeliverySucceeded && isRSINativeSlackDelivery(replyDelivery)
-	runnerToolCalls := bindRunnerToolCallRecords(
+	rawRunnerToolCalls := bindRunnerToolCallRecords(
 		toolCallRecordsFromRunnerRaw(runnerResp.Raw),
 		ctx.trace,
 		ctx.workflow,
 	)
+	runnerToolCalls := rawRunnerToolCalls
 	if useLedgerFirst {
-		runnerToolCalls = bindRunnerToolCallRecords(
+		if ledgerToolCalls := bindRunnerToolCallRecords(
 			toolCallRecordsFromExecutionLedger(ledgerEvents, runnerCompleted),
 			ctx.trace,
 			ctx.workflow,
-		)
+		); len(ledgerToolCalls) > 0 {
+			runnerToolCalls = ledgerToolCalls
+		}
 	}
 	if !nativeSlackDeliverySucceeded {
 		if toolDelivery, ok := workflowReplyDeliveryFromNativeSlackToolCalls(runnerToolCalls, replyChannelID, replyThreadTS, runnerCompleted); ok {
+			replyDelivery = toolDelivery
+			hasReplyDelivery = true
+			replyDeliverySucceeded = events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
+			nativeSlackDeliverySucceeded = isRSINativeSlackDelivery(replyDelivery)
+		}
+	}
+	if !nativeSlackDeliverySucceeded && len(rawRunnerToolCalls) > 0 {
+		if toolDelivery, ok := workflowReplyDeliveryFromNativeSlackToolCalls(rawRunnerToolCalls, replyChannelID, replyThreadTS, runnerCompleted); ok {
 			replyDelivery = toolDelivery
 			hasReplyDelivery = true
 			replyDeliverySucceeded = events.SlackDeliveryStatusSucceeded(replyDelivery.SendStatus)
@@ -748,6 +882,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 			return err
 		}
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
 	if strings.TrimSpace(proposedReplyAction.Kind) != "" && !runnerDeliveryRecorded {
@@ -785,6 +920,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		if _, _, err := store.ReconcileWorkflowTrace(ctx.workflow.ID); err != nil {
 			return err
 		}
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner-blocked", ctx.trace.Summary.TraceID))
 	}
 	finalReasoning = append(finalReasoning, draftReasoning...)
@@ -808,6 +944,7 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 		return runnerPostProcessingFailure("refresh_workflow_context_before_runner_transition", err)
 	}
 	if isTerminalWorkflowStatus(ctx.workflow.Status) || isTerminalTraceStatus(ctx.trace.Summary.Status) {
+		finishExternalToolResumeAttemptFromRunner(runnerResp)
 		return completeClaimedEffect(store, effect, ctx.trace.Summary.TraceID)
 	}
 	completionPayload := map[string]any{
@@ -838,22 +975,30 @@ func processWorkflowRunnerEffect(cfg config.Config, store storepkg.Store, runner
 			return err
 		}
 	}
+	finishExternalToolResumeAttemptFromRunner(runnerResp)
 	return completeClaimedEffect(store, effect, fmt.Sprintf("trace:%s:runner", ctx.trace.Summary.TraceID))
 }
 
-func markExternalToolResumeAttemptFinished(store storepkg.Store, pauseID string, runnerResp clients.RunnerResponse) {
+func markExternalToolResumeAttemptSucceeded(store storepkg.Store, pauseID string) {
 	pauseID = strings.TrimSpace(pauseID)
 	if pauseID == "" {
 		return
 	}
-	nextStatus := storepkg.ExternalToolResumeResumed
-	if !runnerResp.OK {
-		nextStatus = storepkg.ExternalToolResumeFailed
+	_, _ = store.UpdateExternalToolPause(pauseID, func(item *storepkg.ExternalToolPause) error {
+		item.ResumeStatus = storepkg.ExternalToolResumeResumed
+		return nil
+	})
+}
+
+func markExternalToolResumeAttemptFailed(store storepkg.Store, pauseID string, message string) {
+	pauseID = strings.TrimSpace(pauseID)
+	if pauseID == "" {
+		return
 	}
 	_, _ = store.UpdateExternalToolPause(pauseID, func(item *storepkg.ExternalToolPause) error {
-		item.ResumeStatus = nextStatus
-		if !runnerResp.OK {
-			item.ErrorMessage = firstNonEmpty(strings.TrimSpace(runnerResp.Message), item.ErrorMessage)
+		item.ResumeStatus = storepkg.ExternalToolResumeFailed
+		if strings.TrimSpace(message) != "" {
+			item.ErrorMessage = strings.TrimSpace(message)
 		}
 		return nil
 	})
@@ -1667,7 +1812,7 @@ func workflowRunnerSystemMessage(replyDeliveryMode string) string {
 	parts = append(parts, "If an artifact materially helps satisfy the request, produce it with Hermes artifact tools and include it in produced_artifacts. If an artifact cannot be produced, set artifact_failure_reason and still provide the best grounded reply.")
 	parts = append(parts, "Use Hermes-native tools and terminal CLIs for evidence gathering.", "When native terminal GitHub credentials are available, use the gh CLI for explicitly requested GitHub issue, PR, comment, or review work; do not use it to merge code unless approval is granted.")
 	if replyDeliveryMode == "mediated" {
-		parts = append(parts, "For the final Slack reply, call exactly one RSI native Slack delivery tool in the bound thread. Use rsi_slack.message_post for simple prose. Use rsi_slack.report_post with report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in message_post; use report_post tables instead. Do not call non-RSI Slack delivery tools or proposed Slack actions for RSI workflow delivery. Leave proposed_actions empty.")
+		parts = append(parts, "For the final Slack reply, call exactly one RSI native Slack delivery tool. RSI binds the delivery target to the ingress Slack thread; provide the content/report payload, not a guessed channel or thread. Use rsi_slack.message_post for simple prose. Use rsi_slack.report_post with report_schema_version=1, summary, sections, and structured tables/files/images for rich reports or tabular output. Do not put Markdown pipe tables in message_post; use report_post tables instead. Do not call non-RSI Slack delivery tools or proposed Slack actions for RSI workflow delivery. Leave proposed_actions empty.")
 		parts = append(parts, "Leave reply_delivery empty unless the control plane reports delivery.")
 		return strings.Join(parts, " ")
 	}
@@ -1932,6 +2077,16 @@ func slackActionRecordFromNativeSlackToolCall(item events.ToolCallRecord, fallba
 	result := toolCallResultPayload(request)
 	if len(result) == 0 {
 		result = mapValue(request["result"])
+	}
+	if deliveryPayload := mapValue(result["reply_delivery"]); len(deliveryPayload) > 0 {
+		record := slackActionRecordFromDeliveryMap(deliveryPayload, fallbackChannelID, fallbackThreadTS, createdAt)
+		record.ID = firstNonEmpty(strings.TrimSpace(record.ID), strings.TrimSpace(item.ToolCallID), strings.TrimSpace(item.ID))
+		record.ToolName = canonicalRSINativeSlackToolName(firstNonEmpty(strings.TrimSpace(record.ToolName), strings.TrimSpace(item.ToolName)))
+		record.IdempotencyKey = firstNonEmpty(strings.TrimSpace(record.IdempotencyKey), strings.TrimSpace(stringValueFromMap(args, "idempotency_key")), strings.TrimSpace(item.ToolCallID), strings.TrimSpace(item.ID))
+		record.ArtifactRefs = uniqueStrings(append(append([]string(nil), item.RawArtifactRefs...), record.ArtifactRefs...))
+		if strings.TrimSpace(record.SendStatus) != "" {
+			return record, true
+		}
 	}
 	response := mapValue(result["output"])
 	actionPayload := mapValue(response["action"])
@@ -3905,6 +4060,27 @@ func appendOrReplaceToolCallRecord(records []events.ToolCallRecord, seen map[str
 	}
 	seen[key] = len(records)
 	return append(records, record)
+}
+
+func mergeRunnerToolCallRecords(primary []events.ToolCallRecord, extra []events.ToolCallRecord) []events.ToolCallRecord {
+	if len(primary) == 0 {
+		return append([]events.ToolCallRecord(nil), extra...)
+	}
+	if len(extra) == 0 {
+		return append([]events.ToolCallRecord(nil), primary...)
+	}
+	out := append([]events.ToolCallRecord(nil), primary...)
+	seen := make(map[string]int, len(out))
+	for idx, record := range out {
+		key := firstNonEmpty(record.ToolCallID, record.ID)
+		if key != "" {
+			seen[key] = idx
+		}
+	}
+	for _, record := range extra {
+		out = appendOrReplaceToolCallRecord(out, seen, record)
+	}
+	return out
 }
 
 func bindRunnerToolCallRecords(records []events.ToolCallRecord, trace events.Trace, workflow storepkg.Workflow) []events.ToolCallRecord {

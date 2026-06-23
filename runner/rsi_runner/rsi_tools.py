@@ -175,7 +175,7 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_slack.message_post": _write_schema(
         "rsi_slack.message_post",
-        "Post a Slack message through the RSI native Slack gateway.",
+        "Post a Slack message through the RSI native Slack gateway. In RSI workflow threads, the platform supplies the bound channel and thread.",
         {
             "channel_id": {"type": "string"},
             "text": {"type": "string"},
@@ -185,11 +185,11 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             "unfurl_links": {"type": "boolean"},
             "unfurl_media": {"type": "boolean"},
         },
-        required=["channel_id", "text"],
+        required=["text"],
     ),
     "rsi_slack.report_post": _write_schema(
         "rsi_slack.report_post",
-        "Post a structured Slack report through the RSI native Slack gateway. Use this for rich final answers, tables, and artifact-backed report output.",
+        "Post a structured Slack report through the RSI native Slack gateway. Use this for rich final answers, tables, and artifact-backed report output. In RSI workflow threads, the platform supplies the bound channel and thread.",
         {
             "channel_id": {"type": "string"},
             "thread_ts": {"type": "string"},
@@ -209,7 +209,7 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             "files": {"type": "array", "items": _SLACK_REPORT_FILE_SCHEMA},
             "images": {"type": "array", "items": _SLACK_REPORT_FILE_SCHEMA},
         },
-        required=["channel_id", "report_schema_version", "summary"],
+        required=["report_schema_version", "summary"],
     ),
     "rsi_slack.message_update": _write_schema(
         "rsi_slack.message_update",
@@ -244,7 +244,7 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
     ),
     "rsi_slack.file_upload": _write_schema(
         "rsi_slack.file_upload",
-        "Upload a file to Slack through the RSI native Slack gateway.",
+        "Upload a file to Slack through the RSI native Slack gateway. In RSI workflow threads, the platform supplies the bound channel and thread.",
         {
             "channel_id": {"type": "string"},
             "path": {"type": "string"},
@@ -256,7 +256,7 @@ _SLACK_TOOL_SCHEMAS: dict[str, JsonToolFunctionSchema] = {
             "initial_comment": {"type": "string"},
             "thread_ts": {"type": "string"},
         },
-        required=["channel_id"],
+        required=[],
     ),
     "rsi_slack.channel_create": _write_schema(
         "rsi_slack.channel_create",

@@ -3810,6 +3810,133 @@ func TestWorkflowRSINativeSlackToolCallDeliveryCompletesWithoutReplyDelivery(t *
 	}
 }
 
+func TestWorkflowRSINativeSlackToolCallDeliveryCompletesNonOKRunnerEnvelope(t *testing.T) {
+	runner := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"ok":       false,
+			"provider": "openai",
+			"message":  "runner response missing structured_output",
+			"raw": map[string]any{
+				"failure_class": "required_final_tool_missing",
+				"tool_calls": []any{
+					map[string]any{
+						"id":           "runner-tool-call-rsi-report",
+						"tool_name":    "rsi_slack_report_post",
+						"tool_call_id": "call-rsi-report-tool",
+						"status":       "completed",
+						"summary":      "posted Slack report",
+						"request": map[string]any{
+							"args": map[string]any{
+								"channel_id":            "D123",
+								"thread_ts":             "171000001.000100",
+								"idempotency_key":       "report-key",
+								"report_schema_version": 1,
+								"summary":               "Final report posted.",
+							},
+							"result": map[string]any{
+								"status": "ok",
+								"reply_delivery": map[string]any{
+									"tool_name":       "rsi_slack.report_post",
+									"channel_id":      "D123",
+									"thread_ts":       "171000001.000100",
+									"body":            "Final report posted.",
+									"tool_call_id":    "call-rsi-report-tool",
+									"provider_ref":    "slack:D123:171000002.000200",
+									"send_status":     "posted",
+									"idempotency_key": "report-key",
+									"artifact_refs":   []any{"external_tool_action:extact-tool-report"},
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer runner.Close()
+
+	store := storepkg.NewMemoryStore()
+	workflowItem := firstQueuedWorkflowItem(t, store, "slack:")
+	now := time.Now().UTC()
+	pause, _, err := store.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-recovered-native-slack-delivery",
+		ConversationID:    "conv-recovered-native-slack-delivery",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-recovered-native-slack-delivery",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call-db-read-recovered-native-slack-delivery",
+		ArgsHash:          "sha256:args",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := config.Config{
+		ServiceName:               "control-plane",
+		DefaultRepo:               "rsi-agent-platform",
+		DefaultKnowledgeBaseURL:   "https://example.test/kb",
+		AllowedTargetRepos:        []string{"rsi-agent-platform"},
+		RunnerBaseURL:             runner.URL,
+		SandboxNamespace:          "rsi-platform",
+		DefaultReasoningVerbosity: "verbose",
+		NativeToolsEnabled:        true,
+	}
+
+	if err := startWorkflowViaCommand(cfg, store, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
+		t.Fatalf("startWorkflowViaCommand() error = %v", err)
+	}
+
+	runnerEffect := firstQueuedWorkflowEffectByKind(t, store, transition.EffectInvokeRunner)
+	if runnerEffect.Payload == nil {
+		runnerEffect.Payload = map[string]any{}
+	}
+	runnerEffect.Payload["external_tool_pause_id"] = pause.ID
+	runnerEffect.Payload["external_tool_resume"] = map[string]any{
+		"tool_call_id": pause.ToolCallID,
+		"status":       "succeeded",
+	}
+	if err := processWorkflowRunnerEffect(cfg, store, map[string]*clients.RunnerClient{
+		"prod": clients.NewRunnerClient(cfg.RunnerBaseURL),
+	}, runnerEffect); err != nil {
+		t.Fatalf("processWorkflowRunnerEffect() error = %v", err)
+	}
+
+	workflow, ok := findWorkflow(store.ListWorkflows(), workflowItem.workflowID)
+	if !ok {
+		t.Fatal("expected workflow to exist")
+	}
+	if workflow.Status != "completed" {
+		t.Fatalf("expected completed workflow after native delivery recovery, got %s", workflow.Status)
+	}
+	trace, ok := store.GetTrace(workflowItem.traceID)
+	if !ok {
+		t.Fatal("expected trace to exist")
+	}
+	if trace.Summary.Status != events.StatusCompleted {
+		t.Fatalf("expected completed trace, got %s", trace.Summary.Status)
+	}
+	if len(trace.SlackActions) != 1 {
+		t.Fatalf("expected one recovered native Slack action, got %#v", trace.SlackActions)
+	}
+	action := trace.SlackActions[0]
+	if action.ToolName != "rsi_slack.report_post" || action.SendStatus != "posted" || action.FinalBody != "Final report posted." {
+		t.Fatalf("unexpected recovered Slack action: %#v", action)
+	}
+	if len(trace.ToolCalls) != 1 || trace.ToolCalls[0].ToolName != "rsi_slack_report_post" {
+		t.Fatalf("expected recovered tool call to be recorded, got %#v", trace.ToolCalls)
+	}
+	updatedPause, ok := store.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external tool pause")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeResumed {
+		t.Fatalf("resume status = %s, want resumed", updatedPause.ResumeStatus)
+	}
+	assertWorkflowEffectStatus(t, store, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
+}
+
 func TestPartialCompletionHelpersCoverOutputTokenBudgetExhaustion(t *testing.T) {
 	if got := partialCompletionNoticeForTerminationReason("output_token_budget_exhausted"); got != partialCompletionNoticeOutputBudget {
 		t.Fatalf("unexpected output-budget notice: %q", got)
@@ -4290,6 +4417,22 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 
 	baseStore := storepkg.NewMemoryStore()
 	workflowItem := firstQueuedWorkflowItem(t, baseStore, "slack:")
+	now := time.Now().UTC()
+	pause, _, err := baseStore.UpsertExternalToolPause(storepkg.ExternalToolPauseCreateInput{
+		IdempotencyKey:    "pause-command-persistence-failure",
+		ConversationID:    "conv-command-persistence-failure",
+		WorkflowID:        workflowItem.workflowID,
+		TraceID:           workflowItem.traceID,
+		HermesSessionID:   "session-command-persistence-failure",
+		CanonicalToolName: "db_read.query",
+		TransportToolName: "db_read_query",
+		ToolCallID:        "call-db-read-command-persistence-failure",
+		ArgsHash:          "sha256:args",
+		ExpiresAt:         now.Add(time.Hour),
+	}, now)
+	if err != nil {
+		t.Fatalf("UpsertExternalToolPause() error = %v", err)
+	}
 	cfg := config.Config{
 		ServiceName:               "control-plane",
 		DefaultRepo:               "rsi-agent-platform",
@@ -4300,7 +4443,7 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 		DefaultReasoningVerbosity: "verbose",
 	}
 
-	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.workflowID, time.Now().UTC(), queue.WorkflowQueue); err != nil {
+	if err := startWorkflowViaCommand(cfg, baseStore, workflowItem.workflowID, now, queue.WorkflowQueue); err != nil {
 		t.Fatalf("startWorkflowViaCommand() error = %v", err)
 	}
 	for _, item := range queuedActionEffectsForPlane(baseStore, "control") {
@@ -4310,6 +4453,14 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 	}
 
 	runnerEffect := firstQueuedWorkflowEffectByKind(t, baseStore, transition.EffectInvokeRunner)
+	if runnerEffect.Payload == nil {
+		runnerEffect.Payload = map[string]any{}
+	}
+	runnerEffect.Payload["external_tool_pause_id"] = pause.ID
+	runnerEffect.Payload["external_tool_resume"] = map[string]any{
+		"tool_call_id": pause.ToolCallID,
+		"status":       "succeeded",
+	}
 	store := &failingWorkflowCommandStore{
 		Store:           baseStore,
 		FailWorkflowID:  workflowItem.workflowID,
@@ -4337,6 +4488,16 @@ func TestHandleClaimedWorkflowRunnerEffectWorkflowCommandPersistenceFailureFails
 	}
 	if trace.Summary.Status != events.StatusFailed {
 		t.Fatalf("expected trace to fail after local persistence failure, got %s", trace.Summary.Status)
+	}
+	updatedPause, ok := baseStore.GetExternalToolPause(pause.ID)
+	if !ok {
+		t.Fatal("expected external tool pause")
+	}
+	if updatedPause.ResumeStatus != storepkg.ExternalToolResumeFailed {
+		t.Fatalf("resume status = %s, want failed", updatedPause.ResumeStatus)
+	}
+	if !strings.Contains(updatedPause.ErrorMessage, "workflow command persistence failed") {
+		t.Fatalf("resume error = %q, want persistence failure", updatedPause.ErrorMessage)
 	}
 	assertWorkflowEffectStatus(t, baseStore, workflowItem.workflowID, transition.EffectInvokeRunner, transition.EffectCompleted)
 }
@@ -5675,6 +5836,132 @@ func TestWorkflowReplyDeliveryRecordsFailedExecutionEnvelopeDeliveryAttempt(t *t
 	}, "C-fallback", "T-fallback")
 	if !ok || record.SendStatus != "failed" {
 		t.Fatalf("expected failed envelope delivery attempt to be recorded, got ok=%t record=%#v", ok, record)
+	}
+}
+
+func TestNativeSlackToolCallReplyDeliveryProjectionUsesNestedDelivery(t *testing.T) {
+	createdAt := time.Now().UTC()
+	item := events.ToolCallRecord{
+		ID:         "tool-record-1",
+		ToolName:   "rsi_slack_report_post",
+		ToolCallID: "call-rsi-report",
+		Status:     "completed",
+		Request: map[string]interface{}{
+			"args": map[string]any{
+				"channel_id":      "CWRONG",
+				"thread_ts":       "999999999.000100",
+				"idempotency_key": "idem-request",
+			},
+			"result": map[string]any{
+				"reply_delivery": map[string]any{
+					"tool_name":     "rsi_slack.report_post",
+					"channel_id":    "CBOUND",
+					"thread_ts":     "171000001.000100",
+					"body":          "posted report",
+					"send_status":   "posted",
+					"provider_ref":  "slack:CBOUND:171000001.000200",
+					"artifact_refs": []any{"render_manifest:extact-1"},
+				},
+			},
+		},
+		RawArtifactRefs: []string{"slack_file:F1"},
+	}
+
+	record, ok := slackActionRecordFromNativeSlackToolCall(item, "CFALLBACK", "TFALLBACK", createdAt)
+	if !ok {
+		t.Fatal("expected native Slack tool call reply delivery projection")
+	}
+	if record.ToolName != "rsi_slack.report_post" || record.ChannelID != "CBOUND" || record.ThreadTS != "171000001.000100" {
+		t.Fatalf("unexpected delivery target/tool: %#v", record)
+	}
+	if record.ID != "call-rsi-report" || record.IdempotencyKey != "idem-request" || record.SendStatus != "posted" {
+		t.Fatalf("unexpected delivery identifiers/status: %#v", record)
+	}
+	if !reflect.DeepEqual(record.ArtifactRefs, []string{"slack_file:F1", "render_manifest:extact-1"}) {
+		t.Fatalf("artifact refs = %#v", record.ArtifactRefs)
+	}
+}
+
+func TestWorkflowReplyDeliveryFromNativeSlackToolCallsReturnsLatestSuccessfulDelivery(t *testing.T) {
+	createdAt := time.Now().UTC()
+	items := []events.ToolCallRecord{
+		{
+			ToolName:   "rsi_slack.message_post",
+			ToolCallID: "call-first",
+			Request: map[string]interface{}{
+				"args": map[string]any{"idempotency_key": "idem-first"},
+				"result": map[string]any{
+					"reply_delivery": map[string]any{
+						"tool_name":   "rsi_slack.message_post",
+						"body":        "first",
+						"send_status": "posted",
+					},
+				},
+			},
+		},
+		{
+			ToolName:   "rsi_slack.report_post",
+			ToolCallID: "call-latest",
+			Request: map[string]interface{}{
+				"args": map[string]any{"idempotency_key": "idem-latest"},
+				"result": map[string]any{
+					"reply_delivery": map[string]any{
+						"tool_name":   "rsi_slack.report_post",
+						"channel_id":  "CBOUND",
+						"thread_ts":   "171000001.000100",
+						"body":        "latest",
+						"send_status": "posted",
+					},
+				},
+			},
+		},
+	}
+
+	record, ok := workflowReplyDeliveryFromNativeSlackToolCalls(items, "CFALLBACK", "TFALLBACK", createdAt)
+	if !ok {
+		t.Fatal("expected successful native Slack delivery")
+	}
+	if record.ID != "call-latest" || record.FinalBody != "latest" || record.ToolName != "rsi_slack.report_post" {
+		t.Fatalf("expected latest successful native Slack delivery, got %#v", record)
+	}
+}
+
+func TestMergeRunnerToolCallRecordsIncludesRawSlackDeliveryEvidence(t *testing.T) {
+	ledgerCalls := []events.ToolCallRecord{
+		{
+			ID:         "runner-tool-record-call-ledger",
+			ToolName:   "repo.search",
+			ToolCallID: "call-ledger",
+			Status:     "completed",
+		},
+	}
+	rawCalls := []events.ToolCallRecord{
+		{
+			ID:         "runner-tool-record-call-slack",
+			ToolName:   "rsi_slack_report_post",
+			ToolCallID: "call-slack",
+			Status:     "completed",
+			Request: map[string]interface{}{
+				"result": map[string]any{
+					"reply_delivery": map[string]any{
+						"tool_name":   "rsi_slack.report_post",
+						"body":        "posted",
+						"send_status": "posted",
+					},
+				},
+			},
+		},
+	}
+
+	merged := mergeRunnerToolCallRecords(ledgerCalls, rawCalls)
+	if len(merged) != 2 {
+		t.Fatalf("expected ledger and raw Slack calls, got %#v", merged)
+	}
+	if merged[0].ToolName != "repo.search" || merged[1].ToolName != "rsi_slack_report_post" {
+		t.Fatalf("unexpected merged calls: %#v", merged)
+	}
+	if _, ok := workflowReplyDeliveryFromNativeSlackToolCalls(merged, "C123", "171000001.000100", time.Now().UTC()); !ok {
+		t.Fatalf("expected merged raw Slack tool call to justify delivery recovery: %#v", merged)
 	}
 }
 

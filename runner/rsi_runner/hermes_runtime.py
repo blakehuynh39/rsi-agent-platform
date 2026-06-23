@@ -3807,7 +3807,8 @@ class HermesRuntime:
             return ""
         return (
             "This RSI workflow is Slack-bound. Deliver the final response by calling "
-            "exactly one RSI native Slack tool in the bound channel/thread: "
+            "exactly one RSI native Slack tool. RSI supplies the bound channel/thread; "
+            "provide the response payload, not a guessed Slack target: "
             "rsi_slack.message_post for simple prose, or rsi_slack.report_post for "
             "rich/tabular output using report_schema_version=1 and structured tables. "
             "Do not use generic send_message, legacy proposed Slack actions, or raw "
@@ -8740,7 +8741,7 @@ if __name__ == "__main__":
                 f"Repair attempt: {attempt} of {max_attempts}.",
                 "Do not re-investigate the task. Do not call read/search/terminal/file tools.",
                 "Use the previous structured output below as the source of truth for the answer.",
-                "First call exactly one RSI native Slack delivery tool in the bound thread: rsi_slack.message_post for simple prose, or rsi_slack.report_post for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",
+                "First call exactly one RSI native Slack delivery tool. RSI supplies the bound channel/thread; provide the response payload, not a guessed Slack target. Use rsi_slack.message_post for simple prose, or rsi_slack.report_post for rich/tabular output with report_schema_version=1, summary, sections, and structured tables/files/images.",
                 "Do not emit slack_post or slack_report proposed_actions; legacy proposed Slack actions are disabled.",
                 "After the Slack delivery tool succeeds, re-emit the full JSON object with proposed_actions=[] and preserve the final_answer, reply_draft, produced_artifacts, and artifact_failure_reason unless a correction is required.",
                 "Do not put Markdown pipe tables in message_post; convert tabular output into report_post tables with columns [{key,label,align?}] and rows [{column_key: scalar}].",

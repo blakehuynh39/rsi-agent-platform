@@ -812,6 +812,32 @@ def _default_slack_channel_ids(payload: JsonObject) -> list[str]:
     return out
 
 
+def _bound_slack_delivery_surface(payload: JsonObject) -> JsonObject:
+    policy = payload.get("delivery_policy")
+    if isinstance(policy, dict):
+        channel_id = str(policy.get("bound_channel_id", "") or "").strip()
+        thread_ts = str(policy.get("bound_thread_ts", "") or "").strip()
+        if channel_id:
+            return {"channel_id": channel_id, "thread_ts": thread_ts, "source": "delivery_policy"}
+    task_channel_id = str(payload.get("task_channel_id", "") or payload.get("channel_id", "")).strip()
+    task_thread_ts = str(payload.get("task_thread_ts", "") or payload.get("thread_ts", "")).strip()
+    if task_channel_id:
+        return {"channel_id": task_channel_id, "thread_ts": task_thread_ts, "source": "task_binding"}
+    return {}
+
+
+def _with_bound_slack_delivery_target(args: JsonObject, context: JsonObject) -> JsonObject:
+    surface = _bound_slack_delivery_surface(context)
+    channel_id = str(surface.get("channel_id", "") or "").strip()
+    thread_ts = str(surface.get("thread_ts", "") or "").strip()
+    if not channel_id:
+        return args
+    resolved = dict(args or {})
+    resolved["channel_id"] = channel_id
+    resolved["thread_ts"] = thread_ts
+    return resolved
+
+
 def _allowed_upload_roots(payload: JsonObject) -> list[Path]:
     roots: list[Path] = []
     for value in [
@@ -907,6 +933,8 @@ def _resolve_slack_report_attachment_payload(item: object, context: JsonObject) 
 
 
 def _resolve_native_action_args(canonical_name: str, args: JsonObject, context: JsonObject) -> JsonObject:
+    if canonical_name in {"rsi_slack.message_post", "rsi_slack.report_post", "rsi_slack.file_upload"}:
+        args = _with_bound_slack_delivery_target(args, context)
     if canonical_name == "rsi_slack.file_upload":
         return _strip_upload_context(_resolve_slack_upload_payload(_payload_with_upload_context(args, context)))
     if canonical_name == "rsi_slack.report_post":

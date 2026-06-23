@@ -6742,6 +6742,177 @@ class HermesRuntimeTests(unittest.TestCase):
         report_args = requests[1]["arguments"]
         self.assertEqual(base64.b64decode(report_args["images"][0]["content_base64"]), b"png-bytes")
 
+    def test_rsi_native_slack_delivery_uses_bound_thread_context(self) -> None:
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return json.dumps(
+                    {
+                        "ok": True,
+                        "action": {
+                            "id": "extact-1",
+                            "source_ref": "slack:CBOUND:171000001.000200",
+                            "response_summary": "posted report",
+                        },
+                        "output": {
+                            "channel_id": "CBOUND",
+                            "ts": "171000001.000200",
+                            "render_manifest": {
+                                "main_message": {
+                                    "channel_id": "CBOUND",
+                                    "thread_ts": "171000001.000100",
+                                    "source_ref": "slack:CBOUND:171000001.000200",
+                                    "ts": "171000001.000200",
+                                }
+                            },
+                        },
+                    }
+                ).encode("utf-8")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_NATIVE_TOOLS_EXECUTION_TOKEN": "execution-token",
+            },
+            clear=True,
+        ):
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            session_id = "sess-bound-slack"
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "execution_id": "exec-1",
+                        "operation_id": "op-1",
+                        "trace_id": "trace-1",
+                        "workflow_id": "wf-1",
+                        "channel_id": "CBOUND",
+                        "thread_ts": "171000001.000100",
+                        "delivery_policy": {
+                            "slack_delivery_scope": "bound_thread",
+                            "bound_channel_id": "CBOUND",
+                            "bound_thread_ts": "171000001.000100",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            requests: list[dict[str, object]] = []
+
+            def fake_urlopen(req, timeout):
+                requests.append(json.loads(req.data.decode("utf-8")))
+                return Response()
+
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                report_handler = namespace["_tool_handler"]("rsi_slack_report_post")
+                result = json.loads(
+                    report_handler(
+                        {
+                            "channel_id": "CWRONG",
+                            "thread_ts": "999999999.000100",
+                            "report_schema_version": 1,
+                            "summary": "Bound report",
+                            "reason": "post report",
+                            "idempotency_key": "bound-report",
+                        },
+                        task_id=session_id,
+                    )
+                )
+
+        self.assertEqual(result["status"], "ok")
+        sent_args = requests[0]["arguments"]
+        self.assertEqual(sent_args["channel_id"], "CBOUND")
+        self.assertEqual(sent_args["thread_ts"], "171000001.000100")
+        self.assertNotIn("requested_channel_id", sent_args)
+        self.assertNotIn("requested_thread_ts", sent_args)
+        self.assertEqual(result["reply_delivery"]["channel_id"], "CBOUND")
+        self.assertEqual(result["reply_delivery"]["thread_ts"], "171000001.000100")
+
+    def test_rsi_native_slack_delivery_clears_guessed_thread_when_bound_thread_missing(self) -> None:
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return json.dumps(
+                    {
+                        "ok": True,
+                        "action": {"id": "extact-1", "source_ref": "slack:CBOUND:171000001.000200"},
+                        "output": {"channel_id": "CBOUND", "ts": "171000001.000200"},
+                    }
+                ).encode("utf-8")
+
+        with tempfile.TemporaryDirectory() as hermes_home, mock.patch.dict(
+            os.environ,
+            {
+                "HERMES_HOME": hermes_home,
+                "RSI_CONTROL_PLANE_BASE_URL": "https://control.example.test",
+                "RSI_NATIVE_TOOLS_EXECUTION_TOKEN": "execution-token",
+            },
+            clear=True,
+        ):
+            context_dir = Path(hermes_home, "rsi_runtime", "context")
+            context_dir.mkdir(parents=True, exist_ok=True)
+            session_id = "sess-bound-slack-empty-thread"
+            context_dir.joinpath(f"{session_id}.json").write_text(
+                json.dumps(
+                    {
+                        "execution_id": "exec-1",
+                        "operation_id": "op-1",
+                        "trace_id": "trace-1",
+                        "workflow_id": "wf-1",
+                        "delivery_policy": {
+                            "slack_delivery_scope": "bound_thread",
+                            "bound_channel_id": "CBOUND",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            requests: list[dict[str, object]] = []
+
+            def fake_urlopen(req, timeout):
+                requests.append(json.loads(req.data.decode("utf-8")))
+                return Response()
+
+            namespace: dict[str, object] = {}
+            exec(_build_plugin_module(), namespace)
+            with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                message_handler = namespace["_tool_handler"]("rsi_slack_message_post")
+                result = json.loads(
+                    message_handler(
+                        {
+                            "channel_id": "CWRONG",
+                            "thread_ts": "999999999.000100",
+                            "text": "Bound message",
+                            "reason": "post message",
+                            "idempotency_key": "bound-message",
+                        },
+                        task_id=session_id,
+                    )
+                )
+
+        self.assertEqual(result["status"], "ok")
+        sent_args = requests[0]["arguments"]
+        self.assertEqual(sent_args["channel_id"], "CBOUND")
+        self.assertEqual(sent_args["thread_ts"], "")
+
     def test_native_worker_uses_aiagent_adapter_not_hermes_cli(self) -> None:
         source = Path(__file__).parents[1].joinpath("rsi_runner", "hermes_executor_worker.py").read_text(encoding="utf-8")
 
@@ -8648,6 +8819,9 @@ class HermesRuntimeTests(unittest.TestCase):
         required = set(message_post["parameters"]["required"])
         self.assertIn("reason", required)
         self.assertIn("idempotency_key", required)
+        self.assertEqual(message_post["parameters"]["properties"]["channel_id"]["type"], ["string", "null"])
+        file_upload = transport_tool_schema("rsi_slack.file_upload")
+        self.assertEqual(file_upload["parameters"]["properties"]["channel_id"]["type"], ["string", "null"])
         message_delete = transport_tool_schema("rsi_slack.message_delete")
         self.assertIn("confirm_destroy", set(message_delete["parameters"]["required"]))
 
@@ -8813,6 +8987,7 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertIn("tables", slack_report_post["parameters"]["properties"])
         self.assertIn("reason", slack_report_post["parameters"]["required"])
         self.assertIn("idempotency_key", slack_report_post["parameters"]["required"])
+        self.assertEqual(slack_report_post["parameters"]["properties"]["channel_id"]["type"], ["string", "null"])
         temporal_stop = transport_tool_schema("rsi_temporal.stop_workflow")
         self.assertEqual(temporal_stop["name"], "rsi_temporal_stop_workflow")
         self.assertIn("confirm", temporal_stop["parameters"]["properties"])
