@@ -37172,3 +37172,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ff85914ba5a009d4335ba6de5ca92569
 - summary: Urgent rotation of a GitHub personal access token used in the story-private-fork repository's GitHub Actions workflow on 2026-01-15.
 
+## [2026-06-23T10:17:15Z] synthesis | Cursor Bugbot Setup
+
+- status: published
+- slug: runbooks/cursor-bugbot-setup
+- wiki_revision_id: wikirev_227c3d77db8b2c939dedae39315202ea
+- summary: Enabling Cursor Bugbot on pull requests requires a Cursor organization account and GitHub admin permissions. The team lacks an org account and onboarding requires closing personal ...
+
+## [2026-06-23T10:19:38Z] synthesis | Cursor Bugbot Setup for subnet-worker-client
+
+- status: published
+- slug: decisions/cursor-bugbot-setup
+- wiki_revision_id: wikirev_b4e0c20b9a1bdefa837fc18005cd0d7a
+- summary: Process and decisions around enabling Cursor bugbot on GitHub PRs for the subnet-worker-client repo, addressing the requirement for a Cursor org account and workarounds via GitHub ...
+

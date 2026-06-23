@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "30732c8d2fc0e11ad4ce6788762310f2c47e9e03f58bdb31f7b3a1d9a99b0430",
-        "size": 1084458
+        "sha256": "3cffb954e2149e46846b289c75dbf83072828c2dc1097e3eb7ba9879b00964db",
+        "size": 1085206
       },
       {
         "path": "log.md",
-        "sha256": "9c719ec7526052cd7aa88d1940903222855348cc33752b18a80ce8021974a377",
-        "size": 1835650
+        "sha256": "e6fa47a9df5cf7d74fe78ff226caf923448b0fc09ce867c1e5436e16591409d1",
+        "size": 1836422
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4703,6 +4703,11 @@
         "path": "pages/decisions/core-vs-periphery-divisions.md",
         "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
+      },
+      {
+        "path": "pages/decisions/cursor-bugbot-setup.md",
+        "sha256": "3f7314347829c92ef3295c78fd9477d1f174ddcd3560a3043f518043a37e0a43",
+        "size": 4658
       },
       {
         "path": "pages/decisions/dangling-dns-cleanup-decision-2026-03.md",
@@ -7860,6 +7865,11 @@
         "size": 3408
       },
       {
+        "path": "pages/runbooks/cursor-bugbot-setup.md",
+        "sha256": "57df6d8523e74c53599c3bc3ce024d546b4ad10dbc57ea9cde0896eea48c0e6a",
+        "size": 3420
+      },
+      {
         "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
         "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
         "size": 1541
@@ -9544,8 +9554,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T10:03:43Z",
-  "file_count": 1907,
+  "exported_at": "2026-06-23T10:20:37Z",
+  "file_count": 1909,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12822,7 +12832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "039d1af3fd0d9cdd7c0ef00e0ff4b676d9b27b533679839a3eb2a6dbb0154b88",
+  "previous_tree_hash": "cb962d9db2f5ebd12997de5769cd15877f8dad78ac2bc5b83eeeba0fdaf74df1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12835,14 +12845,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cb962d9db2f5ebd12997de5769cd15877f8dad78ac2bc5b83eeeba0fdaf74df1",
+  "tree_hash": "a57e31fa4d582be38e46cbe9cb7a1dd466f99fb8bf2bcec28cf7ba6fdab34cfe",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1253,
+  "wiki_file_count": 1255,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12851,13 +12861,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "30732c8d2fc0e11ad4ce6788762310f2c47e9e03f58bdb31f7b3a1d9a99b0430",
-      "size": 1084458
+      "sha256": "3cffb954e2149e46846b289c75dbf83072828c2dc1097e3eb7ba9879b00964db",
+      "size": 1085206
     },
     {
       "path": "log.md",
-      "sha256": "9c719ec7526052cd7aa88d1940903222855348cc33752b18a80ce8021974a377",
-      "size": 1835650
+      "sha256": "e6fa47a9df5cf7d74fe78ff226caf923448b0fc09ce867c1e5436e16591409d1",
+      "size": 1836422
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14273,6 +14283,11 @@
       "path": "pages/decisions/core-vs-periphery-divisions.md",
       "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
+    },
+    {
+      "path": "pages/decisions/cursor-bugbot-setup.md",
+      "sha256": "3f7314347829c92ef3295c78fd9477d1f174ddcd3560a3043f518043a37e0a43",
+      "size": 4658
     },
     {
       "path": "pages/decisions/dangling-dns-cleanup-decision-2026-03.md",
@@ -17430,6 +17445,11 @@
       "size": 3408
     },
     {
+      "path": "pages/runbooks/cursor-bugbot-setup.md",
+      "sha256": "57df6d8523e74c53599c3bc3ce024d546b4ad10dbc57ea9cde0896eea48c0e6a",
+      "size": 3420
+    },
+    {
       "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
       "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
       "size": 1541
@@ -19111,5 +19131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e0e37a361e50f92fc49192e3e7038cd4e1c0cbddb7931c9561e32d2a529e6a9b"
+  "wiki_tree_hash": "b564a0b5c495297805d2132c79f0d395b657d9e06c950bb2ec837edb3c721d66"
 }
