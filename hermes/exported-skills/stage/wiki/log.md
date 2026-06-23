@@ -37088,3 +37088,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c7f560b99f82d17056b3afa6a4f3a733
 - summary: The TLS certificate for the Temporal instance staging-gcp.koyiy is expiring. U07TNT9N4JC, who only had write permissions, notified the team and was later granted admin access to ha...
 
+## [2026-06-23T08:31:58Z] synthesis | Story Staking API Private Fork Mainnet Deployment
+
+- status: published
+- slug: projects/story-staking-api-private-fork-mainnet-deployment
+- wiki_revision_id: wikirev_34c7e2030d6b0988178cdc53f57e6485
+- summary: Deployment of the story-staking-api-private-fork to mainnet, initially requested on 2026-01-13, to be performed with newly synced archive node. After a brief postponement, the depl...
+
+## [2026-06-23T08:32:38Z] synthesis | story-api: ERROR #23502 null created_at in notifications
+
+- status: published
+- slug: runbooks/story-api-null-created-at-notifications
+- wiki_revision_id: wikirev_16b4fdc9fe8ddc8763613038d3a1912d
+- summary: On 2026-02-26, story-api encountered a PostgreSQL not-null constraint violation (error #23502) when inserting into the notifications table with a null created_at value.
+
