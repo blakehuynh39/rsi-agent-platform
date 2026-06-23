@@ -37067,3 +37067,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_36338d74f8ab760a3b98fb54dbf94b12
 - summary: Decision to use the Korean AWS region (ap-northeast-2) for the mainnet global site, superseding the initial plan to use Tokyo and Frankfurt, driven by company strategy to support K...
 
+## [2026-06-23T07:48:36Z] synthesis | Temporal Certificate Renewal Runbook
+
+- status: published
+- slug: runbooks/temporal-certificate-renewal-runbook
+- wiki_revision_id: wikirev_bb5c13509a37192d0af02b746823b1df
+- summary: Runbook for handling Temporal certificate expiry, including notification, permission escalation, and renewal.
+

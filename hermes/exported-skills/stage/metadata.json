@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d8d07f453bb1e35584fc8c1b6362f6ecdd12b56791b826b62d690ef210493cd0",
-        "size": 1078657
+        "sha256": "feb6fab096fb4c7a940eded43e0a808b27d6ee0750aef9ed76bf0f095c92bd4a",
+        "size": 1078978
       },
       {
         "path": "log.md",
-        "sha256": "024d81158d486489f9c287af00856e0946bde153503d71d482c6e90958d42fef",
-        "size": 1829669
+        "sha256": "bfabc5c6a93c3f9d84ed07dfe7e1e83fc0263c3850666a80736bf0b82ac17849",
+        "size": 1830002
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8460,6 +8460,11 @@
         "size": 3890
       },
       {
+        "path": "pages/runbooks/temporal-certificate-renewal-runbook.md",
+        "sha256": "4d597a2f6fe6b91fcda7e6fddb84592180a42e7a87571e1d62963e145c5ee36e",
+        "size": 3347
+      },
+      {
         "path": "pages/runbooks/testnet-faucet-issues.md",
         "sha256": "0a989191ded3f21448b9ceedf4a3992595f1e873c4e8de2a65256aa04c1b1454",
         "size": 4251
@@ -9469,8 +9474,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T07:24:26Z",
-  "file_count": 1892,
+  "exported_at": "2026-06-23T07:51:24Z",
+  "file_count": 1893,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12747,7 +12752,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8d6ff4722120551df387d15ae116bd97b3c8d7c0d5fe2dcc143461bf1ed3fb86",
+  "previous_tree_hash": "b8e75cf9e307ff8a4d7fc7487b788acd29b76d622944aa202f3e75a3c300e088",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12760,14 +12765,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b8e75cf9e307ff8a4d7fc7487b788acd29b76d622944aa202f3e75a3c300e088",
+  "tree_hash": "0149e696b14c589b29f27dcea1d2f207c7a893b21a155722dd984f29babbc002",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1238,
+  "wiki_file_count": 1239,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12776,13 +12781,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d8d07f453bb1e35584fc8c1b6362f6ecdd12b56791b826b62d690ef210493cd0",
-      "size": 1078657
+      "sha256": "feb6fab096fb4c7a940eded43e0a808b27d6ee0750aef9ed76bf0f095c92bd4a",
+      "size": 1078978
     },
     {
       "path": "log.md",
-      "sha256": "024d81158d486489f9c287af00856e0946bde153503d71d482c6e90958d42fef",
-      "size": 1829669
+      "sha256": "bfabc5c6a93c3f9d84ed07dfe7e1e83fc0263c3850666a80736bf0b82ac17849",
+      "size": 1830002
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17955,6 +17960,11 @@
       "size": 3890
     },
     {
+      "path": "pages/runbooks/temporal-certificate-renewal-runbook.md",
+      "sha256": "4d597a2f6fe6b91fcda7e6fddb84592180a42e7a87571e1d62963e145c5ee36e",
+      "size": 3347
+    },
+    {
       "path": "pages/runbooks/testnet-faucet-issues.md",
       "sha256": "0a989191ded3f21448b9ceedf4a3992595f1e873c4e8de2a65256aa04c1b1454",
       "size": 4251
@@ -18961,5 +18971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "46a8b41bb1a5845f002a1498d90bf57d06cea57230f3d7094e0dcec19aa75556"
+  "wiki_tree_hash": "db12570983a77b9206b16278ccdc679db4fc70df715f22d39a67b2ed68892134"
 }
