@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f907b84d26a2535e8cbbc0b1ab5009f5dc141cebb0494d8786fd5f5f3103c88f",
-        "size": 1069281
+        "sha256": "cd00e4b43ae1e8f75493058776d03058cdb203c5694ee0ad73e322fecc231b0b",
+        "size": 1070073
       },
       {
         "path": "log.md",
-        "sha256": "1e97187139494769acd4e8e619f575affd46c06063782416a00c8c470496ae5d",
-        "size": 1819065
+        "sha256": "5f6093204446b8f2d5e83cd14ee33b09be7587c458a32f70f55f03fdfa6ea8c7",
+        "size": 1819481
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4838,6 +4838,11 @@
         "path": "pages/decisions/ip-token-funding-decision-april-2026.md",
         "sha256": "f8248f4a43fff0e9597bba8e33e6846c8e4fc7842a534236aa77d359ca30a481",
         "size": 4474
+      },
+      {
+        "path": "pages/decisions/ip-whitelisting-internal-rpc-endpoints.md",
+        "sha256": "fcf6ed53740616a14b82ad1cdec01e6ca1b921ea38aab5077dc1dacb5b3ef492",
+        "size": 6576
       },
       {
         "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
@@ -9339,8 +9344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T02:34:48Z",
-  "file_count": 1866,
+  "exported_at": "2026-06-23T02:41:22Z",
+  "file_count": 1867,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12617,7 +12622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "8a17e7c36f3c9e4e8302066116561df6e110c0c6afcde7612df11dc64eaa7b21",
+  "previous_tree_hash": "f51f9bb642156fed71aeddf70ae1ac42504e38d42bd908d325ae2bb7c70997ad",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12630,14 +12635,14 @@
   ],
   "skill_tree_hash": "78f6e720812ea2ce86c0fd8541cfd985f05407d58cb6172023949f19b7ffc040",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f51f9bb642156fed71aeddf70ae1ac42504e38d42bd908d325ae2bb7c70997ad",
+  "tree_hash": "44ca3c651a40ce60a1fc7f63dadf17503b69c064a1e9772333393400073d2c32",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1212,
+  "wiki_file_count": 1213,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12646,13 +12651,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f907b84d26a2535e8cbbc0b1ab5009f5dc141cebb0494d8786fd5f5f3103c88f",
-      "size": 1069281
+      "sha256": "cd00e4b43ae1e8f75493058776d03058cdb203c5694ee0ad73e322fecc231b0b",
+      "size": 1070073
     },
     {
       "path": "log.md",
-      "sha256": "1e97187139494769acd4e8e619f575affd46c06063782416a00c8c470496ae5d",
-      "size": 1819065
+      "sha256": "5f6093204446b8f2d5e83cd14ee33b09be7587c458a32f70f55f03fdfa6ea8c7",
+      "size": 1819481
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14203,6 +14208,11 @@
       "path": "pages/decisions/ip-token-funding-decision-april-2026.md",
       "sha256": "f8248f4a43fff0e9597bba8e33e6846c8e4fc7842a534236aa77d359ca30a481",
       "size": 4474
+    },
+    {
+      "path": "pages/decisions/ip-whitelisting-internal-rpc-endpoints.md",
+      "sha256": "fcf6ed53740616a14b82ad1cdec01e6ca1b921ea38aab5077dc1dacb5b3ef492",
+      "size": 6576
     },
     {
       "path": "pages/decisions/ipa-off-chain-metadata-standard-proposal.md",
@@ -18701,5 +18711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8c97e8673c18d1658eb03169e91c1f838bc1c9e68e3e4b7efd7028e01022b605"
+  "wiki_tree_hash": "091bbb036359e33707c660b6a6c62369b7d1c6f5286a5c621f62c923f34afaa9"
 }

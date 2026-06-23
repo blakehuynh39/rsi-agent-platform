@@ -36862,3 +36862,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5b0f1eef7e501d94cd1c71c1ad4a33ce
 - summary: Process and decisions around whitelisting NAT gateway IP addresses for accessing internal RPC endpoints for IP registration load testing on testnet (aeneid) and mainnet (poseidon).
 
+## [2026-06-23T02:36:50Z] synthesis | IP Whitelisting for Internal RPC Endpoints
+
+- status: published
+- slug: decisions/ip-whitelisting-internal-rpc-endpoints
+- wiki_revision_id: wikirev_0c64ce63e9d25c2626f823985a35337d
+- summary: Whitelisting of three NAT gateway IPs (3.224.178.198, 34.225.11.164, 34.206.178.84) for accessing the internal RPC endpoints (testnet and mainnet) to handle high QPS for IP registr...
+
