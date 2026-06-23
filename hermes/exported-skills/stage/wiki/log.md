@@ -36995,3 +36995,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c50560cdb388fed035ccb42a80aaa2a1
 - summary: PR #108 in piplabs/cloudflare, intended to configure a domain for devnet on AWS, was approved by U07TNT9N4JC. The approver could not verify the ACM certificate request in AWS ACM.
 
+## [2026-06-23T05:47:09Z] synthesis | Mainnet AWS ACM PR #110 Review
+
+- status: published
+- slug: decisions/mainnet-aws-acm-pr-110-review
+- wiki_revision_id: wikirev_5f9af24dd2302ca7076495c254049f67
+- summary: Review of pull request #110 for Mainnet AWS ACM on the cloudflare repository. The change was approved by two reviewers and does not affect current mainnet RPC usage.
+
+## [2026-06-23T05:48:16Z] synthesis | Mainnet AWS ACM PR #110 Review
+
+- status: published
+- slug: decisions/mainnet-aws-acm-pr-110
+- wiki_revision_id: wikirev_7cca21470f22a757f9d2e79725a47695
+- summary: Tracks the review and approval of pull request #110 in the piplabs/cloudflare repository, which introduces AWS Certificate Manager changes for the Mainnet environment. The PR was r...
+
