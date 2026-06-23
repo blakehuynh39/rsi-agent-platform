@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "16a403dce8d57a884695f5a9be47a83410d764a740484f8c1633c0c4a25cbdb4",
-        "size": 1090496
+        "sha256": "4cb5385ef4e0318b85e8a48e7e26a5cef87808da8efb24b3b0c783f8afff4b18",
+        "size": 1090896
       },
       {
         "path": "log.md",
-        "sha256": "2733b67e17472cdca8ee0c1086c46d1d7dac6d51c6c4811713e672f2499064ca",
-        "size": 1842612
+        "sha256": "38eafbb95f26781147ddb163512ae40b1997c3027b82f867dc8820200c701741",
+        "size": 1843023
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3403,6 +3403,11 @@
         "path": "pages/concepts/carousel-data-shape.md",
         "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
         "size": 1410
+      },
+      {
+        "path": "pages/concepts/cdr-bootnode-recovery-2026.md",
+        "sha256": "f28e9b19555a16a57d533e072d8104ebb41751bc9b95bcaaacf003bb81170ef0",
+        "size": 6120
       },
       {
         "path": "pages/concepts/ceramic.md",
@@ -9629,8 +9634,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T13:38:51Z",
-  "file_count": 1924,
+  "exported_at": "2026-06-23T13:55:42Z",
+  "file_count": 1925,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12907,7 +12912,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "441c5f923aeb427227b5ee35911d2b501469d974a07868c6465abf6cabdd5726",
+  "previous_tree_hash": "14095e9821a3f17901754e046601d034ed593e99d947ce346e4079cfda71c1ca",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12920,14 +12925,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "14095e9821a3f17901754e046601d034ed593e99d947ce346e4079cfda71c1ca",
+  "tree_hash": "9740588db1c08a5a6fb5418c6804cecd374ce4fe3e359b13dc741e2ed75a33b5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1270,
+  "wiki_file_count": 1271,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12936,13 +12941,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "16a403dce8d57a884695f5a9be47a83410d764a740484f8c1633c0c4a25cbdb4",
-      "size": 1090496
+      "sha256": "4cb5385ef4e0318b85e8a48e7e26a5cef87808da8efb24b3b0c783f8afff4b18",
+      "size": 1090896
     },
     {
       "path": "log.md",
-      "sha256": "2733b67e17472cdca8ee0c1086c46d1d7dac6d51c6c4811713e672f2499064ca",
-      "size": 1842612
+      "sha256": "38eafbb95f26781147ddb163512ae40b1997c3027b82f867dc8820200c701741",
+      "size": 1843023
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13058,6 +13063,11 @@
       "path": "pages/concepts/carousel-data-shape.md",
       "sha256": "94db66bff6679f6b6e6d726a1e29451628ce29bed0e21ad965e537ace8971c88",
       "size": 1410
+    },
+    {
+      "path": "pages/concepts/cdr-bootnode-recovery-2026.md",
+      "sha256": "f28e9b19555a16a57d533e072d8104ebb41751bc9b95bcaaacf003bb81170ef0",
+      "size": 6120
     },
     {
       "path": "pages/concepts/ceramic.md",
@@ -19281,5 +19291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "58315b7eaa725a47198897a02cfc2185677a3e208311494cbc595b131bd37244"
+  "wiki_tree_hash": "0b92b457b7b9320a1152a9ba7f150ab60094a2405be17dfe00daa4f5034482ba"
 }

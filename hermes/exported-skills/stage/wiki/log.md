@@ -37305,3 +37305,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9cd42367dd316c155a1a7eee9ed231f3
 - summary: The CDR bootnode became inaccessible after its AWS account was closed. Account recovery restored the bootnode in the story-services-staging account, the IP changed to 54.153.69.163...
 
+## [2026-06-23T13:52:15Z] synthesis | CDR Bootnode Account Closure Recovery (2026-01-20)
+
+- status: published
+- slug: concepts/cdr-bootnode-recovery-2026
+- wiki_revision_id: wikirev_414aec342fff4914d35c92c4f794814d
+- summary: The CDR bootnode became inaccessible after an AWS account was mistakenly closed. The account was identified as story-services-staging after checking story-prod and story-services-p...
+
