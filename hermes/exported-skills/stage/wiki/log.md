@@ -37242,3 +37242,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_95de830b98460bd536e30f279f040c80
 - summary: Question about existence of a backend API to list all addresses holding RTs for a given ipId / IpRoyaltyVault. Responder indicated they don't think such an API exists.
 
+## [2026-06-23T12:01:52Z] synthesis | PR #112: Devnet Migration
+
+- status: published
+- slug: decisions/pr-112-devnet-migration
+- wiki_revision_id: wikirev_d86df302280e52fb6ad4d80e1152390a
+- summary: Review and merge decision for Devnet Migration pull request #112.
+
+## [2026-06-23T12:03:06Z] synthesis | Devnet Migration PR #112
+
+- status: published
+- slug: projects/devnet-migration-pr-112
+- wiki_revision_id: wikirev_9124dc93878454e9e26e53088a60fbb5
+- summary: Migration of devnet environment, handled via Pull Request #112 in piplabs/cloudflare.
+

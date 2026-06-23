@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e9175ec632b4647d2e81f52695debb3df3b0678462e858afc9e26730b4529371",
-        "size": 1087771
+        "sha256": "19ccc92e6eaced8555c547701db22e7423b202be5883cce4e6879d6c92b376c0",
+        "size": 1088297
       },
       {
         "path": "log.md",
-        "sha256": "1e792a715daa60428ec71a7decf9b18c52731c15673221c114d6f565199051ef",
-        "size": 1839444
+        "sha256": "ef292d6a3b5fde6b3ba6476eebec34c6074093466465cb7a70125f3d386298f7",
+        "size": 1839994
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5185,6 +5185,11 @@
         "size": 3705
       },
       {
+        "path": "pages/decisions/pr-112-devnet-migration.md",
+        "sha256": "8decff20d732c24410ae8354ee413f6c82d449a3ec54e07547d76b782db71bbb",
+        "size": 1489
+      },
+      {
         "path": "pages/decisions/pr-mainnet-aws-acm-110.md",
         "sha256": "95e5a99f6f97a31f3dbb99537c6bb5f64a1327bb1a20b8343f44c2df57c16c62",
         "size": 3357
@@ -6318,6 +6323,11 @@
         "path": "pages/projects/deploy-story-staking-api-private-fork-mainnet.md",
         "sha256": "5aa315e7a260f94ca9124c01f3305e88b24e02c2d2c5c7d55d3a6a34c946737c",
         "size": 4531
+      },
+      {
+        "path": "pages/projects/devnet-migration-pr-112.md",
+        "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
+        "size": 1964
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -9589,8 +9599,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T11:47:45Z",
-  "file_count": 1916,
+  "exported_at": "2026-06-23T12:04:33Z",
+  "file_count": 1918,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12867,7 +12877,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1116f62950bdb053693c5be9f49ffbf6ccd96db83dc03121de69de9ff92a5584",
+  "previous_tree_hash": "d50a57528d0f29a7d7d5439c50d6f11ad3875ac4aeba3a74913b2f4a70eda37c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12880,14 +12890,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d50a57528d0f29a7d7d5439c50d6f11ad3875ac4aeba3a74913b2f4a70eda37c",
+  "tree_hash": "15621a19ca21a5991eb8d79534f2054a98f747efd4e546796217d7f87cfe9fb7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1262,
+  "wiki_file_count": 1264,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12896,13 +12906,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e9175ec632b4647d2e81f52695debb3df3b0678462e858afc9e26730b4529371",
-      "size": 1087771
+      "sha256": "19ccc92e6eaced8555c547701db22e7423b202be5883cce4e6879d6c92b376c0",
+      "size": 1088297
     },
     {
       "path": "log.md",
-      "sha256": "1e792a715daa60428ec71a7decf9b18c52731c15673221c114d6f565199051ef",
-      "size": 1839444
+      "sha256": "ef292d6a3b5fde6b3ba6476eebec34c6074093466465cb7a70125f3d386298f7",
+      "size": 1839994
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14800,6 +14810,11 @@
       "size": 3705
     },
     {
+      "path": "pages/decisions/pr-112-devnet-migration.md",
+      "sha256": "8decff20d732c24410ae8354ee413f6c82d449a3ec54e07547d76b782db71bbb",
+      "size": 1489
+    },
+    {
       "path": "pages/decisions/pr-mainnet-aws-acm-110.md",
       "sha256": "95e5a99f6f97a31f3dbb99537c6bb5f64a1327bb1a20b8343f44c2df57c16c62",
       "size": 3357
@@ -15933,6 +15948,11 @@
       "path": "pages/projects/deploy-story-staking-api-private-fork-mainnet.md",
       "sha256": "5aa315e7a260f94ca9124c01f3305e88b24e02c2d2c5c7d55d3a6a34c946737c",
       "size": 4531
+    },
+    {
+      "path": "pages/projects/devnet-migration-pr-112.md",
+      "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
+      "size": 1964
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -19201,5 +19221,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ce3f9489b51a3ef5789b65e9d2da191ba0f618020095eeb5b6be028bd45b5f65"
+  "wiki_tree_hash": "b090d40ad86693085f9a4a691299fc1e96df60f6e9d1fcaccde600a5e6424280"
 }
