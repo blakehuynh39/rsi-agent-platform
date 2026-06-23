@@ -37489,3 +37489,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2a92159ad9bad625de1fe956bb9d588f
 - summary: Yao Wang requires SSM start-session access to launch and connect to EC2 instances in the AWS devnet account for full sync testing. Current permissions are insufficient, leading to ...
 
+## [2026-06-23T19:48:06Z] synthesis | story-devnet-aws Repository and Devnet Migration
+
+- status: published
+- slug: projects/story-devnet-aws-devnet-migration
+- wiki_revision_id: wikirev_b742f6086018341f672646f37e8e7f71
+- summary: Project to migrate Story Protocol devnet from GCP to AWS using the story-devnet-aws repository. Includes provisioning code based on previous internal devnet setup, genesis script h...
+
