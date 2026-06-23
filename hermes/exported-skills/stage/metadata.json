@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "41a0e56c9c278540ff7b3662944cefcf4e895840d9c689f38fa5e3638fce1597",
-        "size": 1091319
+        "sha256": "a4198a23e66af5c6e91a521cffdd975d6beb0373bcea7698b6d1de30356ffc06",
+        "size": 1091620
       },
       {
         "path": "log.md",
-        "sha256": "bed7055617c546a21949bb3c58561231d46b68cc1a3f2eda3b3ada7e76fa2e9a",
-        "size": 1843457
+        "sha256": "49ade1e10c2d855a997b910ea9c1677d20daff6cdfe1b94c9fc37b90e4a97103",
+        "size": 1843769
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6193,6 +6193,11 @@
         "path": "pages/projects/cdr-bootnode-migration.md",
         "sha256": "96312a2989937c78e36ad7db1a2e784fd59f060e3f1e7fbcff6521d52065af42",
         "size": 5131
+      },
+      {
+        "path": "pages/projects/cdr-bootnode-recovery-and-migration.md",
+        "sha256": "38c1f75dcc437ba091a44191f51c31cd8a7a73ccaa32c0ab50c338fc47faf764",
+        "size": 6655
       },
       {
         "path": "pages/projects/chime-9-cmu-collaboration.md",
@@ -9639,8 +9644,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T14:07:26Z",
-  "file_count": 1926,
+  "exported_at": "2026-06-23T14:24:30Z",
+  "file_count": 1927,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12917,7 +12922,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "9740588db1c08a5a6fb5418c6804cecd374ce4fe3e359b13dc741e2ed75a33b5",
+  "previous_tree_hash": "6b946c32955e807086e954bc5e9fa02af8f716f7a145f2d356def302bf1ba61c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12930,14 +12935,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6b946c32955e807086e954bc5e9fa02af8f716f7a145f2d356def302bf1ba61c",
+  "tree_hash": "b70f9298e9664d8dd9ee14643e9b1797770b8e6a867d305bd61d67271ad70882",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1272,
+  "wiki_file_count": 1273,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12946,13 +12951,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "41a0e56c9c278540ff7b3662944cefcf4e895840d9c689f38fa5e3638fce1597",
-      "size": 1091319
+      "sha256": "a4198a23e66af5c6e91a521cffdd975d6beb0373bcea7698b6d1de30356ffc06",
+      "size": 1091620
     },
     {
       "path": "log.md",
-      "sha256": "bed7055617c546a21949bb3c58561231d46b68cc1a3f2eda3b3ada7e76fa2e9a",
-      "size": 1843457
+      "sha256": "49ade1e10c2d855a997b910ea9c1677d20daff6cdfe1b94c9fc37b90e4a97103",
+      "size": 1843769
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15858,6 +15863,11 @@
       "path": "pages/projects/cdr-bootnode-migration.md",
       "sha256": "96312a2989937c78e36ad7db1a2e784fd59f060e3f1e7fbcff6521d52065af42",
       "size": 5131
+    },
+    {
+      "path": "pages/projects/cdr-bootnode-recovery-and-migration.md",
+      "sha256": "38c1f75dcc437ba091a44191f51c31cd8a7a73ccaa32c0ab50c338fc47faf764",
+      "size": 6655
     },
     {
       "path": "pages/projects/chime-9-cmu-collaboration.md",
@@ -19301,5 +19311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "57545df6b4dd52f1b620f73dd78557fa80e26714f51db4ab1c8f64a40108d02b"
+  "wiki_tree_hash": "77888bf7d5d606aa3c890ca4bd1254a4be29cb82b007391fd806fc8f16e82ed7"
 }
