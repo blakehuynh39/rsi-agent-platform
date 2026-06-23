@@ -37403,3 +37403,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c174214191f6ff2faad863848b1e21aa
 - summary: Migration of Story devnet from GCP to AWS, involving a new provisioning repo, genesis scripts, account permissions, and domain updates.
 
+## [2026-06-23T17:48:12Z] synthesis | Data Audit Scoped Groups SQS Queue Missing Incident
+
+- status: published
+- slug: runbooks/data-audit-scoped-groups-sqs-queue-incident
+- wiki_revision_id: wikirev_d1070731d27bbf9309f0ddf699c31516
+- summary: A 503 error occurred on POST /api/v1/data-audit/scoped-groups due to a non-existent SQS queue; resolved by Blake Huynh via Sentry issue STORY-API-EG.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cab465df15f01f9df12b26055faf37268815d9c27045f01107cd9d96bb4db87a",
-        "size": 1094684
+        "sha256": "4f430d164a20e1cec104b660a92b722f0d15c1c44a8296b4ba50025e8b020ca6",
+        "size": 1095067
       },
       {
         "path": "log.md",
-        "sha256": "f4d8e6987b70b3269b81b80a27959332f4a3212634af75f50ce2c8834a491421",
-        "size": 1847911
+        "sha256": "78af0dbde00e3229150597929b1e8aaece9161ed4bbcf19058dfb3f4d24b1558",
+        "size": 1848306
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7970,6 +7970,11 @@
         "size": 4510
       },
       {
+        "path": "pages/runbooks/data-audit-scoped-groups-sqs-queue-incident.md",
+        "sha256": "2605a26e427ca35eca3d05fcab4ad53deb6684dd03920c85eb10afd40320aac3",
+        "size": 1669
+      },
+      {
         "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
         "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
         "size": 1541
@@ -9684,8 +9689,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T17:25:55Z",
-  "file_count": 1935,
+  "exported_at": "2026-06-23T17:52:56Z",
+  "file_count": 1936,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12962,7 +12967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0110d16768b696c4c8744b9ab903c4f7f999892558f4fa95e95b9062d7322bfe",
+  "previous_tree_hash": "01e734bbd6cdd52cb2266bc5671e3baf6045520c095e24f5cf069b3772671275",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12975,14 +12980,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "01e734bbd6cdd52cb2266bc5671e3baf6045520c095e24f5cf069b3772671275",
+  "tree_hash": "81d88de16ad506c894e5d2c71df413cf39631fc4873b061575b9224ceae65156",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1281,
+  "wiki_file_count": 1282,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12991,13 +12996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cab465df15f01f9df12b26055faf37268815d9c27045f01107cd9d96bb4db87a",
-      "size": 1094684
+      "sha256": "4f430d164a20e1cec104b660a92b722f0d15c1c44a8296b4ba50025e8b020ca6",
+      "size": 1095067
     },
     {
       "path": "log.md",
-      "sha256": "f4d8e6987b70b3269b81b80a27959332f4a3212634af75f50ce2c8834a491421",
-      "size": 1847911
+      "sha256": "78af0dbde00e3229150597929b1e8aaece9161ed4bbcf19058dfb3f4d24b1558",
+      "size": 1848306
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17680,6 +17685,11 @@
       "size": 4510
     },
     {
+      "path": "pages/runbooks/data-audit-scoped-groups-sqs-queue-incident.md",
+      "sha256": "2605a26e427ca35eca3d05fcab4ad53deb6684dd03920c85eb10afd40320aac3",
+      "size": 1669
+    },
+    {
       "path": "pages/runbooks/data-audit-store-not-configured-503-error.md",
       "sha256": "e3a26d9c91d609d6b5dca48688793598b082806aa0c664bbd261aeb0ef56170b",
       "size": 1541
@@ -19391,5 +19401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cb6746d84811f4997a8af7edd908457f430b65d70095611372db671f72ee7733"
+  "wiki_tree_hash": "fc11e6004cd1118d5cedd8bc8aaf03dbe8ab80bb6da9a5c0ef7144a2c7c50295"
 }
