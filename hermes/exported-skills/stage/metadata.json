@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4a80fd95aeb02a23d9ebbeb02c6c17099372bc2ca191d93a379ccbc45cd43ee7",
-        "size": 1845040
+        "sha256": "b829a251eec16ed5642309d0d64bc79971a0a7976af22e4952fe65ad64e2dc7f",
+        "size": 1845474
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3368,6 +3368,11 @@
         "path": "pages/concepts/audit-event.md",
         "sha256": "0b1ebfc64c7d0ee52f138793886a6c9dcf20bf8914c5c77796a3e29f2cd1db27",
         "size": 6833
+      },
+      {
+        "path": "pages/concepts/aws-account-recovery-cdr-bootnode-migration.md",
+        "sha256": "93d2ff0472fa204f715e3003d48e8e47c48b4a32f75f80f235c156835447076a",
+        "size": 5623
       },
       {
         "path": "pages/concepts/beta-protocol-interface.md",
@@ -9659,8 +9664,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T15:06:14Z",
-  "file_count": 1930,
+  "exported_at": "2026-06-23T15:17:56Z",
+  "file_count": 1931,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12937,7 +12942,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "4390b8e00ffd1e804df77834ffd2ae9b680f9891bba9eda47bebd5a04af2c499",
+  "previous_tree_hash": "df83e5fcc0515cf0aa731c60dd5c1ad9d3d82ff2402cc6e81f970edf038eed0d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12950,14 +12955,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "df83e5fcc0515cf0aa731c60dd5c1ad9d3d82ff2402cc6e81f970edf038eed0d",
+  "tree_hash": "96dbb64f2d55323523f042ffea0d9e40661e6b4179eb670dc2b4716ea7287981",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1276,
+  "wiki_file_count": 1277,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12971,8 +12976,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4a80fd95aeb02a23d9ebbeb02c6c17099372bc2ca191d93a379ccbc45cd43ee7",
-      "size": 1845040
+      "sha256": "b829a251eec16ed5642309d0d64bc79971a0a7976af22e4952fe65ad64e2dc7f",
+      "size": 1845474
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13053,6 +13058,11 @@
       "path": "pages/concepts/audit-event.md",
       "sha256": "0b1ebfc64c7d0ee52f138793886a6c9dcf20bf8914c5c77796a3e29f2cd1db27",
       "size": 6833
+    },
+    {
+      "path": "pages/concepts/aws-account-recovery-cdr-bootnode-migration.md",
+      "sha256": "93d2ff0472fa204f715e3003d48e8e47c48b4a32f75f80f235c156835447076a",
+      "size": 5623
     },
     {
       "path": "pages/concepts/beta-protocol-interface.md",
@@ -19341,5 +19351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f35b7ef9c44fff00d8a91ed9d371dccb414d80ae71746064d430ec14f7e1e539"
+  "wiki_tree_hash": "d7e71f012858d9a8116355c4c38e2c311b9523f011c5a7c2ec6316aad2d8d151"
 }

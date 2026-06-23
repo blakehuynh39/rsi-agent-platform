@@ -37347,3 +37347,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cc35d706890edcd9a7b0315792b8eeab
 - summary: Migrate the CDR bootnode from an AWS staging account to a company Azure subscription. The project involves recovering a closed AWS account where the bootnode was originally created...
 
+## [2026-06-23T15:17:06Z] synthesis | AWS Account Recovery and CDR Bootnode Migration to Azure
+
+- status: published
+- slug: concepts/aws-account-recovery-cdr-bootnode-migration
+- wiki_revision_id: wikirev_8b2fc7ca665b5724fd6b07170e9aa04e
+- summary: In January 2026, a closed AWS account caused loss of access to the CDR bootnode. The account was restored, the bootnode was located in story-services-staging, and plans were made t...
+
