@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4f43b6286955fe662cc1cf80902473daab00c1ed7f4cb7afdb3c460d7969fd19",
-        "size": 1064879
+        "sha256": "cd73bcaa04b2c0dc7e5dc09d2e61181acf2532871b9d9238fabdd0c986818ee5",
+        "size": 1065138
       },
       {
         "path": "log.md",
-        "sha256": "d39459d7292d115d5c693eca28351f2d5daa0871902f2063860ef2f7ac9afde6",
-        "size": 1813997
+        "sha256": "b7324e2276b4521de1d10a29adc96f6c2b63df82d0e70c489fdf601d375751cf",
+        "size": 1814268
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5628,6 +5628,11 @@
         "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
         "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
         "size": 1054
+      },
+      {
+        "path": "pages/people/user-u07klpn0jn6.md",
+        "sha256": "d5436ae9b960da9542f508559bd040a48f55c211c9c62f6a1960474a3c697ddc",
+        "size": 1328
       },
       {
         "path": "pages/policies/access-request-policy.md",
@@ -9279,8 +9284,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T00:49:55Z",
-  "file_count": 1854,
+  "exported_at": "2026-06-23T01:06:39Z",
+  "file_count": 1855,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12557,7 +12562,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "82260d1b028081377db64aa8c63cdcddd7e032603aa934cd6f547c08bb11b1c5",
+  "previous_tree_hash": "de8a1e3432e52928c7c862708f06eb321bf74eba38ddfa7aec8270069066ad7c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12570,14 +12575,14 @@
   ],
   "skill_tree_hash": "78f6e720812ea2ce86c0fd8541cfd985f05407d58cb6172023949f19b7ffc040",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "de8a1e3432e52928c7c862708f06eb321bf74eba38ddfa7aec8270069066ad7c",
+  "tree_hash": "dce1eb9ff29603a938334f9051defdd70e9bc3a85a6d30bf720df38109414420",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1200,
+  "wiki_file_count": 1201,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12586,13 +12591,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4f43b6286955fe662cc1cf80902473daab00c1ed7f4cb7afdb3c460d7969fd19",
-      "size": 1064879
+      "sha256": "cd73bcaa04b2c0dc7e5dc09d2e61181acf2532871b9d9238fabdd0c986818ee5",
+      "size": 1065138
     },
     {
       "path": "log.md",
-      "sha256": "d39459d7292d115d5c693eca28351f2d5daa0871902f2063860ef2f7ac9afde6",
-      "size": 1813997
+      "sha256": "b7324e2276b4521de1d10a29adc96f6c2b63df82d0e70c489fdf601d375751cf",
+      "size": 1814268
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14933,6 +14938,11 @@
       "path": "pages/people/user-23c5af38-bb1d-4cf4-a648-30b3fc135001.md",
       "sha256": "e9765210f21c6633f8abe7b8d2abb3051abf40e6e98dee2e4c209d26a413a4e3",
       "size": 1054
+    },
+    {
+      "path": "pages/people/user-u07klpn0jn6.md",
+      "sha256": "d5436ae9b960da9542f508559bd040a48f55c211c9c62f6a1960474a3c697ddc",
+      "size": 1328
     },
     {
       "path": "pages/policies/access-request-policy.md",
@@ -18581,5 +18591,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ba39f61a81d15023ea54f0d205216ef47c5adafe395a5e798f8721ceff3f7ece"
+  "wiki_tree_hash": "4c74bcc476fae992d1e7bcc3de01c96ff7e2bbbe9f92d213c375a72892faa882"
 }
