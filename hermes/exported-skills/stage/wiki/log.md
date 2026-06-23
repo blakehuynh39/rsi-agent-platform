@@ -37193,3 +37193,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d6d22c8e1e56741fd00b171309748f5c
 - summary: Requirements and process for setting up Cursor bugbot on GitHub pull requests for the subnet-worker-client repository.
 
+## [2026-06-23T10:46:51Z] synthesis | Cursor Bugbot Setup
+
+- status: published
+- slug: projects/cursor-bugbot-setup
+- wiki_revision_id: wikirev_d6d73feb30166ee678661e5a916bdaca
+- summary: Setting up Cursor bugbot to run on PRs for the subnet-worker-client repository, requiring org account and GitHub admin permissions. Attempted without org account.
+
+## [2026-06-23T10:47:56Z] synthesis | Cursor Bugbot Setup for subnet-worker-client
+
+- status: published
+- slug: decisions/cursor-bugbot-setup-subnet-worker-client
+- wiki_revision_id: wikirev_4ca47ecf942f04b198b5b185e1eef711
+- summary: Decision and log of setting up Cursor Bugbot on the subnet-worker-client GitHub repository to run on pull requests. Required an org account, which was not available, so a GitHub ad...
+

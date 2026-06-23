@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "20bf920a4591edb9c3bb6eacc41dd94bc730f448a2c52b3c87952389294230f5",
-        "size": 1085501
+        "sha256": "2d3cc6250047bbc580311171704b751c158034a601aec8e7138368268f22623b",
+        "size": 1086249
       },
       {
         "path": "log.md",
-        "sha256": "4e72ec2c20bf3e760496342bc124698a5e8af860bcb5d36dc82b42eb952c04ce",
-        "size": 1836729
+        "sha256": "a877244a56fbf726b4d7f346be55c5e1aca80fdf365ebb9ee39cdf04894742c3",
+        "size": 1837501
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4703,6 +4703,11 @@
         "path": "pages/decisions/core-vs-periphery-divisions.md",
         "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
         "size": 3191
+      },
+      {
+        "path": "pages/decisions/cursor-bugbot-setup-subnet-worker-client.md",
+        "sha256": "0a6a38b5b26bb27532aeb6f8520c3ba88310c5df9cce6c7aab137c7257cbdd86",
+        "size": 3657
       },
       {
         "path": "pages/decisions/cursor-bugbot-setup.md",
@@ -6193,6 +6198,11 @@
         "path": "pages/projects/crunch-time-daily-meetings.md",
         "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
         "size": 1476
+      },
+      {
+        "path": "pages/projects/cursor-bugbot-setup.md",
+        "sha256": "1bc9387cf07df5278a41728450922899af294fffe278e334edd6db145340ed03",
+        "size": 3548
       },
       {
         "path": "pages/projects/cv-upload-linkedin-login-precommittal-tasks.md",
@@ -9559,8 +9569,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T10:39:03Z",
-  "file_count": 1910,
+  "exported_at": "2026-06-23T10:50:44Z",
+  "file_count": 1912,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12837,7 +12847,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b01dcdb6259db0587cbbf51847054a43818e21855082d8511358dc90050fdb8b",
+  "previous_tree_hash": "ee545bde9c729482512da055ddbc309e409e7094c0ee88f312e1920f864052f9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12850,14 +12860,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ee545bde9c729482512da055ddbc309e409e7094c0ee88f312e1920f864052f9",
+  "tree_hash": "b2395d5d8a41663b82de84400b5d89f942ab7e8e421fe080e6f7f4ffe2f16821",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1256,
+  "wiki_file_count": 1258,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12866,13 +12876,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "20bf920a4591edb9c3bb6eacc41dd94bc730f448a2c52b3c87952389294230f5",
-      "size": 1085501
+      "sha256": "2d3cc6250047bbc580311171704b751c158034a601aec8e7138368268f22623b",
+      "size": 1086249
     },
     {
       "path": "log.md",
-      "sha256": "4e72ec2c20bf3e760496342bc124698a5e8af860bcb5d36dc82b42eb952c04ce",
-      "size": 1836729
+      "sha256": "a877244a56fbf726b4d7f346be55c5e1aca80fdf365ebb9ee39cdf04894742c3",
+      "size": 1837501
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14288,6 +14298,11 @@
       "path": "pages/decisions/core-vs-periphery-divisions.md",
       "sha256": "84d62097ab809d9b142c3f5c7f9d3ffba39c78260f659f23f124068219953f9e",
       "size": 3191
+    },
+    {
+      "path": "pages/decisions/cursor-bugbot-setup-subnet-worker-client.md",
+      "sha256": "0a6a38b5b26bb27532aeb6f8520c3ba88310c5df9cce6c7aab137c7257cbdd86",
+      "size": 3657
     },
     {
       "path": "pages/decisions/cursor-bugbot-setup.md",
@@ -15778,6 +15793,11 @@
       "path": "pages/projects/crunch-time-daily-meetings.md",
       "sha256": "a7282046932d2354a6070c5de32616b3748d9f915ea62b080984324b3932d42a",
       "size": 1476
+    },
+    {
+      "path": "pages/projects/cursor-bugbot-setup.md",
+      "sha256": "1bc9387cf07df5278a41728450922899af294fffe278e334edd6db145340ed03",
+      "size": 3548
     },
     {
       "path": "pages/projects/cv-upload-linkedin-login-precommittal-tasks.md",
@@ -19141,5 +19161,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "474361e997f973c3d44e9abe05aebd4bd095990130144b1685bc9db817f773b6"
+  "wiki_tree_hash": "6dc7f539d09c5823e7faabbdb2d8171ed3d9ff3cd89c0e6719e595d4f41dbb11"
 }
