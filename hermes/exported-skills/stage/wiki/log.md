@@ -37284,3 +37284,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8e9c3701ee8f2bd6b19e5802bbe2b896
 - summary: The story-services-prod AWS account was accidentally closed, causing loss of access to a CDR bootnode. After recovery, the bootnode was not found in us-east-1 but later located in ...
 
+## [2026-06-23T13:35:27Z] synthesis | AWS Account Recovery for CDR Bootnode
+
+- status: published
+- slug: runbooks/aws-account-recovery-cdr-bootnode
+- wiki_revision_id: wikirev_d001a98bd4daac31f126dcfb5bd554e1
+- summary: Recovery of a mistakenly closed AWS account that hosted the CDR bootnode. The bootnode was eventually found in story-services-staging.
+
+## [2026-06-23T13:35:28Z] synthesis | CDR Bootnode Migration to Azure
+
+- status: published
+- slug: decisions/cdr-bootnode-migration-to-azure
+- wiki_revision_id: wikirev_311d170caceb65725b1e62cfb74de752
+- summary: Plan to migrate the CDR bootnode to a company Azure subscription, replacing the AWS setup.
+
+## [2026-06-23T13:37:36Z] synthesis | CDR Bootnode AWS Account Closure and Migration
+
+- status: published
+- slug: runbooks/cdr-bootnode-aws-account-closure-and-migration
+- wiki_revision_id: wikirev_9cd42367dd316c155a1a7eee9ed231f3
+- summary: The CDR bootnode became inaccessible after its AWS account was closed. Account recovery restored the bootnode in the story-services-staging account, the IP changed to 54.153.69.163...
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0051c098d2868319ac3c0b814d634601d2a0938d06177d51efd163ff617982fb",
-        "size": 1089442
+        "sha256": "16a403dce8d57a884695f5a9be47a83410d764a740484f8c1633c0c4a25cbdb4",
+        "size": 1090496
       },
       {
         "path": "log.md",
-        "sha256": "03cc428df0a269275349847eb764f4cc5f9a12d8c70dd58e86f90319eff2c2d2",
-        "size": 1841524
+        "sha256": "2733b67e17472cdca8ee0c1086c46d1d7dac6d51c6c4811713e672f2499064ca",
+        "size": 1842612
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4668,6 +4668,11 @@
         "path": "pages/decisions/block-explorer-vendor-evaluation.md",
         "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
         "size": 12799
+      },
+      {
+        "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
+        "sha256": "919da96e8cb15c5c37f29f886d790da4e53d6872e793937ac7299ce48ac942da",
+        "size": 2014
       },
       {
         "path": "pages/decisions/cdr-sdk-pr-28-review.md",
@@ -7830,6 +7835,11 @@
         "size": 4508
       },
       {
+        "path": "pages/runbooks/aws-account-recovery-cdr-bootnode.md",
+        "sha256": "343f48e9e6932e9c3a999276483339546efd1942a6859c26d5e05bd0998c4798",
+        "size": 5599
+      },
+      {
         "path": "pages/runbooks/aws-cli-setup.md",
         "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
         "size": 3333
@@ -7873,6 +7883,11 @@
         "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
         "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
         "size": 6658
+      },
+      {
+        "path": "pages/runbooks/cdr-bootnode-aws-account-closure-and-migration.md",
+        "sha256": "bc805a13076b2ae17757bfc8a617bccef2806d8af4c33f0e3c7168dcb1571d15",
+        "size": 8072
       },
       {
         "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
@@ -9614,8 +9629,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T13:27:08Z",
-  "file_count": 1921,
+  "exported_at": "2026-06-23T13:38:51Z",
+  "file_count": 1924,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12892,7 +12907,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "9b466eaf31cc87cea6512cee7db0f93d475518ac68f42975ba78e8d736c192ec",
+  "previous_tree_hash": "441c5f923aeb427227b5ee35911d2b501469d974a07868c6465abf6cabdd5726",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12905,14 +12920,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "441c5f923aeb427227b5ee35911d2b501469d974a07868c6465abf6cabdd5726",
+  "tree_hash": "14095e9821a3f17901754e046601d034ed593e99d947ce346e4079cfda71c1ca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1267,
+  "wiki_file_count": 1270,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12921,13 +12936,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0051c098d2868319ac3c0b814d634601d2a0938d06177d51efd163ff617982fb",
-      "size": 1089442
+      "sha256": "16a403dce8d57a884695f5a9be47a83410d764a740484f8c1633c0c4a25cbdb4",
+      "size": 1090496
     },
     {
       "path": "log.md",
-      "sha256": "03cc428df0a269275349847eb764f4cc5f9a12d8c70dd58e86f90319eff2c2d2",
-      "size": 1841524
+      "sha256": "2733b67e17472cdca8ee0c1086c46d1d7dac6d51c6c4811713e672f2499064ca",
+      "size": 1842612
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14308,6 +14323,11 @@
       "path": "pages/decisions/block-explorer-vendor-evaluation.md",
       "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
       "size": 12799
+    },
+    {
+      "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
+      "sha256": "919da96e8cb15c5c37f29f886d790da4e53d6872e793937ac7299ce48ac942da",
+      "size": 2014
     },
     {
       "path": "pages/decisions/cdr-sdk-pr-28-review.md",
@@ -17470,6 +17490,11 @@
       "size": 4508
     },
     {
+      "path": "pages/runbooks/aws-account-recovery-cdr-bootnode.md",
+      "sha256": "343f48e9e6932e9c3a999276483339546efd1942a6859c26d5e05bd0998c4798",
+      "size": 5599
+    },
+    {
       "path": "pages/runbooks/aws-cli-setup.md",
       "sha256": "4abc92a05fe4e0cc6f3cf9b9e36d50b9c04edcf9ff04a40ecb7bc16615347df1",
       "size": 3333
@@ -17513,6 +17538,11 @@
       "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
       "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
       "size": 6658
+    },
+    {
+      "path": "pages/runbooks/cdr-bootnode-aws-account-closure-and-migration.md",
+      "sha256": "bc805a13076b2ae17757bfc8a617bccef2806d8af4c33f0e3c7168dcb1571d15",
+      "size": 8072
     },
     {
       "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
@@ -19251,5 +19281,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0dd2b5f64d7fb32cc1ad5073151eda4c73df507259e0e5e5838d22390b5a8468"
+  "wiki_tree_hash": "58315b7eaa725a47198897a02cfc2185677a3e208311494cbc595b131bd37244"
 }
