@@ -37340,3 +37340,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0b02c5e6b294a5ce6baa9d8e81cc6d64
 - summary: Runbook for recovering a closed AWS account hosting a CDR bootnode, locating the bootnode in an alternative account, updating configuration with new IP, and planning migration to A...
 
+## [2026-06-23T15:03:04Z] synthesis | CDR Bootnode Migration to Company Azure
+
+- status: published
+- slug: projects/cdr-bootnode-migration-to-company-azure
+- wiki_revision_id: wikirev_cc35d706890edcd9a7b0315792b8eeab
+- summary: Migrate the CDR bootnode from an AWS staging account to a company Azure subscription. The project involves recovering a closed AWS account where the bootnode was originally created...
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f59482641edc0101c54ae3d53678d5b77f550568a786f26c6d6af3262ac3062e",
-        "size": 1092456
+        "sha256": "950d394872897ecb7c24e39e513da7ee9882fa5387a72e49afcd2245d0216b11",
+        "size": 1092858
       },
       {
         "path": "log.md",
-        "sha256": "9a4cb2911aa040cbafacbe1743286085c025bce9c349b54a2dd3423a5f68e7b5",
-        "size": 1844627
+        "sha256": "4a80fd95aeb02a23d9ebbeb02c6c17099372bc2ca191d93a379ccbc45cd43ee7",
+        "size": 1845040
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6193,6 +6193,11 @@
         "path": "pages/projects/cdr-bootnode-aws-azure-migration-2026-01-20.md",
         "sha256": "c14e8f89dbc593caaa7a88628dc5dd4239f6a222399dadc426d6b5cc5500bcc5",
         "size": 9621
+      },
+      {
+        "path": "pages/projects/cdr-bootnode-migration-to-company-azure.md",
+        "sha256": "db69f8ccfbf827e5413c98ea139fd4ccbc997b99422de618c75124691b23ec52",
+        "size": 6157
       },
       {
         "path": "pages/projects/cdr-bootnode-migration.md",
@@ -9654,8 +9659,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T14:54:32Z",
-  "file_count": 1929,
+  "exported_at": "2026-06-23T15:06:14Z",
+  "file_count": 1930,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12932,7 +12937,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3a2403ae4a874d61f8e836601d31a2dc6c15a461ebec062fff99123e1c6e6585",
+  "previous_tree_hash": "4390b8e00ffd1e804df77834ffd2ae9b680f9891bba9eda47bebd5a04af2c499",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12945,14 +12950,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4390b8e00ffd1e804df77834ffd2ae9b680f9891bba9eda47bebd5a04af2c499",
+  "tree_hash": "df83e5fcc0515cf0aa731c60dd5c1ad9d3d82ff2402cc6e81f970edf038eed0d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1275,
+  "wiki_file_count": 1276,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12961,13 +12966,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f59482641edc0101c54ae3d53678d5b77f550568a786f26c6d6af3262ac3062e",
-      "size": 1092456
+      "sha256": "950d394872897ecb7c24e39e513da7ee9882fa5387a72e49afcd2245d0216b11",
+      "size": 1092858
     },
     {
       "path": "log.md",
-      "sha256": "9a4cb2911aa040cbafacbe1743286085c025bce9c349b54a2dd3423a5f68e7b5",
-      "size": 1844627
+      "sha256": "4a80fd95aeb02a23d9ebbeb02c6c17099372bc2ca191d93a379ccbc45cd43ee7",
+      "size": 1845040
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15873,6 +15878,11 @@
       "path": "pages/projects/cdr-bootnode-aws-azure-migration-2026-01-20.md",
       "sha256": "c14e8f89dbc593caaa7a88628dc5dd4239f6a222399dadc426d6b5cc5500bcc5",
       "size": 9621
+    },
+    {
+      "path": "pages/projects/cdr-bootnode-migration-to-company-azure.md",
+      "sha256": "db69f8ccfbf827e5413c98ea139fd4ccbc997b99422de618c75124691b23ec52",
+      "size": 6157
     },
     {
       "path": "pages/projects/cdr-bootnode-migration.md",
@@ -19331,5 +19341,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "778622d2ed285c1bdc21710b4b06b1b80c3b15ae67f7782c215ded3d6e9f449f"
+  "wiki_tree_hash": "f35b7ef9c44fff00d8a91ed9d371dccb414d80ae71746064d430ec14f7e1e539"
 }
