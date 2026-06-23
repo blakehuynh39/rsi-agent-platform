@@ -37137,3 +37137,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_180e584ab9886048a8a14e02ddcf6ae9
 - summary: Request to deploy the story-staking-api-private-fork repository to the Story mainnet. The deployment uses a newly synced archive node and is needed by the BitGo team under investor...
 
+## [2026-06-23T09:31:54Z] synthesis | story-private-fork (private fork)
+
+- status: published
+- slug: systems/story-private-fork
+- wiki_revision_id: wikirev_e81360018d7eca3a6c52bd7923834a86
+- summary: A private fork of the Story protocol repository under the `piplabs` GitHub organization. It uses GitHub Actions for CI/CD, including a workflow that requires a GitHub Personal Acce...
+
+## [2026-06-23T09:31:54Z] synthesis | Urgent GitHub PAT Rotation for story-private-fork
+
+- status: published
+- slug: decisions/urgent-github-pat-rotation-story-private-fork
+- wiki_revision_id: wikirev_1d19298cad9d11abfff2ca93ed161399
+- summary: An urgent rotation of the GitHub Personal Access Token (PAT) used in the CI/CD pipeline for the story-private-fork repository was performed. The original PAT was possibly created a...
+

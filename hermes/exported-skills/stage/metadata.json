@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6bdaa9ac6e876a9b6d8e6fe7e22f4fc20348436ee93b661b83d7381fa7137574",
-        "size": 1082503
+        "sha256": "49c5f4d701d2a10026b2a6a3523c998c57c4f7b91107938130faf5871861ed5e",
+        "size": 1083294
       },
       {
         "path": "log.md",
-        "sha256": "02f07bcca345a66874564fe4a86d9db4163ebf18bd9edea9d81f2b5009951706",
-        "size": 1833635
+        "sha256": "bdd3a1f074b964075899f2dbcaa5989c0f8accdecc83f2c664873de45b5d0448",
+        "size": 1834450
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5373,6 +5373,11 @@
         "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
         "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
         "size": 2409
+      },
+      {
+        "path": "pages/decisions/urgent-github-pat-rotation-story-private-fork.md",
+        "sha256": "21b485e657376a607a8c94247b96c87fbedc16b15d74fe96a368ebb50c589af5",
+        "size": 3502
       },
       {
         "path": "pages/decisions/use-public-ghcr-for-devnet-staking-api-deployment.md",
@@ -9385,6 +9390,11 @@
         "size": 3169
       },
       {
+        "path": "pages/systems/story-private-fork.md",
+        "sha256": "a221e3e682541253451832adc013a5118acf0b533f1de7e4971507faa382fe27",
+        "size": 1362
+      },
+      {
         "path": "pages/systems/story-protocol-core-architecture.md",
         "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
         "size": 9851
@@ -9519,8 +9529,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T09:23:29Z",
-  "file_count": 1902,
+  "exported_at": "2026-06-23T09:35:13Z",
+  "file_count": 1904,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12797,7 +12807,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3d133fba4f8d90c53215895df2b8dbff6072b032974b40858d574ad05d6940fd",
+  "previous_tree_hash": "a8dec8d7ee4d1244cf5b797f4cf0a973f3bbb9057eac02c2d171de9fc36b96ec",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12810,14 +12820,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a8dec8d7ee4d1244cf5b797f4cf0a973f3bbb9057eac02c2d171de9fc36b96ec",
+  "tree_hash": "edea56e6e636c5c4128124993e68863e05cc4c06990a090089eab2de994dadf1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1248,
+  "wiki_file_count": 1250,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12826,13 +12836,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6bdaa9ac6e876a9b6d8e6fe7e22f4fc20348436ee93b661b83d7381fa7137574",
-      "size": 1082503
+      "sha256": "49c5f4d701d2a10026b2a6a3523c998c57c4f7b91107938130faf5871861ed5e",
+      "size": 1083294
     },
     {
       "path": "log.md",
-      "sha256": "02f07bcca345a66874564fe4a86d9db4163ebf18bd9edea9d81f2b5009951706",
-      "size": 1833635
+      "sha256": "bdd3a1f074b964075899f2dbcaa5989c0f8accdecc83f2c664873de45b5d0448",
+      "size": 1834450
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14918,6 +14928,11 @@
       "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
       "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
       "size": 2409
+    },
+    {
+      "path": "pages/decisions/urgent-github-pat-rotation-story-private-fork.md",
+      "sha256": "21b485e657376a607a8c94247b96c87fbedc16b15d74fe96a368ebb50c589af5",
+      "size": 3502
     },
     {
       "path": "pages/decisions/use-public-ghcr-for-devnet-staking-api-deployment.md",
@@ -18930,6 +18945,11 @@
       "size": 3169
     },
     {
+      "path": "pages/systems/story-private-fork.md",
+      "sha256": "a221e3e682541253451832adc013a5118acf0b533f1de7e4971507faa382fe27",
+      "size": 1362
+    },
+    {
       "path": "pages/systems/story-protocol-core-architecture.md",
       "sha256": "90d98775cd6caa42ed329464f41c8a625c9d7f4a35f06251338671e4e1ddcc53",
       "size": 9851
@@ -19061,5 +19081,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9b94b386ef4a346d20703c7686506f10a979e6bf7fc85718a7cc11e2e0febf2f"
+  "wiki_tree_hash": "0d718b2ff6f956530ee5b6bb03941a866be186b00f2ae2de2f6e66cf896902b5"
 }
