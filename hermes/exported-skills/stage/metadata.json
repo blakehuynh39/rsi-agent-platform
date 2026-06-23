@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ab9deb986ecb41f34cd22ce789bd68e5afb2900b93377d59e75231f261482a91",
-        "size": 1851563
+        "sha256": "8776f61976b4013aeea2ccc3f7213846f44263e6521a5e62ab3a8fbf93eaf2f9",
+        "size": 1852294
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5510,6 +5510,11 @@
         "size": 1289
       },
       {
+        "path": "pages/open-questions/devnet-aws-ssm-access-for-yao.md",
+        "sha256": "6f9366d5c86d428e8944284b7e107e0e29169b6a22239f4411fb91fe092f8133",
+        "size": 4169
+      },
+      {
         "path": "pages/open-questions/email-whitelisting-status-request.md",
         "sha256": "455c7fbbbc2b2f8bfa54ba5c88ea56a30ee36cf85ffc5239d3396424fd780c08",
         "size": 1185
@@ -6376,8 +6381,8 @@
       },
       {
         "path": "pages/projects/devnet-migration-to-aws.md",
-        "sha256": "20d3a4a6d223e64cfa7d1d3c806739a53c0af203c94ac07e0e589a0aab334064",
-        "size": 6852
+        "sha256": "1281a036ab1734340fdf78d1048f469f78f6d5bab2f35713fd9ab4b72bcf1e83",
+        "size": 4269
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -9699,8 +9704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T19:25:11Z",
-  "file_count": 1938,
+  "exported_at": "2026-06-23T19:31:51Z",
+  "file_count": 1939,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12977,7 +12982,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ea4e85bc2e26527c893231dcb7370ec471f2daf06e0254b0604084b927784c5e",
+  "previous_tree_hash": "1d4cff9259abfb7618ac2d80107df1460e693e59afc183fe1bec8816893edcc3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12990,14 +12995,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1d4cff9259abfb7618ac2d80107df1460e693e59afc183fe1bec8816893edcc3",
+  "tree_hash": "83c011496afdc7e912f1f4ce66c88b1b5c85cb39d1134f0ecea746cfa66561c8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1284,
+  "wiki_file_count": 1285,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13011,8 +13016,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ab9deb986ecb41f34cd22ce789bd68e5afb2900b93377d59e75231f261482a91",
-      "size": 1851563
+      "sha256": "8776f61976b4013aeea2ccc3f7213846f44263e6521a5e62ab3a8fbf93eaf2f9",
+      "size": 1852294
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15235,6 +15240,11 @@
       "size": 1289
     },
     {
+      "path": "pages/open-questions/devnet-aws-ssm-access-for-yao.md",
+      "sha256": "6f9366d5c86d428e8944284b7e107e0e29169b6a22239f4411fb91fe092f8133",
+      "size": 4169
+    },
+    {
       "path": "pages/open-questions/email-whitelisting-status-request.md",
       "sha256": "455c7fbbbc2b2f8bfa54ba5c88ea56a30ee36cf85ffc5239d3396424fd780c08",
       "size": 1185
@@ -16101,8 +16111,8 @@
     },
     {
       "path": "pages/projects/devnet-migration-to-aws.md",
-      "sha256": "20d3a4a6d223e64cfa7d1d3c806739a53c0af203c94ac07e0e589a0aab334064",
-      "size": 6852
+      "sha256": "1281a036ab1734340fdf78d1048f469f78f6d5bab2f35713fd9ab4b72bcf1e83",
+      "size": 4269
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -19421,5 +19431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a9dfda89b57d1af4baa8e4c60110826b0c373a3f196b162e0ab5f1a8552a2eec"
+  "wiki_tree_hash": "ff97b894cf53ac39c404a2dc087d34e91b76b8859d7e6f8036cbbc5ca14221fe"
 }

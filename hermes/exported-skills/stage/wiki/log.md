@@ -37475,3 +37475,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f20ff755a4016ba823c1c8d1a0a41ec3
 - summary: An engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. Includes sub-pages for Internal Agent...
 
+## [2026-06-23T19:31:36Z] synthesis | Devnet Migration to AWS
+
+- status: published
+- slug: projects/devnet-migration-to-aws
+- wiki_revision_id: wikirev_dfd9bd3848f3e5a2a4904c7f833ab8f1
+- summary: Migration of the Story devnet environment from GCP to AWS, including provisioning infrastructure, access controls, and domain updates.
+
+## [2026-06-23T19:31:36Z] synthesis | Devnet AWS SSM Access for Yao
+
+- status: published
+- slug: open-questions/devnet-aws-ssm-access-for-yao
+- wiki_revision_id: wikirev_2a92159ad9bad625de1fe956bb9d588f
+- summary: Yao Wang requires SSM start-session access to launch and connect to EC2 instances in the AWS devnet account for full sync testing. Current permissions are insufficient, leading to ...
+
