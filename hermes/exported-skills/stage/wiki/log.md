@@ -36818,3 +36818,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_de36449500644298b64baf0cd0af8c98
 - summary: The team has started using AI to automate engineering procedures. A sample usage was demonstrated, and more bots will be released to assist engineering workflows.
 
+## [2026-06-23T01:32:19Z] synthesis | IP Whitelisting for Internal RPC Endpoints
+
+- status: published
+- slug: runbooks/ip-whitelisting-internal-rpc
+- wiki_revision_id: wikirev_36ec60aca8c48813578ec8c6c57089d1
+- summary: Procedure for whitelisting IP addresses to access restricted internal RPC endpoints for testnet and mainnet, used for IP registration load testing. Not managed by Pulumi; manual ch...
+
