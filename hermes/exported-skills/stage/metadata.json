@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e235b72a9a6ee8385f3082ec221960f5dbf114b23a974e3b8d8d0dcbc604d660",
-        "size": 1075730
+        "sha256": "aa4a58b27021e92b7cae50b191ffddb6b749d7a0bb899cd39668afb440019e56",
+        "size": 1076119
       },
       {
         "path": "log.md",
-        "sha256": "9cb68f7702ce58c27782e9775ca2a0b0f4cfc6bcb84a5945e088bdb8c78d4188",
-        "size": 1825342
+        "sha256": "8ecb52b10812d67282d98396e633ca5dad68dfc421936c8fd4d3c862d5e63314",
+        "size": 1825743
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5118,6 +5118,11 @@
         "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
         "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
         "size": 4321
+      },
+      {
+        "path": "pages/decisions/pr-108-devnet-domain-approval.md",
+        "sha256": "5b353b43afcb8fc808569959bab537d9e54377ebcf0e2e9efe23c9098919aec6",
+        "size": 1860
       },
       {
         "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -9429,8 +9434,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T05:22:27Z",
-  "file_count": 1884,
+  "exported_at": "2026-06-23T05:34:07Z",
+  "file_count": 1885,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12707,7 +12712,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f94918edf9bf80680ed5c264598da66a9d250dda07af5a22022cf23994c0d6fd",
+  "previous_tree_hash": "2b5e9db787bf94c22462bcd034d33a52fad8c3ab1f3d25ec6ee1f51c0f3f6b92",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12720,14 +12725,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2b5e9db787bf94c22462bcd034d33a52fad8c3ab1f3d25ec6ee1f51c0f3f6b92",
+  "tree_hash": "2892b2150182c2a29169b7ecf02244464d96382bfc913e6c2bc11db80f8d3993",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1230,
+  "wiki_file_count": 1231,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12736,13 +12741,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e235b72a9a6ee8385f3082ec221960f5dbf114b23a974e3b8d8d0dcbc604d660",
-      "size": 1075730
+      "sha256": "aa4a58b27021e92b7cae50b191ffddb6b749d7a0bb899cd39668afb440019e56",
+      "size": 1076119
     },
     {
       "path": "log.md",
-      "sha256": "9cb68f7702ce58c27782e9775ca2a0b0f4cfc6bcb84a5945e088bdb8c78d4188",
-      "size": 1825342
+      "sha256": "8ecb52b10812d67282d98396e633ca5dad68dfc421936c8fd4d3c862d5e63314",
+      "size": 1825743
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14573,6 +14578,11 @@
       "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
       "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
       "size": 4321
+    },
+    {
+      "path": "pages/decisions/pr-108-devnet-domain-approval.md",
+      "sha256": "5b353b43afcb8fc808569959bab537d9e54377ebcf0e2e9efe23c9098919aec6",
+      "size": 1860
     },
     {
       "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -18881,5 +18891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "89f501cd4caf3d8c01f62b272e177a09a139f476f9d02fe60ae8b0180cdfba7d"
+  "wiki_tree_hash": "7941cee0ae65642f14d0ee16bc7d3f1769c9142d0b8ca892c05df7c43b23d2dc"
 }

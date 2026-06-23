@@ -36988,3 +36988,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cbe0c7e975791c6b9dac64ecab0d67f7
 - summary: Discussion about sharing the private fork Aeneid API with BitGo, including helm chart and Cloudflare updates, and plans for mainnet setup.
 
+## [2026-06-23T05:32:13Z] synthesis | Approve PR #108 for Devnet Domain on AWS
+
+- status: published
+- slug: decisions/pr-108-devnet-domain-approval
+- wiki_revision_id: wikirev_c50560cdb388fed035ccb42a80aaa2a1
+- summary: PR #108 in piplabs/cloudflare, intended to configure a domain for devnet on AWS, was approved by U07TNT9N4JC. The approver could not verify the ACM certificate request in AWS ACM.
+
