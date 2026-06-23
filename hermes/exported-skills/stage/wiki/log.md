@@ -37368,3 +37368,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2c3177d8f7a739b253a32e3a4f2fa690
 - summary: Migration of Story Protocol devnet from GCP to AWS, including provisioning infrastructure, genesis configuration, and managing access permissions.
 
+## [2026-06-23T16:30:49Z] synthesis | Story API POST /api/v4/assets 500 Error
+
+- status: published
+- slug: runbooks/story-api-assets-500-error
+- wiki_revision_id: wikirev_92561ccda435428b90ff6081ac712b03
+- summary: The story-api service returned a 500 error on POST /api/v4/assets due to failure retrieving IP assets. The issue was tracked as STORY-API-F4 and resolved by Blake Huynh.
+
