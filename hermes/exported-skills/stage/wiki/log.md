@@ -37549,3 +37549,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d3c0501758da58a3238b5c2c1777a6a7
 - summary: Guide and troubleshooting for accessing AWS devnet servers, including SSM setup and permission policies.
 
+## [2026-06-23T21:48:16Z] synthesis | AWS Devnet Migration
+
+- status: published
+- slug: projects/story-devnet-aws
+- wiki_revision_id: wikirev_7b2e14e1a3fa07190e0c276590fe9bc5
+- summary: Migration of Story Protocol's devnet from GCP to AWS, including repository creation, genesis script clarification, access provisioning, and permission troubleshooting.
+

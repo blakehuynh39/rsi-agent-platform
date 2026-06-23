@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "8965411934960aff39383e64280928fbc63ff68827c8b3f011c61dff3fb3ad4e",
-        "size": 1855229
+        "sha256": "ed695220db56280e234ccb88c64642226ff30c6a3f5ad1bcc943f4c86f6af97d",
+        "size": 1855584
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7550,6 +7550,11 @@
         "size": 4371
       },
       {
+        "path": "pages/projects/story-devnet-aws.md",
+        "sha256": "41f990606a64149223d2d0fc2b0c242751eb693781d6801c981d2a8e4a6db81f",
+        "size": 5408
+      },
+      {
         "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
         "sha256": "61d2240b94e29f6368bec23db10dcb7a3106eab68b0645b077b097b56a43b44a",
         "size": 5051
@@ -9719,8 +9724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T20:52:44Z",
-  "file_count": 1942,
+  "exported_at": "2026-06-23T21:50:21Z",
+  "file_count": 1943,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12997,7 +13002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a2e235aefdea8918f9390fe6e3c8164c58a6beb322a52222a939b7d51ded1448",
+  "previous_tree_hash": "bc7b867a0e4feb873188b269374de4fefb21b970b3881dda3827ebff66fe5f10",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13010,14 +13015,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bc7b867a0e4feb873188b269374de4fefb21b970b3881dda3827ebff66fe5f10",
+  "tree_hash": "9f2f1feca5d8bb3b624659d70abae57f654698a4c742a1a70458b3cc70885461",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1288,
+  "wiki_file_count": 1289,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13031,8 +13036,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "8965411934960aff39383e64280928fbc63ff68827c8b3f011c61dff3fb3ad4e",
-      "size": 1855229
+      "sha256": "ed695220db56280e234ccb88c64642226ff30c6a3f5ad1bcc943f4c86f6af97d",
+      "size": 1855584
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17295,6 +17300,11 @@
       "size": 4371
     },
     {
+      "path": "pages/projects/story-devnet-aws.md",
+      "sha256": "41f990606a64149223d2d0fc2b0c242751eb693781d6801c981d2a8e4a6db81f",
+      "size": 5408
+    },
+    {
       "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
       "sha256": "61d2240b94e29f6368bec23db10dcb7a3106eab68b0645b077b097b56a43b44a",
       "size": 5051
@@ -19461,5 +19471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0ea2bf1093c4f9d59dd7981ac3951c80e3e6f03c50532a62d07e979f140821f7"
+  "wiki_tree_hash": "2024da1fc636e864e6a7bbbf13ed4f46113403f86239353f4afb7d4ff50ef00d"
 }
