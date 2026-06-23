@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4f430d164a20e1cec104b660a92b722f0d15c1c44a8296b4ba50025e8b020ca6",
-        "size": 1095067
+        "sha256": "6a666df7243deb5a7489f563ab981b96f500a782dae8bdf12bd8bda9271ff916",
+        "size": 1095416
       },
       {
         "path": "log.md",
-        "sha256": "78af0dbde00e3229150597929b1e8aaece9161ed4bbcf19058dfb3f4d24b1558",
-        "size": 1848306
+        "sha256": "06c6373de96f0e0fdac210cd033fb934f66b0909b732d3bc5fc2644eb3c55f4f",
+        "size": 1848989
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6361,8 +6361,8 @@
       },
       {
         "path": "pages/projects/devnet-aws-migration.md",
-        "sha256": "a4f32fa5b2bb1e2cea9910d5b53ecf3107947ddb43636f8bf73d76bfa50b61e1",
-        "size": 7512
+        "sha256": "bb87779602cafe08c46ebc634ce4a4b2d27be66b381c831bce5598a48b26de26",
+        "size": 7455
       },
       {
         "path": "pages/projects/devnet-migration-pr-112.md",
@@ -7523,6 +7523,11 @@
         "path": "pages/projects/story-deployments-cleanup-legacy-settings.md",
         "sha256": "f3314de7f41efe252464c748d4b370d812ab5dbd91276a485a2a649040a439da",
         "size": 3653
+      },
+      {
+        "path": "pages/projects/story-devnet-aws-migration.md",
+        "sha256": "3285b17b56401382881c15dd9219992f1abe1ce310b8cad978aa9453809dbd2a",
+        "size": 4371
       },
       {
         "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
@@ -9689,8 +9694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T17:52:56Z",
-  "file_count": 1936,
+  "exported_at": "2026-06-23T18:04:40Z",
+  "file_count": 1937,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12967,7 +12972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "01e734bbd6cdd52cb2266bc5671e3baf6045520c095e24f5cf069b3772671275",
+  "previous_tree_hash": "81d88de16ad506c894e5d2c71df413cf39631fc4873b061575b9224ceae65156",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12980,14 +12985,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "81d88de16ad506c894e5d2c71df413cf39631fc4873b061575b9224ceae65156",
+  "tree_hash": "d43848c7316ee6f2468544f0ee57b55d0eb671c95c084e9c46ac539415a46387",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1282,
+  "wiki_file_count": 1283,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12996,13 +13001,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4f430d164a20e1cec104b660a92b722f0d15c1c44a8296b4ba50025e8b020ca6",
-      "size": 1095067
+      "sha256": "6a666df7243deb5a7489f563ab981b96f500a782dae8bdf12bd8bda9271ff916",
+      "size": 1095416
     },
     {
       "path": "log.md",
-      "sha256": "78af0dbde00e3229150597929b1e8aaece9161ed4bbcf19058dfb3f4d24b1558",
-      "size": 1848306
+      "sha256": "06c6373de96f0e0fdac210cd033fb934f66b0909b732d3bc5fc2644eb3c55f4f",
+      "size": 1848989
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16076,8 +16081,8 @@
     },
     {
       "path": "pages/projects/devnet-aws-migration.md",
-      "sha256": "a4f32fa5b2bb1e2cea9910d5b53ecf3107947ddb43636f8bf73d76bfa50b61e1",
-      "size": 7512
+      "sha256": "bb87779602cafe08c46ebc634ce4a4b2d27be66b381c831bce5598a48b26de26",
+      "size": 7455
     },
     {
       "path": "pages/projects/devnet-migration-pr-112.md",
@@ -17238,6 +17243,11 @@
       "path": "pages/projects/story-deployments-cleanup-legacy-settings.md",
       "sha256": "f3314de7f41efe252464c748d4b370d812ab5dbd91276a485a2a649040a439da",
       "size": 3653
+    },
+    {
+      "path": "pages/projects/story-devnet-aws-migration.md",
+      "sha256": "3285b17b56401382881c15dd9219992f1abe1ce310b8cad978aa9453809dbd2a",
+      "size": 4371
     },
     {
       "path": "pages/projects/story-kernel-changelog-v0-1-0-to-feature.md",
@@ -19401,5 +19411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fc11e6004cd1118d5cedd8bc8aaf03dbe8ab80bb6da9a5c0ef7144a2c7c50295"
+  "wiki_tree_hash": "f3ee2337f88edec1aa401cef2e1b802f9169422148575e2539e831517332230f"
 }

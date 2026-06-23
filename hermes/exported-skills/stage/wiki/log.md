@@ -37410,3 +37410,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d1070731d27bbf9309f0ddf699c31516
 - summary: A 503 error occurred on POST /api/v1/data-audit/scoped-groups due to a non-existent SQS queue; resolved by Blake Huynh via Sentry issue STORY-API-EG.
 
+## [2026-06-23T18:03:16Z] synthesis | Devnet AWS Migration
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_800281a7b0296cb0519e60a51f5f510d
+- summary: Migration of the Story Protocol devnet from GCP to AWS, including repository setup, domain changes, and access management.
+
+## [2026-06-23T18:04:30Z] synthesis | Devnet Migration from GCP to AWS
+
+- status: published
+- slug: projects/story-devnet-aws-migration
+- wiki_revision_id: wikirev_2daa93751505a32b351ec7606fdafd5b
+- summary: Project to migrate Story Protocol's devnet from GCP to AWS using the story-devnet-aws repository. Involves provisioning, permissions setup, and domain updates.
+
