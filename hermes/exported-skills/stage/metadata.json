@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "886bd14810ad2b586d718896643e5c8797d702a820804cb6db7446084036ee03",
-        "size": 1831626
+        "sha256": "f97a51a27c84bc153b57178758e82ef419ac1e7a356368b8d808b1342dff0946",
+        "size": 1832055
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6263,6 +6263,11 @@
         "path": "pages/projects/depin-season-1-numo-handoff.md",
         "sha256": "73000f312e7452a2ec31f60117de860bb4896fba9a7e4bb7270a86b6a58e2624",
         "size": 6716
+      },
+      {
+        "path": "pages/projects/deploy-story-staking-api-private-fork-mainnet.md",
+        "sha256": "5aa315e7a260f94ca9124c01f3305e88b24e02c2d2c5c7d55d3a6a34c946737c",
+        "size": 4531
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -9494,8 +9499,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T08:36:40Z",
-  "file_count": 1897,
+  "exported_at": "2026-06-23T08:48:24Z",
+  "file_count": 1898,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12772,7 +12777,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0823169728beca2cad4d0be4ca049410d1e75178e6d35879c3e0cac0f2006dff",
+  "previous_tree_hash": "e0523cdb1025fc4de35fd4c99423e2ca530793eeccaa79b52d29112ba648e1a7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12785,14 +12790,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e0523cdb1025fc4de35fd4c99423e2ca530793eeccaa79b52d29112ba648e1a7",
+  "tree_hash": "de1b86d8be831064674f1e489ca720c18f3edb214fae25cbc7b0915418dae4ff",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1243,
+  "wiki_file_count": 1244,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12806,8 +12811,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "886bd14810ad2b586d718896643e5c8797d702a820804cb6db7446084036ee03",
-      "size": 1831626
+      "sha256": "f97a51a27c84bc153b57178758e82ef419ac1e7a356368b8d808b1342dff0946",
+      "size": 1832055
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15783,6 +15788,11 @@
       "path": "pages/projects/depin-season-1-numo-handoff.md",
       "sha256": "73000f312e7452a2ec31f60117de860bb4896fba9a7e4bb7270a86b6a58e2624",
       "size": 6716
+    },
+    {
+      "path": "pages/projects/deploy-story-staking-api-private-fork-mainnet.md",
+      "sha256": "5aa315e7a260f94ca9124c01f3305e88b24e02c2d2c5c7d55d3a6a34c946737c",
+      "size": 4531
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -19011,5 +19021,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "daaf4e6f7b91ae1a5dca4465a39a5070760a2fea45903fca34c1ea7880e0cbef"
+  "wiki_tree_hash": "e9bf2895f3c6315714123f37dbd3b630bf79719847c8195969f65b2805d8d570"
 }

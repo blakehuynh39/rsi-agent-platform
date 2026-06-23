@@ -37102,3 +37102,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_16b4fdc9fe8ddc8763613038d3a1912d
 - summary: On 2026-02-26, story-api encountered a PostgreSQL not-null constraint violation (error #23502) when inserting into the notifications table with a null created_at value.
 
+## [2026-06-23T08:46:41Z] synthesis | Deploy story-staking-api-private-fork for Mainnet
+
+- status: published
+- slug: projects/deploy-story-staking-api-private-fork-mainnet
+- wiki_revision_id: wikirev_cdd59e00c541464cf9c583035dc184a5
+- summary: Deployment of the staking API private fork to mainnet was requested to prepare for BitGo integration. It requires using a synced archive node (all archive nodes are updated). The d...
+
+## [2026-06-23T08:48:48Z] synthesis | Deploy story-staking-api-private-fork for Mainnet
+
+- status: published
+- slug: decisions/deploy-staking-api-fork-mainnet
+- wiki_revision_id: wikirev_99bfa07237f8ce1fdac3f36e541f4a01
+- summary: Deployment request for story-staking-api-private-fork on mainnet, postponed then assigned to U09M2SPUTSL to liaise with BitGo team.
+
