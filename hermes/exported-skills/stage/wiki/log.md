@@ -37256,3 +37256,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9124dc93878454e9e26e53088a60fbb5
 - summary: Migration of devnet environment, handled via Pull Request #112 in piplabs/cloudflare.
 
+## [2026-06-23T12:20:43Z] synthesis | CDR Bootnode Migration to Azure and AWS Account Recovery
+
+- status: published
+- slug: projects/cdr-bootnode-migration
+- wiki_revision_id: wikirev_2943a2e08065468d4c599e518856d723
+- summary: After accidental closure of an AWS account, the CDR bootnode was recovered from the old story-services-staging account and is being migrated to a company Azure subscription. The bo...
+
