@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1921770bff658c73da17daee9b8835873edb2b56c74c25427b4d51e69895ad46",
-        "size": 1064137
+        "sha256": "c80aa24bb8b2544cd400179d0a070a35758f77060d20d07bd1708820b9a5d70f",
+        "size": 1064464
       },
       {
         "path": "log.md",
-        "sha256": "19753ec1e386d2421504dfba3091eed20de53f84437082e95e17362f1db74985",
-        "size": 1813105
+        "sha256": "1851b1234d800a28732c273bf24c419ba1b5f4955c033f4fa1db9fefdc764d73",
+        "size": 1813443
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9160,6 +9160,11 @@
         "size": 3026
       },
       {
+        "path": "pages/systems/story-protocol-production-databases.md",
+        "sha256": "ba1f2bb3de9942e649346ddf5cf64a314c5b3b241b6b4d46ff8665212248dd72",
+        "size": 6680
+      },
+      {
         "path": "pages/systems/story-staking-api.md",
         "sha256": "01d1fedc5b2e85d31c8aa125c2ee2a80f80d153e6562dcdc590169db42bba591",
         "size": 2420
@@ -9274,8 +9279,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T00:20:04Z",
-  "file_count": 1853,
+  "exported_at": "2026-06-23T00:36:50Z",
+  "file_count": 1854,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12552,7 +12557,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "e68787576c321aee513c46feb3e255fceeab449593b295ef3f74b1e7fb151288",
+  "previous_tree_hash": "066ab6516f028c3f7c8d697511b507d7d39c496bf07dffc4f62904d25f6e8a3f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12565,14 +12570,14 @@
   ],
   "skill_tree_hash": "5182a7191a42b40838910028fca4dd72ac364f9dc0256704eb8f06c79fef3142",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "066ab6516f028c3f7c8d697511b507d7d39c496bf07dffc4f62904d25f6e8a3f",
+  "tree_hash": "e825e8ddcf9182212ef4e500d7f4143d436d7d01c674ccd00822ea77e8182efd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1199,
+  "wiki_file_count": 1200,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12581,13 +12586,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1921770bff658c73da17daee9b8835873edb2b56c74c25427b4d51e69895ad46",
-      "size": 1064137
+      "sha256": "c80aa24bb8b2544cd400179d0a070a35758f77060d20d07bd1708820b9a5d70f",
+      "size": 1064464
     },
     {
       "path": "log.md",
-      "sha256": "19753ec1e386d2421504dfba3091eed20de53f84437082e95e17362f1db74985",
-      "size": 1813105
+      "sha256": "1851b1234d800a28732c273bf24c419ba1b5f4955c033f4fa1db9fefdc764d73",
+      "size": 1813443
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18460,6 +18465,11 @@
       "size": 3026
     },
     {
+      "path": "pages/systems/story-protocol-production-databases.md",
+      "sha256": "ba1f2bb3de9942e649346ddf5cf64a314c5b3b241b6b4d46ff8665212248dd72",
+      "size": 6680
+    },
+    {
       "path": "pages/systems/story-staking-api.md",
       "sha256": "01d1fedc5b2e85d31c8aa125c2ee2a80f80d153e6562dcdc590169db42bba591",
       "size": 2420
@@ -18571,5 +18581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c53399a660121e4d3ae236490c5230eab1b1917010a3efccaa890f6edeab4423"
+  "wiki_tree_hash": "b8b2452ec8671f5b827e2b58409b2b86a6da6819b35fe490ce5ef2e45ec3a94f"
 }

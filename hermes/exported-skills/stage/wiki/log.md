@@ -36753,3 +36753,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9e27438002b8a067dacb6b00fd479f20
 - summary: A data analysis task to obtain high-level usage statistics for the Story Protocol IP graph/Proof of Creativity features over the last 2 years, utilizing sos-royalty-graph-prod and ...
 
+## [2026-06-23T00:33:09Z] synthesis | Story Protocol Production Databases
+
+- status: published
+- slug: systems/story-protocol-production-databases
+- wiki_revision_id: wikirev_51e98a971c0ae26c15d64eca3bca3248
+- summary: Details of the sos-royalty-graph-prod and story-blockchain-prod databases as observed during a May 2026 analysis run.
+
