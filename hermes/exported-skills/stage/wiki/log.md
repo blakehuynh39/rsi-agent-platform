@@ -37354,3 +37354,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8b2fc7ca665b5724fd6b07170e9aa04e
 - summary: In January 2026, a closed AWS account caused loss of access to the CDR bootnode. The account was restored, the bootnode was located in story-services-staging, and plans were made t...
 
+## [2026-06-23T15:48:25Z] synthesis | CDR Bootnode Account Recovery and Migration
+
+- status: published
+- slug: runbooks/cdr-bootnode-account-recovery
+- wiki_revision_id: wikirev_e2ad77d7165b8d7e46326530cfca0f31
+- summary: After an accidental closure of an AWS account, the CDR bootnode became inaccessible. The account was restored and the bootnode was located in story-services-staging. The team plans...
+
+## [2026-06-23T15:51:17Z] synthesis | Devnet AWS Migration
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_2c3177d8f7a739b253a32e3a4f2fa690
+- summary: Migration of Story Protocol devnet from GCP to AWS, including provisioning infrastructure, genesis configuration, and managing access permissions.
+

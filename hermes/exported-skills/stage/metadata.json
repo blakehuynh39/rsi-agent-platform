@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9f21a732d732cc050a789b60045c09382460e6f89e25b98bae83c7d42d692511",
-        "size": 1093281
+        "sha256": "12f0650db3741a114bd25244894c972b71f51513b421225bb360cd4a592a68cb",
+        "size": 1094004
       },
       {
         "path": "log.md",
-        "sha256": "b829a251eec16ed5642309d0d64bc79971a0a7976af22e4952fe65ad64e2dc7f",
-        "size": 1845474
+        "sha256": "e51d747f9f0622219214aeb999e4b39949516c3774f19d80cba66132bfc0df82",
+        "size": 1846219
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6360,6 +6360,11 @@
         "size": 4531
       },
       {
+        "path": "pages/projects/devnet-aws-migration.md",
+        "sha256": "7c8ee3deaaef21333e3e3fb9a09103fe772e8220b88fcbd07d665c0db5b13934",
+        "size": 7533
+      },
+      {
         "path": "pages/projects/devnet-migration-pr-112.md",
         "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
         "size": 1964
@@ -7913,6 +7918,11 @@
         "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
         "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
         "size": 6658
+      },
+      {
+        "path": "pages/runbooks/cdr-bootnode-account-recovery.md",
+        "sha256": "a4d5fe36151beb73423a699719fb7c61605d0f8570357c1dd98f0818423064a9",
+        "size": 6664
       },
       {
         "path": "pages/runbooks/cdr-bootnode-aws-account-closure-and-migration.md",
@@ -9664,8 +9674,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T15:24:34Z",
-  "file_count": 1931,
+  "exported_at": "2026-06-23T15:51:36Z",
+  "file_count": 1933,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12942,7 +12952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "96dbb64f2d55323523f042ffea0d9e40661e6b4179eb670dc2b4716ea7287981",
+  "previous_tree_hash": "93f623c35ec502e1f91b51321cbb4c46413eb1e993e096974ea5dfd4cd84ec93",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12955,14 +12965,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "93f623c35ec502e1f91b51321cbb4c46413eb1e993e096974ea5dfd4cd84ec93",
+  "tree_hash": "5bf84262ca5ea5fa577b329a775c9f80319d331bbc682246a2c5ef7e952ccf7c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1277,
+  "wiki_file_count": 1279,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12971,13 +12981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9f21a732d732cc050a789b60045c09382460e6f89e25b98bae83c7d42d692511",
-      "size": 1093281
+      "sha256": "12f0650db3741a114bd25244894c972b71f51513b421225bb360cd4a592a68cb",
+      "size": 1094004
     },
     {
       "path": "log.md",
-      "sha256": "b829a251eec16ed5642309d0d64bc79971a0a7976af22e4952fe65ad64e2dc7f",
-      "size": 1845474
+      "sha256": "e51d747f9f0622219214aeb999e4b39949516c3774f19d80cba66132bfc0df82",
+      "size": 1846219
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16050,6 +16060,11 @@
       "size": 4531
     },
     {
+      "path": "pages/projects/devnet-aws-migration.md",
+      "sha256": "7c8ee3deaaef21333e3e3fb9a09103fe772e8220b88fcbd07d665c0db5b13934",
+      "size": 7533
+    },
+    {
       "path": "pages/projects/devnet-migration-pr-112.md",
       "sha256": "8be3eda36bb440dbad35007234d2891dbd8ceda19bc35ed04bde637fb54264ca",
       "size": 1964
@@ -17603,6 +17618,11 @@
       "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
       "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
       "size": 6658
+    },
+    {
+      "path": "pages/runbooks/cdr-bootnode-account-recovery.md",
+      "sha256": "a4d5fe36151beb73423a699719fb7c61605d0f8570357c1dd98f0818423064a9",
+      "size": 6664
     },
     {
       "path": "pages/runbooks/cdr-bootnode-aws-account-closure-and-migration.md",
@@ -19351,5 +19371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9c9ab61b7c237b269ed89ea7bcb849706b83999ffd2a8b402e86b7ee263b0cef"
+  "wiki_tree_hash": "d99407ecbf581aa9113a4f8c1b711152f65f8a99228e1571d0605bb5c00dd2a0"
 }
