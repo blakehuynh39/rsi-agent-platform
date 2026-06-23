@@ -37496,3 +37496,21 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b742f6086018341f672646f37e8e7f71
 - summary: Project to migrate Story Protocol devnet from GCP to AWS using the story-devnet-aws repository. Includes provisioning code based on previous internal devnet setup, genesis script h...
 
+## [2026-06-23T20:00:37Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_21b3cecae6daaf8b4d714be0232791fa
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_05d91a0ce02c2bcc5edaceaf64a1e2d3
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
+## [2026-06-23T20:00:39Z] ingest | Numo Expert Payment Model
+
+- status: published
+- slug: notion_document/numo-expert-payment-model-9ef5bd03
+- wiki_revision_id: wikirev_2b9f906c8362c3bcad1c9406383e933a
+- source_document_id: srcdoc_570a89beb86d727201f015129ef5bd03
+- source_revision_id: srcrev_762b66916d85eb7989e67f2a050e024f
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
+
