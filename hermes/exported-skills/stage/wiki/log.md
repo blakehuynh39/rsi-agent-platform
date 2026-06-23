@@ -37514,3 +37514,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_762b66916d85eb7989e67f2a050e024f
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
 
+## [2026-06-23T20:20:07Z] synthesis | Numo Expert Payment Model
+
+- status: published
+- slug: policies/numo-expert-payment-model
+- wiki_revision_id: wikirev_41bc0f1586c0213bea178ed30ce97e61
+- summary: Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
+

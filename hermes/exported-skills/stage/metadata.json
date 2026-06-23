@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2a2ae308adefc2299e2dda985391cfe48921f3febbe207b615601c9f5500c890",
-        "size": 1096805
+        "sha256": "1c21daa68eff33f1ed9500db3dcc12ec76859ccc84243b2b7e2a4ec8f907351a",
+        "size": 1097178
       },
       {
         "path": "log.md",
-        "sha256": "98d58bda215883a630d375e858ba343b9bbc6451bea97c4f72d058c2f2937477",
-        "size": 1853584
+        "sha256": "2384fe09ae3316a64e1dca5189e1509995d7aae9908bef8733e92c2bd1b568e9",
+        "size": 1853969
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5898,6 +5898,11 @@
         "path": "pages/policies/numo-expert-onboarding.md",
         "sha256": "e7309dac4858374a176023832350f597c97c0d4eaf33960d0802da1b7db9bcbf",
         "size": 4250
+      },
+      {
+        "path": "pages/policies/numo-expert-payment-model.md",
+        "sha256": "ae56c2616a8e3575b8399ef985c6137da978da77b999d61d7136bbb432b49452",
+        "size": 10322
       },
       {
         "path": "pages/policies/numo-expert-payment.md",
@@ -9709,8 +9714,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T20:02:06Z",
-  "file_count": 1940,
+  "exported_at": "2026-06-23T20:24:08Z",
+  "file_count": 1941,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12987,7 +12992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3d55435da865e743c00d9ccb14087a8bacef34b51a5fe3a8a2ca661975d4338b",
+  "previous_tree_hash": "ff7fd726cc311b47f002772c8c359fd83d5e4ae98c2df4a9bbf1fcd82257e174",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13000,14 +13005,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ff7fd726cc311b47f002772c8c359fd83d5e4ae98c2df4a9bbf1fcd82257e174",
+  "tree_hash": "cf207e9b7a3bb9a47e06200c3cbc7a73c722cfc8556b680ce4e6545b560068ca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1286,
+  "wiki_file_count": 1287,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13016,13 +13021,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2a2ae308adefc2299e2dda985391cfe48921f3febbe207b615601c9f5500c890",
-      "size": 1096805
+      "sha256": "1c21daa68eff33f1ed9500db3dcc12ec76859ccc84243b2b7e2a4ec8f907351a",
+      "size": 1097178
     },
     {
       "path": "log.md",
-      "sha256": "98d58bda215883a630d375e858ba343b9bbc6451bea97c4f72d058c2f2937477",
-      "size": 1853584
+      "sha256": "2384fe09ae3316a64e1dca5189e1509995d7aae9908bef8733e92c2bd1b568e9",
+      "size": 1853969
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15633,6 +15638,11 @@
       "path": "pages/policies/numo-expert-onboarding.md",
       "sha256": "e7309dac4858374a176023832350f597c97c0d4eaf33960d0802da1b7db9bcbf",
       "size": 4250
+    },
+    {
+      "path": "pages/policies/numo-expert-payment-model.md",
+      "sha256": "ae56c2616a8e3575b8399ef985c6137da978da77b999d61d7136bbb432b49452",
+      "size": 10322
     },
     {
       "path": "pages/policies/numo-expert-payment.md",
@@ -19441,5 +19451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fed7f4e370248b30cc859c31ef306ea80924f2cbe81a1f7e333c8d1b2c5c2225"
+  "wiki_tree_hash": "b9325a30eb1c30b6fa81d49d8e0ad6193abecbfce4db200dd24abd39fa9c6059"
 }
