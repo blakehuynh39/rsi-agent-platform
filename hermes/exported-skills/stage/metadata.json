@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ede3292f228d0dc7ec4f6caf1d4637677cf3d41bb8ebc15704b0fe0770018155",
-        "size": 1076860
+        "sha256": "3c5c1a593397779fd66d970c8603616c0247a552a265aa34b10d95fcca9258a1",
+        "size": 1077529
       },
       {
         "path": "log.md",
-        "sha256": "14844003d90cfd6f76ca6f12371e138712ec067ead336b8384edf8fdcaaba455",
-        "size": 1827004
+        "sha256": "9dcbe0eb82ee84af618fce9a454961e761067d04d4b687d5cd1040d09c5677c1",
+        "size": 1827697
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5133,6 +5133,16 @@
         "path": "pages/decisions/pr-108-devnet-domain-approval.md",
         "sha256": "5b353b43afcb8fc808569959bab537d9e54377ebcf0e2e9efe23c9098919aec6",
         "size": 1860
+      },
+      {
+        "path": "pages/decisions/pr-110-mainnet-aws-acm-review.md",
+        "sha256": "470ee5d6f0dc72cb62f84888642b4bfa54714b173f8be7e8a5b29f5e21c42b8a",
+        "size": 3485
+      },
+      {
+        "path": "pages/decisions/pr-mainnet-aws-acm-110.md",
+        "sha256": "95e5a99f6f97a31f3dbb99537c6bb5f64a1327bb1a20b8343f44c2df57c16c62",
+        "size": 3357
       },
       {
         "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -9444,8 +9454,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T06:02:33Z",
-  "file_count": 1887,
+  "exported_at": "2026-06-23T06:19:22Z",
+  "file_count": 1889,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12722,7 +12732,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "09414029e5fd452c10157e8c6dab290abadfdf20200e7acf3a83c8de1ce24c6b",
+  "previous_tree_hash": "f57daf5ea5a3db406a78aa8d64728c2aed91e89c9ee4bcd0b89ce2e899e6c1b7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12735,14 +12745,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f57daf5ea5a3db406a78aa8d64728c2aed91e89c9ee4bcd0b89ce2e899e6c1b7",
+  "tree_hash": "72025cd42b861b98a44bc0758ac4e0f3694d3157a9301ed9f48f499e4148e21f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1233,
+  "wiki_file_count": 1235,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12751,13 +12761,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ede3292f228d0dc7ec4f6caf1d4637677cf3d41bb8ebc15704b0fe0770018155",
-      "size": 1076860
+      "sha256": "3c5c1a593397779fd66d970c8603616c0247a552a265aa34b10d95fcca9258a1",
+      "size": 1077529
     },
     {
       "path": "log.md",
-      "sha256": "14844003d90cfd6f76ca6f12371e138712ec067ead336b8384edf8fdcaaba455",
-      "size": 1827004
+      "sha256": "9dcbe0eb82ee84af618fce9a454961e761067d04d4b687d5cd1040d09c5677c1",
+      "size": 1827697
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14603,6 +14613,16 @@
       "path": "pages/decisions/pr-108-devnet-domain-approval.md",
       "sha256": "5b353b43afcb8fc808569959bab537d9e54377ebcf0e2e9efe23c9098919aec6",
       "size": 1860
+    },
+    {
+      "path": "pages/decisions/pr-110-mainnet-aws-acm-review.md",
+      "sha256": "470ee5d6f0dc72cb62f84888642b4bfa54714b173f8be7e8a5b29f5e21c42b8a",
+      "size": 3485
+    },
+    {
+      "path": "pages/decisions/pr-mainnet-aws-acm-110.md",
+      "sha256": "95e5a99f6f97a31f3dbb99537c6bb5f64a1327bb1a20b8343f44c2df57c16c62",
+      "size": 3357
     },
     {
       "path": "pages/decisions/pre-launch-change-freeze-2026-04-27.md",
@@ -18911,5 +18931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6da734e7e4ed6a9d5df11cb6cb2727160e78d49593c28562c8e8c6b58b1ad02e"
+  "wiki_tree_hash": "593a36e4c9ab64c9301e281f2a81179681a625c5af5252498609b3842558647d"
 }

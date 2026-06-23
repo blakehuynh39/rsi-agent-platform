@@ -37018,3 +37018,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b697e5f4f71b0774887c70a185e0965c
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-23T06:16:13Z] synthesis | PR #110 Review: Mainnet AWS ACM
+
+- status: published
+- slug: decisions/pr-110-mainnet-aws-acm-review
+- wiki_revision_id: wikirev_696b8e3ba8a1174aa43bd1d86c92be22
+- summary: The team reviewed and approved PR #110 for Mainnet AWS ACM. The change will not affect current mainnet RPCs.
+
+## [2026-06-23T06:17:43Z] synthesis | PR for Mainnet AWS ACM (cloudflare/pull/110)
+
+- status: published
+- slug: decisions/pr-mainnet-aws-acm-110
+- wiki_revision_id: wikirev_219a85e026268cc6ccfaec770d74dff0
+- summary: Review and approval of pull request #110 for Mainnet AWS ACM. The change does not affect current mainnet RPC usage, and multiple reviewers have approved.
+
