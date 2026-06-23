@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9b5548090f1d6a2cf683293dd812b4997c6af092de6771599da40b8575975e9e",
-        "size": 1089032
+        "sha256": "0051c098d2868319ac3c0b814d634601d2a0938d06177d51efd163ff617982fb",
+        "size": 1089442
       },
       {
         "path": "log.md",
-        "sha256": "c8763c2e165059fb6d2e4f282c580e9628a3b78553656f3306d7972594eefa8b",
-        "size": 1841103
+        "sha256": "03cc428df0a269275349847eb764f4cc5f9a12d8c70dd58e86f90319eff2c2d2",
+        "size": 1841524
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7870,6 +7870,11 @@
         "size": 4536
       },
       {
+        "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
+        "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
+        "size": 6658
+      },
+      {
         "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
         "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
         "size": 2578
@@ -9609,8 +9614,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T13:05:14Z",
-  "file_count": 1920,
+  "exported_at": "2026-06-23T13:27:08Z",
+  "file_count": 1921,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12887,7 +12892,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "214f5e892254e5cce527cde389845c990d510ec349b9f01396e69f8d25782d05",
+  "previous_tree_hash": "9b466eaf31cc87cea6512cee7db0f93d475518ac68f42975ba78e8d736c192ec",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12900,14 +12905,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9b466eaf31cc87cea6512cee7db0f93d475518ac68f42975ba78e8d736c192ec",
+  "tree_hash": "441c5f923aeb427227b5ee35911d2b501469d974a07868c6465abf6cabdd5726",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1266,
+  "wiki_file_count": 1267,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12916,13 +12921,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9b5548090f1d6a2cf683293dd812b4997c6af092de6771599da40b8575975e9e",
-      "size": 1089032
+      "sha256": "0051c098d2868319ac3c0b814d634601d2a0938d06177d51efd163ff617982fb",
+      "size": 1089442
     },
     {
       "path": "log.md",
-      "sha256": "c8763c2e165059fb6d2e4f282c580e9628a3b78553656f3306d7972594eefa8b",
-      "size": 1841103
+      "sha256": "03cc428df0a269275349847eb764f4cc5f9a12d8c70dd58e86f90319eff2c2d2",
+      "size": 1841524
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17505,6 +17510,11 @@
       "size": 4536
     },
     {
+      "path": "pages/runbooks/cdr-bootnode-account-recovery-and-migration.md",
+      "sha256": "4ad8fbc9cac556c3d58474ba07ee7833e15633e8b636969ee23de2459078f05a",
+      "size": 6658
+    },
+    {
       "path": "pages/runbooks/centralized-exchange-data-migration-runbook.md",
       "sha256": "be67602c8d9311e5f9d5e8bdf0f1d61f3842c5bada7e00c58ae6463b32173fdd",
       "size": 2578
@@ -19241,5 +19251,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d629058566e6d2a80888e38ddf3ea766ff50a4f376c87e35e44e5254953d4358"
+  "wiki_tree_hash": "0dd2b5f64d7fb32cc1ad5073151eda4c73df507259e0e5e5838d22390b5a8468"
 }

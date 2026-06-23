@@ -37277,3 +37277,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d2dd9676513e0b4cf591ee4ab5776b8c
 - summary: Incident report and recovery steps for the CDR bootnode after accidental AWS account closure, along with the plan to migrate the bootnode to a company Azure subscription.
 
+## [2026-06-23T13:22:07Z] synthesis | CDR Bootnode Account Recovery and Migration
+
+- status: published
+- slug: runbooks/cdr-bootnode-account-recovery-and-migration
+- wiki_revision_id: wikirev_8e9c3701ee8f2bd6b19e5802bbe2b896
+- summary: The story-services-prod AWS account was accidentally closed, causing loss of access to a CDR bootnode. After recovery, the bootnode was not found in us-east-1 but later located in ...
+
