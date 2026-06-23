@@ -36883,3 +36883,73 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6e5c2d910ba1b0b91d998f9a64a11465
 - summary: PagerDuty incident Q0Q4NDNQR67KX7 was reported on 2026-01-06. The blockscout team (Nick) is currently watching it.
 
+## [2026-06-23T04:38:33Z] synthesis | AI Playground Backend Dockerfile Location
+
+- status: published
+- slug: systems/ai-playground-backend-dockerfile
+- wiki_revision_id: wikirev_c41819c44deec4b4935795c4a50aa35f
+- summary: Inquiry about Dockerfile for ai-playground-backend image deployed in Cloud Run; Tony is working on updating the image to fix a langchain-core issue.
+
+## [2026-06-23T04:38:33Z] synthesis | Aeneid Network Gas Price Increase
+
+- status: published
+- slug: systems/aeneid-network-gas-price
+- wiki_revision_id: wikirev_073a6955ddf4d2e7255e786a44495017
+- summary: Gas price on Aeneid network increased from 0.01 to 1 gwei due to IP registration testing.
+
+## [2026-06-23T04:38:33Z] synthesis | Account Switching and Chat History Retention
+
+- status: published
+- slug: concepts/account-switching-chat-history
+- wiki_revision_id: wikirev_ff181d5fd572ca9cf5a0bb649a442985
+- summary: Chat history is retained when switching Slack accounts; setting up org account with email is painless.
+
+## [2026-06-23T04:38:33Z] synthesis | Mainnet RPC Functionality Inquiry
+
+- status: published
+- slug: systems/mainnet-rpc-issue
+- wiki_revision_id: wikirev_3c78142ed7cf7bd0c96b80f7e47fae69
+- summary: User reported inability to send tokens on mainnet with ledger; RPC seemed fine; issue was outdated Metamask.
+
+## [2026-06-23T04:38:34Z] synthesis | Bank Vault Setup and Maintenance
+
+- status: published
+- slug: systems/bank-vault-setup
+- wiki_revision_id: wikirev_5114fb652a2fac38e2aefd06ad31df1a
+- summary: The bank vault was set up manually; manifest and readme are stored in story-helm repository under bypass/bank-vault. Image version can be updated via kubectl edit on the vault CR.
+
+## [2026-06-23T04:38:34Z] synthesis | Cloudflare Pull Request Reviews
+
+- status: published
+- slug: projects/cloudflare-pr-management
+- wiki_revision_id: wikirev_b85952dbeb3e160296d431c9e1fc184d
+- summary: Several pull requests to the piplabs/cloudflare repository are under review, including PR #121 for ACM, PR #122, and PR #127 for a temp record to test prod.
+
+## [2026-06-23T04:38:34Z] synthesis | Node Removal from GKE Clusters and CloudSQL
+
+- status: published
+- slug: runbooks/node-removal-gke-cloudsql
+- wiki_revision_id: wikirev_f4051ade7205a615c5181cdf54ba1591
+- summary: Removal of all nodes from Stage and Production GKE clusters and CloudSQL, with a final backup for CloudSQL. Users should report any issues.
+
+## [2026-06-23T04:38:34Z] synthesis | AI Automation for Engineering Procedures
+
+- status: published
+- slug: projects/ai-automation-bots-initiative
+- wiki_revision_id: wikirev_1d9515f9cf8cb68ebd4a3579e2067100
+- summary: Introduction of AI to automate engineering procedures, with a subteam releasing bots; first bot demonstrated sample usage.
+
+## [2026-06-23T04:38:35Z] synthesis | Adding Members to Blueprint Repository
+
+- status: published
+- slug: projects/github-repo-access-blueprint
+- wiki_revision_id: wikirev_5ce35ae7824c2805d20efea1cadb505d
+- summary: Request to add Jacob (github: jacob-tucker) and other members to the piplabs/blueprint repository, with difficulty finding names in the access settings.
+
+## [2026-06-23T04:38:35Z] synthesis | Faucet Functionality Issues
+
+- status: published
+- slug: systems/faucet-outage-reports
+- wiki_revision_id: wikirev_7e9c4dccb3ef68ac4ad857ed4d503f04
+- summary: Users reported faucet not working; no known issues initially indicated.
+
