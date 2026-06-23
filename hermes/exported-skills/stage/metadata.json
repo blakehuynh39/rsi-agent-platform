@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4fb2fcb0c601a2e0b3a9cca9dacc249a370cc45d0a3f8f32a354266f8693ffa9",
-        "size": 1068566
+        "sha256": "b99615aff58d05c4c84760d395206f039e6fd0c69f1aad3297b239a91f8a280d",
+        "size": 1068866
       },
       {
         "path": "log.md",
-        "sha256": "8610ea266aba3d131efd7b5fd42cf1ae206f53ea1c946e9e0d279ff37851c9c5",
-        "size": 1817801
+        "sha256": "a1b7668b837869600e7c7fc28d2c787b21366a33848e65459fa3de8e5c14ddf6",
+        "size": 1818113
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7930,6 +7930,11 @@
         "size": 5137
       },
       {
+        "path": "pages/runbooks/ip-whitelisting-rpc-endpoints.md",
+        "sha256": "5f8042f016b40b50102a985f059da2932f6220b0736f5e8bee3e784c236274ea",
+        "size": 3951
+      },
+      {
         "path": "pages/runbooks/ip-whitelisting-story-rpc.md",
         "sha256": "5672995415582aa199cb322ddc6d5b9fd56ca39409dae4648258e229a52fbb3c",
         "size": 5860
@@ -9329,8 +9334,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T02:11:33Z",
-  "file_count": 1864,
+  "exported_at": "2026-06-23T02:23:11Z",
+  "file_count": 1865,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12607,7 +12612,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "d22bae592c8e21c54dc43069fa4249641cb94bf5922abe5b12f41a4c993bf8e0",
+  "previous_tree_hash": "56d4fd4aa9d1c33273b1a818c4b34df813a865fc51a8dea2192e6910ba5f6db9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12620,14 +12625,14 @@
   ],
   "skill_tree_hash": "78f6e720812ea2ce86c0fd8541cfd985f05407d58cb6172023949f19b7ffc040",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "56d4fd4aa9d1c33273b1a818c4b34df813a865fc51a8dea2192e6910ba5f6db9",
+  "tree_hash": "8a17e7c36f3c9e4e8302066116561df6e110c0c6afcde7612df11dc64eaa7b21",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1210,
+  "wiki_file_count": 1211,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12636,13 +12641,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4fb2fcb0c601a2e0b3a9cca9dacc249a370cc45d0a3f8f32a354266f8693ffa9",
-      "size": 1068566
+      "sha256": "b99615aff58d05c4c84760d395206f039e6fd0c69f1aad3297b239a91f8a280d",
+      "size": 1068866
     },
     {
       "path": "log.md",
-      "sha256": "8610ea266aba3d131efd7b5fd42cf1ae206f53ea1c946e9e0d279ff37851c9c5",
-      "size": 1817801
+      "sha256": "a1b7668b837869600e7c7fc28d2c787b21366a33848e65459fa3de8e5c14ddf6",
+      "size": 1818113
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17285,6 +17290,11 @@
       "size": 5137
     },
     {
+      "path": "pages/runbooks/ip-whitelisting-rpc-endpoints.md",
+      "sha256": "5f8042f016b40b50102a985f059da2932f6220b0736f5e8bee3e784c236274ea",
+      "size": 3951
+    },
+    {
       "path": "pages/runbooks/ip-whitelisting-story-rpc.md",
       "sha256": "5672995415582aa199cb322ddc6d5b9fd56ca39409dae4648258e229a52fbb3c",
       "size": 5860
@@ -18681,5 +18691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cf5c603ec37ef25868d64aa523278f5ec9ae1e6df1fc37ab3d2af2f2d5746958"
+  "wiki_tree_hash": "ad276e28619af57311eb176dcbacee5317ad1d17ffb838c7f291d1179f61bc1e"
 }

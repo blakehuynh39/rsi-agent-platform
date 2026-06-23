@@ -36839,3 +36839,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0b86b6a708311ef388a46b6a9322ed8e
 - summary: Request to whitelist three IP addresses (3.224.178.198, 34.225.11.164, 34.206.178.84) for Story Protocol's internal RPC endpoints to support IP registration load testing. The IPs c...
 
+## [2026-06-23T02:20:13Z] synthesis | IP Whitelisting for RPC Endpoints
+
+- status: published
+- slug: runbooks/ip-whitelisting-rpc-endpoints
+- wiki_revision_id: wikirev_66c363e6e9d6176518559a4278e4e7f2
+- summary: Procedure for requesting and implementing IP whitelist additions for Story Protocol RPC endpoints.
+
