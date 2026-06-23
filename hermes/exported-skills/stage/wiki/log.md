@@ -37598,3 +37598,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c3a9738c8f4be2586b529c2f3e0d5c8a
 - summary: Migration of the devnet environment from GCP to AWS, using a new repository story-devnet-aws based on internal-devnet provisioning code, with updated public endpoints devnet0.story...
 
+## [2026-06-23T23:47:06Z] synthesis | Devnet Migration to AWS (2026)
+
+- status: published
+- slug: projects/devnet-aws-migration
+- wiki_revision_id: wikirev_5213b6981ead64eb9555b562a4d82a37
+- summary: Migration of the Story Protocol devnet from GCP to AWS, involving a new Terraform-based provisioning repository and domain updates.
+
+## [2026-06-23T23:48:12Z] synthesis | Devnet Migration to AWS
+
+- status: published
+- slug: projects/devnet-migration-to-aws
+- wiki_revision_id: wikirev_4745d0007da2e23be68c383f3945a2a3
+- summary: Migration of the Story Protocol devnet from GCP to AWS, including a new provisioning repository, updated endpoints, and access provisioning.
+

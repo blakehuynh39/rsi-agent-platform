@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "be6776f2e0646ebbdd116bd02373ec0bb67ca68992bb7b1eba8181361c47fa8e",
-        "size": 1098589
+        "sha256": "c52179486d41d726e076400fd430e01b03599570eccc4fe2e4f2d2a6bdbbba84",
+        "size": 1098529
       },
       {
         "path": "log.md",
-        "sha256": "7afd1237971edb994f81ce06f727d7f79900eebd07b1e3e8a92ec74fb1cba0d9",
-        "size": 1857770
+        "sha256": "f7b9a43f797a649c9580af52efe8f6834c63a7e57555f2917109ea92a428febb",
+        "size": 1858441
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6376,8 +6376,8 @@
       },
       {
         "path": "pages/projects/devnet-aws-migration.md",
-        "sha256": "79d0b7407405b631f13ff2266f1326efc49de4d4398a6fb858945fb6cee7bb39",
-        "size": 4077
+        "sha256": "793aa0a54432e4a9f5defbc2e1eb85354837255a370a0ab39bcaa385f4f898e4",
+        "size": 4916
       },
       {
         "path": "pages/projects/devnet-migration-pr-112.md",
@@ -6386,8 +6386,8 @@
       },
       {
         "path": "pages/projects/devnet-migration-to-aws.md",
-        "sha256": "838b1b189fb391767cab23404717f8ecc2dd7e07330921c135fddc6e80f70981",
-        "size": 5768
+        "sha256": "f4df2776d2a20c07e87ccd1ba956f5f4a1cabd5a79b341e76071fd8c73f4ba17",
+        "size": 8090
       },
       {
         "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -9734,7 +9734,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T23:38:09Z",
+  "exported_at": "2026-06-23T23:49:52Z",
   "file_count": 1945,
   "files": [
     {
@@ -13012,7 +13012,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b558c4bea94597830b1d23de87f2404a343d85e5a1f25b5df0a5937ffbf9b9f1",
+  "previous_tree_hash": "f7151e0dbf354665e1a6c0791f82965d5f1439d493a4cfebce2de96256d5817a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13025,7 +13025,7 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f7151e0dbf354665e1a6c0791f82965d5f1439d493a4cfebce2de96256d5817a",
+  "tree_hash": "7bfbfa2e9b8135b15d4dc9987e9d746aa184ebdfacaa09de1a15acaf33fddbb9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13041,13 +13041,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "be6776f2e0646ebbdd116bd02373ec0bb67ca68992bb7b1eba8181361c47fa8e",
-      "size": 1098589
+      "sha256": "c52179486d41d726e076400fd430e01b03599570eccc4fe2e4f2d2a6bdbbba84",
+      "size": 1098529
     },
     {
       "path": "log.md",
-      "sha256": "7afd1237971edb994f81ce06f727d7f79900eebd07b1e3e8a92ec74fb1cba0d9",
-      "size": 1857770
+      "sha256": "f7b9a43f797a649c9580af52efe8f6834c63a7e57555f2917109ea92a428febb",
+      "size": 1858441
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16136,8 +16136,8 @@
     },
     {
       "path": "pages/projects/devnet-aws-migration.md",
-      "sha256": "79d0b7407405b631f13ff2266f1326efc49de4d4398a6fb858945fb6cee7bb39",
-      "size": 4077
+      "sha256": "793aa0a54432e4a9f5defbc2e1eb85354837255a370a0ab39bcaa385f4f898e4",
+      "size": 4916
     },
     {
       "path": "pages/projects/devnet-migration-pr-112.md",
@@ -16146,8 +16146,8 @@
     },
     {
       "path": "pages/projects/devnet-migration-to-aws.md",
-      "sha256": "838b1b189fb391767cab23404717f8ecc2dd7e07330921c135fddc6e80f70981",
-      "size": 5768
+      "sha256": "f4df2776d2a20c07e87ccd1ba956f5f4a1cabd5a79b341e76071fd8c73f4ba17",
+      "size": 8090
     },
     {
       "path": "pages/projects/devnet-war-mode-daily-tracker.md",
@@ -19491,5 +19491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "505d1cd3f98f8fd16fef325bcfd21a88ffd7a6871e0439b7df02e294ffdbe03b"
+  "wiki_tree_hash": "c8b7d2d5e37cf5e66001211da7a49d27e39b490a98123c9414d6644a0d8ecdbe"
 }
