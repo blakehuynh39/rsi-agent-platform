@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8814346c454dba03dfa036426308a7d6e7256f9e3983b0535f6b300d92543b69",
-        "size": 1074033
+        "sha256": "6cead8d8a72d4d444a1cab00bb1eca099c6750c3ee69d9629f60f2c9e0ee72c8",
+        "size": 1074700
       },
       {
         "path": "log.md",
-        "sha256": "3158d236f4de8096a9077d806e564785d82ca42379367c1b1ffad720d5dec18b",
-        "size": 1823585
+        "sha256": "578c347fe5acbd33c8cbce450e6cb0f30ec92dbce5cf857494c1fe786ac0d3a1",
+        "size": 1824276
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3568,6 +3568,11 @@
         "path": "pages/concepts/ecosystem-growth-strategy.md",
         "sha256": "f52dcd19e0e8a28fef930f5452048f399fda779aee3043526225343200d532f6",
         "size": 3859
+      },
+      {
+        "path": "pages/concepts/editing-assistance-and-replacement.md",
+        "sha256": "770ac0e6bb9e89b0704e7803ce59c45eefa4156d2698722c1f1f9c74120492a5",
+        "size": 2066
       },
       {
         "path": "pages/concepts/eigen-token.md",
@@ -4368,6 +4373,11 @@
         "path": "pages/concepts/skincare-anti-aging-routine.md",
         "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
         "size": 4293
+      },
+      {
+        "path": "pages/concepts/slack-message-edits-thread-1767888598.md",
+        "sha256": "6643df5522e17c3697fe9c83a1397c2b85f204026de88d486fbb6b497183bc29",
+        "size": 1924
       },
       {
         "path": "pages/concepts/smart-contract-security-resources.md",
@@ -9404,8 +9414,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T04:42:09Z",
-  "file_count": 1879,
+  "exported_at": "2026-06-23T04:48:48Z",
+  "file_count": 1881,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12682,7 +12692,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6ab868837cadea8c61564334e6524863cf8e2faf51cd69468201cffc620cd124",
+  "previous_tree_hash": "4657093fe7cc40d94e49e0e397b2f80e19515e750df35b0ea600499110b01e38",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12695,14 +12705,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4657093fe7cc40d94e49e0e397b2f80e19515e750df35b0ea600499110b01e38",
+  "tree_hash": "e844b183d67b558e5ad99dc1fc8323cffe20bee755df6b69549224654360cdb9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1225,
+  "wiki_file_count": 1227,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12711,13 +12721,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8814346c454dba03dfa036426308a7d6e7256f9e3983b0535f6b300d92543b69",
-      "size": 1074033
+      "sha256": "6cead8d8a72d4d444a1cab00bb1eca099c6750c3ee69d9629f60f2c9e0ee72c8",
+      "size": 1074700
     },
     {
       "path": "log.md",
-      "sha256": "3158d236f4de8096a9077d806e564785d82ca42379367c1b1ffad720d5dec18b",
-      "size": 1823585
+      "sha256": "578c347fe5acbd33c8cbce450e6cb0f30ec92dbce5cf857494c1fe786ac0d3a1",
+      "size": 1824276
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -12998,6 +13008,11 @@
       "path": "pages/concepts/ecosystem-growth-strategy.md",
       "sha256": "f52dcd19e0e8a28fef930f5452048f399fda779aee3043526225343200d532f6",
       "size": 3859
+    },
+    {
+      "path": "pages/concepts/editing-assistance-and-replacement.md",
+      "sha256": "770ac0e6bb9e89b0704e7803ce59c45eefa4156d2698722c1f1f9c74120492a5",
+      "size": 2066
     },
     {
       "path": "pages/concepts/eigen-token.md",
@@ -13798,6 +13813,11 @@
       "path": "pages/concepts/skincare-anti-aging-routine.md",
       "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
       "size": 4293
+    },
+    {
+      "path": "pages/concepts/slack-message-edits-thread-1767888598.md",
+      "sha256": "6643df5522e17c3697fe9c83a1397c2b85f204026de88d486fbb6b497183bc29",
+      "size": 1924
     },
     {
       "path": "pages/concepts/smart-contract-security-resources.md",
@@ -18831,5 +18851,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3c4050b8f27a5da805aa892a66d4050df5d3b331f097d921a791d501c1ca66c2"
+  "wiki_tree_hash": "90117d40ebe37903b2baa3ea69ae75023bda48816081dd22607051f4abe75d4b"
 }
