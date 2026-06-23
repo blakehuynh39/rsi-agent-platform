@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6cead8d8a72d4d444a1cab00bb1eca099c6750c3ee69d9629f60f2c9e0ee72c8",
-        "size": 1074700
+        "sha256": "d05a965a18d4581b96086f97532c3bcf6666a109c28946b67173dabb2fb2b2c3",
+        "size": 1075394
       },
       {
         "path": "log.md",
-        "sha256": "578c347fe5acbd33c8cbce450e6cb0f30ec92dbce5cf857494c1fe786ac0d3a1",
-        "size": 1824276
+        "sha256": "84ac65ef2c33e8240b6b1d6a573dc8a70a3bef20ed608f19891db11a3e79a307",
+        "size": 1824994
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3833,6 +3833,11 @@
         "path": "pages/concepts/jab-related-bruise-observation.md",
         "sha256": "498729e88a4f68072eb1211437ffade7244547d38a79b5222377cc9c53297272",
         "size": 1457
+      },
+      {
+        "path": "pages/concepts/jack-help-acknowledgment.md",
+        "sha256": "1df1cf15d02432accaadde7edb169eecc5ce33bf8acfd13e98b1db5debc39fa7",
+        "size": 2017
       },
       {
         "path": "pages/concepts/kled-data-quality-concerns.md",
@@ -4723,6 +4728,11 @@
         "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
         "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
         "size": 3065
+      },
+      {
+        "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
+        "sha256": "d187f74a6a9febb1d288cddda7c6637c7e299241653a09e3ea6adadcb9482c08",
+        "size": 2971
       },
       {
         "path": "pages/decisions/deployment-chain-decision.md",
@@ -9414,8 +9424,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T04:48:48Z",
-  "file_count": 1881,
+  "exported_at": "2026-06-23T05:05:34Z",
+  "file_count": 1883,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12692,7 +12702,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "4657093fe7cc40d94e49e0e397b2f80e19515e750df35b0ea600499110b01e38",
+  "previous_tree_hash": "e844b183d67b558e5ad99dc1fc8323cffe20bee755df6b69549224654360cdb9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12705,14 +12715,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e844b183d67b558e5ad99dc1fc8323cffe20bee755df6b69549224654360cdb9",
+  "tree_hash": "f94918edf9bf80680ed5c264598da66a9d250dda07af5a22022cf23994c0d6fd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1227,
+  "wiki_file_count": 1229,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12721,13 +12731,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6cead8d8a72d4d444a1cab00bb1eca099c6750c3ee69d9629f60f2c9e0ee72c8",
-      "size": 1074700
+      "sha256": "d05a965a18d4581b96086f97532c3bcf6666a109c28946b67173dabb2fb2b2c3",
+      "size": 1075394
     },
     {
       "path": "log.md",
-      "sha256": "578c347fe5acbd33c8cbce450e6cb0f30ec92dbce5cf857494c1fe786ac0d3a1",
-      "size": 1824276
+      "sha256": "84ac65ef2c33e8240b6b1d6a573dc8a70a3bef20ed608f19891db11a3e79a307",
+      "size": 1824994
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13273,6 +13283,11 @@
       "path": "pages/concepts/jab-related-bruise-observation.md",
       "sha256": "498729e88a4f68072eb1211437ffade7244547d38a79b5222377cc9c53297272",
       "size": 1457
+    },
+    {
+      "path": "pages/concepts/jack-help-acknowledgment.md",
+      "sha256": "1df1cf15d02432accaadde7edb169eecc5ce33bf8acfd13e98b1db5debc39fa7",
+      "size": 2017
     },
     {
       "path": "pages/concepts/kled-data-quality-concerns.md",
@@ -14163,6 +14178,11 @@
       "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
       "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
       "size": 3065
+    },
+    {
+      "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
+      "sha256": "d187f74a6a9febb1d288cddda7c6637c7e299241653a09e3ea6adadcb9482c08",
+      "size": 2971
     },
     {
       "path": "pages/decisions/deployment-chain-decision.md",
@@ -18851,5 +18871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "90117d40ebe37903b2baa3ea69ae75023bda48816081dd22607051f4abe75d4b"
+  "wiki_tree_hash": "45a11968e96ec8fa89bacc15eca2aeb267e9cdae4ef1b796c97306151873518a"
 }

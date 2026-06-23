@@ -36967,3 +36967,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7d12bf1206e729b756e4eeb867f786a3
 - summary: A series of messages indicating an edit was made with help from Jack, a user mention was replaced, and thanks were expressed.
 
+## [2026-06-23T05:00:53Z] synthesis | Jack Help Acknowledgment
+
+- status: published
+- slug: concepts/jack-help-acknowledgment
+- wiki_revision_id: wikirev_5c5b8047fb5c675472c026f83b45f160
+- summary: A Slack message was edited multiple times to thank Jack for help and note a replacement.
+
+## [2026-06-23T05:01:29Z] synthesis | Decision: Share Private Fork Aeneid API with BitGo
+
+- status: published
+- slug: decisions/decision-share-private-fork-aeneid-api-bitgo
+- wiki_revision_id: wikirev_349de6742f14858dbafae2d8e84281a5
+- summary: Decision to share the private fork Aeneid API with BitGo. Changes made to helm chart and Cloudflare are ready. The Aeneid staking dashboard has not been updated yet, but will be af...
+
