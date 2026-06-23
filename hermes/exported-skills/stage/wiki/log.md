@@ -36776,3 +36776,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4c1a17e4237c03477e93de7d8f6adf84
 - summary: A user identified by Slack ID U07KLPN0JN6, mentioned in a Slack conversation and thanked.
 
+## [2026-06-23T01:19:28Z] synthesis | Aeneid Gas Price Spike - IP Registration Testing
+
+- status: published
+- slug: systems/aeneid-gas-price-spike
+- wiki_revision_id: wikirev_6bdf3e4b39e6d9dfea3e0e65652aa2ec
+- summary: Gas price on Aeneid network surged from 0.01 gwei to approximately 1 gwei due to IP registration testing. Notification posted to avoid confusion.
+
+## [2026-06-23T01:19:29Z] synthesis | Mainnet RPC Issue with Ledger/Outdated Metamask
+
+- status: published
+- slug: runbooks/mainnet-rpc-issue-ledger
+- wiki_revision_id: wikirev_d72d4c0e5110a068b12c8d219fdd3af9
+- summary: A user reported inability to send tokens on mainnet using a Ledger device. Investigation confirmed the RPC endpoint was operational. The issue was resolved by updating Metamask, no...
+
+## [2026-06-23T01:19:29Z] synthesis | Bank Vault Setup and Operations
+
+- status: published
+- slug: runbooks/bank-vault-setup
+- wiki_revision_id: wikirev_f7dfd4191cf8f72c2700a04760e19f8c
+- summary: The Bank Vault was set up manually. Its manifest and readme are located in the story-helm repository. To update the vault, edit the Kubernetes custom resource 'vault' in the defaul...
+
+## [2026-06-23T01:19:29Z] synthesis | Node Removal in Stage and Prod GKE/CloudSQL
+
+- status: published
+- slug: systems/node-removal-gke-cloudsql
+- wiki_revision_id: wikirev_8e78a21992a7ce0771ab4fe13b22d5a7
+- summary: All nodes in Stage and Production GKE cluster and CloudSQL are being removed. A final backup for CloudSQL will be performed. Users asked to report issues.
+
+## [2026-06-23T01:19:29Z] synthesis | Request for Adding Members to piplabs/blueprint
+
+- status: published
+- slug: open-questions/blueprint-repo-access
+- wiki_revision_id: wikirev_9a6b745baf38efa085f07608ea09502f
+- summary: A request was made to add Jacob Tucker (github: jacob-tucker) and others to the piplabs/blueprint repository. The requester could not locate them in the access settings and sought ...
+
+## [2026-06-23T01:19:29Z] synthesis | AI Automation of Engineering Procedures
+
+- status: published
+- slug: projects/ai-automation-eng-procedures
+- wiki_revision_id: wikirev_de36449500644298b64baf0cd0af8c98
+- summary: The team has started using AI to automate engineering procedures. A sample usage was demonstrated, and more bots will be released to assist engineering workflows.
+
