@@ -37214,3 +37214,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c2c2e05fad27930a374a8fc5a6fb4e5e
 - summary: Requirements and process for enabling Cursor bugbot on GitHub pull requests. A Cursor org account is normally required, but individual users with GitHub admin permissions can run i...
 
+## [2026-06-23T11:16:47Z] synthesis | STORY-API-DF Incident: Invalid twitter_handle field
+
+- status: published
+- slug: runbooks/story-api-df-incident-invalid-twitter-handle
+- wiki_revision_id: wikirev_2366c1deb4c52080ffb060bf713a40ed
+- summary: On 2025-12-22, the story-api encountered an 'errors.fundamental: invalid field: twitter_handle' error. The issue was identified and marked as resolved by Blake Huynh.
+

@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "aa179f14778052316d79949126f152c980cb0b30febcd2773430db0bb5e6f56b",
-        "size": 1837882
+        "sha256": "244fb2c7577050f1f2096b051ae292ee6ed9f1a15efdc0808d2df6ffb81467fe",
+        "size": 1838295
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8430,6 +8430,11 @@
         "size": 1689
       },
       {
+        "path": "pages/runbooks/story-api-df-incident-invalid-twitter-handle.md",
+        "sha256": "184667bba40f21e64090efc75b82d5497fb9aa2429bb0a347b0530e5758d2278",
+        "size": 2304
+      },
+      {
         "path": "pages/runbooks/story-api-lineage-timeout-incident.md",
         "sha256": "f5e39dba3821378ae41fb830da0701811fb3295ec07258b8e9708ee379a53096",
         "size": 1529
@@ -9569,8 +9574,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T11:07:31Z",
-  "file_count": 1912,
+  "exported_at": "2026-06-23T11:19:14Z",
+  "file_count": 1913,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12847,7 +12852,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b2395d5d8a41663b82de84400b5d89f942ab7e8e421fe080e6f7f4ffe2f16821",
+  "previous_tree_hash": "b1c2210bf0b657a94901e7a2087d643590ae23c2ddb7290f52c46f340273d09a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12860,14 +12865,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b1c2210bf0b657a94901e7a2087d643590ae23c2ddb7290f52c46f340273d09a",
+  "tree_hash": "d91746735000e39e7aa71743fb8e100ba2e9b504256dc93696341464280db640",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1258,
+  "wiki_file_count": 1259,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12881,8 +12886,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "aa179f14778052316d79949126f152c980cb0b30febcd2773430db0bb5e6f56b",
-      "size": 1837882
+      "sha256": "244fb2c7577050f1f2096b051ae292ee6ed9f1a15efdc0808d2df6ffb81467fe",
+      "size": 1838295
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18025,6 +18030,11 @@
       "size": 1689
     },
     {
+      "path": "pages/runbooks/story-api-df-incident-invalid-twitter-handle.md",
+      "sha256": "184667bba40f21e64090efc75b82d5497fb9aa2429bb0a347b0530e5758d2278",
+      "size": 2304
+    },
+    {
       "path": "pages/runbooks/story-api-lineage-timeout-incident.md",
       "sha256": "f5e39dba3821378ae41fb830da0701811fb3295ec07258b8e9708ee379a53096",
       "size": 1529
@@ -19161,5 +19171,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "167777c13585dd07679f7da7df91305fa99f124deee43f4b6566cd103cfdf274"
+  "wiki_tree_hash": "b4e8ff2efb825dbe2f7806b78da462d499f69095688d3b300d5ccd3f0763a26c"
 }
