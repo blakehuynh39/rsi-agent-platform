@@ -37312,3 +37312,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_414aec342fff4914d35c92c4f794814d
 - summary: The CDR bootnode became inaccessible after an AWS account was mistakenly closed. The account was identified as story-services-staging after checking story-prod and story-services-p...
 
+## [2026-06-23T14:02:16Z] synthesis | CDR Bootnode Recovery and Azure Migration (2026-01-20)
+
+- status: published
+- slug: systems/cdr-bootnode-recovery-azure-migration-jan-2026
+- wiki_revision_id: wikirev_2b6b058dd35d8a54915b77a3c47ac78d
+- summary: On 2026-01-20, the CDR bootnode became inaccessible due to an unintended AWS account closure. The account was restored and the bootnode was found in the story-services-staging acco...
+
