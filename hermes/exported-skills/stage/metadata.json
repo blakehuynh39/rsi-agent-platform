@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "00182721b6d7fccb24b3e7de770f2c2f22d42cfa07fd5181d5a605c9e8ce3788",
-        "size": 1828028
+        "sha256": "aee5346dbd4414dacddbe59fa154609daafb4395e6b47a0260d2b0808899bdd2",
+        "size": 1828435
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4978,6 +4978,11 @@
         "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
         "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
         "size": 4141
+      },
+      {
+        "path": "pages/decisions/mainnet-global-site-aws-regions.md",
+        "sha256": "a7b0fc025d962a1c81e33c87da9a267920d073ffb9a53efa26811ea78652a690",
+        "size": 3232
       },
       {
         "path": "pages/decisions/meeting-reschedule-2026-04-21.md",
@@ -9459,8 +9464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T06:36:10Z",
-  "file_count": 1890,
+  "exported_at": "2026-06-23T06:47:54Z",
+  "file_count": 1891,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12737,7 +12742,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "72025cd42b861b98a44bc0758ac4e0f3694d3157a9301ed9f48f499e4148e21f",
+  "previous_tree_hash": "b09b5dae5e806d8f732d53935b0c1da2755e548722a103fe205d48d3f7a3ce8e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12750,14 +12755,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b09b5dae5e806d8f732d53935b0c1da2755e548722a103fe205d48d3f7a3ce8e",
+  "tree_hash": "d9589c1becd2a0152f9dd34267060bd6498d4f54073f3981b32f604b2d8b516e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1236,
+  "wiki_file_count": 1237,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12771,8 +12776,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "00182721b6d7fccb24b3e7de770f2c2f22d42cfa07fd5181d5a605c9e8ce3788",
-      "size": 1828028
+      "sha256": "aee5346dbd4414dacddbe59fa154609daafb4395e6b47a0260d2b0808899bdd2",
+      "size": 1828435
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14463,6 +14468,11 @@
       "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
       "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
       "size": 4141
+    },
+    {
+      "path": "pages/decisions/mainnet-global-site-aws-regions.md",
+      "sha256": "a7b0fc025d962a1c81e33c87da9a267920d073ffb9a53efa26811ea78652a690",
+      "size": 3232
     },
     {
       "path": "pages/decisions/meeting-reschedule-2026-04-21.md",
@@ -18941,5 +18951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1c5352f9381b44bcc374e8a1d8857643d8f0a62cd1b412395a6d52ca18995b68"
+  "wiki_tree_hash": "c33e7c9662dd00b85c95178919eac9202d90f4ed02b65733345bc9dfd653a268"
 }

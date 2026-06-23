@@ -37039,3 +37039,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_670fc05f7379e39914fa6dc899c59e43
 - summary: Review of pull request #110 for Mainnet AWS ACM. The change does not affect current mainnet RPC usage. Two approvals have been given.
 
+## [2026-06-23T06:47:17Z] synthesis | Mainnet Global Site AWS Region Selection
+
+- status: published
+- slug: decisions/mainnet-global-site-aws-regions
+- wiki_revision_id: wikirev_4686aba113e6fecaa169f90572fb58cf
+- summary: Decision to use ap-northeast-2 (Seoul) and eu-central-1 (Frankfurt) for mainnet global site instances, switching from initial plan of ap-northeast-1 (Tokyo) to prioritise Korean ma...
+
