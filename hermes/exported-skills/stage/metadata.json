@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d05a965a18d4581b96086f97532c3bcf6666a109c28946b67173dabb2fb2b2c3",
-        "size": 1075394
+        "sha256": "e235b72a9a6ee8385f3082ec221960f5dbf114b23a974e3b8d8d0dcbc604d660",
+        "size": 1075730
       },
       {
         "path": "log.md",
-        "sha256": "84ac65ef2c33e8240b6b1d6a573dc8a70a3bef20ed608f19891db11a3e79a307",
-        "size": 1824994
+        "sha256": "9cb68f7702ce58c27782e9775ca2a0b0f4cfc6bcb84a5945e088bdb8c78d4188",
+        "size": 1825342
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4623,6 +4623,11 @@
         "path": "pages/decisions/access-control-acl.md",
         "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
         "size": 6118
+      },
+      {
+        "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
+        "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
+        "size": 2581
       },
       {
         "path": "pages/decisions/agent-jobs-app-role-prioritization.md",
@@ -9424,8 +9429,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T05:05:34Z",
-  "file_count": 1883,
+  "exported_at": "2026-06-23T05:22:27Z",
+  "file_count": 1884,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12702,7 +12707,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e844b183d67b558e5ad99dc1fc8323cffe20bee755df6b69549224654360cdb9",
+  "previous_tree_hash": "f94918edf9bf80680ed5c264598da66a9d250dda07af5a22022cf23994c0d6fd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12715,14 +12720,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f94918edf9bf80680ed5c264598da66a9d250dda07af5a22022cf23994c0d6fd",
+  "tree_hash": "2b5e9db787bf94c22462bcd034d33a52fad8c3ab1f3d25ec6ee1f51c0f3f6b92",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1229,
+  "wiki_file_count": 1230,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12731,13 +12736,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d05a965a18d4581b96086f97532c3bcf6666a109c28946b67173dabb2fb2b2c3",
-      "size": 1075394
+      "sha256": "e235b72a9a6ee8385f3082ec221960f5dbf114b23a974e3b8d8d0dcbc604d660",
+      "size": 1075730
     },
     {
       "path": "log.md",
-      "sha256": "84ac65ef2c33e8240b6b1d6a573dc8a70a3bef20ed608f19891db11a3e79a307",
-      "size": 1824994
+      "sha256": "9cb68f7702ce58c27782e9775ca2a0b0f4cfc6bcb84a5945e088bdb8c78d4188",
+      "size": 1825342
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14073,6 +14078,11 @@
       "path": "pages/decisions/access-control-acl.md",
       "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
       "size": 6118
+    },
+    {
+      "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
+      "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
+      "size": 2581
     },
     {
       "path": "pages/decisions/agent-jobs-app-role-prioritization.md",
@@ -18871,5 +18881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "45a11968e96ec8fa89bacc15eca2aeb267e9cdae4ef1b796c97306151873518a"
+  "wiki_tree_hash": "89f501cd4caf3d8c01f62b272e177a09a139f476f9d02fe60ae8b0180cdfba7d"
 }

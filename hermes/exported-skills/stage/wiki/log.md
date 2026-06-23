@@ -36981,3 +36981,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_349de6742f14858dbafae2d8e84281a5
 - summary: Decision to share the private fork Aeneid API with BitGo. Changes made to helm chart and Cloudflare are ready. The Aeneid staking dashboard has not been updated yet, but will be af...
 
+## [2026-06-23T05:18:10Z] synthesis | Sharing Aeneid API with BitGo
+
+- status: published
+- slug: decisions/aeneid-api-sharing-for-bitgo
+- wiki_revision_id: wikirev_cbe0c7e975791c6b9dac64ecab0d67f7
+- summary: Discussion about sharing the private fork Aeneid API with BitGo, including helm chart and Cloudflare updates, and plans for mainnet setup.
+
