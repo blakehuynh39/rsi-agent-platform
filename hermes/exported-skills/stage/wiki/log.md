@@ -37228,3 +37228,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aa188130d4c744100b7fbb5919a4d814
 - summary: Public RPC endpoint for Story mainnet at mainnet.storyrpc.io. Maintained by Story Protocol team.
 
+## [2026-06-23T11:46:18Z] synthesis | Backend API to list addresses holding RTs for a given IP ID
+
+- status: published
+- slug: open-questions/api-list-addresses-for-ip-id-rt-holders
+- wiki_revision_id: wikirev_03319bc4e387f245e1cdee49a63c9895
+- summary: Question raised in Slack about existence of a backend API to list all addresses holding RTs for a given IP ID or IP Royalty Vault. Initial response indicates no such API currently ...
+
+## [2026-06-23T11:47:17Z] synthesis | API to list addresses holding RTs for IP Royalty Vault
+
+- status: published
+- slug: open-questions/api-list-addresses-holding-rt-for-ip-royalty-vault
+- wiki_revision_id: wikirev_95de830b98460bd536e30f279f040c80
+- summary: Question about existence of a backend API to list all addresses holding RTs for a given ipId / IpRoyaltyVault. Responder indicated they don't think such an API exists.
+

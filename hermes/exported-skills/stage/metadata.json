@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f1dfd09155029bad622ffa5115ccbf24e8e679591dc87994515e64bae803b8f0",
-        "size": 1086927
+        "sha256": "e9175ec632b4647d2e81f52695debb3df3b0678462e858afc9e26730b4529371",
+        "size": 1087771
       },
       {
         "path": "log.md",
-        "sha256": "3d4d77ff1dc65d580e730674bf0ec247613eb2c38d4840fdee5c914289395ab5",
-        "size": 1838576
+        "sha256": "1e792a715daa60428ec71a7decf9b18c52731c15673221c114d6f565199051ef",
+        "size": 1839444
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5458,6 +5458,16 @@
         "path": "pages/open-questions/access-controller-suggestions.md",
         "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
         "size": 1551
+      },
+      {
+        "path": "pages/open-questions/api-list-addresses-for-ip-id-rt-holders.md",
+        "sha256": "90c77286b4e0f9d41a3858cf80e1196d396bface5521a774aa2b4d8fe884135a",
+        "size": 1911
+      },
+      {
+        "path": "pages/open-questions/api-list-addresses-holding-rt-for-ip-royalty-vault.md",
+        "sha256": "8b79db2d34f9e2748907b2f164a139d254112d54f0ce184e56524ced4644a45a",
+        "size": 1317
       },
       {
         "path": "pages/open-questions/auto-royalty-distribution-inquiry.md",
@@ -9579,8 +9589,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T11:25:51Z",
-  "file_count": 1914,
+  "exported_at": "2026-06-23T11:47:45Z",
+  "file_count": 1916,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12857,7 +12867,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d91746735000e39e7aa71743fb8e100ba2e9b504256dc93696341464280db640",
+  "previous_tree_hash": "1116f62950bdb053693c5be9f49ffbf6ccd96db83dc03121de69de9ff92a5584",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12870,14 +12880,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1116f62950bdb053693c5be9f49ffbf6ccd96db83dc03121de69de9ff92a5584",
+  "tree_hash": "d50a57528d0f29a7d7d5439c50d6f11ad3875ac4aeba3a74913b2f4a70eda37c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1260,
+  "wiki_file_count": 1262,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12886,13 +12896,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f1dfd09155029bad622ffa5115ccbf24e8e679591dc87994515e64bae803b8f0",
-      "size": 1086927
+      "sha256": "e9175ec632b4647d2e81f52695debb3df3b0678462e858afc9e26730b4529371",
+      "size": 1087771
     },
     {
       "path": "log.md",
-      "sha256": "3d4d77ff1dc65d580e730674bf0ec247613eb2c38d4840fdee5c914289395ab5",
-      "size": 1838576
+      "sha256": "1e792a715daa60428ec71a7decf9b18c52731c15673221c114d6f565199051ef",
+      "size": 1839444
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15063,6 +15073,16 @@
       "path": "pages/open-questions/access-controller-suggestions.md",
       "sha256": "908d4699ba99a2510e33fab69dbd8a844a4eea032c149aa5798fb71da54bc660",
       "size": 1551
+    },
+    {
+      "path": "pages/open-questions/api-list-addresses-for-ip-id-rt-holders.md",
+      "sha256": "90c77286b4e0f9d41a3858cf80e1196d396bface5521a774aa2b4d8fe884135a",
+      "size": 1911
+    },
+    {
+      "path": "pages/open-questions/api-list-addresses-holding-rt-for-ip-royalty-vault.md",
+      "sha256": "8b79db2d34f9e2748907b2f164a139d254112d54f0ce184e56524ced4644a45a",
+      "size": 1317
     },
     {
       "path": "pages/open-questions/auto-royalty-distribution-inquiry.md",
@@ -19181,5 +19201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "455f9ee7bce359620d94cc2c696ed0660dbd0d85295f5ce5344f4e9dda25a05d"
+  "wiki_tree_hash": "ce3f9489b51a3ef5789b65e9d2da191ba0f618020095eeb5b6be028bd45b5f65"
 }
