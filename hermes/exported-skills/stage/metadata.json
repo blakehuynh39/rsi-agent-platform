@@ -6811,8 +6811,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "7535883c102fb32414fa8d48c9d6ea9c6adf653df54b956514f2ae236ed450a9",
-        "size": 22355
+        "sha256": "009a049a2cc922646f09b2e3a454fdb740d87978d611a5399193c0aeb128cfca",
+        "size": 23156
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -8946,8 +8946,8 @@
       },
       {
         "path": "pages/systems/data-migration-technical-handbook.md",
-        "sha256": "1caac39b4fb3cfd74dd7d3277b95ed99a7e7dfa817798c8c267f68d0c0d2044e",
-        "size": 44827
+        "sha256": "7e2706fa4fa6f858f9a985e9c5b5040675888f1b56436af1f81a9c08957de45b",
+        "size": 46628
       },
       {
         "path": "pages/systems/data-portal-backend-architecture.md",
@@ -9699,7 +9699,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T19:11:52Z",
+  "exported_at": "2026-06-23T19:18:32Z",
   "file_count": 1938,
   "files": [
     {
@@ -12977,7 +12977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "003ed39a684eed0279b43e2a76af9ee0b626957ebf9c1b334059cdd0d6b5f12d",
+  "previous_tree_hash": "282a28a604f0370e289008da1b030952a54eb81a7c7a2635a905ae554136cb69",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12990,7 +12990,7 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "282a28a604f0370e289008da1b030952a54eb81a7c7a2635a905ae554136cb69",
+  "tree_hash": "ea4e85bc2e26527c893231dcb7370ec471f2daf06e0254b0604084b927784c5e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -16536,8 +16536,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "7535883c102fb32414fa8d48c9d6ea9c6adf653df54b956514f2ae236ed450a9",
-      "size": 22355
+      "sha256": "009a049a2cc922646f09b2e3a454fdb740d87978d611a5399193c0aeb128cfca",
+      "size": 23156
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -18671,8 +18671,8 @@
     },
     {
       "path": "pages/systems/data-migration-technical-handbook.md",
-      "sha256": "1caac39b4fb3cfd74dd7d3277b95ed99a7e7dfa817798c8c267f68d0c0d2044e",
-      "size": 44827
+      "sha256": "7e2706fa4fa6f858f9a985e9c5b5040675888f1b56436af1f81a9c08957de45b",
+      "size": 46628
     },
     {
       "path": "pages/systems/data-portal-backend-architecture.md",
@@ -19421,5 +19421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d9881314762d624395dfc449030008419f834307cf194bab12b2b9d017dba845"
+  "wiki_tree_hash": "151c8e3b1838f0c2b08c6672fb5f81030e46a171bdc611b3546acc0583d471d0"
 }

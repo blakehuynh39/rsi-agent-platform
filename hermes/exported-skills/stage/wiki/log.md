@@ -37461,3 +37461,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e265eca735856a46e74ea26dc74d7adf
 - summary: Project to migrate Story Protocol devnet from GCP to AWS, including provisioning code, access guides, and permission setup.
 
+## [2026-06-23T19:18:27Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: systems/data-migration-technical-handbook
+- wiki_revision_id: wikirev_0b62354136cf14d539bbdf5b53689d26
+- summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
+
+## [2026-06-23T19:18:28Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_f20ff755a4016ba823c1c8d1a0a41ec3
+- summary: An engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. Includes sub-pages for Internal Agent...
+
