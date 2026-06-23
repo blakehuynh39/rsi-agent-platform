@@ -36869,3 +36869,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0c64ce63e9d25c2626f823985a35337d
 - summary: Whitelisting of three NAT gateway IPs (3.224.178.198, 34.225.11.164, 34.206.178.84) for accessing the internal RPC endpoints (testnet and mainnet) to handle high QPS for IP registr...
 
+## [2026-06-23T03:20:40Z] synthesis | Story RPC Endpoint IP Whitelisting
+
+- status: published
+- slug: runbooks/story-rpc-endpoint-ip-whitelisting
+- wiki_revision_id: wikirev_b8d7fa343a9cf5b1995245586b236aac
+- summary: Process for whitelisting IP addresses to access restricted internal RPC endpoints for Story testnet (Aeneid) and mainnet, using Cloudflare configuration via the piplabs/cloudflare ...
+

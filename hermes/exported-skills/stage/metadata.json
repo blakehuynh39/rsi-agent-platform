@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cd00e4b43ae1e8f75493058776d03058cdb203c5694ee0ad73e322fecc231b0b",
-        "size": 1070073
+        "sha256": "83aea56926755e38213edbec75acdcb5933749a1e434f8b8ea70111eca3eaacd",
+        "size": 1070464
       },
       {
         "path": "log.md",
-        "sha256": "5f6093204446b8f2d5e83cd14ee33b09be7587c458a32f70f55f03fdfa6ea8c7",
-        "size": 1819481
+        "sha256": "bab986b157de438d7c22dc5b53d8edc03cf4205633f5eefd01efe95219919963",
+        "size": 1819884
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8350,6 +8350,11 @@
         "size": 12820
       },
       {
+        "path": "pages/runbooks/story-rpc-endpoint-ip-whitelisting.md",
+        "sha256": "79b3974459be396f87b223bbeb92f8c6f2ce9cdcde89febda05e5e57de3839fe",
+        "size": 3995
+      },
+      {
         "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
         "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
         "size": 4946
@@ -9344,8 +9349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T03:03:21Z",
-  "file_count": 1867,
+  "exported_at": "2026-06-23T03:25:09Z",
+  "file_count": 1868,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12622,7 +12627,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-7cdf64ksfhd",
-  "previous_tree_hash": "44ca3c651a40ce60a1fc7f63dadf17503b69c064a1e9772333393400073d2c32",
+  "previous_tree_hash": "b5c75a46115ba3c47da0a8e7d51eb2972ab5cf1df20d33df2d2d88df3fab3356",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12635,14 +12640,14 @@
   ],
   "skill_tree_hash": "6402191a75007b3e6407eb0871bde679563e68b0053a0360d47f25088da6d2f5",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b5c75a46115ba3c47da0a8e7d51eb2972ab5cf1df20d33df2d2d88df3fab3356",
+  "tree_hash": "26942da8bd0b8e352a44f4216ce8c72ece944db6f66b02cce9665e6d5d247cec",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1213,
+  "wiki_file_count": 1214,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -12651,13 +12656,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cd00e4b43ae1e8f75493058776d03058cdb203c5694ee0ad73e322fecc231b0b",
-      "size": 1070073
+      "sha256": "83aea56926755e38213edbec75acdcb5933749a1e434f8b8ea70111eca3eaacd",
+      "size": 1070464
     },
     {
       "path": "log.md",
-      "sha256": "5f6093204446b8f2d5e83cd14ee33b09be7587c458a32f70f55f03fdfa6ea8c7",
-      "size": 1819481
+      "sha256": "bab986b157de438d7c22dc5b53d8edc03cf4205633f5eefd01efe95219919963",
+      "size": 1819884
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17720,6 +17725,11 @@
       "size": 12820
     },
     {
+      "path": "pages/runbooks/story-rpc-endpoint-ip-whitelisting.md",
+      "sha256": "79b3974459be396f87b223bbeb92f8c6f2ce9cdcde89febda05e5e57de3839fe",
+      "size": 3995
+    },
+    {
       "path": "pages/runbooks/story-testnet-troubleshooting-commands.md",
       "sha256": "1b8cd99b51c5079852b9d9230cfaa63501d02bba2e03b4eb5093089f56c57e43",
       "size": 4946
@@ -18711,5 +18721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "091bbb036359e33707c660b6a6c62369b7d1c6f5286a5c621f62c923f34afaa9"
+  "wiki_tree_hash": "ee92e288c40912b534c1a85f5205aa644a3f011b1234141cdc2af1c8880f93b9"
 }
