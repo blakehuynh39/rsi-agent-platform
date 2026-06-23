@@ -1,68 +1,70 @@
 ---
-title: "Rebranding of Story to Data Network"
+title: "$DATA Migration Technical Handbook (External)"
 type: "decision"
 slug: "decisions/story-rebrand-to-data"
-freshness: "2026-06-05T20:46:00Z"
+freshness: "2026-06-23T05:35:00Z"
 tags:
-  - "$DATA"
-  - "$IP"
-  - "data"
-  - "erc20"
+  - "infrastructure"
   - "rebrand"
-  - "rpc"
-  - "story"
-  - "token"
-  - "wdata"
+  - "tokenomics"
 owners: []
 source_revision_ids:
-  - "srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d"
+  - "srcrev_b697e5f4f71b0774887c70a185e0965c"
 conflict_state: "none"
 ---
 
-# Rebranding of Story to Data Network
+# $DATA Migration Technical Handbook (External)
 
 ## Summary
 
-Story has rebranded to Data, including the L1 chain (Data Network), token ($DATA), foundation, domains, and GitHub repositories. No hardfork is required; chain ID remains 1514. WDATA, an ERC20 wrapper for the native token, will be deployed alongside existing WIP. Centralized exchanges should update ticker to $DATA.
+Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migration from WIP to WDATA.
 
 ## Claims
 
-- Story Foundation becomes Data Foundation. `claim:claim_1_1` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- Story, the L1 chain, becomes Data Network. `claim:claim_1_2` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- Story native network token $IP renames to $DATA, the native token of Data Network. `claim:claim_1_3` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- A new ERC20 wrapper of the native token will be deployed, $WDATA. `claim:claim_1_4` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- WDATA Address: 0xD18a56346227f25D1410F98f78234305660bB877 `claim:claim_1_5` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- All domains with 'story' in them (like storyrpc.io) will transition to 'data' (like datarpc.io) with 1 month supporting both versions. `claim:claim_1_6` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- New websites referencing the new direction will replace Story related ones, and staking related websites will be updated to reflect the new brand. `claim:claim_1_7` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- GitHub Repositories for our network clients - https://github.com/piplabs/story - https://github.com/piplabs/story-geth will be archived, and work will continue in the forks https://github.com/piplabs/data-network https://github.com/piplabs/data-network-geth `claim:claim_1_8` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- No hardfork is required because Data Network (formerly Story L1) uses an EVM execution environment (via story-geth, now data-network-geth), which doesn't reference the native token ticker or network name; Chain ID is still 1514. `claim:claim_1_9` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- The consensus client (Cosmos based) has references to 'story' in App Id is `story-1` and validator Bech32 addresses have the prefix `story`. There is a reference to $IP in the genesis JSON, which must be kept to allow clients to synch from block 0. `claim:claim_1_10` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- These consensus-level references are only seen by developers and not users, and deprioritized from a hardfork due to complexity and low visibility or usability impact. If these changes are ever included in a hardfork, the community will be notified well ahead. `claim:claim_1_11` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- WDATA is an independently deployed ERC20 contract, and WIP is immutable, so both tokens will coexist and be identical in functionality, without breaking changes or hardfork needed. `claim:claim_1_12` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
-- For centralized exchanges: no action regarding chain id (remains 1514); update ticker to $DATA. `claim:claim_1_13` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d` `chunk_id=srcchunk_aa452cc74afcd42e4c7b0bec9738c7f7` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893` `source_timestamp=2026-06-05T20:46:00Z`
+- Story is rebranding to Data to focus on training data infrastructure. `claim:rebrand_story_to_data` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Story Foundation becomes Data Foundation. `claim:story_foundation_to_data_foundation` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- The Story L1 chain is renamed to Data Network. `claim:story_l1_to_data_network` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- The native network token $IP is renamed to $DATA. `claim:native_token_ip_to_data` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- A new ERC-20 wrapper of the native token, $WDATA, is deployed at address 0xD18a56346227f25D1410F98f78234305660bB877. `claim:wdata_deployment` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Domains transition from story to data (e.g., storyrpc.io → datarpc.io, storyscan.io → datanetscan.io, storyapis.com → dataapis.io, story.foundation → datafdn.org), with both versions supported for 1 month. `claim:domain_transitions` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- New websites replace existing Story sites, and staking sites are updated to reflect the new brand. `claim:new_websites_and_staking` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- The GitHub repositories piplabs/story and piplabs/story-geth are archived; development continues in piplabs/data-network and piplabs/data-network-geth. `claim:github_repos_archived` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Chain ID remains 1514; no hard fork is required for token or network name changes. `claim:chain_id_unchanged` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- The consensus client App ID 'story-1' and validator Bech32 prefix 'story' remain unchanged; the $IP reference in genesis JSON is kept to allow syncing from block 0. `claim:app_id_and_bech32_unchanged` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- WDATA is an independently deployed ERC-20 contract; WIP is immutable, so both tokens coexist as functional native token wrappers. `claim:wdata_and_wip_coexist` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Centralized exchanges should update ticker to $DATA, network name to Data Network, RPC endpoints to datarpc.io (mainnet) and datarpc.io (aeneid), block explorer to datanetscan.io, and refresh all graphic materials. `claim:cex_actions` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Proof of Creativity protocol and IP Portal require no changes; POC continues to support WIP. `claim:poc_and_ip_portal_no_change` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- SDK integrations require no modifications. `claim:sdk_no_change` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Wallets and frontends should update ticker to $DATA, network name to Data Network, refresh graphics, and point to latest chain list commits. `claim:wallet_and_frontend_updates` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- Twitter handles change: @StoryProtocol → @datafdn, @StoryEcosystem → @data_ecosystem, @StoryEngs → @databuilders. `claim:twitter_handle_changes` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_0fcc2be20b139ba29e9642c792f5ae81` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-1` `source_timestamp=2026-06-23T05:35:00Z`
+- To migrate from WIP to WDATA programmatically: call WIP (0x1514000000000000000000000000000000000000) withdraw, then call WDATA (0xD18a56346227f25D1410F98f78234305660bB877) deposit, or send native tokens directly to the WDATA address. `claim:programmatic_migration` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_ff78e77b01e47f2f975be7b8f954689b` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2` `source_timestamp=2026-06-23T05:35:00Z`
+- A dedicated WDATA migration page is planned but the URL is not yet confirmed. `claim:wdata_migration_page_tbd` `confidence:0.80`
+  - citation: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2) `source_document_id=srcdoc_595c1fb031be8bea2eb6952240911f03` `source_revision_id=srcrev_b697e5f4f71b0774887c70a185e0965c` `chunk_id=srcchunk_ff78e77b01e47f2f975be7b8f954689b` `native_locator=https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893#chunk-2` `source_timestamp=2026-06-23T05:35:00Z`
 
 ## Open Questions
 
-- RPC domain changes for mainnet and testnet (aeneid) are marked as uncertain (??). Are the final URLs https://mainnet.datanetworkrpc.io and https://aeneid.datanetworkrpc.io?
-- The 'Full list: - …' of domain transitions is incomplete; what are all the new domains?
-- The destination for GitHub repositories under storyprotocol org is unknown ('move to…?').
-- Will staking websites be updated? Specifics are missing.
+- Handling of storyprotocol GitHub org repositories is not yet specified.
+- The exact URL for the WDATA migration page is still to be confirmed.
 
 ## Sources
 
 - `source_document_id`: `srcdoc_595c1fb031be8bea2eb6952240911f03`
-- `source_revision_id`: `srcrev_c9dd6715dc3fa94110a36e4cb73b4a3d`
+- `source_revision_id`: `srcrev_b697e5f4f71b0774887c70a185e0965c`
 - `source_url`: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)

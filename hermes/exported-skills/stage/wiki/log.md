@@ -37046,3 +37046,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4686aba113e6fecaa169f90572fb58cf
 - summary: Decision to use ap-northeast-2 (Seoul) and eu-central-1 (Frankfurt) for mainnet global site instances, switching from initial plan of ap-northeast-1 (Tokyo) to prioritise Korean ma...
 
+## [2026-06-23T07:05:37Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: decisions/story-rebrand-to-data
+- wiki_revision_id: wikirev_da80018ce91c08a5e1168a0eb1708b3f
+- summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
+
