@@ -37454,3 +37454,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_3036558e56ffe0d9594708fef221df09
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-23T19:07:23Z] synthesis | AWS Devnet Migration
+
+- status: published
+- slug: projects/aws-devnet-migration
+- wiki_revision_id: wikirev_e265eca735856a46e74ea26dc74d7adf
+- summary: Project to migrate Story Protocol devnet from GCP to AWS, including provisioning code, access guides, and permission setup.
+

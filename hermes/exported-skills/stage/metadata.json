@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1f233065fb1bcd7e25a69407e182e98cbfcd4cd368c4b15ec9c4bff065d5437b",
-        "size": 1095412
+        "sha256": "cc61e63c627d862322be61fc0f8d5262973ebf0c71477b5193a2dea0ece88edb",
+        "size": 1095715
       },
       {
         "path": "log.md",
-        "sha256": "63bc662d194618fe9e9f996b3321b213d5065556e2c000e0dca68ae4480521d0",
-        "size": 1850483
+        "sha256": "7efaf51e5f3a1c612d7a8661f090d54704363821bf5570fb3c17e29fc0d4dbd2",
+        "size": 1850798
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6153,6 +6153,11 @@
         "path": "pages/projects/automate-support-email-summarize-feedback.md",
         "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
         "size": 1318
+      },
+      {
+        "path": "pages/projects/aws-devnet-migration.md",
+        "sha256": "c886381d64d9b8ac59518165266c534085cc89c427b369b3fbcd478d1b851a5c",
+        "size": 6764
       },
       {
         "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
@@ -9694,8 +9699,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-23T19:05:10Z",
-  "file_count": 1937,
+  "exported_at": "2026-06-23T19:11:52Z",
+  "file_count": 1938,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -12972,7 +12977,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0e2b98da653fcb72ca165258a401377dc3a423b0d64bfad0e52cd89caf6da30b",
+  "previous_tree_hash": "003ed39a684eed0279b43e2a76af9ee0b626957ebf9c1b334059cdd0d6b5f12d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -12985,14 +12990,14 @@
   ],
   "skill_tree_hash": "a0e73266941a24a5e0bb6167e69706a7923c03dc702361e5fe1f684f350fbbd7",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "003ed39a684eed0279b43e2a76af9ee0b626957ebf9c1b334059cdd0d6b5f12d",
+  "tree_hash": "282a28a604f0370e289008da1b030952a54eb81a7c7a2635a905ae554136cb69",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1283,
+  "wiki_file_count": 1284,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13001,13 +13006,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1f233065fb1bcd7e25a69407e182e98cbfcd4cd368c4b15ec9c4bff065d5437b",
-      "size": 1095412
+      "sha256": "cc61e63c627d862322be61fc0f8d5262973ebf0c71477b5193a2dea0ece88edb",
+      "size": 1095715
     },
     {
       "path": "log.md",
-      "sha256": "63bc662d194618fe9e9f996b3321b213d5065556e2c000e0dca68ae4480521d0",
-      "size": 1850483
+      "sha256": "7efaf51e5f3a1c612d7a8661f090d54704363821bf5570fb3c17e29fc0d4dbd2",
+      "size": 1850798
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15873,6 +15878,11 @@
       "path": "pages/projects/automate-support-email-summarize-feedback.md",
       "sha256": "446c9bfcd97d42865ba4d8c9bb5e25a6241efe12b3f84a30f6d6351e070d683e",
       "size": 1318
+    },
+    {
+      "path": "pages/projects/aws-devnet-migration.md",
+      "sha256": "c886381d64d9b8ac59518165266c534085cc89c427b369b3fbcd478d1b851a5c",
+      "size": 6764
     },
     {
       "path": "pages/projects/batch-upload-and-dual-tier-pipelines.md",
@@ -19411,5 +19421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0227bf6609cc744534ee02af0e7e597f57730a2f550696d81d245240930b9100"
+  "wiki_tree_hash": "d9881314762d624395dfc449030008419f834307cf194bab12b2b9d017dba845"
 }
