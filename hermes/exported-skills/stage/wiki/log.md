@@ -37916,3 +37916,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_026a6f8c25ba8f1a64f6e9d7db9917b6
 - summary: This page captures the review request and access resolution for GitHub PR #116 on piplabs/cloudflare, which implements a minor change for Aeneid ACM.
 
+## [2026-06-24T10:31:00Z] synthesis | Cloudflare PR #117 Force Merge
+
+- status: published
+- slug: decisions/cloudflare-pr-117-force-merge
+- wiki_revision_id: wikirev_25b8a7ecbb3fbc8c8b38f5c44913c475
+- summary: Force merge of pull request #117 in piplabs/cloudflare due to urgency.
+
