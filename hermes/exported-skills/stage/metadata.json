@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c85edeb9589163bdd609989f82af3b8f2dc8ebe971d38786497608c05cd0c601",
-        "size": 1130280
+        "sha256": "0e9b033e54929c2296a5e55e0a4949001d67def3e043fad85ad92da295d36725",
+        "size": 1130255
       },
       {
         "path": "log.md",
-        "sha256": "fa27d5ae817ba995a24f484d827ad6068b6c5fa1f208cb6867f6609c0285e9d2",
-        "size": 1906983
+        "sha256": "1241ea3b23670a3a473956191652978f7a8782903eef71e4572b1b8631cd8977",
+        "size": 1907345
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9631,8 +9631,8 @@
       },
       {
         "path": "pages/systems/pip-labs-re-github-org.md",
-        "sha256": "507ee28bc6f9a20fd6d99c29a8eaf1a206d51de65226ab91bbb6f9fa0c64801d",
-        "size": 5179
+        "sha256": "f7ae58750e583f1b8092cfde1b6a41a693b29fdc6723d0ab58e7705ed5035ffa",
+        "size": 3519
       },
       {
         "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -10064,7 +10064,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T20:07:27Z",
+  "exported_at": "2026-06-24T20:24:24Z",
   "file_count": 2011,
   "files": [
     {
@@ -13342,7 +13342,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b0bd1293112b9100d063ddadc6d5892790ed8cc7d07e31cef3a580f8e39a120b",
+  "previous_tree_hash": "94a12b541652158f616c1b23db067b3bed4bb3f21712cf4c73b46fb3a19448fb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13355,7 +13355,7 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "94a12b541652158f616c1b23db067b3bed4bb3f21712cf4c73b46fb3a19448fb",
+  "tree_hash": "70cb85216de3cdf4f17d8afd5af87452ff23eb1b8af43dd52eb5280a7b475aae",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13371,13 +13371,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c85edeb9589163bdd609989f82af3b8f2dc8ebe971d38786497608c05cd0c601",
-      "size": 1130280
+      "sha256": "0e9b033e54929c2296a5e55e0a4949001d67def3e043fad85ad92da295d36725",
+      "size": 1130255
     },
     {
       "path": "log.md",
-      "sha256": "fa27d5ae817ba995a24f484d827ad6068b6c5fa1f208cb6867f6609c0285e9d2",
-      "size": 1906983
+      "sha256": "1241ea3b23670a3a473956191652978f7a8782903eef71e4572b1b8631cd8977",
+      "size": 1907345
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19721,8 +19721,8 @@
     },
     {
       "path": "pages/systems/pip-labs-re-github-org.md",
-      "sha256": "507ee28bc6f9a20fd6d99c29a8eaf1a206d51de65226ab91bbb6f9fa0c64801d",
-      "size": 5179
+      "sha256": "f7ae58750e583f1b8092cfde1b6a41a693b29fdc6723d0ab58e7705ed5035ffa",
+      "size": 3519
     },
     {
       "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -20151,5 +20151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ad08c3dc63082e4aa4ff5c3a9249c57ffbeeec5ae7bafa6456b470f20aead4b4"
+  "wiki_tree_hash": "ba6ff4015c642848cc595feb8bee9a9343f6864377415d920b22d04dbbf7c086"
 }
