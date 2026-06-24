@@ -38732,3 +38732,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_cb7213d4a3f33bd1e22dfbce55d9dece
 - summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
 
+## [2026-06-24T23:33:14Z] synthesis | Aeneid RPC and Validators Migration
+
+- status: published
+- slug: projects/aeneid-migration
+- wiki_revision_id: wikirev_dabedcf0ad2f90b3a9956d572fc48b9a
+- summary: Migration of Aeneid RPC and validators, initially scheduled for Jan 29 11PM PT, delayed to Monday 3PM BJT due to node sync issues and conflicts with opening ceremony.
+

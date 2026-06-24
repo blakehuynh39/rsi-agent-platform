@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "04eb642554e4268eaa117f77af0f104006a33a39eb1ab2a8ac7f7213aba853a9",
-        "size": 1135179
+        "sha256": "a1eb8e230b62ad848dd7bea9ca355a00ddb10093ac902eceef79758d845afaa9",
+        "size": 1135536
       },
       {
         "path": "log.md",
-        "sha256": "4562997039132daa8bb739a9e81dcbc5dac201645a2b52ecb62e9ba455b4d357",
-        "size": 1914001
+        "sha256": "556582e69d8c4a5ae6d3b09fabe839ea9108361bd0f5401d79e616bd16a7876f",
+        "size": 1914370
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6263,6 +6263,11 @@
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
         "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
         "size": 3294
+      },
+      {
+        "path": "pages/projects/aeneid-migration.md",
+        "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
+        "size": 3504
       },
       {
         "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -10139,8 +10144,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T23:01:39Z",
-  "file_count": 2026,
+  "exported_at": "2026-06-24T23:33:53Z",
+  "file_count": 2027,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13417,7 +13422,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "85671f05b21049598828ba491cf0d44c6d0fd7cc82512f8d64a8ad3aa6c9ff0f",
+  "previous_tree_hash": "ddf301cb06fa6844b611cd2abacd4ba96968954ce3adc811e34af7dc44dee6ce",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13430,14 +13435,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ddf301cb06fa6844b611cd2abacd4ba96968954ce3adc811e34af7dc44dee6ce",
+  "tree_hash": "ba3ddf97a0c43fceaf5806ee756c2f5c49bd2512b45244c6764b4dbf6c4c9e89",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1372,
+  "wiki_file_count": 1373,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13446,13 +13451,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "04eb642554e4268eaa117f77af0f104006a33a39eb1ab2a8ac7f7213aba853a9",
-      "size": 1135179
+      "sha256": "a1eb8e230b62ad848dd7bea9ca355a00ddb10093ac902eceef79758d845afaa9",
+      "size": 1135536
     },
     {
       "path": "log.md",
-      "sha256": "4562997039132daa8bb739a9e81dcbc5dac201645a2b52ecb62e9ba455b4d357",
-      "size": 1914001
+      "sha256": "556582e69d8c4a5ae6d3b09fabe839ea9108361bd0f5401d79e616bd16a7876f",
+      "size": 1914370
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16428,6 +16433,11 @@
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
       "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
       "size": 3294
+    },
+    {
+      "path": "pages/projects/aeneid-migration.md",
+      "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
+      "size": 3504
     },
     {
       "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -20301,5 +20311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "684897d502ca5daadfc6b5a9056f81c032776b862854fb0a156acc37d400a0a4"
+  "wiki_tree_hash": "a75b0d1ad8fcad02aa262f7d1827de767b377ef1e68e48d650e6be9d2d303be7"
 }
