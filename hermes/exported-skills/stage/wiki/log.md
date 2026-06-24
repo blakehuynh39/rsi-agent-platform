@@ -37832,3 +37832,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8d2b718537e97fe474cd83d59bc2f64c
 - summary: Resolving CORS error when accessing the staging portal (https://portal-v2-staging.vercel.app/) by updating the backend endpoint from deprecated edge.stg to staging-api.storyprotoco...
 
+## [2026-06-24T08:33:27Z] synthesis | Mainnet RPC Report: User-Side Metamask Issue (2026-01-13)
+
+- status: published
+- slug: runbooks/mainnet-rpc-user-issue-20260113
+- wiki_revision_id: wikirev_e88685bbc15547f98ef3aefc150e1b0c
+- summary: A user reported mainnet RPC not working when sending tokens via Ledger; it was determined to be an outdated MetaMask client, not a server-side problem.
+

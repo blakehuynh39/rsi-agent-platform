@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a33b8be3d1d9c2f52de23b7ec1fb459bdb403c83c62134eca66ee6fa02083726",
-        "size": 1105616
+        "sha256": "cc4154fefdc9854a66f9f6442f61fd22f6a8b9dea7944961f1e864bc20d08819",
+        "size": 1105995
       },
       {
         "path": "log.md",
-        "sha256": "77f9ed8a53bc01d104208a73bfd9503327f3e56b445b2cfc107f2bf77383b2e3",
-        "size": 1870098
+        "sha256": "16cffd8fadfd5892e59e97c9d047e2f32b61ef04165577f6f922451b434f21a0",
+        "size": 1870489
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8350,6 +8350,11 @@
         "size": 2430
       },
       {
+        "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
+        "sha256": "7631bea806529c2ada8d9027bbfcc788f6f574c50b618a3b23e343c8b7eeeee7",
+        "size": 2576
+      },
+      {
         "path": "pages/runbooks/meng-agent-outage-2026-05-08.md",
         "sha256": "ee67ca8128a457266a13b0dc45223efd15c96f3253ee0951ea7bd36f46637392",
         "size": 2140
@@ -9824,8 +9829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T07:49:51Z",
-  "file_count": 1963,
+  "exported_at": "2026-06-24T08:37:13Z",
+  "file_count": 1964,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13102,7 +13107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "eb028d8cd450789d35b6e16597b3624e1c7d864d6f0ae92d3c76715579439c9d",
+  "previous_tree_hash": "7cf8add6c5594e08b73cd3a640eea6191725005bc31fc69cdb596f8a18efc793",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13115,14 +13120,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7cf8add6c5594e08b73cd3a640eea6191725005bc31fc69cdb596f8a18efc793",
+  "tree_hash": "0321ad623b467af20c17ff16255393c58539babb3ff60e635df0cd6a1e148292",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1309,
+  "wiki_file_count": 1310,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13131,13 +13136,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a33b8be3d1d9c2f52de23b7ec1fb459bdb403c83c62134eca66ee6fa02083726",
-      "size": 1105616
+      "sha256": "cc4154fefdc9854a66f9f6442f61fd22f6a8b9dea7944961f1e864bc20d08819",
+      "size": 1105995
     },
     {
       "path": "log.md",
-      "sha256": "77f9ed8a53bc01d104208a73bfd9503327f3e56b445b2cfc107f2bf77383b2e3",
-      "size": 1870098
+      "sha256": "16cffd8fadfd5892e59e97c9d047e2f32b61ef04165577f6f922451b434f21a0",
+      "size": 1870489
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18200,6 +18205,11 @@
       "size": 2430
     },
     {
+      "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
+      "sha256": "7631bea806529c2ada8d9027bbfcc788f6f574c50b618a3b23e343c8b7eeeee7",
+      "size": 2576
+    },
+    {
       "path": "pages/runbooks/meng-agent-outage-2026-05-08.md",
       "sha256": "ee67ca8128a457266a13b0dc45223efd15c96f3253ee0951ea7bd36f46637392",
       "size": 2140
@@ -19671,5 +19681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d37dc23c069c8a6c7cfeb3a3c263b4967a9606f2818c326e6f9fa4748850b020"
+  "wiki_tree_hash": "2ea321000d40933b52092c461d3cab390aebd6a477617e3586246231f3e2ccef"
 }
