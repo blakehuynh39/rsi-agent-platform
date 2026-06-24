@@ -37888,3 +37888,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_348d2baa819dbe5b379121100e1360f8
 - summary: Project Aeneid ACM: handling PR #116 review and access for contributor yingyangxu2026.
 
+## [2026-06-24T10:02:00Z] synthesis | GitHub PR #116: Aeneid ACM minor change
+
+- status: published
+- slug: projects/pr-116-aeneid-acm
+- wiki_revision_id: wikirev_ef013a21d2486fa6ed016283c9f4a9a3
+- summary: A minor change PR for Aeneid ACM was submitted and had an access issue which was resolved.
+
+## [2026-06-24T10:03:11Z] synthesis | Add yingyangxu2026 to GitHub QA team
+
+- status: published
+- slug: decisions/add-yingyangxu2026-to-github-qa-team
+- wiki_revision_id: wikirev_0fbacee27404f7ad7030dda0f8cee339
+- summary: On 2026-01-26, GitHub user yingyangxu2026 was added to the QA team to grant repository access.
+

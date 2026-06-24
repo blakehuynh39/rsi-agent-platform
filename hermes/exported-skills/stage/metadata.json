@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2267b511374bbeed6c851f9e72ef680cc48c2b11c1c2ef1e0308185af2739df4",
-        "size": 1107383
+        "sha256": "928c63624e5ec8e67e0f6ab713ab78f0770477412f87a1ab44799ed10f5b36f4",
+        "size": 1107976
       },
       {
         "path": "log.md",
-        "sha256": "10087d50088f485c73e56e8df75202759af6eb0ea2eaa2b786ec35bb448e711d",
-        "size": 1872924
+        "sha256": "a6e4474a47b5e94acc16250c035eac57fbdc42872ac2626a0d6d321ebf19e38c",
+        "size": 1873541
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4633,6 +4633,11 @@
         "path": "pages/decisions/access-control-acl.md",
         "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
         "size": 6118
+      },
+      {
+        "path": "pages/decisions/add-yingyangxu2026-to-github-qa-team.md",
+        "sha256": "02fc8f97f7b4639bdf1793ce36bb05d935afec1de481c71bc7de6e405915202f",
+        "size": 3194
       },
       {
         "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
@@ -7345,6 +7350,11 @@
         "size": 9941
       },
       {
+        "path": "pages/projects/pr-116-aeneid-acm.md",
+        "sha256": "f6089f0b25ae037db6b12c603d0c243de9ea70e5770c83eaeda5d5eb449082f2",
+        "size": 2358
+      },
+      {
         "path": "pages/projects/pr-479-review-request.md",
         "sha256": "ddf58ebd77b085c07285a062307f04d584ba645486fbfa861714f373e234282c",
         "size": 2452
@@ -9849,8 +9859,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T09:49:03Z",
-  "file_count": 1968,
+  "exported_at": "2026-06-24T10:05:52Z",
+  "file_count": 1970,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13127,7 +13137,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0d281a5db41f7c629626f639b0291b65c6756d33ea9235e0137872add5bdf271",
+  "previous_tree_hash": "ac601f99e2b792eeae619151e1e3c3e18aa18b17966b9c5c4b6e01a74a8d4ef7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13140,14 +13150,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ac601f99e2b792eeae619151e1e3c3e18aa18b17966b9c5c4b6e01a74a8d4ef7",
+  "tree_hash": "de660fd700826b24ec3f5771abddfae5445eea3ff34a696f9847996eb5333b99",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1314,
+  "wiki_file_count": 1316,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13156,13 +13166,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2267b511374bbeed6c851f9e72ef680cc48c2b11c1c2ef1e0308185af2739df4",
-      "size": 1107383
+      "sha256": "928c63624e5ec8e67e0f6ab713ab78f0770477412f87a1ab44799ed10f5b36f4",
+      "size": 1107976
     },
     {
       "path": "log.md",
-      "sha256": "10087d50088f485c73e56e8df75202759af6eb0ea2eaa2b786ec35bb448e711d",
-      "size": 1872924
+      "sha256": "a6e4474a47b5e94acc16250c035eac57fbdc42872ac2626a0d6d321ebf19e38c",
+      "size": 1873541
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14508,6 +14518,11 @@
       "path": "pages/decisions/access-control-acl.md",
       "sha256": "b33441d546cf6c99d0df88ad7a40f3b605534f8759fa988dc253bc0bdc5321cb",
       "size": 6118
+    },
+    {
+      "path": "pages/decisions/add-yingyangxu2026-to-github-qa-team.md",
+      "sha256": "02fc8f97f7b4639bdf1793ce36bb05d935afec1de481c71bc7de6e405915202f",
+      "size": 3194
     },
     {
       "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
@@ -17220,6 +17235,11 @@
       "size": 9941
     },
     {
+      "path": "pages/projects/pr-116-aeneid-acm.md",
+      "sha256": "f6089f0b25ae037db6b12c603d0c243de9ea70e5770c83eaeda5d5eb449082f2",
+      "size": 2358
+    },
+    {
       "path": "pages/projects/pr-479-review-request.md",
       "sha256": "ddf58ebd77b085c07285a062307f04d584ba645486fbfa861714f373e234282c",
       "size": 2452
@@ -19721,5 +19741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1ac33a28f70f68f92021707a1c598468ea9fbc092b34f255159160bdcd6978f3"
+  "wiki_tree_hash": "f251a52a7e804f150bc99dd3eaa02c563612ce920b27e954d25e7f78ca86c36a"
 }
