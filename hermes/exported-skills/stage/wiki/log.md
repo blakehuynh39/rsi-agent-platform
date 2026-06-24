@@ -37619,3 +37619,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_02c86c346dc847cecabcab0fdb155b4b
 - summary: Project to migrate the Story Protocol devnet from GCP to AWS, including a new repository, genesis generation scripts, domain updates, and AWS access grants.
 
+## [2026-06-24T00:15:29Z] ingest | Slack thread C0B36TEUYHF 1782259229.872109
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1782259229-872109-9f33bbb2
+- wiki_revision_id: wikirev_e69023256af4bf9c771653d476c4c30f
+- source_document_id: srcdoc_6f33eb6ca5155fc6ea8d7c129f33bbb2
+- source_revision_id: srcrev_e08c1f7dd90ac7ba62f40e9779d9aa8b
+- summary: Slack file attachment:
+
