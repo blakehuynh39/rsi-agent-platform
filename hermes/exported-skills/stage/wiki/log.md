@@ -38135,3 +38135,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f09a145987bf13afe8d4af73b4b35f84
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
 
+## [2026-06-24T13:03:42Z] synthesis | Archive Node Migration to AWS
+
+- status: published
+- slug: decisions/archive-node-migration
+- wiki_revision_id: wikirev_f0a67eeba178ebf1377d03a9e1dad7d1
+- summary: Migration of Story archive nodes from GCP to AWS, deprecating the GCP server at IP 34.139.142.168, and ensuring dependent applications use domain names instead of hardcoded IPs.
+
