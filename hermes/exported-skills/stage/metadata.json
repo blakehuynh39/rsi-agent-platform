@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8330746ab75ad98c471ca96521b147262e6f91cecb2b71e338ad65f4b24eeb35",
-        "size": 1100562
+        "sha256": "b627cda5f8b311efa959d351e7b1b9028e3aacc3ca55e5c3f800a98a5b853663",
+        "size": 1100953
       },
       {
         "path": "log.md",
-        "sha256": "a986367939ca451f15478f3d2623db71d90d589138de93cc9572817e878c9794",
-        "size": 1862614
+        "sha256": "42f224f00ccb5172834b3187a1a426a7a4fa1d7c845659c2bcac5b538c055716",
+        "size": 1863017
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7500,6 +7500,11 @@
         "size": 4050
       },
       {
+        "path": "pages/projects/sha256-data-registry-security-audit.md",
+        "sha256": "d6565806884d5a749b068eac49309a7494ff57843ae5cbc75bd3a7eed1019c0f",
+        "size": 6663
+      },
+      {
         "path": "pages/projects/southeast-asian-language-transcript-generation.md",
         "sha256": "355bc55b2d2c2fedad67a8017fc66b57bdc229280af83908b9769667faaddf66",
         "size": 4856
@@ -9754,8 +9759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T02:35:07Z",
-  "file_count": 1949,
+  "exported_at": "2026-06-24T02:51:56Z",
+  "file_count": 1950,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13032,7 +13037,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d517b3a2f581289bd8527e5a2f72dfaeb4648165555022c23a8801a33f749cc5",
+  "previous_tree_hash": "8a40c1acec9b4e53e728ff1281962f3e30e3d820b94db832a384ccf914245989",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13045,14 +13050,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8a40c1acec9b4e53e728ff1281962f3e30e3d820b94db832a384ccf914245989",
+  "tree_hash": "6edb013904c1dc21a0a5b406f7c736334e31177fc3bd7f4e0578286022d9a3f5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1295,
+  "wiki_file_count": 1296,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13061,13 +13066,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8330746ab75ad98c471ca96521b147262e6f91cecb2b71e338ad65f4b24eeb35",
-      "size": 1100562
+      "sha256": "b627cda5f8b311efa959d351e7b1b9028e3aacc3ca55e5c3f800a98a5b853663",
+      "size": 1100953
     },
     {
       "path": "log.md",
-      "sha256": "a986367939ca451f15478f3d2623db71d90d589138de93cc9572817e878c9794",
-      "size": 1862614
+      "sha256": "42f224f00ccb5172834b3187a1a426a7a4fa1d7c845659c2bcac5b538c055716",
+      "size": 1863017
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17280,6 +17285,11 @@
       "size": 4050
     },
     {
+      "path": "pages/projects/sha256-data-registry-security-audit.md",
+      "sha256": "d6565806884d5a749b068eac49309a7494ff57843ae5cbc75bd3a7eed1019c0f",
+      "size": 6663
+    },
+    {
       "path": "pages/projects/southeast-asian-language-transcript-generation.md",
       "sha256": "355bc55b2d2c2fedad67a8017fc66b57bdc229280af83908b9769667faaddf66",
       "size": 4856
@@ -19531,5 +19541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8e6080cfb15f789d205dc7ef37cb8cda2adf4d0c5b1783118967ab4c1bf275dc"
+  "wiki_tree_hash": "c3975f378b13ebcf15bd6ccc9d8928c66e7a9ab6ffef326286c14ff0803238e2"
 }

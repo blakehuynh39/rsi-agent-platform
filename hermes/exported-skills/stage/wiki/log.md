@@ -37693,3 +37693,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f89c2be9462319ce70d6f71ac554b162
 - summary: Source: [source](https://app.notion.com/p/trace-contracts-Sha256DataRegistry-AI-Security-Audit-Report-389051299a54814da2c6dbb8a5ca639f)
 
+## [2026-06-24T02:46:48Z] synthesis | Sha256DataRegistry Security Audit
+
+- status: published
+- slug: projects/sha256-data-registry-security-audit
+- wiki_revision_id: wikirev_409ccdbd9db28ae0b82585abb0d8b14e
+- summary: Security audit of the trace-contracts (Sha256DataRegistry) smart contract system by Story Protocol, revealing low and informational severity findings with no critical or high issue...
+
