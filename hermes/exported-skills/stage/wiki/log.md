@@ -37930,3 +37930,31 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d7fb5d659a9833ccc27f5a83cffdb8d6
 - summary: PR #117 in piplabs/cloudflare was force merged urgently without waiting for review, as announced in Slack. The merge was later acknowledged.
 
+## [2026-06-24T11:03:21Z] synthesis | Aeneid Network Gas Price Fluctuation
+
+- status: published
+- slug: concepts/aeneid-network-gas-price
+- wiki_revision_id: wikirev_8d1e94f1551a8f70059de0ed5e559bdf
+- summary: Gas price on Aeneid network can spike due to IP registration testing.
+
+## [2026-06-24T11:03:21Z] synthesis | Slack Account Switching Tips
+
+- status: published
+- slug: concepts/slack-account-switching
+- wiki_revision_id: wikirev_bab516e3d98a082cdf2a24dfd9b13491
+- summary: When switching Slack accounts, chat history is retained and the process is painless.
+
+## [2026-06-24T11:03:21Z] synthesis | Mainnet RPC Connectivity Troubleshooting
+
+- status: published
+- slug: runbooks/mainnet-rpc-troubleshooting
+- wiki_revision_id: wikirev_5397fae1cf30d619fd625c594d274613
+- summary: If unable to send tokens on Mainnet, check RPC endpoint and update Metamask.
+
+## [2026-06-24T11:03:22Z] synthesis | Vault Infrastructure Setup
+
+- status: published
+- slug: systems/vault-infrastructure-setup
+- wiki_revision_id: wikirev_5c79d983a4eae5ce1d9b57f8daba4ede
+- summary: Vault is deployed manually using manifests in story-helm repo. To update, edit the Vault custom resource image tag in default namespace.
+

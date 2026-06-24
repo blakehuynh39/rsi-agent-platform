@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "ab6d6e35df9af04835033f561d9c179d48d5168125e8d54349d7adb500f702e0",
-        "size": 1875027
+        "sha256": "364c263dea548209d71f68c25f2e5c8665e1b74c0fd8a2a509da76937bbddc14",
+        "size": 1876229
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3323,6 +3323,11 @@
         "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
         "sha256": "7d76129efdd70d0828d2ae480f85085969a79d8294159a059b13fcc7e9f8125a",
         "size": 9046
+      },
+      {
+        "path": "pages/concepts/aeneid-network-gas-price.md",
+        "sha256": "c2e6034907d66dc273eb438e04176e61f092ea6ffa47cee66d6044658d7bd7c3",
+        "size": 996
       },
       {
         "path": "pages/concepts/ai-assisted-content-generation.md",
@@ -4388,6 +4393,11 @@
         "path": "pages/concepts/skincare-anti-aging-routine.md",
         "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
         "size": 4293
+      },
+      {
+        "path": "pages/concepts/slack-account-switching.md",
+        "sha256": "61477f2b62209da027bcb72c67eff2b3f5fc12e7ef36136284b4a4ea778aa250",
+        "size": 1844
       },
       {
         "path": "pages/concepts/slack-message-edits-thread-1767888598.md",
@@ -8395,6 +8405,11 @@
         "size": 2430
       },
       {
+        "path": "pages/runbooks/mainnet-rpc-troubleshooting.md",
+        "sha256": "1be7823797e658b734a1e165e727f2089498e90a168089d4e5097d79723f3b56",
+        "size": 1859
+      },
+      {
         "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
         "sha256": "7631bea806529c2ada8d9027bbfcc788f6f574c50b618a3b23e343c8b7eeeee7",
         "size": 2576
@@ -9865,6 +9880,11 @@
         "size": 1069
       },
       {
+        "path": "pages/systems/vault-infrastructure-setup.md",
+        "sha256": "f2c6563a3625b287347af2ed6c87c6ef392561bfd29fddc69d14902dd7e6baff",
+        "size": 1883
+      },
+      {
         "path": "pages/systems/vercel.md",
         "sha256": "4bc96f3eef43e0f352f761c7553d3f13dba105911cb19f599319e8e7eb142dd1",
         "size": 3515
@@ -9879,8 +9899,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T10:47:45Z",
-  "file_count": 1974,
+  "exported_at": "2026-06-24T11:04:35Z",
+  "file_count": 1978,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13157,7 +13177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a093236442e0c64f0d956e088c2fca094184cd8c95bce6397ba494cb17c291a2",
+  "previous_tree_hash": "059f62cf7aa6bf764bfa3afbe5026f2f24f201a9ec981f700f962ec1a1e8c82b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13170,14 +13190,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "059f62cf7aa6bf764bfa3afbe5026f2f24f201a9ec981f700f962ec1a1e8c82b",
+  "tree_hash": "44c20557dbad9d00d5a28dd2edf25b8bd4499063fade62bd70e0bb80fd1eabea",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1320,
+  "wiki_file_count": 1324,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13191,8 +13211,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "ab6d6e35df9af04835033f561d9c179d48d5168125e8d54349d7adb500f702e0",
-      "size": 1875027
+      "sha256": "364c263dea548209d71f68c25f2e5c8665e1b74c0fd8a2a509da76937bbddc14",
+      "size": 1876229
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13228,6 +13248,11 @@
       "path": "pages/concepts/aeneid-genesis-token-staking-snapshot-2026-06-09.md",
       "sha256": "7d76129efdd70d0828d2ae480f85085969a79d8294159a059b13fcc7e9f8125a",
       "size": 9046
+    },
+    {
+      "path": "pages/concepts/aeneid-network-gas-price.md",
+      "sha256": "c2e6034907d66dc273eb438e04176e61f092ea6ffa47cee66d6044658d7bd7c3",
+      "size": 996
     },
     {
       "path": "pages/concepts/ai-assisted-content-generation.md",
@@ -14293,6 +14318,11 @@
       "path": "pages/concepts/skincare-anti-aging-routine.md",
       "sha256": "2c99343d4fdb82e3d5416ebbcb06145349f37810b5d1df725d1c3a2b2c27cc76",
       "size": 4293
+    },
+    {
+      "path": "pages/concepts/slack-account-switching.md",
+      "sha256": "61477f2b62209da027bcb72c67eff2b3f5fc12e7ef36136284b4a4ea778aa250",
+      "size": 1844
     },
     {
       "path": "pages/concepts/slack-message-edits-thread-1767888598.md",
@@ -18300,6 +18330,11 @@
       "size": 2430
     },
     {
+      "path": "pages/runbooks/mainnet-rpc-troubleshooting.md",
+      "sha256": "1be7823797e658b734a1e165e727f2089498e90a168089d4e5097d79723f3b56",
+      "size": 1859
+    },
+    {
       "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
       "sha256": "7631bea806529c2ada8d9027bbfcc788f6f574c50b618a3b23e343c8b7eeeee7",
       "size": 2576
@@ -19770,6 +19805,11 @@
       "size": 1069
     },
     {
+      "path": "pages/systems/vault-infrastructure-setup.md",
+      "sha256": "f2c6563a3625b287347af2ed6c87c6ef392561bfd29fddc69d14902dd7e6baff",
+      "size": 1883
+    },
+    {
       "path": "pages/systems/vercel.md",
       "sha256": "4bc96f3eef43e0f352f761c7553d3f13dba105911cb19f599319e8e7eb142dd1",
       "size": 3515
@@ -19781,5 +19821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "995058ac8f76d024be23b4323569092e0afe2ed7e94fe5c94cbe7ce02a2a68f2"
+  "wiki_tree_hash": "193250c8683b875f0362d16798d03a26ba46b3a7f68b692e6298afc1bf3803bf"
 }
