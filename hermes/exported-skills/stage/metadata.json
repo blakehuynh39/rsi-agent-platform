@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e12de84fc9eee82313732f6fe3c4d5cb9f05df293cdc7f52ea7a31ce7d9df1c4",
-        "size": 1131432
+        "sha256": "bdeefe23868458290699e685958f6430d10e357ac60b1b20a7bf1f66b8f295ca",
+        "size": 1132211
       },
       {
         "path": "log.md",
-        "sha256": "2f855a5dd5d6ae5db0e40940eb21c09e64530dc7d35b4456396de94677977dfd",
-        "size": 1909198
+        "sha256": "20473aedb00b4a98ffda89d904f4a2ba785205e3fcfb61a7a01a42717f7cea2b",
+        "size": 1909633
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4823,6 +4823,11 @@
         "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
         "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
         "size": 3391
+      },
+      {
+        "path": "pages/decisions/decision-decommission-mainnet-gcp-servers-2026-01-28.md",
+        "sha256": "4fb1fd7ec04b88960e70eace1b8874741ae52eb0b2e2473a6e55a43403ae6f13",
+        "size": 3986
       },
       {
         "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
@@ -10089,8 +10094,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T20:47:57Z",
-  "file_count": 2016,
+  "exported_at": "2026-06-24T20:54:37Z",
+  "file_count": 2017,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13367,7 +13372,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "91c93ccd68b2984b65c4cca807e099dc180ce8793aca21338cc33d821c368af8",
+  "previous_tree_hash": "f6cc06d93cf9c0f4e41dbcae8849306cacd2a9594efc9c537387a64fe59edc3d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13380,14 +13385,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f6cc06d93cf9c0f4e41dbcae8849306cacd2a9594efc9c537387a64fe59edc3d",
+  "tree_hash": "bb7e00a26146f89259300aae86fca814dc068cdaf90f317c07cebc7d3a0e4ebb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1362,
+  "wiki_file_count": 1363,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13396,13 +13401,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e12de84fc9eee82313732f6fe3c4d5cb9f05df293cdc7f52ea7a31ce7d9df1c4",
-      "size": 1131432
+      "sha256": "bdeefe23868458290699e685958f6430d10e357ac60b1b20a7bf1f66b8f295ca",
+      "size": 1132211
     },
     {
       "path": "log.md",
-      "sha256": "2f855a5dd5d6ae5db0e40940eb21c09e64530dc7d35b4456396de94677977dfd",
-      "size": 1909198
+      "sha256": "20473aedb00b4a98ffda89d904f4a2ba785205e3fcfb61a7a01a42717f7cea2b",
+      "size": 1909633
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14938,6 +14943,11 @@
       "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
       "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
       "size": 3391
+    },
+    {
+      "path": "pages/decisions/decision-decommission-mainnet-gcp-servers-2026-01-28.md",
+      "sha256": "4fb1fd7ec04b88960e70eace1b8874741ae52eb0b2e2473a6e55a43403ae6f13",
+      "size": 3986
     },
     {
       "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
@@ -20201,5 +20211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a461d201d011302c964b10596886081dafa9dc1724d1042f572319a19bd30c74"
+  "wiki_tree_hash": "29e57491e7543f2351e63d340191e0458a9043c3c9c44909339148d040c4f7dc"
 }
