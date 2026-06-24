@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0a5cedb34e35b64109f9676d81a2810ffd8c2c46eec4e70adae07f6dd4ad9d3b",
-        "size": 1112226
+        "sha256": "4f6b55eb6303afd3fd6281962b5a5a016ee02cb4131696bafc4d1562116ab9ef",
+        "size": 1113677
       },
       {
         "path": "log.md",
-        "sha256": "0b1a144d41f2dd581d8cfd39593dcd83ecb741026483cff97f22d83837d86af8",
-        "size": 1879346
+        "sha256": "7a24ed1177497292226b5c0f4354e25d20aba7a374803f3d7b071922922e9bb6",
+        "size": 1881444
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3311,8 +3311,13 @@
       },
       {
         "path": "pages/concepts/account-switching-chat-history.md",
-        "sha256": "1b612411baae1c842f5034bde9922ea94167aa4fed1660406e7bd8913c52d3dd",
-        "size": 1835
+        "sha256": "299e481f554aa9162f4c9c13c91c0ff7a4e38caf84a2ef8640e38c28a8a877e5",
+        "size": 1873
+      },
+      {
+        "path": "pages/concepts/aeneid-gas-price-spike.md",
+        "sha256": "f734072bd13a7921e4b9427b0702ae8f5fe2c654aa5e20b1f2331f21ce34b6d5",
+        "size": 990
       },
       {
         "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
@@ -3333,6 +3338,11 @@
         "path": "pages/concepts/ai-assisted-content-generation.md",
         "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
         "size": 3286
+      },
+      {
+        "path": "pages/concepts/ai-automation-bots.md",
+        "sha256": "9cdedbcd2f335aa3856c2d3d3af64c93d449a37d04317ea72ef6208f1646d7e7",
+        "size": 978
       },
       {
         "path": "pages/concepts/ai-data-service.md",
@@ -5583,6 +5593,11 @@
         "path": "pages/open-questions/ex-poseidon-onboarding-flow.md",
         "sha256": "0f0da4ed010215e3d683a4236ba0e5b13d5534f59cf738bd0312bf34a8fe3d26",
         "size": 2834
+      },
+      {
+        "path": "pages/open-questions/faucet-not-working-reports.md",
+        "sha256": "af6737ef5718d7cfcc16527d04c6511562e39aa585ebf3a423d28f1930e7b4ab",
+        "size": 1068
       },
       {
         "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
@@ -8040,6 +8055,11 @@
         "size": 1205
       },
       {
+        "path": "pages/runbooks/bank-vault-management.md",
+        "sha256": "ff9e5fd0d11532c671016ecbad51762c67907f257425e0e22eaf61f9a6d9c3da",
+        "size": 1502
+      },
+      {
         "path": "pages/runbooks/bank-vault-setup.md",
         "sha256": "6539a17fc86b6da0c6f192a8bd38519f847ce413f0ce3fc466fc42b0307ac3f7",
         "size": 1989
@@ -8048,6 +8068,11 @@
         "path": "pages/runbooks/blockscout-explorer-setup.md",
         "sha256": "6c8602b0c1c88569cedbc14e2b5b398d36c6249c182ce27fd49254c936a77730",
         "size": 5223
+      },
+      {
+        "path": "pages/runbooks/blueprint-repo-access.md",
+        "sha256": "f8a92429dc955a333005137976a7c20aee66e0fec8b96447ac25173db92fc8e0",
+        "size": 1459
       },
       {
         "path": "pages/runbooks/broadcaster-gas-strategy.md",
@@ -8421,8 +8446,8 @@
       },
       {
         "path": "pages/runbooks/mainnet-rpc-troubleshooting.md",
-        "sha256": "1be7823797e658b734a1e165e727f2089498e90a168089d4e5097d79723f3b56",
-        "size": 1859
+        "sha256": "5955cce0368efc24f07eef275150aa4bf2a6ead0db18c19be8532c27f3e37458",
+        "size": 1438
       },
       {
         "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
@@ -8468,6 +8493,11 @@
         "path": "pages/runbooks/node-removal-gke.md",
         "sha256": "7d319e506f9c59da71ce789fe56d1b364e8b061830fa0865bdf7d2d68711f9ad",
         "size": 1032
+      },
+      {
+        "path": "pages/runbooks/node-removal-maintenance.md",
+        "sha256": "3f50fb1688c9b9df886b27fd8110090867a1de33bccb8cc77e1440ef588e3962",
+        "size": 1095
       },
       {
         "path": "pages/runbooks/notion-api-credit-limit-runbook.md",
@@ -9934,8 +9964,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T11:29:40Z",
-  "file_count": 1985,
+  "exported_at": "2026-06-24T11:36:19Z",
+  "file_count": 1991,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13212,7 +13242,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6581a7575616c03795400c72ed2f68f62316f69ca1be6b96a95ee0512fe49923",
+  "previous_tree_hash": "f70f7c09c02b2ff764fa6a657ea684bd600c84b17499f155565098164708a6a0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13225,14 +13255,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f70f7c09c02b2ff764fa6a657ea684bd600c84b17499f155565098164708a6a0",
+  "tree_hash": "e020dfd01b69fa5aac7462a0a4a5c7c59929c1f14d5b4640a0bafedd9bd1dc40",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1331,
+  "wiki_file_count": 1337,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13241,13 +13271,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0a5cedb34e35b64109f9676d81a2810ffd8c2c46eec4e70adae07f6dd4ad9d3b",
-      "size": 1112226
+      "sha256": "4f6b55eb6303afd3fd6281962b5a5a016ee02cb4131696bafc4d1562116ab9ef",
+      "size": 1113677
     },
     {
       "path": "log.md",
-      "sha256": "0b1a144d41f2dd581d8cfd39593dcd83ecb741026483cff97f22d83837d86af8",
-      "size": 1879346
+      "sha256": "7a24ed1177497292226b5c0f4354e25d20aba7a374803f3d7b071922922e9bb6",
+      "size": 1881444
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -13271,8 +13301,13 @@
     },
     {
       "path": "pages/concepts/account-switching-chat-history.md",
-      "sha256": "1b612411baae1c842f5034bde9922ea94167aa4fed1660406e7bd8913c52d3dd",
-      "size": 1835
+      "sha256": "299e481f554aa9162f4c9c13c91c0ff7a4e38caf84a2ef8640e38c28a8a877e5",
+      "size": 1873
+    },
+    {
+      "path": "pages/concepts/aeneid-gas-price-spike.md",
+      "sha256": "f734072bd13a7921e4b9427b0702ae8f5fe2c654aa5e20b1f2331f21ce34b6d5",
+      "size": 990
     },
     {
       "path": "pages/concepts/aeneid-genesis-token-snapshot-2026-06-09.md",
@@ -13293,6 +13328,11 @@
       "path": "pages/concepts/ai-assisted-content-generation.md",
       "sha256": "1d0ce2db7c6c116d467a282024fb9d684754144f5365717b837977313c5114d0",
       "size": 3286
+    },
+    {
+      "path": "pages/concepts/ai-automation-bots.md",
+      "sha256": "9cdedbcd2f335aa3856c2d3d3af64c93d449a37d04317ea72ef6208f1646d7e7",
+      "size": 978
     },
     {
       "path": "pages/concepts/ai-data-service.md",
@@ -15543,6 +15583,11 @@
       "path": "pages/open-questions/ex-poseidon-onboarding-flow.md",
       "sha256": "0f0da4ed010215e3d683a4236ba0e5b13d5534f59cf738bd0312bf34a8fe3d26",
       "size": 2834
+    },
+    {
+      "path": "pages/open-questions/faucet-not-working-reports.md",
+      "sha256": "af6737ef5718d7cfcc16527d04c6511562e39aa585ebf3a423d28f1930e7b4ab",
+      "size": 1068
     },
     {
       "path": "pages/open-questions/feedback-and-improvements-for-oncall-performance.md",
@@ -18000,6 +18045,11 @@
       "size": 1205
     },
     {
+      "path": "pages/runbooks/bank-vault-management.md",
+      "sha256": "ff9e5fd0d11532c671016ecbad51762c67907f257425e0e22eaf61f9a6d9c3da",
+      "size": 1502
+    },
+    {
       "path": "pages/runbooks/bank-vault-setup.md",
       "sha256": "6539a17fc86b6da0c6f192a8bd38519f847ce413f0ce3fc466fc42b0307ac3f7",
       "size": 1989
@@ -18008,6 +18058,11 @@
       "path": "pages/runbooks/blockscout-explorer-setup.md",
       "sha256": "6c8602b0c1c88569cedbc14e2b5b398d36c6249c182ce27fd49254c936a77730",
       "size": 5223
+    },
+    {
+      "path": "pages/runbooks/blueprint-repo-access.md",
+      "sha256": "f8a92429dc955a333005137976a7c20aee66e0fec8b96447ac25173db92fc8e0",
+      "size": 1459
     },
     {
       "path": "pages/runbooks/broadcaster-gas-strategy.md",
@@ -18381,8 +18436,8 @@
     },
     {
       "path": "pages/runbooks/mainnet-rpc-troubleshooting.md",
-      "sha256": "1be7823797e658b734a1e165e727f2089498e90a168089d4e5097d79723f3b56",
-      "size": 1859
+      "sha256": "5955cce0368efc24f07eef275150aa4bf2a6ead0db18c19be8532c27f3e37458",
+      "size": 1438
     },
     {
       "path": "pages/runbooks/mainnet-rpc-user-issue-20260113.md",
@@ -18428,6 +18483,11 @@
       "path": "pages/runbooks/node-removal-gke.md",
       "sha256": "7d319e506f9c59da71ce789fe56d1b364e8b061830fa0865bdf7d2d68711f9ad",
       "size": 1032
+    },
+    {
+      "path": "pages/runbooks/node-removal-maintenance.md",
+      "sha256": "3f50fb1688c9b9df886b27fd8110090867a1de33bccb8cc77e1440ef588e3962",
+      "size": 1095
     },
     {
       "path": "pages/runbooks/notion-api-credit-limit-runbook.md",
@@ -19891,5 +19951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c0540814bb4fd028f9e4d08ac404238cff70ac43b9b15bba48b078f193897b0"
+  "wiki_tree_hash": "c7dfebb5274df55884eb01a151f9753afc353bbdd4fe78dc439cd4db293ebcbc"
 }

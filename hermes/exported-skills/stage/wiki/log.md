@@ -38035,3 +38035,59 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_61cc9b6a8edc267d71ededd39c16be60
 - summary: Users should report any issues on the stage side.
 
+## [2026-06-24T11:33:58Z] synthesis | Mainnet RPC Troubleshooting
+
+- status: published
+- slug: runbooks/mainnet-rpc-troubleshooting
+- wiki_revision_id: wikirev_b9984fa7033e38ba5574bc1fdb8ca01f
+- summary: Common issues and fixes for connecting to Mainnet RPC.
+
+## [2026-06-24T11:33:58Z] synthesis | Aeneid Gas Price Spike
+
+- status: published
+- slug: concepts/aeneid-gas-price-spike
+- wiki_revision_id: wikirev_f86fc257fff8e53b6d462c836b0a1348
+- summary: Gas price on Aeneid testnet increased due to IP registration testing.
+
+## [2026-06-24T11:33:58Z] synthesis | Bank Vault Management
+
+- status: published
+- slug: runbooks/bank-vault-management
+- wiki_revision_id: wikirev_96b5b7cb9dcb59b967bd788d2abdb868
+- summary: How to manage the bank vault deployed in Kubernetes.
+
+## [2026-06-24T11:33:58Z] synthesis | Faucet Not Working Reports
+
+- status: published
+- slug: open-questions/faucet-not-working-reports
+- wiki_revision_id: wikirev_67c4d0a8efba792e6d2594a3222b881b
+- summary: Users have reported issues with the faucet; cause unknown.
+
+## [2026-06-24T11:33:58Z] synthesis | AI Automation Bots
+
+- status: published
+- slug: concepts/ai-automation-bots
+- wiki_revision_id: wikirev_2e86e33a04b5ba8de3cd7a652b4c0b37
+- summary: Introduction of AI-powered bots to automate engineering procedures.
+
+## [2026-06-24T11:33:58Z] synthesis | Node Removal Maintenance
+
+- status: published
+- slug: runbooks/node-removal-maintenance
+- wiki_revision_id: wikirev_3439ee9bbd7ef62f69a7ab2e9d9f930c
+- summary: Procedure and communication for removing nodes from Stage/Production GKE and CloudSQL.
+
+## [2026-06-24T11:33:59Z] synthesis | Blueprint Repository Access
+
+- status: published
+- slug: runbooks/blueprint-repo-access
+- wiki_revision_id: wikirev_9bf4e989273294a22f70e625c5ddc443
+- summary: How to add members to the blueprint repository.
+
+## [2026-06-24T11:33:59Z] synthesis | Account Switching and Chat History
+
+- status: published
+- slug: concepts/account-switching-chat-history
+- wiki_revision_id: wikirev_9488444467dace5a60b27927a8de0094
+- summary: Chat history is retained when switching Slack accounts.
+
