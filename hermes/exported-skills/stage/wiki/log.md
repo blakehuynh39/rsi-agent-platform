@@ -38142,3 +38142,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f0a67eeba178ebf1377d03a9e1dad7d1
 - summary: Migration of Story archive nodes from GCP to AWS, deprecating the GCP server at IP 34.139.142.168, and ensuring dependent applications use domain names instead of hardcoded IPs.
 
+## [2026-06-24T13:16:06Z] synthesis | Numo Expert Payment Model
+
+- status: published
+- slug: policies/numo-expert-payment-model
+- wiki_revision_id: wikirev_fde0815c8fd5c50838efc3c9dc568915
+- summary: Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
+

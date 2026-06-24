@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "261e48500c2d5b2509ac735cb3110d7d1760b8c96c2b25ceb4a8f51152d5c58a",
+        "sha256": "88dbffb49bd29eff9f662e1cc27bf099c64a275d51121d4778497439a4f61f3f",
         "size": 1115930
       },
       {
         "path": "log.md",
-        "sha256": "67780461c70ff305f821c231901ff0d848af107f21490be8d3e436af25e3d85a",
-        "size": 1884206
+        "sha256": "5142cfc4dc0c027c37cb4720c21b20de35dd174310b59621f529c9520b80f211",
+        "size": 1884591
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6001,8 +6001,8 @@
       },
       {
         "path": "pages/policies/numo-expert-payment-model.md",
-        "sha256": "ae56c2616a8e3575b8399ef985c6137da978da77b999d61d7136bbb432b49452",
-        "size": 10322
+        "sha256": "5a82cb11c32e515db43ab0fe5db6a281a3e9b8a5f016ab370f47ebfe91d7aee7",
+        "size": 9538
       },
       {
         "path": "pages/policies/numo-expert-payment.md",
@@ -9994,7 +9994,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T13:08:52Z",
+  "exported_at": "2026-06-24T13:20:40Z",
   "file_count": 1997,
   "files": [
     {
@@ -13272,7 +13272,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5402262c9f47121d492e3bd5df76767990685e340827a3c2e274bb7025253bef",
+  "previous_tree_hash": "79406e0a7dcf47d82277e8d9e34adffa21f1d0459430d6a02ca29d5d386d85ed",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13285,7 +13285,7 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "79406e0a7dcf47d82277e8d9e34adffa21f1d0459430d6a02ca29d5d386d85ed",
+  "tree_hash": "72858077eddf4b1045565d745356ef6d8a9501192296981d45b08c037d09b965",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13301,13 +13301,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "261e48500c2d5b2509ac735cb3110d7d1760b8c96c2b25ceb4a8f51152d5c58a",
+      "sha256": "88dbffb49bd29eff9f662e1cc27bf099c64a275d51121d4778497439a4f61f3f",
       "size": 1115930
     },
     {
       "path": "log.md",
-      "sha256": "67780461c70ff305f821c231901ff0d848af107f21490be8d3e436af25e3d85a",
-      "size": 1884206
+      "sha256": "5142cfc4dc0c027c37cb4720c21b20de35dd174310b59621f529c9520b80f211",
+      "size": 1884591
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16021,8 +16021,8 @@
     },
     {
       "path": "pages/policies/numo-expert-payment-model.md",
-      "sha256": "ae56c2616a8e3575b8399ef985c6137da978da77b999d61d7136bbb432b49452",
-      "size": 10322
+      "sha256": "5a82cb11c32e515db43ab0fe5db6a281a3e9b8a5f016ab370f47ebfe91d7aee7",
+      "size": 9538
     },
     {
       "path": "pages/policies/numo-expert-payment.md",
@@ -20011,5 +20011,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6ca5eeeea9858870bc88dfdbce23296d508ce011002bc7b26f134b875c7b7b11"
+  "wiki_tree_hash": "87077e7289897af0f0b2e0f26f8dd87f6238d0689ff6165c653c8d9afb43c782"
 }
