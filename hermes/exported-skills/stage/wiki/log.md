@@ -37739,3 +37739,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_5d8ac6e715ce4595280ef7ed6bd2a651
 - summary: Source: [source](https://app.notion.com/p/trace-contracts-Sha256DataRegistry-AI-Security-Audit-Report-389051299a54814da2c6dbb8a5ca639f)
 
+## [2026-06-24T04:48:02Z] synthesis | Security Audit: Sha256DataRegistry Trace Contracts
+
+- status: published
+- slug: projects/security-audit-sha256-data-registry-trace-contracts
+- wiki_revision_id: wikirev_9f1fb6fddab2e7d5764355f20dc6bc82
+- summary: AI security audit of storyprotocol/story-api trace contracts (commit ba415d4). Remediation PR #1281 fixed 5 of 8 findings (Low/Info), 3 acknowledged. No Critical/High vulnerabiliti...
+

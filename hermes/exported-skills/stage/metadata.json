@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "6c5b935ca5ff704d3cafd98373c6dd7ee4a2e89e8af802a6ad085866740078d9",
-        "size": 1865322
+        "sha256": "89eab849de9c20131cc9b8d9a4c0527de6f1491ffe72d9f4587a0d8df6e404ae",
+        "size": 1865758
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7500,6 +7500,11 @@
         "size": 6509
       },
       {
+        "path": "pages/projects/security-audit-sha256-data-registry-trace-contracts.md",
+        "sha256": "16ae9b64579885635eaf4f734609438066ebb56b10d6e9a873d70adcd79349e5",
+        "size": 8219
+      },
+      {
         "path": "pages/projects/seed-phrase-word-pool-localization.md",
         "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
         "size": 4050
@@ -9769,8 +9774,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T04:32:41Z",
-  "file_count": 1952,
+  "exported_at": "2026-06-24T04:49:34Z",
+  "file_count": 1953,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13047,7 +13052,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "88330283acd38822977583842645f827b6d190ddc0944180086ab07ea756692d",
+  "previous_tree_hash": "b1fbf5753cb438aec125e1a1c632fe0d10b73d7bab329aa303fefc5b92c1fb76",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13060,14 +13065,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b1fbf5753cb438aec125e1a1c632fe0d10b73d7bab329aa303fefc5b92c1fb76",
+  "tree_hash": "3f976a0c2c163dc0775833b3ef35c30ff3f21cc450667e6f1f35a3e96935601f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1298,
+  "wiki_file_count": 1299,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13081,8 +13086,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "6c5b935ca5ff704d3cafd98373c6dd7ee4a2e89e8af802a6ad085866740078d9",
-      "size": 1865322
+      "sha256": "89eab849de9c20131cc9b8d9a4c0527de6f1491ffe72d9f4587a0d8df6e404ae",
+      "size": 1865758
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17295,6 +17300,11 @@
       "size": 6509
     },
     {
+      "path": "pages/projects/security-audit-sha256-data-registry-trace-contracts.md",
+      "sha256": "16ae9b64579885635eaf4f734609438066ebb56b10d6e9a873d70adcd79349e5",
+      "size": 8219
+    },
+    {
       "path": "pages/projects/seed-phrase-word-pool-localization.md",
       "sha256": "44699f63d5717da5106eb195a75711be748edde849f52fa632b5ed84d98ba6d1",
       "size": 4050
@@ -19561,5 +19571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "45a10d6644113e34d4904f27736d157d4ff2c754c14924318c08684916f75d2d"
+  "wiki_tree_hash": "a65dc3937091a70d693f414143aaa43e3752d49f90a778892c69258296b07459"
 }
