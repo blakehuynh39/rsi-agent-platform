@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "5f0a8c7e093e7d8e198905ab567b786fbb2c1dd84b8b55e5849a65b933191df4",
-        "size": 1133019
+        "sha256": "925e3254b6d19e19ecbba714390ebecb98b1fa24409987d5aa32e80a1e6a386b",
+        "size": 1133977
       },
       {
         "path": "log.md",
-        "sha256": "d438fae62b976eeefec9207f71545e5cd97fd4a5763c1c160aa08e257a4a6dcd",
-        "size": 1911314
+        "sha256": "5c88b47a49981a3448777669011671ba581913b066257caef419cbe6cc98a6da",
+        "size": 1912308
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5320,6 +5320,11 @@
         "size": 2832
       },
       {
+        "path": "pages/decisions/poseidon-mvp-storage-node-removal.md",
+        "sha256": "8cb2872faf7b92ab0d0a9f04812a2316d324c7bca3125d25e7fd6b9a0aa85ee0",
+        "size": 2873
+      },
+      {
         "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
         "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
         "size": 4321
@@ -5398,6 +5403,11 @@
         "path": "pages/decisions/remove-jacob-from-numo-standup.md",
         "sha256": "c5de55fd04b997a5fbaa394f51ad87237d0efc0369e6fa9d39de6df22791aad5",
         "size": 1906
+      },
+      {
+        "path": "pages/decisions/remove-storage-node-from-poseidon-mvp.md",
+        "sha256": "afbe886ecbe68d426916c906e96f9b387b9037418b3955bf5c33cebbe88aad17",
+        "size": 3023
       },
       {
         "path": "pages/decisions/resume-activate-endpoint-removal.md",
@@ -9715,6 +9725,11 @@
         "size": 13715
       },
       {
+        "path": "pages/systems/poseidon-mvp.md",
+        "sha256": "06a1944d70b6fb8ba644bb6df93a6e64945cc0fd09eac533dd224cbc5be128a5",
+        "size": 1200
+      },
+      {
         "path": "pages/systems/poseidon-numo-integration.md",
         "sha256": "d026dc44d46c1c1d82c57f018b8c9212bc5466a4b98d9ea010234cf2d25c6481",
         "size": 7146
@@ -10104,8 +10119,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T21:18:15Z",
-  "file_count": 2019,
+  "exported_at": "2026-06-24T21:50:24Z",
+  "file_count": 2022,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13382,7 +13397,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "da54441776da6892fb9e8c64c217f0be95357b0d958adfed32eec805ed35014b",
+  "previous_tree_hash": "3c7457b4aff02b1ee002732cf6e4328f15fd636b36d792d8b9d6eba41d719f21",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13395,14 +13410,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3c7457b4aff02b1ee002732cf6e4328f15fd636b36d792d8b9d6eba41d719f21",
+  "tree_hash": "12d01a24557f439ceabe188cdd1c5eccf143c5547bca00399c71793ae7fb071b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1365,
+  "wiki_file_count": 1368,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13411,13 +13426,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "5f0a8c7e093e7d8e198905ab567b786fbb2c1dd84b8b55e5849a65b933191df4",
-      "size": 1133019
+      "sha256": "925e3254b6d19e19ecbba714390ebecb98b1fa24409987d5aa32e80a1e6a386b",
+      "size": 1133977
     },
     {
       "path": "log.md",
-      "sha256": "d438fae62b976eeefec9207f71545e5cd97fd4a5763c1c160aa08e257a4a6dcd",
-      "size": 1911314
+      "sha256": "5c88b47a49981a3448777669011671ba581913b066257caef419cbe6cc98a6da",
+      "size": 1912308
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15450,6 +15465,11 @@
       "size": 2832
     },
     {
+      "path": "pages/decisions/poseidon-mvp-storage-node-removal.md",
+      "sha256": "8cb2872faf7b92ab0d0a9f04812a2316d324c7bca3125d25e7fd6b9a0aa85ee0",
+      "size": 2873
+    },
+    {
       "path": "pages/decisions/poseidon-to-numo-migration-strategy.md",
       "sha256": "135e0ab412b345d780155e3085358fbc386ab0eadd30677898aa6c444311cce7",
       "size": 4321
@@ -15528,6 +15548,11 @@
       "path": "pages/decisions/remove-jacob-from-numo-standup.md",
       "sha256": "c5de55fd04b997a5fbaa394f51ad87237d0efc0369e6fa9d39de6df22791aad5",
       "size": 1906
+    },
+    {
+      "path": "pages/decisions/remove-storage-node-from-poseidon-mvp.md",
+      "sha256": "afbe886ecbe68d426916c906e96f9b387b9037418b3955bf5c33cebbe88aad17",
+      "size": 3023
     },
     {
       "path": "pages/decisions/resume-activate-endpoint-removal.md",
@@ -19845,6 +19870,11 @@
       "size": 13715
     },
     {
+      "path": "pages/systems/poseidon-mvp.md",
+      "sha256": "06a1944d70b6fb8ba644bb6df93a6e64945cc0fd09eac533dd224cbc5be128a5",
+      "size": 1200
+    },
+    {
       "path": "pages/systems/poseidon-numo-integration.md",
       "sha256": "d026dc44d46c1c1d82c57f018b8c9212bc5466a4b98d9ea010234cf2d25c6481",
       "size": 7146
@@ -20231,5 +20261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2fbc75734ef38e1dee7e9d2d239f9aee5338fb44fca3458c93141154a578ea0b"
+  "wiki_tree_hash": "387576d98d3afdbb22901fbc88d7d5ca065329de0512294289c3cf013e5f83ca"
 }

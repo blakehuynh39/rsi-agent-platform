@@ -38674,3 +38674,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_428fa14cbfcef2825a1f8be9de1f1208
 - summary: Decommissioning of multiple GCP mainnet servers on 2026-01-28 due to lack of traffic, retaining tmp-indexer-hans, use1-mainnet-bootnode1, use1-mainnet-bootnode2, and use1-mainnet-m...
 
+## [2026-06-24T21:46:09Z] synthesis | Remove storage-node from Poseidon MVP
+
+- status: published
+- slug: decisions/remove-storage-node-from-poseidon-mvp
+- wiki_revision_id: wikirev_e1b182b3837fa00db76598edd6c91c33
+- summary: Decision to remove the storage-node server from the Poseidon MVP environment, deemed safe, to be executed at 19:00 PT on 2026-01-29.
+
+## [2026-06-24T21:46:09Z] synthesis | Poseidon MVP
+
+- status: published
+- slug: systems/poseidon-mvp
+- wiki_revision_id: wikirev_252f6f9f6f72095b6e9595d8dfa3f73b
+- summary: Poseidon MVP is a system/environment that included a storage-node server, which was decommissioned on 2026-01-29.
+
+## [2026-06-24T21:46:57Z] synthesis | Poseidon MVP Storage Node Removal
+
+- status: published
+- slug: decisions/poseidon-mvp-storage-node-removal
+- wiki_revision_id: wikirev_4af7b22f327ccd4c5efe1d0bd29d2280
+- summary: Decision to remove the storage-node server from the Poseidon MVP environment at 19:00 PT, after confirming it was safe to do so.
+
