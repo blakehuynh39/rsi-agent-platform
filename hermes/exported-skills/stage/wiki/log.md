@@ -38149,3 +38149,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fde0815c8fd5c50838efc3c9dc568915
 - summary: Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
 
+## [2026-06-24T13:30:38Z] ingest | Numo Expert Payment Model
+
+- status: published
+- slug: notion_document/numo-expert-payment-model-9ef5bd03
+- wiki_revision_id: wikirev_ddd123ec4714b7cc0362bb16c2a7481d
+- source_document_id: srcdoc_570a89beb86d727201f015129ef5bd03
+- source_revision_id: srcrev_e240761a4c28d331f5fe97088400641a
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
+
+## [2026-06-24T13:31:31Z] synthesis | Archive Node Deprecation and Domain Migration
+
+- status: published
+- slug: projects/archive-node-deprecation
+- wiki_revision_id: wikirev_84dbb04c33bbf75090e7d81576102420
+- summary: The Story Protocol infra team is migrating archive nodes from GCP to AWS and requiring all dependent services to use domain names instead of hardcoded IPs. Poseidon's depin-api alr...
+
