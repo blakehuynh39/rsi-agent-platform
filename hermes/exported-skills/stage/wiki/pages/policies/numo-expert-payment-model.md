@@ -6,9 +6,9 @@ freshness: "2026-06-23T19:33:00Z"
 tags:
   - "annotation"
   - "bengali"
-  - "contributor"
+  - "numo expert"
   - "payment"
-  - "rate-card"
+  - "rates"
 owners:
   - "Nick Ippolito"
 source_revision_ids:
@@ -20,20 +20,12 @@ conflict_state: "none"
 
 ## Summary
 
-Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
+Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.70. Includes migration plan from current ~$25/hr.
 
 ## Claims
 
 - The payment model is owned by Nick Ippolito and is in draft for review. `claim:claim_1_1` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_5692806bd05574f33fdd4f35a6e1d2a6` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1` `source_timestamp=2026-06-23T19:33:00Z`
-- Bengali consensus annotators per item is set at 5 (per PRD Section 10.1). `claim:claim_1_10` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_872cd3c81dc35c69834edd1a559dd0ae` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2` `source_timestamp=2026-06-23T19:33:00Z`
-- QA overhead (honeypots ~10% of queue + reviewer escalation) adds 10‑15% on fully‑loaded item cost. `claim:claim_1_11` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_872cd3c81dc35c69834edd1a559dd0ae` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2` `source_timestamp=2026-06-23T19:33:00Z`
-- For Bengali, the skilled talent market (India and Bangladesh) is treated as one at $8‑12/hr, with no major geo‑differentiation recommended. `claim:claim_1_12` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
-- The local‑competitive floor for generic microwork (Transcript Correction) is estimated at $0.25‑0.35 per task across India, SEA, East Asia, and Egypt, but these are not recommended for skilled Bengali work. `claim:claim_1_13` `confidence:1.00`
-  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
 - The target hourly wage for skilled bilingual Bengali annotation is $8-12/hr, with a recommended midpoint of $10/hr. `claim:claim_1_2` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_5692806bd05574f33fdd4f35a6e1d2a6` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1` `source_timestamp=2026-06-23T19:33:00Z`
 - Per‑task pay is calculated as target hourly wage × (real seconds per task / 3600). `claim:claim_1_3` `confidence:1.00`
@@ -52,17 +44,23 @@ Defines per-task pay for contributors based on real task time and a target skill
   - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_5692806bd05574f33fdd4f35a6e1d2a6` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-1` `source_timestamp=2026-06-23T19:33:00Z`
 - The recommended migration path is to grandfather current contractors at existing rates through Phase 1/2, then converge to the new band, to avoid losing experienced contributors. `claim:claim_1_9` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
+- Bengali consensus annotators per item is set at 5 (per PRD Section 10.1). `claim:claim_1_10` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_872cd3c81dc35c69834edd1a559dd0ae` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2` `source_timestamp=2026-06-23T19:33:00Z`
+- QA overhead (honeypots ~10% of queue + reviewer escalation) adds 10‑15% on fully‑loaded item cost. `claim:claim_1_11` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_872cd3c81dc35c69834edd1a559dd0ae` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-2` `source_timestamp=2026-06-23T19:33:00Z`
+- For Bengali, the skilled talent market (India and Bangladesh) is treated as one at $8‑12/hr, with no major geo‑differentiation recommended. `claim:claim_1_12` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
+- The local‑competitive floor for generic microwork (Transcript Correction) is estimated at $0.25‑0.35 per task across India, SEA, East Asia, and Egypt, but these are not recommended for skilled Bengali work. `claim:claim_1_13` `confidence:1.00`
+  - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
 
 ## Open Questions
 
-- Add the margin layer (what we charge customers) on top of the calculated item costs.
-- Confirm that the “50 transcripts” batch is Transcript Correction (the whole rate card hangs on this assumption).
-- Fix the tab‑switch timer so future pricing can rely on logged time directly.
-- Re‑price Correction Validation and Custom tasks once real data is available.
-- Time-check a real batch with a stopwatch to replace the 3‑4 hour estimate (carries ~±14% uncertainty).
+- Confirm the $10/hr baseline and the tier structure.
+- Pick the migration path (grandfather vs. immediate new band).
+- Re-price Correction Validation and Custom once they have real data.
 
 ## Sources
 
 - `source_document_id`: `srcdoc_570a89beb86d727201f015129ef5bd03`
-- `source_revision_id`: `srcrev_e240761a4c28d331f5fe97088400641a`
+- `source_revision_id`: `srcrev_b9e63ef64c5711ff70c48d00f2c3322c`
 - `source_url`: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
