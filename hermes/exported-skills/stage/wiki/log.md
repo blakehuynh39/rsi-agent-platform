@@ -37707,3 +37707,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3b70cd30b5f035d355e345eaab721591
 - summary: Decision on deploying a private fork of the Staking API for BitGo on a new AWS node, indexing from Mainnet genesis, while keeping the public PR open until further testing. The Aene...
 
+## [2026-06-24T03:32:39Z] synthesis | BitGo Staking API Deployment Decision
+
+- status: published
+- slug: decisions/bitgo-staking-api-deployment
+- wiki_revision_id: wikirev_24177f60f1eb42a9ce0d06fbe9424008
+- summary: We decided to deploy a private staking API node for BitGo using a private fork, indexing from genesis on mainnet, and not merge the public PR until integration tests with the staki...
+
