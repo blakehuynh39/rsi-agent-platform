@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "14e923b2f80a55d43761e5fc19a54ec4450a561f51793b6af8c1aa03dec698cc",
-        "size": 1908830
+        "sha256": "2f855a5dd5d6ae5db0e40940eb21c09e64530dc7d35b4456396de94677977dfd",
+        "size": 1909198
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5138,6 +5138,11 @@
         "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
         "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
         "size": 4141
+      },
+      {
+        "path": "pages/decisions/mainnet-gcp-server-removal-2026-01-28.md",
+        "sha256": "2900a5cc0fae20194b5736e41b62ba97f35a7bce65c8d20b966f9454da0c63d1",
+        "size": 3954
       },
       {
         "path": "pages/decisions/mainnet-global-site-aws-region-selection.md",
@@ -10084,8 +10089,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T20:36:10Z",
-  "file_count": 2015,
+  "exported_at": "2026-06-24T20:47:57Z",
+  "file_count": 2016,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13362,7 +13367,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "70cb85216de3cdf4f17d8afd5af87452ff23eb1b8af43dd52eb5280a7b475aae",
+  "previous_tree_hash": "91c93ccd68b2984b65c4cca807e099dc180ce8793aca21338cc33d821c368af8",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13375,14 +13380,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "91c93ccd68b2984b65c4cca807e099dc180ce8793aca21338cc33d821c368af8",
+  "tree_hash": "f6cc06d93cf9c0f4e41dbcae8849306cacd2a9594efc9c537387a64fe59edc3d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1361,
+  "wiki_file_count": 1362,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13396,8 +13401,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "14e923b2f80a55d43761e5fc19a54ec4450a561f51793b6af8c1aa03dec698cc",
-      "size": 1908830
+      "sha256": "2f855a5dd5d6ae5db0e40940eb21c09e64530dc7d35b4456396de94677977dfd",
+      "size": 1909198
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15248,6 +15253,11 @@
       "path": "pages/decisions/mainnet-aws-acm-pr-110.md",
       "sha256": "ec47df9fed6ef32261ace8b555241c51a9b9c70040285389abe0403bc8ede8a3",
       "size": 4141
+    },
+    {
+      "path": "pages/decisions/mainnet-gcp-server-removal-2026-01-28.md",
+      "sha256": "2900a5cc0fae20194b5736e41b62ba97f35a7bce65c8d20b966f9454da0c63d1",
+      "size": 3954
     },
     {
       "path": "pages/decisions/mainnet-global-site-aws-region-selection.md",
@@ -20191,5 +20201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bb3b81dca57f1ee0c55ceb09edb8b23e920b0af10743db3e23daacd43abfade5"
+  "wiki_tree_hash": "a461d201d011302c964b10596886081dafa9dc1724d1042f572319a19bd30c74"
 }

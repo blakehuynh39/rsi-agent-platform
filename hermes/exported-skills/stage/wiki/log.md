@@ -38630,3 +38630,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b4037362f50045cd19d419072f428c21
 - summary: Incident where user couldn't send tokens on mainnet; resolved by updating MetaMask.
 
+## [2026-06-24T20:46:35Z] synthesis | Mainnet GCP Server Removal
+
+- status: published
+- slug: decisions/mainnet-gcp-server-removal-2026-01-28
+- wiki_revision_id: wikirev_431a7193a3af2e87e190a08dcbb9a449
+- summary: On 2026-01-28, a decision was made to remove most Mainnet servers in GCP due to low traffic. Only core bootnodes, indexer, and monitoring were retained.
+
+## [2026-06-24T20:48:10Z] synthesis | Decommission Mainnet GCP Servers (January 2026)
+
+- status: published
+- slug: decisions/decision-decommission-mainnet-gcp-servers-2026-01-28
+- wiki_revision_id: wikirev_7c5f99ce30a1d46fa048a300552eb5d3
+- summary: Decision to remove mainnet GCP servers due to no traffic, retaining only four instances (tmp-indexer-hans, use1-mainnet-bootnode1, use1-mainnet-bootnode2, use1-mainnet-monitoring)....
+
