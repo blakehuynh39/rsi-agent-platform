@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7030fbb8173e883698dc85be7262ec51a96a13c10543c8d19f62299aa7fb8210",
-        "size": 1102859
+        "sha256": "fea55e10316b1727fc77c72cca8fcca12f6ef499a26ef90890d369a105cdb0e4",
+        "size": 1103490
       },
       {
         "path": "log.md",
-        "sha256": "1dd1490dbf269fb9d3a1e223e456d92f262c3fdb36ad38e1444882ba57d32341",
-        "size": 1866471
+        "sha256": "401257f9964dc47c76c150c03b1fe8177e7a6ba7a0ce205075f218b5a1f70048",
+        "size": 1867126
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6090,6 +6090,11 @@
         "size": 1540
       },
       {
+        "path": "pages/projects/aeneid-acm.md",
+        "sha256": "ecaec3cbea38c96d4d0c8d1a834b45976bb75435ec4e479a33eb4c244b43c564",
+        "size": 2120
+      },
+      {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
         "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
         "size": 3294
@@ -7203,6 +7208,11 @@
         "path": "pages/projects/pfp-engineering-specs.md",
         "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
+      },
+      {
+        "path": "pages/projects/piplabs-cometbft.md",
+        "sha256": "6f75aca9ada6d806156d1a78f28257924c057ecdfbcfa266aa3ea3f804412d36",
+        "size": 3923
       },
       {
         "path": "pages/projects/platform-beta-plan.md",
@@ -9784,8 +9794,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T05:51:57Z",
-  "file_count": 1955,
+  "exported_at": "2026-06-24T06:03:44Z",
+  "file_count": 1957,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13062,7 +13072,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "96679a52b369e6c325ef40d43bc4ee9c87beeb60debf55f3de1473eadfbfeaab",
+  "previous_tree_hash": "005a93a937c72688725eef55cf4f725719db60068d3900d772dbbcba4f2c07c6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13075,14 +13085,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "005a93a937c72688725eef55cf4f725719db60068d3900d772dbbcba4f2c07c6",
+  "tree_hash": "987c7e80e675c7214b850a3001f4ac23b7c5db465045b388afba0bdb78805a0b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1301,
+  "wiki_file_count": 1303,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13091,13 +13101,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7030fbb8173e883698dc85be7262ec51a96a13c10543c8d19f62299aa7fb8210",
-      "size": 1102859
+      "sha256": "fea55e10316b1727fc77c72cca8fcca12f6ef499a26ef90890d369a105cdb0e4",
+      "size": 1103490
     },
     {
       "path": "log.md",
-      "sha256": "1dd1490dbf269fb9d3a1e223e456d92f262c3fdb36ad38e1444882ba57d32341",
-      "size": 1866471
+      "sha256": "401257f9964dc47c76c150c03b1fe8177e7a6ba7a0ce205075f218b5a1f70048",
+      "size": 1867126
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15900,6 +15910,11 @@
       "size": 1540
     },
     {
+      "path": "pages/projects/aeneid-acm.md",
+      "sha256": "ecaec3cbea38c96d4d0c8d1a834b45976bb75435ec4e479a33eb4c244b43c564",
+      "size": 2120
+    },
+    {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
       "sha256": "eddf8a9e4c0b05919255fe9d6f42b314210d5b14a210088648877e8a347b7453",
       "size": 3294
@@ -17013,6 +17028,11 @@
       "path": "pages/projects/pfp-engineering-specs.md",
       "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
+    },
+    {
+      "path": "pages/projects/piplabs-cometbft.md",
+      "sha256": "6f75aca9ada6d806156d1a78f28257924c057ecdfbcfa266aa3ea3f804412d36",
+      "size": 3923
     },
     {
       "path": "pages/projects/platform-beta-plan.md",
@@ -19591,5 +19611,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4c5ddad7d98e70eecd83f53d6a72339d43b205577e62a523f219c89f7e0e0993"
+  "wiki_tree_hash": "f1cf04444994acfa3472e61615c3de15d6301f3803032737bcaa23b1752af606"
 }

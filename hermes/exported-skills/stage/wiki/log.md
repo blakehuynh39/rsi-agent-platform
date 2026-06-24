@@ -37760,3 +37760,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec5da7ce134f5ebbee39bd9ef38ffd57
 - summary: A public fork of the cometbft repository was created under the piplabs GitHub organization at piplabs/cometbft, with write access granted to the requester.
 
+## [2026-06-24T06:01:19Z] synthesis | piplabs/cometbft Fork
+
+- status: published
+- slug: projects/piplabs-cometbft
+- wiki_revision_id: wikirev_04f5c92d17466499b83ae23f422ea1aa
+- summary: Public fork of cometbft/cometbft under the Piplabs GitHub organization, with write access granted to the requester.
+
+## [2026-06-24T06:02:12Z] synthesis | Aeneid ACM
+
+- status: published
+- slug: projects/aeneid-acm
+- wiki_revision_id: wikirev_a5213be0b0ee01de9925061e18774050
+- summary: Project related to Aeneid ACM. A pull request (#113) is open and requires review. Key reviewer U07TNT9N4JC is off, with U07KLPN0JN6 and U0A7ZQXB160 designated as backup reviewers.
+
