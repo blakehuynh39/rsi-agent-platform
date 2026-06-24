@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9dfbcf8a8e0c7b1c4aac43d016842fbb960485c127d1a0b33fe02ea938314038",
-        "size": 1104958
+        "sha256": "a33b8be3d1d9c2f52de23b7ec1fb459bdb403c83c62134eca66ee6fa02083726",
+        "size": 1105616
       },
       {
         "path": "log.md",
-        "sha256": "4b1021ab48934e6520b626713fe06283a5e4b24291fd323802531d7a52cc3cf3",
-        "size": 1869417
+        "sha256": "77f9ed8a53bc01d104208a73bfd9503327f3e56b445b2cfc107f2bf77383b2e3",
+        "size": 1870098
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8050,6 +8050,11 @@
         "size": 3408
       },
       {
+        "path": "pages/runbooks/cors-issue-staging-portal.md",
+        "sha256": "1e942771f7b776fc77f0ac2b5b7aa2df898d7de4aca30f6da7910849c0367378",
+        "size": 5545
+      },
+      {
         "path": "pages/runbooks/cursor-bugbot-setup.md",
         "sha256": "c96dea86e7b817e9a372ffef7726b33a42bd968e30bdc9a942bc25c1e06c083b",
         "size": 4510
@@ -9420,6 +9425,11 @@
         "size": 3312
       },
       {
+        "path": "pages/systems/portal-v2-staging.md",
+        "sha256": "2265485e13f889c45f96bf1089fc7f9a22f4d5ee055229b793a0080aaf8f7cdb",
+        "size": 5246
+      },
+      {
         "path": "pages/systems/poseidon-eng-tracking.md",
         "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
         "size": 1352
@@ -9814,8 +9824,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T07:38:06Z",
-  "file_count": 1961,
+  "exported_at": "2026-06-24T07:49:51Z",
+  "file_count": 1963,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13092,7 +13102,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "523b0b8a1835715d68fe33a9e9cafbcac213f4d992d8ff13fdb33bebd88cb9c0",
+  "previous_tree_hash": "eb028d8cd450789d35b6e16597b3624e1c7d864d6f0ae92d3c76715579439c9d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13105,14 +13115,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "eb028d8cd450789d35b6e16597b3624e1c7d864d6f0ae92d3c76715579439c9d",
+  "tree_hash": "7cf8add6c5594e08b73cd3a640eea6191725005bc31fc69cdb596f8a18efc793",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1307,
+  "wiki_file_count": 1309,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13121,13 +13131,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9dfbcf8a8e0c7b1c4aac43d016842fbb960485c127d1a0b33fe02ea938314038",
-      "size": 1104958
+      "sha256": "a33b8be3d1d9c2f52de23b7ec1fb459bdb403c83c62134eca66ee6fa02083726",
+      "size": 1105616
     },
     {
       "path": "log.md",
-      "sha256": "4b1021ab48934e6520b626713fe06283a5e4b24291fd323802531d7a52cc3cf3",
-      "size": 1869417
+      "sha256": "77f9ed8a53bc01d104208a73bfd9503327f3e56b445b2cfc107f2bf77383b2e3",
+      "size": 1870098
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17890,6 +17900,11 @@
       "size": 3408
     },
     {
+      "path": "pages/runbooks/cors-issue-staging-portal.md",
+      "sha256": "1e942771f7b776fc77f0ac2b5b7aa2df898d7de4aca30f6da7910849c0367378",
+      "size": 5545
+    },
+    {
       "path": "pages/runbooks/cursor-bugbot-setup.md",
       "sha256": "c96dea86e7b817e9a372ffef7726b33a42bd968e30bdc9a942bc25c1e06c083b",
       "size": 4510
@@ -19260,6 +19275,11 @@
       "size": 3312
     },
     {
+      "path": "pages/systems/portal-v2-staging.md",
+      "sha256": "2265485e13f889c45f96bf1089fc7f9a22f4d5ee055229b793a0080aaf8f7cdb",
+      "size": 5246
+    },
+    {
       "path": "pages/systems/poseidon-eng-tracking.md",
       "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
       "size": 1352
@@ -19651,5 +19671,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "10b2016195af2fa171da6ee5a8cfe2d4deb1a69fe8b571af82bbc4a30991dfb8"
+  "wiki_tree_hash": "d37dc23c069c8a6c7cfeb3a3c263b4967a9606f2818c326e6f9fa4748850b020"
 }
