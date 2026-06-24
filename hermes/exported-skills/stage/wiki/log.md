@@ -38273,3 +38273,269 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c1b09d6112bbad75bdfef1dd11e0f3ed
 - summary: Decision to create a new GitHub org PIP-Labs-RE to host the docs repository, bypassing enterprise branch protection rules to allow direct pushes, while eventually agreeing on requi...
 
+## [2026-06-24T19:00:40Z] ingest | Slack thread C08G4C9LZSR 1782326877.686429
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782326877-686429-de8de69b
+- wiki_revision_id: wikirev_56c8c01ac55075989c5725ba3fa9f3b0
+- source_document_id: srcdoc_07846919d25a11f9ec3b504cde8de69b
+- source_revision_id: srcrev_e654f3959ce270ba61856c8c5b9bff50
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U04VDFP1YQ5>
+
+## [2026-06-24T19:00:40Z] ingest | Slack thread C08G4C9LZSR 1782327237.683229
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782327237-683229-b5c5510f
+- wiki_revision_id: wikirev_6d3d548c6d9acaff33b46e2a72c84d30
+- source_document_id: srcdoc_0d25dbc4fb2aeb4184749224b5c5510f
+- source_revision_id: srcrev_4856eda179dce15072a73a125228f522
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U04VDFP1YQ5>
+
+## [2026-06-24T19:00:40Z] ingest | Slack thread C08G4C9LZSR 1782326991.294609
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782326991-294609-54108baf
+- wiki_revision_id: wikirev_0f5b4173fa13f25d16bd7f372b6a42d5
+- source_document_id: srcdoc_1fb03bee220eeee809b814e454108baf
+- source_revision_id: srcrev_a8123a8ecdee0875b392b3c5bddf9c66
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U04VDFP1YQ5>
+
+## [2026-06-24T19:00:41Z] ingest | Slack thread C08G4C9LZSR 1781160955.501289
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781160955-501289-7a1fc411
+- wiki_revision_id: wikirev_41f41dc52e39690a3f32cd82a214ef3c
+- source_document_id: srcdoc_281158eb26e9305f81b0e8927a1fc411
+- source_revision_id: srcrev_047f1984e4347f7c8275bf60d4c05ecd
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:41Z] ingest | Slack thread C08G4C9LZSR 1782010238.882309
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782010238-882309-f28ed4f1
+- wiki_revision_id: wikirev_e6bcb4369e532b8beb729b96fa1fb24d
+- source_document_id: srcdoc_3a655d2dfcda398f2bee4e17f28ed4f1
+- source_revision_id: srcrev_4094c7b9bacf1766018d61edfc210477
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:41Z] ingest | Slack thread C08G4C9LZSR 1781210575.516609
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781210575-516609-1847dfc8
+- wiki_revision_id: wikirev_3481cc8801ad051fc8081ca130e5595d
+- source_document_id: srcdoc_3f08d7533c5f628b7f42656f1847dfc8
+- source_revision_id: srcrev_f13aa329d32c8ce51d0a8757a837c362
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:42Z] ingest | Slack thread C08G4C9LZSR 1781978018.786439
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781978018-786439-a5777a82
+- wiki_revision_id: wikirev_bd49d925b12a246e17db0610993cec42
+- source_document_id: srcdoc_4bba95d5d4d1fa05ede7a700a5777a82
+- source_revision_id: srcrev_becd5a8aef6dcac0b8e5bfcd1ef72b13
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:42Z] ingest | Slack thread C08G4C9LZSR 1782010538.787239
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782010538-787239-c55eba29
+- wiki_revision_id: wikirev_f4876a02b21dd791c3e67a25ebf4bd4a
+- source_document_id: srcdoc_54930a5eb9eff26b322bf668c55eba29
+- source_revision_id: srcrev_573cc37c0782c7576e2d42cf52892700
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:43Z] ingest | Slack thread C08G4C9LZSR 1781179075.678939
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781179075-678939-e4c815f5
+- wiki_revision_id: wikirev_1214d5cde07cefbc930f708c957c7347
+- source_document_id: srcdoc_618152918b1a305c8ba2148be4c815f5
+- source_revision_id: srcrev_08ed9c8fc78ea98db3d72e49fa5ca2a2
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:43Z] ingest | Slack thread C08G4C9LZSR 1781978408.386539
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781978408-386539-ad52495d
+- wiki_revision_id: wikirev_d21cb5cb94923bf20e186395767249b7
+- source_document_id: srcdoc_63d8153eab06bf1072718a89ad52495d
+- source_revision_id: srcrev_993fce1a670521325425bfce254896af
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:44Z] ingest | Slack thread C08G4C9LZSR 1781960438.482779
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781960438-482779-55cd191f
+- wiki_revision_id: wikirev_e1155445112c912a045148c46aba9c31
+- source_document_id: srcdoc_6c740b5578f874f4306b2b1055cd191f
+- source_revision_id: srcrev_b5ee377625b2b3e5e4b18ea29085f2e7
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:44Z] ingest | Slack thread C08G4C9LZSR 1776655571.738469
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1776655571-738469-4f0ec50b
+- wiki_revision_id: wikirev_a55e47787d4d778ea66bf125659a6409
+- source_document_id: srcdoc_6d39493ee1283df168fc02734f0ec50b
+- source_revision_id: srcrev_7052308f1c7503b45328fa74665b5be5
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-24T19:00:44Z] ingest | Slack thread C08G4C9LZSR 1781883777.685529
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781883777-685529-a00425a0
+- wiki_revision_id: wikirev_d980ffa95f3060433ffc607bac3d4f18
+- source_document_id: srcdoc_7924953bc2070ced98cf737aa00425a0
+- source_revision_id: srcrev_d3baa7cba21f4a4153a7b7bf7fbef20f
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:45Z] ingest | Slack thread C08G4C9LZSR 1773125956.131809
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1773125956-131809-899f122d
+- wiki_revision_id: wikirev_709927e793af267c9333b6947460929b
+- source_document_id: srcdoc_7cd17fe8e5f368c57f5e1f07899f122d
+- source_revision_id: srcrev_439295d3c4549a7b8e1948a6bcc6f11f
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-24T19:00:45Z] ingest | Slack thread C08G4C9LZSR 1781162995.515859
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781162995-515859-38927857
+- wiki_revision_id: wikirev_195f09e3f5dc9d182928954f8593a077
+- source_document_id: srcdoc_820fcb4ccad0aa66f5f565c438927857
+- source_revision_id: srcrev_02df544f456242a51de0f280eb6b9cbb
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:46Z] ingest | Slack thread C08G4C9LZSR 1781186035.509069
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781186035-509069-45c20312
+- wiki_revision_id: wikirev_5c2e4e61cdc17c37bcb6858d888ccf72
+- source_document_id: srcdoc_8728da21cc0e68a628a4b7a545c20312
+- source_revision_id: srcrev_0898bf8fdcda26983e76dee65b7202ef
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:46Z] ingest | Slack thread C08G4C9LZSR 1782011138.913239
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782011138-913239-b1d47841
+- wiki_revision_id: wikirev_69e87d402e05a9bb3e90d02bb61c5cd1
+- source_document_id: srcdoc_87a98ecc4be97018834c7cacb1d47841
+- source_revision_id: srcrev_6f1081fbe12fabc2b748997c6352b1d9
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:46Z] ingest | Slack thread C08G4C9LZSR 1781869971.308019
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781869971-308019-b485b319
+- wiki_revision_id: wikirev_547c872a9d9e6f2781f8aa2a007ea46c
+- source_document_id: srcdoc_97df157c7fb6bd7bd047928cb485b319
+- source_revision_id: srcrev_b8bf7f9d4c0c767685d436c843b0478a
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:47Z] ingest | Slack thread C08G4C9LZSR 1781853535.477359
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781853535-477359-415b9d2d
+- wiki_revision_id: wikirev_2953aea497c446c814072c9e428d0736
+- source_document_id: srcdoc_9faa1c76697d7acea8c5e43b415b9d2d
+- source_revision_id: srcrev_7889b66e336064e9c536d3cb4442ecca
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:47Z] ingest | Slack thread C08G4C9LZSR 1781880111.303619
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781880111-303619-c4b73b09
+- wiki_revision_id: wikirev_99ff6ab422f6eef1b7e4c347c27314ef
+- source_document_id: srcdoc_a3258fe6d64f77c23ff56c20c4b73b09
+- source_revision_id: srcrev_e1212226f6e317af48b3cf7f218c6b54
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:47Z] ingest | Slack thread C08G4C9LZSR 1782010838.908969
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782010838-908969-b4f3f118
+- wiki_revision_id: wikirev_21f41117da0584621f2dbfeb4ed7d63d
+- source_document_id: srcdoc_b35450d5e0eb335f49a2ea4bb4f3f118
+- source_revision_id: srcrev_1c7858c7b6f15fe465c2fdede5f4e699
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:48Z] ingest | Slack thread C08G4C9LZSR 1781960138.391309
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781960138-391309-a625a94f
+- wiki_revision_id: wikirev_8d7affd28dd4e6d7f70a890af80063dc
+- source_document_id: srcdoc_cab92590ac55992c832eb5afa625a94f
+- source_revision_id: srcrev_34e27c5b0be7b2b4e0c6b36eeab90fa3
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:48Z] ingest | Slack thread C08G4C9LZSR 1775503339.150829
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1775503339-150829-3374ce90
+- wiki_revision_id: wikirev_c9ecb5db0c1f3f2d18c82503664605e5
+- source_document_id: srcdoc_f3100d1a9c96c92722355a2a3374ce90
+- source_revision_id: srcrev_a481fcd4d539a7d8d98631c861391805
+- summary: <@U0AK1PVDR1R> pause alert routing
+
+## [2026-06-24T19:00:49Z] ingest | Slack thread C08G4C9LZSR 1781164675.500879
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781164675-500879-8a605987
+- wiki_revision_id: wikirev_6ebbcaa344b6e5f92af4e05fa33381d8
+- source_document_id: srcdoc_f717be8dcb8421a767357d0a8a605987
+- source_revision_id: srcrev_8db66da6ba1fb1aceb6025294c24c6ad
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U081RCLP2KB>
+
+## [2026-06-24T19:00:49Z] ingest | Slack thread C08G4C9LZSR 1781858515.301999
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781858515-301999-c76f28cc
+- wiki_revision_id: wikirev_2b217bc441f6fd84097334b6c9fe48eb
+- source_document_id: srcdoc_fb937251d5ba2a8394555e60c76f28cc
+- source_revision_id: srcrev_510f33806a62289332c72b0e8e62611c
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:49Z] ingest | Slack thread C08G4C9LZSR 1781883051.295919
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781883051-295919-70a4df6b
+- wiki_revision_id: wikirev_2b6ac379123384759d42e452a65709d3
+- source_document_id: srcdoc_fc5c21b604c5b0f624ca2ddb70a4df6b
+- source_revision_id: srcrev_4ee02454d89684c07db8c37923da3360
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:00:50Z] ingest | Slack thread C08G4C9LZSR 1782327235.280619
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1782327235-280619-9399471a
+- wiki_revision_id: wikirev_aee523a6739a5ec0a59a096125aa537c
+- source_document_id: srcdoc_ff0a3f99da09460e52f7ccc19399471a
+- source_revision_id: srcrev_0b4b181c0a752254548d3ffd45818342
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U04VDFP1YQ5>
+
+## [2026-06-24T19:00:50Z] ingest | Slack thread C08G4C9LZSR 1781960738.587019
+
+- status: published
+- slug: slack_message/slack-thread-c08g4c9lzsr-1781960738-587019-3da6d510
+- wiki_revision_id: wikirev_6c7e576cb28513881ee828e1c61a2520
+- source_document_id: srcdoc_ffa1b2af40126bb836edc0753da6d510
+- source_revision_id: srcrev_6dfb2d5b4cb3eb271795f57b12d3816f
+- summary: <!subteam^S07AJT0L1EV> Can you take a look at it? cc: <@U05A515NBFC>
+
+## [2026-06-24T19:01:20Z] synthesis | PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: projects/pip-labs-re-github-organization
+- wiki_revision_id: wikirev_357eb72d4dd8ccfa76e44228ecf057fc
+- summary: The PIP-Labs-RE organization was created to host the docs repository, allowing the sole maintainer to directly push to main while permitting reviewer access. It was established to ...
+
+## [2026-06-24T19:03:42Z] synthesis | PIP-Labs-RE GitHub Organization and Docs Repository
+
+- status: published
+- slug: systems/pip-labs-re-github-organization
+- wiki_revision_id: wikirev_248f37c40a9e94cf3cf4b99898836f2a
+- summary: The PIP-Labs-RE GitHub organization was created to host the docs repository after enterprise-level branch protection rules prevented direct pushes to main, as desired by the sole m...
+

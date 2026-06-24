@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b9656d44baf6cc4c9c0a8107d7e53ade976ec1a93fd710acf8ec223659c756c5",
-        "size": 1119573
+        "sha256": "cd7fc7886377bb48c8a671bd5a6bc5dc1eccc3c99ff392ed2ebb603ae4144136",
+        "size": 1127871
       },
       {
         "path": "log.md",
-        "sha256": "407cc9b7ff09781be152d5cefe40bb29559491033d14724dca52a846669f4907",
-        "size": 1891114
+        "sha256": "b499b984117b11ab7a1d38a12c8e0dc4f2e1afd96c4533bfe62dcf69bc1441b5",
+        "size": 1903701
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7340,6 +7340,11 @@
         "size": 4800
       },
       {
+        "path": "pages/projects/pip-labs-re-github-organization.md",
+        "sha256": "1bf66878f79a3e87c5d45a585931bfb761d3a59c447687376ba61477df19ac0e",
+        "size": 6274
+      },
+      {
         "path": "pages/projects/piplabs-cometbft.md",
         "sha256": "6f75aca9ada6d806156d1a78f28257924c057ecdfbcfa266aa3ea3f804412d36",
         "size": 3923
@@ -10034,8 +10039,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T18:56:42Z",
-  "file_count": 2005,
+  "exported_at": "2026-06-24T19:03:23Z",
+  "file_count": 2006,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13312,7 +13317,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "4daa164fea1ac2735fc88154d72ff027dd7bbed7176d244a497ca697111d9b71",
+  "previous_tree_hash": "2d6ebc595ab8312c48584cada6a73c9aaae183eaf7142bb82ac91f7655a9a534",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13325,14 +13330,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2d6ebc595ab8312c48584cada6a73c9aaae183eaf7142bb82ac91f7655a9a534",
+  "tree_hash": "fc4d74b1817b1e0b1109bda8715c7b4d362744370d2416844445d75b37ef8707",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1351,
+  "wiki_file_count": 1352,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13341,13 +13346,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b9656d44baf6cc4c9c0a8107d7e53ade976ec1a93fd710acf8ec223659c756c5",
-      "size": 1119573
+      "sha256": "cd7fc7886377bb48c8a671bd5a6bc5dc1eccc3c99ff392ed2ebb603ae4144136",
+      "size": 1127871
     },
     {
       "path": "log.md",
-      "sha256": "407cc9b7ff09781be152d5cefe40bb29559491033d14724dca52a846669f4907",
-      "size": 1891114
+      "sha256": "b499b984117b11ab7a1d38a12c8e0dc4f2e1afd96c4533bfe62dcf69bc1441b5",
+      "size": 1903701
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17400,6 +17405,11 @@
       "size": 4800
     },
     {
+      "path": "pages/projects/pip-labs-re-github-organization.md",
+      "sha256": "1bf66878f79a3e87c5d45a585931bfb761d3a59c447687376ba61477df19ac0e",
+      "size": 6274
+    },
+    {
       "path": "pages/projects/piplabs-cometbft.md",
       "sha256": "6f75aca9ada6d806156d1a78f28257924c057ecdfbcfa266aa3ea3f804412d36",
       "size": 3923
@@ -20091,5 +20101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "533db0e91018827a582de7cf48e68ebd76a07272a33ab9e3c953036f8230bb93"
+  "wiki_tree_hash": "afde841d06cad3345503f4ff65987e8632ea58439c9ebce2e543329470ef45c1"
 }
