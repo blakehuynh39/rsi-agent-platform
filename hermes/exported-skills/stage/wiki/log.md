@@ -38165,3 +38165,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_84dbb04c33bbf75090e7d81576102420
 - summary: The Story Protocol infra team is migrating archive nodes from GCP to AWS and requiring all dependent services to use domain names instead of hardcoded IPs. Poseidon's depin-api alr...
 
+## [2026-06-24T13:46:36Z] synthesis | Numo Expert Payment Model
+
+- status: published
+- slug: policies/numo-expert-payment-model
+- wiki_revision_id: wikirev_37c4567e3ac1354904ef0f8b0855b227
+- summary: Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
+
+## [2026-06-24T13:48:49Z] synthesis | Archive Node Migration to AWS and Domain Names
+
+- status: published
+- slug: decisions/archive-node-migration-aws-domain
+- wiki_revision_id: wikirev_b6acc536f0bf497e39b2aadc2c1c109f
+- summary: Migration of Story Protocol archive nodes from GCP to AWS, requiring all services to switch from direct IP (34.139.142.168) to domain names (internal-full.storyrpc.io for prod, int...
+

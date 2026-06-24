@@ -6,7 +6,9 @@ freshness: "2026-06-23T19:33:00Z"
 tags:
   - "annotation"
   - "bengali"
+  - "contributor"
   - "payment"
+  - "rate-card"
 owners:
   - "Nick Ippolito"
 source_revision_ids:
@@ -51,8 +53,16 @@ Defines per-task pay for contributors based on real task time and a target skill
 - The recommended migration path is to grandfather current contractors at existing rates through Phase 1/2, then converge to the new band, to avoid losing experienced contributors. `claim:claim_1_9` `confidence:1.00`
   - citation: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3) `source_document_id=srcdoc_570a89beb86d727201f015129ef5bd03` `source_revision_id=srcrev_762b66916d85eb7989e67f2a050e024f` `chunk_id=srcchunk_db393cc14fc97e92145e8040f233f035` `native_locator=https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205#chunk-3` `source_timestamp=2026-06-23T19:33:00Z`
 
+## Open Questions
+
+- Add the margin layer (what we charge customers) on top of the calculated item costs.
+- Confirm that the “50 transcripts” batch is Transcript Correction (the whole rate card hangs on this assumption).
+- Fix the tab‑switch timer so future pricing can rely on logged time directly.
+- Re‑price Correction Validation and Custom tasks once real data is available.
+- Time-check a real batch with a stopwatch to replace the 3‑4 hour estimate (carries ~±14% uncertainty).
+
 ## Sources
 
 - `source_document_id`: `srcdoc_570a89beb86d727201f015129ef5bd03`
-- `source_revision_id`: `srcrev_f09a145987bf13afe8d4af73b4b35f84`
+- `source_revision_id`: `srcrev_e240761a4c28d331f5fe97088400641a`
 - `source_url`: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
