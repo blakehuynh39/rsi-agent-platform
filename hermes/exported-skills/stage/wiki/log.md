@@ -37788,3 +37788,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_151f156fd8592d5eaddc1ca240ed58dc
 - summary: Pull request #113 for Aeneid ACM requires review. The PR is minor and may be self-approved, but backup approvers are needed while the primary team is away.
 
+## [2026-06-24T06:30:27Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_00d1143946fb161de30c7ce46b9e09ee
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_20ac6fadcfd50ced7879ce70d5b0d9a8
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
+## [2026-06-24T06:32:53Z] synthesis | Hub API Staging Endpoint Update
+
+- status: published
+- slug: runbooks/hub-api-staging-endpoint-update
+- wiki_revision_id: wikirev_5e99c5f0008caf9b64b681e6e872a4bc
+- summary: Resolved CORS and 401 issues on staging portal by updating the hub API endpoint from edge.stg.storyprotocol.net to staging-api.storyprotocol.net and adjusting dynamic environment v...
+
