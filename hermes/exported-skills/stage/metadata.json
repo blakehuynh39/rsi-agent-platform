@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cd7fc7886377bb48c8a671bd5a6bc5dc1eccc3c99ff392ed2ebb603ae4144136",
-        "size": 1127871
+        "sha256": "0277e2faf4b6269d1424c974dc2bd921b6d94dc329c5cd17ea0a38cd20d25e09",
+        "size": 1128661
       },
       {
         "path": "log.md",
-        "sha256": "b499b984117b11ab7a1d38a12c8e0dc4f2e1afd96c4533bfe62dcf69bc1441b5",
-        "size": 1903701
+        "sha256": "b06b439b7cbd4ed8693bfe85eac08ccdcfbfbb3a1ff1c19bc9d366f2486fccdc",
+        "size": 1904117
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9615,6 +9615,11 @@
         "size": 6035
       },
       {
+        "path": "pages/systems/pip-labs-re-github-organization.md",
+        "sha256": "d54bfd8584ea829c151b14715fbcda2c71ee6fd204aae302ce0009f2b99796e2",
+        "size": 6059
+      },
+      {
         "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
         "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
         "size": 2443
@@ -10039,8 +10044,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T19:03:23Z",
-  "file_count": 2006,
+  "exported_at": "2026-06-24T19:10:06Z",
+  "file_count": 2007,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13317,7 +13322,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "2d6ebc595ab8312c48584cada6a73c9aaae183eaf7142bb82ac91f7655a9a534",
+  "previous_tree_hash": "fc4d74b1817b1e0b1109bda8715c7b4d362744370d2416844445d75b37ef8707",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13330,14 +13335,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fc4d74b1817b1e0b1109bda8715c7b4d362744370d2416844445d75b37ef8707",
+  "tree_hash": "d051fad850c7bf075d8ee1900dd7992ebdf1dbe023264a490230a977f61a1333",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1352,
+  "wiki_file_count": 1353,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13346,13 +13351,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cd7fc7886377bb48c8a671bd5a6bc5dc1eccc3c99ff392ed2ebb603ae4144136",
-      "size": 1127871
+      "sha256": "0277e2faf4b6269d1424c974dc2bd921b6d94dc329c5cd17ea0a38cd20d25e09",
+      "size": 1128661
     },
     {
       "path": "log.md",
-      "sha256": "b499b984117b11ab7a1d38a12c8e0dc4f2e1afd96c4533bfe62dcf69bc1441b5",
-      "size": 1903701
+      "sha256": "b06b439b7cbd4ed8693bfe85eac08ccdcfbfbb3a1ff1c19bc9d366f2486fccdc",
+      "size": 1904117
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19680,6 +19685,11 @@
       "size": 6035
     },
     {
+      "path": "pages/systems/pip-labs-re-github-organization.md",
+      "sha256": "d54bfd8584ea829c151b14715fbcda2c71ee6fd204aae302ce0009f2b99796e2",
+      "size": 6059
+    },
+    {
       "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
       "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
       "size": 2443
@@ -20101,5 +20111,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "afde841d06cad3345503f4ff65987e8632ea58439c9ebce2e543329470ef45c1"
+  "wiki_tree_hash": "cd0ebd45c135bd08ccae8850544f1233fa11370d389cf8f1a03fdd3c8290dfbd"
 }
