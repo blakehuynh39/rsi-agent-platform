@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "56fb72d5b5369407cf7971e67c4873a37f4afa780e6a54c7d855ee6bf640b0fa",
-        "size": 1106401
+        "sha256": "7b6592b5140c79e95858321d421a33377fb9788e6860d14c4d8380d1c42c71f5",
+        "size": 1106779
       },
       {
         "path": "log.md",
-        "sha256": "8aaf0ee66031976aa39f07ecb5b2d718ed1bc9693dffe68a20c779e348aeccbc",
-        "size": 1870907
+        "sha256": "597ecfcc2eb7767b0e475e422b52e823684ce23dbee6838ac09fbf2c930e8c83",
+        "size": 1871641
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4708,6 +4708,11 @@
         "path": "pages/decisions/closing-language-contribution-tasks.md",
         "sha256": "cca8e68607760f019ff6ab0c687c8ed5587bb5f5b097718ffa2de480b0cd8e29",
         "size": 3559
+      },
+      {
+        "path": "pages/decisions/cloudflare-dns-iac-staking-api-bitgo.md",
+        "sha256": "8735ebe7f2600d476685c6e658e3b0b6435e8ee289ea5ff88aa6cf69de196922",
+        "size": 2543
       },
       {
         "path": "pages/decisions/code-switching-transcripts-kgen.md",
@@ -9686,8 +9691,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "00868425a1278ccecd3072161dfde9e93e9b81f2e5642433dd0d45a40af464c7",
-        "size": 3169
+        "sha256": "ac319ccbf94318153aee7f3c599eba5f996fdabd9f51cedc08f07a1c6319bf8d",
+        "size": 2109
       },
       {
         "path": "pages/systems/story-private-fork.md",
@@ -9834,8 +9839,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T09:00:39Z",
-  "file_count": 1965,
+  "exported_at": "2026-06-24T09:07:18Z",
+  "file_count": 1966,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13112,7 +13117,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "15d91d38795295c2f9998ed9a0b3806c9e883ba191f86ee37a51660755ef8e40",
+  "previous_tree_hash": "23d6592a312650195d31aa80c88fa137c9cf74a346d5dafbb14b0eaf0ef05b7e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13125,14 +13130,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "23d6592a312650195d31aa80c88fa137c9cf74a346d5dafbb14b0eaf0ef05b7e",
+  "tree_hash": "c5dd0b1d08306a22b3e4fb4a6b9a7ffcb083b8a7ebd439c8f5dbe9caa84d054d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1311,
+  "wiki_file_count": 1312,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13141,13 +13146,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "56fb72d5b5369407cf7971e67c4873a37f4afa780e6a54c7d855ee6bf640b0fa",
-      "size": 1106401
+      "sha256": "7b6592b5140c79e95858321d421a33377fb9788e6860d14c4d8380d1c42c71f5",
+      "size": 1106779
     },
     {
       "path": "log.md",
-      "sha256": "8aaf0ee66031976aa39f07ecb5b2d718ed1bc9693dffe68a20c779e348aeccbc",
-      "size": 1870907
+      "sha256": "597ecfcc2eb7767b0e475e422b52e823684ce23dbee6838ac09fbf2c930e8c83",
+      "size": 1871641
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14568,6 +14573,11 @@
       "path": "pages/decisions/closing-language-contribution-tasks.md",
       "sha256": "cca8e68607760f019ff6ab0c687c8ed5587bb5f5b097718ffa2de480b0cd8e29",
       "size": 3559
+    },
+    {
+      "path": "pages/decisions/cloudflare-dns-iac-staking-api-bitgo.md",
+      "sha256": "8735ebe7f2600d476685c6e658e3b0b6435e8ee289ea5ff88aa6cf69de196922",
+      "size": 2543
     },
     {
       "path": "pages/decisions/code-switching-transcripts-kgen.md",
@@ -19546,8 +19556,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "00868425a1278ccecd3072161dfde9e93e9b81f2e5642433dd0d45a40af464c7",
-      "size": 3169
+      "sha256": "ac319ccbf94318153aee7f3c599eba5f996fdabd9f51cedc08f07a1c6319bf8d",
+      "size": 2109
     },
     {
       "path": "pages/systems/story-private-fork.md",
@@ -19691,5 +19701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b400cec917fbb2419f8ebf45b8f111a6b6376753506871af357f86a246c8c5b5"
+  "wiki_tree_hash": "451cf1126b0857b4af93c0211517f869ff1d0972765f50c9ac62fc03461e9c87"
 }

@@ -37846,3 +37846,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f434a5d954347e65047f4fdefe328cb1
 - summary: PR #115 on piplabs/cloudflare updates DNS records for the private fork of staking-api for BitGo and includes faucet configuration maintained as Infrastructure as Code (IaC). The PR...
 
+## [2026-06-24T09:02:28Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_93e43e561f06055637d8a7ef01f6a05a
+- summary: The story-orchestration-service has experienced multiple request timeout errors (context deadline exceeded).
+
+## [2026-06-24T09:03:29Z] synthesis | CloudFlare DNS IaC Update for Staking-API (BitGo)
+
+- status: published
+- slug: decisions/cloudflare-dns-iac-staking-api-bitgo
+- wiki_revision_id: wikirev_679916e8f8bdfd43fca4979ca61a925b
+- summary: Approved Infrastructure-as-Code (IaC) update for CloudFlare DNS to support the private-fork of staking-api for BitGo, including faucet configuration. The PR is not to be shared wit...
+
