@@ -38539,3 +38539,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_248f37c40a9e94cf3cf4b99898836f2a
 - summary: The PIP-Labs-RE GitHub organization was created to host the docs repository after enterprise-level branch protection rules prevented direct pushes to main, as desired by the sole m...
 
+## [2026-06-24T19:21:11Z] synthesis | Move docs repo to PIP-Labs-RE for branch protection flexibility
+
+- status: published
+- slug: decisions/docs-repo-move-pip-labs-re
+- wiki_revision_id: wikirev_4e21ecdece22b3c7574eb842c4d2c022
+- summary: The docs repo was moved to a new GitHub organization PIP-Labs-RE to allow the sole maintainer to push directly to main, bypassing enterprise branch protection rules that required a...
+

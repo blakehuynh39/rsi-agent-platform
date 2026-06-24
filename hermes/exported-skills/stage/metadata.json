@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0277e2faf4b6269d1424c974dc2bd921b6d94dc329c5cd17ea0a38cd20d25e09",
-        "size": 1128661
+        "sha256": "36299a52dd28dc93ff1167248bdbf97ae21a3195de382903561e509c094a5478",
+        "size": 1129074
       },
       {
         "path": "log.md",
-        "sha256": "b06b439b7cbd4ed8693bfe85eac08ccdcfbfbb3a1ff1c19bc9d366f2486fccdc",
-        "size": 1904117
+        "sha256": "f52a055fe78b3fcc0980afbf70afbac8bae69e2a98f8fcd667bafdd1ada12329",
+        "size": 1904542
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4873,6 +4873,11 @@
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
         "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
         "size": 1433
+      },
+      {
+        "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
+        "sha256": "d84912723d343908f28383e8036dddb0fcce21f31f146028c95f9eef9da25231",
+        "size": 4128
       },
       {
         "path": "pages/decisions/documentation-platform-evaluation.md",
@@ -10044,8 +10049,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T19:10:06Z",
-  "file_count": 2007,
+  "exported_at": "2026-06-24T19:21:53Z",
+  "file_count": 2008,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13322,7 +13327,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "fc4d74b1817b1e0b1109bda8715c7b4d362744370d2416844445d75b37ef8707",
+  "previous_tree_hash": "d051fad850c7bf075d8ee1900dd7992ebdf1dbe023264a490230a977f61a1333",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13335,14 +13340,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d051fad850c7bf075d8ee1900dd7992ebdf1dbe023264a490230a977f61a1333",
+  "tree_hash": "aca3973bf2d488800742f6681b210bfee3600992cdd04b71b0b6e16cca879fca",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1353,
+  "wiki_file_count": 1354,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13351,13 +13356,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0277e2faf4b6269d1424c974dc2bd921b6d94dc329c5cd17ea0a38cd20d25e09",
-      "size": 1128661
+      "sha256": "36299a52dd28dc93ff1167248bdbf97ae21a3195de382903561e509c094a5478",
+      "size": 1129074
     },
     {
       "path": "log.md",
-      "sha256": "b06b439b7cbd4ed8693bfe85eac08ccdcfbfbb3a1ff1c19bc9d366f2486fccdc",
-      "size": 1904117
+      "sha256": "f52a055fe78b3fcc0980afbf70afbac8bae69e2a98f8fcd667bafdd1ada12329",
+      "size": 1904542
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14943,6 +14948,11 @@
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
       "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
       "size": 1433
+    },
+    {
+      "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
+      "sha256": "d84912723d343908f28383e8036dddb0fcce21f31f146028c95f9eef9da25231",
+      "size": 4128
     },
     {
       "path": "pages/decisions/documentation-platform-evaluation.md",
@@ -20111,5 +20121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cd0ebd45c135bd08ccae8850544f1233fa11370d389cf8f1a03fdd3c8290dfbd"
+  "wiki_tree_hash": "721cb722919997a4a4c5ac05542e77d3d689b830dc45384d4275db64334c2ca9"
 }
