@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a1eb8e230b62ad848dd7bea9ca355a00ddb10093ac902eceef79758d845afaa9",
-        "size": 1135536
+        "sha256": "d5ff8f972758c95499571ee02b6155701fda7bc72687100612b40d1663d79e56",
+        "size": 1135841
       },
       {
         "path": "log.md",
-        "sha256": "556582e69d8c4a5ae6d3b09fabe839ea9108361bd0f5401d79e616bd16a7876f",
-        "size": 1914370
+        "sha256": "dd5312e922ad3ece18f41304fc90eeec2246b4b7300da8ed83079cb233fb3678",
+        "size": 1914687
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6268,6 +6268,11 @@
         "path": "pages/projects/aeneid-migration.md",
         "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
         "size": 3504
+      },
+      {
+        "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
+        "sha256": "7cdc4cfecb8e9a9f165050bb4166c32d37284837ef005aececa797839e056ab7",
+        "size": 3476
       },
       {
         "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -10144,8 +10149,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T23:33:53Z",
-  "file_count": 2027,
+  "exported_at": "2026-06-24T23:55:52Z",
+  "file_count": 2028,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13422,7 +13427,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ddf301cb06fa6844b611cd2abacd4ba96968954ce3adc811e34af7dc44dee6ce",
+  "previous_tree_hash": "ba3ddf97a0c43fceaf5806ee756c2f5c49bd2512b45244c6764b4dbf6c4c9e89",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13435,14 +13440,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ba3ddf97a0c43fceaf5806ee756c2f5c49bd2512b45244c6764b4dbf6c4c9e89",
+  "tree_hash": "5e3a38abe0bdcc29540d56accc49823ebb52c95928333cbaf56948ac308806bf",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1373,
+  "wiki_file_count": 1374,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13451,13 +13456,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a1eb8e230b62ad848dd7bea9ca355a00ddb10093ac902eceef79758d845afaa9",
-      "size": 1135536
+      "sha256": "d5ff8f972758c95499571ee02b6155701fda7bc72687100612b40d1663d79e56",
+      "size": 1135841
     },
     {
       "path": "log.md",
-      "sha256": "556582e69d8c4a5ae6d3b09fabe839ea9108361bd0f5401d79e616bd16a7876f",
-      "size": 1914370
+      "sha256": "dd5312e922ad3ece18f41304fc90eeec2246b4b7300da8ed83079cb233fb3678",
+      "size": 1914687
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16438,6 +16443,11 @@
       "path": "pages/projects/aeneid-migration.md",
       "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
       "size": 3504
+    },
+    {
+      "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
+      "sha256": "7cdc4cfecb8e9a9f165050bb4166c32d37284837ef005aececa797839e056ab7",
+      "size": 3476
     },
     {
       "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -20311,5 +20321,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a75b0d1ad8fcad02aa262f7d1827de767b377ef1e68e48d650e6be9d2d303be7"
+  "wiki_tree_hash": "90eef4f7c059f1aad87739a597d82b3946bb8e8c50a43ccc1a7d414b867c6cc2"
 }
