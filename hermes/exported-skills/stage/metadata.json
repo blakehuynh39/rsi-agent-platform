@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "c322974fa7317a9e4f6741628eb1892032def4a7421921ce04800b0ce13ab11b",
+        "sha256": "5f0ba0564527fe595d7f0a8fb5a2d6ae7d7722351efb271694f9aff563ce9a3d",
         "size": 31981
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "332ea472bf6bd4494f3c0f3a3a9c48dda4a5753cdae82aa6b2a4710f5d158f2e",
-        "size": 1099498
+        "sha256": "907e26caa795c876570874e59385cbaf793fde35563c6cebccd4c8bd9013170f",
+        "size": 1099540
       },
       {
         "path": "log.md",
-        "sha256": "6bb309200cfbe59349c014527002c45af4ca3a3ebcdd03f95028889e93468b28",
-        "size": 1860610
+        "sha256": "d823dfdb23820bb82e6b54f0bfbeedcfdb04478efae3e27a36b8347521469886",
+        "size": 1861019
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6386,8 +6386,8 @@
       },
       {
         "path": "pages/projects/devnet-migration-gcp-to-aws.md",
-        "sha256": "e9d6960aac997b512abf415e29158ac65e897833700dc3839a43e1f3b9c6f4ae",
-        "size": 6839
+        "sha256": "e81de3c694ef62eeab1964f375925d87aabb6f6f7a885e630468c761dc4153fa",
+        "size": 6943
       },
       {
         "path": "pages/projects/devnet-migration-pr-112.md",
@@ -9744,7 +9744,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T01:53:15Z",
+  "exported_at": "2026-06-24T02:04:57Z",
   "file_count": 1947,
   "files": [
     {
@@ -9804,7 +9804,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "c322974fa7317a9e4f6741628eb1892032def4a7421921ce04800b0ce13ab11b",
+      "sha256": "5f0ba0564527fe595d7f0a8fb5a2d6ae7d7722351efb271694f9aff563ce9a3d",
       "size": 31981
     },
     {
@@ -13022,7 +13022,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d87b7d07bd5bbc9ef70d0363efb599a9eb5a8748f5223aabc1468d61558a2338",
+  "previous_tree_hash": "7fd594dc2c1523861a82a41b006e9fddf758c754893b3646dc04ff8a4c55c373",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13033,9 +13033,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "bc4cc38dc5729beeb18e7eac70a4a7cdd2e70d80183dd62df1fca9063f9c3308",
+  "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7fd594dc2c1523861a82a41b006e9fddf758c754893b3646dc04ff8a4c55c373",
+  "tree_hash": "33978477058cefef56b8e8ec51a3a841e480ba7e0672c146db9831a688e4bf85",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13051,13 +13051,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "332ea472bf6bd4494f3c0f3a3a9c48dda4a5753cdae82aa6b2a4710f5d158f2e",
-      "size": 1099498
+      "sha256": "907e26caa795c876570874e59385cbaf793fde35563c6cebccd4c8bd9013170f",
+      "size": 1099540
     },
     {
       "path": "log.md",
-      "sha256": "6bb309200cfbe59349c014527002c45af4ca3a3ebcdd03f95028889e93468b28",
-      "size": 1860610
+      "sha256": "d823dfdb23820bb82e6b54f0bfbeedcfdb04478efae3e27a36b8347521469886",
+      "size": 1861019
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16156,8 +16156,8 @@
     },
     {
       "path": "pages/projects/devnet-migration-gcp-to-aws.md",
-      "sha256": "e9d6960aac997b512abf415e29158ac65e897833700dc3839a43e1f3b9c6f4ae",
-      "size": 6839
+      "sha256": "e81de3c694ef62eeab1964f375925d87aabb6f6f7a885e630468c761dc4153fa",
+      "size": 6943
     },
     {
       "path": "pages/projects/devnet-migration-pr-112.md",
@@ -19511,5 +19511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "830e5ea54ddfa20824d4c12efcb33c425bf7d4af54340ac75e40cf2d92eae834"
+  "wiki_tree_hash": "c857297aa80b2d7d0ca15cf4439497891fcf001f1632f76ebb8adbe65357c87d"
 }

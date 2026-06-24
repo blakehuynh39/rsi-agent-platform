@@ -37656,3 +37656,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9627ad11308ee19917550323b33c5239
 - summary: Migration of the devnet from GCP to AWS. Repository story-devnet-aws contains provisioning code. Domains updated to devnet0.storyrpc.io and devnet0.storyscan.io. Addressing access ...
 
+## [2026-06-24T02:03:37Z] synthesis | Devnet Migration: GCP to AWS (story-devnet-aws)
+
+- status: published
+- slug: projects/devnet-migration-gcp-to-aws
+- wiki_revision_id: wikirev_bdd67df9d5bb22d9f01c8b76270de864
+- summary: Yao is leading the creation of a new infrastructure repository (story-devnet-aws) to migrate the devnet environment from GCP to AWS, reusing existing provisioning code. The setup i...
+
