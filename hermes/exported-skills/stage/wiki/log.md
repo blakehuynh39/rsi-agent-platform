@@ -38195,3 +38195,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_69d1bee73d997e5171aabc5bf23f72eb
 - summary: Defines per-task pay for contributors based on real task time and a target skilled hourly wage. Recommends $10/hr for Bengali annotation, yielding per-task rates from $0.26 to $0.7...
 
+## [2026-06-24T15:37:08Z] synthesis | Internal Devnet
+
+- status: published
+- slug: systems/internal-devnet
+- wiki_revision_id: wikirev_d2506a605f647f25d9bc7098a1b32c3e
+- summary: The internal development network (devnet) for testing purposes, using AWS S3 binary storage and custom chain ID configuration.
+
