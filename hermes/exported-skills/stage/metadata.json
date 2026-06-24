@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cc4154fefdc9854a66f9f6442f61fd22f6a8b9dea7944961f1e864bc20d08819",
-        "size": 1105995
+        "sha256": "56fb72d5b5369407cf7971e67c4873a37f4afa780e6a54c7d855ee6bf640b0fa",
+        "size": 1106401
       },
       {
         "path": "log.md",
-        "sha256": "16cffd8fadfd5892e59e97c9d047e2f32b61ef04165577f6f922451b434f21a0",
-        "size": 1870489
+        "sha256": "8aaf0ee66031976aa39f07ecb5b2d718ed1bc9693dffe68a20c779e348aeccbc",
+        "size": 1870907
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4673,6 +4673,11 @@
         "path": "pages/decisions/beta-1st-week-architectural-review.md",
         "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
         "size": 7155
+      },
+      {
+        "path": "pages/decisions/bitgo-staking-api-cloudflare-dns-update.md",
+        "sha256": "366c52d7cdada918bf2a4ee00666ac8779c281289d62a4a9b1bae6876d744ec3",
+        "size": 3020
       },
       {
         "path": "pages/decisions/bitgo-staking-api-deployment.md",
@@ -9829,8 +9834,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T08:37:13Z",
-  "file_count": 1964,
+  "exported_at": "2026-06-24T08:48:58Z",
+  "file_count": 1965,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13107,7 +13112,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "7cf8add6c5594e08b73cd3a640eea6191725005bc31fc69cdb596f8a18efc793",
+  "previous_tree_hash": "0321ad623b467af20c17ff16255393c58539babb3ff60e635df0cd6a1e148292",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13120,14 +13125,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0321ad623b467af20c17ff16255393c58539babb3ff60e635df0cd6a1e148292",
+  "tree_hash": "15d91d38795295c2f9998ed9a0b3806c9e883ba191f86ee37a51660755ef8e40",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1310,
+  "wiki_file_count": 1311,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13136,13 +13141,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cc4154fefdc9854a66f9f6442f61fd22f6a8b9dea7944961f1e864bc20d08819",
-      "size": 1105995
+      "sha256": "56fb72d5b5369407cf7971e67c4873a37f4afa780e6a54c7d855ee6bf640b0fa",
+      "size": 1106401
     },
     {
       "path": "log.md",
-      "sha256": "16cffd8fadfd5892e59e97c9d047e2f32b61ef04165577f6f922451b434f21a0",
-      "size": 1870489
+      "sha256": "8aaf0ee66031976aa39f07ecb5b2d718ed1bc9693dffe68a20c779e348aeccbc",
+      "size": 1870907
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14528,6 +14533,11 @@
       "path": "pages/decisions/beta-1st-week-architectural-review.md",
       "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
       "size": 7155
+    },
+    {
+      "path": "pages/decisions/bitgo-staking-api-cloudflare-dns-update.md",
+      "sha256": "366c52d7cdada918bf2a4ee00666ac8779c281289d62a4a9b1bae6876d744ec3",
+      "size": 3020
     },
     {
       "path": "pages/decisions/bitgo-staking-api-deployment.md",
@@ -19681,5 +19691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2ea321000d40933b52092c461d3cab390aebd6a477617e3586246231f3e2ccef"
+  "wiki_tree_hash": "b400cec917fbb2419f8ebf45b8f111a6b6376753506871af357f86a246c8c5b5"
 }

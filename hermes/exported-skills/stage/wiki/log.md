@@ -37839,3 +37839,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e88685bbc15547f98ef3aefc150e1b0c
 - summary: A user reported mainnet RPC not working when sending tokens via Ledger; it was determined to be an outdated MetaMask client, not a server-side problem.
 
+## [2026-06-24T08:47:38Z] synthesis | CloudFlare DNS Update for BitGo Staking-API
+
+- status: published
+- slug: decisions/bitgo-staking-api-cloudflare-dns-update
+- wiki_revision_id: wikirev_f434a5d954347e65047f4fdefe328cb1
+- summary: PR #115 on piplabs/cloudflare updates DNS records for the private fork of staking-api for BitGo and includes faucet configuration maintained as Infrastructure as Code (IaC). The PR...
+
