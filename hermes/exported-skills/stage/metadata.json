@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "928c63624e5ec8e67e0f6ab713ab78f0770477412f87a1ab44799ed10f5b36f4",
-        "size": 1107976
+        "sha256": "27fdae2d0c19ded7c72676fd99773c234ccfc6be31d4dbfde601215bec725ecf",
+        "size": 1108791
       },
       {
         "path": "log.md",
-        "sha256": "9032391a61d4d09476eea352ccd7849e343e66ad538b24a586fe2ef028f9c1c9",
-        "size": 1873957
+        "sha256": "83e50366da754a6a5b0fedc102639411c7ba989167c87620be4bba364f345233",
+        "size": 1874380
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7450,6 +7450,11 @@
         "size": 5766
       },
       {
+        "path": "pages/projects/pull-request-116-piplabs-cloudflare-aeneid-acm-minor-change.md",
+        "sha256": "405ba50689b39c8ad334359681e9d0bfb064ca8d327b3bc27cdb043707f17772",
+        "size": 4837
+      },
+      {
         "path": "pages/projects/q3-key-results-l1-api-sdk.md",
         "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
         "size": 4577
@@ -9864,8 +9869,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T10:17:38Z",
-  "file_count": 1971,
+  "exported_at": "2026-06-24T10:24:15Z",
+  "file_count": 1972,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13142,7 +13147,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "de660fd700826b24ec3f5771abddfae5445eea3ff34a696f9847996eb5333b99",
+  "previous_tree_hash": "43d62f38c5a0d2e2175cc8f5cc3ccc9b2078fe3e506f42cfd939fbbd40178a59",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13155,14 +13160,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "43d62f38c5a0d2e2175cc8f5cc3ccc9b2078fe3e506f42cfd939fbbd40178a59",
+  "tree_hash": "1a935aaaa5aa4632cc329e7414cd30db25ca87dad941518aae352036a3958b8e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1317,
+  "wiki_file_count": 1318,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13171,13 +13176,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "928c63624e5ec8e67e0f6ab713ab78f0770477412f87a1ab44799ed10f5b36f4",
-      "size": 1107976
+      "sha256": "27fdae2d0c19ded7c72676fd99773c234ccfc6be31d4dbfde601215bec725ecf",
+      "size": 1108791
     },
     {
       "path": "log.md",
-      "sha256": "9032391a61d4d09476eea352ccd7849e343e66ad538b24a586fe2ef028f9c1c9",
-      "size": 1873957
+      "sha256": "83e50366da754a6a5b0fedc102639411c7ba989167c87620be4bba364f345233",
+      "size": 1874380
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17340,6 +17345,11 @@
       "size": 5766
     },
     {
+      "path": "pages/projects/pull-request-116-piplabs-cloudflare-aeneid-acm-minor-change.md",
+      "sha256": "405ba50689b39c8ad334359681e9d0bfb064ca8d327b3bc27cdb043707f17772",
+      "size": 4837
+    },
+    {
       "path": "pages/projects/q3-key-results-l1-api-sdk.md",
       "sha256": "6213565fa43ecef4a3c5771e9dac6a243cc52a4302ef24a507d81e0843c433dc",
       "size": 4577
@@ -19751,5 +19761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2d26f001199aef93314c689e6dac319b4da159d951eadbc9cf28c795760a2aa4"
+  "wiki_tree_hash": "6d2d34a632a96c65f4eb6608d6344a1a54e32b1f518fa5e52194d0624eadd521"
 }
