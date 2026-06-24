@@ -37663,3 +37663,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bdd67df9d5bb22d9f01c8b76270de864
 - summary: Yao is leading the creation of a new infrastructure repository (story-devnet-aws) to migrate the devnet environment from GCP to AWS, reusing existing provisioning code. The setup i...
 
+## [2026-06-24T02:15:56Z] synthesis | Story-API Broadcaster Nonce Drift Incident
+
+- status: published
+- slug: runbooks/story-api-broadcaster-nonce-drift
+- wiki_revision_id: wikirev_b31b949a68bf7de6e21cad8b058ce651
+- summary: An incident occurred where Story-API broadcaster active wallet experienced nonce drift. The issue was later resolved.
+
