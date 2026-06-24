@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a6e4474a47b5e94acc16250c035eac57fbdc42872ac2626a0d6d321ebf19e38c",
-        "size": 1873541
+        "sha256": "9032391a61d4d09476eea352ccd7849e343e66ad538b24a586fe2ef028f9c1c9",
+        "size": 1873957
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4638,6 +4638,11 @@
         "path": "pages/decisions/add-yingyangxu2026-to-github-qa-team.md",
         "sha256": "02fc8f97f7b4639bdf1793ce36bb05d935afec1de481c71bc7de6e405915202f",
         "size": 3194
+      },
+      {
+        "path": "pages/decisions/aeneid-acm-pr-116-access-request-2026-01-26.md",
+        "sha256": "5e682ae0e2a965fd4b4265e81e994412c902215d71a8e5119dc46f05c6ce377d",
+        "size": 2878
       },
       {
         "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
@@ -9859,8 +9864,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T10:05:52Z",
-  "file_count": 1970,
+  "exported_at": "2026-06-24T10:17:38Z",
+  "file_count": 1971,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13137,7 +13142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ac601f99e2b792eeae619151e1e3c3e18aa18b17966b9c5c4b6e01a74a8d4ef7",
+  "previous_tree_hash": "de660fd700826b24ec3f5771abddfae5445eea3ff34a696f9847996eb5333b99",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13150,14 +13155,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "de660fd700826b24ec3f5771abddfae5445eea3ff34a696f9847996eb5333b99",
+  "tree_hash": "43d62f38c5a0d2e2175cc8f5cc3ccc9b2078fe3e506f42cfd939fbbd40178a59",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1316,
+  "wiki_file_count": 1317,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13171,8 +13176,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a6e4474a47b5e94acc16250c035eac57fbdc42872ac2626a0d6d321ebf19e38c",
-      "size": 1873541
+      "sha256": "9032391a61d4d09476eea352ccd7849e343e66ad538b24a586fe2ef028f9c1c9",
+      "size": 1873957
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14523,6 +14528,11 @@
       "path": "pages/decisions/add-yingyangxu2026-to-github-qa-team.md",
       "sha256": "02fc8f97f7b4639bdf1793ce36bb05d935afec1de481c71bc7de6e405915202f",
       "size": 3194
+    },
+    {
+      "path": "pages/decisions/aeneid-acm-pr-116-access-request-2026-01-26.md",
+      "sha256": "5e682ae0e2a965fd4b4265e81e994412c902215d71a8e5119dc46f05c6ce377d",
+      "size": 2878
     },
     {
       "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
@@ -19741,5 +19751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f251a52a7e804f150bc99dd3eaa02c563612ce920b27e954d25e7f78ca86c36a"
+  "wiki_tree_hash": "2d26f001199aef93314c689e6dac319b4da159d951eadbc9cf28c795760a2aa4"
 }

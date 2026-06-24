@@ -37902,3 +37902,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0fbacee27404f7ad7030dda0f8cee339
 - summary: On 2026-01-26, GitHub user yingyangxu2026 was added to the QA team to grant repository access.
 
+## [2026-06-24T10:16:16Z] synthesis | Aeneid ACM PR #116 Access Request (2026-01-26)
+
+- status: published
+- slug: decisions/aeneid-acm-pr-116-access-request-2026-01-26
+- wiki_revision_id: wikirev_968e0dac608566382eb6a183075a4de8
+- summary: On 2026-01-26, yingyangxu2026 requested access to review PR #116 for Aeneid ACM, was initially unable to access, then granted access after being invited to QA team on GitHub.
+
+## [2026-06-24T10:18:12Z] synthesis | Pull Request #116: piplabs/cloudflare - Aeneid ACM Minor Change
+
+- status: published
+- slug: projects/pull-request-116-piplabs-cloudflare-aeneid-acm-minor-change
+- wiki_revision_id: wikirev_026a6f8c25ba8f1a64f6e9d7db9917b6
+- summary: This page captures the review request and access resolution for GitHub PR #116 on piplabs/cloudflare, which implements a minor change for Aeneid ACM.
+
