@@ -37628,3 +37628,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e08c1f7dd90ac7ba62f40e9779d9aa8b
 - summary: Slack file attachment:
 
+## [2026-06-24T00:50:47Z] synthesis | Devnet Migration from GCP to AWS
+
+- status: published
+- slug: projects/story-devnet-aws-migration
+- wiki_revision_id: wikirev_7255564fcd23b2f6ee01ca805caa60c4
+- summary: Migrating the story devnet from GCP to AWS using the new story-devnet-aws repository, with planned RPC and explorer domains.
+
