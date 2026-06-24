@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "907e26caa795c876570874e59385cbaf793fde35563c6cebccd4c8bd9013170f",
-        "size": 1099540
+        "sha256": "489e62696b50d70fb7f0c8546f2ab023bc3d4e32d77c1c9139c514717f5a0d09",
+        "size": 1100154
       },
       {
         "path": "log.md",
-        "sha256": "6eab8e1dca2332b4372823ca186f6d7e8c5e7ba0854ec2d43e693eccea3e7b87",
-        "size": 1861363
+        "sha256": "d764042240299dac4dc209cff74c199a8c64bd07d91fc5715938bdd5479402f4",
+        "size": 1862066
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6386,8 +6386,8 @@
       },
       {
         "path": "pages/projects/devnet-migration-gcp-to-aws.md",
-        "sha256": "e81de3c694ef62eeab1964f375925d87aabb6f6f7a885e630468c761dc4153fa",
-        "size": 6943
+        "sha256": "673d9cfb6e09a89e5f655be004a02345bc5310f3ff0502b540e6c224b1cf52e8",
+        "size": 3461
       },
       {
         "path": "pages/projects/devnet-migration-pr-112.md",
@@ -8870,6 +8870,11 @@
         "size": 3149
       },
       {
+        "path": "pages/systems/aws-devnet-iam-permissions.md",
+        "sha256": "0a92ea8e97e474085d18740b9117739bd3908e87d5011bbde5437376253f6ec3",
+        "size": 6046
+      },
+      {
         "path": "pages/systems/aws-organization-repo.md",
         "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
         "size": 2316
@@ -9749,8 +9754,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T02:16:43Z",
-  "file_count": 1948,
+  "exported_at": "2026-06-24T02:23:22Z",
+  "file_count": 1949,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13027,7 +13032,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "33978477058cefef56b8e8ec51a3a841e480ba7e0672c146db9831a688e4bf85",
+  "previous_tree_hash": "0053affa6af0fca49858c89bc6b51db783505101b4c36bdc480ebec2f5ed9552",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13040,14 +13045,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "0053affa6af0fca49858c89bc6b51db783505101b4c36bdc480ebec2f5ed9552",
+  "tree_hash": "d517b3a2f581289bd8527e5a2f72dfaeb4648165555022c23a8801a33f749cc5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1294,
+  "wiki_file_count": 1295,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13056,13 +13061,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "907e26caa795c876570874e59385cbaf793fde35563c6cebccd4c8bd9013170f",
-      "size": 1099540
+      "sha256": "489e62696b50d70fb7f0c8546f2ab023bc3d4e32d77c1c9139c514717f5a0d09",
+      "size": 1100154
     },
     {
       "path": "log.md",
-      "sha256": "6eab8e1dca2332b4372823ca186f6d7e8c5e7ba0854ec2d43e693eccea3e7b87",
-      "size": 1861363
+      "sha256": "d764042240299dac4dc209cff74c199a8c64bd07d91fc5715938bdd5479402f4",
+      "size": 1862066
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16161,8 +16166,8 @@
     },
     {
       "path": "pages/projects/devnet-migration-gcp-to-aws.md",
-      "sha256": "e81de3c694ef62eeab1964f375925d87aabb6f6f7a885e630468c761dc4153fa",
-      "size": 6943
+      "sha256": "673d9cfb6e09a89e5f655be004a02345bc5310f3ff0502b540e6c224b1cf52e8",
+      "size": 3461
     },
     {
       "path": "pages/projects/devnet-migration-pr-112.md",
@@ -18645,6 +18650,11 @@
       "size": 3149
     },
     {
+      "path": "pages/systems/aws-devnet-iam-permissions.md",
+      "sha256": "0a92ea8e97e474085d18740b9117739bd3908e87d5011bbde5437376253f6ec3",
+      "size": 6046
+    },
+    {
       "path": "pages/systems/aws-organization-repo.md",
       "sha256": "518208186a77e7fc49aa86b962dcb16c4aa0ffd4ea56dc87ec091e416a61c705",
       "size": 2316
@@ -19521,5 +19531,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1a355aed4a2088071d58703de667170b719b94ccf650943fc71a050a38dfd7bc"
+  "wiki_tree_hash": "fd09eaedadcb2d89fafc4db46febdd0085146c19ff1a3eb10ddb2205a96a1f8e"
 }

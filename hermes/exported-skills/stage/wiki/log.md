@@ -37670,3 +37670,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b31b949a68bf7de6e21cad8b058ce651
 - summary: An incident occurred where Story-API broadcaster active wallet experienced nonce drift. The issue was later resolved.
 
+## [2026-06-24T02:17:44Z] synthesis | Devnet Migration from GCP to AWS
+
+- status: published
+- slug: projects/devnet-migration-gcp-to-aws
+- wiki_revision_id: wikirev_216b53ca2292b67f37062f19fca44325
+- summary: Migration of Story Protocol devnet infrastructure from GCP to AWS, including a new repository, genesis scripts, and domain updates.
+
+## [2026-06-24T02:17:44Z] synthesis | AWS Devnet IAM Permissions and Access
+
+- status: published
+- slug: systems/aws-devnet-iam-permissions
+- wiki_revision_id: wikirev_3193e4b2d53df88005b846312f7c158f
+- summary: IAM roles, policies, and access troubleshooting for the Story Protocol devnet AWS account, focusing on instance launch and SSM session permissions.
+
