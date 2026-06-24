@@ -38091,3 +38091,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9488444467dace5a60b27927a8de0094
 - summary: Chat history is retained when switching Slack accounts.
 
+## [2026-06-24T11:46:31Z] synthesis | Archive Node IP Deprecation and Domain Migration
+
+- status: published
+- slug: decisions/archive-node-ip-deprecation-domain-migration
+- wiki_revision_id: wikirev_2a5866be1ff5b9f3fac78f124d0f5db0
+- summary: Story is migrating archive nodes from GCP to AWS, deprecating the hardcoded IP 34.139.142.168. All dependent services must switch to using domain names. Existing services like depi...
+

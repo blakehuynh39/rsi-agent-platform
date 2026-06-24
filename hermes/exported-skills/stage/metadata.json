@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "7a24ed1177497292226b5c0f4354e25d20aba7a374803f3d7b071922922e9bb6",
-        "size": 1881444
+        "sha256": "02af69485fc75432805df753354c2355d7a8695a93779e6cebe1c6dc7a73ed55",
+        "size": 1881872
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4693,6 +4693,11 @@
         "path": "pages/decisions/arabic-dialect-selection.md",
         "sha256": "e43fa64cc28044b05c8cfd227a4057f57bb4e9e681d43329e18ac7343fdd8626",
         "size": 2571
+      },
+      {
+        "path": "pages/decisions/archive-node-ip-deprecation-domain-migration.md",
+        "sha256": "4f6c081e2db5b218b29f5cbf5fdc34891afff257972bcd11460be37ed3f44b61",
+        "size": 5228
       },
       {
         "path": "pages/decisions/bengali-voice-task-closure.md",
@@ -9964,8 +9969,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T11:36:19Z",
-  "file_count": 1991,
+  "exported_at": "2026-06-24T11:48:04Z",
+  "file_count": 1992,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13242,7 +13247,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f70f7c09c02b2ff764fa6a657ea684bd600c84b17499f155565098164708a6a0",
+  "previous_tree_hash": "e020dfd01b69fa5aac7462a0a4a5c7c59929c1f14d5b4640a0bafedd9bd1dc40",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13255,14 +13260,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e020dfd01b69fa5aac7462a0a4a5c7c59929c1f14d5b4640a0bafedd9bd1dc40",
+  "tree_hash": "118478442ac840b26d8a8d0553054cb7fd065f59a1b21a5de3d9d9e57063224b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1337,
+  "wiki_file_count": 1338,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13276,8 +13281,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "7a24ed1177497292226b5c0f4354e25d20aba7a374803f3d7b071922922e9bb6",
-      "size": 1881444
+      "sha256": "02af69485fc75432805df753354c2355d7a8695a93779e6cebe1c6dc7a73ed55",
+      "size": 1881872
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14683,6 +14688,11 @@
       "path": "pages/decisions/arabic-dialect-selection.md",
       "sha256": "e43fa64cc28044b05c8cfd227a4057f57bb4e9e681d43329e18ac7343fdd8626",
       "size": 2571
+    },
+    {
+      "path": "pages/decisions/archive-node-ip-deprecation-domain-migration.md",
+      "sha256": "4f6c081e2db5b218b29f5cbf5fdc34891afff257972bcd11460be37ed3f44b61",
+      "size": 5228
     },
     {
       "path": "pages/decisions/bengali-voice-task-closure.md",
@@ -19951,5 +19961,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c7dfebb5274df55884eb01a151f9753afc353bbdd4fe78dc439cd4db293ebcbc"
+  "wiki_tree_hash": "1e00ee7831e79f4502a935951da45ef17c1ce6b37ffbac6ffa33df0a7680e9cd"
 }
