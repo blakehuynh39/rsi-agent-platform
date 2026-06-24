@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "925e3254b6d19e19ecbba714390ebecb98b1fa24409987d5aa32e80a1e6a386b",
-        "size": 1133977
+        "sha256": "95eab2a536c02a690188b833a31e2f21b7ac2b295fae1bc8d46d97e59387af61",
+        "size": 1134857
       },
       {
         "path": "log.md",
-        "sha256": "5c88b47a49981a3448777669011671ba581913b066257caef419cbe6cc98a6da",
-        "size": 1912308
+        "sha256": "b948929f37950d73b80c051f2ae3103b8d6c47e10255e7e3188209449c7faadc",
+        "size": 1913224
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5320,6 +5320,11 @@
         "size": 2832
       },
       {
+        "path": "pages/decisions/poseidon-mvp-server-removal.md",
+        "sha256": "757b0bfd612c4c8159202c796d8d2fd4470cbee5af1964ba96140051640fbca9",
+        "size": 2290
+      },
+      {
         "path": "pages/decisions/poseidon-mvp-storage-node-removal.md",
         "sha256": "8cb2872faf7b92ab0d0a9f04812a2316d324c7bca3125d25e7fd6b9a0aa85ee0",
         "size": 2873
@@ -5408,6 +5413,11 @@
         "path": "pages/decisions/remove-storage-node-from-poseidon-mvp.md",
         "sha256": "afbe886ecbe68d426916c906e96f9b387b9037418b3955bf5c33cebbe88aad17",
         "size": 3023
+      },
+      {
+        "path": "pages/decisions/remove-storage-node-poseidon-mvp.md",
+        "sha256": "8798fd47f109b00ef93a8a6c1d2296cac3b03d36686038bfc2d950d2b01cdff9",
+        "size": 2455
       },
       {
         "path": "pages/decisions/resume-activate-endpoint-removal.md",
@@ -7458,6 +7468,11 @@
         "path": "pages/projects/poseidon-internal-devnet-plan.md",
         "sha256": "8351639d19e9772d103b799068149ee95a43cb916ab4be08126ca70683f2b4a0",
         "size": 8324
+      },
+      {
+        "path": "pages/projects/poseidon-mvp.md",
+        "sha256": "7d12cbd0a5b8c0d2b362157befa4861a5ca4536e2f0a7ffc54a12a2008541dc3",
+        "size": 1479
       },
       {
         "path": "pages/projects/poseidon-numo-product-alignment.md",
@@ -10119,8 +10134,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T21:50:24Z",
-  "file_count": 2022,
+  "exported_at": "2026-06-24T22:02:11Z",
+  "file_count": 2025,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13397,7 +13412,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3c7457b4aff02b1ee002732cf6e4328f15fd636b36d792d8b9d6eba41d719f21",
+  "previous_tree_hash": "12d01a24557f439ceabe188cdd1c5eccf143c5547bca00399c71793ae7fb071b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13410,14 +13425,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "12d01a24557f439ceabe188cdd1c5eccf143c5547bca00399c71793ae7fb071b",
+  "tree_hash": "12d0f5eb51b4cd89c75f81172d07d1c8dfcc4b0db12bfabe4a119100c1cbc2c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1368,
+  "wiki_file_count": 1371,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13426,13 +13441,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "925e3254b6d19e19ecbba714390ebecb98b1fa24409987d5aa32e80a1e6a386b",
-      "size": 1133977
+      "sha256": "95eab2a536c02a690188b833a31e2f21b7ac2b295fae1bc8d46d97e59387af61",
+      "size": 1134857
     },
     {
       "path": "log.md",
-      "sha256": "5c88b47a49981a3448777669011671ba581913b066257caef419cbe6cc98a6da",
-      "size": 1912308
+      "sha256": "b948929f37950d73b80c051f2ae3103b8d6c47e10255e7e3188209449c7faadc",
+      "size": 1913224
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15465,6 +15480,11 @@
       "size": 2832
     },
     {
+      "path": "pages/decisions/poseidon-mvp-server-removal.md",
+      "sha256": "757b0bfd612c4c8159202c796d8d2fd4470cbee5af1964ba96140051640fbca9",
+      "size": 2290
+    },
+    {
       "path": "pages/decisions/poseidon-mvp-storage-node-removal.md",
       "sha256": "8cb2872faf7b92ab0d0a9f04812a2316d324c7bca3125d25e7fd6b9a0aa85ee0",
       "size": 2873
@@ -15553,6 +15573,11 @@
       "path": "pages/decisions/remove-storage-node-from-poseidon-mvp.md",
       "sha256": "afbe886ecbe68d426916c906e96f9b387b9037418b3955bf5c33cebbe88aad17",
       "size": 3023
+    },
+    {
+      "path": "pages/decisions/remove-storage-node-poseidon-mvp.md",
+      "sha256": "8798fd47f109b00ef93a8a6c1d2296cac3b03d36686038bfc2d950d2b01cdff9",
+      "size": 2455
     },
     {
       "path": "pages/decisions/resume-activate-endpoint-removal.md",
@@ -17603,6 +17628,11 @@
       "path": "pages/projects/poseidon-internal-devnet-plan.md",
       "sha256": "8351639d19e9772d103b799068149ee95a43cb916ab4be08126ca70683f2b4a0",
       "size": 8324
+    },
+    {
+      "path": "pages/projects/poseidon-mvp.md",
+      "sha256": "7d12cbd0a5b8c0d2b362157befa4861a5ca4536e2f0a7ffc54a12a2008541dc3",
+      "size": 1479
     },
     {
       "path": "pages/projects/poseidon-numo-product-alignment.md",
@@ -20261,5 +20291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "387576d98d3afdbb22901fbc88d7d5ca065329de0512294289c3cf013e5f83ca"
+  "wiki_tree_hash": "bed7f18694d09ed812e7dcd32f46ca6f94435a448742621945c799ca293b19c6"
 }

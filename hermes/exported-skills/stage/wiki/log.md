@@ -38695,3 +38695,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4af7b22f327ccd4c5efe1d0bd29d2280
 - summary: Decision to remove the storage-node server from the Poseidon MVP environment at 19:00 PT, after confirming it was safe to do so.
 
+## [2026-06-24T22:00:56Z] synthesis | Poseidon MVP Server Removal
+
+- status: published
+- slug: decisions/poseidon-mvp-server-removal
+- wiki_revision_id: wikirev_06dad1687064f7147eac0a2e17455f63
+- summary: Team discussed and agreed to remove servers, including storage-node, from Poseidon MVP. Removal scheduled for 19:00PT.
+
+## [2026-06-24T22:01:43Z] synthesis | Poseidon MVP
+
+- status: published
+- slug: projects/poseidon-mvp
+- wiki_revision_id: wikirev_fb3ca1902de11c8c399a3453a5a8364c
+- summary: Project Poseidon MVP, an infrastructure project involving servers including storage-node.
+
+## [2026-06-24T22:01:43Z] synthesis | Remove storage-node from Poseidon MVP
+
+- status: published
+- slug: decisions/remove-storage-node-poseidon-mvp
+- wiki_revision_id: wikirev_a231140018f4061a6411cf597c7cbec6
+- summary: Decision to safely remove the storage-node server from the Poseidon MVP project, scheduled for 19:00 PT.
+
