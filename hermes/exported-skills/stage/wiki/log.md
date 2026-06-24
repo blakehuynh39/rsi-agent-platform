@@ -38126,3 +38126,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0091b975edae7121fa72dac91e84212c
 - summary: The Story team is migrating archive nodes from GCP to AWS, aiming to deprecate direct IP usage (specifically 34.139.142.168) in favor of domain names across Poseidon side apps.
 
+## [2026-06-24T13:00:34Z] ingest | Numo Expert Payment Model
+
+- status: published
+- slug: notion_document/numo-expert-payment-model-9ef5bd03
+- wiki_revision_id: wikirev_25d2b6b3f78b335a1ead8ea669010bed
+- source_document_id: srcdoc_570a89beb86d727201f015129ef5bd03
+- source_revision_id: srcrev_f09a145987bf13afe8d4af73b4b35f84
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
+
