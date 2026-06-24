@@ -37635,3 +37635,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7255564fcd23b2f6ee01ca805caa60c4
 - summary: Migrating the story devnet from GCP to AWS using the new story-devnet-aws repository, with planned RPC and explorer domains.
 
+## [2026-06-24T01:17:18Z] synthesis | Story Devnet AWS Repository
+
+- status: published
+- slug: projects/story-devnet-aws
+- wiki_revision_id: wikirev_dc1b2c17adb66ebdeed590ac4ea1cf21
+- summary: Repository created to support the migration of the Story Protocol devnet from GCP to AWS, including provisioning code, genesis scripts, and CI/CD workflows.
+
+## [2026-06-24T01:17:18Z] synthesis | Yao Wang
+
+- status: published
+- slug: people/yao-wang
+- wiki_revision_id: wikirev_dcd062b0f426f90765a77bb749e53d90
+- summary: Yao Wang (yao.wang@piplabs.xyz) is an engineer involved in the devnet migration to AWS, responsible for creating the story-devnet-aws repository, setting up CI/CD workflows, and re...
+
