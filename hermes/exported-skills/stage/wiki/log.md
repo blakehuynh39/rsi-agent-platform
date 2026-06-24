@@ -37923,3 +37923,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_25b8a7ecbb3fbc8c8b38f5c44913c475
 - summary: Force merge of pull request #117 in piplabs/cloudflare due to urgency.
 
+## [2026-06-24T10:47:17Z] synthesis | Force Merge of PR #117 for Cloudflare CC
+
+- status: published
+- slug: decisions/force-merge-cloudflare-cc-pr-117
+- wiki_revision_id: wikirev_d7fb5d659a9833ccc27f5a83cffdb8d6
+- summary: PR #117 in piplabs/cloudflare was force merged urgently without waiting for review, as announced in Slack. The merge was later acknowledged.
+

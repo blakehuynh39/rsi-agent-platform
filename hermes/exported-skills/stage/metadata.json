@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b8eac14cc408e21c18808257d9ac95c224385dde10ef1d12481ac43e4de22748",
-        "size": 1109061
+        "sha256": "036ef641bb8e93f0ca47c59baca98b50554b7b0fb470ef91f587c5eb3a8df1d5",
+        "size": 1109414
       },
       {
         "path": "log.md",
-        "sha256": "69e874344820f4b797c8e71359ce7cabf633956eae0d378744ec2de65f61afdb",
-        "size": 1874662
+        "sha256": "ab6d6e35df9af04835033f561d9c179d48d5168125e8d54349d7adb500f702e0",
+        "size": 1875027
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4873,6 +4873,11 @@
         "path": "pages/decisions/fix-account-deletion-bug-april-2026.md",
         "sha256": "8472d8ff612347f332e4b3fa42baeded4636dfc6ceb250cbf098de10831be185",
         "size": 2572
+      },
+      {
+        "path": "pages/decisions/force-merge-cloudflare-cc-pr-117.md",
+        "sha256": "432cd078737c2d919efba4cbe3b52a739e4fd10723e14ecd06bb3268498446c2",
+        "size": 2467
       },
       {
         "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
@@ -9874,8 +9879,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T10:36:00Z",
-  "file_count": 1973,
+  "exported_at": "2026-06-24T10:47:45Z",
+  "file_count": 1974,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13152,7 +13157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1a935aaaa5aa4632cc329e7414cd30db25ca87dad941518aae352036a3958b8e",
+  "previous_tree_hash": "a093236442e0c64f0d956e088c2fca094184cd8c95bce6397ba494cb17c291a2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13165,14 +13170,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a093236442e0c64f0d956e088c2fca094184cd8c95bce6397ba494cb17c291a2",
+  "tree_hash": "059f62cf7aa6bf764bfa3afbe5026f2f24f201a9ec981f700f962ec1a1e8c82b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1319,
+  "wiki_file_count": 1320,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13181,13 +13186,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b8eac14cc408e21c18808257d9ac95c224385dde10ef1d12481ac43e4de22748",
-      "size": 1109061
+      "sha256": "036ef641bb8e93f0ca47c59baca98b50554b7b0fb470ef91f587c5eb3a8df1d5",
+      "size": 1109414
     },
     {
       "path": "log.md",
-      "sha256": "69e874344820f4b797c8e71359ce7cabf633956eae0d378744ec2de65f61afdb",
-      "size": 1874662
+      "sha256": "ab6d6e35df9af04835033f561d9c179d48d5168125e8d54349d7adb500f702e0",
+      "size": 1875027
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14773,6 +14778,11 @@
       "path": "pages/decisions/fix-account-deletion-bug-april-2026.md",
       "sha256": "8472d8ff612347f332e4b3fa42baeded4636dfc6ceb250cbf098de10831be185",
       "size": 2572
+    },
+    {
+      "path": "pages/decisions/force-merge-cloudflare-cc-pr-117.md",
+      "sha256": "432cd078737c2d919efba4cbe3b52a739e4fd10723e14ecd06bb3268498446c2",
+      "size": 2467
     },
     {
       "path": "pages/decisions/fraud-analysis-s3-access-decision.md",
@@ -19771,5 +19781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fe42444f149b65af000040955d05063832d9d7c93244d94106fb440010cd0dd8"
+  "wiki_tree_hash": "995058ac8f76d024be23b4323569092e0afe2ed7e94fe5c94cbe7ce02a2a68f2"
 }
