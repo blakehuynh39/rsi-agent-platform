@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "42f224f00ccb5172834b3187a1a426a7a4fa1d7c845659c2bcac5b538c055716",
-        "size": 1863017
+        "sha256": "25f795dfbf1de9d4ddfbebb93173fd47c7f9bb7b84bc438bce16b1863d1029e3",
+        "size": 1863409
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4673,6 +4673,11 @@
         "path": "pages/decisions/beta-1st-week-architectural-review.md",
         "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
         "size": 7155
+      },
+      {
+        "path": "pages/decisions/bitgo-staking-api-deployment.md",
+        "sha256": "48e5518b4f9cc765cae1a30259ffd3a26aec8e253f0bed045371b3661de66ecc",
+        "size": 5450
       },
       {
         "path": "pages/decisions/block-explorer-vendor-evaluation.md",
@@ -9759,8 +9764,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T02:51:56Z",
-  "file_count": 1950,
+  "exported_at": "2026-06-24T03:18:55Z",
+  "file_count": 1951,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13037,7 +13042,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8a40c1acec9b4e53e728ff1281962f3e30e3d820b94db832a384ccf914245989",
+  "previous_tree_hash": "6edb013904c1dc21a0a5b406f7c736334e31177fc3bd7f4e0578286022d9a3f5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13050,14 +13055,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6edb013904c1dc21a0a5b406f7c736334e31177fc3bd7f4e0578286022d9a3f5",
+  "tree_hash": "06cd3a78115c6073304b7304b8f692f3a9ef200f8796db3280cac70309e78d78",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1296,
+  "wiki_file_count": 1297,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13071,8 +13076,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "42f224f00ccb5172834b3187a1a426a7a4fa1d7c845659c2bcac5b538c055716",
-      "size": 1863017
+      "sha256": "25f795dfbf1de9d4ddfbebb93173fd47c7f9bb7b84bc438bce16b1863d1029e3",
+      "size": 1863409
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14458,6 +14463,11 @@
       "path": "pages/decisions/beta-1st-week-architectural-review.md",
       "sha256": "cb93790811f4442fa13667dfe8b73f47b576efdf639cc050b863c559424958a2",
       "size": 7155
+    },
+    {
+      "path": "pages/decisions/bitgo-staking-api-deployment.md",
+      "sha256": "48e5518b4f9cc765cae1a30259ffd3a26aec8e253f0bed045371b3661de66ecc",
+      "size": 5450
     },
     {
       "path": "pages/decisions/block-explorer-vendor-evaluation.md",
@@ -19541,5 +19551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c3975f378b13ebcf15bd6ccc9d8928c66e7a9ab6ffef326286c14ff0803238e2"
+  "wiki_tree_hash": "f2a73ccd0ee7d9fd40d1dcea3dbf151029020a4a7e63c66229f0cff33a7d3ef7"
 }

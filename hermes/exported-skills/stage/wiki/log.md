@@ -37700,3 +37700,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_409ccdbd9db28ae0b82585abb0d8b14e
 - summary: Security audit of the trace-contracts (Sha256DataRegistry) smart contract system by Story Protocol, revealing low and informational severity findings with no critical or high issue...
 
+## [2026-06-24T03:18:03Z] synthesis | BitGo Staking API Deployment
+
+- status: published
+- slug: decisions/bitgo-staking-api-deployment
+- wiki_revision_id: wikirev_3b70cd30b5f035d355e345eaab721591
+- summary: Decision on deploying a private fork of the Staking API for BitGo on a new AWS node, indexing from Mainnet genesis, while keeping the public PR open until further testing. The Aene...
+
