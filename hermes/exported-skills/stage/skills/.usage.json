@@ -250,13 +250,13 @@
     "archived_at": null,
     "created_at": "2026-05-05T03:17:34.256098+00:00",
     "last_patched_at": "2026-05-20T22:11:25.539251+00:00",
-    "last_used_at": "2026-06-14T06:48:38.561646+00:00",
-    "last_viewed_at": "2026-06-14T06:48:38.523573+00:00",
+    "last_used_at": "2026-06-24T18:55:44.121023+00:00",
+    "last_viewed_at": "2026-06-24T18:55:44.082729+00:00",
     "patch_count": 54,
     "pinned": false,
     "state": "active",
-    "use_count": 70,
-    "view_count": 69
+    "use_count": 71,
+    "view_count": 70
   },
   "design-md": {
     "archived_at": null,
@@ -1106,13 +1106,13 @@
     "created_at": "2026-05-07T22:11:15.634103+00:00",
     "created_by": "agent",
     "last_patched_at": "2026-05-21T23:48:38.541957+00:00",
-    "last_used_at": "2026-06-11T16:41:58.004415+00:00",
-    "last_viewed_at": "2026-06-11T16:41:57.974668+00:00",
+    "last_used_at": "2026-06-24T18:55:44.197288+00:00",
+    "last_viewed_at": "2026-06-24T18:55:44.163453+00:00",
     "patch_count": 16,
     "pinned": false,
     "state": "active",
-    "use_count": 20,
-    "view_count": 20
+    "use_count": 21,
+    "view_count": 21
   },
   "subagent-driven-development": {
     "archived_at": null,
