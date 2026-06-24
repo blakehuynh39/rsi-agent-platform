@@ -38227,3 +38227,28 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_fc72c2775e0eca7de3539938ecc9826a
 - summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
 
+## [2026-06-24T17:00:20Z] ingest | IP_GRAPH royalty-read gas underpricing — auditor brief
+
+- status: published
+- slug: notion_document/ip_graph-royalty-read-gas-underpricing-auditor-brief-90690722
+- wiki_revision_id: wikirev_a59ea012dbabbfe65c3066c42b614333
+- source_document_id: srcdoc_11286398b5cf997ee6d2913f90690722
+- source_revision_id: srcrev_f58cd235b0ca0e7db3f911ef6b669a8f
+- summary: Source: [source](https://app.notion.com/p/IP_GRAPH-royalty-read-gas-underpricing-auditor-brief-389051299a5480b58721db9cda02c4c6)
+
+## [2026-06-24T17:00:22Z] ingest | Lion Team
+
+- status: published
+- slug: notion_document/lion-team-34d7903a
+- wiki_revision_id: wikirev_9c1462021b2d2a06528fbf3385bd5be0
+- source_document_id: srcdoc_bedb4e134badf14d697d6af434d7903a
+- source_revision_id: srcrev_cf856df37e6f934a27127c55d7d79a34
+- summary: Source: [source](https://app.notion.com/p/Lion-Team-359051299a54806da510c461d07c72a3)
+
+## [2026-06-24T17:02:47Z] synthesis | Internal Devnet Migration
+
+- status: published
+- slug: decisions/internal-devnet-migration
+- wiki_revision_id: wikirev_4344083a449d71a99af2a30ab18be594
+- summary: Discussion about migrating internal devnet to new setup, chain-id changes, and S3 binary usage.
+

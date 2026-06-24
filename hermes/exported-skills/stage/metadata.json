@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "56187cd623d2b3bd0a0d26f76bfe8398b44ba77ce949c53382bbf0927aadf673",
-        "size": 1117695
+        "sha256": "5132a0f7e9a508979a6bda6fdc83bed55588e160407bef224d50058ce95929d2",
+        "size": 1118080
       },
       {
         "path": "log.md",
-        "sha256": "190dc12b4e8f2081308123b4361d1dc8829822708f8a50ec6c8ae7dec7618d66",
-        "size": 1888659
+        "sha256": "f392d0d3e16a2867685f9ec31acbbc648e836aba1ca6220bf4145eb349dbc092",
+        "size": 1889874
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4968,6 +4968,11 @@
         "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
         "sha256": "b9aec1eba3cf47b2b0abb89248e1c03557493048891690b90badfea12aa3df6f",
         "size": 6715
+      },
+      {
+        "path": "pages/decisions/internal-devnet-migration.md",
+        "sha256": "e986117dcf1cabba3a81219886c76cc81a248fc16f7a97b8ab3db646b0c9edc5",
+        "size": 7542
       },
       {
         "path": "pages/decisions/ip-account-data-storage-decision.md",
@@ -10014,8 +10019,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T16:56:40Z",
-  "file_count": 2001,
+  "exported_at": "2026-06-24T17:03:18Z",
+  "file_count": 2002,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13292,7 +13297,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "060bb65379b14f47b79d3e2c6ed8dc127b9d364b0c53c754882fcb832fc2aa0e",
+  "previous_tree_hash": "1d75bbf9346451fec01084b6b93bcf2f762fc1a564a6768bae34e60090fc2873",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13305,14 +13310,14 @@
   ],
   "skill_tree_hash": "676fb988081d7dc4f0e31031d4dd4b81c837f6c577cbe7f62eb599cf54110e39",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1d75bbf9346451fec01084b6b93bcf2f762fc1a564a6768bae34e60090fc2873",
+  "tree_hash": "ad303e7fcd575041886ec5151f6f12e3947b02ce4cd41f77280ff972b1b1a32a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1347,
+  "wiki_file_count": 1348,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13321,13 +13326,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "56187cd623d2b3bd0a0d26f76bfe8398b44ba77ce949c53382bbf0927aadf673",
-      "size": 1117695
+      "sha256": "5132a0f7e9a508979a6bda6fdc83bed55588e160407bef224d50058ce95929d2",
+      "size": 1118080
     },
     {
       "path": "log.md",
-      "sha256": "190dc12b4e8f2081308123b4361d1dc8829822708f8a50ec6c8ae7dec7618d66",
-      "size": 1888659
+      "sha256": "f392d0d3e16a2867685f9ec31acbbc648e836aba1ca6220bf4145eb349dbc092",
+      "size": 1889874
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15008,6 +15013,11 @@
       "path": "pages/decisions/infra-multi-tenant-aws-org-proposal.md",
       "sha256": "b9aec1eba3cf47b2b0abb89248e1c03557493048891690b90badfea12aa3df6f",
       "size": 6715
+    },
+    {
+      "path": "pages/decisions/internal-devnet-migration.md",
+      "sha256": "e986117dcf1cabba3a81219886c76cc81a248fc16f7a97b8ab3db646b0c9edc5",
+      "size": 7542
     },
     {
       "path": "pages/decisions/ip-account-data-storage-decision.md",
@@ -20051,5 +20061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67ee43f504141823c1899ad9d0f025ba27ec91ccad1d639982b58ccfa7a74428"
+  "wiki_tree_hash": "996247f31b7fc8e0e544e9c5e63ba551fa9984d191829e57175be75cc3f157f5"
 }
