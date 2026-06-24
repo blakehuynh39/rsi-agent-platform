@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "318fc2f7b28626e5c5c396ab84a36ee6756ad7ae78b9a101d1302f5b31d12864",
-        "size": 1132211
+        "sha256": "5f0a8c7e093e7d8e198905ab567b786fbb2c1dd84b8b55e5849a65b933191df4",
+        "size": 1133019
       },
       {
         "path": "log.md",
-        "sha256": "1d6ec9c3ffd22d76e74b267c5786affa06c5545c67a37e82a172818ed6b8778d",
-        "size": 1910129
+        "sha256": "d438fae62b976eeefec9207f71545e5cd97fd4a5763c1c160aa08e257a4a6dcd",
+        "size": 1911314
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4815,6 +4815,11 @@
         "size": 3722
       },
       {
+        "path": "pages/decisions/data-migration-handbook.md",
+        "sha256": "4b5aea86139f3e8436372033fecd45a77cc94b32d969560bec4f3e29d9b0b956",
+        "size": 14279
+      },
+      {
         "path": "pages/decisions/data-seeding-english-task-status.md",
         "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
         "size": 2297
@@ -4953,6 +4958,11 @@
         "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
         "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
         "size": 5434
+      },
+      {
+        "path": "pages/decisions/gcp-mainnet-server-decommissioning-2026-01-28.md",
+        "sha256": "e6761a6d898cd997aefe1721b411653bfaeefe8aa9f90223f0ad1651368f1cad",
+        "size": 5810
       },
       {
         "path": "pages/decisions/github-org-pip-labs-re-docs-repo-move.md",
@@ -7011,8 +7021,8 @@
       },
       {
         "path": "pages/projects/lion-team.md",
-        "sha256": "009a049a2cc922646f09b2e3a454fdb740d87978d611a5399193c0aeb128cfca",
-        "size": 23156
+        "sha256": "4f5d71b5831677929e1b3be636a2c43724390c5c915cadffd3c9fa01f9c3b2ca",
+        "size": 23085
       },
       {
         "path": "pages/projects/list-of-potential-apps.md",
@@ -10094,8 +10104,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T21:01:17Z",
-  "file_count": 2017,
+  "exported_at": "2026-06-24T21:18:15Z",
+  "file_count": 2019,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13372,7 +13382,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "bb7e00a26146f89259300aae86fca814dc068cdaf90f317c07cebc7d3a0e4ebb",
+  "previous_tree_hash": "da54441776da6892fb9e8c64c217f0be95357b0d958adfed32eec805ed35014b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13385,14 +13395,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "da54441776da6892fb9e8c64c217f0be95357b0d958adfed32eec805ed35014b",
+  "tree_hash": "3c7457b4aff02b1ee002732cf6e4328f15fd636b36d792d8b9d6eba41d719f21",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1363,
+  "wiki_file_count": 1365,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13401,13 +13411,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "318fc2f7b28626e5c5c396ab84a36ee6756ad7ae78b9a101d1302f5b31d12864",
-      "size": 1132211
+      "sha256": "5f0a8c7e093e7d8e198905ab567b786fbb2c1dd84b8b55e5849a65b933191df4",
+      "size": 1133019
     },
     {
       "path": "log.md",
-      "sha256": "1d6ec9c3ffd22d76e74b267c5786affa06c5545c67a37e82a172818ed6b8778d",
-      "size": 1910129
+      "sha256": "d438fae62b976eeefec9207f71545e5cd97fd4a5763c1c160aa08e257a4a6dcd",
+      "size": 1911314
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14935,6 +14945,11 @@
       "size": 3722
     },
     {
+      "path": "pages/decisions/data-migration-handbook.md",
+      "sha256": "4b5aea86139f3e8436372033fecd45a77cc94b32d969560bec4f3e29d9b0b956",
+      "size": 14279
+    },
+    {
       "path": "pages/decisions/data-seeding-english-task-status.md",
       "sha256": "c37e5430154fd06a4685c87715c153ffa317bfaaa441cfa2c556e8bb15494571",
       "size": 2297
@@ -15073,6 +15088,11 @@
       "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
       "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
       "size": 5434
+    },
+    {
+      "path": "pages/decisions/gcp-mainnet-server-decommissioning-2026-01-28.md",
+      "sha256": "e6761a6d898cd997aefe1721b411653bfaeefe8aa9f90223f0ad1651368f1cad",
+      "size": 5810
     },
     {
       "path": "pages/decisions/github-org-pip-labs-re-docs-repo-move.md",
@@ -17131,8 +17151,8 @@
     },
     {
       "path": "pages/projects/lion-team.md",
-      "sha256": "009a049a2cc922646f09b2e3a454fdb740d87978d611a5399193c0aeb128cfca",
-      "size": 23156
+      "sha256": "4f5d71b5831677929e1b3be636a2c43724390c5c915cadffd3c9fa01f9c3b2ca",
+      "size": 23085
     },
     {
       "path": "pages/projects/list-of-potential-apps.md",
@@ -20211,5 +20231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5d47ba17009170bd669283cedc70cf007231fb9c0718a0209aa0c36335d51d36"
+  "wiki_tree_hash": "2fbc75734ef38e1dee7e9d2d239f9aee5338fb44fca3458c93141154a578ea0b"
 }

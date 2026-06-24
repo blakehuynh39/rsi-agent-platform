@@ -38653,3 +38653,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_6f0bab4577550323b13235037be33536
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-24T21:16:51Z] synthesis | $DATA Migration Technical Handbook (External)
+
+- status: published
+- slug: decisions/data-migration-handbook
+- wiki_revision_id: wikirev_d7440b7a6f9018142ce912e5876ab707
+- summary: Documentation of the Story to Data rebrand: token renaming, domain transitions, WDATA deployment, chain ID stability, guidelines for centralized exchanges, wallets, SDKs, and migra...
+
+## [2026-06-24T21:16:52Z] synthesis | Lion Team
+
+- status: published
+- slug: projects/lion-team
+- wiki_revision_id: wikirev_6fb138d21eb5ed062c2607056f8856ca
+- summary: An engineering group with members, a team database, and initiatives tracked in a Milestones database. Tasks are managed via GitHub project #4. Includes sub-pages for Internal Agent...
+
+## [2026-06-24T21:17:37Z] synthesis | GCP Mainnet Server Decommissioning (2026-01-28)
+
+- status: published
+- slug: decisions/gcp-mainnet-server-decommissioning-2026-01-28
+- wiki_revision_id: wikirev_428fa14cbfcef2825a1f8be9de1f1208
+- summary: Decommissioning of multiple GCP mainnet servers on 2026-01-28 due to lack of traffic, retaining tmp-indexer-hans, use1-mainnet-bootnode1, use1-mainnet-bootnode2, and use1-mainnet-m...
+
