@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e0b8c364c4ba6de4859d86ce950c54b7c3cdd5780c2cf517d0bf8ea29bce1520",
-        "size": 1114405
+        "sha256": "e795141ee9c3351d9a644f32526e7155b027c93e46424508c75c3e3f8d280a1f",
+        "size": 1115179
       },
       {
         "path": "log.md",
-        "sha256": "5c677bb0a15a2810c8a7462a8fbcaf031864e75a6320a44e01817b93d8b6faa2",
-        "size": 1882195
+        "sha256": "83fe621414159601f8c3eb0ef78359260edb87e2973cbe9459c337c811ae7f63",
+        "size": 1882991
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5373,6 +5373,16 @@
         "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
         "sha256": "4a04e67d043e686c3eeaec14410e9b0666e9526f5d1aa5394d49cefeb9157526",
         "size": 8964
+      },
+      {
+        "path": "pages/decisions/story-archive-node-gcp-deprecation-aws-migration.md",
+        "sha256": "32d1ccbf13ccb6e0e3cab063ed0ec01fac55a31c17d0d56e27be788b2aa5d317",
+        "size": 5410
+      },
+      {
+        "path": "pages/decisions/story-archive-node-gcp-deprecation.md",
+        "sha256": "1e5ef17e2889729d85743e6c46e989d90749a5aeec090a89d2536bb74ec22939",
+        "size": 5274
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -9974,8 +9984,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T12:06:25Z",
-  "file_count": 1993,
+  "exported_at": "2026-06-24T12:18:11Z",
+  "file_count": 1995,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13252,7 +13262,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "994696b3a7e9d7b703bc257e7eddd57fdb60f639c94be1cba90bfc5404396162",
+  "previous_tree_hash": "cfed0e2c19c3b21f80c6a39b5bbb74d8ae94d30bcffc057688b16d9a7e85587f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13265,14 +13275,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cfed0e2c19c3b21f80c6a39b5bbb74d8ae94d30bcffc057688b16d9a7e85587f",
+  "tree_hash": "7957f90081033481037aa5fc308bd54d6e030ea51e1d899b0eec7a80d4a97034",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1339,
+  "wiki_file_count": 1341,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13281,13 +13291,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e0b8c364c4ba6de4859d86ce950c54b7c3cdd5780c2cf517d0bf8ea29bce1520",
-      "size": 1114405
+      "sha256": "e795141ee9c3351d9a644f32526e7155b027c93e46424508c75c3e3f8d280a1f",
+      "size": 1115179
     },
     {
       "path": "log.md",
-      "sha256": "5c677bb0a15a2810c8a7462a8fbcaf031864e75a6320a44e01817b93d8b6faa2",
-      "size": 1882195
+      "sha256": "83fe621414159601f8c3eb0ef78359260edb87e2973cbe9459c337c811ae7f63",
+      "size": 1882991
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15373,6 +15383,16 @@
       "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
       "sha256": "4a04e67d043e686c3eeaec14410e9b0666e9526f5d1aa5394d49cefeb9157526",
       "size": 8964
+    },
+    {
+      "path": "pages/decisions/story-archive-node-gcp-deprecation-aws-migration.md",
+      "sha256": "32d1ccbf13ccb6e0e3cab063ed0ec01fac55a31c17d0d56e27be788b2aa5d317",
+      "size": 5410
+    },
+    {
+      "path": "pages/decisions/story-archive-node-gcp-deprecation.md",
+      "sha256": "1e5ef17e2889729d85743e6c46e989d90749a5aeec090a89d2536bb74ec22939",
+      "size": 5274
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -19971,5 +19991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f9faad0798ef3515d45f31a9e0e829dbbf4d43dd4cddff50fc01cc31970c929f"
+  "wiki_tree_hash": "948dceca6cbfa8307bdc9479b1c3e198d3934220795860ba5b2071d35bafc49f"
 }
