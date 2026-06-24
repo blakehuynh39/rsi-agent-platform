@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ada9f01586533b476718d672858bd47881d48ef11bca5b0456df9e4f9911768b",
-        "size": 1118767
+        "sha256": "b9656d44baf6cc4c9c0a8107d7e53ade976ec1a93fd710acf8ec223659c756c5",
+        "size": 1119573
       },
       {
         "path": "log.md",
-        "sha256": "a2a320c0565c83c91c0e14b2a0a04142a0b00ecab875cc901c110d8f1a1d3d8a",
-        "size": 1890286
+        "sha256": "407cc9b7ff09781be152d5cefe40bb29559491033d14724dca52a846669f4907",
+        "size": 1891114
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4928,6 +4928,11 @@
         "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
         "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
         "size": 5434
+      },
+      {
+        "path": "pages/decisions/github-org-pip-labs-re-docs-repo-move.md",
+        "sha256": "25511d7b400bcb8251f00a372d32546ff8348c8a63b35e885c554e1e09dd99ab",
+        "size": 6225
       },
       {
         "path": "pages/decisions/github-pat-rotation-story-private-fork-2026-01-15.md",
@@ -9600,6 +9605,11 @@
         "size": 2831
       },
       {
+        "path": "pages/systems/pip-labs-re-github-org.md",
+        "sha256": "2d544ebe2b3af5fe9944b2cb930b5db332d1f57a7fb584b9929d45c06729447a",
+        "size": 6035
+      },
+      {
         "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
         "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
         "size": 2443
@@ -10024,8 +10034,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T17:21:45Z",
-  "file_count": 2003,
+  "exported_at": "2026-06-24T18:34:42Z",
+  "file_count": 2005,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13302,7 +13312,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a07a959b8806387b51a4ffe1b6dc2e41a3be5d9e73ca6f1bfc4507e09f69e944",
+  "previous_tree_hash": "70a88ee17b6508477b073a5a1bd9c571295d529415c773cbdc1ddca30b24d415",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13315,14 +13325,14 @@
   ],
   "skill_tree_hash": "676fb988081d7dc4f0e31031d4dd4b81c837f6c577cbe7f62eb599cf54110e39",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "70a88ee17b6508477b073a5a1bd9c571295d529415c773cbdc1ddca30b24d415",
+  "tree_hash": "4daa164fea1ac2735fc88154d72ff027dd7bbed7176d244a497ca697111d9b71",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1349,
+  "wiki_file_count": 1351,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13331,13 +13341,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ada9f01586533b476718d672858bd47881d48ef11bca5b0456df9e4f9911768b",
-      "size": 1118767
+      "sha256": "b9656d44baf6cc4c9c0a8107d7e53ade976ec1a93fd710acf8ec223659c756c5",
+      "size": 1119573
     },
     {
       "path": "log.md",
-      "sha256": "a2a320c0565c83c91c0e14b2a0a04142a0b00ecab875cc901c110d8f1a1d3d8a",
-      "size": 1890286
+      "sha256": "407cc9b7ff09781be152d5cefe40bb29559491033d14724dca52a846669f4907",
+      "size": 1891114
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14978,6 +14988,11 @@
       "path": "pages/decisions/fraud-detection-and-country-based-access-control-strategy.md",
       "sha256": "95793125c2c2c8069a03e50ec524df91334124b67233e497227d9072559ca178",
       "size": 5434
+    },
+    {
+      "path": "pages/decisions/github-org-pip-labs-re-docs-repo-move.md",
+      "sha256": "25511d7b400bcb8251f00a372d32546ff8348c8a63b35e885c554e1e09dd99ab",
+      "size": 6225
     },
     {
       "path": "pages/decisions/github-pat-rotation-story-private-fork-2026-01-15.md",
@@ -19650,6 +19665,11 @@
       "size": 2831
     },
     {
+      "path": "pages/systems/pip-labs-re-github-org.md",
+      "sha256": "2d544ebe2b3af5fe9944b2cb930b5db332d1f57a7fb584b9929d45c06729447a",
+      "size": 6035
+    },
+    {
       "path": "pages/systems/poc-modules-collection-licensing-royalties.md",
       "sha256": "148e942b6e49333287960f753662e0a87c6b05210dbe3a38552e22926783627f",
       "size": 2443
@@ -20071,5 +20091,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "893dba69e25b2e4bcadc2d86e5ffeceb42624d69fbd296a1781a12fd99d4e54f"
+  "wiki_tree_hash": "533db0e91018827a582de7cf48e68ebd76a07272a33ab9e3c953036f8230bb93"
 }

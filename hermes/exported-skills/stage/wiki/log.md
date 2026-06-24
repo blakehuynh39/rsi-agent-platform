@@ -38259,3 +38259,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c40aba40fe4bd3c09df62deb354f9c28
 - summary: A fix was introduced to address a gas underpricing vulnerability in IP graph royalty reads. Three precompile call sites were switched from cheap internal selectors to more expensiv...
 
+## [2026-06-24T18:31:50Z] synthesis | PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: systems/pip-labs-re-github-org
+- wiki_revision_id: wikirev_67cc2f32398c5382ab5538f9a927bd0e
+- summary: A new GitHub organization created to host the docs repository with relaxed branch protection, enabling the sole maintainer to push directly to main without approval, after enterpri...
+
+## [2026-06-24T18:32:55Z] synthesis | PIP-Labs-RE Docs Repository Migration and Branch Protection Decision
+
+- status: published
+- slug: decisions/github-org-pip-labs-re-docs-repo-move
+- wiki_revision_id: wikirev_c1b09d6112bbad75bdfef1dd11e0f3ed
+- summary: Decision to create a new GitHub org PIP-Labs-RE to host the docs repository, bypassing enterprise branch protection rules to allow direct pushes, while eventually agreeing on requi...
+
