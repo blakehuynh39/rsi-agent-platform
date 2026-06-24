@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "56c24b915127ae798751360d68832fc3dea6837cc5be7bc97195e2f64604bbd7",
-        "size": 1104219
+        "sha256": "0e267f1537f40899e631d6d82a84bdb21975850374d707282c03e11017da9732",
+        "size": 1104619
       },
       {
         "path": "log.md",
-        "sha256": "312d2617be492d3024e254d6614351a5126843ffaa08f844160588333ecba8d2",
-        "size": 1868655
+        "sha256": "7e71633fdad59de064735f4c6645e3bf3d1849e30df88908597b7959195bb6d6",
+        "size": 1869066
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8460,6 +8460,11 @@
         "size": 5434
       },
       {
+        "path": "pages/runbooks/portal-v2-staging-cors-issue.md",
+        "sha256": "c6f60ec0bc5831bc761e76f7f5ed448a2d5dc1e7dcdb6ed1495117576267efa2",
+        "size": 6464
+      },
+      {
         "path": "pages/runbooks/poseidon-contracts-deployment-upgrade-guide.md",
         "sha256": "36aa2b94fc007faefe1b1696e489bd25b452ecb89a57de362c23f082e6f50ac8",
         "size": 4657
@@ -9804,8 +9809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T06:38:52Z",
-  "file_count": 1959,
+  "exported_at": "2026-06-24T07:21:14Z",
+  "file_count": 1960,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13082,7 +13087,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e6000bb26506f14b6b3bda27f5a93508a70f744e79184907faea48541555f4e3",
+  "previous_tree_hash": "111317fcffbbea398fde2546993e5843661d2aabdad79a47ccdff345e6bc218f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13095,14 +13100,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "111317fcffbbea398fde2546993e5843661d2aabdad79a47ccdff345e6bc218f",
+  "tree_hash": "523b0b8a1835715d68fe33a9e9cafbcac213f4d992d8ff13fdb33bebd88cb9c0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1305,
+  "wiki_file_count": 1306,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13111,13 +13116,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "56c24b915127ae798751360d68832fc3dea6837cc5be7bc97195e2f64604bbd7",
-      "size": 1104219
+      "sha256": "0e267f1537f40899e631d6d82a84bdb21975850374d707282c03e11017da9732",
+      "size": 1104619
     },
     {
       "path": "log.md",
-      "sha256": "312d2617be492d3024e254d6614351a5126843ffaa08f844160588333ecba8d2",
-      "size": 1868655
+      "sha256": "7e71633fdad59de064735f4c6645e3bf3d1849e30df88908597b7959195bb6d6",
+      "size": 1869066
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18290,6 +18295,11 @@
       "size": 5434
     },
     {
+      "path": "pages/runbooks/portal-v2-staging-cors-issue.md",
+      "sha256": "c6f60ec0bc5831bc761e76f7f5ed448a2d5dc1e7dcdb6ed1495117576267efa2",
+      "size": 6464
+    },
+    {
       "path": "pages/runbooks/poseidon-contracts-deployment-upgrade-guide.md",
       "sha256": "36aa2b94fc007faefe1b1696e489bd25b452ecb89a57de362c23f082e6f50ac8",
       "size": 4657
@@ -19631,5 +19641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72d62c10be49b927bbc19626a520a5d1e1ba715682b2299b37db8e993e98cab2"
+  "wiki_tree_hash": "5fab15136d2d76121652bdc20c9d763c69a87a7297e2f72bad3c01638d37ad31"
 }

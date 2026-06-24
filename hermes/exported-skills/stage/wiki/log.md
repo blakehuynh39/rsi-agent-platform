@@ -37804,3 +37804,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5e99c5f0008caf9b64b681e6e872a4bc
 - summary: Resolved CORS and 401 issues on staging portal by updating the hub API endpoint from edge.stg.storyprotocol.net to staging-api.storyprotocol.net and adjusting dynamic environment v...
 
+## [2026-06-24T07:16:43Z] synthesis | CORS Issue Troubleshooting for portal-v2-staging
+
+- status: published
+- slug: runbooks/portal-v2-staging-cors-issue
+- wiki_revision_id: wikirev_ffb6878cc744176cb29ab674a4d63740
+- summary: Troubleshooting guide for CORS issues encountered when accessing https://portal-v2-staging.vercel.app/. The root cause was the use of the outdated endpoint https://edge.stg.storypr...
+
