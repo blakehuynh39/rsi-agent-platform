@@ -38595,3 +38595,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9de5ede31777d4961521b9a8c6ecdb0d
 - summary: A separate GitHub organization created to host the public-facing docs repository, bypassing enterprise branch protection rules to allow direct pushes to main.
 
+## [2026-06-24T20:32:26Z] synthesis | PIP-Labs-RE GitHub Org Setup
+
+- status: published
+- slug: projects/pip-labs-re-github-org-setup
+- wiki_revision_id: wikirev_c5773fdb1397ba1b67352f913bc3226f
+- summary: Setup of the PIP-Labs-RE GitHub organization to host the docs repository independently, driven by enterprise branch protection rules that blocked the sole maintainer from pushing d...
+
+## [2026-06-24T20:35:07Z] synthesis | Vault (HashiCorp Vault) on Story Protocol
+
+- status: published
+- slug: systems/bank-vault
+- wiki_revision_id: wikirev_dc19250a77fe4aa6913cd6f471414185
+- summary: Information on the vault deployed manually via Helm and managed via Kubernetes.
+
+## [2026-06-24T20:35:07Z] synthesis | Cloudflare Configuration PRs
+
+- status: published
+- slug: projects/cloudflare-prs
+- wiki_revision_id: wikirev_4bb19980e95c87931dde13ba8010f402
+- summary: Collaboration on Cloudflare configuration changes via the piplabs/cloudflare repo.
+
+## [2026-06-24T20:35:07Z] synthesis | Faucet Not Working
+
+- status: published
+- slug: runbooks/faucet-outage
+- wiki_revision_id: wikirev_a29600bf1dd1118bc9909b4d0019b735
+- summary: Users reported faucet not working; no known outstanding issues at the time.
+
+## [2026-06-24T20:35:07Z] synthesis | Mainnet RPC Endpoint Status
+
+- status: published
+- slug: concepts/mainnet-rpc-check
+- wiki_revision_id: wikirev_b4037362f50045cd19d419072f428c21
+- summary: Incident where user couldn't send tokens on mainnet; resolved by updating MetaMask.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0e9b033e54929c2296a5e55e0a4949001d67def3e043fad85ad92da295d36725",
-        "size": 1130255
+        "sha256": "e12de84fc9eee82313732f6fe3c4d5cb9f05df293cdc7f52ea7a31ce7d9df1c4",
+        "size": 1131432
       },
       {
         "path": "log.md",
-        "sha256": "1241ea3b23670a3a473956191652978f7a8782903eef71e4572b1b8631cd8977",
-        "size": 1907345
+        "sha256": "14e923b2f80a55d43761e5fc19a54ec4450a561f51793b6af8c1aa03dec698cc",
+        "size": 1908830
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3993,6 +3993,11 @@
         "path": "pages/concepts/mainnet-infra-issue-trackers.md",
         "sha256": "00fa4e4c9e1b485fc5d135696b042345b9ae8686a2cb1e7cb3424c4b2a4305b3",
         "size": 1203
+      },
+      {
+        "path": "pages/concepts/mainnet-rpc-check.md",
+        "sha256": "7df91ac66d07a6d177e1ab308b343177d4a3365e579f5e0be84d5c3a4046de99",
+        "size": 2093
       },
       {
         "path": "pages/concepts/meeting-notes-index.md",
@@ -6396,8 +6401,8 @@
       },
       {
         "path": "pages/projects/cloudflare-prs.md",
-        "sha256": "da74b98f5fe160fe763bb50954edb828d9a63602504817a3d39db024ff484d51",
-        "size": 1950
+        "sha256": "b649e9a349370e5ade1eef9bd3ca16f5f83faa2aad34c05c1f5a835141a98c00",
+        "size": 1903
       },
       {
         "path": "pages/projects/community-badge.md",
@@ -7353,6 +7358,11 @@
         "path": "pages/projects/pfp-engineering-specs.md",
         "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
         "size": 4800
+      },
+      {
+        "path": "pages/projects/pip-labs-re-github-org-setup.md",
+        "sha256": "44164a2fc7386dfb0215fb586fcca632f616c819880efed14f63f0d97841ac11",
+        "size": 6088
       },
       {
         "path": "pages/projects/pip-labs-re-github-organization.md",
@@ -8340,6 +8350,11 @@
         "size": 3599
       },
       {
+        "path": "pages/runbooks/faucet-outage.md",
+        "sha256": "4d19d4dedc6465395702cd5996b1c04a6e077b34bd17351307fa9cec639417b8",
+        "size": 1361
+      },
+      {
         "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
         "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
         "size": 4822
@@ -9158,6 +9173,11 @@
         "path": "pages/systems/bank-vault-setup.md",
         "sha256": "8ea47fb3e6a5639de9cb057ad96021d24418dd854a36bb2366957cf8d5ba906c",
         "size": 1734
+      },
+      {
+        "path": "pages/systems/bank-vault.md",
+        "sha256": "f0b1668850d62bd0fb4962d1fd9dc9fb168a6544cde5f5464f304601cae1df4e",
+        "size": 2286
       },
       {
         "path": "pages/systems/broadcaster-gas-control-system.md",
@@ -10064,8 +10084,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T20:24:24Z",
-  "file_count": 2011,
+  "exported_at": "2026-06-24T20:36:10Z",
+  "file_count": 2015,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13342,7 +13362,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "94a12b541652158f616c1b23db067b3bed4bb3f21712cf4c73b46fb3a19448fb",
+  "previous_tree_hash": "70cb85216de3cdf4f17d8afd5af87452ff23eb1b8af43dd52eb5280a7b475aae",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13355,14 +13375,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "70cb85216de3cdf4f17d8afd5af87452ff23eb1b8af43dd52eb5280a7b475aae",
+  "tree_hash": "91c93ccd68b2984b65c4cca807e099dc180ce8793aca21338cc33d821c368af8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1357,
+  "wiki_file_count": 1361,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13371,13 +13391,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0e9b033e54929c2296a5e55e0a4949001d67def3e043fad85ad92da295d36725",
-      "size": 1130255
+      "sha256": "e12de84fc9eee82313732f6fe3c4d5cb9f05df293cdc7f52ea7a31ce7d9df1c4",
+      "size": 1131432
     },
     {
       "path": "log.md",
-      "sha256": "1241ea3b23670a3a473956191652978f7a8782903eef71e4572b1b8631cd8977",
-      "size": 1907345
+      "sha256": "14e923b2f80a55d43761e5fc19a54ec4450a561f51793b6af8c1aa03dec698cc",
+      "size": 1908830
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14083,6 +14103,11 @@
       "path": "pages/concepts/mainnet-infra-issue-trackers.md",
       "sha256": "00fa4e4c9e1b485fc5d135696b042345b9ae8686a2cb1e7cb3424c4b2a4305b3",
       "size": 1203
+    },
+    {
+      "path": "pages/concepts/mainnet-rpc-check.md",
+      "sha256": "7df91ac66d07a6d177e1ab308b343177d4a3365e579f5e0be84d5c3a4046de99",
+      "size": 2093
     },
     {
       "path": "pages/concepts/meeting-notes-index.md",
@@ -16486,8 +16511,8 @@
     },
     {
       "path": "pages/projects/cloudflare-prs.md",
-      "sha256": "da74b98f5fe160fe763bb50954edb828d9a63602504817a3d39db024ff484d51",
-      "size": 1950
+      "sha256": "b649e9a349370e5ade1eef9bd3ca16f5f83faa2aad34c05c1f5a835141a98c00",
+      "size": 1903
     },
     {
       "path": "pages/projects/community-badge.md",
@@ -17443,6 +17468,11 @@
       "path": "pages/projects/pfp-engineering-specs.md",
       "sha256": "a28e54c4c976c0d319da2e0d8d698e87943421fa5c159c1bcb9ac45e718fa9a7",
       "size": 4800
+    },
+    {
+      "path": "pages/projects/pip-labs-re-github-org-setup.md",
+      "sha256": "44164a2fc7386dfb0215fb586fcca632f616c819880efed14f63f0d97841ac11",
+      "size": 6088
     },
     {
       "path": "pages/projects/pip-labs-re-github-organization.md",
@@ -18430,6 +18460,11 @@
       "size": 3599
     },
     {
+      "path": "pages/runbooks/faucet-outage.md",
+      "sha256": "4d19d4dedc6465395702cd5996b1c04a6e077b34bd17351307fa9cec639417b8",
+      "size": 1361
+    },
+    {
       "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
       "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
       "size": 4822
@@ -19248,6 +19283,11 @@
       "path": "pages/systems/bank-vault-setup.md",
       "sha256": "8ea47fb3e6a5639de9cb057ad96021d24418dd854a36bb2366957cf8d5ba906c",
       "size": 1734
+    },
+    {
+      "path": "pages/systems/bank-vault.md",
+      "sha256": "f0b1668850d62bd0fb4962d1fd9dc9fb168a6544cde5f5464f304601cae1df4e",
+      "size": 2286
     },
     {
       "path": "pages/systems/broadcaster-gas-control-system.md",
@@ -20151,5 +20191,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ba6ff4015c642848cc595feb8bee9a9343f6864377415d920b22d04dbbf7c086"
+  "wiki_tree_hash": "bb3b81dca57f1ee0c55ceb09edb8b23e920b0af10743db3e23daacd43abfade5"
 }
