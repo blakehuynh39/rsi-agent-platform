@@ -37746,3 +37746,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9f1fb6fddab2e7d5764355f20dc6bc82
 - summary: AI security audit of storyprotocol/story-api trace contracts (commit ba415d4). Remediation PR #1281 fixed 5 of 8 findings (Low/Info), 3 acknowledged. No Critical/High vulnerabiliti...
 
+## [2026-06-24T05:31:45Z] synthesis | Fork cometbft to piplabs/cometbft
+
+- status: published
+- slug: decisions/decision-fork-cometbft-piplabs
+- wiki_revision_id: wikirev_b39a0e61c74cbc5a204e366a7e71a930
+- summary: Decision to create a public fork of the cometbft repository under the piplabs GitHub organization and grant write access to the requester.
+
