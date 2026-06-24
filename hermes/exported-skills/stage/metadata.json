@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e68f3221294466f8cff7ac1916004eaa512c0a0e85f0cda78361f19e7a6192b8",
-        "size": 1117339
+        "sha256": "f95b211e488d5d3ad7156f538c63f0d26936d9952a8d7d3ec96b4ad4f877279e",
+        "size": 1117695
       },
       {
         "path": "log.md",
-        "sha256": "d1eb77ce41eb87a089debad7cc5420fd5ded08de5f7516e1e6a77253cf398593",
-        "size": 1887823
+        "sha256": "1a8557a16c188dbe74b7aed0044fb6be3cbf0e7017181602ffbe6eba62f27d26",
+        "size": 1888190
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6820,6 +6820,11 @@
         "size": 5000
       },
       {
+        "path": "pages/projects/internal-devnet-infrastructure.md",
+        "sha256": "e913d2913a820d721b428054aed8c1e9b0d5441cb984b47ac50ee1c8280ee53b",
+        "size": 7894
+      },
+      {
         "path": "pages/projects/ip-auto-registration-script.md",
         "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
         "size": 1238
@@ -10009,8 +10014,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T15:45:41Z",
-  "file_count": 2000,
+  "exported_at": "2026-06-24T15:57:28Z",
+  "file_count": 2001,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13287,7 +13292,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6f9a7fde0e694d03860f46cec5c86cc8bfa57d6b06d4aa335e22ec21389f0808",
+  "previous_tree_hash": "5bd08e89f3f52a8bb65d8d473ceb5d07a3963e01fb50b9318b3d04442647cace",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13300,14 +13305,14 @@
   ],
   "skill_tree_hash": "bcab0b681caeb10e388d1f6fba76596b317d51887f98c6660ea3b3438e212a25",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5bd08e89f3f52a8bb65d8d473ceb5d07a3963e01fb50b9318b3d04442647cace",
+  "tree_hash": "01618c6f7b93f287e4da80729bc43fa2b0209dc2e20d9d23d38e4ed7f722bd9c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1346,
+  "wiki_file_count": 1347,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13316,13 +13321,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e68f3221294466f8cff7ac1916004eaa512c0a0e85f0cda78361f19e7a6192b8",
-      "size": 1117339
+      "sha256": "f95b211e488d5d3ad7156f538c63f0d26936d9952a8d7d3ec96b4ad4f877279e",
+      "size": 1117695
     },
     {
       "path": "log.md",
-      "sha256": "d1eb77ce41eb87a089debad7cc5420fd5ded08de5f7516e1e6a77253cf398593",
-      "size": 1887823
+      "sha256": "1a8557a16c188dbe74b7aed0044fb6be3cbf0e7017181602ffbe6eba62f27d26",
+      "size": 1888190
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16855,6 +16860,11 @@
       "size": 5000
     },
     {
+      "path": "pages/projects/internal-devnet-infrastructure.md",
+      "sha256": "e913d2913a820d721b428054aed8c1e9b0d5441cb984b47ac50ee1c8280ee53b",
+      "size": 7894
+    },
+    {
       "path": "pages/projects/ip-auto-registration-script.md",
       "sha256": "d10df07655c5cbb3db51eccbeaca8e208010bcd916af7783cdf142070e07e74b",
       "size": 1238
@@ -20041,5 +20051,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6423155b6ccb2104669391a3739df5683f42246e1d907b76b3ab2792fedb8d71"
+  "wiki_tree_hash": "969ae25f077cdedd6a7db3716a54c8b8be331c2a757ed81543281187bf8b076c"
 }

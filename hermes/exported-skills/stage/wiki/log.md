@@ -38211,3 +38211,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_0060af849a0ffb3eaabd6f6cd6cf6bc9
 - summary: story-deployments#553 approved — safe config-only change with no blocking findings.
 
+## [2026-06-24T15:53:11Z] synthesis | Internal Devnet Infrastructure
+
+- status: published
+- slug: projects/internal-devnet-infrastructure
+- wiki_revision_id: wikirev_6fdd81900bce173ae1c9b9348f8270ba
+- summary: Management and configuration details for the internal Story Protocol devnet on AWS, including binary storage, chain ID transitions, and access permissions.
+
