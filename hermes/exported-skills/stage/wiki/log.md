@@ -38581,3 +38581,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5aea9679dcf61631731890524721e835
 - summary: New GitHub organization created to host the docs repository, bypassing enterprise branch protection rules to allow the sole maintainer (Jacob) to push directly to main without appr...
 
+## [2026-06-24T20:05:25Z] synthesis | Docs Repo Migration to PIP-Labs-RE
+
+- status: published
+- slug: decisions/docs-repo-migration-to-pip-labs-re
+- wiki_revision_id: wikirev_b545b7afbaae36c347d4a1b508f306c6
+- summary: The docs repository was moved to a new GitHub organization PIP-Labs-RE to bypass enterprise branch protection rules, allowing the maintainer to push directly to main. Consensus rem...
+

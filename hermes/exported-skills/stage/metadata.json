@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49a4df9ad5ccb4d8d849a4813335cc6ee3438fe0d1d105672a98edcfd9647496",
-        "size": 1130300
+        "sha256": "c85edeb9589163bdd609989f82af3b8f2dc8ebe971d38786497608c05cd0c601",
+        "size": 1130280
       },
       {
         "path": "log.md",
-        "sha256": "06f6d16d4cc69070db98b7ae93ba1fcdfbff65172ad66815eb9482485a8f91ef",
-        "size": 1906579
+        "sha256": "fa27d5ae817ba995a24f484d827ad6068b6c5fa1f208cb6867f6609c0285e9d2",
+        "size": 1906983
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4881,8 +4881,8 @@
       },
       {
         "path": "pages/decisions/docs-repo-migration-to-pip-labs-re.md",
-        "sha256": "3af5392385dd789704087b8f9c1467aa6454ea4a35afbaddc6ba91b615c3ffdb",
-        "size": 5577
+        "sha256": "bae97a4a76edfffefa0ebd359266d3b9b2ec2667a6298bbc5d01def2ca0dc99a",
+        "size": 4746
       },
       {
         "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
@@ -10064,7 +10064,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T19:50:33Z",
+  "exported_at": "2026-06-24T20:07:27Z",
   "file_count": 2011,
   "files": [
     {
@@ -13342,7 +13342,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "23c3dc7d2bceb5525d1b14c725b7e9773f63f70ee1329fb57b358f3249ee37b2",
+  "previous_tree_hash": "b0bd1293112b9100d063ddadc6d5892790ed8cc7d07e31cef3a580f8e39a120b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13355,7 +13355,7 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b0bd1293112b9100d063ddadc6d5892790ed8cc7d07e31cef3a580f8e39a120b",
+  "tree_hash": "94a12b541652158f616c1b23db067b3bed4bb3f21712cf4c73b46fb3a19448fb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13371,13 +13371,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49a4df9ad5ccb4d8d849a4813335cc6ee3438fe0d1d105672a98edcfd9647496",
-      "size": 1130300
+      "sha256": "c85edeb9589163bdd609989f82af3b8f2dc8ebe971d38786497608c05cd0c601",
+      "size": 1130280
     },
     {
       "path": "log.md",
-      "sha256": "06f6d16d4cc69070db98b7ae93ba1fcdfbff65172ad66815eb9482485a8f91ef",
-      "size": 1906579
+      "sha256": "fa27d5ae817ba995a24f484d827ad6068b6c5fa1f208cb6867f6609c0285e9d2",
+      "size": 1906983
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14971,8 +14971,8 @@
     },
     {
       "path": "pages/decisions/docs-repo-migration-to-pip-labs-re.md",
-      "sha256": "3af5392385dd789704087b8f9c1467aa6454ea4a35afbaddc6ba91b615c3ffdb",
-      "size": 5577
+      "sha256": "bae97a4a76edfffefa0ebd359266d3b9b2ec2667a6298bbc5d01def2ca0dc99a",
+      "size": 4746
     },
     {
       "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
@@ -20151,5 +20151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "826173b38eba2769e8d2da6f62dd7057021ea09f6a46bc60b87e7729c584476e"
+  "wiki_tree_hash": "ad08c3dc63082e4aa4ff5c3a9249c57ffbeeec5ae7bafa6456b470f20aead4b4"
 }
