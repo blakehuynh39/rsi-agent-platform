@@ -38546,3 +38546,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e21ecdece22b3c7574eb842c4d2c022
 - summary: The docs repo was moved to a new GitHub organization PIP-Labs-RE to allow the sole maintainer to push directly to main, bypassing enterprise branch protection rules that required a...
 
+## [2026-06-24T19:31:51Z] synthesis | PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: systems/pip-labs-re-github-org
+- wiki_revision_id: wikirev_8c2a2a68de175ffa4f794352a32342bb
+- summary: A GitHub organization created to host the docs repository with relaxed branch protection rules, allowing the sole maintainer to push directly to main, as enterprise-level rules wer...
+
+## [2026-06-24T19:33:21Z] synthesis | Docs Repo Migration to PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: decisions/docs-repo-migration-to-pip-labs-re
+- wiki_revision_id: wikirev_a00815b76e6be5998d5c78b9b1f0c207
+- summary: The public-facing documentation repository was moved to a new GitHub organization (PIP-Labs-RE) to allow the sole maintainer, Jacob, to directly push to the main branch without req...
+

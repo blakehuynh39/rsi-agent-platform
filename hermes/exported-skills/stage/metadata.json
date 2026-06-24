@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "36299a52dd28dc93ff1167248bdbf97ae21a3195de382903561e509c094a5478",
-        "size": 1129074
+        "sha256": "b5b1e07cddfbcc56a55b2c6b68c745b56f08997688ed1d71d02973d112d43dc5",
+        "size": 1129485
       },
       {
         "path": "log.md",
-        "sha256": "f52a055fe78b3fcc0980afbf70afbac8bae69e2a98f8fcd667bafdd1ada12329",
-        "size": 1904542
+        "sha256": "f641e8289db1105fa28e9df0a9e8d62984e8942a36211b347fff75a476639aab",
+        "size": 1905353
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4873,6 +4873,11 @@
         "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
         "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
         "size": 1433
+      },
+      {
+        "path": "pages/decisions/docs-repo-migration-to-pip-labs-re.md",
+        "sha256": "3af5392385dd789704087b8f9c1467aa6454ea4a35afbaddc6ba91b615c3ffdb",
+        "size": 5577
       },
       {
         "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
@@ -9616,8 +9621,8 @@
       },
       {
         "path": "pages/systems/pip-labs-re-github-org.md",
-        "sha256": "2d544ebe2b3af5fe9944b2cb930b5db332d1f57a7fb584b9929d45c06729447a",
-        "size": 6035
+        "sha256": "f602a3313dfe0c42ef2e82e390157e0260a0f4524c6503ba5a3c117db341b0a8",
+        "size": 4070
       },
       {
         "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -10049,8 +10054,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T19:21:53Z",
-  "file_count": 2008,
+  "exported_at": "2026-06-24T19:33:40Z",
+  "file_count": 2009,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13327,7 +13332,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d051fad850c7bf075d8ee1900dd7992ebdf1dbe023264a490230a977f61a1333",
+  "previous_tree_hash": "aca3973bf2d488800742f6681b210bfee3600992cdd04b71b0b6e16cca879fca",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13340,14 +13345,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "aca3973bf2d488800742f6681b210bfee3600992cdd04b71b0b6e16cca879fca",
+  "tree_hash": "23c3dc7d2bceb5525d1b14c725b7e9773f63f70ee1329fb57b358f3249ee37b2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1354,
+  "wiki_file_count": 1355,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13356,13 +13361,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "36299a52dd28dc93ff1167248bdbf97ae21a3195de382903561e509c094a5478",
-      "size": 1129074
+      "sha256": "b5b1e07cddfbcc56a55b2c6b68c745b56f08997688ed1d71d02973d112d43dc5",
+      "size": 1129485
     },
     {
       "path": "log.md",
-      "sha256": "f52a055fe78b3fcc0980afbf70afbac8bae69e2a98f8fcd667bafdd1ada12329",
-      "size": 1904542
+      "sha256": "f641e8289db1105fa28e9df0a9e8d62984e8942a36211b347fff75a476639aab",
+      "size": 1905353
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14948,6 +14953,11 @@
       "path": "pages/decisions/distinguish-user-device-types-for-risk-assessment.md",
       "sha256": "5761e21f07eed59857340315f2983c0bb33154e14a3fa91d230442cf73789e58",
       "size": 1433
+    },
+    {
+      "path": "pages/decisions/docs-repo-migration-to-pip-labs-re.md",
+      "sha256": "3af5392385dd789704087b8f9c1467aa6454ea4a35afbaddc6ba91b615c3ffdb",
+      "size": 5577
     },
     {
       "path": "pages/decisions/docs-repo-move-pip-labs-re.md",
@@ -19691,8 +19701,8 @@
     },
     {
       "path": "pages/systems/pip-labs-re-github-org.md",
-      "sha256": "2d544ebe2b3af5fe9944b2cb930b5db332d1f57a7fb584b9929d45c06729447a",
-      "size": 6035
+      "sha256": "f602a3313dfe0c42ef2e82e390157e0260a0f4524c6503ba5a3c117db341b0a8",
+      "size": 4070
     },
     {
       "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -20121,5 +20131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "721cb722919997a4a4c5ac05542e77d3d689b830dc45384d4275db64334c2ca9"
+  "wiki_tree_hash": "b258f13920440a2194cfae78d9fec3b7199e18669a6de3ce24a96fb537a3acac"
 }
