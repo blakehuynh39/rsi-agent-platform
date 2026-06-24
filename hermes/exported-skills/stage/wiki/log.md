@@ -38218,3 +38218,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6fdd81900bce173ae1c9b9348f8270ba
 - summary: Management and configuration details for the internal Story Protocol devnet on AWS, including binary storage, chain ID transitions, and access permissions.
 
+## [2026-06-24T16:30:25Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_c1e18683fbac2ca72b693918d4a2ca82
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_fc72c2775e0eca7de3539938ecc9826a
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
