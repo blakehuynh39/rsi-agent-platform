@@ -38098,3 +38098,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2a5866be1ff5b9f3fac78f124d0f5db0
 - summary: Story is migrating archive nodes from GCP to AWS, deprecating the hardcoded IP 34.139.142.168. All dependent services must switch to using domain names. Existing services like depi...
 
+## [2026-06-24T12:01:32Z] synthesis | Archive Node Migration to AWS
+
+- status: published
+- slug: decisions/archive-node-migration-to-aws
+- wiki_revision_id: wikirev_eeb4452c9e992e631df663f30b1ecabb
+- summary: Migrating Story Protocol's archive nodes from GCP to AWS, deprecating direct IP access in favor of domain names.
+

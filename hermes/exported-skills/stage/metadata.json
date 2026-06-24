@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ce2ceaa591be7802c1e25a89eaa7519e508b6716672bad33c55d1364f29b3793",
-        "size": 1114093
+        "sha256": "e0b8c364c4ba6de4859d86ce950c54b7c3cdd5780c2cf517d0bf8ea29bce1520",
+        "size": 1114405
       },
       {
         "path": "log.md",
-        "sha256": "02af69485fc75432805df753354c2355d7a8695a93779e6cebe1c6dc7a73ed55",
-        "size": 1881872
+        "sha256": "5c677bb0a15a2810c8a7462a8fbcaf031864e75a6320a44e01817b93d8b6faa2",
+        "size": 1882195
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4698,6 +4698,11 @@
         "path": "pages/decisions/archive-node-ip-deprecation-domain-migration.md",
         "sha256": "4f6c081e2db5b218b29f5cbf5fdc34891afff257972bcd11460be37ed3f44b61",
         "size": 5228
+      },
+      {
+        "path": "pages/decisions/archive-node-migration-to-aws.md",
+        "sha256": "f93446cb3577d37384a8e7da80e899665cd6ffef50ac568330a64a0f2be381d0",
+        "size": 5721
       },
       {
         "path": "pages/decisions/bengali-voice-task-closure.md",
@@ -9969,8 +9974,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T11:54:43Z",
-  "file_count": 1992,
+  "exported_at": "2026-06-24T12:06:25Z",
+  "file_count": 1993,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13247,7 +13252,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "118478442ac840b26d8a8d0553054cb7fd065f59a1b21a5de3d9d9e57063224b",
+  "previous_tree_hash": "994696b3a7e9d7b703bc257e7eddd57fdb60f639c94be1cba90bfc5404396162",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13260,14 +13265,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "994696b3a7e9d7b703bc257e7eddd57fdb60f639c94be1cba90bfc5404396162",
+  "tree_hash": "cfed0e2c19c3b21f80c6a39b5bbb74d8ae94d30bcffc057688b16d9a7e85587f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1338,
+  "wiki_file_count": 1339,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13276,13 +13281,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ce2ceaa591be7802c1e25a89eaa7519e508b6716672bad33c55d1364f29b3793",
-      "size": 1114093
+      "sha256": "e0b8c364c4ba6de4859d86ce950c54b7c3cdd5780c2cf517d0bf8ea29bce1520",
+      "size": 1114405
     },
     {
       "path": "log.md",
-      "sha256": "02af69485fc75432805df753354c2355d7a8695a93779e6cebe1c6dc7a73ed55",
-      "size": 1881872
+      "sha256": "5c677bb0a15a2810c8a7462a8fbcaf031864e75a6320a44e01817b93d8b6faa2",
+      "size": 1882195
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14693,6 +14698,11 @@
       "path": "pages/decisions/archive-node-ip-deprecation-domain-migration.md",
       "sha256": "4f6c081e2db5b218b29f5cbf5fdc34891afff257972bcd11460be37ed3f44b61",
       "size": 5228
+    },
+    {
+      "path": "pages/decisions/archive-node-migration-to-aws.md",
+      "sha256": "f93446cb3577d37384a8e7da80e899665cd6ffef50ac568330a64a0f2be381d0",
+      "size": 5721
     },
     {
       "path": "pages/decisions/bengali-voice-task-closure.md",
@@ -19961,5 +19971,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "986a17bfd7f7065a408f06de8b31780321388ed949149c7f16fc8fd8066db7f2"
+  "wiki_tree_hash": "f9faad0798ef3515d45f31a9e0e829dbbf4d43dd4cddff50fc01cc31970c929f"
 }
