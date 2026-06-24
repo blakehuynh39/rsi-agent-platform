@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "354b17a7d101427cbfdfe7bbe177dc23ba784998e3cd6a2d719fb3e6e664b36c",
-        "size": 1107186
+        "sha256": "9300366b65a5459dc06626ddf7f741cd675ca2ceac641498e54c78ea5f1e69f2",
+        "size": 1107425
       },
       {
         "path": "log.md",
-        "sha256": "95f13f616dd847d14a6846cbbd2a802f7d03916a8129ba8e969902fbf060a467",
-        "size": 1872060
+        "sha256": "0d84ff12fee00cf23bca4f559c0d44ba6c598cfcc856ed51b4c0f4c6683254db",
+        "size": 1872666
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6106,8 +6106,8 @@
       },
       {
         "path": "pages/projects/aeneid-acm.md",
-        "sha256": "f93e9b8962bd6c23b5f0cc1c8565566088a7bbed1e2c4ec18701a7f991939a52",
-        "size": 1995
+        "sha256": "e4a407484645a4960972904db227c84bc450147fd1bcec65f742e8ca96a2ecdf",
+        "size": 2716
       },
       {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -8220,6 +8220,11 @@
         "size": 2837
       },
       {
+        "path": "pages/runbooks/github-access-issue-pr-116.md",
+        "sha256": "9ff6c306980233a9deab5c324271db2fa9350e0de708b044da1dfc90e7617c19",
+        "size": 4401
+      },
+      {
         "path": "pages/runbooks/github-actions-pr-approvals-enablement.md",
         "sha256": "dda2f48afdf4be5f95f0ca3f7f1ab4316123342d8e591d2ef45efa06c6a13875",
         "size": 2902
@@ -9844,8 +9849,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T09:25:36Z",
-  "file_count": 1967,
+  "exported_at": "2026-06-24T09:37:18Z",
+  "file_count": 1968,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13122,7 +13127,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "7b7f2887fd804f0938fd2364f9a2716a8d1e67e9aa3f441cf8ba408f00d318bd",
+  "previous_tree_hash": "24a270ee21aa0be1a55f5a3c7eef4407c4295ea134ecc3cf11d2506529f39c19",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13135,14 +13140,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "24a270ee21aa0be1a55f5a3c7eef4407c4295ea134ecc3cf11d2506529f39c19",
+  "tree_hash": "0d281a5db41f7c629626f639b0291b65c6756d33ea9235e0137872add5bdf271",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1313,
+  "wiki_file_count": 1314,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13151,13 +13156,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "354b17a7d101427cbfdfe7bbe177dc23ba784998e3cd6a2d719fb3e6e664b36c",
-      "size": 1107186
+      "sha256": "9300366b65a5459dc06626ddf7f741cd675ca2ceac641498e54c78ea5f1e69f2",
+      "size": 1107425
     },
     {
       "path": "log.md",
-      "sha256": "95f13f616dd847d14a6846cbbd2a802f7d03916a8129ba8e969902fbf060a467",
-      "size": 1872060
+      "sha256": "0d84ff12fee00cf23bca4f559c0d44ba6c598cfcc856ed51b4c0f4c6683254db",
+      "size": 1872666
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15976,8 +15981,8 @@
     },
     {
       "path": "pages/projects/aeneid-acm.md",
-      "sha256": "f93e9b8962bd6c23b5f0cc1c8565566088a7bbed1e2c4ec18701a7f991939a52",
-      "size": 1995
+      "sha256": "e4a407484645a4960972904db227c84bc450147fd1bcec65f742e8ca96a2ecdf",
+      "size": 2716
     },
     {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -18090,6 +18095,11 @@
       "size": 2837
     },
     {
+      "path": "pages/runbooks/github-access-issue-pr-116.md",
+      "sha256": "9ff6c306980233a9deab5c324271db2fa9350e0de708b044da1dfc90e7617c19",
+      "size": 4401
+    },
+    {
       "path": "pages/runbooks/github-actions-pr-approvals-enablement.md",
       "sha256": "dda2f48afdf4be5f95f0ca3f7f1ab4316123342d8e591d2ef45efa06c6a13875",
       "size": 2902
@@ -19711,5 +19721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "cf4c9cc3acf82d49c84903a984205edcbe4fe95b152bee11001d975f0477c49d"
+  "wiki_tree_hash": "f74427a78c8909ac91ced03bf2d10161fa43921dc53725f30c5cac7b9759fb20"
 }

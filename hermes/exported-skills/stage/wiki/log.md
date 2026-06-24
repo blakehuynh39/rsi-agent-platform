@@ -37867,3 +37867,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3b5e34ba0161639a7524ea6ce32e980d
 - summary: PR #115 in piplabs/cloudflare repository updates Cloudflare DNS for the private-fork of staking-api intended for BitGo. The change also incorporates faucet configuration into Infra...
 
+## [2026-06-24T09:32:58Z] synthesis | GitHub Access Issue for PR #116
+
+- status: published
+- slug: runbooks/github-access-issue-pr-116
+- wiki_revision_id: wikirev_5fb6662dec6e5ce4083c7b113223a6c8
+- summary: Resolution of access issue for user yingyangxu2026 to GitHub pull request piplabs/cloudflare#116.
+
+## [2026-06-24T09:34:53Z] synthesis | Aeneid ACM
+
+- status: published
+- slug: projects/aeneid-acm
+- wiki_revision_id: wikirev_5a5cbe5e3d6442a10aaa3a35029f6611
+- summary: Aeneid ACM project with a minor change PR in piplabs/cloudflare. Access to the PR required being added to the QA team on GitHub.
+
