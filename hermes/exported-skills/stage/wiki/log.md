@@ -37753,3 +37753,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b39a0e61c74cbc5a204e366a7e71a930
 - summary: Decision to create a public fork of the cometbft repository under the piplabs GitHub organization and grant write access to the requester.
 
+## [2026-06-24T05:47:05Z] synthesis | piplabs/cometbft Fork Creation
+
+- status: published
+- slug: decisions/cometbft-fork-piplabs
+- wiki_revision_id: wikirev_ec5da7ce134f5ebbee39bd9ef38ffd57
+- summary: A public fork of the cometbft repository was created under the piplabs GitHub organization at piplabs/cometbft, with write access granted to the requester.
+
