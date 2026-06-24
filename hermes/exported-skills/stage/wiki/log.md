@@ -38179,3 +38179,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b6acc536f0bf497e39b2aadc2c1c109f
 - summary: Migration of Story Protocol archive nodes from GCP to AWS, requiring all services to switch from direct IP (34.139.142.168) to domain names (internal-full.storyrpc.io for prod, int...
 
+## [2026-06-24T14:30:34Z] ingest | Numo Expert Payment Model
+
+- status: published
+- slug: notion_document/numo-expert-payment-model-9ef5bd03
+- wiki_revision_id: wikirev_6b8d33459a0fd05b0a0af6274a794831
+- source_document_id: srcdoc_570a89beb86d727201f015129ef5bd03
+- source_revision_id: srcrev_b9e63ef64c5711ff70c48d00f2c3322c
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Payment-Model-388051299a5480fe99f0eb7d17e72205)
+
