@@ -37684,3 +37684,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3193e4b2d53df88005b846312f7c158f
 - summary: IAM roles, policies, and access troubleshooting for the Story Protocol devnet AWS account, focusing on instance launch and SSM session permissions.
 
+## [2026-06-24T02:30:46Z] ingest | trace-contracts (Sha256DataRegistry) — AI Security Audit Report
+
+- status: published
+- slug: notion_document/trace-contracts-sha256dataregistry-ai-security-audit-report-df8c38ed
+- wiki_revision_id: wikirev_28150c34a3d322b94b2a0a0f90c39344
+- source_document_id: srcdoc_9d4d5b6a8e85c1f6b9e23703df8c38ed
+- source_revision_id: srcrev_f89c2be9462319ce70d6f71ac554b162
+- summary: Source: [source](https://app.notion.com/p/trace-contracts-Sha256DataRegistry-AI-Security-Audit-Report-389051299a54814da2c6dbb8a5ca639f)
+
