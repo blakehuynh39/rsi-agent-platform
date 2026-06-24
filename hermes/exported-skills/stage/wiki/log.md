@@ -38644,3 +38644,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7c5f99ce30a1d46fa048a300552eb5d3
 - summary: Decision to remove mainnet GCP servers due to no traffic, retaining only four instances (tmp-indexer-hans, use1-mainnet-bootnode1, use1-mainnet-bootnode2, use1-mainnet-monitoring)....
 
+## [2026-06-24T21:00:21Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_a24045a85922b0532cbc595740617b47
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_6f0bab4577550323b13235037be33536
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
