@@ -37958,3 +37958,80 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5c79d983a4eae5ce1d9b57f8daba4ede
 - summary: Vault is deployed manually using manifests in story-helm repo. To update, edit the Vault custom resource image tag in default namespace.
 
+## [2026-06-24T11:20:44Z] synthesis | AI Playground Backend Dockerfile Location
+
+- status: published
+- slug: systems/ai-playground-backend-dockerfile
+- wiki_revision_id: wikirev_c1a68ad0dd150e096e04b7d1ad0c9c06
+- summary: Location of the Dockerfile for the ai-playground-backend image.
+
+## [2026-06-24T11:20:44Z] synthesis | Aeneid Network Gas Price Spike
+
+- status: published
+- slug: systems/aeneid-gas-price-spike
+- wiki_revision_id: wikirev_e56bf84d284f242931d809ec507210e8
+- summary: Gas price on aeneid network increased to ~1 gwei from 0.01 gwei due to IP registration testing.
+
+## [2026-06-24T11:20:44Z] synthesis | Account Switching and Chat History Retention
+
+- status: published
+- slug: concepts/account-switching-chat-history
+- wiki_revision_id: wikirev_296a27505b9dc0ac6fb7ea28bf1b3b5c
+- summary: When switching accounts, all chat history is retained.
+
+## [2026-06-24T11:20:44Z] synthesis | Mainnet RPC Transaction Sending Issue
+
+- status: published
+- slug: systems/mainnet-rpc-issue
+- wiki_revision_id: wikirev_997b9c6393744bb8726d4817429e2858
+- summary: Issue reported with mainnet RPC when using Ledger, resolved by updating MetaMask.
+
+## [2026-06-24T11:20:44Z] synthesis | Vault Manifest and Readme Location
+
+- status: published
+- slug: runbooks/vault-manifest-location
+- wiki_revision_id: wikirev_1f883a85aa3547ad739494261beb3d3e
+- summary: The vault manifest and readme are located at https://github.com/storyprotocol/story-helm/tree/bypass/bank-vault, with manual setup steps.
+
+## [2026-06-24T11:20:44Z] synthesis | Cloudflare PR Reviews
+
+- status: published
+- slug: projects/cloudflare-prs
+- wiki_revision_id: wikirev_983b91961960c60b01d529e1df957256
+- summary: Pull requests for piplabs/cloudflare repository need review and approval.
+
+## [2026-06-24T11:20:44Z] synthesis | Faucet Not Working Reports
+
+- status: published
+- slug: systems/faucet-issues
+- wiki_revision_id: wikirev_0d4c05ee5c6df7c48d0123c5dfdd77a2
+- summary: Users reported faucet not working, no known outstanding issues yet.
+
+## [2026-06-24T11:20:45Z] synthesis | Node Removal from GKE Clusters
+
+- status: published
+- slug: runbooks/node-removal-gke
+- wiki_revision_id: wikirev_9bff01d11483687e1325c006e7ff2c26
+- summary: Removing nodes from Stage and Production GKE cluster and CloudSQL, with final backup for CloudSQL.
+
+## [2026-06-24T11:20:45Z] synthesis | AI-Powered Engineering Automation Bots
+
+- status: published
+- slug: projects/eng-automation-bots
+- wiki_revision_id: wikirev_537eb0da1da7e0e7fd1bb8724d2e95f8
+- summary: Start of using AI to automate engineering procedures with more bots to be released.
+
+## [2026-06-24T11:20:45Z] synthesis | Adding Members to Blueprint Repository
+
+- status: published
+- slug: runbooks/github-access-blueprint
+- wiki_revision_id: wikirev_354b848db81901be5bcd5dd2b3c004d9
+- summary: Need to add jacob-tucker to piplabs/blueprint repository.
+
+## [2026-06-24T11:20:45Z] synthesis | Reporting Stage Issues
+
+- status: published
+- slug: runbooks/stage-issues-reporting
+- wiki_revision_id: wikirev_61cc9b6a8edc267d71ededd39c16be60
+- summary: Users should report any issues on the stage side.
+
