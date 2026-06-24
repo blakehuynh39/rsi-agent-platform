@@ -38252,3 +38252,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4344083a449d71a99af2a30ab18be594
 - summary: Discussion about migrating internal devnet to new setup, chain-id changes, and S3 binary usage.
 
+## [2026-06-24T17:16:56Z] synthesis | IP Graph Royalty Read Gas Underpricing
+
+- status: published
+- slug: decisions/ip-graph-royalty-read-gas-underpricing
+- wiki_revision_id: wikirev_c40aba40fe4bd3c09df62deb354f9c28
+- summary: A fix was introduced to address a gas underpricing vulnerability in IP graph royalty reads. Three precompile call sites were switched from cheap internal selectors to more expensiv...
+

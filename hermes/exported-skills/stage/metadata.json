@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "795063e62e7df169a0cf0170814eab7211d01339972cdb3319df922f5340c010",
-        "size": 1118367
+        "sha256": "ada9f01586533b476718d672858bd47881d48ef11bca5b0456df9e4f9911768b",
+        "size": 1118767
       },
       {
         "path": "log.md",
-        "sha256": "f392d0d3e16a2867685f9ec31acbbc648e836aba1ca6220bf4145eb349dbc092",
-        "size": 1889874
+        "sha256": "a2a320c0565c83c91c0e14b2a0a04142a0b00ecab875cc901c110d8f1a1d3d8a",
+        "size": 1890286
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4988,6 +4988,11 @@
         "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
         "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
         "size": 5472
+      },
+      {
+        "path": "pages/decisions/ip-graph-royalty-read-gas-underpricing.md",
+        "sha256": "8c497244e9d4d1bef52f22d368c45c576cc438903869a493c0c3cb935782200e",
+        "size": 4060
       },
       {
         "path": "pages/decisions/ip-staking-and-restaking-configuration-options.md",
@@ -10019,8 +10024,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T17:09:59Z",
-  "file_count": 2002,
+  "exported_at": "2026-06-24T17:21:45Z",
+  "file_count": 2003,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13297,7 +13302,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ad303e7fcd575041886ec5151f6f12e3947b02ce4cd41f77280ff972b1b1a32a",
+  "previous_tree_hash": "a07a959b8806387b51a4ffe1b6dc2e41a3be5d9e73ca6f1bfc4507e09f69e944",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13310,14 +13315,14 @@
   ],
   "skill_tree_hash": "676fb988081d7dc4f0e31031d4dd4b81c837f6c577cbe7f62eb599cf54110e39",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a07a959b8806387b51a4ffe1b6dc2e41a3be5d9e73ca6f1bfc4507e09f69e944",
+  "tree_hash": "70a88ee17b6508477b073a5a1bd9c571295d529415c773cbdc1ddca30b24d415",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1348,
+  "wiki_file_count": 1349,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13326,13 +13331,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "795063e62e7df169a0cf0170814eab7211d01339972cdb3319df922f5340c010",
-      "size": 1118367
+      "sha256": "ada9f01586533b476718d672858bd47881d48ef11bca5b0456df9e4f9911768b",
+      "size": 1118767
     },
     {
       "path": "log.md",
-      "sha256": "f392d0d3e16a2867685f9ec31acbbc648e836aba1ca6220bf4145eb349dbc092",
-      "size": 1889874
+      "sha256": "a2a320c0565c83c91c0e14b2a0a04142a0b00ecab875cc901c110d8f1a1d3d8a",
+      "size": 1890286
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15033,6 +15038,11 @@
       "path": "pages/decisions/ip-asset-on-chain-metadata-design.md",
       "sha256": "36700d8fd2dd32c61eb152dac4f4e543fa5cb69899712401f4886f5c87c0d152",
       "size": 5472
+    },
+    {
+      "path": "pages/decisions/ip-graph-royalty-read-gas-underpricing.md",
+      "sha256": "8c497244e9d4d1bef52f22d368c45c576cc438903869a493c0c3cb935782200e",
+      "size": 4060
     },
     {
       "path": "pages/decisions/ip-staking-and-restaking-configuration-options.md",
@@ -20061,5 +20071,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "8fd349c74580c696b62220dc6b951cb6f50a5a8168d2ccd36285d64235ccf681"
+  "wiki_tree_hash": "893dba69e25b2e4bcadc2d86e5ffeceb42624d69fbd296a1781a12fd99d4e54f"
 }
