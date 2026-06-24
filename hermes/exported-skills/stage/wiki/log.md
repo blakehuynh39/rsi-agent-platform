@@ -37649,3 +37649,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dcd062b0f426f90765a77bb749e53d90
 - summary: Yao Wang (yao.wang@piplabs.xyz) is an engineer involved in the devnet migration to AWS, responsible for creating the story-devnet-aws repository, setting up CI/CD workflows, and re...
 
+## [2026-06-24T01:50:33Z] synthesis | AWS Devnet Migration
+
+- status: published
+- slug: projects/aws-devnet-migration
+- wiki_revision_id: wikirev_9627ad11308ee19917550323b33c5239
+- summary: Migration of the devnet from GCP to AWS. Repository story-devnet-aws contains provisioning code. Domains updated to devnet0.storyrpc.io and devnet0.storyscan.io. Addressing access ...
+
