@@ -37881,3 +37881,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5a5cbe5e3d6442a10aaa3a35029f6611
 - summary: Aeneid ACM project with a minor change PR in piplabs/cloudflare. Access to the PR required being added to the QA team on GitHub.
 
+## [2026-06-24T09:48:42Z] synthesis | Aeneid ACM
+
+- status: published
+- slug: projects/aeneid-acm
+- wiki_revision_id: wikirev_348d2baa819dbe5b379121100e1360f8
+- summary: Project Aeneid ACM: handling PR #116 review and access for contributor yingyangxu2026.
+
