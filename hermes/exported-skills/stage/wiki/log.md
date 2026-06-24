@@ -38723,3 +38723,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c5ef39ed9b0e69d825aca0ba09b638e0
 - summary: Server configuration for the Aeneid migration, including story and geth setups, and pruning settings for archive nodes.
 
+## [2026-06-24T23:00:33Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_f17bae2103b66494e637fe73b434aa6c
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_cb7213d4a3f33bd1e22dfbce55d9dece
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
