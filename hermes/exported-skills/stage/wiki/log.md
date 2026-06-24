@@ -37714,3 +37714,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_24177f60f1eb42a9ce0d06fbe9424008
 - summary: We decided to deploy a private staking API node for BitGo using a private fork, indexing from genesis on mainnet, and not merge the public PR until integration tests with the staki...
 
+## [2026-06-24T04:00:21Z] ingest | trace-contracts (Sha256DataRegistry) — AI Security Audit Report
+
+- status: published
+- slug: notion_document/trace-contracts-sha256dataregistry-ai-security-audit-report-df8c38ed
+- wiki_revision_id: wikirev_6474d33243f4137fd5066a9858172e26
+- source_document_id: srcdoc_9d4d5b6a8e85c1f6b9e23703df8c38ed
+- source_revision_id: srcrev_6bb60147fdd3a595f707442e8a87f1e3
+- summary: Source: [source](https://app.notion.com/p/trace-contracts-Sha256DataRegistry-AI-Security-Audit-Report-389051299a54814da2c6dbb8a5ca639f)
+
