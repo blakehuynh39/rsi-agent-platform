@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fea55e10316b1727fc77c72cca8fcca12f6ef499a26ef90890d369a105cdb0e4",
-        "size": 1103490
+        "sha256": "cc56297bde12d85c13283607b753cd66e87a687445ac622d8e96450edb31f920",
+        "size": 1103834
       },
       {
         "path": "log.md",
-        "sha256": "401257f9964dc47c76c150c03b1fe8177e7a6ba7a0ce205075f218b5a1f70048",
-        "size": 1867126
+        "sha256": "2000887f93937aa949d42d1771279e2e3dfbf82c052cd5f0d8a449d12a2257ba",
+        "size": 1867833
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6090,9 +6090,14 @@
         "size": 1540
       },
       {
+        "path": "pages/projects/aeneid-acm-pr-113.md",
+        "sha256": "20ecc6ce569daf7e2fb9dc81ff2c9b04a6894d3de81e6a8b3a5cb5cfa858f81b",
+        "size": 2650
+      },
+      {
         "path": "pages/projects/aeneid-acm.md",
-        "sha256": "ecaec3cbea38c96d4d0c8d1a834b45976bb75435ec4e479a33eb4c244b43c564",
-        "size": 2120
+        "sha256": "f93e9b8962bd6c23b5f0cc1c8565566088a7bbed1e2c4ec18701a7f991939a52",
+        "size": 1995
       },
       {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -9794,8 +9799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T06:03:44Z",
-  "file_count": 1957,
+  "exported_at": "2026-06-24T06:20:32Z",
+  "file_count": 1958,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13072,7 +13077,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "005a93a937c72688725eef55cf4f725719db60068d3900d772dbbcba4f2c07c6",
+  "previous_tree_hash": "987c7e80e675c7214b850a3001f4ac23b7c5db465045b388afba0bdb78805a0b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13085,14 +13090,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "987c7e80e675c7214b850a3001f4ac23b7c5db465045b388afba0bdb78805a0b",
+  "tree_hash": "3eeb64615f8b30f139a317742e84f9e7676a9c6213bba7523632a053d0156ca5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1303,
+  "wiki_file_count": 1304,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13101,13 +13106,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fea55e10316b1727fc77c72cca8fcca12f6ef499a26ef90890d369a105cdb0e4",
-      "size": 1103490
+      "sha256": "cc56297bde12d85c13283607b753cd66e87a687445ac622d8e96450edb31f920",
+      "size": 1103834
     },
     {
       "path": "log.md",
-      "sha256": "401257f9964dc47c76c150c03b1fe8177e7a6ba7a0ce205075f218b5a1f70048",
-      "size": 1867126
+      "sha256": "2000887f93937aa949d42d1771279e2e3dfbf82c052cd5f0d8a449d12a2257ba",
+      "size": 1867833
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15910,9 +15915,14 @@
       "size": 1540
     },
     {
+      "path": "pages/projects/aeneid-acm-pr-113.md",
+      "sha256": "20ecc6ce569daf7e2fb9dc81ff2c9b04a6894d3de81e6a8b3a5cb5cfa858f81b",
+      "size": 2650
+    },
+    {
       "path": "pages/projects/aeneid-acm.md",
-      "sha256": "ecaec3cbea38c96d4d0c8d1a834b45976bb75435ec4e479a33eb4c244b43c564",
-      "size": 2120
+      "sha256": "f93e9b8962bd6c23b5f0cc1c8565566088a7bbed1e2c4ec18701a7f991939a52",
+      "size": 1995
     },
     {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -19611,5 +19621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "f1cf04444994acfa3472e61615c3de15d6301f3803032737bcaa23b1752af606"
+  "wiki_tree_hash": "bff1d733b7a51fac7e27d2baf286cc920ab9c7ac80a164f396a2172e91944c77"
 }
