@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "597ecfcc2eb7767b0e475e422b52e823684ce23dbee6838ac09fbf2c930e8c83",
-        "size": 1871641
+        "sha256": "95f13f616dd847d14a6846cbbd2a802f7d03916a8129ba8e969902fbf060a467",
+        "size": 1872060
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9030,6 +9030,11 @@
         "size": 6830
       },
       {
+        "path": "pages/systems/cloudflare-dns-staking-api-bitgo-fork.md",
+        "sha256": "7dffa0695a1162dbe29f23b282f71578ae2f64c5f30870c8e752fd772cdd7d17",
+        "size": 2774
+      },
+      {
         "path": "pages/systems/cloudflare-endpoint-protection.md",
         "sha256": "b8ef0b4bd0aa182b71c32165a54ae61af6233ff926d2603ecedce59255ae3071",
         "size": 9020
@@ -9839,8 +9844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T09:07:18Z",
-  "file_count": 1966,
+  "exported_at": "2026-06-24T09:18:58Z",
+  "file_count": 1967,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13117,7 +13122,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "23d6592a312650195d31aa80c88fa137c9cf74a346d5dafbb14b0eaf0ef05b7e",
+  "previous_tree_hash": "c5dd0b1d08306a22b3e4fb4a6b9a7ffcb083b8a7ebd439c8f5dbe9caa84d054d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13130,14 +13135,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c5dd0b1d08306a22b3e4fb4a6b9a7ffcb083b8a7ebd439c8f5dbe9caa84d054d",
+  "tree_hash": "7b7f2887fd804f0938fd2364f9a2716a8d1e67e9aa3f441cf8ba408f00d318bd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1312,
+  "wiki_file_count": 1313,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13151,8 +13156,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "597ecfcc2eb7767b0e475e422b52e823684ce23dbee6838ac09fbf2c930e8c83",
-      "size": 1871641
+      "sha256": "95f13f616dd847d14a6846cbbd2a802f7d03916a8129ba8e969902fbf060a467",
+      "size": 1872060
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18895,6 +18900,11 @@
       "size": 6830
     },
     {
+      "path": "pages/systems/cloudflare-dns-staking-api-bitgo-fork.md",
+      "sha256": "7dffa0695a1162dbe29f23b282f71578ae2f64c5f30870c8e752fd772cdd7d17",
+      "size": 2774
+    },
+    {
       "path": "pages/systems/cloudflare-endpoint-protection.md",
       "sha256": "b8ef0b4bd0aa182b71c32165a54ae61af6233ff926d2603ecedce59255ae3071",
       "size": 9020
@@ -19701,5 +19711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "451cf1126b0857b4af93c0211517f869ff1d0972765f50c9ac62fc03461e9c87"
+  "wiki_tree_hash": "9a9bc3d93bbff59a9101be42cabd8dc6c77ee898b9f36d59dbd3ba436c543dcb"
 }

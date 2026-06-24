@@ -37860,3 +37860,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_679916e8f8bdfd43fca4979ca61a925b
 - summary: Approved Infrastructure-as-Code (IaC) update for CloudFlare DNS to support the private-fork of staking-api for BitGo, including faucet configuration. The PR is not to be shared wit...
 
+## [2026-06-24T09:16:47Z] synthesis | Cloudflare DNS Update for Staking-API BitGo Fork
+
+- status: published
+- slug: systems/cloudflare-dns-staking-api-bitgo-fork
+- wiki_revision_id: wikirev_3b5e34ba0161639a7524ea6ce32e980d
+- summary: PR #115 in piplabs/cloudflare repository updates Cloudflare DNS for the private-fork of staking-api intended for BitGo. The change also incorporates faucet configuration into Infra...
+
