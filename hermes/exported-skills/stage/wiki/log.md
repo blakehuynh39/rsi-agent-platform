@@ -38119,3 +38119,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3318ab0f451c817c3fcea6596f806fcb
 - summary: Deprecation of the GCP-hosted Story archive node IP 34.139.142.168, migrating to AWS and ensuring services use domain names instead of IP.
 
+## [2026-06-24T12:34:14Z] synthesis | Archive Node GCP to AWS Migration
+
+- status: published
+- slug: projects/archive-node-gcp-to-aws-migration
+- wiki_revision_id: wikirev_0091b975edae7121fa72dac91e84212c
+- summary: The Story team is migrating archive nodes from GCP to AWS, aiming to deprecate direct IP usage (specifically 34.139.142.168) in favor of domain names across Poseidon side apps.
+

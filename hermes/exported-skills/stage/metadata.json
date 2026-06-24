@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e795141ee9c3351d9a644f32526e7155b027c93e46424508c75c3e3f8d280a1f",
-        "size": 1115179
+        "sha256": "4bb121ec34f3eafcd616fda158e9f3fb5bff4d19f411af8d6a7bc850c31f3606",
+        "size": 1115561
       },
       {
         "path": "log.md",
-        "sha256": "83fe621414159601f8c3eb0ef78359260edb87e2973cbe9459c337c811ae7f63",
-        "size": 1882991
+        "sha256": "33f06b70bff71f5404ddfe00da8ae337ed1a473300a6fe50d0630c390444a62d",
+        "size": 1883385
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6243,6 +6243,11 @@
         "path": "pages/projects/arabic-seed-phrase-launch.md",
         "sha256": "a582d9e04006a783d043dc2c29004458189656479d6fa96f9047d82c1e20fe89",
         "size": 2783
+      },
+      {
+        "path": "pages/projects/archive-node-gcp-to-aws-migration.md",
+        "sha256": "1ef1cee4e45915ef38fede9ea4db6228963e182c2ebf180d5bef01e35836d5da",
+        "size": 4095
       },
       {
         "path": "pages/projects/atlas.md",
@@ -9984,8 +9989,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T12:18:11Z",
-  "file_count": 1995,
+  "exported_at": "2026-06-24T12:35:05Z",
+  "file_count": 1996,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13262,7 +13267,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "cfed0e2c19c3b21f80c6a39b5bbb74d8ae94d30bcffc057688b16d9a7e85587f",
+  "previous_tree_hash": "7957f90081033481037aa5fc308bd54d6e030ea51e1d899b0eec7a80d4a97034",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13275,14 +13280,14 @@
   ],
   "skill_tree_hash": "d24e9f0fb4b6af8ae11416662a715860000f7dd1a9625fd09ed24c7cbe727f4f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7957f90081033481037aa5fc308bd54d6e030ea51e1d899b0eec7a80d4a97034",
+  "tree_hash": "c0b058d2c6027274cb20ea3af23a07d57832dc38d360d419d63f0ab9dc0576b9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1341,
+  "wiki_file_count": 1342,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13291,13 +13296,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e795141ee9c3351d9a644f32526e7155b027c93e46424508c75c3e3f8d280a1f",
-      "size": 1115179
+      "sha256": "4bb121ec34f3eafcd616fda158e9f3fb5bff4d19f411af8d6a7bc850c31f3606",
+      "size": 1115561
     },
     {
       "path": "log.md",
-      "sha256": "83fe621414159601f8c3eb0ef78359260edb87e2973cbe9459c337c811ae7f63",
-      "size": 1882991
+      "sha256": "33f06b70bff71f5404ddfe00da8ae337ed1a473300a6fe50d0630c390444a62d",
+      "size": 1883385
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16253,6 +16258,11 @@
       "path": "pages/projects/arabic-seed-phrase-launch.md",
       "sha256": "a582d9e04006a783d043dc2c29004458189656479d6fa96f9047d82c1e20fe89",
       "size": 2783
+    },
+    {
+      "path": "pages/projects/archive-node-gcp-to-aws-migration.md",
+      "sha256": "1ef1cee4e45915ef38fede9ea4db6228963e182c2ebf180d5bef01e35836d5da",
+      "size": 4095
     },
     {
       "path": "pages/projects/atlas.md",
@@ -19991,5 +20001,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "948dceca6cbfa8307bdc9479b1c3e198d3934220795860ba5b2071d35bafc49f"
+  "wiki_tree_hash": "925aa5a8d01e125216c5c5346b44e55e7a192d194f7e3c16ea0c18fa345e81d4"
 }
