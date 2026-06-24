@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d1a61b464e670b2e1c48b02715578d5616cfd3ac575f57f946ad836dea1d02c1",
-        "size": 1101342
+        "sha256": "6272d1bbd6e18b4f9cf6add306954c862ac4be26a4db483e02ab3a1319816c75",
+        "size": 1101746
       },
       {
         "path": "log.md",
-        "sha256": "5874e9d8dc37e43cdb067687bcfe0da0c6f5d394c15effcf3f7ebae51c154574",
-        "size": 1864358
+        "sha256": "64ddd3b0f9ea92e9a3d31ffcd7b3dde1080fadd8d91bd511f32a86b554e9d9c1",
+        "size": 1864774
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9715,6 +9715,11 @@
         "size": 31527
       },
       {
+        "path": "pages/systems/trace-contracts-security-audit.md",
+        "sha256": "ab02586930b60203e76222b95e09778dc1e6c6e3dedaf84fb26859e370df6a41",
+        "size": 7879
+      },
+      {
         "path": "pages/systems/twitter-oracle-backend-server.md",
         "sha256": "605a9d3c487283d4388e8de2dd59e9fc2617a59766754d4078bc5d982446a1e4",
         "size": 5053
@@ -9764,8 +9769,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T04:04:08Z",
-  "file_count": 1951,
+  "exported_at": "2026-06-24T04:20:57Z",
+  "file_count": 1952,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13042,7 +13047,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "2edd7eda953d6bcb0dba278c335a0d298bb9b233ca14285d509c7c399ec60e11",
+  "previous_tree_hash": "50594af8bb2aea25c10a34652613dfb941f938f4f740affe81a817a1429f1dff",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13055,14 +13060,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "50594af8bb2aea25c10a34652613dfb941f938f4f740affe81a817a1429f1dff",
+  "tree_hash": "88330283acd38822977583842645f827b6d190ddc0944180086ab07ea756692d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1297,
+  "wiki_file_count": 1298,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13071,13 +13076,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d1a61b464e670b2e1c48b02715578d5616cfd3ac575f57f946ad836dea1d02c1",
-      "size": 1101342
+      "sha256": "6272d1bbd6e18b4f9cf6add306954c862ac4be26a4db483e02ab3a1319816c75",
+      "size": 1101746
     },
     {
       "path": "log.md",
-      "sha256": "5874e9d8dc37e43cdb067687bcfe0da0c6f5d394c15effcf3f7ebae51c154574",
-      "size": 1864358
+      "sha256": "64ddd3b0f9ea92e9a3d31ffcd7b3dde1080fadd8d91bd511f32a86b554e9d9c1",
+      "size": 1864774
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19505,6 +19510,11 @@
       "size": 31527
     },
     {
+      "path": "pages/systems/trace-contracts-security-audit.md",
+      "sha256": "ab02586930b60203e76222b95e09778dc1e6c6e3dedaf84fb26859e370df6a41",
+      "size": 7879
+    },
+    {
       "path": "pages/systems/twitter-oracle-backend-server.md",
       "sha256": "605a9d3c487283d4388e8de2dd59e9fc2617a59766754d4078bc5d982446a1e4",
       "size": 5053
@@ -19551,5 +19561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "25a3b52d59039e56a8eec915066d9d93b297605611547fde5374ea89a3766b06"
+  "wiki_tree_hash": "ed91332c46a1f5228f57b7362cee401164004ac2feded67b9edd6ea34edd555e"
 }
