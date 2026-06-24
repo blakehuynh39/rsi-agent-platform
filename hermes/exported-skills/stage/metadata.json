@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0e267f1537f40899e631d6d82a84bdb21975850374d707282c03e11017da9732",
-        "size": 1104619
+        "sha256": "9dfbcf8a8e0c7b1c4aac43d016842fbb960485c127d1a0b33fe02ea938314038",
+        "size": 1104958
       },
       {
         "path": "log.md",
-        "sha256": "7e71633fdad59de064735f4c6645e3bf3d1849e30df88908597b7959195bb6d6",
-        "size": 1869066
+        "sha256": "4b1021ab48934e6520b626713fe06283a5e4b24291fd323802531d7a52cc3cf3",
+        "size": 1869417
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9415,6 +9415,11 @@
         "size": 2631
       },
       {
+        "path": "pages/systems/portal-v2-staging-config.md",
+        "sha256": "6236bd092c71c7392508cd96abc903602567b16b4a0d64e1625d726aef4baf7c",
+        "size": 3312
+      },
+      {
         "path": "pages/systems/poseidon-eng-tracking.md",
         "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
         "size": 1352
@@ -9809,8 +9814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T07:21:14Z",
-  "file_count": 1960,
+  "exported_at": "2026-06-24T07:38:06Z",
+  "file_count": 1961,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13087,7 +13092,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "111317fcffbbea398fde2546993e5843661d2aabdad79a47ccdff345e6bc218f",
+  "previous_tree_hash": "523b0b8a1835715d68fe33a9e9cafbcac213f4d992d8ff13fdb33bebd88cb9c0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13100,14 +13105,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "523b0b8a1835715d68fe33a9e9cafbcac213f4d992d8ff13fdb33bebd88cb9c0",
+  "tree_hash": "eb028d8cd450789d35b6e16597b3624e1c7d864d6f0ae92d3c76715579439c9d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1306,
+  "wiki_file_count": 1307,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13116,13 +13121,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0e267f1537f40899e631d6d82a84bdb21975850374d707282c03e11017da9732",
-      "size": 1104619
+      "sha256": "9dfbcf8a8e0c7b1c4aac43d016842fbb960485c127d1a0b33fe02ea938314038",
+      "size": 1104958
     },
     {
       "path": "log.md",
-      "sha256": "7e71633fdad59de064735f4c6645e3bf3d1849e30df88908597b7959195bb6d6",
-      "size": 1869066
+      "sha256": "4b1021ab48934e6520b626713fe06283a5e4b24291fd323802531d7a52cc3cf3",
+      "size": 1869417
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19250,6 +19255,11 @@
       "size": 2631
     },
     {
+      "path": "pages/systems/portal-v2-staging-config.md",
+      "sha256": "6236bd092c71c7392508cd96abc903602567b16b4a0d64e1625d726aef4baf7c",
+      "size": 3312
+    },
+    {
       "path": "pages/systems/poseidon-eng-tracking.md",
       "sha256": "475be7971853dd9831bef70c05b0969ed298ae99fec42768ca91a78ef6e92106",
       "size": 1352
@@ -19641,5 +19651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5fab15136d2d76121652bdc20c9d763c69a87a7297e2f72bad3c01638d37ad31"
+  "wiki_tree_hash": "10b2016195af2fa171da6ee5a8cfe2d4deb1a69fe8b571af82bbc4a30991dfb8"
 }

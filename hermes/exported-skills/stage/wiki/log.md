@@ -37811,3 +37811,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ffb6878cc744176cb29ab674a4d63740
 - summary: Troubleshooting guide for CORS issues encountered when accessing https://portal-v2-staging.vercel.app/. The root cause was the use of the outdated endpoint https://edge.stg.storypr...
 
+## [2026-06-24T07:32:59Z] synthesis | Portal V2 Staging Configuration
+
+- status: published
+- slug: systems/portal-v2-staging-config
+- wiki_revision_id: wikirev_9e21f2d305a7187ae9476a637302060e
+- summary: Configuration details for the staging portal-v2 at https://portal-v2-staging.vercel.app, including the correct Staging API endpoint and password.
+
