@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "95eab2a536c02a690188b833a31e2f21b7ac2b295fae1bc8d46d97e59387af61",
-        "size": 1134857
+        "sha256": "b6dd5435e271bddf872f73739cf086638fd57feb72e45cdb55992ff15c7b0731",
+        "size": 1135179
       },
       {
         "path": "log.md",
-        "sha256": "b948929f37950d73b80c051f2ae3103b8d6c47e10255e7e3188209449c7faadc",
-        "size": 1913224
+        "sha256": "8440d016cac9fa1431c3380915a2abd57aff23edf511e47869be912189b9476b",
+        "size": 1913558
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8145,6 +8145,11 @@
         "size": 3582
       },
       {
+        "path": "pages/runbooks/aeneid-migration-node-config.md",
+        "sha256": "ba1f8b590eea64c2ce2cd82992318bea4e29273365092116527edfbe6bf90bb7",
+        "size": 4634
+      },
+      {
         "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
         "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
         "size": 4304
@@ -10134,8 +10139,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T22:02:11Z",
-  "file_count": 2025,
+  "exported_at": "2026-06-24T22:19:10Z",
+  "file_count": 2026,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13412,7 +13417,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "12d01a24557f439ceabe188cdd1c5eccf143c5547bca00399c71793ae7fb071b",
+  "previous_tree_hash": "12d0f5eb51b4cd89c75f81172d07d1c8dfcc4b0db12bfabe4a119100c1cbc2c0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13425,14 +13430,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "12d0f5eb51b4cd89c75f81172d07d1c8dfcc4b0db12bfabe4a119100c1cbc2c0",
+  "tree_hash": "85671f05b21049598828ba491cf0d44c6d0fd7cc82512f8d64a8ad3aa6c9ff0f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1371,
+  "wiki_file_count": 1372,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13441,13 +13446,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "95eab2a536c02a690188b833a31e2f21b7ac2b295fae1bc8d46d97e59387af61",
-      "size": 1134857
+      "sha256": "b6dd5435e271bddf872f73739cf086638fd57feb72e45cdb55992ff15c7b0731",
+      "size": 1135179
     },
     {
       "path": "log.md",
-      "sha256": "b948929f37950d73b80c051f2ae3103b8d6c47e10255e7e3188209449c7faadc",
-      "size": 1913224
+      "sha256": "8440d016cac9fa1431c3380915a2abd57aff23edf511e47869be912189b9476b",
+      "size": 1913558
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18305,6 +18310,11 @@
       "size": 3582
     },
     {
+      "path": "pages/runbooks/aeneid-migration-node-config.md",
+      "sha256": "ba1f8b590eea64c2ce2cd82992318bea4e29273365092116527edfbe6bf90bb7",
+      "size": 4634
+    },
+    {
       "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
       "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
       "size": 4304
@@ -20291,5 +20301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "bed7f18694d09ed812e7dcd32f46ca6f94435a448742621945c799ca293b19c6"
+  "wiki_tree_hash": "2c30cc6702dd829b05a4d9c9b3ac85156aafe831129a48e3118040bf924217fa"
 }

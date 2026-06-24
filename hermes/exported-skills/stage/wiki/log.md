@@ -38716,3 +38716,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a231140018f4061a6411cf597c7cbec6
 - summary: Decision to safely remove the storage-node server from the Poseidon MVP project, scheduled for 19:00 PT.
 
+## [2026-06-24T22:18:37Z] synthesis | Aeneid Migration Node Configuration
+
+- status: published
+- slug: runbooks/aeneid-migration-node-config
+- wiki_revision_id: wikirev_c5ef39ed9b0e69d825aca0ba09b638e0
+- summary: Server configuration for the Aeneid migration, including story and geth setups, and pruning settings for archive nodes.
+
