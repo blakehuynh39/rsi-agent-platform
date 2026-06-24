@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b5b1e07cddfbcc56a55b2c6b68c745b56f08997688ed1d71d02973d112d43dc5",
-        "size": 1129485
+        "sha256": "49a4df9ad5ccb4d8d849a4813335cc6ee3438fe0d1d105672a98edcfd9647496",
+        "size": 1130300
       },
       {
         "path": "log.md",
-        "sha256": "f641e8289db1105fa28e9df0a9e8d62984e8942a36211b347fff75a476639aab",
-        "size": 1905353
+        "sha256": "06f6d16d4cc69070db98b7ae93ba1fcdfbff65172ad66815eb9482485a8f91ef",
+        "size": 1906579
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4823,6 +4823,11 @@
         "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
         "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
         "size": 2563
+      },
+      {
+        "path": "pages/decisions/decision-docs-repo-move-pip-labs-re.md",
+        "sha256": "51ebe386661696e43fd01ad7b6859fa88184c283910db3dbc660a36a4112088f",
+        "size": 3609
       },
       {
         "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -8765,6 +8770,11 @@
         "size": 5980
       },
       {
+        "path": "pages/runbooks/runbook-adding-reviewers-pip-labs-re-docs.md",
+        "sha256": "df5388fcfee0f9c37a1cae3fb0171629ef46450b33448e2de588e56ed46bbec4",
+        "size": 2879
+      },
+      {
         "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
         "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
         "size": 1280
@@ -9621,8 +9631,8 @@
       },
       {
         "path": "pages/systems/pip-labs-re-github-org.md",
-        "sha256": "f602a3313dfe0c42ef2e82e390157e0260a0f4524c6503ba5a3c117db341b0a8",
-        "size": 4070
+        "sha256": "507ee28bc6f9a20fd6d99c29a8eaf1a206d51de65226ab91bbb6f9fa0c64801d",
+        "size": 5179
       },
       {
         "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -10054,8 +10064,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T19:33:40Z",
-  "file_count": 2009,
+  "exported_at": "2026-06-24T19:50:33Z",
+  "file_count": 2011,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13332,7 +13342,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "aca3973bf2d488800742f6681b210bfee3600992cdd04b71b0b6e16cca879fca",
+  "previous_tree_hash": "23c3dc7d2bceb5525d1b14c725b7e9773f63f70ee1329fb57b358f3249ee37b2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13345,14 +13355,14 @@
   ],
   "skill_tree_hash": "f907b5957f6ebabd310723dd231be2503a0d207076baf45bbe5b5e467dac09b8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "23c3dc7d2bceb5525d1b14c725b7e9773f63f70ee1329fb57b358f3249ee37b2",
+  "tree_hash": "b0bd1293112b9100d063ddadc6d5892790ed8cc7d07e31cef3a580f8e39a120b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1355,
+  "wiki_file_count": 1357,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13361,13 +13371,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b5b1e07cddfbcc56a55b2c6b68c745b56f08997688ed1d71d02973d112d43dc5",
-      "size": 1129485
+      "sha256": "49a4df9ad5ccb4d8d849a4813335cc6ee3438fe0d1d105672a98edcfd9647496",
+      "size": 1130300
     },
     {
       "path": "log.md",
-      "sha256": "f641e8289db1105fa28e9df0a9e8d62984e8942a36211b347fff75a476639aab",
-      "size": 1905353
+      "sha256": "06f6d16d4cc69070db98b7ae93ba1fcdfbff65172ad66815eb9482485a8f91ef",
+      "size": 1906579
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14903,6 +14913,11 @@
       "path": "pages/decisions/decision-deprecate-ipassetrenderer.md",
       "sha256": "adf83acac46ce2d24508390c7fe27cd1498280a0095bd7a279aa14648df41505",
       "size": 2563
+    },
+    {
+      "path": "pages/decisions/decision-docs-repo-move-pip-labs-re.md",
+      "sha256": "51ebe386661696e43fd01ad7b6859fa88184c283910db3dbc660a36a4112088f",
+      "size": 3609
     },
     {
       "path": "pages/decisions/decision-dynamic-vs-static-module-address-resolution.md",
@@ -18845,6 +18860,11 @@
       "size": 5980
     },
     {
+      "path": "pages/runbooks/runbook-adding-reviewers-pip-labs-re-docs.md",
+      "sha256": "df5388fcfee0f9c37a1cae3fb0171629ef46450b33448e2de588e56ed46bbec4",
+      "size": 2879
+    },
+    {
       "path": "pages/runbooks/runbook-maintain-and-recover-aws-eks.md",
       "sha256": "eb96e73dab3b91115d0d11ca6e8b48499732a047614d71cc691f98828aee6994",
       "size": 1280
@@ -19701,8 +19721,8 @@
     },
     {
       "path": "pages/systems/pip-labs-re-github-org.md",
-      "sha256": "f602a3313dfe0c42ef2e82e390157e0260a0f4524c6503ba5a3c117db341b0a8",
-      "size": 4070
+      "sha256": "507ee28bc6f9a20fd6d99c29a8eaf1a206d51de65226ab91bbb6f9fa0c64801d",
+      "size": 5179
     },
     {
       "path": "pages/systems/pip-labs-re-github-organization.md",
@@ -20131,5 +20151,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b258f13920440a2194cfae78d9fec3b7199e18669a6de3ce24a96fb537a3acac"
+  "wiki_tree_hash": "826173b38eba2769e8d2da6f62dd7057021ea09f6a46bc60b87e7729c584476e"
 }

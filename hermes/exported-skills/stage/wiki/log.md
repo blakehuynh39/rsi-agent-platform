@@ -38560,3 +38560,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a00815b76e6be5998d5c78b9b1f0c207
 - summary: The public-facing documentation repository was moved to a new GitHub organization (PIP-Labs-RE) to allow the sole maintainer, Jacob, to directly push to the main branch without req...
 
+## [2026-06-24T19:46:31Z] synthesis | Runbook: Adding Reviewers to PIP-Labs-RE docs Repository
+
+- status: published
+- slug: runbooks/runbook-adding-reviewers-pip-labs-re-docs
+- wiki_revision_id: wikirev_fee070517442dba07e24349ee42889ba
+- summary: Steps to add a reviewer to the docs repository in the PIP-Labs-RE GitHub organization, including org membership and repository collaborator invitations.
+
+## [2026-06-24T19:46:31Z] synthesis | Decision: Moving docs Repository to PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: decisions/decision-docs-repo-move-pip-labs-re
+- wiki_revision_id: wikirev_35241e8fd404cc2a27c9ee85215b97ba
+- summary: The docs repository was moved to a new GitHub organization (PIP-Labs-RE) to bypass enterprise-level branch protection and allow direct pushes to main by the sole maintainer, while ...
+
+## [2026-06-24T19:50:27Z] synthesis | PIP-Labs-RE GitHub Organization
+
+- status: published
+- slug: systems/pip-labs-re-github-org
+- wiki_revision_id: wikirev_5aea9679dcf61631731890524721e835
+- summary: New GitHub organization created to host the docs repository, bypassing enterprise branch protection rules to allow the sole maintainer (Jacob) to push directly to main without appr...
+
