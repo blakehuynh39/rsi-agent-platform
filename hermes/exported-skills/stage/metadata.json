@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2ae89b96af77d713ce4f271eecf09aafb27abc41c211581de0c757ffb6382988",
-        "size": 1103834
+        "sha256": "56c24b915127ae798751360d68832fc3dea6837cc5be7bc97195e2f64604bbd7",
+        "size": 1104219
       },
       {
         "path": "log.md",
-        "sha256": "d5efc3238e6932c2ffa371332b65434083b3393be4dff95841f2cbc11b99094c",
-        "size": 1868258
+        "sha256": "312d2617be492d3024e254d6614351a5126843ffaa08f844160588333ecba8d2",
+        "size": 1868655
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8230,6 +8230,11 @@
         "size": 2522
       },
       {
+        "path": "pages/runbooks/hub-api-staging-endpoint-update.md",
+        "sha256": "1e83975eff920089598f0bc12ad13b2006b2227430c2cc6e0005a94888938481",
+        "size": 3964
+      },
+      {
         "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
         "sha256": "125ea08afc41a31782246685c30a2b44148f7790db1320a3775ea4e0a2a106f4",
         "size": 5237
@@ -9799,8 +9804,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-24T06:32:13Z",
-  "file_count": 1958,
+  "exported_at": "2026-06-24T06:38:52Z",
+  "file_count": 1959,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13077,7 +13082,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3eeb64615f8b30f139a317742e84f9e7676a9c6213bba7523632a053d0156ca5",
+  "previous_tree_hash": "e6000bb26506f14b6b3bda27f5a93508a70f744e79184907faea48541555f4e3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13090,14 +13095,14 @@
   ],
   "skill_tree_hash": "8b65b0fa0a265d6674a9aa95fe87c519867fe292edb2ebebb36bf5b1ae168555",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e6000bb26506f14b6b3bda27f5a93508a70f744e79184907faea48541555f4e3",
+  "tree_hash": "111317fcffbbea398fde2546993e5843661d2aabdad79a47ccdff345e6bc218f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1304,
+  "wiki_file_count": 1305,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13106,13 +13111,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2ae89b96af77d713ce4f271eecf09aafb27abc41c211581de0c757ffb6382988",
-      "size": 1103834
+      "sha256": "56c24b915127ae798751360d68832fc3dea6837cc5be7bc97195e2f64604bbd7",
+      "size": 1104219
     },
     {
       "path": "log.md",
-      "sha256": "d5efc3238e6932c2ffa371332b65434083b3393be4dff95841f2cbc11b99094c",
-      "size": 1868258
+      "sha256": "312d2617be492d3024e254d6614351a5126843ffaa08f844160588333ecba8d2",
+      "size": 1868655
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18055,6 +18060,11 @@
       "size": 2522
     },
     {
+      "path": "pages/runbooks/hub-api-staging-endpoint-update.md",
+      "sha256": "1e83975eff920089598f0bc12ad13b2006b2227430c2cc6e0005a94888938481",
+      "size": 3964
+    },
+    {
       "path": "pages/runbooks/incident-2023-03-16-prod-cluster-down-argocd-misconfig.md",
       "sha256": "125ea08afc41a31782246685c30a2b44148f7790db1320a3775ea4e0a2a106f4",
       "size": 5237
@@ -19621,5 +19631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ce80bc2e536fce629065e742066af1e780f039d0d1d0e4500ee4752ade9e08ec"
+  "wiki_tree_hash": "72d62c10be49b927bbc19626a520a5d1e1ba715682b2299b37db8e993e98cab2"
 }
