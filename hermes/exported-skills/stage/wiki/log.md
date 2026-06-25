@@ -39358,3 +39358,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3843abe8d8cb56bb01394e4ee3a1ad7e
 - summary: The Aeneid testnet faucet backend runs on GCP instance use1-aeneid-fuacet (35.207.0.103), serving the frontend at aeneid.faucet.story.foundation. It validates requests, stores wall...
 
+## [2026-06-25T15:00:21Z] ingest | Test Report — IPGraph royalty DoS, v1.3.3 fix verification (devnet0)
+
+- status: published
+- slug: notion_document/test-report-ipgraph-royalty-dos-v1-3-3-fix-verification-devnet0--dc9937a0
+- wiki_revision_id: wikirev_57a179e9aaa85d24d54084c2f3ca49e3
+- source_document_id: srcdoc_27fd4d8eda660512c3b65ba1dc9937a0
+- source_revision_id: srcrev_e30b7280293e21f8cd8429d7aba813ee
+- summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
+
