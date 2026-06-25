@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1ac6040a5a9144bc946298ee541821ea8348f69f07994d384e33c61e3db9c4ba",
-        "size": 1155679
+        "sha256": "ba72a415697404bca05d9681c25d32b8c404d35b4e1277c623fc7186187d2a55",
+        "size": 1156028
       },
       {
         "path": "log.md",
-        "sha256": "c83d91bec9bf2414a3a65ff80c2900751539a34b705990a9f2d2ed29646142d3",
-        "size": 1944878
+        "sha256": "446d9897a7177bb3f876a5f963daa73139c8ab547a3c00818e2624b75d7ac7ce",
+        "size": 1945238
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4683,6 +4683,11 @@
         "path": "pages/decisions/aeneid-faucet-gcp-to-aws-migration.md",
         "sha256": "8a6395e30baa2aa8c5558af0e9fb95be9cd1316606e65eaa43d3dc198fac4cbf",
         "size": 6752
+      },
+      {
+        "path": "pages/decisions/aeneid-faucet-server-migration.md",
+        "sha256": "35128cd6096e0e0fe16e33d97516621b10272dba71064373aee90a5921bf423e",
+        "size": 6472
       },
       {
         "path": "pages/decisions/aeneid-migration-planning.md",
@@ -10399,8 +10404,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T13:28:14Z",
-  "file_count": 2078,
+  "exported_at": "2026-06-25T13:40:04Z",
+  "file_count": 2079,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13677,7 +13682,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b9a3df246c28e221b76d175c612a3b91fd563a0fdd53c3e85520fe62100af5d8",
+  "previous_tree_hash": "544dd75effc7afabfeb94aaeadaf6c766457f2c49d240ff52c2da9bf9dd523e4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13690,14 +13695,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "544dd75effc7afabfeb94aaeadaf6c766457f2c49d240ff52c2da9bf9dd523e4",
+  "tree_hash": "1a914c000aa1d6e0af72229e59239ba9f34dded6c238b1dd59dd25f7e3083946",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1424,
+  "wiki_file_count": 1425,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13706,13 +13711,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1ac6040a5a9144bc946298ee541821ea8348f69f07994d384e33c61e3db9c4ba",
-      "size": 1155679
+      "sha256": "ba72a415697404bca05d9681c25d32b8c404d35b4e1277c623fc7186187d2a55",
+      "size": 1156028
     },
     {
       "path": "log.md",
-      "sha256": "c83d91bec9bf2414a3a65ff80c2900751539a34b705990a9f2d2ed29646142d3",
-      "size": 1944878
+      "sha256": "446d9897a7177bb3f876a5f963daa73139c8ab547a3c00818e2624b75d7ac7ce",
+      "size": 1945238
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15108,6 +15113,11 @@
       "path": "pages/decisions/aeneid-faucet-gcp-to-aws-migration.md",
       "sha256": "8a6395e30baa2aa8c5558af0e9fb95be9cd1316606e65eaa43d3dc198fac4cbf",
       "size": 6752
+    },
+    {
+      "path": "pages/decisions/aeneid-faucet-server-migration.md",
+      "sha256": "35128cd6096e0e0fe16e33d97516621b10272dba71064373aee90a5921bf423e",
+      "size": 6472
     },
     {
       "path": "pages/decisions/aeneid-migration-planning.md",
@@ -20821,5 +20831,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9838f37d7c0ee9963e230955c343d9e59eaadb6a1c8d0878f8ec20a6b42340cb"
+  "wiki_tree_hash": "99eebe47d85e1cadffa10177018a6482cda8084ecb8bb19c7ff64f4e5636e184"
 }
