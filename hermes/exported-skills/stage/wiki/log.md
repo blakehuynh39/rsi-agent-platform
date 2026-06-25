@@ -39472,3 +39472,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d371e4665dbc4269c0979330d9e57df1
 - summary: The Aeneid Faucet is a testnet token dispensing service for the Story Aeneid network. It includes a frontend at aeneid.faucet.story.foundation and a backend that processes token re...
 
+## [2026-06-25T16:33:58Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_bb0818efea46cdfeb13630ebc5361cc2
+- summary: The Aeneid Faucet is a testnet token faucet for the Story Aeneid testnet. It has a frontend at https://aeneid.faucet.story.foundation/ and a backend that validates requests, stores...
+
+## [2026-06-25T16:33:58Z] synthesis | Migrate Aeneid Faucet from GCP to AWS
+
+- status: published
+- slug: decisions/migrate-aeneid-faucet-to-aws
+- wiki_revision_id: wikirev_81d7f0fbb71e1b2019a83ac1b4526af3
+- summary: Decision to migrate the Aeneid Faucet backend from GCP (instance use1-aeneid-fuacet in project story-aeneid) to AWS (account story-testnet). The frontend should be changed to point...
+
