@@ -39783,3 +39783,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_f71da1f2d1af85384b4ef34218c99d57
 - summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
 
+## [2026-06-25T22:32:25Z] synthesis | Deprecation of UptimeRobot Monitoring
+
+- status: published
+- slug: decisions/uptimerobot-deprecation
+- wiki_revision_id: wikirev_15cbd3c47bc62da8b2f4aa0087750b11
+- summary: UptimeRobot, previously used to monitor API endpoints, has been superseded by Betterstack. The subscription auto-renewal was cancelled, user accounts removed, and all alerts paused...
+

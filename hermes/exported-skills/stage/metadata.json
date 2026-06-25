@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7767bbc8ccad4f629bf3679c7b07206836b375eef3ba51dbc19d166286a572f6",
-        "size": 1164694
+        "sha256": "d864549bd4a06477bbb95f1e91c15d826b718006d0ddb5cba9710040705745f8",
+        "size": 1165078
       },
       {
         "path": "log.md",
-        "sha256": "c6addc7a1343dfece3069eb3f289f3159bffe248b6ab7ab932d90c438f20a3b3",
-        "size": 1970600
+        "sha256": "2ca7571bfad5f530dda4bf60952908ed036caea9b377a8fec2e99290922ec54f",
+        "size": 1970996
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5753,6 +5753,11 @@
         "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
         "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
         "size": 2409
+      },
+      {
+        "path": "pages/decisions/uptimerobot-deprecation.md",
+        "sha256": "ba7257cb05db89abc25ba95f2f2de9856eb8d1bf2c95173be2255360e5dacede",
+        "size": 2267
       },
       {
         "path": "pages/decisions/urgent-github-pat-rotation-story-private-fork.md",
@@ -10514,8 +10519,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T22:03:36Z",
-  "file_count": 2101,
+  "exported_at": "2026-06-25T22:35:53Z",
+  "file_count": 2102,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13792,7 +13797,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "69167d138a031fa327c9ebb7e52ee01caa99234ba404a301ff8ab9e90e43f621",
+  "previous_tree_hash": "fedcaccca4b388090879875963b1bcee97c3f716ded4b4d994ee55572e4b6a3e",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13805,14 +13810,14 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fedcaccca4b388090879875963b1bcee97c3f716ded4b4d994ee55572e4b6a3e",
+  "tree_hash": "6ac6766fb9e6c1c77305b2bb36b116beba2a232f2098fc4f3d3ca9ebf54865bc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1447,
+  "wiki_file_count": 1448,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13821,13 +13826,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7767bbc8ccad4f629bf3679c7b07206836b375eef3ba51dbc19d166286a572f6",
-      "size": 1164694
+      "sha256": "d864549bd4a06477bbb95f1e91c15d826b718006d0ddb5cba9710040705745f8",
+      "size": 1165078
     },
     {
       "path": "log.md",
-      "sha256": "c6addc7a1343dfece3069eb3f289f3159bffe248b6ab7ab932d90c438f20a3b3",
-      "size": 1970600
+      "sha256": "2ca7571bfad5f530dda4bf60952908ed036caea9b377a8fec2e99290922ec54f",
+      "size": 1970996
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16293,6 +16298,11 @@
       "path": "pages/decisions/tweet-30k-tasks-7k-users.md",
       "sha256": "0759c8ae48b17e16457111870b6af54f0bedf510e208a5d4311acdf32f21daaf",
       "size": 2409
+    },
+    {
+      "path": "pages/decisions/uptimerobot-deprecation.md",
+      "sha256": "ba7257cb05db89abc25ba95f2f2de9856eb8d1bf2c95173be2255360e5dacede",
+      "size": 2267
     },
     {
       "path": "pages/decisions/urgent-github-pat-rotation-story-private-fork.md",
@@ -21051,5 +21061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "451b51b1ed2db58d46da94cb5d8ec0c5094227184012de17ecca275760227489"
+  "wiki_tree_hash": "e5d0d382b0e38720e49424b7fc24145486015cd0c8bddeda2d6653e1fa0a9318"
 }
