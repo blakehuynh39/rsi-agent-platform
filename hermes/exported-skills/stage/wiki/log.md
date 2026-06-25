@@ -39590,3 +39590,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0f46cb3617ae099fd290445ecd23c5b8
 - summary: The server use1-aeneid-fuacet hosts the backend for the Aeneid testnet faucet at aeneid.faucet.story.foundation, currently on GCP with IP 35.207.0.103, under migration to AWS.
 
+## [2026-06-25T18:03:58Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_f88b99fdcef0ac5fe448b40bb04f4821
+- summary: Backend server for the Aeneid faucet, currently hosted on GCP instance use1-aeneid-fuacet (IP 35.207.0.103) with frontend querying http://35.207.0.103:23313/. Planned migration to ...
+
