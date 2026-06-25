@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d934d10d628bfbaef4f6f77255cd93136fa102214608bb3aeff1e09a53cfc42a",
+        "sha256": "b0769e5d6109453313b8e6d8c43a06c8a86896c5e4f8cd9cdbf0b5f291008e80",
         "size": 1141485
       },
       {
         "path": "log.md",
-        "sha256": "1b6a3dc8d824853bcf256c63247a8528d6a0553a51f6f7f293ffb344e1dba6ea",
-        "size": 1921646
+        "sha256": "1b3574706b997407ab9033b352bea54482e55eb32da310618192b05c23814798",
+        "size": 1922516
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8905,6 +8905,11 @@
         "size": 3762
       },
       {
+        "path": "pages/runbooks/rotating-temporal-certificates-staging.md",
+        "sha256": "02fe7f2622dffca5a92037448202e0ee702e3ae87544d9b7aaf7b4dcb5e76e1e",
+        "size": 4063
+      },
+      {
         "path": "pages/runbooks/rsi-executor-commit-signing.md",
         "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
         "size": 3616
@@ -10224,8 +10229,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T03:19:53Z",
-  "file_count": 2043,
+  "exported_at": "2026-06-25T03:31:44Z",
+  "file_count": 2044,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13502,7 +13507,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f3f2612cffbac534ee646dd0d4918b04a0dc4770a0c67dbed6cd6a63bfad01a1",
+  "previous_tree_hash": "365ceb4d99868f0ffbcfb07495a1e2822a71c9cab7ef0e5474978f7903e88aee",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13515,14 +13520,14 @@
   ],
   "skill_tree_hash": "c2796bb3f6b8c7a0259d00d2fdb36cc073912394070627e61f0c0c12b557efb8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "365ceb4d99868f0ffbcfb07495a1e2822a71c9cab7ef0e5474978f7903e88aee",
+  "tree_hash": "267b9cbe55306808b4e26a4e3faa900f341bd1cc23d28b50a71229742974054b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1389,
+  "wiki_file_count": 1390,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13531,13 +13536,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d934d10d628bfbaef4f6f77255cd93136fa102214608bb3aeff1e09a53cfc42a",
+      "sha256": "b0769e5d6109453313b8e6d8c43a06c8a86896c5e4f8cd9cdbf0b5f291008e80",
       "size": 1141485
     },
     {
       "path": "log.md",
-      "sha256": "1b6a3dc8d824853bcf256c63247a8528d6a0553a51f6f7f293ffb344e1dba6ea",
-      "size": 1921646
+      "sha256": "1b3574706b997407ab9033b352bea54482e55eb32da310618192b05c23814798",
+      "size": 1922516
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19155,6 +19160,11 @@
       "size": 3762
     },
     {
+      "path": "pages/runbooks/rotating-temporal-certificates-staging.md",
+      "sha256": "02fe7f2622dffca5a92037448202e0ee702e3ae87544d9b7aaf7b4dcb5e76e1e",
+      "size": 4063
+    },
+    {
       "path": "pages/runbooks/rsi-executor-commit-signing.md",
       "sha256": "e58173c5ac5f37659a03f58ae9e247c9d1f7da5e7c241b2fe93f22eed4494146",
       "size": 3616
@@ -20471,5 +20481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "62a502295d2227816d1260069f5eb3bf5232d3ba9d2532d5c79093884d233e92"
+  "wiki_tree_hash": "25b12e0401934e496c0e737c48c9abfc7702d2bd8c598e0a622318631960d90c"
 }

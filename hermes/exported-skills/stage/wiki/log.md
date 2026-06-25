@@ -38872,3 +38872,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fcd9a7aff5d7e489d89a1f352e101124
 - summary: On 2026-01-31, after rotating Temporal worker certificates, all staging pods began crash looping. The pods recovered after restarting all deployments, though the exact cause of the...
 
+## [2026-06-25T03:30:31Z] ingest | Trace Backend Architecture
+
+- status: published
+- slug: notion_document/trace-backend-architecture-0ba0afd6
+- wiki_revision_id: wikirev_ea1a0e0c132db5427eb120d1885353c0
+- source_document_id: srcdoc_f33f716b82984e27937f90590ba0afd6
+- source_revision_id: srcrev_ebf38fd48244e0a6a57a9a027013189c
+- summary: Source: [source](https://app.notion.com/p/Trace-Backend-Architecture-35e051299a5480a3864be5b963962914)
+
+## [2026-06-25T03:31:30Z] synthesis | Rotating Temporal Certificates for Staging Environment
+
+- status: published
+- slug: runbooks/rotating-temporal-certificates-staging
+- wiki_revision_id: wikirev_b894b89da81a188ee92f0f0c5026bf52
+- summary: Procedure and incident notes for rotating Temporal certificates used by staging workers. On 2026-01-31, after rotating expiring Temporal certificates, staging pods crash-looped and...
+
