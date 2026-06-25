@@ -39632,3 +39632,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_72c87968ac7d4b888fc5e13630fd63bc
 - summary: Decision to migrate the Aeneid Faucet from GCP to AWS. The frontend will be pointed to a domain name to facilitate migration. Requires access to both GCP (story-aeneid) and AWS (st...
 
+## [2026-06-25T18:46:04Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: projects/aeneid-faucet-migration
+- wiki_revision_id: wikirev_39aa600cd9df5147a4478b3f59ff1b81
+- summary: Migration of the Aeneid testnet faucet server from GCP to AWS. The frontend currently queries a backend on GCP at IP 35.207.0.103:23313. The backend validates requests, stores wall...
+
