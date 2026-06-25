@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "8ab0ef483d579d3e723bb2b5f4ef4b83b98490d7d04a362b143b1575cb87c22f",
+        "sha256": "d82776c5c4709036ade8f33f7c54d791cb8382cc880bbc0f86a7da31debea248",
         "size": 31981
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b1aed59853101da87edb81391e5f4ebf394990ce5301819cae91205f75b9613f",
-        "size": 1143569
+        "sha256": "89140484502dfc05b055ab8852bd106f4ebf4a6d4db5b490bd8d04abde2bfb81",
+        "size": 1144156
       },
       {
         "path": "log.md",
-        "sha256": "d718f3c08c2362732dc7aae2e4b9d583f6f24c2bb11c132c08cf00dffca73f19",
-        "size": 1925839
+        "sha256": "6795e31255feab33c05901b2472a4a8c78e5336a7674adc530ec44be4026e005",
+        "size": 1926450
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4688,6 +4688,16 @@
         "path": "pages/decisions/aeneid-migration-schedule.md",
         "sha256": "1586c479a7e03a02c0a48609debbbf72c3a3c1303197a563b600de854035f4e5",
         "size": 3570
+      },
+      {
+        "path": "pages/decisions/aeneid-rpc-domain-migration-approval.md",
+        "sha256": "00490a3990f3c2cee1c76922a0af9dafe95a43d7e13a0b15ae66f520c9ce47c1",
+        "size": 1580
+      },
+      {
+        "path": "pages/decisions/aeneid-rpc-domain-migration.md",
+        "sha256": "4d8d589ea570ae243905f6bb3d9ef14a58d590069c78f86700180b0e5be9f034",
+        "size": 1475
       },
       {
         "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
@@ -10249,8 +10259,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T05:36:51Z",
-  "file_count": 2048,
+  "exported_at": "2026-06-25T05:48:40Z",
+  "file_count": 2050,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -10309,7 +10319,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "8ab0ef483d579d3e723bb2b5f4ef4b83b98490d7d04a362b143b1575cb87c22f",
+      "sha256": "d82776c5c4709036ade8f33f7c54d791cb8382cc880bbc0f86a7da31debea248",
       "size": 31981
     },
     {
@@ -13527,7 +13537,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c3f2c903f260f8539f47a7d8d53e80dd9d6a73356bad89c4ad914b67470ade76",
+  "previous_tree_hash": "f6127f05672e337e851dd9531ff962a1edfa3a7c4ef1084c94c1b42e7cb980af",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13538,16 +13548,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "23250c01cda877dd378a3d250994b03cf87a39b0d18aa4a70507e80f12e9d814",
+  "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f6127f05672e337e851dd9531ff962a1edfa3a7c4ef1084c94c1b42e7cb980af",
+  "tree_hash": "be2631469e0184be6a0c0c1d489260a81fae0608ee5b659f881421e39d9a4629",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1394,
+  "wiki_file_count": 1396,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13556,13 +13566,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b1aed59853101da87edb81391e5f4ebf394990ce5301819cae91205f75b9613f",
-      "size": 1143569
+      "sha256": "89140484502dfc05b055ab8852bd106f4ebf4a6d4db5b490bd8d04abde2bfb81",
+      "size": 1144156
     },
     {
       "path": "log.md",
-      "sha256": "d718f3c08c2362732dc7aae2e4b9d583f6f24c2bb11c132c08cf00dffca73f19",
-      "size": 1925839
+      "sha256": "6795e31255feab33c05901b2472a4a8c78e5336a7674adc530ec44be4026e005",
+      "size": 1926450
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14963,6 +14973,16 @@
       "path": "pages/decisions/aeneid-migration-schedule.md",
       "sha256": "1586c479a7e03a02c0a48609debbbf72c3a3c1303197a563b600de854035f4e5",
       "size": 3570
+    },
+    {
+      "path": "pages/decisions/aeneid-rpc-domain-migration-approval.md",
+      "sha256": "00490a3990f3c2cee1c76922a0af9dafe95a43d7e13a0b15ae66f520c9ce47c1",
+      "size": 1580
+    },
+    {
+      "path": "pages/decisions/aeneid-rpc-domain-migration.md",
+      "sha256": "4d8d589ea570ae243905f6bb3d9ef14a58d590069c78f86700180b0e5be9f034",
+      "size": 1475
     },
     {
       "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
@@ -20521,5 +20541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "924a8bcf874690a2bafed98e86a3722e2c90483fedb3c598f97ee48b3f9902e6"
+  "wiki_tree_hash": "b3d860f74de5bb5869e1ba9b7f54c8fb5d696a7cb79d383d4c565dae0c127f8f"
 }

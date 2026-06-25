@@ -38946,3 +38946,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3590af3588e13dd1760207576694d7e2
 - summary: On 2026-01-31, all staging pods in use1-stage-story-api and use1-stage-story-api-proxy entered crash loops after temporal worker certificate rotation. The certs were rotated due to...
 
+## [2026-06-25T05:46:28Z] synthesis | Aeneid RPC Domain Migration
+
+- status: published
+- slug: decisions/aeneid-rpc-domain-migration
+- wiki_revision_id: wikirev_f60250036d129d734f34ce767141a6a1
+- summary: Decision to change the Aeneid RPC domain via a pull request in the cloudflare repository.
+
+## [2026-06-25T05:47:29Z] synthesis | Approve PR #119: Change Aeneid RPC Domain
+
+- status: published
+- slug: decisions/aeneid-rpc-domain-migration-approval
+- wiki_revision_id: wikirev_b103fb078d079c4666774aeecc3a9fdb
+- summary: Decision to approve the pull request changing the Aeneid RPC domain during migration.
+
