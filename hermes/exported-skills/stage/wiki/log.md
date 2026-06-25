@@ -38888,3 +38888,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b894b89da81a188ee92f0f0c5026bf52
 - summary: Procedure and incident notes for rotating Temporal certificates used by staging workers. On 2026-01-31, after rotating expiring Temporal certificates, staging pods crash-looped and...
 
+## [2026-06-25T04:00:28Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_254665674988f4c1d41a8bb88990942f
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_c6d04bcadf0811fdd750e70203083917
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
+## [2026-06-25T04:02:30Z] synthesis | Staging Pod Crash Loop After Temporal Certificate Rotation
+
+- status: published
+- slug: runbooks/staging-pod-crash-loop-temporal-cert-rotation
+- wiki_revision_id: wikirev_9babbecf170e8ef7786af9f43424502e
+- summary: On 2026-01-31, staging pods entered a crash loop after temporal certificates were rotated. The issue was resolved by restarting all deployments. Root cause is under investigation.
+
