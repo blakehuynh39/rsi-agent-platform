@@ -39725,3 +39725,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cbe49e94aad9d8de1fa8f7f5b2b0129d
 - summary: The Aeneid Faucet provides testnet tokens to users. It consists of a frontend at https://aeneid.faucet.story.foundation/ and a backend server on GCP instance use1-aeneid-fuacet (IP...
 
+## [2026-06-25T20:17:26Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_6f9d4fcae95bf239a837756d99b68338
+- summary: The Aeneid faucet server is a GCP VM (use1-aeneid-fuacet, IP 35.207.0.103) that backs the Aeneid testnet faucet frontend. It processes faucet requests and schedules token distribut...
+
+## [2026-06-25T20:19:11Z] synthesis | Aeneid Testnet Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_a30fcbca542f083f8f96f14dacf1e5e8
+- summary: The faucet provides testnet tokens for the Aeneid testnet. Users interact with a web frontend; the backend validates requests and schedules batched token transfers. The backend is ...
+
+## [2026-06-25T20:19:12Z] synthesis | Faucet Migration to AWS
+
+- status: published
+- slug: decisions/faucet-migration-to-aws
+- wiki_revision_id: wikirev_6169cc2d3fa52913451c07c2ea6da2be
+- summary: Decision to migrate the backend of the Aeneid faucet from GCP (project story-aeneid) to AWS (account story-testnet) and update the frontend to use a domain name. Access provisionin...
+
