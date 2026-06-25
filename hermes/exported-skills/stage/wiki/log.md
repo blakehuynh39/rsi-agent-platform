@@ -39300,3 +39300,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fc07fb2becc46f8030d873c7b57b8a1c
 - summary: Migrate the Aeneid testnet faucet backend from a GCP instance (use1-aeneid-fuacet) to AWS, enabling domain-based routing instead of a hardcoded IP.
 
+## [2026-06-25T13:49:14Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_78403dcfcd7093573feb756448c889ce
+- summary: Backend server for the Aeneid testnet faucet, currently hosted on GCP instance use1-aeneid-fuacet, serving IP 35.207.0.103:23313. Planned migration to AWS.
+
+## [2026-06-25T13:52:10Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: decisions/aeneid-faucet-server-migration
+- wiki_revision_id: wikirev_7f82a8a50cc7e3f82245c85b0dc74063
+- summary: The GCP server use1-aeneid-fuacet (IP 35.207.0.103) is used by the Aeneid faucet frontend. Plans to migrate it to AWS are underway, requiring a domain instead of an IP and access t...
+
