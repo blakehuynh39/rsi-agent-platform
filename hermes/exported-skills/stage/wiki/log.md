@@ -39233,3 +39233,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_154d2c6b5993f18f2f17ef9a6eac3488
 - summary: Information about the Aeneid faucet server, its current GCP hosting, frontend/backend architecture, and the ongoing migration to AWS.
 
+## [2026-06-25T12:17:57Z] synthesis | Aeneid Faucet Service
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_8125c4b5519672c9d05be7545251316f
+- summary: The Aeneid faucet is a web service that distributes testnet tokens. It has a frontend at https://aeneid.faucet.story.foundation/ and a backend API currently hosted on a GCP instanc...
+
