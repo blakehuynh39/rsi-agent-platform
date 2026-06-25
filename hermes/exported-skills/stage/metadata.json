@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "49074f775810db876b9d948dcfe12c525f12cdcc99af2f8604a9a9d63352da8f",
-        "size": 1136231
+        "sha256": "ac2cea547d66eccf7f940f9b4d381f2c448e2819873de6a03d4ecd348a29f31e",
+        "size": 1136247
       },
       {
         "path": "log.md",
-        "sha256": "40d92153eeeacc71416ea115ee4b5160f2527d96bcf10f6ac5aacd5410ee3e9f",
-        "size": 1915088
+        "sha256": "29517b0bbffffdda5c2b1ede8cf3a7f899f388494fd5d6944c796d9d7bd4471a",
+        "size": 1915473
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6266,8 +6266,8 @@
       },
       {
         "path": "pages/projects/aeneid-migration.md",
-        "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
-        "size": 3504
+        "sha256": "3e3c3c9bf95066635b98ae13531f2e000805972f82d81a08abaa225999dd0667",
+        "size": 3477
       },
       {
         "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -10154,7 +10154,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T00:19:25Z",
+  "exported_at": "2026-06-25T00:26:04Z",
   "file_count": 2029,
   "files": [
     {
@@ -13432,7 +13432,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "4d3f0d7afeef0aa9d90d28b5117eee3b61cee480941c5e703c27de74c0f5268c",
+  "previous_tree_hash": "f82e5c19027873615c01613bdb7fcd3fc1f3324b119cdf359b5bc290219a7498",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13445,7 +13445,7 @@
   ],
   "skill_tree_hash": "707a8ce6389ce68c41750e2bc269efdc5420cc973b06b522053fad925d8fd7b4",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f82e5c19027873615c01613bdb7fcd3fc1f3324b119cdf359b5bc290219a7498",
+  "tree_hash": "c3a66852e55a6c74217f1cc856c256e8003dc4937eef529ab7932b3b022d7bcb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13461,13 +13461,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "49074f775810db876b9d948dcfe12c525f12cdcc99af2f8604a9a9d63352da8f",
-      "size": 1136231
+      "sha256": "ac2cea547d66eccf7f940f9b4d381f2c448e2819873de6a03d4ecd348a29f31e",
+      "size": 1136247
     },
     {
       "path": "log.md",
-      "sha256": "40d92153eeeacc71416ea115ee4b5160f2527d96bcf10f6ac5aacd5410ee3e9f",
-      "size": 1915088
+      "sha256": "29517b0bbffffdda5c2b1ede8cf3a7f899f388494fd5d6944c796d9d7bd4471a",
+      "size": 1915473
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16446,8 +16446,8 @@
     },
     {
       "path": "pages/projects/aeneid-migration.md",
-      "sha256": "83eace69d2836315cdb9b0231ec3668a8f61b7e1c622f5ee2dd1f7289b73f1ad",
-      "size": 3504
+      "sha256": "3e3c3c9bf95066635b98ae13531f2e000805972f82d81a08abaa225999dd0667",
+      "size": 3477
     },
     {
       "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -20331,5 +20331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "764669878ac94baac75f3d82d6f7860e5ffcba9131615834c1a1b3ba22e7d51c"
+  "wiki_tree_hash": "a46ef6ef2122768c03d20f27f72aeca2405e6ea6bdcadbcc26ae0c5b6ea2625e"
 }
