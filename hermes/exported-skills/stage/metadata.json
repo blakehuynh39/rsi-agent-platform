@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7eb1a705b70a23c8cd823df5a39e92ad0b67bf3a12baa789f2e6270e4af74769",
-        "size": 1151647
+        "sha256": "7c83720ebd6e26eb1e006aafb9d985aff3e074d18b82a8958140643bcdec6b84",
+        "size": 1152455
       },
       {
         "path": "log.md",
-        "sha256": "5a841ceb211cdd745edb809905529ca542650cbd99b6b750bbda17519b67ab44",
-        "size": 1936995
+        "sha256": "656ba2b2f7678f1864dfb376a4e7bb814e1e498d55655027d17c539cabf836c5",
+        "size": 1937826
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4678,6 +4678,11 @@
         "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
         "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
         "size": 2581
+      },
+      {
+        "path": "pages/decisions/aeneid-faucet-gcp-to-aws-migration.md",
+        "sha256": "8a6395e30baa2aa8c5558af0e9fb95be9cd1316606e65eaa43d3dc198fac4cbf",
+        "size": 6752
       },
       {
         "path": "pages/decisions/aeneid-migration-planning.md",
@@ -7058,6 +7063,11 @@
         "path": "pages/projects/ip-vault.md",
         "sha256": "1eb676730a0dd6a97dfe2cfaa922eafe33611844b30c59a835dc3d6d38d493fb",
         "size": 1136
+      },
+      {
+        "path": "pages/projects/ipgraph-royalty-dos-reproduction-v1-3-3.md",
+        "sha256": "4c8cd874052d5a440d0e6a039966738c563e39410ec9754d0f9b31b3e39da2ed",
+        "size": 7366
       },
       {
         "path": "pages/projects/july-partner-testnet.md",
@@ -10349,8 +10359,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T10:34:15Z",
-  "file_count": 2068,
+  "exported_at": "2026-06-25T10:51:09Z",
+  "file_count": 2070,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13627,7 +13637,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b8abee3337963c06ef039f74b6c44acac78239ffe1e8db09e10c29fc8504fef5",
+  "previous_tree_hash": "6c36bc4db3ac420b3929ca38b7369ecad6b02c9c710330e5851826205d372000",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13640,14 +13650,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6c36bc4db3ac420b3929ca38b7369ecad6b02c9c710330e5851826205d372000",
+  "tree_hash": "e80421bda313455c90869be83d94642010531119e030e37031033265899a06b5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1414,
+  "wiki_file_count": 1416,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13656,13 +13666,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7eb1a705b70a23c8cd823df5a39e92ad0b67bf3a12baa789f2e6270e4af74769",
-      "size": 1151647
+      "sha256": "7c83720ebd6e26eb1e006aafb9d985aff3e074d18b82a8958140643bcdec6b84",
+      "size": 1152455
     },
     {
       "path": "log.md",
-      "sha256": "5a841ceb211cdd745edb809905529ca542650cbd99b6b750bbda17519b67ab44",
-      "size": 1936995
+      "sha256": "656ba2b2f7678f1864dfb376a4e7bb814e1e498d55655027d17c539cabf836c5",
+      "size": 1937826
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15053,6 +15063,11 @@
       "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
       "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
       "size": 2581
+    },
+    {
+      "path": "pages/decisions/aeneid-faucet-gcp-to-aws-migration.md",
+      "sha256": "8a6395e30baa2aa8c5558af0e9fb95be9cd1316606e65eaa43d3dc198fac4cbf",
+      "size": 6752
     },
     {
       "path": "pages/decisions/aeneid-migration-planning.md",
@@ -17433,6 +17448,11 @@
       "path": "pages/projects/ip-vault.md",
       "sha256": "1eb676730a0dd6a97dfe2cfaa922eafe33611844b30c59a835dc3d6d38d493fb",
       "size": 1136
+    },
+    {
+      "path": "pages/projects/ipgraph-royalty-dos-reproduction-v1-3-3.md",
+      "sha256": "4c8cd874052d5a440d0e6a039966738c563e39410ec9754d0f9b31b3e39da2ed",
+      "size": 7366
     },
     {
       "path": "pages/projects/july-partner-testnet.md",
@@ -20721,5 +20741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "997a79a027c306e05723683ebc0593dc52844cd4d7d0c029bf48c6e3984c44bb"
+  "wiki_tree_hash": "f90c9d3a37a9fa9cab2670ecf8be6eac49afcad5f16eebfb64dba61e35f2fdb9"
 }
