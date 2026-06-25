@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "001590a1db5220699ada6f578c0ca927e0944e0bc3c8d0c3d6bd5e70e0caf5d5",
-        "size": 1140305
+        "sha256": "0f5b900db4e31d1d51828f122213295d9f005294e3c10bed3eec4d96070eb010",
+        "size": 1141057
       },
       {
         "path": "log.md",
-        "sha256": "3a6abee93ea8b70da2906ae7f8add96164e7ea6ecd757dbf124deb047d389f5d",
-        "size": 1920431
+        "sha256": "cf67f3b8e503c96528f2c5681b50612d9cff3d5f6dd31c04d1246d23558e807d",
+        "size": 1921207
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4755,6 +4755,11 @@
         "size": 4175
       },
       {
+        "path": "pages/decisions/archive-unused-storyprotocol-repos-2026-01-30.md",
+        "sha256": "ec4f0b23b944c4f1896c1612f94960d160627591f56a33bf02ddea15c46db1d6",
+        "size": 3225
+      },
+      {
         "path": "pages/decisions/bengali-voice-task-closure.md",
         "sha256": "d43b80410ae086c7358b76813bf7a5e4a62c6820e809a86cac956ff1b7c7e851",
         "size": 1994
@@ -4863,6 +4868,11 @@
         "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
         "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
         "size": 3391
+      },
+      {
+        "path": "pages/decisions/decision-archive-old-repos-2026-01-30.md",
+        "sha256": "648431af52a1fa79ab62d1c43951ac74a0e9edf0b5daa83f4a97945b9864acdb",
+        "size": 2405
       },
       {
         "path": "pages/decisions/decision-archive-old-repositories.md",
@@ -10209,8 +10219,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T02:51:12Z",
-  "file_count": 2040,
+  "exported_at": "2026-06-25T03:02:58Z",
+  "file_count": 2042,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13487,7 +13497,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c178de91424afd1ccbaf1e5489ba31461735e9abfffce4f071396c8ef79866ed",
+  "previous_tree_hash": "a01749bc3ab1e65b78a1e534abc0fbacf7c50a3c6458e9c96af8258ae1314d85",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13500,14 +13510,14 @@
   ],
   "skill_tree_hash": "c2796bb3f6b8c7a0259d00d2fdb36cc073912394070627e61f0c0c12b557efb8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a01749bc3ab1e65b78a1e534abc0fbacf7c50a3c6458e9c96af8258ae1314d85",
+  "tree_hash": "f3f2612cffbac534ee646dd0d4918b04a0dc4770a0c67dbed6cd6a63bfad01a1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1386,
+  "wiki_file_count": 1388,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13516,13 +13526,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "001590a1db5220699ada6f578c0ca927e0944e0bc3c8d0c3d6bd5e70e0caf5d5",
-      "size": 1140305
+      "sha256": "0f5b900db4e31d1d51828f122213295d9f005294e3c10bed3eec4d96070eb010",
+      "size": 1141057
     },
     {
       "path": "log.md",
-      "sha256": "3a6abee93ea8b70da2906ae7f8add96164e7ea6ecd757dbf124deb047d389f5d",
-      "size": 1920431
+      "sha256": "cf67f3b8e503c96528f2c5681b50612d9cff3d5f6dd31c04d1246d23558e807d",
+      "size": 1921207
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14990,6 +15000,11 @@
       "size": 4175
     },
     {
+      "path": "pages/decisions/archive-unused-storyprotocol-repos-2026-01-30.md",
+      "sha256": "ec4f0b23b944c4f1896c1612f94960d160627591f56a33bf02ddea15c46db1d6",
+      "size": 3225
+    },
+    {
       "path": "pages/decisions/bengali-voice-task-closure.md",
       "sha256": "d43b80410ae086c7358b76813bf7a5e4a62c6820e809a86cac956ff1b7c7e851",
       "size": 1994
@@ -15098,6 +15113,11 @@
       "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
       "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
       "size": 3391
+    },
+    {
+      "path": "pages/decisions/decision-archive-old-repos-2026-01-30.md",
+      "sha256": "648431af52a1fa79ab62d1c43951ac74a0e9edf0b5daa83f4a97945b9864acdb",
+      "size": 2405
     },
     {
       "path": "pages/decisions/decision-archive-old-repositories.md",
@@ -20441,5 +20461,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fa62c0552b5d7dfbf2fe8f0b9998991ce10c4280a5fac47abaccd6b8872cbf76"
+  "wiki_tree_hash": "4e4a6f27f8f0d13ccb8dd2e08b8eb4d488ae75a7affb3eadd1dc686ebaaa4eec"
 }

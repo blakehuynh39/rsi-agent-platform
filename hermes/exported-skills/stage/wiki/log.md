@@ -38851,3 +38851,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_27f2e571dae2f9645762fb6705f54278
 - summary: Decision to archive or delete GitHub repositories that haven't been committed to in over one year, based on a Slack discussion on 2026-01-30.
 
+## [2026-06-25T03:01:19Z] synthesis | Decision to archive unused Story Protocol repositories (Jan 30, 2026)
+
+- status: published
+- slug: decisions/archive-unused-storyprotocol-repos-2026-01-30
+- wiki_revision_id: wikirev_46de8dd5595b6b4201973e9a3064da14
+- summary: On 2026-01-30, a Slack discussion confirmed that a set of Story Protocol GitHub repositories with no recent commits (over 1 year) should be archived. All involved team members agre...
+
+## [2026-06-25T03:02:34Z] synthesis | Archive unused repositories (2026-01-30)
+
+- status: published
+- slug: decisions/decision-archive-old-repos-2026-01-30
+- wiki_revision_id: wikirev_bdbb2457c5a177016de2dad92ab67a2d
+- summary: Decision to archive a set of old, unused repositories that have not seen commits in over a year.
+
