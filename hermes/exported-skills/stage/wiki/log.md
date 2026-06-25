@@ -39388,3 +39388,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a0a091d6adfd92163e62a1c8d1705400
 - summary: Decision to migrate the Aeneid faucet backend from GCP to AWS and update the frontend to use a domain name.
 
+## [2026-06-25T15:18:29Z] synthesis | IPGraph Royalty DoS v1.3.3 Fix Verification
+
+- status: published
+- slug: systems/ipgraph-royalty-dos-fix-v1-3-3-verification
+- wiki_revision_id: wikirev_93cc2baf410e4b3269b987337c74793b
+- summary: End-to-end verification of the v1.3.3 fix for the IPGraph royalty-read gas underpricing DoS on devnet0. The fix is a partial mitigation: it bounds sparse/shallow graphs but does NO...
+
+## [2026-06-25T15:21:07Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: projects/aeneid-faucet-migration
+- wiki_revision_id: wikirev_659189bcdfae395387771204ce35c888
+- summary: Migration of the Aeneid faucet server from GCP to AWS, involving frontend domain updates and access provisioning.
+

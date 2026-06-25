@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "09b4b827d61217f648a3d765f5d8590c8571f2ea6ccaf21df70a1481326964e0",
+        "sha256": "121d47a76a254186c75d9d823c3eaf15280cdc6eb9750fe1e36ef3032d9177f2",
         "size": 31981
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a91e857bae8eed57d628d186ed7e11994b2db2fcc1a2d552ee50285d3a2d1074",
-        "size": 1158137
+        "sha256": "6ce6300eca168aa76d5963d8edef9dc5b25700e0df25ee383575fd7e0b5a2b49",
+        "size": 1158528
       },
       {
         "path": "log.md",
-        "sha256": "94e364b883a4b0d5e051bce1c266897b23bd296c16e1179ca8f4f22766c3ae87",
-        "size": 1949802
+        "sha256": "4203ec1913bea3dacc20f3844a835be21e7eb810ec740f19fc1ada5c05dad45a",
+        "size": 1950540
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6411,8 +6411,8 @@
       },
       {
         "path": "pages/projects/aeneid-faucet-migration.md",
-        "sha256": "679a3cd2049644c13b073bf596989600cb8e24a74428ed92a4548a94201869df",
-        "size": 5109
+        "sha256": "b286add5cfc22b88ca0c656e873c3061e213e8b3d47e68f5fdb3fa991934cc31",
+        "size": 3587
       },
       {
         "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -9775,6 +9775,11 @@
         "size": 1377
       },
       {
+        "path": "pages/systems/ipgraph-royalty-dos-fix-v1-3-3-verification.md",
+        "sha256": "f1c2832299af3f2c9499ef976c63658fcae8dcb1744e9ba6b3ed3cacfc7a642f",
+        "size": 12289
+      },
+      {
         "path": "pages/systems/iptoken-staking-ownership-rules.md",
         "sha256": "62cf85243e74e1b779d06ded67c0e9c6bb6d834d64e59bfbc579c6913572e4e7",
         "size": 4768
@@ -10434,8 +10439,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T15:14:47Z",
-  "file_count": 2085,
+  "exported_at": "2026-06-25T15:21:32Z",
+  "file_count": 2086,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -10494,7 +10499,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "09b4b827d61217f648a3d765f5d8590c8571f2ea6ccaf21df70a1481326964e0",
+      "sha256": "121d47a76a254186c75d9d823c3eaf15280cdc6eb9750fe1e36ef3032d9177f2",
       "size": 31981
     },
     {
@@ -13712,7 +13717,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e36a9b02e9b58907c6ebb9c8a459ada6a791a7907e6214f3f8dc26354fd55e0b",
+  "previous_tree_hash": "cf6fa58ab18efccc9bec10a761b34e0d72680d43309fd51af04c0d14b571ae67",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13723,16 +13728,16 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "e05df4e5ab9be4849b44c5ae9aa0c9b681f1fdff515382f893bbaabed73e702a",
+  "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cf6fa58ab18efccc9bec10a761b34e0d72680d43309fd51af04c0d14b571ae67",
+  "tree_hash": "b3b491ee89ede6ebd527b559153ba51d9a3e817c711a5f87afce75f5885d6cd9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1431,
+  "wiki_file_count": 1432,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13741,13 +13746,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a91e857bae8eed57d628d186ed7e11994b2db2fcc1a2d552ee50285d3a2d1074",
-      "size": 1158137
+      "sha256": "6ce6300eca168aa76d5963d8edef9dc5b25700e0df25ee383575fd7e0b5a2b49",
+      "size": 1158528
     },
     {
       "path": "log.md",
-      "sha256": "94e364b883a4b0d5e051bce1c266897b23bd296c16e1179ca8f4f22766c3ae87",
-      "size": 1949802
+      "sha256": "4203ec1913bea3dacc20f3844a835be21e7eb810ec740f19fc1ada5c05dad45a",
+      "size": 1950540
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16871,8 +16876,8 @@
     },
     {
       "path": "pages/projects/aeneid-faucet-migration.md",
-      "sha256": "679a3cd2049644c13b073bf596989600cb8e24a74428ed92a4548a94201869df",
-      "size": 5109
+      "sha256": "b286add5cfc22b88ca0c656e873c3061e213e8b3d47e68f5fdb3fa991934cc31",
+      "size": 3587
     },
     {
       "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -20235,6 +20240,11 @@
       "size": 1377
     },
     {
+      "path": "pages/systems/ipgraph-royalty-dos-fix-v1-3-3-verification.md",
+      "sha256": "f1c2832299af3f2c9499ef976c63658fcae8dcb1744e9ba6b3ed3cacfc7a642f",
+      "size": 12289
+    },
+    {
       "path": "pages/systems/iptoken-staking-ownership-rules.md",
       "sha256": "62cf85243e74e1b779d06ded67c0e9c6bb6d834d64e59bfbc579c6913572e4e7",
       "size": 4768
@@ -20891,5 +20901,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "079cd7f5aa0a937204869efd0578c9190893b93f32bb11fa8e30890477077a41"
+  "wiki_tree_hash": "48ca6a4dc46bec136dda079e7a6cfc4146a979f6fc7876676e496ac8f29fed7c"
 }
