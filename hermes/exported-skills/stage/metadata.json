@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "db5f7802479cad9e0e64319cd19018c3459a4870feccbaddb6550e9ae9aa6d65",
-        "size": 1148369
+        "sha256": "73fa4d2786b710f826b39c6b44133287b99a00bc27053553f6add0b1b80bb8cc",
+        "size": 1149078
       },
       {
         "path": "log.md",
-        "sha256": "cd16d7fcf6a87143010d8e1672e5e729dc6535b2260ea5a0af99a69df4078319",
-        "size": 1931248
+        "sha256": "18cbede53af81c213d45fdd031dc3b743167a2e60733e64528ea2652a8195291",
+        "size": 1931656
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4798,6 +4798,11 @@
         "path": "pages/decisions/block-explorer-vendor-evaluation.md",
         "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
         "size": 12799
+      },
+      {
+        "path": "pages/decisions/blockscout-explorer-hosting-decision.md",
+        "sha256": "efb0349f33d9e23be160a23404dd54e398f3eb88f2db5eea8e12a1e00100cbd8",
+        "size": 4266
       },
       {
         "path": "pages/decisions/blockscout-hosting-decision.md",
@@ -10314,8 +10319,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T08:20:52Z",
-  "file_count": 2061,
+  "exported_at": "2026-06-25T08:27:38Z",
+  "file_count": 2062,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13592,7 +13597,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5d390d1de344016ae44eff6bbacf1dac7832f6f0648b96f7eb0fdbb8c2567386",
+  "previous_tree_hash": "e30301e00a7baee32f3a1ef4f4594388d6c172580daef8b16eaf0dd3874c43c9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13605,14 +13610,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e30301e00a7baee32f3a1ef4f4594388d6c172580daef8b16eaf0dd3874c43c9",
+  "tree_hash": "7cab33bde466827f9d400c14aecb62669e59c3b55248bd965bf8bd88954511d1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1407,
+  "wiki_file_count": 1408,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13621,13 +13626,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "db5f7802479cad9e0e64319cd19018c3459a4870feccbaddb6550e9ae9aa6d65",
-      "size": 1148369
+      "sha256": "73fa4d2786b710f826b39c6b44133287b99a00bc27053553f6add0b1b80bb8cc",
+      "size": 1149078
     },
     {
       "path": "log.md",
-      "sha256": "cd16d7fcf6a87143010d8e1672e5e729dc6535b2260ea5a0af99a69df4078319",
-      "size": 1931248
+      "sha256": "18cbede53af81c213d45fdd031dc3b743167a2e60733e64528ea2652a8195291",
+      "size": 1931656
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15138,6 +15143,11 @@
       "path": "pages/decisions/block-explorer-vendor-evaluation.md",
       "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
       "size": 12799
+    },
+    {
+      "path": "pages/decisions/blockscout-explorer-hosting-decision.md",
+      "sha256": "efb0349f33d9e23be160a23404dd54e398f3eb88f2db5eea8e12a1e00100cbd8",
+      "size": 4266
     },
     {
       "path": "pages/decisions/blockscout-hosting-decision.md",
@@ -20651,5 +20661,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e6862afc61b19649d4afe07098f9d8c1300163f0c2d60ca5cb58ac3a0ae7dda2"
+  "wiki_tree_hash": "ed9c6b93057336040d87f3834f1ed51b73eb7a0e4c2a3ec1ae2ff8d4256b4f00"
 }
