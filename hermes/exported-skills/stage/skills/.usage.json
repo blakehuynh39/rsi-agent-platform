@@ -380,13 +380,13 @@
     "created_at": "2026-06-03T20:26:22.716762+00:00",
     "created_by": null,
     "last_patched_at": "2026-06-16T18:57:23.225566+00:00",
-    "last_used_at": "2026-06-25T01:22:59.910843+00:00",
-    "last_viewed_at": "2026-06-25T01:22:59.876113+00:00",
+    "last_used_at": "2026-06-25T02:17:40.020455+00:00",
+    "last_viewed_at": "2026-06-25T02:17:39.983940+00:00",
     "patch_count": 42,
     "pinned": false,
     "state": "active",
-    "use_count": 187,
-    "view_count": 176
+    "use_count": 188,
+    "view_count": 177
   },
   "github-issues": {
     "archived_at": null,
@@ -964,13 +964,13 @@
     "created_at": "2026-06-05T14:13:09.737452+00:00",
     "created_by": null,
     "last_patched_at": null,
-    "last_used_at": "2026-06-25T00:19:03.717250+00:00",
-    "last_viewed_at": "2026-06-25T00:19:03.682617+00:00",
+    "last_used_at": "2026-06-25T02:17:39.937372+00:00",
+    "last_viewed_at": "2026-06-25T02:17:39.895581+00:00",
     "patch_count": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 60,
-    "view_count": 60
+    "use_count": 61,
+    "view_count": 61
   },
   "research-paper-writing": {
     "archived_at": null,
