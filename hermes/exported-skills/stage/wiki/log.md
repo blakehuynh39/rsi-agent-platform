@@ -39774,3 +39774,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_db77157eda56839a0391f4e8adc8ab02
 - summary: On 2026-02-03, the public faucet URL https://faucet.story.foundation was routed to the legacy GCP endpoint instead of https://aeneid.faucet.story.foundation/. The issue was resolve...
 
+## [2026-06-25T22:00:37Z] ingest | Numo Expert Product PRD
+
+- status: published
+- slug: notion_document/numo-expert-product-prd-10241d88
+- wiki_revision_id: wikirev_8df95969a19211e0141fb59532db641a
+- source_document_id: srcdoc_2e170372bdff094145bb549910241d88
+- source_revision_id: srcrev_f71da1f2d1af85384b4ef34218c99d57
+- summary: Source: [source](https://app.notion.com/p/Numo-Expert-Product-PRD-37d051299a5480d7b29be0914fdaef92)
+
