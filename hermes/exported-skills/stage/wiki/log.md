@@ -39085,3 +39085,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9738b43e5d761996212e961b45376d6d
 - summary: The faucet server for the Aeneid testnet, currently hosted on GCP with IP 35.207.0.103, serving token distribution. Planned migration to AWS with a domain-based frontend.
 
+## [2026-06-25T09:20:49Z] synthesis | IP Graph Royalty DoS Fix Reproduction on Devnet0
+
+- status: published
+- slug: runbooks/ip-graph-royalty-dos-devnet0-reproduction
+- wiki_revision_id: wikirev_cb51d788d7a76e2ef91cf3d72e4fd562
+- summary: Reproduction of the IPGraph royalty gas-underpricing DoS on devnet0 before and after v1.3.3 fix, validating the attack stalls the chain pre-fix and is bounded post-fix across 5 gra...
+
