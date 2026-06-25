@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "1d9d835641f818623cb58833cb8b2131b68dcb9eb673d0355b1409002c7f0e50",
-        "size": 1940905
+        "sha256": "86d1b989846359b072f2b2b0a5af02c6c2b591cd75a0d706acce8cf639532f5f",
+        "size": 1941224
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9640,6 +9640,11 @@
         "size": 1060
       },
       {
+        "path": "pages/systems/faucet-server.md",
+        "sha256": "e2a15b505b9d3dae391bf3bd366e80e409a992028802e570f53ba6651be7a598",
+        "size": 5349
+      },
+      {
         "path": "pages/systems/file-upload-api.md",
         "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
         "size": 3060
@@ -10374,8 +10379,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T11:39:57Z",
-  "file_count": 2073,
+  "exported_at": "2026-06-25T11:51:47Z",
+  "file_count": 2074,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13652,7 +13657,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ec787a81c4e1d5a1eee8d0638f2e15768a7d893dfd1e48378422210179552b53",
+  "previous_tree_hash": "41206de386255b1172f1c77fac0ea80bc43fc6049008baf68f74a41df95851f3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13665,14 +13670,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "41206de386255b1172f1c77fac0ea80bc43fc6049008baf68f74a41df95851f3",
+  "tree_hash": "b86f98f5695d94740538b70431e2305b3f3b776154a356ff11830019c1de464b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1419,
+  "wiki_file_count": 1420,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13686,8 +13691,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "1d9d835641f818623cb58833cb8b2131b68dcb9eb673d0355b1409002c7f0e50",
-      "size": 1940905
+      "sha256": "86d1b989846359b072f2b2b0a5af02c6c2b591cd75a0d706acce8cf639532f5f",
+      "size": 1941224
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20040,6 +20045,11 @@
       "size": 1060
     },
     {
+      "path": "pages/systems/faucet-server.md",
+      "sha256": "e2a15b505b9d3dae391bf3bd366e80e409a992028802e570f53ba6651be7a598",
+      "size": 5349
+    },
+    {
       "path": "pages/systems/file-upload-api.md",
       "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
       "size": 3060
@@ -20771,5 +20781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "63911d7a919b0e2485ad8097ca34b17995beded362f41b9d4dc632f808c234d7"
+  "wiki_tree_hash": "b60b33c8c51182a49a60dbd4088c4a75efd114a79ae581db8942a06278c8003a"
 }

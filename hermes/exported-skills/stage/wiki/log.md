@@ -39219,3 +39219,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ec5862a93cc85c269d4230433f55df3c
 - summary: The faucet for the aeneid testnet is hosted on a GCP instance use1-aeneid-fuacet (IP 35.207.0.103). Frontend at https://aeneid.faucet.story.foundation/ queries backend at http://35...
 
+## [2026-06-25T11:49:36Z] synthesis | Faucet Server (Aeneid Testnet)
+
+- status: published
+- slug: systems/faucet-server
+- wiki_revision_id: wikirev_745d9b5d3a1ac5a0ca87a913f0db537d
+- summary: Faucet server that distributes testnet tokens on the Aeneid network. Currently hosted on GCP, with migration to AWS underway.
+
+## [2026-06-25T11:52:28Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_154d2c6b5993f18f2f17ef9a6eac3488
+- summary: Information about the Aeneid faucet server, its current GCP hosting, frontend/backend architecture, and the ongoing migration to AWS.
+
