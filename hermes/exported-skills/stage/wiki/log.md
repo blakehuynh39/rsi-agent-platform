@@ -38837,3 +38837,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_57978c27d67b408b7d650e06958c6402
 - summary: Planned migration of Aeneid RPC and validators to new infrastructure, initially scheduled for 2026-01-29 23:00 PT, but rescheduled to Monday 3PM BJT (2026-02-02?) to resolve sync i...
 
+## [2026-06-25T02:46:49Z] synthesis | Archive Old Repositories Decision
+
+- status: published
+- slug: decisions/decision-archive-old-repositories
+- wiki_revision_id: wikirev_abfcce357aab818771ef2218cf1e23dd
+- summary: Decision to archive multiple old GitHub repositories that have had no commits in over a year, following a proposal and team approval.
+
+## [2026-06-25T02:48:08Z] synthesis | Archive/Delete Old GitHub Repositories Decision
+
+- status: published
+- slug: decisions/archive-delete-old-github-repos
+- wiki_revision_id: wikirev_27f2e571dae2f9645762fb6705f54278
+- summary: Decision to archive or delete GitHub repositories that haven't been committed to in over one year, based on a Slack discussion on 2026-01-30.
+
