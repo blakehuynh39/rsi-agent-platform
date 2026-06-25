@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8987adb366427363450f1fdbc6c66ee21ff070aab37694667cce5001db5a3c56",
-        "size": 1154574
+        "sha256": "26f26d610e8fbff7485fdaae9159f99cc2ed39732ad4872bbea52d517c4bb205",
+        "size": 1155251
       },
       {
         "path": "log.md",
-        "sha256": "09d7c8a58729289083c66bac24da706754a4f5134075051d8d5fb98c4892cadb",
-        "size": 1942806
+        "sha256": "83810388e5b5a29b790b8d0c53eaa282e170c8e79e91ebe1e6d8db4d2bfa947d",
+        "size": 1943876
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5298,6 +5298,11 @@
         "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
         "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
         "size": 5083
+      },
+      {
+        "path": "pages/decisions/migrate-faucet-to-aws.md",
+        "sha256": "939d8a77e5e77aaf96e23bc4dd67b6f7ed5776df9eb32b92d97b09b639b8568c",
+        "size": 3282
       },
       {
         "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
@@ -8720,6 +8725,11 @@
         "size": 5860
       },
       {
+        "path": "pages/runbooks/ipgraph-royalty-dos-fix-verification-test.md",
+        "sha256": "bf9e8c5dae4ef38a3c7f02de34a56d5d80fe3c6a4a26b4cba808f9b36edeb1d1",
+        "size": 7430
+      },
+      {
         "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
         "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
         "size": 10780
@@ -9626,8 +9636,8 @@
       },
       {
         "path": "pages/systems/faucet-aeneid.md",
-        "sha256": "0becc4f689dad47ea303e42078b447ded26c27f525ab22b3ece917b7b09cdafd",
-        "size": 6380
+        "sha256": "c509816213b700c354f0adbb192d352b5294d9f5ab01a0d249c5285e2aaf2c90",
+        "size": 2469
       },
       {
         "path": "pages/systems/faucet-issues.md",
@@ -10384,8 +10394,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T12:40:41Z",
-  "file_count": 2075,
+  "exported_at": "2026-06-25T12:52:38Z",
+  "file_count": 2077,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13662,7 +13672,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "54dcf9d5307ce8ece39fd7899dde850da8994324e59aec0e20a7b785d4f80f74",
+  "previous_tree_hash": "4512a70870ff7f46065b8ecfcbf09caebeecf1bcadac1e6e0621fe3addfc7325",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13675,14 +13685,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4512a70870ff7f46065b8ecfcbf09caebeecf1bcadac1e6e0621fe3addfc7325",
+  "tree_hash": "678929f6b6e39527ab1275dab012782ed54dd8ec76df900260b20018f86c3fc0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1421,
+  "wiki_file_count": 1423,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13691,13 +13701,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8987adb366427363450f1fdbc6c66ee21ff070aab37694667cce5001db5a3c56",
-      "size": 1154574
+      "sha256": "26f26d610e8fbff7485fdaae9159f99cc2ed39732ad4872bbea52d517c4bb205",
+      "size": 1155251
     },
     {
       "path": "log.md",
-      "sha256": "09d7c8a58729289083c66bac24da706754a4f5134075051d8d5fb98c4892cadb",
-      "size": 1942806
+      "sha256": "83810388e5b5a29b790b8d0c53eaa282e170c8e79e91ebe1e6d8db4d2bfa947d",
+      "size": 1943876
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15708,6 +15718,11 @@
       "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
       "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
       "size": 5083
+    },
+    {
+      "path": "pages/decisions/migrate-faucet-to-aws.md",
+      "sha256": "939d8a77e5e77aaf96e23bc4dd67b6f7ed5776df9eb32b92d97b09b639b8568c",
+      "size": 3282
     },
     {
       "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
@@ -19130,6 +19145,11 @@
       "size": 5860
     },
     {
+      "path": "pages/runbooks/ipgraph-royalty-dos-fix-verification-test.md",
+      "sha256": "bf9e8c5dae4ef38a3c7f02de34a56d5d80fe3c6a4a26b4cba808f9b36edeb1d1",
+      "size": 7430
+    },
+    {
       "path": "pages/runbooks/jed-korean-team-onboarding-checklist.md",
       "sha256": "5ea854b2a5110c71d5d70d6523591f757aded8cb5dfd0c8647e837e64621db1a",
       "size": 10780
@@ -20036,8 +20056,8 @@
     },
     {
       "path": "pages/systems/faucet-aeneid.md",
-      "sha256": "0becc4f689dad47ea303e42078b447ded26c27f525ab22b3ece917b7b09cdafd",
-      "size": 6380
+      "sha256": "c509816213b700c354f0adbb192d352b5294d9f5ab01a0d249c5285e2aaf2c90",
+      "size": 2469
     },
     {
       "path": "pages/systems/faucet-issues.md",
@@ -20791,5 +20811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5928bc14759cf70c033a52feaaefe9da9fd3a80fe123fbc778b7239b117e5b29"
+  "wiki_tree_hash": "694003b4fff6c666caaae61560fe2c0830b45a38faf6810fce04f2f25dcf7f8a"
 }

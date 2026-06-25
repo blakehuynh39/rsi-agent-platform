@@ -39256,3 +39256,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0e60166f804303fc5de27a6c8be067f5
 - summary: GCP compute instance use1-aeneid-fuacet hosting the backend for the Aeneid testnet faucet. Currently active; planned migration to AWS.
 
+## [2026-06-25T12:48:15Z] synthesis | IPGraph Royalty DoS v1.3.3 Fix Verification Test (devnet0)
+
+- status: published
+- slug: runbooks/ipgraph-royalty-dos-fix-verification-test
+- wiki_revision_id: wikirev_04874a97f79a99e50e96cff5fae21795
+- summary: Verification test on devnet0 of the v1.3.3 protocol fix for the IPGraph royalty-read gas underpricing DoS. The fix mitigates the attack for all buildable graph shapes, but a theore...
+
+## [2026-06-25T12:50:55Z] synthesis | Faucet (Aeneid)
+
+- status: published
+- slug: systems/faucet-aeneid
+- wiki_revision_id: wikirev_9f1def73111869a0900ed2a110242cb7
+- summary: The Aeneid testnet faucet service, currently hosted on GCP, provides testnet tokens to users via a frontend and backend process.
+
+## [2026-06-25T12:50:56Z] synthesis | Migrate Faucet to AWS
+
+- status: published
+- slug: decisions/migrate-faucet-to-aws
+- wiki_revision_id: wikirev_0a8d975e583b064139ced82ac6a38733
+- summary: Decision to migrate the Aeneid faucet server from GCP to AWS, requiring the frontend to use a domain name and coordination for access.
+
