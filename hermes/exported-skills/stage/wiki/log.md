@@ -39697,3 +39697,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c33770167c1e6ecc6c591d25fbf6d14d
 - summary: Plan to migrate the Aeneid testnet faucet backend from GCP (project story-aeneid, instance use1-aeneid-fuacet) to AWS (account story-testnet). This requires updating the frontend t...
 
+## [2026-06-25T19:47:25Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet-system
+- wiki_revision_id: wikirev_6669d76504797a4746fb2384349a0620
+- summary: The Aeneid faucet provides testnet tokens for the Story Protocol Aeneid testnet. It consists of a frontend web app and a backend service that validates requests and dispatches toke...
+
+## [2026-06-25T19:49:26Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: projects/aeneid-faucet-migration
+- wiki_revision_id: wikirev_1e2a47d8b43c8063009e6a1d4a40f82e
+- summary: Migrating the aeneid testnet faucet backend from GCP (use1-aeneid-fuacet) to AWS, and updating the frontend to use a domain instead of a hardcoded IP.
+

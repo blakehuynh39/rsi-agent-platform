@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c94868d04ceb6fc10ea51f437cc76d6577285ee1034b983babb6b5f03ff82c12",
-        "size": 1162368
+        "sha256": "d31cd66be98c74674d437765bb6e829e979699c9316a4f45087ee0db7c30e9ca",
+        "size": 1162329
       },
       {
         "path": "log.md",
-        "sha256": "24d1899bf798c92dd772754dfcc1714ccfd9b4230792fca2f3ceff0788ce010e",
-        "size": 1965953
+        "sha256": "4cf5b98e41432d9dee1c95ecb6a7503c8881d43b87ae7df8b485d248879b9ec5",
+        "size": 1966675
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6431,8 +6431,8 @@
       },
       {
         "path": "pages/projects/aeneid-faucet-migration.md",
-        "sha256": "994951199e12019f25ccb9620aea1f53737fad85577fbb214326c27b529da847",
-        "size": 5198
+        "sha256": "01cd8cb80494cafbf0037f1d6c22189b6285dab4713983dd40ef35ceb7affe25",
+        "size": 3621
       },
       {
         "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -9436,8 +9436,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet-system.md",
-        "sha256": "de3dcfc0a37ae0cf3198a55913f16433192a70eb2b102643136d0719dc015cf5",
-        "size": 4376
+        "sha256": "d461feb7fd47963e6caaf81d4934254727e07a6d39ddf4f7b5683a2f05b861fd",
+        "size": 6234
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
@@ -10484,7 +10484,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T19:37:36Z",
+  "exported_at": "2026-06-25T19:49:33Z",
   "file_count": 2095,
   "files": [
     {
@@ -13762,7 +13762,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "048554d2e0145b1f3afcd62c3de1d93638676b8e912e6dea623d99075aa4bade",
+  "previous_tree_hash": "c910d3af00daa065adc25fccd83902d4e31f7c95a3ea8d2b95bb156e248a4384",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13775,7 +13775,7 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c910d3af00daa065adc25fccd83902d4e31f7c95a3ea8d2b95bb156e248a4384",
+  "tree_hash": "709c3f3ff32b46b6decbe55347c1aa788df88c44e5741bda0b8feffcb5d0d714",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13791,13 +13791,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c94868d04ceb6fc10ea51f437cc76d6577285ee1034b983babb6b5f03ff82c12",
-      "size": 1162368
+      "sha256": "d31cd66be98c74674d437765bb6e829e979699c9316a4f45087ee0db7c30e9ca",
+      "size": 1162329
     },
     {
       "path": "log.md",
-      "sha256": "24d1899bf798c92dd772754dfcc1714ccfd9b4230792fca2f3ceff0788ce010e",
-      "size": 1965953
+      "sha256": "4cf5b98e41432d9dee1c95ecb6a7503c8881d43b87ae7df8b485d248879b9ec5",
+      "size": 1966675
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16941,8 +16941,8 @@
     },
     {
       "path": "pages/projects/aeneid-faucet-migration.md",
-      "sha256": "994951199e12019f25ccb9620aea1f53737fad85577fbb214326c27b529da847",
-      "size": 5198
+      "sha256": "01cd8cb80494cafbf0037f1d6c22189b6285dab4713983dd40ef35ceb7affe25",
+      "size": 3621
     },
     {
       "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -19946,8 +19946,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet-system.md",
-      "sha256": "de3dcfc0a37ae0cf3198a55913f16433192a70eb2b102643136d0719dc015cf5",
-      "size": 4376
+      "sha256": "d461feb7fd47963e6caaf81d4934254727e07a6d39ddf4f7b5683a2f05b861fd",
+      "size": 6234
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
@@ -20991,5 +20991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0e232a76f7f5e4894b738a4d7adacf8c897d135bc965d61b9099ac408c4f136f"
+  "wiki_tree_hash": "9e2c51e85d7dc656e33b7f0f559375666bb93199f0f65ed54af931e699c077c1"
 }
