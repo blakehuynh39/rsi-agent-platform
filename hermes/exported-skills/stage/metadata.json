@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a02367dec7f608c7ea130053b84dbdc58a2eb62348e5ec0485b6b7fbf74ee296",
-        "size": 1930923
+        "sha256": "cd16d7fcf6a87143010d8e1672e5e729dc6535b2260ea5a0af99a69df4078319",
+        "size": 1931248
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7025,6 +7025,11 @@
         "size": 1238
       },
       {
+        "path": "pages/projects/ip-graph-royalty-dos-fix-validation-v1-3-3.md",
+        "sha256": "a6103977a79ae25e67f5b7a0e5ebe6d9bac1d620f20d68da0c10df24380e52b8",
+        "size": 5133
+      },
+      {
         "path": "pages/projects/ip-registration-numo-deployment.md",
         "sha256": "b6dd25929507977dd25c83743d41e6eff93267b1ce7259b7f6d7ca915f7d2e1f",
         "size": 7027
@@ -10309,8 +10314,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T08:09:01Z",
-  "file_count": 2060,
+  "exported_at": "2026-06-25T08:20:52Z",
+  "file_count": 2061,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13587,7 +13592,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "46a1134bfc388eb336f597b8fb0e32bb1207f3306cd0b5ccd34bf4f341c1ec6b",
+  "previous_tree_hash": "5d390d1de344016ae44eff6bbacf1dac7832f6f0648b96f7eb0fdbb8c2567386",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13600,14 +13605,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5d390d1de344016ae44eff6bbacf1dac7832f6f0648b96f7eb0fdbb8c2567386",
+  "tree_hash": "e30301e00a7baee32f3a1ef4f4594388d6c172580daef8b16eaf0dd3874c43c9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1406,
+  "wiki_file_count": 1407,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13621,8 +13626,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a02367dec7f608c7ea130053b84dbdc58a2eb62348e5ec0485b6b7fbf74ee296",
-      "size": 1930923
+      "sha256": "cd16d7fcf6a87143010d8e1672e5e729dc6535b2260ea5a0af99a69df4078319",
+      "size": 1931248
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17360,6 +17365,11 @@
       "size": 1238
     },
     {
+      "path": "pages/projects/ip-graph-royalty-dos-fix-validation-v1-3-3.md",
+      "sha256": "a6103977a79ae25e67f5b7a0e5ebe6d9bac1d620f20d68da0c10df24380e52b8",
+      "size": 5133
+    },
+    {
       "path": "pages/projects/ip-registration-numo-deployment.md",
       "sha256": "b6dd25929507977dd25c83743d41e6eff93267b1ce7259b7f6d7ca915f7d2e1f",
       "size": 7027
@@ -20641,5 +20651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1b3b8de1ed49a8aedffeab1ead8c2ea6af312a5167765c620f8d84d9e4951824"
+  "wiki_tree_hash": "e6862afc61b19649d4afe07098f9d8c1300163f0c2d60ca5cb58ac3a0ae7dda2"
 }

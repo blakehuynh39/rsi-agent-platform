@@ -39039,3 +39039,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f95a47ec4cd1997ee42be2554e509524
 - summary: Decision to stop running our own Blockscout instances for Mainnet and Aeneid, relying on Blockscout team's hosted service and Dune. Our own instance will be kept as cold backup, bu...
 
+## [2026-06-25T08:18:06Z] synthesis | IP Graph Royalty DoS Fix Validation (v1.3.3)
+
+- status: published
+- slug: projects/ip-graph-royalty-dos-fix-validation-v1-3-3
+- wiki_revision_id: wikirev_c1602c30f67736d460eee1e08a0c6bf7
+- summary: Reproduction and validation of the IPGraph royalty gas-underpricing DoS fix on devnet0.
+
+## [2026-06-25T08:21:31Z] synthesis | Blockscout Explorer Hosting Decision
+
+- status: published
+- slug: decisions/blockscout-explorer-hosting-decision
+- wiki_revision_id: wikirev_aec162e2de8663af314e0098e69d1e8f
+- summary: Decision to stop self-hosted Blockscout explorers for Mainnet and Aeneid, relying on Blockscout team's hosted service and Dune, with own instances kept as backup only for emergenci...
+
