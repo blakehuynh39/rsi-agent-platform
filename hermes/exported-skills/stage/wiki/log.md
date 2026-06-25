@@ -39367,3 +39367,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_e30b7280293e21f8cd8429d7aba813ee
 - summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
 
+## [2026-06-25T15:04:58Z] synthesis | Aeneid Faucet Migration
+
+- status: published
+- slug: projects/aeneid-faucet-migration
+- wiki_revision_id: wikirev_46a2bf7965f5466ac78acba421589920
+- summary: Migrate the Aeneid faucet server from GCP to AWS, including updating the frontend to use a domain name instead of a hardcoded IP address.
+
+## [2026-06-25T15:08:05Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_e9643fe0e82fa6c7e8a5b7a6e7ef011d
+- summary: Faucet service for distributing testnet tokens on Story Aeneid.
+
+## [2026-06-25T15:08:05Z] synthesis | Migrate Aeneid Faucet from GCP to AWS
+
+- status: published
+- slug: decisions/migrate-aeneid-faucet-to-aws
+- wiki_revision_id: wikirev_a0a091d6adfd92163e62a1c8d1705400
+- summary: Decision to migrate the Aeneid faucet backend from GCP to AWS and update the frontend to use a domain name.
+

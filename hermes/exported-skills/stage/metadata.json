@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "57c61488a129e61cddef73a3f247f77dbf2db4f873c2b49dc7c7cb40f89c13a9",
+        "sha256": "09b4b827d61217f648a3d765f5d8590c8571f2ea6ccaf21df70a1481326964e0",
         "size": 31981
       },
       {
@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d439167a99fe536ef00d1c35209a85fc444c6e20d7b437217f5bf3364d360948",
-        "size": 1948902
+        "sha256": "e5e3c905bda587d6d28e51b88c6b04cbfaa06c6f845991442066ce29a5cc252b",
+        "size": 1949237
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6406,8 +6406,8 @@
       },
       {
         "path": "pages/projects/aeneid-faucet-migration.md",
-        "sha256": "76377e40551db5841584fd13bebd7ae982a3330e6f703f17d7ba5a1640916159",
-        "size": 6269
+        "sha256": "679a3cd2049644c13b073bf596989600cb8e24a74428ed92a4548a94201869df",
+        "size": 5109
       },
       {
         "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -10429,7 +10429,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T15:01:17Z",
+  "exported_at": "2026-06-25T15:08:03Z",
   "file_count": 2084,
   "files": [
     {
@@ -10489,7 +10489,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "57c61488a129e61cddef73a3f247f77dbf2db4f873c2b49dc7c7cb40f89c13a9",
+      "sha256": "09b4b827d61217f648a3d765f5d8590c8571f2ea6ccaf21df70a1481326964e0",
       "size": 31981
     },
     {
@@ -13707,7 +13707,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "98e3351bd09e87118b9c48da29d61513f3fc2f4758e48f0639296598e9792a06",
+  "previous_tree_hash": "976f198bec2cead30f325e6f474be6887546f7eb81b2e5138959898a0447a745",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13718,9 +13718,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "056f1c9bf73fb2f05830b260fe8ee7ddf9f440f3343f08313a87fc99f9a7674b",
+  "skill_tree_hash": "e05df4e5ab9be4849b44c5ae9aa0c9b681f1fdff515382f893bbaabed73e702a",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "976f198bec2cead30f325e6f474be6887546f7eb81b2e5138959898a0447a745",
+  "tree_hash": "e36a9b02e9b58907c6ebb9c8a459ada6a791a7907e6214f3f8dc26354fd55e0b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13741,8 +13741,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d439167a99fe536ef00d1c35209a85fc444c6e20d7b437217f5bf3364d360948",
-      "size": 1948902
+      "sha256": "e5e3c905bda587d6d28e51b88c6b04cbfaa06c6f845991442066ce29a5cc252b",
+      "size": 1949237
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16861,8 +16861,8 @@
     },
     {
       "path": "pages/projects/aeneid-faucet-migration.md",
-      "sha256": "76377e40551db5841584fd13bebd7ae982a3330e6f703f17d7ba5a1640916159",
-      "size": 6269
+      "sha256": "679a3cd2049644c13b073bf596989600cb8e24a74428ed92a4548a94201869df",
+      "size": 5109
     },
     {
       "path": "pages/projects/aeneid-faucet-server-migration.md",
@@ -20881,5 +20881,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c398606471ee848d5d899f71b69122675bb1dc304a804843d7cf637b1b4cdfc6"
+  "wiki_tree_hash": "d21a97d75f23e7b1efafb0855b1f5cf273cfe9b92364672e671d0a9153701f64"
 }
