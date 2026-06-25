@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1e80c82c23594dcc466f0da7851600437d4d290df52589dbdfd34091c160828b",
-        "size": 1145269
+        "sha256": "e57390b9b68777085be22422bcffb135852e40dea08fcada688838394c4ae7de",
+        "size": 1145634
       },
       {
         "path": "log.md",
-        "sha256": "664da9a111023778c794cf42ebaf9d1bcfa0ded2be4f322f4968610ec346ef21",
-        "size": 1927599
+        "sha256": "8f81618d06b0a35ab2fd78ff170d6ac5065d3b3fba052fec9d150dd540bf6600",
+        "size": 1927976
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5748,6 +5748,11 @@
         "path": "pages/open-questions/devnet-aws-ssm-access-for-yao.md",
         "sha256": "6f9366d5c86d428e8944284b7e107e0e29169b6a22239f4411fb91fe092f8133",
         "size": 4169
+      },
+      {
+        "path": "pages/open-questions/dynamics-365-payment-failure-access.md",
+        "sha256": "c22679e626caa1da41ae11c6f90f4da8ecc2284d1572b78b2cdc691738d076b8",
+        "size": 2937
       },
       {
         "path": "pages/open-questions/email-whitelisting-status-request.md",
@@ -10274,8 +10279,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T06:22:28Z",
-  "file_count": 2053,
+  "exported_at": "2026-06-25T06:34:14Z",
+  "file_count": 2054,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13552,7 +13557,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "520f9207448361e6a1e39a18e25f65202c7516646edd8b9eac5ba91176be4040",
+  "previous_tree_hash": "68f8800482846437d43aaba4641c763c5de207482c576b70ca29e8ab47a149ce",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13565,14 +13570,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "68f8800482846437d43aaba4641c763c5de207482c576b70ca29e8ab47a149ce",
+  "tree_hash": "995d65ee711d570646ea74ce7d8ab018e5e477dbf5125c0aa916ce1f16c54d32",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1399,
+  "wiki_file_count": 1400,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13581,13 +13586,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1e80c82c23594dcc466f0da7851600437d4d290df52589dbdfd34091c160828b",
-      "size": 1145269
+      "sha256": "e57390b9b68777085be22422bcffb135852e40dea08fcada688838394c4ae7de",
+      "size": 1145634
     },
     {
       "path": "log.md",
-      "sha256": "664da9a111023778c794cf42ebaf9d1bcfa0ded2be4f322f4968610ec346ef21",
-      "size": 1927599
+      "sha256": "8f81618d06b0a35ab2fd78ff170d6ac5065d3b3fba052fec9d150dd540bf6600",
+      "size": 1927976
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16048,6 +16053,11 @@
       "path": "pages/open-questions/devnet-aws-ssm-access-for-yao.md",
       "sha256": "6f9366d5c86d428e8944284b7e107e0e29169b6a22239f4411fb91fe092f8133",
       "size": 4169
+    },
+    {
+      "path": "pages/open-questions/dynamics-365-payment-failure-access.md",
+      "sha256": "c22679e626caa1da41ae11c6f90f4da8ecc2284d1572b78b2cdc691738d076b8",
+      "size": 2937
     },
     {
       "path": "pages/open-questions/email-whitelisting-status-request.md",
@@ -20571,5 +20581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0d3156cf3457fed52dfeb9ebaebdc84d716e072aeeb58ed36324b6e55802df8e"
+  "wiki_tree_hash": "0b155fad257e2dfd0dde1dcf8c8aea73ac353b37219aed93c8146522416cbb1e"
 }

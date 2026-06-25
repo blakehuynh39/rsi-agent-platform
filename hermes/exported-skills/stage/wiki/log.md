@@ -38981,3 +38981,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2083ea8a7c1c0a041603889b643526d6
 - summary: Payment processing system accessible via dyanmics.xyz. A payment failure was reported, requiring admin access to update payment details. Admin: U04L0DD6B6F.
 
+## [2026-06-25T06:31:17Z] synthesis | Dynamics 365 Payment Failure Access Request
+
+- status: published
+- slug: open-questions/dynamics-365-payment-failure-access
+- wiki_revision_id: wikirev_941959d81201eb5ec02c6ae61ef9013a
+- summary: A payment failure in Dynamics 365 requires access for user @U08332YR7W to change payment. @U04L0DD6B6F is the admin, and access is requested.
+
