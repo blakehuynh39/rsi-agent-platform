@@ -38788,3 +38788,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_eae35c3dba150b64e65d4ffd22adbfb5
 - summary: Migration of Aeneid RPC and validators, planned with no downtime. A syncing issue was resolved by adding peers manually. The date was adjusted from Jan 30 to Jan 26 initially, then...
 
+## [2026-06-25T01:33:13Z] synthesis | Aeneid Validator Migration
+
+- status: published
+- slug: projects/aeneid-validator-migration
+- wiki_revision_id: wikirev_88c3fdcdd9a71a4e6e839bca7480cc2e
+- summary: Migration of Aeneid RPC and validators, originally planned for Jan 30 11PM PT, rescheduled to Monday Feb 2 3PM BJT due to date mix-up and opening ceremony conflict. A validator syn...
+
+## [2026-06-25T01:35:05Z] synthesis | Aeneid RPC and Validator Migration
+
+- status: published
+- slug: projects/aeneid-rpc-validator-migration
+- wiki_revision_id: wikirev_fa456eb8e453350be73f60531f7d9887
+- summary: Planned migration of Aeneid RPC nodes and validators with zero downtime. Encountered node sync issues resolved by manually adding peers. Schedule changed multiple times, finalized ...
+
+## [2026-06-25T01:35:05Z] synthesis | Aeneid Validator Peer Sync Issue Resolution
+
+- status: published
+- slug: runbooks/aeneid-validator-peer-sync-fix
+- wiki_revision_id: wikirev_957111e5b1268ecaca3327e6b91f043d
+- summary: Resolve sync errors in Aeneid validator nodes where geth logs 'Number of finalized block is missing' by manually adding peers.
+

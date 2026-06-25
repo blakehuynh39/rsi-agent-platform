@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0c64af6423adb146860b47b738cf01fa3e926b99e2ad002d9485504be710b2fd",
-        "size": 1137434
+        "sha256": "2ff295d032cd69d9b42c9848de8d665c3ac671788b2a777ae3ba7a2b1b46797c",
+        "size": 1138537
       },
       {
         "path": "log.md",
-        "sha256": "5d92bcc531a95fb6a142d1f97a29c9bc01a9104d8b5870cd32ca1015ec1c445d",
-        "size": 1917080
+        "sha256": "a2b4648e618df09925772a627c1f57b92f2e2e8c8bfe2ecfabe62552b1ef90fe",
+        "size": 1918217
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6290,9 +6290,19 @@
         "size": 3476
       },
       {
+        "path": "pages/projects/aeneid-rpc-validator-migration.md",
+        "sha256": "2b3864d6985065796c8bf831ea326f1ecf30daa33fa7016ccc0ec344b388770f",
+        "size": 8112
+      },
+      {
         "path": "pages/projects/aeneid-rpc-validators-migration.md",
         "sha256": "364474e9e8a641651fade316660a285871cd197a11ee76201053e73c8bd905a1",
         "size": 7137
+      },
+      {
+        "path": "pages/projects/aeneid-validator-migration.md",
+        "sha256": "00732b577402a75e9805d8f3c2c9c1feaaba494f1ecdc3af1412e87ea1058036",
+        "size": 5545
       },
       {
         "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -8183,6 +8193,11 @@
         "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
         "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
         "size": 4304
+      },
+      {
+        "path": "pages/runbooks/aeneid-validator-peer-sync-fix.md",
+        "sha256": "893b060607be9cd78a09eb4e5cfe247107d407c7d504f3bb83b26630600cae85",
+        "size": 2002
       },
       {
         "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
@@ -10169,8 +10184,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T01:25:13Z",
-  "file_count": 2032,
+  "exported_at": "2026-06-25T01:37:08Z",
+  "file_count": 2035,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13447,7 +13462,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ebfc0fc755e1c24bbdf1a749f49c26a3a422d8d6dff90c5fa10b6b1f978ebc27",
+  "previous_tree_hash": "3358fdb11f77c688b96ef65d20626f0c81329544d84614ba7327d927f83e47f7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13460,14 +13475,14 @@
   ],
   "skill_tree_hash": "99d19634a86fc5f9844c8aa1f7201bd476467ee74067462f57c2f8919010e457",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3358fdb11f77c688b96ef65d20626f0c81329544d84614ba7327d927f83e47f7",
+  "tree_hash": "eb9039151de5813aa5dcc55793c50703191dfb1c06ae01ff5014dee48dd525c7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1378,
+  "wiki_file_count": 1381,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13476,13 +13491,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0c64af6423adb146860b47b738cf01fa3e926b99e2ad002d9485504be710b2fd",
-      "size": 1137434
+      "sha256": "2ff295d032cd69d9b42c9848de8d665c3ac671788b2a777ae3ba7a2b1b46797c",
+      "size": 1138537
     },
     {
       "path": "log.md",
-      "sha256": "5d92bcc531a95fb6a142d1f97a29c9bc01a9104d8b5870cd32ca1015ec1c445d",
-      "size": 1917080
+      "sha256": "a2b4648e618df09925772a627c1f57b92f2e2e8c8bfe2ecfabe62552b1ef90fe",
+      "size": 1918217
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16485,9 +16500,19 @@
       "size": 3476
     },
     {
+      "path": "pages/projects/aeneid-rpc-validator-migration.md",
+      "sha256": "2b3864d6985065796c8bf831ea326f1ecf30daa33fa7016ccc0ec344b388770f",
+      "size": 8112
+    },
+    {
       "path": "pages/projects/aeneid-rpc-validators-migration.md",
       "sha256": "364474e9e8a641651fade316660a285871cd197a11ee76201053e73c8bd905a1",
       "size": 7137
+    },
+    {
+      "path": "pages/projects/aeneid-validator-migration.md",
+      "sha256": "00732b577402a75e9805d8f3c2c9c1feaaba494f1ecdc3af1412e87ea1058036",
+      "size": 5545
     },
     {
       "path": "pages/projects/ai-automation-bots-initiative.md",
@@ -18378,6 +18403,11 @@
       "path": "pages/runbooks/aeneid-tx-failure-incident-2026-06-17.md",
       "sha256": "1c46f74a2f8ac1847981356dc5c8972e0f6f6a1de1e5106e35182a5708ca50e8",
       "size": 4304
+    },
+    {
+      "path": "pages/runbooks/aeneid-validator-peer-sync-fix.md",
+      "sha256": "893b060607be9cd78a09eb4e5cfe247107d407c7d504f3bb83b26630600cae85",
+      "size": 2002
     },
     {
       "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
@@ -20361,5 +20391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c3a48f6be9b0e01fbf85507093cc975ef0b62d0db87e5e48ade29bb679f0a5ad"
+  "wiki_tree_hash": "1eaa95504d2aa69e631c9b97a6bdcf8a2a076ab3830fb8892d4fb9e682b9a375"
 }
