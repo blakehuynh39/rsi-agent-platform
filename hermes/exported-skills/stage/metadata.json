@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "7b1b4a612ded901a4dad56b2ec9b17125efb020d1afe3de43138ef7e9223a70a",
-        "size": 1165019
+        "sha256": "f00cb5a562191e343b47b45fcf699fd4a01bc1f31c07b1578f9e424560461fee",
+        "size": 1165016
       },
       {
         "path": "log.md",
-        "sha256": "df02ce5f2aae6ebff50ffd7fa0fc86d7aec85d71fef71a32fffef2fe5a879704",
-        "size": 1971333
+        "sha256": "1e4765a77aebb5df49bd1780ad0e18d25cd1df9bbb1905e25585eba41f215bd5",
+        "size": 1971632
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8426,8 +8426,8 @@
       },
       {
         "path": "pages/runbooks/aws-server-access-guide.md",
-        "sha256": "7a7090130f87aa3e5248c690d124657d4b3e500a5e3e3519c2798ec105eb94df",
-        "size": 3337
+        "sha256": "09fee162706f911e2fbc5e841accb3fa3dda591b9e41da65dce7b29a58af98c4",
+        "size": 3051
       },
       {
         "path": "pages/runbooks/backend-onboarding.md",
@@ -10519,7 +10519,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T22:52:48Z",
+  "exported_at": "2026-06-25T23:04:40Z",
   "file_count": 2102,
   "files": [
     {
@@ -13797,7 +13797,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6ac6766fb9e6c1c77305b2bb36b116beba2a232f2098fc4f3d3ca9ebf54865bc",
+  "previous_tree_hash": "f38972a41fc5a5ad38d4fe60b87f9f5f2037d2ad2c861b7fec6aa04658abd7f6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13810,7 +13810,7 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f38972a41fc5a5ad38d4fe60b87f9f5f2037d2ad2c861b7fec6aa04658abd7f6",
+  "tree_hash": "dade20629f8c957ebf7ad0a73cd02e448aef267b6a0ce4bc637b10c807ee88c1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13826,13 +13826,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "7b1b4a612ded901a4dad56b2ec9b17125efb020d1afe3de43138ef7e9223a70a",
-      "size": 1165019
+      "sha256": "f00cb5a562191e343b47b45fcf699fd4a01bc1f31c07b1578f9e424560461fee",
+      "size": 1165016
     },
     {
       "path": "log.md",
-      "sha256": "df02ce5f2aae6ebff50ffd7fa0fc86d7aec85d71fef71a32fffef2fe5a879704",
-      "size": 1971333
+      "sha256": "1e4765a77aebb5df49bd1780ad0e18d25cd1df9bbb1905e25585eba41f215bd5",
+      "size": 1971632
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18971,8 +18971,8 @@
     },
     {
       "path": "pages/runbooks/aws-server-access-guide.md",
-      "sha256": "7a7090130f87aa3e5248c690d124657d4b3e500a5e3e3519c2798ec105eb94df",
-      "size": 3337
+      "sha256": "09fee162706f911e2fbc5e841accb3fa3dda591b9e41da65dce7b29a58af98c4",
+      "size": 3051
     },
     {
       "path": "pages/runbooks/backend-onboarding.md",
@@ -21061,5 +21061,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "577c13fd2918827db547b74a8f3148ed5d05494d2c8e90460c69fc7e9a3e6aa3"
+  "wiki_tree_hash": "11a6973d740211bc087c65a679cc2c44e807c6dd0eb831a6587598bcaf960357"
 }

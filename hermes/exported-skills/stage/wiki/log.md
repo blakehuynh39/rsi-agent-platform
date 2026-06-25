@@ -39797,3 +39797,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b2c82cd2ab37ce2b781351b42ebd7396
 - summary: Decision and actions to decommission UptimeRobot and migrate to Betterstack. Auto-renewal cancelled, user accounts removed, alerts paused.
 
+## [2026-06-25T23:02:18Z] synthesis | AWS Server Access Guide
+
+- status: published
+- slug: runbooks/aws-server-access-guide
+- wiki_revision_id: wikirev_d6bf5406954690393969a0ddfb94e072
+- summary: Guide for accessing Aeneid and mainnet AWS servers, including notes on internal devnet server access.
+
