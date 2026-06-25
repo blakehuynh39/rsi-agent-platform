@@ -38960,3 +38960,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b103fb078d079c4666774aeecc3a9fdb
 - summary: Decision to approve the pull request changing the Aeneid RPC domain during migration.
 
+## [2026-06-25T06:01:44Z] synthesis | Consensus Errors on Aeneid Validator Nodes - 2026-02-02
+
+- status: published
+- slug: concepts/incident-consensus-errors-aeneid-2026-02-02
+- wiki_revision_id: wikirev_512ad3ba7e9e180139d6b0f53f6f8acb
+- summary: On February 2, 2026, Aeneid validator nodes experienced consensus errors including conflicting votes and invalid proposal signatures, possibly due to an unsafe_reset operation.
+

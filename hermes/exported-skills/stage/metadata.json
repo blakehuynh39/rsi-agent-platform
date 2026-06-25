@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "89140484502dfc05b055ab8852bd106f4ebf4a6d4db5b490bd8d04abde2bfb81",
-        "size": 1144156
+        "sha256": "58b64de74b75fb28818e25b579940fe7d350730cd3d5f8c740f60f931cddbe25",
+        "size": 1144570
       },
       {
         "path": "log.md",
-        "sha256": "6795e31255feab33c05901b2472a4a8c78e5336a7674adc530ec44be4026e005",
-        "size": 1926450
+        "sha256": "ef6317254f676bc76d50e01b07c6ff13b4159f3a358081337bb2e2251dd6a235",
+        "size": 1926876
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3758,6 +3758,11 @@
         "path": "pages/concepts/image-resizing-solution.md",
         "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
         "size": 1950
+      },
+      {
+        "path": "pages/concepts/incident-consensus-errors-aeneid-2026-02-02.md",
+        "sha256": "4618f5a199ed97ee51ed30dbc7e01e2be841ffcaed3ba10a52e2265fff4a4749",
+        "size": 2475
       },
       {
         "path": "pages/concepts/indian-speech-data-collection-opportunity.md",
@@ -10259,8 +10264,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T05:48:40Z",
-  "file_count": 2050,
+  "exported_at": "2026-06-25T06:05:34Z",
+  "file_count": 2051,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13537,7 +13542,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f6127f05672e337e851dd9531ff962a1edfa3a7c4ef1084c94c1b42e7cb980af",
+  "previous_tree_hash": "be2631469e0184be6a0c0c1d489260a81fae0608ee5b659f881421e39d9a4629",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13550,14 +13555,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "be2631469e0184be6a0c0c1d489260a81fae0608ee5b659f881421e39d9a4629",
+  "tree_hash": "520f9207448361e6a1e39a18e25f65202c7516646edd8b9eac5ba91176be4040",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1396,
+  "wiki_file_count": 1397,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13566,13 +13571,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "89140484502dfc05b055ab8852bd106f4ebf4a6d4db5b490bd8d04abde2bfb81",
-      "size": 1144156
+      "sha256": "58b64de74b75fb28818e25b579940fe7d350730cd3d5f8c740f60f931cddbe25",
+      "size": 1144570
     },
     {
       "path": "log.md",
-      "sha256": "6795e31255feab33c05901b2472a4a8c78e5336a7674adc530ec44be4026e005",
-      "size": 1926450
+      "sha256": "ef6317254f676bc76d50e01b07c6ff13b4159f3a358081337bb2e2251dd6a235",
+      "size": 1926876
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14043,6 +14048,11 @@
       "path": "pages/concepts/image-resizing-solution.md",
       "sha256": "e5e8bb4b2cbf35120217d842f26d2098aa8e3205fdf44dde7178c0058b54c91e",
       "size": 1950
+    },
+    {
+      "path": "pages/concepts/incident-consensus-errors-aeneid-2026-02-02.md",
+      "sha256": "4618f5a199ed97ee51ed30dbc7e01e2be841ffcaed3ba10a52e2265fff4a4749",
+      "size": 2475
     },
     {
       "path": "pages/concepts/indian-speech-data-collection-opportunity.md",
@@ -20541,5 +20551,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b3d860f74de5bb5869e1ba9b7f54c8fb5d696a7cb79d383d4c565dae0c127f8f"
+  "wiki_tree_hash": "757dd343a3825945ca6e661a634ceda7b0561ec48e0eca2d256621952cf2b70b"
 }
