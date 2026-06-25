@@ -39444,3 +39444,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9e157033bda2217c47445be49e37eccf
 - summary: Infrastructure details and migration plans for the Aeneid faucet server, currently hosted on GCP (instance use1-aeneid-fuacet, IP 35.207.0.103), with frontend at aeneid.faucet.stor...
 
+## [2026-06-25T16:18:35Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_a32561da1e055fae4201330c3f8b745a
+- summary: Backend server for the Aeneid testnet faucet frontend. Currently hosted on GCP instance use1-aeneid-fuacet (IP 35.207.0.103) in project story-aeneid. Plans to migrate to AWS and as...
+
+## [2026-06-25T16:20:02Z] synthesis | Aeneid Faucet Service
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_a9222ad362f5c948b055387815ac660b
+- summary: Aeneid faucet service for distributing testnet tokens, frontend at aeneid.faucet.story.foundation, backend on GCP instance use1-aeneid-fuacet (35.207.0.103:23313).
+
+## [2026-06-25T16:20:03Z] synthesis | Aeneid Faucet Migration to AWS
+
+- status: published
+- slug: decisions/aeneid-faucet-migration-decision
+- wiki_revision_id: wikirev_7b7e7819f9f5b52d28f5b8dcaca4f07f
+- summary: Decision to migrate the Aeneid faucet backend from GCP to AWS, requiring frontend to use a domain name instead of hardcoded IP. Access granted for GCP, pending for AWS as of Feb 20...
+
