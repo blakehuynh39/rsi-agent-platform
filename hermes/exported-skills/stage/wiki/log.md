@@ -38865,3 +38865,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bdbb2457c5a177016de2dad92ab67a2d
 - summary: Decision to archive a set of old, unused repositories that have not seen commits in over a year.
 
+## [2026-06-25T03:16:19Z] synthesis | Staging Pods Crash Loop After Temporal Cert Rotation
+
+- status: published
+- slug: runbooks/staging-pods-crash-loop-after-temporal-cert-rotation
+- wiki_revision_id: wikirev_fcd9a7aff5d7e489d89a1f352e101124
+- summary: On 2026-01-31, after rotating Temporal worker certificates, all staging pods began crash looping. The pods recovered after restarting all deployments, though the exact cause of the...
+
