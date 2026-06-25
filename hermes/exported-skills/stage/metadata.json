@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b78d5a9cd2b5be96599daac7bce5fe00290af8980a04e7fbdad123f54d79c1ab",
-        "size": 1160191
+        "sha256": "c0c01806e1fe07d05586b7491fec33da13311fcde40b636896c66aa11964c20e",
+        "size": 1160124
       },
       {
         "path": "log.md",
-        "sha256": "ed9733d0e4212022efac2a9294bf9a8305ca91a60a1748ab11063cdc43c7effa",
-        "size": 1958423
+        "sha256": "6e6f856c88e5eabb54f7c46230014d360fb1737ea026d31b07c77255cefd973b",
+        "size": 1959220
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9416,8 +9416,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet-server.md",
-        "sha256": "3925ddbcd766d62ad595f3b8b31b68d867c4e81bf5068dc5b17adf5fa69945db",
-        "size": 5145
+        "sha256": "2c1804c6a8b90dcf4d039afed386c1cff8f3db9927ab74eb1ca3b013aa5b11e3",
+        "size": 3296
       },
       {
         "path": "pages/systems/aeneid-faucet-system.md",
@@ -10454,7 +10454,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T17:21:59Z",
+  "exported_at": "2026-06-25T17:33:50Z",
   "file_count": 2089,
   "files": [
     {
@@ -13732,7 +13732,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "582d0f1e4f5bf1af9cc9eaaabbac4d4eb5ab1bf6427d0e9c9e069c06c9d2ee4d",
+  "previous_tree_hash": "cc7c75a03e0ed7b2ed0d6cd68baf64e6c1700f71626050ac0808d9b5ac0c50ee",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13745,7 +13745,7 @@
   ],
   "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cc7c75a03e0ed7b2ed0d6cd68baf64e6c1700f71626050ac0808d9b5ac0c50ee",
+  "tree_hash": "f63377d8b9abe86d74bce7dc697eb7b648511ee597a0ef3bb7b4e2622da41ff4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13761,13 +13761,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b78d5a9cd2b5be96599daac7bce5fe00290af8980a04e7fbdad123f54d79c1ab",
-      "size": 1160191
+      "sha256": "c0c01806e1fe07d05586b7491fec33da13311fcde40b636896c66aa11964c20e",
+      "size": 1160124
     },
     {
       "path": "log.md",
-      "sha256": "ed9733d0e4212022efac2a9294bf9a8305ca91a60a1748ab11063cdc43c7effa",
-      "size": 1958423
+      "sha256": "6e6f856c88e5eabb54f7c46230014d360fb1737ea026d31b07c77255cefd973b",
+      "size": 1959220
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19896,8 +19896,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet-server.md",
-      "sha256": "3925ddbcd766d62ad595f3b8b31b68d867c4e81bf5068dc5b17adf5fa69945db",
-      "size": 5145
+      "sha256": "2c1804c6a8b90dcf4d039afed386c1cff8f3db9927ab74eb1ca3b013aa5b11e3",
+      "size": 3296
     },
     {
       "path": "pages/systems/aeneid-faucet-system.md",
@@ -20931,5 +20931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2b9838b893ac7cbd6c86205d364234cb933b87c6c4b8674e31d85a66c5a9410e"
+  "wiki_tree_hash": "d1a2f29f80091eda6ced186bfe878bcc9c24a75d1f6a79f68e23f26c9c11503c"
 }

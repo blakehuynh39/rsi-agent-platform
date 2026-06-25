@@ -39553,3 +39553,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0acb85ae254b96b32eba98756539f6c2
 - summary: Plan to migrate the Aeneid testnet faucet backend from GCP to AWS, switching the frontend from IP-based to domain-based routing to enable seamless migration.
 
+## [2026-06-25T17:30:24Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_78076454ec546972ac63d539771252a8
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_1ec336687510147cbd890ef92fdf4e2a
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
+## [2026-06-25T17:31:53Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_6edd0944e208a4d83574ddd7377ff6e8
+- summary: Backend server for the Story Testnet Aeneid faucet, currently hosted on GCP instance use1-aeneid-fuacet, with a planned migration to AWS.
+
