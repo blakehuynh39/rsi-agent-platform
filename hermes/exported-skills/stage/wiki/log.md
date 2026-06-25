@@ -39646,3 +39646,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2029e53c410b693325906db9a71a6ce7
 - summary: The aeneid testnet faucet system, including the GCP instance use1-aeneid-fuacet, its migration to AWS, and associated components.
 
+## [2026-06-25T19:01:56Z] synthesis | Aeneid Faucet Service
+
+- status: published
+- slug: systems/aeneid-faucet-service
+- wiki_revision_id: wikirev_a05bcbc6e3beb499f509e856a7b99fb5
+- summary: The Aeneid testnet faucet frontend at https://aeneid.faucet.story.foundation/ and backend hosted on GCP instance use1-aeneid-fuacet (IP 35.207.0.103). The service validates request...
+
+## [2026-06-25T19:03:12Z] synthesis | Aeneid Faucet System
+
+- status: published
+- slug: systems/aeneid-faucet-system
+- wiki_revision_id: wikirev_e938dbbfc58771b726fe807f5bc46bf0
+- summary: The Aeneid faucet is a testnet token distribution system hosted on a GCP VM instance (use1-aeneid-fuacet) with IP 35.207.0.103. The frontend (https://aeneid.faucet.story.foundation...
+
