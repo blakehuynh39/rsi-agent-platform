@@ -39164,3 +39164,30 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6bc8ef184bbcf3476d88fb110f517485
 - summary: Decision to migrate the Aeneid faucet backend from GCP instance use1-aeneid-fuacet to AWS, and to update the faucet frontend from using an IP address to a domain name for easier fu...
 
+## [2026-06-25T11:00:44Z] ingest | ipgraph getRoyalty DoS — Worst-Case Analysis
+
+- status: published
+- slug: notion_document/ipgraph-getroyalty-dos-worst-case-analysis-61c774c3
+- wiki_revision_id: wikirev_391ff59ecb2dd8bcf81e25f42c01dfac
+- source_document_id: srcdoc_7d3e5745ad658305b0fff3e461c774c3
+- source_revision_id: srcrev_4c0db62d69767cf622a55117d4d5e52f
+- summary: Source: [source](https://app.notion.com/p/ipgraph-getRoyalty-DoS-Worst-Case-Analysis-38a051299a548024a9e9df7393f702c8)
+
+## [2026-06-25T11:00:45Z] ingest | IP_GRAPH royalty-read gas underpricing — auditor brief
+
+- status: published
+- slug: notion_document/ip_graph-royalty-read-gas-underpricing-auditor-brief-90690722
+- wiki_revision_id: wikirev_1c545f26209c2f2d26911df76594a0b4
+- source_document_id: srcdoc_11286398b5cf997ee6d2913f90690722
+- source_revision_id: srcrev_791f79a038a5c59ebf2bcb333ce65c58
+- summary: Source: [source](https://app.notion.com/p/IP_GRAPH-royalty-read-gas-underpricing-auditor-brief-389051299a5480b58721db9cda02c4c6)
+
+## [2026-06-25T11:00:47Z] ingest | $DATA Migration technical handbook (external)
+
+- status: published
+- slug: notion_document/-data-migration-technical-handbook-external--40911f03
+- wiki_revision_id: wikirev_ef6ec5200c93fe8cb89e3c8e27a8ca5c
+- source_document_id: srcdoc_595c1fb031be8bea2eb6952240911f03
+- source_revision_id: srcrev_b75e3c0253d50a812766f68f5fbdca24
+- summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
+
