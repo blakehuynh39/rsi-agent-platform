@@ -39532,3 +39532,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c4313dbe93617445a4751c01f0ec9d33
 - summary: The backend server that processes faucet requests for the Aeneid testnet, currently hosted on GCP (instance use1-aeneid-fuacet) at IP 35.207.0.103. It validates frontend requests a...
 
+## [2026-06-25T17:18:22Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_661079dab185e229b3fcf323adf3d8ef
+- summary: The Aeneid faucet service provides testnet tokens to users. It consists of a frontend at https://aeneid.faucet.story.foundation/ and a backend server currently hosted on GCP instan...
+
+## [2026-06-25T17:18:22Z] synthesis | Migrate Aeneid Faucet from GCP to AWS
+
+- status: published
+- slug: decisions/migrate-aeneid-faucet-gcp-to-aws
+- wiki_revision_id: wikirev_17cc798983180f1e9e83acf4a0a72a1c
+- summary: Decision to migrate the Aeneid faucet backend from GCP (project story-aeneid) to AWS (account story-testnet). The migration aims to terminate GCP instances. Access to both environm...
+
+## [2026-06-25T17:19:09Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: projects/aeneid-faucet-server-migration
+- wiki_revision_id: wikirev_0acb85ae254b96b32eba98756539f6c2
+- summary: Plan to migrate the Aeneid testnet faucet backend from GCP to AWS, switching the frontend from IP-based to domain-based routing to enable seamless migration.
+

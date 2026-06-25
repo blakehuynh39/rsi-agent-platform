@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a9fbce3b45597432dce85971b04436ac0541ba9abe70f18a85cf0b90724a8dba",
-        "size": 1160168
+        "sha256": "b78d5a9cd2b5be96599daac7bce5fe00290af8980a04e7fbdad123f54d79c1ab",
+        "size": 1160191
       },
       {
         "path": "log.md",
-        "sha256": "d17f27a159d71b952ff395db939504426d4f06af6ad31c05568bd4dd0b803ca0",
-        "size": 1957289
+        "sha256": "ed9733d0e4212022efac2a9294bf9a8305ca91a60a1748ab11063cdc43c7effa",
+        "size": 1958423
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5321,8 +5321,8 @@
       },
       {
         "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
-        "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
-        "size": 5083
+        "sha256": "fa8e030dda5751974026d88c7d64ef3ff563b1702d11df5b03ea33762838943b",
+        "size": 5198
       },
       {
         "path": "pages/decisions/migrate-aeneid-faucet-to-aws.md",
@@ -6431,8 +6431,8 @@
       },
       {
         "path": "pages/projects/aeneid-faucet-server-migration.md",
-        "sha256": "2ab6db1da759957e664602830c0dd80fcb3a8a861cccd6a4cadd77ac35d562dd",
-        "size": 4363
+        "sha256": "26ecbe6c55bec85476a65414ceeea0bc5e2a78899b3b46353c080285c1704965",
+        "size": 5665
       },
       {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -9426,8 +9426,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
-        "sha256": "1e00a0e25fbdddaa9680b43549eab954fafce9114ea80cb93395436c7f470383",
-        "size": 5486
+        "sha256": "893d5a1e7713c012101e19d61c48cb7df91c4adfd13d46147040926dabb2977e",
+        "size": 4086
       },
       {
         "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -10454,7 +10454,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T17:05:01Z",
+  "exported_at": "2026-06-25T17:21:59Z",
   "file_count": 2089,
   "files": [
     {
@@ -13732,7 +13732,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f024d5a1cd7a48d689d88fc1f1350eadd40950c29d3e9fa0d2e9e4562f9f7d67",
+  "previous_tree_hash": "582d0f1e4f5bf1af9cc9eaaabbac4d4eb5ab1bf6427d0e9c9e069c06c9d2ee4d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13745,7 +13745,7 @@
   ],
   "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "582d0f1e4f5bf1af9cc9eaaabbac4d4eb5ab1bf6427d0e9c9e069c06c9d2ee4d",
+  "tree_hash": "cc7c75a03e0ed7b2ed0d6cd68baf64e6c1700f71626050ac0808d9b5ac0c50ee",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13761,13 +13761,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a9fbce3b45597432dce85971b04436ac0541ba9abe70f18a85cf0b90724a8dba",
-      "size": 1160168
+      "sha256": "b78d5a9cd2b5be96599daac7bce5fe00290af8980a04e7fbdad123f54d79c1ab",
+      "size": 1160191
     },
     {
       "path": "log.md",
-      "sha256": "d17f27a159d71b952ff395db939504426d4f06af6ad31c05568bd4dd0b803ca0",
-      "size": 1957289
+      "sha256": "ed9733d0e4212022efac2a9294bf9a8305ca91a60a1748ab11063cdc43c7effa",
+      "size": 1958423
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15801,8 +15801,8 @@
     },
     {
       "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
-      "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
-      "size": 5083
+      "sha256": "fa8e030dda5751974026d88c7d64ef3ff563b1702d11df5b03ea33762838943b",
+      "size": 5198
     },
     {
       "path": "pages/decisions/migrate-aeneid-faucet-to-aws.md",
@@ -16911,8 +16911,8 @@
     },
     {
       "path": "pages/projects/aeneid-faucet-server-migration.md",
-      "sha256": "2ab6db1da759957e664602830c0dd80fcb3a8a861cccd6a4cadd77ac35d562dd",
-      "size": 4363
+      "sha256": "26ecbe6c55bec85476a65414ceeea0bc5e2a78899b3b46353c080285c1704965",
+      "size": 5665
     },
     {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -19906,8 +19906,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
-      "sha256": "1e00a0e25fbdddaa9680b43549eab954fafce9114ea80cb93395436c7f470383",
-      "size": 5486
+      "sha256": "893d5a1e7713c012101e19d61c48cb7df91c4adfd13d46147040926dabb2977e",
+      "size": 4086
     },
     {
       "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -20931,5 +20931,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "69bcd48f15be80cdbe2ca351c7840731adf2658247b58646dd6cb7d13a9aa655"
+  "wiki_tree_hash": "2b9838b893ac7cbd6c86205d364234cb933b87c6c4b8674e31d85a66c5a9410e"
 }
