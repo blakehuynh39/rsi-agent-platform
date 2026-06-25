@@ -39249,3 +39249,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_09ceaa7cd0e3b3b2b2926a5b76f93849
 - summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
 
+## [2026-06-25T12:37:47Z] synthesis | Use1 Aeneid Faucet Server
+
+- status: published
+- slug: systems/use1-aeneid-fuacet
+- wiki_revision_id: wikirev_0e60166f804303fc5de27a6c8be067f5
+- summary: GCP compute instance use1-aeneid-fuacet hosting the backend for the Aeneid testnet faucet. Currently active; planned migration to AWS.
+

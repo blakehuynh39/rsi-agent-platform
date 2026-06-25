@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8fc5575ea3bb3349d35ee372f22141295cf82c19ad4ea6c59f208d0f6f34f233",
-        "size": 1154257
+        "sha256": "8987adb366427363450f1fdbc6c66ee21ff070aab37694667cce5001db5a3c56",
+        "size": 1154574
       },
       {
         "path": "log.md",
-        "sha256": "62cf3d9953e4085fefd83acc5809dd85eeac3d2dc4b362c3f99fc56387b6f911",
-        "size": 1942478
+        "sha256": "09d7c8a58729289083c66bac24da706754a4f5134075051d8d5fb98c4892cadb",
+        "size": 1942806
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10355,6 +10355,11 @@
         "size": 4539
       },
       {
+        "path": "pages/systems/use1-aeneid-fuacet.md",
+        "sha256": "a10fd0fa8b96ae7dbf5bf83afc3156f7d7f8ed345d161b7d7d984e36be1b9e4d",
+        "size": 8899
+      },
+      {
         "path": "pages/systems/user-sampling-worker.md",
         "sha256": "4dc45dadf06b4eb70a125c3b20b92a388b5ffcb79719c669ec186f090295dba5",
         "size": 1069
@@ -10379,8 +10384,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T12:33:56Z",
-  "file_count": 2074,
+  "exported_at": "2026-06-25T12:40:41Z",
+  "file_count": 2075,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13657,7 +13662,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5faffd4ea20f8b7eaffcb236ec330f223c0db7d10d8587d87337466c7d9eec1f",
+  "previous_tree_hash": "54dcf9d5307ce8ece39fd7899dde850da8994324e59aec0e20a7b785d4f80f74",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13670,14 +13675,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "54dcf9d5307ce8ece39fd7899dde850da8994324e59aec0e20a7b785d4f80f74",
+  "tree_hash": "4512a70870ff7f46065b8ecfcbf09caebeecf1bcadac1e6e0621fe3addfc7325",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1420,
+  "wiki_file_count": 1421,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13686,13 +13691,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8fc5575ea3bb3349d35ee372f22141295cf82c19ad4ea6c59f208d0f6f34f233",
-      "size": 1154257
+      "sha256": "8987adb366427363450f1fdbc6c66ee21ff070aab37694667cce5001db5a3c56",
+      "size": 1154574
     },
     {
       "path": "log.md",
-      "sha256": "62cf3d9953e4085fefd83acc5809dd85eeac3d2dc4b362c3f99fc56387b6f911",
-      "size": 1942478
+      "sha256": "09d7c8a58729289083c66bac24da706754a4f5134075051d8d5fb98c4892cadb",
+      "size": 1942806
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20760,6 +20765,11 @@
       "size": 4539
     },
     {
+      "path": "pages/systems/use1-aeneid-fuacet.md",
+      "sha256": "a10fd0fa8b96ae7dbf5bf83afc3156f7d7f8ed345d161b7d7d984e36be1b9e4d",
+      "size": 8899
+    },
+    {
       "path": "pages/systems/user-sampling-worker.md",
       "sha256": "4dc45dadf06b4eb70a125c3b20b92a388b5ffcb79719c669ec186f090295dba5",
       "size": 1069
@@ -20781,5 +20791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0f7665348ff84f0e82c83e76b247f511438518f74c810e9b47661dd51f8181bb"
+  "wiki_tree_hash": "5928bc14759cf70c033a52feaaefe9da9fd3a80fe123fbc778b7239b117e5b29"
 }
