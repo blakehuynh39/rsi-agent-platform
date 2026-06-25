@@ -39099,3 +39099,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3b0b68ff0fe9be5d7b429b83b3a1028f
 - summary: The Aeneid Faucet system dispenses testnet tokens to users via a web frontend and a backend server currently hosted on GCP. The team is planning to migrate the backend to AWS and i...
 
+## [2026-06-25T09:50:48Z] synthesis | Aeneid Faucet Server Migration
+
+- status: published
+- slug: projects/aeneid-faucet-migration
+- wiki_revision_id: wikirev_5ba300e6056650bd06935d6fa92f449e
+- summary: Migrate the Aeneid faucet backend from GCP instance use1-aeneid-fuacet to AWS, and switch frontend from IP-based to domain-based routing.
+

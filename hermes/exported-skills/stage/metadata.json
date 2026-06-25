@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "aabd511781ec76aa2e5aa4a4dda4c07a8f9383d47a7c78772097b663394d6fb5",
-        "size": 1150195
+        "sha256": "6ea47319a4364b9813f437aad6256217f4b31dc9eeee2978c3435c91a9175002",
+        "size": 1150526
       },
       {
         "path": "log.md",
-        "sha256": "47354211cce986867378fa08bc2399f762e88a38028dc4919005bd2d3f40467a",
-        "size": 1934272
+        "sha256": "170fc2b1316dd53bc36e0014ec51bd205ba31b622e731025f16277e5040a7c5b",
+        "size": 1934614
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6358,6 +6358,11 @@
         "path": "pages/projects/aeneid-acm.md",
         "sha256": "05d3d372f58fbe2fcac58e89ff833c5d4d6960fd8061d1690be5784f6da7eb70",
         "size": 3235
+      },
+      {
+        "path": "pages/projects/aeneid-faucet-migration.md",
+        "sha256": "76377e40551db5841584fd13bebd7ae982a3330e6f703f17d7ba5a1640916159",
+        "size": 6269
       },
       {
         "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -10334,8 +10339,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T09:40:14Z",
-  "file_count": 2065,
+  "exported_at": "2026-06-25T09:52:00Z",
+  "file_count": 2066,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13612,7 +13617,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "289e02eefe9670075777c058f289cf05c73934a0294d0c46be3437f6bec03b50",
+  "previous_tree_hash": "b4ae1ffd79bbe6361ffbf380180616ecd7f43a1cc97f774f37c58b14b3f8e769",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13625,14 +13630,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b4ae1ffd79bbe6361ffbf380180616ecd7f43a1cc97f774f37c58b14b3f8e769",
+  "tree_hash": "d69183e7636e455ca318c8f75369dff8a0819b88faa371b1fbeba67c73b0c5ba",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1411,
+  "wiki_file_count": 1412,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13641,13 +13646,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "aabd511781ec76aa2e5aa4a4dda4c07a8f9383d47a7c78772097b663394d6fb5",
-      "size": 1150195
+      "sha256": "6ea47319a4364b9813f437aad6256217f4b31dc9eeee2978c3435c91a9175002",
+      "size": 1150526
     },
     {
       "path": "log.md",
-      "sha256": "47354211cce986867378fa08bc2399f762e88a38028dc4919005bd2d3f40467a",
-      "size": 1934272
+      "sha256": "170fc2b1316dd53bc36e0014ec51bd205ba31b622e731025f16277e5040a7c5b",
+      "size": 1934614
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16718,6 +16723,11 @@
       "path": "pages/projects/aeneid-acm.md",
       "sha256": "05d3d372f58fbe2fcac58e89ff833c5d4d6960fd8061d1690be5784f6da7eb70",
       "size": 3235
+    },
+    {
+      "path": "pages/projects/aeneid-faucet-migration.md",
+      "sha256": "76377e40551db5841584fd13bebd7ae982a3330e6f703f17d7ba5a1640916159",
+      "size": 6269
     },
     {
       "path": "pages/projects/aeneid-genesis-ip-allocation-staking-snapshot.md",
@@ -20691,5 +20701,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7ce28e7a255b4e74e8a070a22da81a4af75c472f8c468bc06d015af2576deb4f"
+  "wiki_tree_hash": "aacf9632af283badced6156d7277ee4c516aa58b01273c6ef03ac8a2ba893390"
 }
