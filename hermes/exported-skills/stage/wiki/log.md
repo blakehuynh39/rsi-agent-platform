@@ -39106,3 +39106,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5ba300e6056650bd06935d6fa92f449e
 - summary: Migrate the Aeneid faucet backend from GCP instance use1-aeneid-fuacet to AWS, and switch frontend from IP-based to domain-based routing.
 
+## [2026-06-25T10:00:43Z] ingest | Test Report — IPGraph royalty DoS, v1.3.3 fix verification (devnet0)
+
+- status: published
+- slug: notion_document/test-report-ipgraph-royalty-dos-v1-3-3-fix-verification-devnet0--dc9937a0
+- wiki_revision_id: wikirev_446b8d97d61464a32f207cd1d2e3f05d
+- source_document_id: srcdoc_27fd4d8eda660512c3b65ba1dc9937a0
+- source_revision_id: srcrev_1837bbeccc16f5d2262d2af22df663b1
+- summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
+
+## [2026-06-25T10:04:09Z] synthesis | Migrate Aeneid Faucet from GCP to AWS
+
+- status: published
+- slug: decisions/migrate-aeneid-faucet-gcp-to-aws
+- wiki_revision_id: wikirev_1d225e8a30771842ee238e4b77a560f4
+- summary: Decision to migrate the Aeneid testnet faucet server from GCP (instance use1-aeneid-fuacet, IP 35.207.0.103) to AWS, converting the frontend from a hardcoded IP to a domain name.
+
