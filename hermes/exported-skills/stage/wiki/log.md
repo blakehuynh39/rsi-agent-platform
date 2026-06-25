@@ -39423,3 +39423,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4e8c1b91b364e6f0a2627300896c9ebe
 - summary: The Aeneid testnet faucet provides testnet tokens to users. It consists of a frontend at aeneid.faucet.story.foundation and a backend on GCP (use1-aeneid-fuacet, IP 35.207.0.103) t...
 
+## [2026-06-25T15:47:06Z] synthesis | Testnet Faucet (Aeneid)
+
+- status: published
+- slug: systems/testnet-faucet
+- wiki_revision_id: wikirev_fd8e00594089b355b88407b7e6fff6e7
+- summary: The Aeneid testnet faucet distributes IP tokens to developer wallets. The frontend is at aeneid.faucet.story.foundation, which calls the backend at 35.207.0.103:23313 (GCP instance...
+
+## [2026-06-25T15:47:07Z] synthesis | Faucet Migration: GCP to AWS
+
+- status: published
+- slug: decisions/faucet-migration-gcp-to-aws
+- wiki_revision_id: wikirev_d27aecadb2291961b239246b63973a38
+- summary: Decision to migrate the Aeneid testnet faucet backend from its current GCP instance (use1-aeneid-fuacet) to AWS. The frontend will be pointed to a domain instead of a hardcoded IP,...
+
+## [2026-06-25T15:49:34Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_9e157033bda2217c47445be49e37eccf
+- summary: Infrastructure details and migration plans for the Aeneid faucet server, currently hosted on GCP (instance use1-aeneid-fuacet, IP 35.207.0.103), with frontend at aeneid.faucet.stor...
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9ff7e38e0fd90cba788b53e7a481ba67962f295aa2c86a06722a411a2282179e",
-        "size": 1158731
+        "sha256": "783e178d2b469706ffeb306bb4374d2364bfb0ded83cefc6f96560c021990b0e",
+        "size": 1159199
       },
       {
         "path": "log.md",
-        "sha256": "dbd5748c8b54b9065169f423d533bac165ff357404934ad3f47c40a10102e6ba",
-        "size": 1951682
+        "sha256": "dede52a9e1f1e0ac8745cb13621be894740ff948577a2822b2a7aea06b82fb1b",
+        "size": 1952839
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5018,6 +5018,11 @@
         "path": "pages/decisions/elevenlabs-api-account-management-for-story-poseidon.md",
         "sha256": "d1e685ea97cb77fe858eea986597d9c0c39eaac0b5f95c2e8c1bce0aa6f6dc5a",
         "size": 2721
+      },
+      {
+        "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
+        "sha256": "b9659919515e1c785df1fa50f690a213bd4eddd46ff8bf3afb3ccf990bb5fa09",
+        "size": 5328
       },
       {
         "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -9401,8 +9406,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet-server.md",
-        "sha256": "a53bc26396e3a7f5de48219d714c2022dd7dcbdddbb5ca509720dbbd19127336",
-        "size": 3288
+        "sha256": "c317511befe2a050187da12cd59a93ffcdc730273eaa920db1e2aaf986c11589",
+        "size": 4372
       },
       {
         "path": "pages/systems/aeneid-faucet-system.md",
@@ -10351,8 +10356,8 @@
       },
       {
         "path": "pages/systems/testnet-faucet.md",
-        "sha256": "cf7bbe9961dff432e8eda942f379843f0d8e409e2817db4c3f7e7efd80fa4394",
-        "size": 2466
+        "sha256": "99b333723755ea84b0e7217870f29c21a6ae19c655f5327f17ab843fcbb9cfb3",
+        "size": 5044
       },
       {
         "path": "pages/systems/testnet-ip-faucet.md",
@@ -10439,8 +10444,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T15:40:11Z",
-  "file_count": 2086,
+  "exported_at": "2026-06-25T15:52:02Z",
+  "file_count": 2087,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13717,7 +13722,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e9f0598934f325dd3f30b0f1bef088923261ef4e324936463320137ff0849dfc",
+  "previous_tree_hash": "d5bd6920611ce665d9960719f088cfd639da3b1b22f87c952c8985de206a10ed",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13730,14 +13735,14 @@
   ],
   "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d5bd6920611ce665d9960719f088cfd639da3b1b22f87c952c8985de206a10ed",
+  "tree_hash": "c4a85311ea9d113f68cb2a3d2283b0a10eab008f56b076ca5ce6e0ef0d1c2a1b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1432,
+  "wiki_file_count": 1433,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13746,13 +13751,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9ff7e38e0fd90cba788b53e7a481ba67962f295aa2c86a06722a411a2282179e",
-      "size": 1158731
+      "sha256": "783e178d2b469706ffeb306bb4374d2364bfb0ded83cefc6f96560c021990b0e",
+      "size": 1159199
     },
     {
       "path": "log.md",
-      "sha256": "dbd5748c8b54b9065169f423d533bac165ff357404934ad3f47c40a10102e6ba",
-      "size": 1951682
+      "sha256": "dede52a9e1f1e0ac8745cb13621be894740ff948577a2822b2a7aea06b82fb1b",
+      "size": 1952839
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15483,6 +15488,11 @@
       "path": "pages/decisions/elevenlabs-api-account-management-for-story-poseidon.md",
       "sha256": "d1e685ea97cb77fe858eea986597d9c0c39eaac0b5f95c2e8c1bce0aa6f6dc5a",
       "size": 2721
+    },
+    {
+      "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
+      "sha256": "b9659919515e1c785df1fa50f690a213bd4eddd46ff8bf3afb3ccf990bb5fa09",
+      "size": 5328
     },
     {
       "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -19866,8 +19876,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet-server.md",
-      "sha256": "a53bc26396e3a7f5de48219d714c2022dd7dcbdddbb5ca509720dbbd19127336",
-      "size": 3288
+      "sha256": "c317511befe2a050187da12cd59a93ffcdc730273eaa920db1e2aaf986c11589",
+      "size": 4372
     },
     {
       "path": "pages/systems/aeneid-faucet-system.md",
@@ -20816,8 +20826,8 @@
     },
     {
       "path": "pages/systems/testnet-faucet.md",
-      "sha256": "cf7bbe9961dff432e8eda942f379843f0d8e409e2817db4c3f7e7efd80fa4394",
-      "size": 2466
+      "sha256": "99b333723755ea84b0e7217870f29c21a6ae19c655f5327f17ab843fcbb9cfb3",
+      "size": 5044
     },
     {
       "path": "pages/systems/testnet-ip-faucet.md",
@@ -20901,5 +20911,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "62efe9677518e01e13e4389c3fff7211a3f17e9e742581f44a9c266b8ebf2700"
+  "wiki_tree_hash": "7ff256ce938ea2d9d352632150608874668b8cfd1c4d62796b58ea572110ee5b"
 }
