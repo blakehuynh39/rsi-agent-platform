@@ -39240,3 +39240,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8125c4b5519672c9d05be7545251316f
 - summary: The Aeneid faucet is a web service that distributes testnet tokens. It has a frontend at https://aeneid.faucet.story.foundation/ and a backend API currently hosted on a GCP instanc...
 
+## [2026-06-25T12:30:21Z] ingest | Test Report — IPGraph royalty DoS, v1.3.3 fix verification (devnet0)
+
+- status: published
+- slug: notion_document/test-report-ipgraph-royalty-dos-v1-3-3-fix-verification-devnet0--dc9937a0
+- wiki_revision_id: wikirev_652e0226dfc1cfafc00bbaf7837a2691
+- source_document_id: srcdoc_27fd4d8eda660512c3b65ba1dc9937a0
+- source_revision_id: srcrev_09ceaa7cd0e3b3b2b2926a5b76f93849
+- summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
+
