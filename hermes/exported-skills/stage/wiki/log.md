@@ -39212,3 +39212,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dc0baec6414828b1c7d017a41fd02fb3
 - summary: Decision to switch three public-facing IP graph royalty precompile call sites from cheap internal selectors to external selectors, raising gas cost from ~600-900 to ~126k-189k per ...
 
+## [2026-06-25T11:39:02Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_ec5862a93cc85c269d4230433f55df3c
+- summary: The faucet for the aeneid testnet is hosted on a GCP instance use1-aeneid-fuacet (IP 35.207.0.103). Frontend at https://aeneid.faucet.story.foundation/ queries backend at http://35...
+
