@@ -39335,3 +39335,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bd784781ea4cd948e6e8900ad504d5e0
 - summary: The Aeneid faucet distributes testnet tokens via a frontend hosted at aeneid.faucet.story.foundation and a backend server on GCP (35.207.0.103). The backend is being migrated to AW...
 
+## [2026-06-25T14:30:27Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_cc892f75fa16a1b485bb57d9ca782e34
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_87588a68d67bc8f4dcd721b5930028f1
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
