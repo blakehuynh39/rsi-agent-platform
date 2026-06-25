@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cc2b7308804f6b18dac95fea13d0e32ff9ba2aab1111e253f94dab84b03cb652",
-        "size": 1136637
+        "sha256": "0c260f386ec2ba95f10f791f6a3c564ed762aa2e3d2d417e8946202d405030aa",
+        "size": 1137049
       },
       {
         "path": "log.md",
-        "sha256": "c940d7c7cfb142feb0e2808ae601b91b08ae1703491701900b9e50c852da2580",
-        "size": 1915875
+        "sha256": "7108d65674e374ea425a27a825d73e0238a4ca81b0aab771d3bb4d9181069eb6",
+        "size": 1916299
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4673,6 +4673,11 @@
         "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
         "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
         "size": 2581
+      },
+      {
+        "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
+        "sha256": "59240bbe512888d1f56bf05a47f8239d98c25c72299d99b1a9ac3429f6a1d9b9",
+        "size": 4171
       },
       {
         "path": "pages/decisions/aeneid-rpc-validators-migration.md",
@@ -10159,8 +10164,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T00:39:24Z",
-  "file_count": 2030,
+  "exported_at": "2026-06-25T00:51:13Z",
+  "file_count": 2031,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13437,7 +13442,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "318653fee39931ba8f4c184f6ca5ebd4ea48e7fb9016d68932f624f579227f1f",
+  "previous_tree_hash": "12345fd30a43633803cfc3e87010b5b37553b2fe05b386be120274b43966cd9f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13450,14 +13455,14 @@
   ],
   "skill_tree_hash": "707a8ce6389ce68c41750e2bc269efdc5420cc973b06b522053fad925d8fd7b4",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "12345fd30a43633803cfc3e87010b5b37553b2fe05b386be120274b43966cd9f",
+  "tree_hash": "c1b1598246b74a02ac47faad4f13394b99a0c9b79c975d923f9a0dba7c8c630b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1376,
+  "wiki_file_count": 1377,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13466,13 +13471,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cc2b7308804f6b18dac95fea13d0e32ff9ba2aab1111e253f94dab84b03cb652",
-      "size": 1136637
+      "sha256": "0c260f386ec2ba95f10f791f6a3c564ed762aa2e3d2d417e8946202d405030aa",
+      "size": 1137049
     },
     {
       "path": "log.md",
-      "sha256": "c940d7c7cfb142feb0e2808ae601b91b08ae1703491701900b9e50c852da2580",
-      "size": 1915875
+      "sha256": "7108d65674e374ea425a27a825d73e0238a4ca81b0aab771d3bb4d9181069eb6",
+      "size": 1916299
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14858,6 +14863,11 @@
       "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
       "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
       "size": 2581
+    },
+    {
+      "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
+      "sha256": "59240bbe512888d1f56bf05a47f8239d98c25c72299d99b1a9ac3429f6a1d9b9",
+      "size": 4171
     },
     {
       "path": "pages/decisions/aeneid-rpc-validators-migration.md",
@@ -20341,5 +20351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1c0b80aee48bcf44409fa1675a56260f313531092d5f69915ba06c42028b0862"
+  "wiki_tree_hash": "7a49bbfbcee49018270e32f2b546ee58d339a8551294173efcc5bea27d198117"
 }
