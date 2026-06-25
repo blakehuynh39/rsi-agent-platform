@@ -39486,3 +39486,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_81d7f0fbb71e1b2019a83ac1b4526af3
 - summary: Decision to migrate the Aeneid Faucet backend from GCP (instance use1-aeneid-fuacet in project story-aeneid) to AWS (account story-testnet). The frontend should be changed to point...
 
+## [2026-06-25T16:45:25Z] ingest | Slack thread C0B36TEUYHF 1782405867.075479
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-1782405867-075479-73c8f910
+- wiki_revision_id: wikirev_4237943bad7494816e0345223b162ded
+- source_document_id: srcdoc_8438b809d696a36c2fe8eea173c8f910
+- source_revision_id: srcrev_7b40e38a056fc51133d561438a55a5ce
+- summary: Hello gang.
+
