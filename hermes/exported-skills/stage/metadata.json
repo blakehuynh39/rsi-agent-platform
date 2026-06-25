@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e1393b1ad2f8ecf0ad9a3567baae8f797e42bc2edfe28a77dfc4262e85a7df4a",
-        "size": 1944438
+        "sha256": "c83d91bec9bf2414a3a65ff80c2900751539a34b705990a9f2d2ed29646142d3",
+        "size": 1944878
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5168,6 +5168,11 @@
         "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
         "sha256": "95f815b67ffd1ea91c37ef1361210128c1596fdf29da5f176dfec8fe45bba94b",
         "size": 6206
+      },
+      {
+        "path": "pages/decisions/ipgraph-royalty-dos-v1-3-3-fix-verification.md",
+        "sha256": "71daac3329b237c6163fe69a762aed4f6a1c64d171b22dbe3f30a402a9b7f77f",
+        "size": 9140
       },
       {
         "path": "pages/decisions/issue-830-deletion-decision.md",
@@ -10394,8 +10399,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T13:04:27Z",
-  "file_count": 2077,
+  "exported_at": "2026-06-25T13:21:31Z",
+  "file_count": 2078,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13672,7 +13677,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "678929f6b6e39527ab1275dab012782ed54dd8ec76df900260b20018f86c3fc0",
+  "previous_tree_hash": "9be389165d6ae75fa1f3037ccba73de68c56fa01665ed50d0c47cea2dc3c003a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13685,14 +13690,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9be389165d6ae75fa1f3037ccba73de68c56fa01665ed50d0c47cea2dc3c003a",
+  "tree_hash": "b9a3df246c28e221b76d175c612a3b91fd563a0fdd53c3e85520fe62100af5d8",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1423,
+  "wiki_file_count": 1424,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13706,8 +13711,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e1393b1ad2f8ecf0ad9a3567baae8f797e42bc2edfe28a77dfc4262e85a7df4a",
-      "size": 1944438
+      "sha256": "c83d91bec9bf2414a3a65ff80c2900751539a34b705990a9f2d2ed29646142d3",
+      "size": 1944878
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15588,6 +15593,11 @@
       "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
       "sha256": "95f815b67ffd1ea91c37ef1361210128c1596fdf29da5f176dfec8fe45bba94b",
       "size": 6206
+    },
+    {
+      "path": "pages/decisions/ipgraph-royalty-dos-v1-3-3-fix-verification.md",
+      "sha256": "71daac3329b237c6163fe69a762aed4f6a1c64d171b22dbe3f30a402a9b7f77f",
+      "size": 9140
     },
     {
       "path": "pages/decisions/issue-830-deletion-decision.md",
@@ -20811,5 +20821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a337fb652983fa4e45bf214aa1371ae5be211de1ba0e9eb49c070be8e84bd6e8"
+  "wiki_tree_hash": "ccd7c804618e48547e7fa2f387c8fed408817f7fd76ca09617322a413e056ca4"
 }

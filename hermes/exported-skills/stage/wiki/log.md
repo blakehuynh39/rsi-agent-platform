@@ -39286,3 +39286,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_24e472ba523d561a3d99967caa3d6387
 - summary: Source: [source](https://app.notion.com/p/Test-Report-IPGraph-royalty-DoS-v1-3-3-fix-verification-devnet0-38a051299a548112b38ce686f3c51255)
 
+## [2026-06-25T13:20:14Z] synthesis | IPGraph Royalty DoS Vulnerability and v1.3.3 Fix Verification
+
+- status: published
+- slug: decisions/ipgraph-royalty-dos-v1-3-3-fix-verification
+- wiki_revision_id: wikirev_d12ec0959e3b20d1864e11c96fca9aab
+- summary: Test report verifying the v1.3.3 fix for IPGraph royalty-related DoS vulnerability on devnet0. The fix bounds sparse/shallow graphs but does not fully cover dense worst-case graphs...
+
