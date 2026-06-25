@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "58b64de74b75fb28818e25b579940fe7d350730cd3d5f8c740f60f931cddbe25",
-        "size": 1144570
+        "sha256": "1e80c82c23594dcc466f0da7851600437d4d290df52589dbdfd34091c160828b",
+        "size": 1145269
       },
       {
         "path": "log.md",
-        "sha256": "ef6317254f676bc76d50e01b07c6ff13b4159f3a358081337bb2e2251dd6a235",
-        "size": 1926876
+        "sha256": "664da9a111023778c794cf42ebaf9d1bcfa0ded2be4f322f4968610ec346ef21",
+        "size": 1927599
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9505,6 +9505,16 @@
         "size": 6180
       },
       {
+        "path": "pages/systems/dynamic-payment-platform.md",
+        "sha256": "c3086040e9946b7f8380a6b24130ad6543a3ac34370c451785cc2bc6725bc858",
+        "size": 3106
+      },
+      {
+        "path": "pages/systems/dynamic-payment-system.md",
+        "sha256": "18a7edd3b5de2b186b0825a0dac470aed4ebb8c76239aab3e08dbcbb9aadd6e3",
+        "size": 2844
+      },
+      {
         "path": "pages/systems/engineering-home.md",
         "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
         "size": 1665
@@ -10264,8 +10274,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T06:05:34Z",
-  "file_count": 2051,
+  "exported_at": "2026-06-25T06:22:28Z",
+  "file_count": 2053,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13542,7 +13552,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "be2631469e0184be6a0c0c1d489260a81fae0608ee5b659f881421e39d9a4629",
+  "previous_tree_hash": "520f9207448361e6a1e39a18e25f65202c7516646edd8b9eac5ba91176be4040",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13555,14 +13565,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "520f9207448361e6a1e39a18e25f65202c7516646edd8b9eac5ba91176be4040",
+  "tree_hash": "68f8800482846437d43aaba4641c763c5de207482c576b70ca29e8ab47a149ce",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1397,
+  "wiki_file_count": 1399,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13571,13 +13581,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "58b64de74b75fb28818e25b579940fe7d350730cd3d5f8c740f60f931cddbe25",
-      "size": 1144570
+      "sha256": "1e80c82c23594dcc466f0da7851600437d4d290df52589dbdfd34091c160828b",
+      "size": 1145269
     },
     {
       "path": "log.md",
-      "sha256": "ef6317254f676bc76d50e01b07c6ff13b4159f3a358081337bb2e2251dd6a235",
-      "size": 1926876
+      "sha256": "664da9a111023778c794cf42ebaf9d1bcfa0ded2be4f322f4968610ec346ef21",
+      "size": 1927599
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19795,6 +19805,16 @@
       "size": 6180
     },
     {
+      "path": "pages/systems/dynamic-payment-platform.md",
+      "sha256": "c3086040e9946b7f8380a6b24130ad6543a3ac34370c451785cc2bc6725bc858",
+      "size": 3106
+    },
+    {
+      "path": "pages/systems/dynamic-payment-system.md",
+      "sha256": "18a7edd3b5de2b186b0825a0dac470aed4ebb8c76239aab3e08dbcbb9aadd6e3",
+      "size": 2844
+    },
+    {
       "path": "pages/systems/engineering-home.md",
       "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
       "size": 1665
@@ -20551,5 +20571,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "757dd343a3825945ca6e661a634ceda7b0561ec48e0eca2d256621952cf2b70b"
+  "wiki_tree_hash": "0d3156cf3457fed52dfeb9ebaebdc84d716e072aeeb58ed36324b6e55802df8e"
 }

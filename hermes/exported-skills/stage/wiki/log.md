@@ -38967,3 +38967,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_512ad3ba7e9e180139d6b0f53f6f8acb
 - summary: On February 2, 2026, Aeneid validator nodes experienced consensus errors including conflicting votes and invalid proposal signatures, possibly due to an unsafe_reset operation.
 
+## [2026-06-25T06:18:01Z] synthesis | Dynamic Payment Platform
+
+- status: published
+- slug: systems/dynamic-payment-platform
+- wiki_revision_id: wikirev_aece96b60706d811ca542653ba0bb7fb
+- summary: Payment processing platform used by the team, accessible at dyanmics.xyz. Administrative access is controlled by U04L0DD6B6F. Payment method changes require platform access.
+
+## [2026-06-25T06:19:20Z] synthesis | Dynamic Payment System
+
+- status: published
+- slug: systems/dynamic-payment-system
+- wiki_revision_id: wikirev_2083ea8a7c1c0a041603889b643526d6
+- summary: Payment processing system accessible via dyanmics.xyz. A payment failure was reported, requiring admin access to update payment details. Admin: U04L0DD6B6F.
+
