@@ -39016,3 +39016,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4ef77da0958625693b757fff69c09f54
 - summary: The team decided to stop running their own self-hosted Blockscout explorer instances on Mainnet and Aeneid, and instead rely solely on the Blockscout team's hosted service and Dune...
 
+## [2026-06-25T07:51:21Z] synthesis | Decision to Stop Self-Hosted Blockscout Explorers
+
+- status: published
+- slug: decisions/stop-self-hosted-blockscout-explorers
+- wiki_revision_id: wikirev_b3f0677a4fdf00c046979321f519e9e5
+- summary: On 2026-01-22, the team decided to stop running self-hosted Blockscout instances on Mainnet and Aeneid, relying on the Blockscout team's hosted service and Dune, with manual backup...
+

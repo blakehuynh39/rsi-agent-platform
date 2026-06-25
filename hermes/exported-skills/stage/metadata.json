@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3dc2a7d9047a10b520398ad67152e9c198496938bfec57586f77866ae98cca61",
-        "size": 1147169
+        "sha256": "8c20f759dfdee411a357dff84ca617ba3288bf1f921ffbc962591f484e062b6b",
+        "size": 1147579
       },
       {
         "path": "log.md",
-        "sha256": "52923ed57764cfc836fe7a5ea654a86a9459df51f1642f596898b766ab1ef3e7",
-        "size": 1929559
+        "sha256": "b9a71b6f9ba64650db3184a4897216f14f736dd0c02f53912207b1cb958a821a",
+        "size": 1929981
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5523,6 +5523,11 @@
         "path": "pages/decisions/spoken-transcripts-storage-decision.md",
         "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
         "size": 4404
+      },
+      {
+        "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
+        "sha256": "040dac4c4966b8052d28ca8902b3ed02f3936046440df4ab31db712b966b988c",
+        "size": 3727
       },
       {
         "path": "pages/decisions/stop-self-hosted-blockscout.md",
@@ -10299,8 +10304,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T07:18:13Z",
-  "file_count": 2058,
+  "exported_at": "2026-06-25T07:55:31Z",
+  "file_count": 2059,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13577,7 +13582,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "2114382567ff6d2da4f51203e18f08cec88128cae98177f5226e72cad29e1ca5",
+  "previous_tree_hash": "e667f74fb19c901868a98778776adbc4398c51f6fdde21631752d683db6d4971",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13590,14 +13595,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e667f74fb19c901868a98778776adbc4398c51f6fdde21631752d683db6d4971",
+  "tree_hash": "443da7f7067e3afd20456faa68c3c01c44927b2657c813744cc37a6f1b2450df",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1404,
+  "wiki_file_count": 1405,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13606,13 +13611,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3dc2a7d9047a10b520398ad67152e9c198496938bfec57586f77866ae98cca61",
-      "size": 1147169
+      "sha256": "8c20f759dfdee411a357dff84ca617ba3288bf1f921ffbc962591f484e062b6b",
+      "size": 1147579
     },
     {
       "path": "log.md",
-      "sha256": "52923ed57764cfc836fe7a5ea654a86a9459df51f1642f596898b766ab1ef3e7",
-      "size": 1929559
+      "sha256": "b9a71b6f9ba64650db3184a4897216f14f736dd0c02f53912207b1cb958a821a",
+      "size": 1929981
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15848,6 +15853,11 @@
       "path": "pages/decisions/spoken-transcripts-storage-decision.md",
       "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
       "size": 4404
+    },
+    {
+      "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
+      "sha256": "040dac4c4966b8052d28ca8902b3ed02f3936046440df4ab31db712b966b988c",
+      "size": 3727
     },
     {
       "path": "pages/decisions/stop-self-hosted-blockscout.md",
@@ -20621,5 +20631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "189cafe183c1930e4a7d01fc4ace2144764e2996d74f9067f4efe693fbfa624a"
+  "wiki_tree_hash": "a67431556fcbf61b47db4b523e4772d55bd3088855671ef1b43b55e128e1455d"
 }
