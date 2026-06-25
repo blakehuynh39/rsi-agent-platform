@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f2f85a36ff8f8498f915fe1f160cbc8fb5dae8083c7a63cdca88dd9e29d13a1d",
-        "size": 1143124
+        "sha256": "07226246e34eb4c54583e39511948fbcf890cf3ab9715c7bdd1a6d05719f1014",
+        "size": 1143570
       },
       {
         "path": "log.md",
-        "sha256": "e81c9e5e1dab1428a6068d0bba5a97409717ab3315150ce4cf012f234cbb21bd",
-        "size": 1924201
+        "sha256": "c590610c46d3abd5a452d72f86dfdf54b03d3fbcfabc7cbe0ee467bed05c9c3f",
+        "size": 1925400
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8051,8 +8051,8 @@
       },
       {
         "path": "pages/projects/tiger-team.md",
-        "sha256": "923cea0233ad3f5f19b093341c5e04daf85d3593c943bfb09e77f7963ff382e9",
-        "size": 30303
+        "sha256": "116bebf6a787f13ad80ea42f1c2275d8b9a7630894843c0ec3058808c44c6d4a",
+        "size": 30360
       },
       {
         "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -9125,6 +9125,11 @@
         "size": 3890
       },
       {
+        "path": "pages/runbooks/temporal-cert-rotation-staging-crashloop-20260131.md",
+        "sha256": "10e01034299dbed46e78b662415515f7e93d92f293eb53e7c76288a0815e63cb",
+        "size": 4471
+      },
+      {
         "path": "pages/runbooks/temporal-certificate-renewal-runbook.md",
         "sha256": "4d597a2f6fe6b91fcda7e6fddb84592180a42e7a87571e1d62963e145c5ee36e",
         "size": 3347
@@ -10181,8 +10186,8 @@
       },
       {
         "path": "pages/systems/trace-backend-architecture.md",
-        "sha256": "d94292e34f658b9685dc3a4dff48fc5ae85d811201600258acaaa3ce0f50abbd",
-        "size": 31527
+        "sha256": "52b33bf4f37952440dd4c737d8bb20f3641b702a7356fee8cb46c0a7839a8703",
+        "size": 48812
       },
       {
         "path": "pages/systems/trace-contracts-security-audit.md",
@@ -10244,8 +10249,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T04:56:19Z",
-  "file_count": 2047,
+  "exported_at": "2026-06-25T05:23:24Z",
+  "file_count": 2048,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13522,7 +13527,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "50b660e1bca08bf1fe7fa46d73b2ac15863193780d83e95d5e31973cec0c23cb",
+  "previous_tree_hash": "fd125e0e7de546b061e5c0ab1066ab593b29c5ef1b0074865db4ea7037bbbb48",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13535,14 +13540,14 @@
   ],
   "skill_tree_hash": "0cb3b361e70b2dad567fb9c5bd1623a60ce643f801b6bf21fcb55a112765e35f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fd125e0e7de546b061e5c0ab1066ab593b29c5ef1b0074865db4ea7037bbbb48",
+  "tree_hash": "06ded50d60dcf1e22da66493a54321633a110a229402c06642fb4ca6ec73172c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1393,
+  "wiki_file_count": 1394,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13551,13 +13556,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f2f85a36ff8f8498f915fe1f160cbc8fb5dae8083c7a63cdca88dd9e29d13a1d",
-      "size": 1143124
+      "sha256": "07226246e34eb4c54583e39511948fbcf890cf3ab9715c7bdd1a6d05719f1014",
+      "size": 1143570
     },
     {
       "path": "log.md",
-      "sha256": "e81c9e5e1dab1428a6068d0bba5a97409717ab3315150ce4cf012f234cbb21bd",
-      "size": 1924201
+      "sha256": "c590610c46d3abd5a452d72f86dfdf54b03d3fbcfabc7cbe0ee467bed05c9c3f",
+      "size": 1925400
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18321,8 +18326,8 @@
     },
     {
       "path": "pages/projects/tiger-team.md",
-      "sha256": "923cea0233ad3f5f19b093341c5e04daf85d3593c943bfb09e77f7963ff382e9",
-      "size": 30303
+      "sha256": "116bebf6a787f13ad80ea42f1c2275d8b9a7630894843c0ec3058808c44c6d4a",
+      "size": 30360
     },
     {
       "path": "pages/projects/todos-from-notion-2026-05-07.md",
@@ -19395,6 +19400,11 @@
       "size": 3890
     },
     {
+      "path": "pages/runbooks/temporal-cert-rotation-staging-crashloop-20260131.md",
+      "sha256": "10e01034299dbed46e78b662415515f7e93d92f293eb53e7c76288a0815e63cb",
+      "size": 4471
+    },
+    {
       "path": "pages/runbooks/temporal-certificate-renewal-runbook.md",
       "sha256": "4d597a2f6fe6b91fcda7e6fddb84592180a42e7a87571e1d62963e145c5ee36e",
       "size": 3347
@@ -20451,8 +20461,8 @@
     },
     {
       "path": "pages/systems/trace-backend-architecture.md",
-      "sha256": "d94292e34f658b9685dc3a4dff48fc5ae85d811201600258acaaa3ce0f50abbd",
-      "size": 31527
+      "sha256": "52b33bf4f37952440dd4c737d8bb20f3641b702a7356fee8cb46c0a7839a8703",
+      "size": 48812
     },
     {
       "path": "pages/systems/trace-contracts-security-audit.md",
@@ -20511,5 +20521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "34be6da2d8d661fe0e2a89181295c16c9d5c98135220cfa1d73ff7621f631aab"
+  "wiki_tree_hash": "308c0931a9de8cc73bca2ce942cd0365a54dd7d169e014c864f2895fa05067fd"
 }

@@ -38918,3 +38918,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3be62c9892154d4d1afa590931fbb44c
 - summary: Runbook for diagnosing and resolving staging pod crash loops that occurred after rotating Temporal worker certificates stored in Vault.
 
+## [2026-06-25T05:19:17Z] synthesis | Tiger Team
+
+- status: published
+- slug: projects/tiger-team
+- wiki_revision_id: wikirev_d806b49b285e5dd01ba5a2ef915524f1
+- summary: The Tiger Team is a cross-functional group responsible for building and managing DePIN apps, including Scout Careers, Aura, DePIN Backend, and DePIN Admin. They also plan future ap...
+
+## [2026-06-25T05:19:18Z] synthesis | Trace Backend Architecture
+
+- status: published
+- slug: systems/trace-backend-architecture
+- wiki_revision_id: wikirev_b40bc5dcd02e5bee0a7f94a9604aa14a
+- summary: Staging V1 of the Trace backend is deployed and verified as of June 3, 2026. It provides a pipeline for providers to submit data audit records, idempotent writes, exact-match searc...
+
+## [2026-06-25T05:21:17Z] synthesis | Temporal Certificate Rotation Caused Staging Pod Crashlooping (2026-01-31)
+
+- status: published
+- slug: runbooks/temporal-cert-rotation-staging-crashloop-20260131
+- wiki_revision_id: wikirev_21bb180791e63b334295ba599ee0ece2
+- summary: On 2026-01-31, rotating Temporal worker certificates on the staging cluster led to all staging pods crash looping. The issue was resolved by restarting deployments after updating v...
+
