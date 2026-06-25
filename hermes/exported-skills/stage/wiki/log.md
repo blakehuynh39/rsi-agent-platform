@@ -39002,3 +39002,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a571adb86e7c9b9770036a3374ca4290
 - summary: Team decided to stop running our own Blockscout explorers for Mainnet and Aeneid, relying on Blockscout team's hosted service. Self-hosted instances will remain as cold backup to b...
 
+## [2026-06-25T07:16:08Z] synthesis | Decision: Stop running internal Blockscout explorers for Mainnet and Aeneid
+
+- status: published
+- slug: decisions/decision-stop-internal-blockscout
+- wiki_revision_id: wikirev_fda98d152f71eb275f1f1c2b1f09d8ef
+- summary: RSI will stop its internal Blockscout instances for Mainnet and Aeneid, relying on Blockscout team-hosted service and Dune. The internal instances served as a backup, but spin‑up t...
+
+## [2026-06-25T07:17:01Z] synthesis | Decision to Stop Self-Hosted Blockscout Explorers
+
+- status: published
+- slug: decisions/stop-self-hosted-blockscout
+- wiki_revision_id: wikirev_4ef77da0958625693b757fff69c09f54
+- summary: The team decided to stop running their own self-hosted Blockscout explorer instances on Mainnet and Aeneid, and instead rely solely on the Blockscout team's hosted service and Dune...
+

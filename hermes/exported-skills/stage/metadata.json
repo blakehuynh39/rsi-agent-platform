@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "790590b5e2d7e9ce2cffe49c6255c5fe15c1e7e14293f7c8121b738823372020",
-        "size": 1146335
+        "sha256": "3dc2a7d9047a10b520398ad67152e9c198496938bfec57586f77866ae98cca61",
+        "size": 1147169
       },
       {
         "path": "log.md",
-        "sha256": "14facadce1139e36e807b39268b3d78ede65bac6330dd786faf946c90625d700",
-        "size": 1928701
+        "sha256": "52923ed57764cfc836fe7a5ea654a86a9459df51f1642f596898b766ab1ef3e7",
+        "size": 1929559
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4935,6 +4935,11 @@
         "size": 2971
       },
       {
+        "path": "pages/decisions/decision-stop-internal-blockscout.md",
+        "sha256": "d2d305976bf10ed033aad03679d228d34a627b75a65462b11b48a2bd80dea0f6",
+        "size": 4898
+      },
+      {
         "path": "pages/decisions/deploy-staking-api-fork-mainnet.md",
         "sha256": "a9941b56ee082e2f44f8e7f33f06056946c9918ee186836575d01ffae4844660",
         "size": 4001
@@ -5518,6 +5523,11 @@
         "path": "pages/decisions/spoken-transcripts-storage-decision.md",
         "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
         "size": 4404
+      },
+      {
+        "path": "pages/decisions/stop-self-hosted-blockscout.md",
+        "sha256": "ec86f5ebec7bd9418ada1ca2d2b5513eda1d00a09581bd1e1499f1c0a2e7fc2c",
+        "size": 4069
       },
       {
         "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
@@ -10289,8 +10299,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T06:51:05Z",
-  "file_count": 2056,
+  "exported_at": "2026-06-25T07:18:13Z",
+  "file_count": 2058,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13567,7 +13577,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "995d65ee711d570646ea74ce7d8ab018e5e477dbf5125c0aa916ce1f16c54d32",
+  "previous_tree_hash": "2114382567ff6d2da4f51203e18f08cec88128cae98177f5226e72cad29e1ca5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13580,14 +13590,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2114382567ff6d2da4f51203e18f08cec88128cae98177f5226e72cad29e1ca5",
+  "tree_hash": "e667f74fb19c901868a98778776adbc4398c51f6fdde21631752d683db6d4971",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1402,
+  "wiki_file_count": 1404,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13596,13 +13606,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "790590b5e2d7e9ce2cffe49c6255c5fe15c1e7e14293f7c8121b738823372020",
-      "size": 1146335
+      "sha256": "3dc2a7d9047a10b520398ad67152e9c198496938bfec57586f77866ae98cca61",
+      "size": 1147169
     },
     {
       "path": "log.md",
-      "sha256": "14facadce1139e36e807b39268b3d78ede65bac6330dd786faf946c90625d700",
-      "size": 1928701
+      "sha256": "52923ed57764cfc836fe7a5ea654a86a9459df51f1642f596898b766ab1ef3e7",
+      "size": 1929559
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15250,6 +15260,11 @@
       "size": 2971
     },
     {
+      "path": "pages/decisions/decision-stop-internal-blockscout.md",
+      "sha256": "d2d305976bf10ed033aad03679d228d34a627b75a65462b11b48a2bd80dea0f6",
+      "size": 4898
+    },
+    {
       "path": "pages/decisions/deploy-staking-api-fork-mainnet.md",
       "sha256": "a9941b56ee082e2f44f8e7f33f06056946c9918ee186836575d01ffae4844660",
       "size": 4001
@@ -15833,6 +15848,11 @@
       "path": "pages/decisions/spoken-transcripts-storage-decision.md",
       "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
       "size": 4404
+    },
+    {
+      "path": "pages/decisions/stop-self-hosted-blockscout.md",
+      "sha256": "ec86f5ebec7bd9418ada1ca2d2b5513eda1d00a09581bd1e1499f1c0a2e7fc2c",
+      "size": 4069
     },
     {
       "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
@@ -20601,5 +20621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "72a34edd64c18ea3de3d99b7c063bf09e505a81c5a04c0b98db31227a2e89218"
+  "wiki_tree_hash": "189cafe183c1930e4a7d01fc4ace2144764e2996d74f9067f4efe693fbfa624a"
 }
