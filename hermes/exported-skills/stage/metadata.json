@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "c193a0782102da53c72b391f10cdb109223e6ecb3ffb593b9aceec483ad50fec",
-        "size": 1919307
+        "sha256": "ade449a3b9b8f7909307e50ae54ef0ce5ebe05192f2dcaad9788847d7bacc066",
+        "size": 1919707
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4693,6 +4693,11 @@
         "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
         "sha256": "59240bbe512888d1f56bf05a47f8239d98c25c72299d99b1a9ac3429f6a1d9b9",
         "size": 4171
+      },
+      {
+        "path": "pages/decisions/aeneid-rpc-validator-migration.md",
+        "sha256": "45fa9bbb2348cd31722fd60e27a76e8a39aee91b97103cc0df225db915d6a717",
+        "size": 3450
       },
       {
         "path": "pages/decisions/aeneid-rpc-validators-migration.md",
@@ -10194,8 +10199,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T02:26:05Z",
-  "file_count": 2037,
+  "exported_at": "2026-06-25T02:32:45Z",
+  "file_count": 2038,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13472,7 +13477,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1b27dcfecc208d820d766c05c7c087ccc2a7baac245e5cc75313b575f65c71ad",
+  "previous_tree_hash": "6213f334009a9d89b253796c6fcc23e2491b1d2cb04b44c9b6c0a6073babf7a5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13485,14 +13490,14 @@
   ],
   "skill_tree_hash": "c2796bb3f6b8c7a0259d00d2fdb36cc073912394070627e61f0c0c12b557efb8",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6213f334009a9d89b253796c6fcc23e2491b1d2cb04b44c9b6c0a6073babf7a5",
+  "tree_hash": "bb48760cbb46e950dfc147f1e53f05efed69c9d50ae718ee3b8c2e0ebbaf5181",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1383,
+  "wiki_file_count": 1384,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13506,8 +13511,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "c193a0782102da53c72b391f10cdb109223e6ecb3ffb593b9aceec483ad50fec",
-      "size": 1919307
+      "sha256": "ade449a3b9b8f7909307e50ae54ef0ce5ebe05192f2dcaad9788847d7bacc066",
+      "size": 1919707
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14913,6 +14918,11 @@
       "path": "pages/decisions/aeneid-rpc-validator-migration-2026-01.md",
       "sha256": "59240bbe512888d1f56bf05a47f8239d98c25c72299d99b1a9ac3429f6a1d9b9",
       "size": 4171
+    },
+    {
+      "path": "pages/decisions/aeneid-rpc-validator-migration.md",
+      "sha256": "45fa9bbb2348cd31722fd60e27a76e8a39aee91b97103cc0df225db915d6a717",
+      "size": 3450
     },
     {
       "path": "pages/decisions/aeneid-rpc-validators-migration.md",
@@ -20411,5 +20421,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e34b60523ac7d532900df1fc99356366bedc52c8f6d647dcf913d6e2af2f08b1"
+  "wiki_tree_hash": "540663bfa44d2ab7e8b167b55bdd690accd933df3922aa271a899a3fc75afa57"
 }

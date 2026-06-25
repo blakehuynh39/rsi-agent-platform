@@ -38830,3 +38830,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_29aefb5210437b1d86f916cc6fe32bcb
 - summary: Planning and rescheduling of Aeneid RPC and validator migration due to sync issues and scheduling conflicts.
 
+## [2026-06-25T02:32:23Z] synthesis | Aeneid RPC and Validator Migration
+
+- status: published
+- slug: decisions/aeneid-rpc-validator-migration
+- wiki_revision_id: wikirev_57978c27d67b408b7d650e06958c6402
+- summary: Planned migration of Aeneid RPC and validators to new infrastructure, initially scheduled for 2026-01-29 23:00 PT, but rescheduled to Monday 3PM BJT (2026-02-02?) to resolve sync i...
+
