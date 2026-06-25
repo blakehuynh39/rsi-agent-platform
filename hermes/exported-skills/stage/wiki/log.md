@@ -39191,3 +39191,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_b75e3c0253d50a812766f68f5fbdca24
 - summary: Source: [source](https://app.notion.com/p/DATA-Migration-technical-handbook-external-375051299a54801090a8ca9ab924f893)
 
+## [2026-06-25T11:08:40Z] synthesis | Aeneid Testnet Faucet
+
+- status: published
+- slug: systems/faucet-aeneid
+- wiki_revision_id: wikirev_8cc34189d2c6740f3d54e5148865c613
+- summary: The Aeneid testnet faucet distributes testnet tokens to users. It has a frontend at https://aeneid.faucet.story.foundation/ and a backend server currently on GCP (35.207.0.103). Th...
+
