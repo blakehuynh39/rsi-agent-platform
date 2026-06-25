@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e4dffe4681f99afdb97ca0344779810d7200917d2a1ee1b7b51d778e53dccb93",
-        "size": 1162000
+        "sha256": "8428205225496907ad2810a4b48ac76eed951727f1ceea0373e754db5a029768",
+        "size": 1162007
       },
       {
         "path": "log.md",
-        "sha256": "6748da04479fa9d7c01b74b9a15a62f80845f8598400b628fe539879cc83e76f",
-        "size": 1964087
+        "sha256": "347a7cd4f7bf0e8372d13309f261bbcebb6da7c637e13c4128e3b6586ec37f79",
+        "size": 1964720
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9441,8 +9441,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
-        "sha256": "8fdb922fc5c215fa002fcff67427617eae797c9ce0a30eb13e356d5a266dd681",
-        "size": 3198
+        "sha256": "42ca68406f002ce445db849ecf043fd19b81ce72a57dd5f686a889b47bf1da92",
+        "size": 4816
       },
       {
         "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -10479,7 +10479,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T19:07:07Z",
+  "exported_at": "2026-06-25T19:18:58Z",
   "file_count": 2094,
   "files": [
     {
@@ -13757,7 +13757,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e5f17c17507ffc8347325de68045a84f408e0f7d67d5f669999b36d8c8c542e4",
+  "previous_tree_hash": "ed3fef328bd2549d02eda7e0ea8e5a20bbd0ec040c8dcab1a7809b947153bf31",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13770,7 +13770,7 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ed3fef328bd2549d02eda7e0ea8e5a20bbd0ec040c8dcab1a7809b947153bf31",
+  "tree_hash": "3eebb1bc60dea53bec9278f9728d221e6854af9bcecba9e6de7076388b4a5fdc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13786,13 +13786,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e4dffe4681f99afdb97ca0344779810d7200917d2a1ee1b7b51d778e53dccb93",
-      "size": 1162000
+      "sha256": "8428205225496907ad2810a4b48ac76eed951727f1ceea0373e754db5a029768",
+      "size": 1162007
     },
     {
       "path": "log.md",
-      "sha256": "6748da04479fa9d7c01b74b9a15a62f80845f8598400b628fe539879cc83e76f",
-      "size": 1964087
+      "sha256": "347a7cd4f7bf0e8372d13309f261bbcebb6da7c637e13c4128e3b6586ec37f79",
+      "size": 1964720
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19946,8 +19946,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
-      "sha256": "8fdb922fc5c215fa002fcff67427617eae797c9ce0a30eb13e356d5a266dd681",
-      "size": 3198
+      "sha256": "42ca68406f002ce445db849ecf043fd19b81ce72a57dd5f686a889b47bf1da92",
+      "size": 4816
     },
     {
       "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -20981,5 +20981,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "62a7c0a08f2b0c1c9a124d9370a559ead2c555ac84d734e07a352b8a88bc90ec"
+  "wiki_tree_hash": "b2582859da86618206f6b71f67f3a178863bfcf1464c257c791592a828039101"
 }
