@@ -39092,3 +39092,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_cb51d788d7a76e2ef91cf3d72e4fd562
 - summary: Reproduction of the IPGraph royalty gas-underpricing DoS on devnet0 before and after v1.3.3 fix, validating the attack stalls the chain pre-fix and is bounded post-fix across 5 gra...
 
+## [2026-06-25T09:32:16Z] synthesis | Aeneid Faucet System
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_3b0b68ff0fe9be5d7b429b83b3a1028f
+- summary: The Aeneid Faucet system dispenses testnet tokens to users via a web frontend and a backend server currently hosted on GCP. The team is planning to migrate the backend to AWS and i...
+
