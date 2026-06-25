@@ -39674,3 +39674,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b91cee3329043a2515779ef441c03bdd
 - summary: The Aeneid faucet provides testnet tokens via a frontend (https://aeneid.faucet.story.foundation/) that communicates with a backend server (use1-aeneid-fuacet). The backend was hos...
 
+## [2026-06-25T19:30:25Z] ingest | Slack thread C0AL7EKNHDF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0al7eknhdf-channel-4d96bb56
+- wiki_revision_id: wikirev_60c4e477d5150a8a6a3c937314777be0
+- source_document_id: srcdoc_02882053947288838246eb0a4d96bb56
+- source_revision_id: srcrev_efc0726ea2c101d693243696a1f969c9
+- summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
+
