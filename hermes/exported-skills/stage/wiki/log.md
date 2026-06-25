@@ -39129,3 +39129,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7426617d1cfbb3a88e38a4c673fd50ba
 - summary: Validation of protocol v1.3.3 fix for IPGraph royalty-read gas underpricing DoS.
 
+## [2026-06-25T10:31:51Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_f97828ace5dc81032ceb00f25f2d20a7
+- summary: The Aeneid testnet faucet distributes test tokens to users. It is currently hosted on a GCP instance (35.207.0.103) with the frontend at https://aeneid.faucet.story.foundation/ dir...
+
+## [2026-06-25T10:33:39Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_361363f3c589a6e748303d220dad418c
+- summary: The Aeneid testnet faucet provides testnet tokens via a web interface at https://aeneid.faucet.story.foundation/. The backend runs on a GCP instance with IP 35.207.0.103, validates...
+
+## [2026-06-25T10:33:39Z] synthesis | Faucet Migration from GCP to AWS
+
+- status: published
+- slug: projects/faucet-gcp-to-aws-migration
+- wiki_revision_id: wikirev_2ff439df5749f70ddf85f721578da8ea
+- summary: Decision to migrate the Aeneid faucet backend from GCP instance use1-aeneid-fuacet (project story-aeneid) to AWS (account story-testnet). The frontend will be updated to use a doma...
+

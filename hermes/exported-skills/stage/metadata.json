@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f301f1fd49c54fc26eb639dfb726b2c4fe1a641d917afb95ad542031059f7741",
-        "size": 1151629
+        "sha256": "7eb1a705b70a23c8cd823df5a39e92ad0b67bf3a12baa789f2e6270e4af74769",
+        "size": 1151647
       },
       {
         "path": "log.md",
-        "sha256": "79763976f893d4214ae86de3babe69f807593575d1213f6ca9b48c03b9e76692",
-        "size": 1935881
+        "sha256": "5a841ceb211cdd745edb809905529ca542650cbd99b6b750bbda17519b67ab44",
+        "size": 1936995
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6871,8 +6871,8 @@
       },
       {
         "path": "pages/projects/faucet-gcp-to-aws-migration.md",
-        "sha256": "b0750159d5af024616c828df08efe85f508be662b1b68767b4758e5580d766f2",
-        "size": 4208
+        "sha256": "586736f04dbd70024c38164dc75e3ddcb6ff7a1ab1bdcd9924772c0feb98c980",
+        "size": 6518
       },
       {
         "path": "pages/projects/faucet-migration-gcp-to-aws.md",
@@ -9341,8 +9341,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
-        "sha256": "572dc356ee8f9192df20bc44a8ee793feca2ed7b44cec4b74e85b97e85d02928",
-        "size": 7570
+        "sha256": "4e70fb9a89ca27d4e0a58882da7c87e8da350893903bdd80f233e7b41c2d75c4",
+        "size": 3534
       },
       {
         "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -10349,7 +10349,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T10:27:34Z",
+  "exported_at": "2026-06-25T10:34:15Z",
   "file_count": 2068,
   "files": [
     {
@@ -13627,7 +13627,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6fe35b8dfe3ea892d52446996d2a10bd2f1c92f82c12dff9b2b73005d827af25",
+  "previous_tree_hash": "b8abee3337963c06ef039f74b6c44acac78239ffe1e8db09e10c29fc8504fef5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13640,7 +13640,7 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b8abee3337963c06ef039f74b6c44acac78239ffe1e8db09e10c29fc8504fef5",
+  "tree_hash": "6c36bc4db3ac420b3929ca38b7369ecad6b02c9c710330e5851826205d372000",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13656,13 +13656,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f301f1fd49c54fc26eb639dfb726b2c4fe1a641d917afb95ad542031059f7741",
-      "size": 1151629
+      "sha256": "7eb1a705b70a23c8cd823df5a39e92ad0b67bf3a12baa789f2e6270e4af74769",
+      "size": 1151647
     },
     {
       "path": "log.md",
-      "sha256": "79763976f893d4214ae86de3babe69f807593575d1213f6ca9b48c03b9e76692",
-      "size": 1935881
+      "sha256": "5a841ceb211cdd745edb809905529ca542650cbd99b6b750bbda17519b67ab44",
+      "size": 1936995
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17246,8 +17246,8 @@
     },
     {
       "path": "pages/projects/faucet-gcp-to-aws-migration.md",
-      "sha256": "b0750159d5af024616c828df08efe85f508be662b1b68767b4758e5580d766f2",
-      "size": 4208
+      "sha256": "586736f04dbd70024c38164dc75e3ddcb6ff7a1ab1bdcd9924772c0feb98c980",
+      "size": 6518
     },
     {
       "path": "pages/projects/faucet-migration-gcp-to-aws.md",
@@ -19716,8 +19716,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
-      "sha256": "572dc356ee8f9192df20bc44a8ee793feca2ed7b44cec4b74e85b97e85d02928",
-      "size": 7570
+      "sha256": "4e70fb9a89ca27d4e0a58882da7c87e8da350893903bdd80f233e7b41c2d75c4",
+      "size": 3534
     },
     {
       "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -20721,5 +20721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c980717794017194c954d95d894e18a3de191275d7dee2fe8beb0f6b3bbce6de"
+  "wiki_tree_hash": "997a79a027c306e05723683ebc0593dc52844cd4d7d0c029bf48c6e3984c44bb"
 }
