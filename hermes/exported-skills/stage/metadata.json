@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8c20f759dfdee411a357dff84ca617ba3288bf1f921ffbc962591f484e062b6b",
-        "size": 1147579
+        "sha256": "2f5257b8d4a3ec5b4e7fcadb5472cf0d515952cdebf333832a50ac9d31dc9a4c",
+        "size": 1147991
       },
       {
         "path": "log.md",
-        "sha256": "b9a71b6f9ba64650db3184a4897216f14f736dd0c02f53912207b1cb958a821a",
-        "size": 1929981
+        "sha256": "a02367dec7f608c7ea130053b84dbdc58a2eb62348e5ec0485b6b7fbf74ee296",
+        "size": 1930923
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4803,6 +4803,11 @@
         "path": "pages/decisions/blockscout-hosting-decision.md",
         "sha256": "3bef677d85df5e78d37ad8fa2462329cf7ebfc552b0130e82602bda7499f6666",
         "size": 5413
+      },
+      {
+        "path": "pages/decisions/blockscout-hosting-strategy.md",
+        "sha256": "ff2fc527b1d04f56113e69d42b914b0a2cf561c583a5e4f11490b9bbf2df23a3",
+        "size": 4656
       },
       {
         "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
@@ -10304,8 +10309,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T07:55:31Z",
-  "file_count": 2059,
+  "exported_at": "2026-06-25T08:02:15Z",
+  "file_count": 2060,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13582,7 +13587,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e667f74fb19c901868a98778776adbc4398c51f6fdde21631752d683db6d4971",
+  "previous_tree_hash": "443da7f7067e3afd20456faa68c3c01c44927b2657c813744cc37a6f1b2450df",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13595,14 +13600,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "443da7f7067e3afd20456faa68c3c01c44927b2657c813744cc37a6f1b2450df",
+  "tree_hash": "46a1134bfc388eb336f597b8fb0e32bb1207f3306cd0b5ccd34bf4f341c1ec6b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1405,
+  "wiki_file_count": 1406,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13611,13 +13616,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8c20f759dfdee411a357dff84ca617ba3288bf1f921ffbc962591f484e062b6b",
-      "size": 1147579
+      "sha256": "2f5257b8d4a3ec5b4e7fcadb5472cf0d515952cdebf333832a50ac9d31dc9a4c",
+      "size": 1147991
     },
     {
       "path": "log.md",
-      "sha256": "b9a71b6f9ba64650db3184a4897216f14f736dd0c02f53912207b1cb958a821a",
-      "size": 1929981
+      "sha256": "a02367dec7f608c7ea130053b84dbdc58a2eb62348e5ec0485b6b7fbf74ee296",
+      "size": 1930923
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15133,6 +15138,11 @@
       "path": "pages/decisions/blockscout-hosting-decision.md",
       "sha256": "3bef677d85df5e78d37ad8fa2462329cf7ebfc552b0130e82602bda7499f6666",
       "size": 5413
+    },
+    {
+      "path": "pages/decisions/blockscout-hosting-strategy.md",
+      "sha256": "ff2fc527b1d04f56113e69d42b914b0a2cf561c583a5e4f11490b9bbf2df23a3",
+      "size": 4656
     },
     {
       "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
@@ -20631,5 +20641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a67431556fcbf61b47db4b523e4772d55bd3088855671ef1b43b55e128e1455d"
+  "wiki_tree_hash": "ec7e974aa426d86ad7dad452d00dab472cd53423196012c0045b0cf7538cf809"
 }

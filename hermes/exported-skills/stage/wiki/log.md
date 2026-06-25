@@ -39023,3 +39023,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b3f0677a4fdf00c046979321f519e9e5
 - summary: On 2026-01-22, the team decided to stop running self-hosted Blockscout instances on Mainnet and Aeneid, relying on the Blockscout team's hosted service and Dune, with manual backup...
 
+## [2026-06-25T08:00:45Z] ingest | devnet0 before/after reproduction — graph scenarios (v1.3.3 fix)
+
+- status: published
+- slug: notion_document/devnet0-before/after-reproduction-graph-scenarios-v1-3-3-fix--9af152d8
+- wiki_revision_id: wikirev_de98fe4376b94dde3c1e8dfc847bf96e
+- source_document_id: srcdoc_904e0df3db2d9f74c32ad8fd9af152d8
+- source_revision_id: srcrev_c2f1ba990cce55659de1c0f732c93705
+- summary: Source: [source](https://app.notion.com/p/devnet0-before-after-reproduction-graph-scenarios-v1-3-3-fix-38a051299a5481ec9d4df70330d4263c)
+
+## [2026-06-25T08:01:16Z] synthesis | Blockscout Hosting Strategy
+
+- status: published
+- slug: decisions/blockscout-hosting-strategy
+- wiki_revision_id: wikirev_f95a47ec4cd1997ee42be2554e509524
+- summary: Decision to stop running our own Blockscout instances for Mainnet and Aeneid, relying on Blockscout team's hosted service and Dune. Our own instance will be kept as cold backup, bu...
+
