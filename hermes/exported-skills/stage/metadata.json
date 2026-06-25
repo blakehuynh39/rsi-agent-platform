@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "17138f2c0a2df58ef37a3853cd3dd88e889d2705031b198176ee9f24b597aabb",
-        "size": 1151336
+        "sha256": "f301f1fd49c54fc26eb639dfb726b2c4fe1a641d917afb95ad542031059f7741",
+        "size": 1151629
       },
       {
         "path": "log.md",
-        "sha256": "c144ccdf7657f9583a2d8d4e2f53af68197d309dd601f575032d2603b6bfbfe4",
-        "size": 1935576
+        "sha256": "79763976f893d4214ae86de3babe69f807593575d1213f6ca9b48c03b9e76692",
+        "size": 1935881
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5148,6 +5148,11 @@
         "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
         "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
         "size": 5521
+      },
+      {
+        "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
+        "sha256": "95f815b67ffd1ea91c37ef1361210128c1596fdf29da5f176dfec8fe45bba94b",
+        "size": 6206
       },
       {
         "path": "pages/decisions/issue-830-deletion-decision.md",
@@ -10344,8 +10349,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T10:10:34Z",
-  "file_count": 2067,
+  "exported_at": "2026-06-25T10:27:34Z",
+  "file_count": 2068,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13622,7 +13627,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8af015e188e5cdd0e45be30516e0c2a8ae0164e3ea258838f81adb7b6e5ee85d",
+  "previous_tree_hash": "6fe35b8dfe3ea892d52446996d2a10bd2f1c92f82c12dff9b2b73005d827af25",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13635,14 +13640,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "6fe35b8dfe3ea892d52446996d2a10bd2f1c92f82c12dff9b2b73005d827af25",
+  "tree_hash": "b8abee3337963c06ef039f74b6c44acac78239ffe1e8db09e10c29fc8504fef5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1413,
+  "wiki_file_count": 1414,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13651,13 +13656,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "17138f2c0a2df58ef37a3853cd3dd88e889d2705031b198176ee9f24b597aabb",
-      "size": 1151336
+      "sha256": "f301f1fd49c54fc26eb639dfb726b2c4fe1a641d917afb95ad542031059f7741",
+      "size": 1151629
     },
     {
       "path": "log.md",
-      "sha256": "c144ccdf7657f9583a2d8d4e2f53af68197d309dd601f575032d2603b6bfbfe4",
-      "size": 1935576
+      "sha256": "79763976f893d4214ae86de3babe69f807593575d1213f6ca9b48c03b9e76692",
+      "size": 1935881
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15518,6 +15523,11 @@
       "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
       "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
       "size": 5521
+    },
+    {
+      "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
+      "sha256": "95f815b67ffd1ea91c37ef1361210128c1596fdf29da5f176dfec8fe45bba94b",
+      "size": 6206
     },
     {
       "path": "pages/decisions/issue-830-deletion-decision.md",
@@ -20711,5 +20721,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2634dc003b098ea6d22c4b72d60919f545045dbb4c514b34329a284f6c25e6cf"
+  "wiki_tree_hash": "c980717794017194c954d95d894e18a3de191275d7dee2fe8beb0f6b3bbce6de"
 }

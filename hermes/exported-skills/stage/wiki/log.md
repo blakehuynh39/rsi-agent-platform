@@ -39122,3 +39122,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1d225e8a30771842ee238e4b77a560f4
 - summary: Decision to migrate the Aeneid testnet faucet server from GCP (instance use1-aeneid-fuacet, IP 35.207.0.103) to AWS, converting the frontend from a hardcoded IP to a domain name.
 
+## [2026-06-25T10:22:28Z] synthesis | IPGraph Royalty DoS Fix Verification
+
+- status: published
+- slug: decisions/ipgraph-royalty-dos-fix-verification
+- wiki_revision_id: wikirev_7426617d1cfbb3a88e38a4c673fd50ba
+- summary: Validation of protocol v1.3.3 fix for IPGraph royalty-read gas underpricing DoS.
+
