@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "84c5c516f66b0fb1698e3f4e674eb3bb8348ac7be56b442b8a40f7a895858702",
+        "sha256": "8ab0ef483d579d3e723bb2b5f4ef4b83b98490d7d04a362b143b1575cb87c22f",
         "size": 31981
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "07226246e34eb4c54583e39511948fbcf890cf3ab9715c7bdd1a6d05719f1014",
-        "size": 1143570
+        "sha256": "b1aed59853101da87edb81391e5f4ebf394990ce5301819cae91205f75b9613f",
+        "size": 1143569
       },
       {
         "path": "log.md",
-        "sha256": "c590610c46d3abd5a452d72f86dfdf54b03d3fbcfabc7cbe0ee467bed05c9c3f",
-        "size": 1925400
+        "sha256": "d718f3c08c2362732dc7aae2e4b9d583f6f24c2bb11c132c08cf00dffca73f19",
+        "size": 1925839
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8971,8 +8971,8 @@
       },
       {
         "path": "pages/runbooks/staging-pods-crash-loop-after-temporal-cert-rotation.md",
-        "sha256": "6a0720273a1acb0ba0347e34c5de6bf451f5e6826c1dfb18b16d636f6025ed44",
-        "size": 5597
+        "sha256": "f62d26e4d4f0abfce25845c309dc4b0a15393b8209dff2d49081d7841894b091",
+        "size": 5068
       },
       {
         "path": "pages/runbooks/staging-pods-crashloop-after-temporal-certs-rotation.md",
@@ -10249,7 +10249,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T05:30:07Z",
+  "exported_at": "2026-06-25T05:36:51Z",
   "file_count": 2048,
   "files": [
     {
@@ -10309,7 +10309,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "84c5c516f66b0fb1698e3f4e674eb3bb8348ac7be56b442b8a40f7a895858702",
+      "sha256": "8ab0ef483d579d3e723bb2b5f4ef4b83b98490d7d04a362b143b1575cb87c22f",
       "size": 31981
     },
     {
@@ -13527,7 +13527,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "06ded50d60dcf1e22da66493a54321633a110a229402c06642fb4ca6ec73172c",
+  "previous_tree_hash": "c3f2c903f260f8539f47a7d8d53e80dd9d6a73356bad89c4ad914b67470ade76",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13538,9 +13538,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "a5647e128e81de951b2a026382ad9fc124046414b9f128d09a56314a80c31c18",
+  "skill_tree_hash": "23250c01cda877dd378a3d250994b03cf87a39b0d18aa4a70507e80f12e9d814",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c3f2c903f260f8539f47a7d8d53e80dd9d6a73356bad89c4ad914b67470ade76",
+  "tree_hash": "f6127f05672e337e851dd9531ff962a1edfa3a7c4ef1084c94c1b42e7cb980af",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13556,13 +13556,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "07226246e34eb4c54583e39511948fbcf890cf3ab9715c7bdd1a6d05719f1014",
-      "size": 1143570
+      "sha256": "b1aed59853101da87edb81391e5f4ebf394990ce5301819cae91205f75b9613f",
+      "size": 1143569
     },
     {
       "path": "log.md",
-      "sha256": "c590610c46d3abd5a452d72f86dfdf54b03d3fbcfabc7cbe0ee467bed05c9c3f",
-      "size": 1925400
+      "sha256": "d718f3c08c2362732dc7aae2e4b9d583f6f24c2bb11c132c08cf00dffca73f19",
+      "size": 1925839
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19246,8 +19246,8 @@
     },
     {
       "path": "pages/runbooks/staging-pods-crash-loop-after-temporal-cert-rotation.md",
-      "sha256": "6a0720273a1acb0ba0347e34c5de6bf451f5e6826c1dfb18b16d636f6025ed44",
-      "size": 5597
+      "sha256": "f62d26e4d4f0abfce25845c309dc4b0a15393b8209dff2d49081d7841894b091",
+      "size": 5068
     },
     {
       "path": "pages/runbooks/staging-pods-crashloop-after-temporal-certs-rotation.md",
@@ -20521,5 +20521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "308c0931a9de8cc73bca2ce942cd0365a54dd7d169e014c864f2895fa05067fd"
+  "wiki_tree_hash": "924a8bcf874690a2bafed98e86a3722e2c90483fedb3c598f97ee48b3f9902e6"
 }
