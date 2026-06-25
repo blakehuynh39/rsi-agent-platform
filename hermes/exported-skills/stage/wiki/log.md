@@ -39078,3 +39078,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7138f4f8f97dba51312e153701cb67cf
 - summary: Source: [source](https://app.notion.com/p/devnet0-before-after-reproduction-graph-scenarios-v1-3-3-fix-38a051299a5481ec9d4df70330d4263c)
 
+## [2026-06-25T09:09:09Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_9738b43e5d761996212e961b45376d6d
+- summary: The faucet server for the Aeneid testnet, currently hosted on GCP with IP 35.207.0.103, serving token distribution. Planned migration to AWS with a domain-based frontend.
+
