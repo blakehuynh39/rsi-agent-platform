@@ -39502,3 +39502,33 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_77445bffdbd07b5b283db55d1ad5b835
 - summary: The GCP server use1-aeneid-fuacet hosts the backend for the Aeneid testnet faucet. It is accessed by the frontend at IP 35.207.0.103:23313. The team is migrating it to AWS and repl...
 
+## [2026-06-25T17:00:26Z] ingest | Slack thread C0B36TEUYHF channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b36teuyhf-channel-c117fd1f
+- wiki_revision_id: wikirev_7024cd6162f613aa82bebd5047e41fa3
+- source_document_id: srcdoc_099afefb8a05bf9dc25022a7c117fd1f
+- source_revision_id: srcrev_011db86cdc553dadb2416cc24400a3db
+- summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
+
+## [2026-06-25T17:02:24Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/use1-aeneid-fuacet
+- wiki_revision_id: wikirev_804488821d1003ee4850687329dc8e48
+- summary: GCP compute instance hosting the backend for the Aeneid faucet at aeneid.faucet.story.foundation.
+
+## [2026-06-25T17:02:25Z] synthesis | Aeneid Faucet Migration to AWS
+
+- status: published
+- slug: decisions/aeneid-faucet-migration
+- wiki_revision_id: wikirev_95ab2ad9577c200dec4cb11f62661d3d
+- summary: Decision and status of migrating the Aeneid faucet backend from GCP to AWS, including access requirements and frontend changes.
+
+## [2026-06-25T17:04:24Z] synthesis | Aeneid Faucet Server
+
+- status: published
+- slug: systems/faucet-server
+- wiki_revision_id: wikirev_c4313dbe93617445a4751c01f0ec9d33
+- summary: The backend server that processes faucet requests for the Aeneid testnet, currently hosted on GCP (instance use1-aeneid-fuacet) at IP 35.207.0.103. It validates frontend requests a...
+
