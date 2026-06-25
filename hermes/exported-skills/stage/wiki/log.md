@@ -39746,3 +39746,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_6169cc2d3fa52913451c07c2ea6da2be
 - summary: Decision to migrate the backend of the Aeneid faucet from GCP (project story-aeneid) to AWS (account story-testnet) and update the frontend to use a domain name. Access provisionin...
 
+## [2026-06-25T20:33:28Z] synthesis | Faucet Redirect to Aeneid Faucet
+
+- status: published
+- slug: systems/faucet-redirect-aeneid
+- wiki_revision_id: wikirev_1a9e0ae0fd76ab76dc62121edcf7781c
+- summary: The faucet.story.foundation URL was incorrectly pointing to the GCP faucet instead of the Aeneid faucet. The issue was investigated and resolved after disabling a misconfiguration ...
+
