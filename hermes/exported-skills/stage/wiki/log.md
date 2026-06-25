@@ -39053,3 +39053,19 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_aec162e2de8663af314e0098e69d1e8f
 - summary: Decision to stop self-hosted Blockscout explorers for Mainnet and Aeneid, relying on Blockscout team's hosted service and Dune, with own instances kept as backup only for emergenci...
 
+## [2026-06-25T08:30:44Z] ingest | devnet0 before/after reproduction — graph scenarios (v1.3.3 fix)
+
+- status: published
+- slug: notion_document/devnet0-before/after-reproduction-graph-scenarios-v1-3-3-fix--9af152d8
+- wiki_revision_id: wikirev_07cf3a45770b634c9a930f994a197208
+- source_document_id: srcdoc_904e0df3db2d9f74c32ad8fd9af152d8
+- source_revision_id: srcrev_deff00a6b5c51725bbe4bb3a1fa551a5
+- summary: Source: [source](https://app.notion.com/p/devnet0-before-after-reproduction-graph-scenarios-v1-3-3-fix-38a051299a5481ec9d4df70330d4263c)
+
+## [2026-06-25T08:34:33Z] synthesis | Aeneid Faucet
+
+- status: published
+- slug: systems/aeneid-faucet
+- wiki_revision_id: wikirev_73d6f4e90cb7d4f9305dceb442a03d32
+- summary: The Aeneid testnet faucet distributes testnet tokens to users. It is currently hosted on a GCP instance and accessed via IP. We are migrating it to AWS and will switch to a domain ...
+
