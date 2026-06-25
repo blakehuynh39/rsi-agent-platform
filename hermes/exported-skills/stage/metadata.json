@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d31cd66be98c74674d437765bb6e829e979699c9316a4f45087ee0db7c30e9ca",
-        "size": 1162329
+        "sha256": "151ed2083fe386ead7d89c52098b098328db3bdc78ab590867194d95d1633e58",
+        "size": 1162716
       },
       {
         "path": "log.md",
-        "sha256": "4cf5b98e41432d9dee1c95ecb6a7503c8881d43b87ae7df8b485d248879b9ec5",
-        "size": 1966675
+        "sha256": "82092edb7638315be69cabbedd89eeb662726148aabe053a0d9e7cc5f93857b2",
+        "size": 1967441
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5038,6 +5038,11 @@
         "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
         "sha256": "806e18e2315a72860c93476905b89ed76b4e610cccdb1c960d3d394f181593df",
         "size": 4671
+      },
+      {
+        "path": "pages/decisions/faucet-server-migration.md",
+        "sha256": "ceee8fd81ed6c2337478ffea1a8ac4b74250ce5d081907aceb161d410cb890ae",
+        "size": 4588
       },
       {
         "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -9441,8 +9446,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
-        "sha256": "42ca68406f002ce445db849ecf043fd19b81ce72a57dd5f686a889b47bf1da92",
-        "size": 4816
+        "sha256": "0294c711ae63a6a18fafdc7af5bd833381d2e13aabd9b7663eab681dd3af6de0",
+        "size": 4918
       },
       {
         "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -10484,8 +10489,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T19:49:33Z",
-  "file_count": 2095,
+  "exported_at": "2026-06-25T20:06:31Z",
+  "file_count": 2096,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13762,7 +13767,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c910d3af00daa065adc25fccd83902d4e31f7c95a3ea8d2b95bb156e248a4384",
+  "previous_tree_hash": "709c3f3ff32b46b6decbe55347c1aa788df88c44e5741bda0b8feffcb5d0d714",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13775,14 +13780,14 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "709c3f3ff32b46b6decbe55347c1aa788df88c44e5741bda0b8feffcb5d0d714",
+  "tree_hash": "f4e86aff3f0be9062c238d535ed16a8a4e4da2fcc809f2bcd33fd77d87942bb9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1441,
+  "wiki_file_count": 1442,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13791,13 +13796,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d31cd66be98c74674d437765bb6e829e979699c9316a4f45087ee0db7c30e9ca",
-      "size": 1162329
+      "sha256": "151ed2083fe386ead7d89c52098b098328db3bdc78ab590867194d95d1633e58",
+      "size": 1162716
     },
     {
       "path": "log.md",
-      "sha256": "4cf5b98e41432d9dee1c95ecb6a7503c8881d43b87ae7df8b485d248879b9ec5",
-      "size": 1966675
+      "sha256": "82092edb7638315be69cabbedd89eeb662726148aabe053a0d9e7cc5f93857b2",
+      "size": 1967441
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15548,6 +15553,11 @@
       "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
       "sha256": "806e18e2315a72860c93476905b89ed76b4e610cccdb1c960d3d394f181593df",
       "size": 4671
+    },
+    {
+      "path": "pages/decisions/faucet-server-migration.md",
+      "sha256": "ceee8fd81ed6c2337478ffea1a8ac4b74250ce5d081907aceb161d410cb890ae",
+      "size": 4588
     },
     {
       "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -19951,8 +19961,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
-      "sha256": "42ca68406f002ce445db849ecf043fd19b81ce72a57dd5f686a889b47bf1da92",
-      "size": 4816
+      "sha256": "0294c711ae63a6a18fafdc7af5bd833381d2e13aabd9b7663eab681dd3af6de0",
+      "size": 4918
     },
     {
       "path": "pages/systems/aeneid-gas-price-spike.md",
@@ -20991,5 +21001,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9e2c51e85d7dc656e33b7f0f559375666bb93199f0f65ed54af931e699c077c1"
+  "wiki_tree_hash": "7d9559edc67ab140d354eb17fba4807cdb7d2f596f1b1d4adb7c6131d7a62faa"
 }
