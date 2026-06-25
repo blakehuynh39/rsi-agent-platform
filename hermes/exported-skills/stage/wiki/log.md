@@ -39069,3 +39069,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_73d6f4e90cb7d4f9305dceb442a03d32
 - summary: The Aeneid testnet faucet distributes testnet tokens to users. It is currently hosted on a GCP instance and accessed via IP. We are migrating it to AWS and will switch to a domain ...
 
+## [2026-06-25T09:00:21Z] ingest | devnet0 before/after reproduction — graph scenarios (v1.3.3 fix)
+
+- status: published
+- slug: notion_document/devnet0-before/after-reproduction-graph-scenarios-v1-3-3-fix--9af152d8
+- wiki_revision_id: wikirev_d47512fe9e217f7f2ebc4d24c6c86e7d
+- source_document_id: srcdoc_904e0df3db2d9f74c32ad8fd9af152d8
+- source_revision_id: srcrev_7138f4f8f97dba51312e153701cb67cf
+- summary: Source: [source](https://app.notion.com/p/devnet0-before-after-reproduction-graph-scenarios-v1-3-3-fix-38a051299a5481ec9d4df70330d4263c)
+
