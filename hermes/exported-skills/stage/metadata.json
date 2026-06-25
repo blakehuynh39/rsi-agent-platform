@@ -59,7 +59,7 @@
       },
       {
         "path": ".usage.json",
-        "sha256": "3ab07182e0fe6fad1b23425885bb6980545db69eb370a9c62358030ca4c60ac5",
+        "sha256": "bf15736e0d175b88dfe75f165f8f8ef054a3776253484f74de62cef7a76a5484",
         "size": 31981
       },
       {
@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "55b4bb22288f319ae0b7fbef6276a3e13ac524901a1ab377f85c673f2f55f88a",
-        "size": 1137432
+        "sha256": "0c64af6423adb146860b47b738cf01fa3e926b99e2ad002d9485504be710b2fd",
+        "size": 1137434
       },
       {
         "path": "log.md",
-        "sha256": "d784bde8e766c304c95f2cbd6b79117d7d25171c4e7982c7551a87b3b7aac441",
-        "size": 1916694
+        "sha256": "5d92bcc531a95fb6a142d1f97a29c9bc01a9104d8b5870cd32ca1015ec1c445d",
+        "size": 1917080
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6281,8 +6281,8 @@
       },
       {
         "path": "pages/projects/aeneid-migration.md",
-        "sha256": "3e3c3c9bf95066635b98ae13531f2e000805972f82d81a08abaa225999dd0667",
-        "size": 3477
+        "sha256": "b96fe0b16ae3da2e472f16c77b616fb1d3525837674307c151ff2fe15eb43cb7",
+        "size": 5902
       },
       {
         "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -10169,7 +10169,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T01:08:12Z",
+  "exported_at": "2026-06-25T01:25:13Z",
   "file_count": 2032,
   "files": [
     {
@@ -10229,7 +10229,7 @@
     },
     {
       "path": ".usage.json",
-      "sha256": "3ab07182e0fe6fad1b23425885bb6980545db69eb370a9c62358030ca4c60ac5",
+      "sha256": "bf15736e0d175b88dfe75f165f8f8ef054a3776253484f74de62cef7a76a5484",
       "size": 31981
     },
     {
@@ -13447,7 +13447,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c1b1598246b74a02ac47faad4f13394b99a0c9b79c975d923f9a0dba7c8c630b",
+  "previous_tree_hash": "ebfc0fc755e1c24bbdf1a749f49c26a3a422d8d6dff90c5fa10b6b1f978ebc27",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13458,9 +13458,9 @@
       "tool_name": null
     }
   ],
-  "skill_tree_hash": "707a8ce6389ce68c41750e2bc269efdc5420cc973b06b522053fad925d8fd7b4",
+  "skill_tree_hash": "99d19634a86fc5f9844c8aa1f7201bd476467ee74067462f57c2f8919010e457",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ebfc0fc755e1c24bbdf1a749f49c26a3a422d8d6dff90c5fa10b6b1f978ebc27",
+  "tree_hash": "3358fdb11f77c688b96ef65d20626f0c81329544d84614ba7327d927f83e47f7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13476,13 +13476,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "55b4bb22288f319ae0b7fbef6276a3e13ac524901a1ab377f85c673f2f55f88a",
-      "size": 1137432
+      "sha256": "0c64af6423adb146860b47b738cf01fa3e926b99e2ad002d9485504be710b2fd",
+      "size": 1137434
     },
     {
       "path": "log.md",
-      "sha256": "d784bde8e766c304c95f2cbd6b79117d7d25171c4e7982c7551a87b3b7aac441",
-      "size": 1916694
+      "sha256": "5d92bcc531a95fb6a142d1f97a29c9bc01a9104d8b5870cd32ca1015ec1c445d",
+      "size": 1917080
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16476,8 +16476,8 @@
     },
     {
       "path": "pages/projects/aeneid-migration.md",
-      "sha256": "3e3c3c9bf95066635b98ae13531f2e000805972f82d81a08abaa225999dd0667",
-      "size": 3477
+      "sha256": "b96fe0b16ae3da2e472f16c77b616fb1d3525837674307c151ff2fe15eb43cb7",
+      "size": 5902
     },
     {
       "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -20361,5 +20361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2e21f9bc2e75724faf89fedc30af2a758c40a0dd370e41600b3e5e2152567972"
+  "wiki_tree_hash": "c3a48f6be9b0e01fbf85507093cc975ef0b62d0db87e5e48ade29bb679f0a5ad"
 }
