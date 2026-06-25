@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e39f01733cde3afa69d0013eb2ac7b31452dbc42b464fb5c94963bff34ce5b4d",
-        "size": 1138518
+        "sha256": "6e9e1138fa82859152d22cbf849c4bd1ce02c407ae4887264698b9d8858911e1",
+        "size": 1138918
       },
       {
         "path": "log.md",
-        "sha256": "62314253286100de9b2f5ac132a59ba92d6ec8294baa596cf21eda6a628f43b7",
-        "size": 1918584
+        "sha256": "aa82abc8e293d945909c9215fb51ee3edcdb6eda201fb0d50d7769070633428b",
+        "size": 1918996
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4673,6 +4673,11 @@
         "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
         "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
         "size": 2581
+      },
+      {
+        "path": "pages/decisions/aeneid-migration-rescheduling.md",
+        "sha256": "46aafe7d61bc42cd7a9a1b89481bbd2948a3d53321a6bcc58891704ef15bc1af",
+        "size": 4238
       },
       {
         "path": "pages/decisions/aeneid-migration-schedule.md",
@@ -10184,8 +10189,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T01:55:45Z",
-  "file_count": 2035,
+  "exported_at": "2026-06-25T02:07:30Z",
+  "file_count": 2036,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13462,7 +13467,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3fb9c927bff07df8708cbc3fd5e1fc2c0f209511a5617da923a0c2491a6e247a",
+  "previous_tree_hash": "e79344ac2bf38a5916d38293fc7be1aa09f1ee42ad7f1e20f28ce2b5deeb32cd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13475,14 +13480,14 @@
   ],
   "skill_tree_hash": "99d19634a86fc5f9844c8aa1f7201bd476467ee74067462f57c2f8919010e457",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e79344ac2bf38a5916d38293fc7be1aa09f1ee42ad7f1e20f28ce2b5deeb32cd",
+  "tree_hash": "7699cb65a88ec5d9770c9a80c83ce0ab2d3b3d6fade3168c8089cc5504cf72e0",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1381,
+  "wiki_file_count": 1382,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13491,13 +13496,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e39f01733cde3afa69d0013eb2ac7b31452dbc42b464fb5c94963bff34ce5b4d",
-      "size": 1138518
+      "sha256": "6e9e1138fa82859152d22cbf849c4bd1ce02c407ae4887264698b9d8858911e1",
+      "size": 1138918
     },
     {
       "path": "log.md",
-      "sha256": "62314253286100de9b2f5ac132a59ba92d6ec8294baa596cf21eda6a628f43b7",
-      "size": 1918584
+      "sha256": "aa82abc8e293d945909c9215fb51ee3edcdb6eda201fb0d50d7769070633428b",
+      "size": 1918996
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14883,6 +14888,11 @@
       "path": "pages/decisions/aeneid-api-sharing-for-bitgo.md",
       "sha256": "9318d445d45497424ca519f6289b3fbaec4a3543cb47e6472071ead0ef6357f9",
       "size": 2581
+    },
+    {
+      "path": "pages/decisions/aeneid-migration-rescheduling.md",
+      "sha256": "46aafe7d61bc42cd7a9a1b89481bbd2948a3d53321a6bcc58891704ef15bc1af",
+      "size": 4238
     },
     {
       "path": "pages/decisions/aeneid-migration-schedule.md",
@@ -20391,5 +20401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0cb722ad446b2e41c37785e069acf36c801e856f6c043726e8355516888fcd42"
+  "wiki_tree_hash": "caa631f0771ca6545d161e83eac2affe7c7dea011b4b8a5668e17e0f74bf5a4d"
 }
