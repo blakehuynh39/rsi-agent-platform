@@ -39495,3 +39495,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_7b40e38a056fc51133d561438a55a5ce
 - summary: Hello gang.
 
+## [2026-06-25T16:50:05Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/aeneid-faucet-server
+- wiki_revision_id: wikirev_77445bffdbd07b5b283db55d1ad5b835
+- summary: The GCP server use1-aeneid-fuacet hosts the backend for the Aeneid testnet faucet. It is accessed by the frontend at IP 35.207.0.103:23313. The team is migrating it to AWS and repl...
+
