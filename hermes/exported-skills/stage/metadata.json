@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "28663c708764a4632183f6816a02ac762537cb9baf61c26883e83d7656d1d536",
-        "size": 1163538
+        "sha256": "a94913650d48fdcb7d2f92edb7bf89bc474c3df8e224dd90ebd6749e4b6ce7c1",
+        "size": 1164302
       },
       {
         "path": "log.md",
-        "sha256": "aac0461d85a4748c06bb32806006bc1fe094063f3e37eacc10c378f5dc95ed58",
-        "size": 1968974
+        "sha256": "efd11fe076fd7c1bf2eed766410513c2d988e91b9e16f1bc33ef8c7b7bec8168",
+        "size": 1969762
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8640,6 +8640,16 @@
         "size": 1361
       },
       {
+        "path": "pages/runbooks/faucet-redirect-incident-2026-02-03.md",
+        "sha256": "f873ee87642874e441f8131dbb62262b23f19a28aacc47fbaea1ff73c0a3d258",
+        "size": 2337
+      },
+      {
+        "path": "pages/runbooks/faucet-url-redirect-fix.md",
+        "sha256": "754aa88d034c1d84a0bc6a83968afc496049f72e2f1d74004495311aab58d24b",
+        "size": 2657
+      },
+      {
         "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
         "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
         "size": 4822
@@ -10499,8 +10509,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T20:36:58Z",
-  "file_count": 2098,
+  "exported_at": "2026-06-25T20:48:49Z",
+  "file_count": 2100,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13777,7 +13787,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5ff8a9949bd34c83cba7c5b8e4663c52f8e203d7a07aa6a18c5ff1e0a70e5062",
+  "previous_tree_hash": "2a88b376106cf8afde0c8fad968fe98f57072733b2f8f5d5f1698dbd15712b62",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13790,14 +13800,14 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2a88b376106cf8afde0c8fad968fe98f57072733b2f8f5d5f1698dbd15712b62",
+  "tree_hash": "85b05952aa106acaa40c80affcabb3fad3987939edf68f1aa100c85082450db3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1444,
+  "wiki_file_count": 1446,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13806,13 +13816,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "28663c708764a4632183f6816a02ac762537cb9baf61c26883e83d7656d1d536",
-      "size": 1163538
+      "sha256": "a94913650d48fdcb7d2f92edb7bf89bc474c3df8e224dd90ebd6749e4b6ce7c1",
+      "size": 1164302
     },
     {
       "path": "log.md",
-      "sha256": "aac0461d85a4748c06bb32806006bc1fe094063f3e37eacc10c378f5dc95ed58",
-      "size": 1968974
+      "sha256": "efd11fe076fd7c1bf2eed766410513c2d988e91b9e16f1bc33ef8c7b7bec8168",
+      "size": 1969762
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19165,6 +19175,16 @@
       "size": 1361
     },
     {
+      "path": "pages/runbooks/faucet-redirect-incident-2026-02-03.md",
+      "sha256": "f873ee87642874e441f8131dbb62262b23f19a28aacc47fbaea1ff73c0a3d258",
+      "size": 2337
+    },
+    {
+      "path": "pages/runbooks/faucet-url-redirect-fix.md",
+      "sha256": "754aa88d034c1d84a0bc6a83968afc496049f72e2f1d74004495311aab58d24b",
+      "size": 2657
+    },
+    {
       "path": "pages/runbooks/forced-offline-deployment-and-feature-flags.md",
       "sha256": "c24a1cc45d255568d1e30bf6f1ef7c435d1c94caf1bef8326fb22dd02d0e21c7",
       "size": 4822
@@ -21021,5 +21041,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d1a0d0f12c01025628b1af3c7918a2d45dbebb2d2b30ebaa0927edc8536c95a5"
+  "wiki_tree_hash": "88157598a7d60fe17db04c9293dec438fc76176d147bd7e8018ae974c9c069d4"
 }

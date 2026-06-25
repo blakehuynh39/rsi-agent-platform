@@ -39753,3 +39753,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1a9e0ae0fd76ab76dc62121edcf7781c
 - summary: The faucet.story.foundation URL was incorrectly pointing to the GCP faucet instead of the Aeneid faucet. The issue was investigated and resolved after disabling a misconfiguration ...
 
+## [2026-06-25T20:45:48Z] synthesis | Faucet Redirect Incident - 2026-02-03
+
+- status: published
+- slug: runbooks/faucet-redirect-incident-2026-02-03
+- wiki_revision_id: wikirev_cf371eb87dd07fbd35191e818f779acf
+- summary: On 2026-02-03, it was discovered that the URL https://faucet.story.foundation was incorrectly directing users to the GCP faucet instead of the intended Aeneid faucet at https://aen...
+
+## [2026-06-25T20:46:52Z] synthesis | Faucet URL Redirect Fix
+
+- status: published
+- slug: runbooks/faucet-url-redirect-fix
+- wiki_revision_id: wikirev_660c74250a912f42e0e1bad048409229
+- summary: The faucet.story.foundation URL was incorrectly pointing to a GCP faucet instead of aeneid.faucet.story.foundation. The issue was caused by a disabled setting and resolved after ca...
+
