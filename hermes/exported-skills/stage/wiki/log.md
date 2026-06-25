@@ -38988,3 +38988,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_941959d81201eb5ec02c6ae61ef9013a
 - summary: A payment failure in Dynamics 365 requires access for user @U08332YR7W to change payment. @U04L0DD6B6F is the admin, and access is requested.
 
+## [2026-06-25T06:47:20Z] synthesis | Dynamics Payment System
+
+- status: published
+- slug: systems/dynamics-payment-system
+- wiki_revision_id: wikirev_2d662d4cfa13f02b06f8a035e18fbe32
+- summary: Microsoft Dynamics instance used for payment processing. Accessed via dynamics.xyz. Admin identified as U04L0DD6B6F.
+
+## [2026-06-25T06:48:31Z] synthesis | Decision to Stop Self-Hosted Blockscout Instances
+
+- status: published
+- slug: decisions/blockscout-hosting-decision
+- wiki_revision_id: wikirev_a571adb86e7c9b9770036a3374ca4290
+- summary: Team decided to stop running our own Blockscout explorers for Mainnet and Aeneid, relying on Blockscout team's hosted service. Self-hosted instances will remain as cold backup to b...
+

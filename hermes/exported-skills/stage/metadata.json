@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e57390b9b68777085be22422bcffb135852e40dea08fcada688838394c4ae7de",
-        "size": 1145634
+        "sha256": "790590b5e2d7e9ce2cffe49c6255c5fe15c1e7e14293f7c8121b738823372020",
+        "size": 1146335
       },
       {
         "path": "log.md",
-        "sha256": "8f81618d06b0a35ab2fd78ff170d6ac5065d3b3fba052fec9d150dd540bf6600",
-        "size": 1927976
+        "sha256": "14facadce1139e36e807b39268b3d78ede65bac6330dd786faf946c90625d700",
+        "size": 1928701
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4798,6 +4798,11 @@
         "path": "pages/decisions/block-explorer-vendor-evaluation.md",
         "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
         "size": 12799
+      },
+      {
+        "path": "pages/decisions/blockscout-hosting-decision.md",
+        "sha256": "3bef677d85df5e78d37ad8fa2462329cf7ebfc552b0130e82602bda7499f6666",
+        "size": 5413
       },
       {
         "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
@@ -9520,6 +9525,11 @@
         "size": 2844
       },
       {
+        "path": "pages/systems/dynamics-payment-system.md",
+        "sha256": "b28cc2d319bed22b49b71c0a7b4a2ccc3d6012fc3bb408445b48be414d981d3f",
+        "size": 2969
+      },
+      {
         "path": "pages/systems/engineering-home.md",
         "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
         "size": 1665
@@ -10279,8 +10289,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T06:34:14Z",
-  "file_count": 2054,
+  "exported_at": "2026-06-25T06:51:05Z",
+  "file_count": 2056,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13557,7 +13567,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "68f8800482846437d43aaba4641c763c5de207482c576b70ca29e8ab47a149ce",
+  "previous_tree_hash": "995d65ee711d570646ea74ce7d8ab018e5e477dbf5125c0aa916ce1f16c54d32",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13570,14 +13580,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "995d65ee711d570646ea74ce7d8ab018e5e477dbf5125c0aa916ce1f16c54d32",
+  "tree_hash": "2114382567ff6d2da4f51203e18f08cec88128cae98177f5226e72cad29e1ca5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1400,
+  "wiki_file_count": 1402,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13586,13 +13596,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e57390b9b68777085be22422bcffb135852e40dea08fcada688838394c4ae7de",
-      "size": 1145634
+      "sha256": "790590b5e2d7e9ce2cffe49c6255c5fe15c1e7e14293f7c8121b738823372020",
+      "size": 1146335
     },
     {
       "path": "log.md",
-      "sha256": "8f81618d06b0a35ab2fd78ff170d6ac5065d3b3fba052fec9d150dd540bf6600",
-      "size": 1927976
+      "sha256": "14facadce1139e36e807b39268b3d78ede65bac6330dd786faf946c90625d700",
+      "size": 1928701
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15103,6 +15113,11 @@
       "path": "pages/decisions/block-explorer-vendor-evaluation.md",
       "sha256": "ae3f6917a6e8a1ea4b4d359ba6002a8666bd61f3e38b0c822967ef90d9dbe555",
       "size": 12799
+    },
+    {
+      "path": "pages/decisions/blockscout-hosting-decision.md",
+      "sha256": "3bef677d85df5e78d37ad8fa2462329cf7ebfc552b0130e82602bda7499f6666",
+      "size": 5413
     },
     {
       "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
@@ -19825,6 +19840,11 @@
       "size": 2844
     },
     {
+      "path": "pages/systems/dynamics-payment-system.md",
+      "sha256": "b28cc2d319bed22b49b71c0a7b4a2ccc3d6012fc3bb408445b48be414d981d3f",
+      "size": 2969
+    },
+    {
       "path": "pages/systems/engineering-home.md",
       "sha256": "fb78bf46174561c5cb628ab5e45c53a5a974eaeff7154672fb8075f7794c5c99",
       "size": 1665
@@ -20581,5 +20601,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "0b155fad257e2dfd0dde1dcf8c8aea73ac353b37219aed93c8146522416cbb1e"
+  "wiki_tree_hash": "72a34edd64c18ea3de3d99b7c063bf09e505a81c5a04c0b98db31227a2e89218"
 }
