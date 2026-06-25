@@ -39767,3 +39767,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_660c74250a912f42e0e1bad048409229
 - summary: The faucet.story.foundation URL was incorrectly pointing to a GCP faucet instead of aeneid.faucet.story.foundation. The issue was caused by a disabled setting and resolved after ca...
 
+## [2026-06-25T21:01:09Z] synthesis | Faucet Routing Incident (2026-02-03)
+
+- status: published
+- slug: systems/faucet-routing-incident-2026-02-03
+- wiki_revision_id: wikirev_db77157eda56839a0391f4e8adc8ab02
+- summary: On 2026-02-03, the public faucet URL https://faucet.story.foundation was routed to the legacy GCP endpoint instead of https://aeneid.faucet.story.foundation/. The issue was resolve...
+

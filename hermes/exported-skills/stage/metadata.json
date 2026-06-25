@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a94913650d48fdcb7d2f92edb7bf89bc474c3df8e224dd90ebd6749e4b6ce7c1",
-        "size": 1164302
+        "sha256": "5d3c55f0c82a04a4bea70cc8265acb5c8952bbaabba34520cd3e6351d6a2636a",
+        "size": 1164694
       },
       {
         "path": "log.md",
-        "sha256": "efd11fe076fd7c1bf2eed766410513c2d988e91b9e16f1bc33ef8c7b7bec8168",
-        "size": 1969762
+        "sha256": "930498216f26eb74a5ff2002a5c0dd214c5bb930fa172a7a18e4888dc862fe2e",
+        "size": 1970166
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9745,6 +9745,11 @@
         "size": 3424
       },
       {
+        "path": "pages/systems/faucet-routing-incident-2026-02-03.md",
+        "sha256": "89ee89fda7b3e5f311c6156280003b7dc1089fadca89c2dfbb47c5b80038768b",
+        "size": 2692
+      },
+      {
         "path": "pages/systems/faucet-server-use1-aeneid-fuacet.md",
         "sha256": "c88e75be27d49e504efc5532aa448cbe3820769a55e8652bbb5069e0a2fa5efc",
         "size": 5388
@@ -10509,8 +10514,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T20:48:49Z",
-  "file_count": 2100,
+  "exported_at": "2026-06-25T21:05:49Z",
+  "file_count": 2101,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13787,7 +13792,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "2a88b376106cf8afde0c8fad968fe98f57072733b2f8f5d5f1698dbd15712b62",
+  "previous_tree_hash": "85b05952aa106acaa40c80affcabb3fad3987939edf68f1aa100c85082450db3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13800,14 +13805,14 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "85b05952aa106acaa40c80affcabb3fad3987939edf68f1aa100c85082450db3",
+  "tree_hash": "69167d138a031fa327c9ebb7e52ee01caa99234ba404a301ff8ab9e90e43f621",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1446,
+  "wiki_file_count": 1447,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13816,13 +13821,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a94913650d48fdcb7d2f92edb7bf89bc474c3df8e224dd90ebd6749e4b6ce7c1",
-      "size": 1164302
+      "sha256": "5d3c55f0c82a04a4bea70cc8265acb5c8952bbaabba34520cd3e6351d6a2636a",
+      "size": 1164694
     },
     {
       "path": "log.md",
-      "sha256": "efd11fe076fd7c1bf2eed766410513c2d988e91b9e16f1bc33ef8c7b7bec8168",
-      "size": 1969762
+      "sha256": "930498216f26eb74a5ff2002a5c0dd214c5bb930fa172a7a18e4888dc862fe2e",
+      "size": 1970166
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20280,6 +20285,11 @@
       "size": 3424
     },
     {
+      "path": "pages/systems/faucet-routing-incident-2026-02-03.md",
+      "sha256": "89ee89fda7b3e5f311c6156280003b7dc1089fadca89c2dfbb47c5b80038768b",
+      "size": 2692
+    },
+    {
       "path": "pages/systems/faucet-server-use1-aeneid-fuacet.md",
       "sha256": "c88e75be27d49e504efc5532aa448cbe3820769a55e8652bbb5069e0a2fa5efc",
       "size": 5388
@@ -21041,5 +21051,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "88157598a7d60fe17db04c9293dec438fc76176d147bd7e8018ae974c9c069d4"
+  "wiki_tree_hash": "3e52cc1a6275ceca2060abeb2b3cf3504e6ba0ad199ed59f88feeddfd8702f3e"
 }
