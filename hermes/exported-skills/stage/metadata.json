@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c0c01806e1fe07d05586b7491fec33da13311fcde40b636896c66aa11964c20e",
-        "size": 1160124
+        "sha256": "044d2a7f10528cabec91af6dba4cc6ad2d9918fe36638c52a21c108515cacd64",
+        "size": 1160822
       },
       {
         "path": "log.md",
-        "sha256": "6e6f856c88e5eabb54f7c46230014d360fb1737ea026d31b07c77255cefd973b",
-        "size": 1959220
+        "sha256": "77a4b5f385fc4fea8e84fefc1cfb18ab3d6da0ff62dcc5355036030bc1540ea4",
+        "size": 1959940
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6930,6 +6930,11 @@
         "size": 2920
       },
       {
+        "path": "pages/projects/faucet-aeneid-migration.md",
+        "sha256": "8729271019e7c44c93f43b740772961f2b015d60282a6af1b4e9cc90deffe928",
+        "size": 5786
+      },
+      {
         "path": "pages/projects/faucet-gcp-to-aws-migration.md",
         "sha256": "586736f04dbd70024c38164dc75e3ddcb6ff7a1ab1bdcd9924772c0feb98c980",
         "size": 6518
@@ -10425,6 +10430,11 @@
         "size": 4539
       },
       {
+        "path": "pages/systems/use1-aeneid-fuacet-server.md",
+        "sha256": "e72c040336f5095002e501f540b92cbbd37f91188ac88791997f44a7cb5f8eb2",
+        "size": 5137
+      },
+      {
         "path": "pages/systems/use1-aeneid-fuacet.md",
         "sha256": "326a2b6e12fe2cf17a78e292c8af6eb4a797b7bbbdee44cb03a1cb1397da0e9b",
         "size": 3287
@@ -10454,8 +10464,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T17:33:50Z",
-  "file_count": 2089,
+  "exported_at": "2026-06-25T17:50:47Z",
+  "file_count": 2091,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13732,7 +13742,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "cc7c75a03e0ed7b2ed0d6cd68baf64e6c1700f71626050ac0808d9b5ac0c50ee",
+  "previous_tree_hash": "f63377d8b9abe86d74bce7dc697eb7b648511ee597a0ef3bb7b4e2622da41ff4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13745,14 +13755,14 @@
   ],
   "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f63377d8b9abe86d74bce7dc697eb7b648511ee597a0ef3bb7b4e2622da41ff4",
+  "tree_hash": "db270ae9c274235e7ef0decf162e15eff29eb9490b1f8a873dd41ca7b69cc17d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1435,
+  "wiki_file_count": 1437,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13761,13 +13771,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c0c01806e1fe07d05586b7491fec33da13311fcde40b636896c66aa11964c20e",
-      "size": 1160124
+      "sha256": "044d2a7f10528cabec91af6dba4cc6ad2d9918fe36638c52a21c108515cacd64",
+      "size": 1160822
     },
     {
       "path": "log.md",
-      "sha256": "6e6f856c88e5eabb54f7c46230014d360fb1737ea026d31b07c77255cefd973b",
-      "size": 1959220
+      "sha256": "77a4b5f385fc4fea8e84fefc1cfb18ab3d6da0ff62dcc5355036030bc1540ea4",
+      "size": 1959940
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17410,6 +17420,11 @@
       "size": 2920
     },
     {
+      "path": "pages/projects/faucet-aeneid-migration.md",
+      "sha256": "8729271019e7c44c93f43b740772961f2b015d60282a6af1b4e9cc90deffe928",
+      "size": 5786
+    },
+    {
       "path": "pages/projects/faucet-gcp-to-aws-migration.md",
       "sha256": "586736f04dbd70024c38164dc75e3ddcb6ff7a1ab1bdcd9924772c0feb98c980",
       "size": 6518
@@ -20905,6 +20920,11 @@
       "size": 4539
     },
     {
+      "path": "pages/systems/use1-aeneid-fuacet-server.md",
+      "sha256": "e72c040336f5095002e501f540b92cbbd37f91188ac88791997f44a7cb5f8eb2",
+      "size": 5137
+    },
+    {
       "path": "pages/systems/use1-aeneid-fuacet.md",
       "sha256": "326a2b6e12fe2cf17a78e292c8af6eb4a797b7bbbdee44cb03a1cb1397da0e9b",
       "size": 3287
@@ -20931,5 +20951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d1a2f29f80091eda6ced186bfe878bcc9c24a75d1f6a79f68e23f26c9c11503c"
+  "wiki_tree_hash": "b14d9c620c9b54d1d3a1ac5c0e8120f2bd452767c8a39272a5221ef83bc38485"
 }
