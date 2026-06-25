@@ -39344,3 +39344,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_87588a68d67bc8f4dcd721b5930028f1
 - summary: I recommend option 2. Infra cost will be anywhere between 1-5k $ per month
 
+## [2026-06-25T14:50:00Z] synthesis | Aeneid Faucet Infrastructure
+
+- status: published
+- slug: systems/aeneid-faucet-infrastructure
+- wiki_revision_id: wikirev_5f4aa66fcdfc8e57ab7d06b62d546d15
+- summary: The Aeneid testnet faucet backend runs on a GCP instance (use1-aeneid-fuacet) with IP 35.207.0.103, frontend at aeneid.faucet.story.foundation. Migration to AWS is planned, requiri...
+
+## [2026-06-25T14:51:47Z] synthesis | Aeneid Faucet Server (use1-aeneid-fuacet)
+
+- status: published
+- slug: systems/aeneid-faucet-server-use1-aeneid-fuacet
+- wiki_revision_id: wikirev_3843abe8d8cb56bb01394e4ee3a1ad7e
+- summary: The Aeneid testnet faucet backend runs on GCP instance use1-aeneid-fuacet (35.207.0.103), serving the frontend at aeneid.faucet.story.foundation. It validates requests, stores wall...
+
