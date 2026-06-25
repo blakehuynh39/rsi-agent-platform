@@ -39790,3 +39790,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_15cbd3c47bc62da8b2f4aa0087750b11
 - summary: UptimeRobot, previously used to monitor API endpoints, has been superseded by Betterstack. The subscription auto-renewal was cancelled, user accounts removed, and all alerts paused...
 
+## [2026-06-25T22:48:33Z] synthesis | UptimeRobot Deprecation
+
+- status: published
+- slug: decisions/uptimerobot-deprecation
+- wiki_revision_id: wikirev_b2c82cd2ab37ce2b781351b42ebd7396
+- summary: Decision and actions to decommission UptimeRobot and migrate to Betterstack. Auto-renewal cancelled, user accounts removed, alerts paused.
+
