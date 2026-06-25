@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a1dd55c419c97119523d4ebdb83e9f5d66394b98d3fc9312c532dc0689fdc8b7",
-        "size": 1142745
+        "sha256": "f2f85a36ff8f8498f915fe1f160cbc8fb5dae8083c7a63cdca88dd9e29d13a1d",
+        "size": 1143124
       },
       {
         "path": "log.md",
-        "sha256": "2ee977e59b1804ef563b98ef13a7c2cc33b4407ccb059697069969ce3eb9dbc4",
-        "size": 1923810
+        "sha256": "e81c9e5e1dab1428a6068d0bba5a97409717ab3315150ce4cf012f234cbb21bd",
+        "size": 1924201
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8975,6 +8975,11 @@
         "size": 5597
       },
       {
+        "path": "pages/runbooks/staging-pods-crashloop-after-temporal-certs-rotation.md",
+        "sha256": "517943138aaf799162ade370a5abbfd9813cebde808773f32846880f7237539f",
+        "size": 3855
+      },
+      {
         "path": "pages/runbooks/staging-test-collection-custom-images.md",
         "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
         "size": 3584
@@ -10239,8 +10244,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T04:49:36Z",
-  "file_count": 2046,
+  "exported_at": "2026-06-25T04:56:19Z",
+  "file_count": 2047,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13517,7 +13522,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "50c4c420cf723a97d1619513d8e6cdfb253f2d38b9b502753d16ca4a367bb43e",
+  "previous_tree_hash": "50b660e1bca08bf1fe7fa46d73b2ac15863193780d83e95d5e31973cec0c23cb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13530,14 +13535,14 @@
   ],
   "skill_tree_hash": "0cb3b361e70b2dad567fb9c5bd1623a60ce643f801b6bf21fcb55a112765e35f",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "50b660e1bca08bf1fe7fa46d73b2ac15863193780d83e95d5e31973cec0c23cb",
+  "tree_hash": "fd125e0e7de546b061e5c0ab1066ab593b29c5ef1b0074865db4ea7037bbbb48",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1392,
+  "wiki_file_count": 1393,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13546,13 +13551,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a1dd55c419c97119523d4ebdb83e9f5d66394b98d3fc9312c532dc0689fdc8b7",
-      "size": 1142745
+      "sha256": "f2f85a36ff8f8498f915fe1f160cbc8fb5dae8083c7a63cdca88dd9e29d13a1d",
+      "size": 1143124
     },
     {
       "path": "log.md",
-      "sha256": "2ee977e59b1804ef563b98ef13a7c2cc33b4407ccb059697069969ce3eb9dbc4",
-      "size": 1923810
+      "sha256": "e81c9e5e1dab1428a6068d0bba5a97409717ab3315150ce4cf012f234cbb21bd",
+      "size": 1924201
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19240,6 +19245,11 @@
       "size": 5597
     },
     {
+      "path": "pages/runbooks/staging-pods-crashloop-after-temporal-certs-rotation.md",
+      "sha256": "517943138aaf799162ade370a5abbfd9813cebde808773f32846880f7237539f",
+      "size": 3855
+    },
+    {
       "path": "pages/runbooks/staging-test-collection-custom-images.md",
       "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
       "size": 3584
@@ -20501,5 +20511,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2db58abe76313bfe4872b51aaf45b2dd38df2138f67db29ec6d78672185b497d"
+  "wiki_tree_hash": "34be6da2d8d661fe0e2a89181295c16c9d5c98135220cfa1d73ff7621f631aab"
 }

@@ -38911,3 +38911,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_997bc395e0a4715a59d0eaa8d114e524
 - summary: On 2026-01-31, staging pods started crash looping after a developer rotated Temporal worker certificates in Vault. Restarting all deployments restored health. Root cause remains un...
 
+## [2026-06-25T04:51:14Z] synthesis | Staging Pods CrashLoop After Temporal Certs Rotation
+
+- status: published
+- slug: runbooks/staging-pods-crashloop-after-temporal-certs-rotation
+- wiki_revision_id: wikirev_3be62c9892154d4d1afa590931fbb44c
+- summary: Runbook for diagnosing and resolving staging pod crash loops that occurred after rotating Temporal worker certificates stored in Vault.
+
