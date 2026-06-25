@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "4203ec1913bea3dacc20f3844a835be21e7eb810ec740f19fc1ada5c05dad45a",
-        "size": 1950540
+        "sha256": "9f6b5563fa16cd84411d49dc0cf2a5add86a8074e08e8b2bfbbc8985466eca8a",
+        "size": 1951322
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5311,8 +5311,8 @@
       },
       {
         "path": "pages/decisions/migrate-aeneid-faucet-to-aws.md",
-        "sha256": "a7015152665514e3233fa5921f292ec59efc4893889179eb1a0776e3663c901a",
-        "size": 2923
+        "sha256": "951f650a7dc85cf0c716d5de22d0343dd99b15966f0a3b662edd9163bce0166e",
+        "size": 4347
       },
       {
         "path": "pages/decisions/migrate-faucet-to-aws.md",
@@ -9406,8 +9406,8 @@
       },
       {
         "path": "pages/systems/aeneid-faucet-system.md",
-        "sha256": "75ba2fa6a1927c87641119381a9099d1577c195b499380b067b86ca66220c547",
-        "size": 5205
+        "sha256": "761cb3b5e2f8a28f965e5d078bf0ad6fd62041fca0f8d38ce2fd4db59acb28dd",
+        "size": 3719
       },
       {
         "path": "pages/systems/aeneid-faucet.md",
@@ -10439,7 +10439,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T15:21:32Z",
+  "exported_at": "2026-06-25T15:33:24Z",
   "file_count": 2086,
   "files": [
     {
@@ -13717,7 +13717,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "cf6fa58ab18efccc9bec10a761b34e0d72680d43309fd51af04c0d14b571ae67",
+  "previous_tree_hash": "b3b491ee89ede6ebd527b559153ba51d9a3e817c711a5f87afce75f5885d6cd9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13730,7 +13730,7 @@
   ],
   "skill_tree_hash": "07b082990cf0e5333651af31b6338c1e5799b64714b155a9fa91215557d24c9b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b3b491ee89ede6ebd527b559153ba51d9a3e817c711a5f87afce75f5885d6cd9",
+  "tree_hash": "e9f0598934f325dd3f30b0f1bef088923261ef4e324936463320137ff0849dfc",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13751,8 +13751,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "4203ec1913bea3dacc20f3844a835be21e7eb810ec740f19fc1ada5c05dad45a",
-      "size": 1950540
+      "sha256": "9f6b5563fa16cd84411d49dc0cf2a5add86a8074e08e8b2bfbbc8985466eca8a",
+      "size": 1951322
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15776,8 +15776,8 @@
     },
     {
       "path": "pages/decisions/migrate-aeneid-faucet-to-aws.md",
-      "sha256": "a7015152665514e3233fa5921f292ec59efc4893889179eb1a0776e3663c901a",
-      "size": 2923
+      "sha256": "951f650a7dc85cf0c716d5de22d0343dd99b15966f0a3b662edd9163bce0166e",
+      "size": 4347
     },
     {
       "path": "pages/decisions/migrate-faucet-to-aws.md",
@@ -19871,8 +19871,8 @@
     },
     {
       "path": "pages/systems/aeneid-faucet-system.md",
-      "sha256": "75ba2fa6a1927c87641119381a9099d1577c195b499380b067b86ca66220c547",
-      "size": 5205
+      "sha256": "761cb3b5e2f8a28f965e5d078bf0ad6fd62041fca0f8d38ce2fd4db59acb28dd",
+      "size": 3719
     },
     {
       "path": "pages/systems/aeneid-faucet.md",
@@ -20901,5 +20901,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "48ca6a4dc46bec136dda079e7a6cfc4146a979f6fc7876676e496ac8f29fed7c"
+  "wiki_tree_hash": "00832b1924fada63fc11d0659f432ea00c1f97f67ae821e50a042723b638c7db"
 }
