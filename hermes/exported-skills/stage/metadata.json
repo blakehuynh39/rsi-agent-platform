@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a2b4648e618df09925772a627c1f57b92f2e2e8c8bfe2ecfabe62552b1ef90fe",
-        "size": 1918217
+        "sha256": "62314253286100de9b2f5ac132a59ba92d6ec8294baa596cf21eda6a628f43b7",
+        "size": 1918584
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6281,8 +6281,8 @@
       },
       {
         "path": "pages/projects/aeneid-migration.md",
-        "sha256": "b96fe0b16ae3da2e472f16c77b616fb1d3525837674307c151ff2fe15eb43cb7",
-        "size": 5902
+        "sha256": "6b2b5aa393a63675a44b15251f62371fec8665d91854e6c49cf93ab9604f896d",
+        "size": 5350
       },
       {
         "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -10184,7 +10184,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T01:37:08Z",
+  "exported_at": "2026-06-25T01:49:01Z",
   "file_count": 2035,
   "files": [
     {
@@ -13462,7 +13462,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3358fdb11f77c688b96ef65d20626f0c81329544d84614ba7327d927f83e47f7",
+  "previous_tree_hash": "eb9039151de5813aa5dcc55793c50703191dfb1c06ae01ff5014dee48dd525c7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13475,7 +13475,7 @@
   ],
   "skill_tree_hash": "99d19634a86fc5f9844c8aa1f7201bd476467ee74067462f57c2f8919010e457",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "eb9039151de5813aa5dcc55793c50703191dfb1c06ae01ff5014dee48dd525c7",
+  "tree_hash": "3fb9c927bff07df8708cbc3fd5e1fc2c0f209511a5617da923a0c2491a6e247a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13496,8 +13496,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a2b4648e618df09925772a627c1f57b92f2e2e8c8bfe2ecfabe62552b1ef90fe",
-      "size": 1918217
+      "sha256": "62314253286100de9b2f5ac132a59ba92d6ec8294baa596cf21eda6a628f43b7",
+      "size": 1918584
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16491,8 +16491,8 @@
     },
     {
       "path": "pages/projects/aeneid-migration.md",
-      "sha256": "b96fe0b16ae3da2e472f16c77b616fb1d3525837674307c151ff2fe15eb43cb7",
-      "size": 5902
+      "sha256": "6b2b5aa393a63675a44b15251f62371fec8665d91854e6c49cf93ab9604f896d",
+      "size": 5350
     },
     {
       "path": "pages/projects/aeneid-rpc-and-validators-migration.md",
@@ -20391,5 +20391,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "1eaa95504d2aa69e631c9b97a6bdcf8a2a076ab3830fb8892d4fb9e682b9a375"
+  "wiki_tree_hash": "427ca7771ca08a2d5992c6858dfdf6716b2d8cc1c30da60e86c8fcde38a4245a"
 }

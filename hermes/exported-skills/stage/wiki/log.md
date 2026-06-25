@@ -38809,3 +38809,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_957111e5b1268ecaca3327e6b91f043d
 - summary: Resolve sync errors in Aeneid validator nodes where geth logs 'Number of finalized block is missing' by manually adding peers.
 
+## [2026-06-25T01:47:55Z] synthesis | Aeneid Migration
+
+- status: published
+- slug: projects/aeneid-migration
+- wiki_revision_id: wikirev_5ec518887b9072e5480624ec741eda32
+- summary: Migration of Aeneid RPC and validators, initially planned for 11PM PT, encountered sync issues due to peer configuration, and was rescheduled multiple times due to date confusion a...
+
