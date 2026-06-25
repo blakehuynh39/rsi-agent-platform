@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "11ec6db267ed392b3d6457d0fd3b57735985934a4eac02ef89163282dec16758",
-        "size": 1150948
+        "sha256": "17138f2c0a2df58ef37a3853cd3dd88e889d2705031b198176ee9f24b597aabb",
+        "size": 1151336
       },
       {
         "path": "log.md",
-        "sha256": "9915675b4b442831cc0f10a5cdc2ba5502e894710079c1f935f5d7451265cd28",
-        "size": 1935176
+        "sha256": "c144ccdf7657f9583a2d8d4e2f53af68197d309dd601f575032d2603b6bfbfe4",
+        "size": 1935576
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5273,6 +5273,11 @@
         "path": "pages/decisions/meta-transaction-architecture-decision.md",
         "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
         "size": 4651
+      },
+      {
+        "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
+        "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
+        "size": 5083
       },
       {
         "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
@@ -10339,8 +10344,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T10:03:48Z",
-  "file_count": 2066,
+  "exported_at": "2026-06-25T10:10:34Z",
+  "file_count": 2067,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13617,7 +13622,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d69183e7636e455ca318c8f75369dff8a0819b88faa371b1fbeba67c73b0c5ba",
+  "previous_tree_hash": "8af015e188e5cdd0e45be30516e0c2a8ae0164e3ea258838f81adb7b6e5ee85d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13630,14 +13635,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8af015e188e5cdd0e45be30516e0c2a8ae0164e3ea258838f81adb7b6e5ee85d",
+  "tree_hash": "6fe35b8dfe3ea892d52446996d2a10bd2f1c92f82c12dff9b2b73005d827af25",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1412,
+  "wiki_file_count": 1413,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13646,13 +13651,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "11ec6db267ed392b3d6457d0fd3b57735985934a4eac02ef89163282dec16758",
-      "size": 1150948
+      "sha256": "17138f2c0a2df58ef37a3853cd3dd88e889d2705031b198176ee9f24b597aabb",
+      "size": 1151336
     },
     {
       "path": "log.md",
-      "sha256": "9915675b4b442831cc0f10a5cdc2ba5502e894710079c1f935f5d7451265cd28",
-      "size": 1935176
+      "sha256": "c144ccdf7657f9583a2d8d4e2f53af68197d309dd601f575032d2603b6bfbfe4",
+      "size": 1935576
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15638,6 +15643,11 @@
       "path": "pages/decisions/meta-transaction-architecture-decision.md",
       "sha256": "3fdc1aa6d4b54d780bb0378295a76c67a777ad62ed125eca4af332739c497a8b",
       "size": 4651
+    },
+    {
+      "path": "pages/decisions/migrate-aeneid-faucet-gcp-to-aws.md",
+      "sha256": "f275e529abb95830c4255fc712029a96bae45cf7b23000e623cf4d482d08001f",
+      "size": 5083
     },
     {
       "path": "pages/decisions/module-upgradeability-and-acl-design-decisions.md",
@@ -20701,5 +20711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e37cf9228f1f5624ee2e8333b543efa225c92745c8232ae81d64a338eadc3868"
+  "wiki_tree_hash": "2634dc003b098ea6d22c4b72d60919f545045dbb4c514b34329a284f6c25e6cf"
 }
