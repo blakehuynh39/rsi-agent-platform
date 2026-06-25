@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "93b16a61f9207877ecec76c498f0a7997606e620f3f39ba331df0a2adcdddae5",
-        "size": 1162007
+        "sha256": "c94868d04ceb6fc10ea51f437cc76d6577285ee1034b983babb6b5f03ff82c12",
+        "size": 1162368
       },
       {
         "path": "log.md",
-        "sha256": "55c3da5ef7b3f0a0dcff2169db93e3cc1e9598452b05b13c006ab9612a9231dd",
-        "size": 1965189
+        "sha256": "24d1899bf798c92dd772754dfcc1714ccfd9b4230792fca2f3ceff0788ce010e",
+        "size": 1965953
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5036,8 +5036,8 @@
       },
       {
         "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
-        "sha256": "b9659919515e1c785df1fa50f690a213bd4eddd46ff8bf3afb3ccf990bb5fa09",
-        "size": 5328
+        "sha256": "806e18e2315a72860c93476905b89ed76b4e610cccdb1c960d3d394f181593df",
+        "size": 4671
       },
       {
         "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -9730,6 +9730,11 @@
         "size": 3759
       },
       {
+        "path": "pages/systems/faucet-service.md",
+        "sha256": "4a4898f53ea8790413afca4ff44307e48fcf1f8054248107c54f4fe556a8ea30",
+        "size": 3692
+      },
+      {
         "path": "pages/systems/file-upload-api.md",
         "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
         "size": 3060
@@ -10479,8 +10484,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T19:30:52Z",
-  "file_count": 2094,
+  "exported_at": "2026-06-25T19:37:36Z",
+  "file_count": 2095,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13757,7 +13762,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3eebb1bc60dea53bec9278f9728d221e6854af9bcecba9e6de7076388b4a5fdc",
+  "previous_tree_hash": "048554d2e0145b1f3afcd62c3de1d93638676b8e912e6dea623d99075aa4bade",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13770,14 +13775,14 @@
   ],
   "skill_tree_hash": "c1b38ac15cccb8a2e3fbd8118ed6b8522faaecf200b8c72b5e77291fdaa6fd99",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "048554d2e0145b1f3afcd62c3de1d93638676b8e912e6dea623d99075aa4bade",
+  "tree_hash": "c910d3af00daa065adc25fccd83902d4e31f7c95a3ea8d2b95bb156e248a4384",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1440,
+  "wiki_file_count": 1441,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13786,13 +13791,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "93b16a61f9207877ecec76c498f0a7997606e620f3f39ba331df0a2adcdddae5",
-      "size": 1162007
+      "sha256": "c94868d04ceb6fc10ea51f437cc76d6577285ee1034b983babb6b5f03ff82c12",
+      "size": 1162368
     },
     {
       "path": "log.md",
-      "sha256": "55c3da5ef7b3f0a0dcff2169db93e3cc1e9598452b05b13c006ab9612a9231dd",
-      "size": 1965189
+      "sha256": "24d1899bf798c92dd772754dfcc1714ccfd9b4230792fca2f3ceff0788ce010e",
+      "size": 1965953
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15541,8 +15546,8 @@
     },
     {
       "path": "pages/decisions/faucet-migration-gcp-to-aws.md",
-      "sha256": "b9659919515e1c785df1fa50f690a213bd4eddd46ff8bf3afb3ccf990bb5fa09",
-      "size": 5328
+      "sha256": "806e18e2315a72860c93476905b89ed76b4e610cccdb1c960d3d394f181593df",
+      "size": 4671
     },
     {
       "path": "pages/decisions/file-pre-commit-task-decision.md",
@@ -20235,6 +20240,11 @@
       "size": 3759
     },
     {
+      "path": "pages/systems/faucet-service.md",
+      "sha256": "4a4898f53ea8790413afca4ff44307e48fcf1f8054248107c54f4fe556a8ea30",
+      "size": 3692
+    },
+    {
       "path": "pages/systems/file-upload-api.md",
       "sha256": "73497371e69891f2b3b28310776dc29881240c21e83f6c9aafce919f1282411d",
       "size": 3060
@@ -20981,5 +20991,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "15375e1630b25d6248755f5ed3e094d99ba0fcd05333e3baa654e593d17872b6"
+  "wiki_tree_hash": "0e232a76f7f5e4894b738a4d7adacf8c897d135bc965d61b9099ac408c4f136f"
 }

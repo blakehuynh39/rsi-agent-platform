@@ -39683,3 +39683,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_efc0726ea2c101d693243696a1f969c9
 - summary: Numo morning digest: 4,922 submissions in last 24h, 715,470 pending review · $0.24 validated, $19,140.38 unvalidated.
 
+## [2026-06-25T19:32:34Z] synthesis | Aeneid Faucet Service
+
+- status: published
+- slug: systems/faucet-service
+- wiki_revision_id: wikirev_74fd0e13925c51c4b9cf36bb344d9616
+- summary: The Aeneid testnet faucet allows users to request testnet tokens. It consists of a frontend hosted on Story Foundation's domain and a backend GCP VM that validates requests and dis...
+
+## [2026-06-25T19:32:34Z] synthesis | Faucet Migration from GCP to AWS
+
+- status: published
+- slug: decisions/faucet-migration-gcp-to-aws
+- wiki_revision_id: wikirev_c33770167c1e6ecc6c591d25fbf6d14d
+- summary: Plan to migrate the Aeneid testnet faucet backend from GCP (project story-aeneid, instance use1-aeneid-fuacet) to AWS (account story-testnet). This requires updating the frontend t...
+
