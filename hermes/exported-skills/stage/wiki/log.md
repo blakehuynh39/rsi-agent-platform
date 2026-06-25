@@ -39198,3 +39198,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8cc34189d2c6740f3d54e5148865c613
 - summary: The Aeneid testnet faucet distributes testnet tokens to users. It has a frontend at https://aeneid.faucet.story.foundation/ and a backend server currently on GCP (35.207.0.103). Th...
 
+## [2026-06-25T11:16:12Z] synthesis | ipgraph getRoyalty DoS — Worst-Case Analysis
+
+- status: published
+- slug: decisions/ipgraph-getroyalty-dos-analysis
+- wiki_revision_id: wikirev_b10170ffe765d9efc88317226ccee5de
+- summary: The ipgraph getRoyalty function is vulnerable to a Denial-of-Service (DoS) attack due to fixed gas cost while performing unbounded StateDB reads. Under current contract limits (≤10...
+
+## [2026-06-25T11:17:08Z] synthesis | IP Graph Royalty Read Gas Underpricing Fix
+
+- status: published
+- slug: decisions/ip-graph-royalty-read-gas-underpricing-fix
+- wiki_revision_id: wikirev_dc0baec6414828b1c7d017a41fd02fb3
+- summary: Decision to switch three public-facing IP graph royalty precompile call sites from cheap internal selectors to external selectors, raising gas cost from ~600-900 to ~126k-189k per ...
+

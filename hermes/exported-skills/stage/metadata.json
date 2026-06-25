@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "82e17661d2f6fa8c428df5769c204251f4fa6ecaa56b57349a617843813bd7b9",
-        "size": 1939710
+        "sha256": "898e8b2789dacccc7363376a3a6a642897b74527a2edcf178fa938b5938e2965",
+        "size": 1940125
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5153,6 +5153,11 @@
         "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
         "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
         "size": 5521
+      },
+      {
+        "path": "pages/decisions/ipgraph-getroyalty-dos-analysis.md",
+        "sha256": "b93f9a756b1226872690813de06a66673be3cea4b0695339243f4d5e959f86b6",
+        "size": 8251
       },
       {
         "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
@@ -10364,8 +10369,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-25T11:09:41Z",
-  "file_count": 2071,
+  "exported_at": "2026-06-25T11:16:24Z",
+  "file_count": 2072,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13642,7 +13647,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "0fb3a194690fd6b87070429d1a90bd04dd7f740a341817f9b6c9ebe196257061",
+  "previous_tree_hash": "e28d22d04d3dc7fa89b80fbec3e44311fd078bddb43cc3fb128554b4525dbacb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13655,14 +13660,14 @@
   ],
   "skill_tree_hash": "8b63b80a8eeaea6ce63157c867336cd18d14a242f60346d4c6deb8ccf5daad02",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e28d22d04d3dc7fa89b80fbec3e44311fd078bddb43cc3fb128554b4525dbacb",
+  "tree_hash": "a849eb26273f7df6d476803cc59f63277122e076331eaa9561ec941759de21a9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1417,
+  "wiki_file_count": 1418,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13676,8 +13681,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "82e17661d2f6fa8c428df5769c204251f4fa6ecaa56b57349a617843813bd7b9",
-      "size": 1939710
+      "sha256": "898e8b2789dacccc7363376a3a6a642897b74527a2edcf178fa938b5938e2965",
+      "size": 1940125
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15543,6 +15548,11 @@
       "path": "pages/decisions/ipaccount-wallet-vs-module-architecture.md",
       "sha256": "9ee51e90af2ecf221f70d62782e806565ea25148388863325977b795ef496edb",
       "size": 5521
+    },
+    {
+      "path": "pages/decisions/ipgraph-getroyalty-dos-analysis.md",
+      "sha256": "b93f9a756b1226872690813de06a66673be3cea4b0695339243f4d5e959f86b6",
+      "size": 8251
     },
     {
       "path": "pages/decisions/ipgraph-royalty-dos-fix-verification.md",
@@ -20751,5 +20761,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "c25ba616ae48a4025d3d8e46dc25abaae4d8bfe24582219001263b256d1e726b"
+  "wiki_tree_hash": "d4bb114b938171b7de788b31d0ecdf8f1a66f7b20ee03d7fb9f169b9166dd5fa"
 }
