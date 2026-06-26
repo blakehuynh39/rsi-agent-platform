@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f51c2cbcda6b3b920c9fe5517632ce620c84dacfcc400559963a724628f4af28",
-        "size": 1168263
+        "sha256": "5cadea0dd929ef55059362c842ba50e26da6dc9b9913e37cb56f04f65dcf2cf2",
+        "size": 1169881
       },
       {
         "path": "log.md",
-        "sha256": "3805c791b1e5ca9db656d6ceb77af7b35d491dd120d76d8ef627811529ee3ba5",
-        "size": 1976624
+        "sha256": "9bf4cc49a9d9413bbcd3c76bcf50e40daa28c0687221504e6c7fcbc1585e9ac3",
+        "size": 1978314
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4428,6 +4428,11 @@
         "path": "pages/concepts/smart-contract-security-resources.md",
         "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
         "size": 1888
+      },
+      {
+        "path": "pages/concepts/solskill-solidity.md",
+        "sha256": "f3203a0fec834567f8c0948f5adf125f9d2a667a3473b09a75e121fea9e22d1d",
+        "size": 1180
       },
       {
         "path": "pages/concepts/spam-combat.md",
@@ -5855,6 +5860,11 @@
         "size": 1551
       },
       {
+        "path": "pages/open-questions/aggregated-totals-feature.md",
+        "sha256": "e6f74a425fed98e0176e2dd3349b914182136e42ccc2b5bce1a51b41a47cfa3e",
+        "size": 1097
+      },
+      {
         "path": "pages/open-questions/api-list-addresses-for-ip-id-rt-holders.md",
         "sha256": "90c77286b4e0f9d41a3858cf80e1196d396bface5521a774aa2b4d8fe884135a",
         "size": 1911
@@ -6100,6 +6110,11 @@
         "size": 1918
       },
       {
+        "path": "pages/open-questions/vault-royalty-token-query.md",
+        "sha256": "4af76c2940e22a2c1b003bc60791da8ba1f569873b0b83533b2abe81aa3e4e42",
+        "size": 1122
+      },
+      {
         "path": "pages/open-questions/voice-debate-recording-approach.md",
         "sha256": "76beaccc9aba64735d7da32d218f946072fa620baa402d41248f4200accf6d5e",
         "size": 2085
@@ -6313,6 +6328,11 @@
         "path": "pages/policies/off-chain-terms.md",
         "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
         "size": 5565
+      },
+      {
+        "path": "pages/policies/pil-canonical-url.md",
+        "sha256": "91de2933d6bbbdff0438eb1b01ba570396a56c7d8f5ff2e6a64def7681e0e20b",
+        "size": 1667
       },
       {
         "path": "pages/policies/pil-canonical-urls.md",
@@ -7870,6 +7890,11 @@
         "size": 1459
       },
       {
+        "path": "pages/projects/protocol-core-v1-prs.md",
+        "sha256": "8162b4973fe3bcefd064a8dff97362d7f1295fcda17335522c00a062783a02ac",
+        "size": 1487
+      },
+      {
         "path": "pages/projects/protocol-periphery-sot.md",
         "sha256": "85aad6f23cabaf05e583665f03d9a35d4c64eb0bc91e210d284c68faba2eefe0",
         "size": 5887
@@ -8673,6 +8698,11 @@
         "path": "pages/runbooks/faucet-app-runbook.md",
         "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
         "size": 3599
+      },
+      {
+        "path": "pages/runbooks/faucet-issues.md",
+        "sha256": "1bc15651f0174e5a2156db9f249739d38541a86957be41b97d8f5392e9b98e77",
+        "size": 2162
       },
       {
         "path": "pages/runbooks/faucet-outage.md",
@@ -10559,8 +10589,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T02:21:20Z",
-  "file_count": 2110,
+  "exported_at": "2026-06-26T04:05:04Z",
+  "file_count": 2116,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13837,7 +13867,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "7a3c84862f3ac80f9ba85de6ba785fae291402f74b42afc5734f77d51197fa9a",
+  "previous_tree_hash": "7a8282f9fd3155b9cfd01676c3ad250944b96864753c2698d8fc29633c21ced4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13850,14 +13880,14 @@
   ],
   "skill_tree_hash": "f70f4366e2797d160dad6fc4c8d3b7ad5be433d257b40cf3ba04e7dd105dab8b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7a8282f9fd3155b9cfd01676c3ad250944b96864753c2698d8fc29633c21ced4",
+  "tree_hash": "dfc36e95c57f513f785c60b3c040a274f5a773a2231e5246b4e670fd882af2e6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1456,
+  "wiki_file_count": 1462,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13866,13 +13896,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f51c2cbcda6b3b920c9fe5517632ce620c84dacfcc400559963a724628f4af28",
-      "size": 1168263
+      "sha256": "5cadea0dd929ef55059362c842ba50e26da6dc9b9913e37cb56f04f65dcf2cf2",
+      "size": 1169881
     },
     {
       "path": "log.md",
-      "sha256": "3805c791b1e5ca9db656d6ceb77af7b35d491dd120d76d8ef627811529ee3ba5",
-      "size": 1976624
+      "sha256": "9bf4cc49a9d9413bbcd3c76bcf50e40daa28c0687221504e6c7fcbc1585e9ac3",
+      "size": 1978314
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15013,6 +15043,11 @@
       "path": "pages/concepts/smart-contract-security-resources.md",
       "sha256": "25350fc3a06b13ebd12496dee06ea2f505d90327c3cca0919b0b87247bfa2648",
       "size": 1888
+    },
+    {
+      "path": "pages/concepts/solskill-solidity.md",
+      "sha256": "f3203a0fec834567f8c0948f5adf125f9d2a667a3473b09a75e121fea9e22d1d",
+      "size": 1180
     },
     {
       "path": "pages/concepts/spam-combat.md",
@@ -16440,6 +16475,11 @@
       "size": 1551
     },
     {
+      "path": "pages/open-questions/aggregated-totals-feature.md",
+      "sha256": "e6f74a425fed98e0176e2dd3349b914182136e42ccc2b5bce1a51b41a47cfa3e",
+      "size": 1097
+    },
+    {
       "path": "pages/open-questions/api-list-addresses-for-ip-id-rt-holders.md",
       "sha256": "90c77286b4e0f9d41a3858cf80e1196d396bface5521a774aa2b4d8fe884135a",
       "size": 1911
@@ -16685,6 +16725,11 @@
       "size": 1918
     },
     {
+      "path": "pages/open-questions/vault-royalty-token-query.md",
+      "sha256": "4af76c2940e22a2c1b003bc60791da8ba1f569873b0b83533b2abe81aa3e4e42",
+      "size": 1122
+    },
+    {
       "path": "pages/open-questions/voice-debate-recording-approach.md",
       "sha256": "76beaccc9aba64735d7da32d218f946072fa620baa402d41248f4200accf6d5e",
       "size": 2085
@@ -16898,6 +16943,11 @@
       "path": "pages/policies/off-chain-terms.md",
       "sha256": "78f7f2fdc76c94fcb5af6637ff6db23af64f084fa669b8b82a1bd7f0cdf738ab",
       "size": 5565
+    },
+    {
+      "path": "pages/policies/pil-canonical-url.md",
+      "sha256": "91de2933d6bbbdff0438eb1b01ba570396a56c7d8f5ff2e6a64def7681e0e20b",
+      "size": 1667
     },
     {
       "path": "pages/policies/pil-canonical-urls.md",
@@ -18455,6 +18505,11 @@
       "size": 1459
     },
     {
+      "path": "pages/projects/protocol-core-v1-prs.md",
+      "sha256": "8162b4973fe3bcefd064a8dff97362d7f1295fcda17335522c00a062783a02ac",
+      "size": 1487
+    },
+    {
       "path": "pages/projects/protocol-periphery-sot.md",
       "sha256": "85aad6f23cabaf05e583665f03d9a35d4c64eb0bc91e210d284c68faba2eefe0",
       "size": 5887
@@ -19258,6 +19313,11 @@
       "path": "pages/runbooks/faucet-app-runbook.md",
       "sha256": "cd3c01556860dbf7f28ee1f36f97c8d13d944d4826f4fbb9e68ec13e02671660",
       "size": 3599
+    },
+    {
+      "path": "pages/runbooks/faucet-issues.md",
+      "sha256": "1bc15651f0174e5a2156db9f249739d38541a86957be41b97d8f5392e9b98e77",
+      "size": 2162
     },
     {
       "path": "pages/runbooks/faucet-outage.md",
@@ -21141,5 +21201,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6b9c080764f2347ff9595357fdb2ea5f3e6d7a7ce225b537813f1979e184d4d6"
+  "wiki_tree_hash": "46249e1b2671c783f0023bf74fcc50a10ff2a6072c4f1fe30f6c28e7030e64a7"
 }

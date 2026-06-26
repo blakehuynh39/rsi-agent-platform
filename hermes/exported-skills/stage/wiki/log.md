@@ -39895,3 +39895,45 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7d94e89d7688d8f13ade610d72cfb776
 - summary: Decision to temporarily remove Cloudflare proxy for aeneid.portal.story.foundation to resolve SSL cipher mismatch, with plan to later migrate to a single-level subdomain to regain ...
 
+## [2026-06-26T04:01:58Z] synthesis | Faucet Issues and Resolutions
+
+- status: published
+- slug: runbooks/faucet-issues
+- wiki_revision_id: wikirev_7f490e1114cc60ad215332d1f5dc5330
+- summary: Reports and troubleshooting of story.foundation faucet, including errors and WIP token acquisition.
+
+## [2026-06-26T04:01:58Z] synthesis | PIL License Canonical URL Proposal
+
+- status: published
+- slug: policies/pil-canonical-url
+- wiki_revision_id: wikirev_1f5196c2a182cce0d10d5fa45ae47096
+- summary: Request for clean canonical URL for the latest PIL license, avoiding unprofessional file paths.
+
+## [2026-06-26T04:01:58Z] synthesis | Protocol Core v1 Pull Requests
+
+- status: published
+- slug: projects/protocol-core-v1-prs
+- wiki_revision_id: wikirev_ff18704daa7a61e3c57f8d9910f80baa
+- summary: Shared pull requests requiring review for the protocol-core-v1 repository.
+
+## [2026-06-26T04:01:58Z] synthesis | Solskill for Safer Solidity Coding
+
+- status: published
+- slug: concepts/solskill-solidity
+- wiki_revision_id: wikirev_6ec3d13c8f2b792f03c006eab3cb7d76
+- summary: A Skill for Claude to write safer Solidity, recommended for team use.
+
+## [2026-06-26T04:01:58Z] synthesis | Vault Royalty Token Query
+
+- status: published
+- slug: open-questions/vault-royalty-token-query
+- wiki_revision_id: wikirev_06b76c30ed46f5e2217069b3c4270411
+- summary: How to get all addresses and their Royalty Token amounts for a certain vault?
+
+## [2026-06-26T04:01:58Z] synthesis | Aggregated Totals Feature Request
+
+- status: published
+- slug: open-questions/aggregated-totals-feature
+- wiki_revision_id: wikirev_0339aeea7a7cd5de621bf11ab2070a4d
+- summary: Suggestion to add aggregated totals functionality.
+
