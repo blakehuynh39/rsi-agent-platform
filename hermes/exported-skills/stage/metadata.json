@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "cc4296df30c488aa8f36c5f0db2526a3b4e97e50a957a3a137f82e2d94160f0c",
-        "size": 1195233
+        "sha256": "b2d6f2366090dcd77ad2207eafc9ea52b32ea733b259d0897ce2813b8ffa06af",
+        "size": 1195860
       },
       {
         "path": "log.md",
-        "sha256": "38e02100ae4a5b360b6de82f3a193048a67e243c79103e0e519a4d20bb4f29b4",
-        "size": 2018204
+        "sha256": "e9e35ce0ef00c2f2031b59c8470842139466e7f1cb2ff406631f370ee1e5f1cd",
+        "size": 2018855
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8485,6 +8485,11 @@
         "size": 2002
       },
       {
+        "path": "pages/runbooks/api-v4-search-504-timeout.md",
+        "sha256": "0077e62b0d57ffdb94c2c93d0594cbe892dfaa131f8f9bab890f31cab54e5d9d",
+        "size": 2655
+      },
+      {
         "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
         "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
         "size": 4482
@@ -9333,6 +9338,11 @@
         "path": "pages/runbooks/story-api-search-504-timeout.md",
         "sha256": "bd453a7ae1cfca1106ad25eac1d4f762442c9de772aa680caa0dbff5e7c6c370",
         "size": 3136
+      },
+      {
+        "path": "pages/runbooks/story-api-search-504-timeouts.md",
+        "sha256": "6dcce0663c408fa6e9a807d05a504382d4655a92645f2ec13bdf3b464704198a",
+        "size": 2594
       },
       {
         "path": "pages/runbooks/story-api-submitter-tick-failure-2026.md",
@@ -10654,8 +10664,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T20:48:35Z",
-  "file_count": 2129,
+  "exported_at": "2026-06-26T21:05:38Z",
+  "file_count": 2131,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13932,7 +13942,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5a3e78c7928f936e5189585011db032433b4716c9154f77becf46a76bfe51a6f",
+  "previous_tree_hash": "1f43db20647b40b1305fe56d18d5fc3e416c50023a8875d27d2e892dc7f773f2",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13945,14 +13955,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1f43db20647b40b1305fe56d18d5fc3e416c50023a8875d27d2e892dc7f773f2",
+  "tree_hash": "f8d93d74c2f4a893c43b5cbcc8cad319cfacaa6b60a3becdd8fcf7b664bdc754",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1475,
+  "wiki_file_count": 1477,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13961,13 +13971,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "cc4296df30c488aa8f36c5f0db2526a3b4e97e50a957a3a137f82e2d94160f0c",
-      "size": 1195233
+      "sha256": "b2d6f2366090dcd77ad2207eafc9ea52b32ea733b259d0897ce2813b8ffa06af",
+      "size": 1195860
     },
     {
       "path": "log.md",
-      "sha256": "38e02100ae4a5b360b6de82f3a193048a67e243c79103e0e519a4d20bb4f29b4",
-      "size": 2018204
+      "sha256": "e9e35ce0ef00c2f2031b59c8470842139466e7f1cb2ff406631f370ee1e5f1cd",
+      "size": 2018855
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19165,6 +19175,11 @@
       "size": 2002
     },
     {
+      "path": "pages/runbooks/api-v4-search-504-timeout.md",
+      "sha256": "0077e62b0d57ffdb94c2c93d0594cbe892dfaa131f8f9bab890f31cab54e5d9d",
+      "size": 2655
+    },
+    {
       "path": "pages/runbooks/app-pre-dogfooding-feedback.md",
       "sha256": "c47c7a82caf95e26f2eeb02adc9b0e28f19ff608ca556da846e64d84289f025b",
       "size": 4482
@@ -20013,6 +20028,11 @@
       "path": "pages/runbooks/story-api-search-504-timeout.md",
       "sha256": "bd453a7ae1cfca1106ad25eac1d4f762442c9de772aa680caa0dbff5e7c6c370",
       "size": 3136
+    },
+    {
+      "path": "pages/runbooks/story-api-search-504-timeouts.md",
+      "sha256": "6dcce0663c408fa6e9a807d05a504382d4655a92645f2ec13bdf3b464704198a",
+      "size": 2594
     },
     {
       "path": "pages/runbooks/story-api-submitter-tick-failure-2026.md",
@@ -21331,5 +21351,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e02dde647359cf6bbba074b92e385309cbe15185559c39494b662580a7ca2f59"
+  "wiki_tree_hash": "53a3cbdf4d42bce8c492eca1019c1a5a81b8d83e0747e146397937612ec2dec7"
 }

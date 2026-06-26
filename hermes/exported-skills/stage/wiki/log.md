@@ -40725,3 +40725,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_724b0ee9ac354df1d6c117cfd6b40c25
 - summary: The story-api endpoint POST /api/v4/search has returned multiple 504 Request Timeout errors over time. One Sentry issue was marked resolved but the problem recurred.
 
+## [2026-06-26T21:01:33Z] synthesis | 504 Timeout on /api/v4/search POST
+
+- status: published
+- slug: runbooks/api-v4-search-504-timeout
+- wiki_revision_id: wikirev_1b806fc509285614661e2034bde6aadc
+- summary: Multiple occurrences of POST /api/v4/search returning 504 Request Timeout, eventually resolved.
+
+## [2026-06-26T21:03:02Z] synthesis | Story-API /api/v4/search 504 Timeout Errors
+
+- status: published
+- slug: runbooks/story-api-search-504-timeouts
+- wiki_revision_id: wikirev_601a313242a425536c3693f0211394b5
+- summary: The /api/v4/search endpoint experienced repeated 504 Request Timeout errors in April 2026, and was later marked resolved.
+
