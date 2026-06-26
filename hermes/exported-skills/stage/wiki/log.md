@@ -40718,3 +40718,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b220f169a8f20ac25223be7f4daa7c7a
 - summary: A 504 Gateway Timeout occurred on story-api POST /api/v4/licenses/tokens. The issue (STORY-API-E7) was subsequently resolved.
 
+## [2026-06-26T20:47:07Z] synthesis | story-api /api/v4/search 504 Timeout Issue
+
+- status: published
+- slug: open-questions/story-api-search-504-timeout
+- wiki_revision_id: wikirev_724b0ee9ac354df1d6c117cfd6b40c25
+- summary: The story-api endpoint POST /api/v4/search has returned multiple 504 Request Timeout errors over time. One Sentry issue was marked resolved but the problem recurred.
+

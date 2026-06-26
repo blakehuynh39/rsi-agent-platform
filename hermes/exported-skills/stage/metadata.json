@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6062341fe1d446605de3737e0b7773e58503aec5d44720f3b8ae78526aed6b29",
-        "size": 1194852
+        "sha256": "cc4296df30c488aa8f36c5f0db2526a3b4e97e50a957a3a137f82e2d94160f0c",
+        "size": 1195233
       },
       {
         "path": "log.md",
-        "sha256": "1dae370342f63aaef789581c50da2dad23515730586a1f72dc57e492d3e4b990",
-        "size": 2017811
+        "sha256": "38e02100ae4a5b360b6de82f3a193048a67e243c79103e0e519a4d20bb4f29b4",
+        "size": 2018204
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -6108,6 +6108,11 @@
         "path": "pages/open-questions/sp-precompile-candidates.md",
         "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
         "size": 3834
+      },
+      {
+        "path": "pages/open-questions/story-api-search-504-timeout.md",
+        "sha256": "7cb6441606027e3aac18ff2940df306ffd0914174dd61ee90843e9c89b3bf43a",
+        "size": 2996
       },
       {
         "path": "pages/open-questions/transfer-to-vault-usage.md",
@@ -10649,8 +10654,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T20:31:34Z",
-  "file_count": 2128,
+  "exported_at": "2026-06-26T20:48:35Z",
+  "file_count": 2129,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13927,7 +13932,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "68d691cec79ada8638b95e9c9ff5d4d70ec3f8197c9e560d639e3b0a7b966cd5",
+  "previous_tree_hash": "5a3e78c7928f936e5189585011db032433b4716c9154f77becf46a76bfe51a6f",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13940,14 +13945,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5a3e78c7928f936e5189585011db032433b4716c9154f77becf46a76bfe51a6f",
+  "tree_hash": "1f43db20647b40b1305fe56d18d5fc3e416c50023a8875d27d2e892dc7f773f2",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1474,
+  "wiki_file_count": 1475,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13956,13 +13961,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6062341fe1d446605de3737e0b7773e58503aec5d44720f3b8ae78526aed6b29",
-      "size": 1194852
+      "sha256": "cc4296df30c488aa8f36c5f0db2526a3b4e97e50a957a3a137f82e2d94160f0c",
+      "size": 1195233
     },
     {
       "path": "log.md",
-      "sha256": "1dae370342f63aaef789581c50da2dad23515730586a1f72dc57e492d3e4b990",
-      "size": 2017811
+      "sha256": "38e02100ae4a5b360b6de82f3a193048a67e243c79103e0e519a4d20bb4f29b4",
+      "size": 2018204
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16783,6 +16788,11 @@
       "path": "pages/open-questions/sp-precompile-candidates.md",
       "sha256": "dc232a424a28fc831ddb87b1a93558524b5e9c052dcb1e418dfa3ab20f96b838",
       "size": 3834
+    },
+    {
+      "path": "pages/open-questions/story-api-search-504-timeout.md",
+      "sha256": "7cb6441606027e3aac18ff2940df306ffd0914174dd61ee90843e9c89b3bf43a",
+      "size": 2996
     },
     {
       "path": "pages/open-questions/transfer-to-vault-usage.md",
@@ -21321,5 +21331,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a26c16d03b2a0bc1f6cb6d7e836bc3b6d9796ca7ade2bf75ee83a46cf8e4d0fa"
+  "wiki_tree_hash": "e02dde647359cf6bbba074b92e385309cbe15185559c39494b662580a7ca2f59"
 }
