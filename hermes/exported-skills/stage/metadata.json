@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d37fb46dd1f48849b7e1a9acd0c215fff7ac87c4000138aa25cb57c5347cd76a",
-        "size": 1196510
+        "sha256": "e0dbcbbc4a6fd4bb04172d1009031216d502d782a0c637d6885cef93213441d3",
+        "size": 1196995
       },
       {
         "path": "log.md",
-        "sha256": "c6e27fa7c768c9910b5ad9748a88344c0003b6cc009b424039e907bb89b00ddd",
-        "size": 2023442
+        "sha256": "477a19fe50b57c03047a7378914b848a6bf50cac077701ec5dabea0f3038842d",
+        "size": 2024239
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8101,8 +8101,8 @@
       },
       {
         "path": "pages/projects/story-api.md",
-        "sha256": "3be4147700dc1409c0b94bd85f84ea00d8d6bad5dcc8652abb0361346c5549bc",
-        "size": 12392
+        "sha256": "e2b4051d919bbbd910e9116da6d71d558793997b16ec7940484bd4b05fae2134",
+        "size": 11247
       },
       {
         "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -8848,6 +8848,11 @@
         "path": "pages/runbooks/incident-story-api-data-audit-feed-500.md",
         "sha256": "9cc230395bfc22f561750293082cc641cea944485cfd05fb15c2884ea2c0b22c",
         "size": 1732
+      },
+      {
+        "path": "pages/runbooks/incident-story-api-data-audit-scoped-groups-access-denied.md",
+        "sha256": "b1282fc55fafabfdc008e2068996e9c3dbb537c582925cd053a08968588fa41a",
+        "size": 1823
       },
       {
         "path": "pages/runbooks/intercom-setup-for-numolabs.md",
@@ -10674,8 +10679,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T23:10:43Z",
-  "file_count": 2133,
+  "exported_at": "2026-06-26T23:37:48Z",
+  "file_count": 2134,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13952,7 +13957,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "12e34eadfe04e09784935615066e09f4d1acfb03e2d285bfe314dd8df88466f2",
+  "previous_tree_hash": "fb57ef255fe184cb53548f8887c7bc74b9a8a674ba8ed5db3881a60fee918e64",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13965,14 +13970,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "fb57ef255fe184cb53548f8887c7bc74b9a8a674ba8ed5db3881a60fee918e64",
+  "tree_hash": "bd20d985ee40a060bd0d671374f401ab686ca41a50acdd95f186852b30ca11a6",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1479,
+  "wiki_file_count": 1480,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13981,13 +13986,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d37fb46dd1f48849b7e1a9acd0c215fff7ac87c4000138aa25cb57c5347cd76a",
-      "size": 1196510
+      "sha256": "e0dbcbbc4a6fd4bb04172d1009031216d502d782a0c637d6885cef93213441d3",
+      "size": 1196995
     },
     {
       "path": "log.md",
-      "sha256": "c6e27fa7c768c9910b5ad9748a88344c0003b6cc009b424039e907bb89b00ddd",
-      "size": 2023442
+      "sha256": "477a19fe50b57c03047a7378914b848a6bf50cac077701ec5dabea0f3038842d",
+      "size": 2024239
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18801,8 +18806,8 @@
     },
     {
       "path": "pages/projects/story-api.md",
-      "sha256": "3be4147700dc1409c0b94bd85f84ea00d8d6bad5dcc8652abb0361346c5549bc",
-      "size": 12392
+      "sha256": "e2b4051d919bbbd910e9116da6d71d558793997b16ec7940484bd4b05fae2134",
+      "size": 11247
     },
     {
       "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -19548,6 +19553,11 @@
       "path": "pages/runbooks/incident-story-api-data-audit-feed-500.md",
       "sha256": "9cc230395bfc22f561750293082cc641cea944485cfd05fb15c2884ea2c0b22c",
       "size": 1732
+    },
+    {
+      "path": "pages/runbooks/incident-story-api-data-audit-scoped-groups-access-denied.md",
+      "sha256": "b1282fc55fafabfdc008e2068996e9c3dbb537c582925cd053a08968588fa41a",
+      "size": 1823
     },
     {
       "path": "pages/runbooks/intercom-setup-for-numolabs.md",
@@ -21371,5 +21381,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fad976963b1d5970911d7c418d39b2c78dc82feef97bab3f5c7de9eb903213c6"
+  "wiki_tree_hash": "510c2fa912101f3dd402aeea23087e7d2dde69fd6d44af2b80bc5efda1ddb9c0"
 }

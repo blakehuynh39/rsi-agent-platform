@@ -40837,3 +40837,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_07a74d22c03efa8e136c646c5b7c0cfd
 - summary: The story-api system encountered multiple 500 errors and spike protection activations between 2025-12 and 2026-03.
 
+## [2026-06-26T23:33:09Z] synthesis | story-api service
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_5818c1e8597f43949d027ee2002b8314
+- summary: The story-api service has experienced multiple incidents including spike protection activations, internal server errors on various endpoints, and database-related errors.
+
+## [2026-06-26T23:34:09Z] synthesis | Incident: Story API data-audit scoped groups AccessDenied
+
+- status: published
+- slug: runbooks/incident-story-api-data-audit-scoped-groups-access-denied
+- wiki_revision_id: wikirev_3848897b827d6baaef1d3e9963de9670
+- summary: The Story API endpoint /api/v1/data-audit/scoped-groups returned a 500 error due to an AccessDeniedException when calling DynamoDB PutItem. The issue was resolved by Blake Huynh in...
+
