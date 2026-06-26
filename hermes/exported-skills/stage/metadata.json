@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "fcb19be2aba8d76f8505ecfc844b9371d3266bb52f7eac5b24f5c8e72f67af28",
-        "size": 1166667
+        "sha256": "da6b1495d4c14de9e6f2cb56002b7fee3be10bdea527e3c87b2b09fd9f22cae2",
+        "size": 1167450
       },
       {
         "path": "log.md",
-        "sha256": "524b2595c79e2aa66d90e84b6a053f9f8da847840bab368628a39a71d5f88788",
-        "size": 1974983
+        "sha256": "43d155d0aeec53e5a584d5cbd17b2e8c1e416c5e2ebe40b5e47acf03d2b11717",
+        "size": 1975788
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4715,6 +4715,11 @@
         "size": 3570
       },
       {
+        "path": "pages/decisions/aeneid-portal-ssl-fix.md",
+        "sha256": "8ff6635dc961b6f1c93b86c9ebad7a7c56ea308c4b977cb4e1ac95a907392940",
+        "size": 6493
+      },
+      {
         "path": "pages/decisions/aeneid-rpc-domain-migration-approval.md",
         "sha256": "00490a3990f3c2cee1c76922a0af9dafe95a43d7e13a0b15ae66f520c9ce47c1",
         "size": 1580
@@ -4918,6 +4923,11 @@
         "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
         "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
         "size": 3391
+      },
+      {
+        "path": "pages/decisions/decision-aeneid-portal-ssl-fix.md",
+        "sha256": "0f3473c2821cd76b0641ad024b3015c7224905b3965741db8b3d0ef5cb8cad0c",
+        "size": 6526
       },
       {
         "path": "pages/decisions/decision-aeneid-portal-ssl-proxy.md",
@@ -10539,8 +10549,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T01:08:25Z",
-  "file_count": 2106,
+  "exported_at": "2026-06-26T01:20:15Z",
+  "file_count": 2108,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13817,7 +13827,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "ce6526dc2a9d0b68ddc92091794563eb2fb6d5512efeb0f70b8ba7b7b2f9cefd",
+  "previous_tree_hash": "a2ffd5b76e0fd37c79917718903b7169771093cef957ea2cbd4d735fb41befa1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13830,14 +13840,14 @@
   ],
   "skill_tree_hash": "8d16f9b1329b619f1fbf0b272bd3767bfd4f23355244e02d28ad186dba6241c3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a2ffd5b76e0fd37c79917718903b7169771093cef957ea2cbd4d735fb41befa1",
+  "tree_hash": "41625c1638b1689e1296c8733ede8db8aa3d00a1132090f57b389974c7de5976",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1452,
+  "wiki_file_count": 1454,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13846,13 +13856,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "fcb19be2aba8d76f8505ecfc844b9371d3266bb52f7eac5b24f5c8e72f67af28",
-      "size": 1166667
+      "sha256": "da6b1495d4c14de9e6f2cb56002b7fee3be10bdea527e3c87b2b09fd9f22cae2",
+      "size": 1167450
     },
     {
       "path": "log.md",
-      "sha256": "524b2595c79e2aa66d90e84b6a053f9f8da847840bab368628a39a71d5f88788",
-      "size": 1974983
+      "sha256": "43d155d0aeec53e5a584d5cbd17b2e8c1e416c5e2ebe40b5e47acf03d2b11717",
+      "size": 1975788
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15280,6 +15290,11 @@
       "size": 3570
     },
     {
+      "path": "pages/decisions/aeneid-portal-ssl-fix.md",
+      "sha256": "8ff6635dc961b6f1c93b86c9ebad7a7c56ea308c4b977cb4e1ac95a907392940",
+      "size": 6493
+    },
+    {
       "path": "pages/decisions/aeneid-rpc-domain-migration-approval.md",
       "sha256": "00490a3990f3c2cee1c76922a0af9dafe95a43d7e13a0b15ae66f520c9ce47c1",
       "size": 1580
@@ -15483,6 +15498,11 @@
       "path": "pages/decisions/decision-add-lucas2brh-codeowner-story-localnet.md",
       "sha256": "21511e9c7f53ec3231a5d17de00a27e3d13882512981a310bf8cd3cee0db6e90",
       "size": 3391
+    },
+    {
+      "path": "pages/decisions/decision-aeneid-portal-ssl-fix.md",
+      "sha256": "0f3473c2821cd76b0641ad024b3015c7224905b3965741db8b3d0ef5cb8cad0c",
+      "size": 6526
     },
     {
       "path": "pages/decisions/decision-aeneid-portal-ssl-proxy.md",
@@ -21101,5 +21121,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9021d3a14760df943a6e73a21971a2673821dc7fd043c23d1485e1c1858a6785"
+  "wiki_tree_hash": "d6c7f16e6d01a672bf9bd791737b045ecf4b9ea8629f20ab3d3d4dc8f4e41b7d"
 }

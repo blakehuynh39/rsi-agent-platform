@@ -39867,3 +39867,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d814ded4b82ce639d0fd018990be3f09
 - summary: Resolved SSL cipher mismatch on aeneid.portal.story.foundation by removing Cloudflare proxy, bypassing the limitation with multi-level subdomain SSL certificates. Long-term plan to...
 
+## [2026-06-26T01:17:03Z] synthesis | Decision: SSL Fix for aeneid.portal.story.foundation
+
+- status: published
+- slug: decisions/decision-aeneid-portal-ssl-fix
+- wiki_revision_id: wikirev_e0d1e3a935ce50897c8936ee808d6cbc
+- summary: The domain aeneid.portal.story.foundation experienced SSL cipher mismatch errors due to Cloudflare's limitation on multi-level subdomain wildcard SSL certificates. Two options were...
+
+## [2026-06-26T01:19:15Z] synthesis | Aeneid Portal SSL Fix Decision
+
+- status: published
+- slug: decisions/aeneid-portal-ssl-fix
+- wiki_revision_id: wikirev_76dda61f0d7f64fc9705e0bf8aa13759
+- summary: Decision to temporarily disable Cloudflare proxy for aeneid.portal.story.foundation due to SSL cipher mismatch caused by multi-level subdomain wildcard certificate limitations, wit...
+
