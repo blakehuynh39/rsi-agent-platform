@@ -40588,3 +40588,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e56fb9c6cdc3e347e1522b06a3ed3e5b
 - summary: Log of errors and spike protection events for the story-api service, as reported in the monitoring Slack channel #C07K3J4JTH6.
 
+## [2026-06-26T18:18:14Z] synthesis | Story-API Incident Log
+
+- status: published
+- slug: systems/story-api-incident-log
+- wiki_revision_id: wikirev_90795c5b6e9f3255e613dbe158b25fc0
+- summary: Record of spike protection and error events for the story-api project, as reported in Slack channel C07K3J4JTH6.
+
