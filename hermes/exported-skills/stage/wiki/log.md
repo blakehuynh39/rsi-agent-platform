@@ -40711,3 +40711,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_84bbd470ed1e014a28d909b9fdc2942c
 - summary: Operational incidents and errors reported for the story-api service.
 
+## [2026-06-26T20:30:39Z] synthesis | API 504 Timeout on /api/v4/licenses/tokens
+
+- status: published
+- slug: concepts/incident-api-504-timeout-licenses-tokens
+- wiki_revision_id: wikirev_b220f169a8f20ac25223be7f4daa7c7a
+- summary: A 504 Gateway Timeout occurred on story-api POST /api/v4/licenses/tokens. The issue (STORY-API-E7) was subsequently resolved.
+
