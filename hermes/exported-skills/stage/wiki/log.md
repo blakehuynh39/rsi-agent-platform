@@ -39967,3 +39967,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_32d9eeab9a4864bd58005dc1a4448a53
 - summary: The QA team responsible for testing the Android app, consisting of Royce Zhao, Shen Wang, and Yao Wang.
 
+## [2026-06-26T13:32:24Z] synthesis | TaxBandits W-9/W-8 Integration
+
+- status: published
+- slug: projects/taxbandits-w9-w8-integration
+- wiki_revision_id: wikirev_10ee8dcb44784c5a42b24a0d91007ac1
+- summary: Integration of TaxBandits W-9/W-8 form drop-in for tax form collection.
+

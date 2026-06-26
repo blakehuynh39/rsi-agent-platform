@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1fba4763962c31c0ca843058cd5860e5621b062dba81fcca2b45168247cc4ba2",
-        "size": 1170368
+        "sha256": "71f8ed8d0ffab9ac7caa4e3f9796ffdcc80456c6d5526916bebeac6ed9301c47",
+        "size": 1170637
       },
       {
         "path": "log.md",
-        "sha256": "081789e8438a095b66b19308ef6e6ec1c0034ce1a22fd7303d430937fde2a16c",
-        "size": 1979718
+        "sha256": "62a27755f8b3018770ef3d07da5ca43ed564c13833440ec827ff8440b5a40bd8",
+        "size": 1979999
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8255,6 +8255,11 @@
         "size": 3121
       },
       {
+        "path": "pages/projects/taxbandits-w9-w8-integration.md",
+        "sha256": "b68544a762cca698444c0e902e3d91b2ebbe9cfb9c80cfd6451295d08deff74e",
+        "size": 5904
+      },
+      {
         "path": "pages/projects/temporal-self-hosting-migration.md",
         "sha256": "ca3ed519fa665820bf7fa48324f37faa040567978379d5ff5cda1dc3a929c9a3",
         "size": 2935
@@ -10599,8 +10604,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T10:49:23Z",
-  "file_count": 2118,
+  "exported_at": "2026-06-26T13:34:08Z",
+  "file_count": 2119,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13877,7 +13882,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "84fb06a04aa00ee849d1e6cd60fcc4295e2159ec98c8bf2bde43ae75fc2a296b",
+  "previous_tree_hash": "5f6bcff1b32598ef25138bf3b3bea3ed17b2ce2a2c69fe58d46463ce5929539d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13890,14 +13895,14 @@
   ],
   "skill_tree_hash": "f70f4366e2797d160dad6fc4c8d3b7ad5be433d257b40cf3ba04e7dd105dab8b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5f6bcff1b32598ef25138bf3b3bea3ed17b2ce2a2c69fe58d46463ce5929539d",
+  "tree_hash": "a886d457fb0fe03f6f5fadc10a7b74ee4e596bf171c45cd185449855d4d3d36e",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1464,
+  "wiki_file_count": 1465,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13906,13 +13911,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1fba4763962c31c0ca843058cd5860e5621b062dba81fcca2b45168247cc4ba2",
-      "size": 1170368
+      "sha256": "71f8ed8d0ffab9ac7caa4e3f9796ffdcc80456c6d5526916bebeac6ed9301c47",
+      "size": 1170637
     },
     {
       "path": "log.md",
-      "sha256": "081789e8438a095b66b19308ef6e6ec1c0034ce1a22fd7303d430937fde2a16c",
-      "size": 1979718
+      "sha256": "62a27755f8b3018770ef3d07da5ca43ed564c13833440ec827ff8440b5a40bd8",
+      "size": 1979999
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18880,6 +18885,11 @@
       "size": 3121
     },
     {
+      "path": "pages/projects/taxbandits-w9-w8-integration.md",
+      "sha256": "b68544a762cca698444c0e902e3d91b2ebbe9cfb9c80cfd6451295d08deff74e",
+      "size": 5904
+    },
+    {
       "path": "pages/projects/temporal-self-hosting-migration.md",
       "sha256": "ca3ed519fa665820bf7fa48324f37faa040567978379d5ff5cda1dc3a929c9a3",
       "size": 2935
@@ -21221,5 +21231,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ee86df1d9a491a006bfbb2b061e23f2f697179931cf469fe6fad544e70b58a49"
+  "wiki_tree_hash": "ce36715086d8e4d09bd90ee2ee933f5c910b27a11588c7c4eeecbc88eb9b3643"
 }
