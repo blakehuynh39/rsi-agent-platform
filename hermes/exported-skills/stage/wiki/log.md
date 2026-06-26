@@ -40651,3 +40651,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0462a9cfb697c41911e13398339bdad5
 - summary: Backend API service for story-related functionality. Recent logs from Slack channel C07K3J4JTH6 show spike protection events and various 500 Internal Server errors.
 
+## [2026-06-26T19:32:17Z] synthesis | Story API
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_4def59b51d39cfb5f676208723789c6f
+- summary: The story-api service experienced a series of spike protection activations and 500 errors on multiple endpoints, along with specific database and search-related errors.
+
+## [2026-06-26T19:35:06Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_425b1120939869e6ccc5944c5886562d
+- summary: Story API has experienced spike protection activations and deactivations on multiple dates, and various 500 Internal Server Errors across endpoints including /hub/users/notificatio...
+
