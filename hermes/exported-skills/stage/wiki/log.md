@@ -39839,3 +39839,24 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_529ab8b0249cc065a619072e32f7ef64
 - summary: Instructions for accessing Aeneid, mainnet, and devnet servers in AWS.
 
+## [2026-06-26T00:47:00Z] synthesis | Decision: Handling SSL for aeneid.portal.story.foundation
+
+- status: published
+- slug: decisions/decision-aeneid-portal-ssl-proxy
+- wiki_revision_id: wikirev_e68a6e82c359c3e8a74913ae8e0f3e12
+- summary: Resolving SSL cipher mismatch on aeneid.portal.story.foundation caused by Cloudflare multi-level subdomain limitation. Decision to remove Cloudflare proxy as quick fix, with plan t...
+
+## [2026-06-26T00:47:00Z] synthesis | Open Question: Why do some multi-level subdomains work with Cloudflare proxy?
+
+- status: published
+- slug: open-questions/open-qa-multi-subdomain-ssl-discrepancy
+- wiki_revision_id: wikirev_d1d07a5c2624fd7bd1f115cc3443b15a
+- summary: Understanding why subdomains like staging.portal.story.foundation work with Cloudflare proxy despite being multi-level, while aeneid.portal.story.foundation does not.
+
+## [2026-06-26T00:48:52Z] synthesis | Aeneid Portal (aeneid.portal.story.foundation) Domain Configuration
+
+- status: published
+- slug: systems/aeneid-portal-story-foundation-domain
+- wiki_revision_id: wikirev_0aa173045f79b3d1e4c5e9b3884bd7c3
+- summary: Configuration, SSL issue, and resolution for the aeneid.portal.story.foundation domain, which is a portal subdomain hosted on Vercel and proxied via Cloudflare. An SSL cipher misma...
+
