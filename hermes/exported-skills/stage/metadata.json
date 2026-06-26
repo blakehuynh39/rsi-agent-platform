@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "25ae0c4b1445ec33699867577163afd8dddc5a75a5e88e3baf5c4bc337522485",
-        "size": 1166254
+        "sha256": "fcb19be2aba8d76f8505ecfc844b9371d3266bb52f7eac5b24f5c8e72f67af28",
+        "size": 1166667
       },
       {
         "path": "log.md",
-        "sha256": "d65ed5f62b29d0c12344cb1515d78b2438ef0c70900165de8ce6684a4242f995",
-        "size": 1974558
+        "sha256": "524b2595c79e2aa66d90e84b6a053f9f8da847840bab368628a39a71d5f88788",
+        "size": 1974983
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5613,6 +5613,11 @@
         "path": "pages/decisions/spoken-transcripts-storage-decision.md",
         "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
         "size": 4404
+      },
+      {
+        "path": "pages/decisions/ssl-issue-aeneid-portal-resolution.md",
+        "sha256": "03ce9a10fede2773461e2b425e195a9f22c13553272951e84ace2f4e8febbd01",
+        "size": 5292
       },
       {
         "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
@@ -10534,8 +10539,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T00:51:26Z",
-  "file_count": 2105,
+  "exported_at": "2026-06-26T01:08:25Z",
+  "file_count": 2106,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13812,7 +13817,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "19dcbd463c0ffe8b28d501521e1c493a5df0e0da454d7230b44fd72c483d0647",
+  "previous_tree_hash": "ce6526dc2a9d0b68ddc92091794563eb2fb6d5512efeb0f70b8ba7b7b2f9cefd",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13825,14 +13830,14 @@
   ],
   "skill_tree_hash": "8d16f9b1329b619f1fbf0b272bd3767bfd4f23355244e02d28ad186dba6241c3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ce6526dc2a9d0b68ddc92091794563eb2fb6d5512efeb0f70b8ba7b7b2f9cefd",
+  "tree_hash": "a2ffd5b76e0fd37c79917718903b7169771093cef957ea2cbd4d735fb41befa1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1451,
+  "wiki_file_count": 1452,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13841,13 +13846,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "25ae0c4b1445ec33699867577163afd8dddc5a75a5e88e3baf5c4bc337522485",
-      "size": 1166254
+      "sha256": "fcb19be2aba8d76f8505ecfc844b9371d3266bb52f7eac5b24f5c8e72f67af28",
+      "size": 1166667
     },
     {
       "path": "log.md",
-      "sha256": "d65ed5f62b29d0c12344cb1515d78b2438ef0c70900165de8ce6684a4242f995",
-      "size": 1974558
+      "sha256": "524b2595c79e2aa66d90e84b6a053f9f8da847840bab368628a39a71d5f88788",
+      "size": 1974983
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16173,6 +16178,11 @@
       "path": "pages/decisions/spoken-transcripts-storage-decision.md",
       "sha256": "0a0fd92f4745a4d45c2494f0d720ae03173ef3efae23827e817abfef8a5b87c6",
       "size": 4404
+    },
+    {
+      "path": "pages/decisions/ssl-issue-aeneid-portal-resolution.md",
+      "sha256": "03ce9a10fede2773461e2b425e195a9f22c13553272951e84ace2f4e8febbd01",
+      "size": 5292
     },
     {
       "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
@@ -21091,5 +21101,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "a4e0a7c8df7ad437b0d6a31d8ef6f057f9aa3f30cb16ce3dfb63b82ebc5287d5"
+  "wiki_tree_hash": "9021d3a14760df943a6e73a21971a2673821dc7fd043c23d1485e1c1858a6785"
 }

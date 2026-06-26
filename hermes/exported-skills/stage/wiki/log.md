@@ -39860,3 +39860,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0aa173045f79b3d1e4c5e9b3884bd7c3
 - summary: Configuration, SSL issue, and resolution for the aeneid.portal.story.foundation domain, which is a portal subdomain hosted on Vercel and proxied via Cloudflare. An SSL cipher misma...
 
+## [2026-06-26T01:03:33Z] synthesis | SSL Issue for aeneid.portal.story.foundation Resolution
+
+- status: published
+- slug: decisions/ssl-issue-aeneid-portal-resolution
+- wiki_revision_id: wikirev_d814ded4b82ce639d0fd018990be3f09
+- summary: Resolved SSL cipher mismatch on aeneid.portal.story.foundation by removing Cloudflare proxy, bypassing the limitation with multi-level subdomain SSL certificates. Long-term plan to...
+
