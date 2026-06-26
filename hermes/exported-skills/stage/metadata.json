@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a67269bde7d49ffe7326b8ab52cedafc3b0f6d062611228f4956067fcd4ae3bd",
-        "size": 1192881
+        "sha256": "bae915a9af728fd9c97aba186348bdcac30ac16ad1cd16416464edb380303f7f",
+        "size": 1193234
       },
       {
         "path": "log.md",
-        "sha256": "4e976d157da39c30ff491726c78ea4278cc75da60addf97cd3b9ac96a98fa168",
-        "size": 2013531
+        "sha256": "6cb27e3a3f4d3246784a90e7e06020d55fe64a3a2ca210ded8b302b71c113252",
+        "size": 2014226
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10405,6 +10405,11 @@
         "size": 2379
       },
       {
+        "path": "pages/systems/story-api-collections-post-500-error.md",
+        "sha256": "5e78f6a0df3268c2017ed1c0af68c605c333f9cbb803b305891f139522a77ada",
+        "size": 1539
+      },
+      {
         "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
         "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
         "size": 2019
@@ -10446,8 +10451,8 @@
       },
       {
         "path": "pages/systems/story-api.md",
-        "sha256": "b7b5b2576d3110f04abbd6003e48fd2fae38ac486ba6fa45ac87eb73d5c975fb",
-        "size": 11131
+        "sha256": "f4f0241b9d9944d206ab43a3b906392ae74199b42c9f9bebda7e0c01606f3359",
+        "size": 12819
       },
       {
         "path": "pages/systems/story-mainnet-rpc.md",
@@ -10629,8 +10634,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T18:56:47Z",
-  "file_count": 2124,
+  "exported_at": "2026-06-26T19:03:32Z",
+  "file_count": 2125,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13907,7 +13912,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "bad6883665def53ff055a3d646add1ac5a5f1f0947b987c91a5984fdabd16159",
+  "previous_tree_hash": "cd713a146da4bacdb00f20303fc31ed046a4d3a0744143b16e65ed4dfdea53f0",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13920,14 +13925,14 @@
   ],
   "skill_tree_hash": "8b1c3ed5bfd2c57358bb6274386b773fbe47ee95589432afc76d6f3a97ef8068",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "cd713a146da4bacdb00f20303fc31ed046a4d3a0744143b16e65ed4dfdea53f0",
+  "tree_hash": "8db47ab95305b90d059a07b2c7ba0232638db6a4a55e861690809082259b94b4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1470,
+  "wiki_file_count": 1471,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13936,13 +13941,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a67269bde7d49ffe7326b8ab52cedafc3b0f6d062611228f4956067fcd4ae3bd",
-      "size": 1192881
+      "sha256": "bae915a9af728fd9c97aba186348bdcac30ac16ad1cd16416464edb380303f7f",
+      "size": 1193234
     },
     {
       "path": "log.md",
-      "sha256": "4e976d157da39c30ff491726c78ea4278cc75da60addf97cd3b9ac96a98fa168",
-      "size": 2013531
+      "sha256": "6cb27e3a3f4d3246784a90e7e06020d55fe64a3a2ca210ded8b302b71c113252",
+      "size": 2014226
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21060,6 +21065,11 @@
       "size": 2379
     },
     {
+      "path": "pages/systems/story-api-collections-post-500-error.md",
+      "sha256": "5e78f6a0df3268c2017ed1c0af68c605c333f9cbb803b305891f139522a77ada",
+      "size": 1539
+    },
+    {
       "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
       "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
       "size": 2019
@@ -21101,8 +21111,8 @@
     },
     {
       "path": "pages/systems/story-api.md",
-      "sha256": "b7b5b2576d3110f04abbd6003e48fd2fae38ac486ba6fa45ac87eb73d5c975fb",
-      "size": 11131
+      "sha256": "f4f0241b9d9944d206ab43a3b906392ae74199b42c9f9bebda7e0c01606f3359",
+      "size": 12819
     },
     {
       "path": "pages/systems/story-mainnet-rpc.md",
@@ -21281,5 +21291,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "920464bffcfc4c00fea22967759024e09cb274e141c654a4f53b070d5ae7dc75"
+  "wiki_tree_hash": "6df9c9b6644f7bfe64f40f935c9473c4db706d9e6d0cbd5580d53a39ba5d9077"
 }

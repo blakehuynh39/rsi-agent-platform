@@ -40630,3 +40630,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3f5ba7f9ce3e7e8c989ec21e99459367
 - summary: The story-api service experienced several incidents between 2025-12-22 and 2026-03-09, including spike protection activations and various internal server errors.
 
+## [2026-06-26T19:01:50Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_3b7cbe33a26ed11ef94dd72173543e50
+- summary: Monitoring and incident history for the story-api service. Includes spike protection events and various server errors observed in Slack notifications.
+
+## [2026-06-26T19:02:39Z] synthesis | story-api POST /api/v4/collections 500 Error
+
+- status: published
+- slug: systems/story-api-collections-post-500-error
+- wiki_revision_id: wikirev_d663ae4083a6ff32d934088c1d88aea5
+- summary: The story-api endpoint POST /api/v4/collections returned a 500 Internal Server Error on at least two occasions: around 2026-02-18 and 2026-02-24.
+
