@@ -40644,3 +40644,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d663ae4083a6ff32d934088c1d88aea5
 - summary: The story-api endpoint POST /api/v4/collections returned a 500 Internal Server Error on at least two occasions: around 2026-02-18 and 2026-02-24.
 
+## [2026-06-26T19:20:17Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_0462a9cfb697c41911e13398339bdad5
+- summary: Backend API service for story-related functionality. Recent logs from Slack channel C07K3J4JTH6 show spike protection events and various 500 Internal Server errors.
+
