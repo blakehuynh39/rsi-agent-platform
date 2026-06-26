@@ -40753,3 +40753,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_541d746e0d3a0f1f3a3be261498a7256
 - summary: An error occurred in story-api when fetching wallet IP royalties due to a context deadline exceeded. The related Sentry issue was later resolved.
 
+## [2026-06-26T21:33:15Z] synthesis | Story-API Incidents
+
+- status: published
+- slug: runbooks/story-api-incidents
+- wiki_revision_id: wikirev_d560fb9a40a80c6b5b024d1a037f9b54
+- summary: Operational incidents and errors for the story-api service, including spike protection activations and various 500 errors.
+
