@@ -40739,3 +40739,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_601a313242a425536c3693f0211394b5
 - summary: The /api/v4/search endpoint experienced repeated 504 Request Timeout errors in April 2026, and was later marked resolved.
 
+## [2026-06-26T21:16:41Z] synthesis | Story API Search 504 Timeout
+
+- status: published
+- slug: runbooks/story-api-search-504-timeout
+- wiki_revision_id: wikirev_c789db5ee6de12095b39db387e20265c
+- summary: Story API search endpoint experienced 504 timeouts on multiple occasions. Issue STORY-API-E9 was resolved but timeouts recurred.
+
+## [2026-06-26T21:17:24Z] synthesis | Wallet IP Royalties Fetch Failure
+
+- status: published
+- slug: runbooks/wallet-ip-royalties-fetch-failure
+- wiki_revision_id: wikirev_541d746e0d3a0f1f3a3be261498a7256
+- summary: An error occurred in story-api when fetching wallet IP royalties due to a context deadline exceeded. The related Sentry issue was later resolved.
+

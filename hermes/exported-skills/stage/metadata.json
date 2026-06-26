@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b2d6f2366090dcd77ad2207eafc9ea52b32ea733b259d0897ce2813b8ffa06af",
-        "size": 1195860
+        "sha256": "6f58a10679a323d2c3f37bc46801fbc2cc2201a351a9c81f65b0f925cfac0cac",
+        "size": 1196162
       },
       {
         "path": "log.md",
-        "sha256": "e9e35ce0ef00c2f2031b59c8470842139466e7f1cb2ff406631f370ee1e5f1cd",
-        "size": 2018855
+        "sha256": "8e6ec753ec5ba498412b550a2b3c08940e6cf1258049b28c3c613f6621c53f81",
+        "size": 2019554
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9336,8 +9336,8 @@
       },
       {
         "path": "pages/runbooks/story-api-search-504-timeout.md",
-        "sha256": "bd453a7ae1cfca1106ad25eac1d4f762442c9de772aa680caa0dbff5e7c6c370",
-        "size": 3136
+        "sha256": "3ecb9c584914143072798bbb347f4832203ca2e8d97d7ea31e9e9424166d04f0",
+        "size": 2851
       },
       {
         "path": "pages/runbooks/story-api-search-504-timeouts.md",
@@ -9533,6 +9533,11 @@
         "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
         "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
         "size": 1741
+      },
+      {
+        "path": "pages/runbooks/wallet-ip-royalties-fetch-failure.md",
+        "sha256": "2fdf19f55af464df52f83714b36ecc418be7b3896cea556699f86007f560463f",
+        "size": 1850
       },
       {
         "path": "pages/runbooks/whitelisting-ips-for-rpc-endpoints.md",
@@ -10664,8 +10669,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T21:05:38Z",
-  "file_count": 2131,
+  "exported_at": "2026-06-26T21:17:30Z",
+  "file_count": 2132,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13942,7 +13947,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1f43db20647b40b1305fe56d18d5fc3e416c50023a8875d27d2e892dc7f773f2",
+  "previous_tree_hash": "f8d93d74c2f4a893c43b5cbcc8cad319cfacaa6b60a3becdd8fcf7b664bdc754",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13955,14 +13960,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f8d93d74c2f4a893c43b5cbcc8cad319cfacaa6b60a3becdd8fcf7b664bdc754",
+  "tree_hash": "38c81354184d8c692c4e15bf8a8c19ae2e32339773824787ac19c76457811734",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1477,
+  "wiki_file_count": 1478,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13971,13 +13976,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b2d6f2366090dcd77ad2207eafc9ea52b32ea733b259d0897ce2813b8ffa06af",
-      "size": 1195860
+      "sha256": "6f58a10679a323d2c3f37bc46801fbc2cc2201a351a9c81f65b0f925cfac0cac",
+      "size": 1196162
     },
     {
       "path": "log.md",
-      "sha256": "e9e35ce0ef00c2f2031b59c8470842139466e7f1cb2ff406631f370ee1e5f1cd",
-      "size": 2018855
+      "sha256": "8e6ec753ec5ba498412b550a2b3c08940e6cf1258049b28c3c613f6621c53f81",
+      "size": 2019554
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20026,8 +20031,8 @@
     },
     {
       "path": "pages/runbooks/story-api-search-504-timeout.md",
-      "sha256": "bd453a7ae1cfca1106ad25eac1d4f762442c9de772aa680caa0dbff5e7c6c370",
-      "size": 3136
+      "sha256": "3ecb9c584914143072798bbb347f4832203ca2e8d97d7ea31e9e9424166d04f0",
+      "size": 2851
     },
     {
       "path": "pages/runbooks/story-api-search-504-timeouts.md",
@@ -20223,6 +20228,11 @@
       "path": "pages/runbooks/wallet-ip-royalties-fetch-error-resolved.md",
       "sha256": "e6bd053cd568d1f0fb28ddb3152a4f4c40624b7e8feec3f22e1893265e5fc7fc",
       "size": 1741
+    },
+    {
+      "path": "pages/runbooks/wallet-ip-royalties-fetch-failure.md",
+      "sha256": "2fdf19f55af464df52f83714b36ecc418be7b3896cea556699f86007f560463f",
+      "size": 1850
     },
     {
       "path": "pages/runbooks/whitelisting-ips-for-rpc-endpoints.md",
@@ -21351,5 +21361,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "53a3cbdf4d42bce8c492eca1019c1a5a81b8d83e0747e146397937612ec2dec7"
+  "wiki_tree_hash": "fce5400747b70bba10861b9420ed5a48f8cb9ad834277dce75badb96f80cb804"
 }
