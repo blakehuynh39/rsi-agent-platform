@@ -40665,3 +40665,35 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_425b1120939869e6ccc5944c5886562d
 - summary: Story API has experienced spike protection activations and deactivations on multiple dates, and various 500 Internal Server Errors across endpoints including /hub/users/notificatio...
 
+## [2026-06-26T19:45:28Z] ingest | Slack thread C0BD7471DUG 1782162855.764769
+
+- status: published
+- slug: slack_message/slack-thread-c0bd7471dug-1782162855-764769-07eeecfc
+- wiki_revision_id: wikirev_594600b1b677c77bc203412f7afc77e3
+- source_document_id: srcdoc_14ffa827a83c3e760fde196d07eeecfc
+- source_revision_id: srcrev_17bcff6304e79107a049f8c4704147f1
+- summary: <@U0772SH7BRA> please review this PR <https://github.com/piplabs/depin-backend/pull/565>
+
+## [2026-06-26T19:45:28Z] ingest | Slack thread C0BD7471DUG channel
+
+- status: published
+- slug: slack_message/slack-thread-c0bd7471dug-channel-e1fe5949
+- wiki_revision_id: wikirev_8afc2857d1157b02568a052ea127ea08
+- source_document_id: srcdoc_92160df1a0e6b9a9faf36f49e1fe5949
+- source_revision_id: srcrev_9abe64204ee2ab71c880ec6092a45d11
+- summary: *allen* from *Story* was added to this channel by *jack*. You can review their permissions in Channel Details. Happy collaborating!
+
+## [2026-06-26T19:45:55Z] synthesis | story-api POST /api/v4/assets 504 Timeout Incident
+
+- status: published
+- slug: runbooks/story-api-post-v4-assets-504-timeout
+- wiki_revision_id: wikirev_7daec1dae7641130afaeff76dcede924
+- summary: On 2026-02-25, the story-api endpoint POST /api/v4/assets returned a 504 Request timeout, tracked as issue STORY-API-E2, and later resolved.
+
+## [2026-06-26T19:48:05Z] synthesis | story-api Project
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_4471febc62f6dd96d88894199ec41de4
+- summary: Aggregated Slack alerts for the story-api project, including spike protection events and internal server errors on various endpoints.
+

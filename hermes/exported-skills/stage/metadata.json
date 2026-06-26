@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "a14e1ecb0ad45c43c2c4dc5f1a4c15892980fc6e13358faccda477ce026cf6f9",
-        "size": 1193252
+        "sha256": "6c6207616b738c71f17ae04cababe4d0725c98696e3f4da5f28120e380d8f78e",
+        "size": 1194254
       },
       {
         "path": "log.md",
-        "sha256": "b1e7410ac6b62c0b11e9a22ac49ae2adf34596e015b4849488bf5469264077f1",
-        "size": 2015249
+        "sha256": "64651aed6281708723b6ad5416aa33697af152e614c9462469ae1b60ba68085d",
+        "size": 2016879
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8086,8 +8086,8 @@
       },
       {
         "path": "pages/projects/story-api.md",
-        "sha256": "297ee63e7c90e3643f604e274276f12222b8369e778647d544596e1e79d2f90d",
-        "size": 11402
+        "sha256": "2876576b11e26a8796489ec7c071c9f32a76475ed610bed95f319cd8b02596e3",
+        "size": 10880
       },
       {
         "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -9298,6 +9298,11 @@
         "path": "pages/runbooks/story-api-null-created-at-notifications.md",
         "sha256": "adf27cadfd5802099cc94f8efaacbbc3b239cf28fc045fcba229b5d6da41bce5",
         "size": 1792
+      },
+      {
+        "path": "pages/runbooks/story-api-post-v4-assets-504-timeout.md",
+        "sha256": "873f59dc87d396716fcfbed7d2dbc539ce5657adfd02c0f092664d6a124a2957",
+        "size": 1594
       },
       {
         "path": "pages/runbooks/story-api-projection-conflict-txhash-overwrite.md",
@@ -10634,8 +10639,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T19:44:14Z",
-  "file_count": 2125,
+  "exported_at": "2026-06-26T19:50:58Z",
+  "file_count": 2126,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13912,7 +13917,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "65e0300bc35d8c9b964556bdcab4cb1d72d176cd7e88d260b99ea512a587583c",
+  "previous_tree_hash": "3c7c7cb891f983d496c90e84d853a386a54e806113c2c2b80909dad8b8c2e429",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13925,14 +13930,14 @@
   ],
   "skill_tree_hash": "556113303f3028b7820c5f17747adeefa67123f4c6d7e6aa65a8e022ad6cb077",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3c7c7cb891f983d496c90e84d853a386a54e806113c2c2b80909dad8b8c2e429",
+  "tree_hash": "82682cc49e8cd89010330c5ae2bcebaafbbc4ac2fe5686e1da5732f5bfa67543",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1471,
+  "wiki_file_count": 1472,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13941,13 +13946,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "a14e1ecb0ad45c43c2c4dc5f1a4c15892980fc6e13358faccda477ce026cf6f9",
-      "size": 1193252
+      "sha256": "6c6207616b738c71f17ae04cababe4d0725c98696e3f4da5f28120e380d8f78e",
+      "size": 1194254
     },
     {
       "path": "log.md",
-      "sha256": "b1e7410ac6b62c0b11e9a22ac49ae2adf34596e015b4849488bf5469264077f1",
-      "size": 2015249
+      "sha256": "64651aed6281708723b6ad5416aa33697af152e614c9462469ae1b60ba68085d",
+      "size": 2016879
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18746,8 +18751,8 @@
     },
     {
       "path": "pages/projects/story-api.md",
-      "sha256": "297ee63e7c90e3643f604e274276f12222b8369e778647d544596e1e79d2f90d",
-      "size": 11402
+      "sha256": "2876576b11e26a8796489ec7c071c9f32a76475ed610bed95f319cd8b02596e3",
+      "size": 10880
     },
     {
       "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -19958,6 +19963,11 @@
       "path": "pages/runbooks/story-api-null-created-at-notifications.md",
       "sha256": "adf27cadfd5802099cc94f8efaacbbc3b239cf28fc045fcba229b5d6da41bce5",
       "size": 1792
+    },
+    {
+      "path": "pages/runbooks/story-api-post-v4-assets-504-timeout.md",
+      "sha256": "873f59dc87d396716fcfbed7d2dbc539ce5657adfd02c0f092664d6a124a2957",
+      "size": 1594
     },
     {
       "path": "pages/runbooks/story-api-projection-conflict-txhash-overwrite.md",
@@ -21291,5 +21301,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7cefe85f79259a5ac2f6e6e07003e403578f61637e6f24b3148841ae1fe51d0a"
+  "wiki_tree_hash": "11b0f1f5c25e75d023a6b0e79ce1ac1451d100624382ea276c8f2a32fbd79de3"
 }
