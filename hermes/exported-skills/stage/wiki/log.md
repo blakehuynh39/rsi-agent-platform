@@ -39937,3 +39937,12 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0339aeea7a7cd5de621bf11ab2070a4d
 - summary: Suggestion to add aggregated totals functionality.
 
+## [2026-06-26T05:15:23Z] ingest | Slack thread C0B2EJ96U83 channel
+
+- status: published
+- slug: slack_message/slack-thread-c0b2ej96u83-channel-5675522d
+- wiki_revision_id: wikirev_c7a7de823a198b395322ca87fbe24f20
+- source_document_id: srcdoc_b140aea25556e86e3666c67c5675522d
+- source_revision_id: srcrev_d5b0dc43b014f365e23d60222bcccc3a
+- summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
+
