@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "12fa209b31584bd4fe94e128bd226cffe13066497218874255052755f47cf641",
-        "size": 1192215
+        "sha256": "efbd3b25d5142c4b8e75e6655be61b972745969d1f02cf7b4304a2fc6912bc8d",
+        "size": 1192290
       },
       {
         "path": "log.md",
-        "sha256": "ced0de5ebb4de8865db9f7767fd5f9d14c44b8ac0c30e438d776e4441a49e003",
-        "size": 2011021
+        "sha256": "df8e732f3d9538c8e4ddd5e239c8f944e427eab88cbed1f2805bd1d17fda8b7d",
+        "size": 2011373
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10436,8 +10436,8 @@
       },
       {
         "path": "pages/systems/story-api.md",
-        "sha256": "e6a0678cff091cc85d2032a25e620e44007c4ae8fafea08ccc19a6ecfa865a24",
-        "size": 9712
+        "sha256": "9a52b10a1da0ed499b8920dba6940708ac191ca27e7108741ed25cfe3283f278",
+        "size": 10366
       },
       {
         "path": "pages/systems/story-mainnet-rpc.md",
@@ -10619,7 +10619,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T17:49:05Z",
+  "exported_at": "2026-06-26T17:55:49Z",
   "file_count": 2122,
   "files": [
     {
@@ -13897,7 +13897,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "42bd0117e9fd4cc0c659a02ce8c47e3da576897191e3d41993abec6b7cea8246",
+  "previous_tree_hash": "a46d5fe13186961b31d10a6169bb158be486bfd180994dff6d787c9222072727",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13910,7 +13910,7 @@
   ],
   "skill_tree_hash": "8b1c3ed5bfd2c57358bb6274386b773fbe47ee95589432afc76d6f3a97ef8068",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a46d5fe13186961b31d10a6169bb158be486bfd180994dff6d787c9222072727",
+  "tree_hash": "6766cb1d819cb6c4493776bbceb2259994a05d7d22879b836fb0b90cfee7a33d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13926,13 +13926,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "12fa209b31584bd4fe94e128bd226cffe13066497218874255052755f47cf641",
-      "size": 1192215
+      "sha256": "efbd3b25d5142c4b8e75e6655be61b972745969d1f02cf7b4304a2fc6912bc8d",
+      "size": 1192290
     },
     {
       "path": "log.md",
-      "sha256": "ced0de5ebb4de8865db9f7767fd5f9d14c44b8ac0c30e438d776e4441a49e003",
-      "size": 2011021
+      "sha256": "df8e732f3d9538c8e4ddd5e239c8f944e427eab88cbed1f2805bd1d17fda8b7d",
+      "size": 2011373
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21081,8 +21081,8 @@
     },
     {
       "path": "pages/systems/story-api.md",
-      "sha256": "e6a0678cff091cc85d2032a25e620e44007c4ae8fafea08ccc19a6ecfa865a24",
-      "size": 9712
+      "sha256": "9a52b10a1da0ed499b8920dba6940708ac191ca27e7108741ed25cfe3283f278",
+      "size": 10366
     },
     {
       "path": "pages/systems/story-mainnet-rpc.md",
@@ -21261,5 +21261,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6e0f8aac1e775a7f74557f4aa6287dac68dd8e20dc68859976f4bb1bb16149a1"
+  "wiki_tree_hash": "ac52992ecfbeed80945ae67f4e83ef8c5e25f5c63d8f8a90497fdf96a602fadd"
 }

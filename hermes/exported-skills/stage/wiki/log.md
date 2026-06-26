@@ -40574,3 +40574,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b9e12c73a890972110cf6f6c6fd36f4b
 - summary: Aggregated operational events and errors for the story-api service.
 
+## [2026-06-26T17:51:02Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_96f45663e0470499682f5b4335cbe37e
+- summary: The Story API service has encountered multiple 500 errors, database authentication failures, constraint violations, and spike protection activations. Root cause investigations are ...
+
