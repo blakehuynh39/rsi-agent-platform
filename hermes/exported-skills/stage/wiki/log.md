@@ -39974,3 +39974,561 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_10ee8dcb44784c5a42b24a0d91007ac1
 - summary: Integration of TaxBandits W-9/W-8 form drop-in for tax form collection.
 
+## [2026-06-26T16:48:47Z] ingest | Slack thread C0ALN0C856U 1781642815.427939
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781642815-427939-78d5ba48
+- wiki_revision_id: wikirev_8170af0435fb64bcdd0c177b148d0c85
+- source_document_id: srcdoc_013bf67fe923d70272e0be9e78d5ba48
+- source_revision_id: srcrev_8049d12c35d99a8019a1c33faeab12c5
+- summary: <@U0B1LM3KZ7E> I hear that you worked on BugBounty Agent, I'd like to sync up and see if you can add a functionality for it to make an api call to a tool that I built for smart con...
+
+## [2026-06-26T16:48:47Z] ingest | Slack thread C0ALN0C856U 1773948504.349459
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773948504-349459-e19f2018
+- wiki_revision_id: wikirev_89c01d5b29fa12a33ea6997bc2bbbe10
+- source_document_id: srcdoc_01e1aba667998f43ecb421e5e19f2018
+- source_revision_id: srcrev_857a16a655574f9e848f52ea0a25290e
+- summary: <@U07A7AUGL5V> should we have a "Cancelled" or "Deprioritized" column in GH project?
+
+## [2026-06-26T16:48:48Z] ingest | Slack thread C0ALN0C856U 1780462471.545339
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780462471-545339-ff187d9f
+- wiki_revision_id: wikirev_ab0ccaf3fc4e3a0bb06db4792b4455fe
+- source_document_id: srcdoc_03ddee68b570657d6b8deeffff187d9f
+- source_revision_id: srcrev_bbdcdea5a7bb6fcd0a64c4a8000d61f0
+- summary: Hey <@U07KLPN0JN6>, can you send some IP tokens on Aeneid to the below addresses? Automata team requested some testing tokens for their test.
+
+## [2026-06-26T16:48:48Z] ingest | Slack thread C0ALN0C856U 1781602717.362789
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781602717-362789-6f7a7950
+- wiki_revision_id: wikirev_86600e2c877b85c907a0c23743a0fea9
+- source_document_id: srcdoc_04ed721cd1c66586fdcbcd616f7a7950
+- source_revision_id: srcrev_6cff67de4f4fa00b4b2d108102d68d27
+- summary: _TokenStaking V2 — Test Report (pause + AccessControl + rename)_
+
+## [2026-06-26T16:48:49Z] ingest | Slack thread C0ALN0C856U 1780332437.969089
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780332437-969089-be59a52d
+- wiki_revision_id: wikirev_b190dfc6c23889448148bb1097db38f6
+- source_document_id: srcdoc_0637e602676574f500031baabe59a52d
+- source_revision_id: srcrev_6a4f58b7887904c032740bf9eb5e460f
+- summary: Is Nethermind part of the new validator set? They just sent a notification on leaving Story in 7 days
+
+## [2026-06-26T16:48:49Z] ingest | Slack thread C0ALN0C856U 1782006571.815829
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782006571-815829-0898e017
+- wiki_revision_id: wikirev_acf4704070ba8c375c224fcf2a4ea083
+- source_document_id: srcdoc_092b1985036b18c05c5dd6a50898e017
+- source_revision_id: srcrev_5fd4a9d12c051a8c7977ac055b320765
+- summary: Sharing the findings.
+
+## [2026-06-26T16:48:49Z] ingest | Slack thread C0ALN0C856U 1773705448.110519
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773705448-110519-6a1e447d
+- wiki_revision_id: wikirev_bc1171b13687a216412a9daac301b528
+- source_document_id: srcdoc_196409910abb27b52ff4cd136a1e447d
+- source_revision_id: srcrev_2cb0a670f589b83f6daffcf67c47bc34
+- summary: <!subteam^S0ALZAJR610> We will be using Github issues and Github project to handle team project sync starting this week. Please do the following before Wednesday's Lion Team sync m...
+
+## [2026-06-26T16:48:50Z] ingest | Slack thread C0ALN0C856U 1773705494.937859
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773705494-937859-fa36536a
+- wiki_revision_id: wikirev_e229da1a710044b9c4d7d8860dca7e3c
+- source_document_id: srcdoc_219d1b85f4951b682855c586fa36536a
+- source_revision_id: srcrev_5d6e1881debb1f051bacc33ddb869745
+- summary: Also introducing <@U0ALPHUD1UN> that can collect info from the <https://github.com/orgs/piplabs/projects/4/views/2|Lion Team Sync> Github project and answer questions regarding tea...
+
+## [2026-06-26T16:48:50Z] ingest | Slack thread C0ALN0C856U 1775175313.828219
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1775175313-828219-db6597fd
+- wiki_revision_id: wikirev_b023cbc884b3d8fa55eab8553e705eed
+- source_document_id: srcdoc_21fddaf4b36aada037cb033ddb6597fd
+- source_revision_id: srcrev_274d96f8e0d8ca3257749c0ca034981c
+- summary: hi <@U079ZJ48D62> <@U082UKSD3BR> <@U07KLPN0JN6> , received a report from discord. Could you help take a look?
+
+## [2026-06-26T16:48:50Z] ingest | Slack thread C0ALN0C856U 1780294985.276849
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780294985-276849-f209e96c
+- wiki_revision_id: wikirev_e3f63d4d4123330016a93828492635f0
+- source_document_id: srcdoc_26168623e783b18acf692b04f209e96c
+- source_revision_id: srcrev_337156b8c3980696e39e1919d9ee5067
+- summary: Not sure the right place to check but,
+
+## [2026-06-26T16:48:51Z] ingest | Slack thread C0ALN0C856U 1780964545.014709
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780964545-014709-e8733749
+- wiki_revision_id: wikirev_d2b7a3a084ec17a960da3b65ca5098fe
+- source_document_id: srcdoc_2815ebf72f38302cfb3283cee8733749
+- source_revision_id: srcrev_120b5a2b60da5f92dfac6e534f70549d
+- summary: Hey <@U07TNT9N4JC>, I had scheduled a call for us to talk to you about RPC nodes. I cancelled it since my previous meeting is running over. Can you confirm a few things?
+
+## [2026-06-26T16:48:51Z] ingest | Slack thread C0ALN0C856U 1774999697.518769
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774999697-518769-e7ad4dca
+- wiki_revision_id: wikirev_8e985580c3c1d062705d8eb8272e4b4f
+- source_document_id: srcdoc_30ac0b57bc21bb7d9d20b241e7ad4dca
+- source_revision_id: srcrev_fbdb8584f433dcf7d5f45bc53e7bdc67
+- summary: hi team just realized i have a dental appointment later and cant make it to the meeting, i added my tickets to the board for tracking already:pray: cc <@U07A7AUGL5V>
+
+## [2026-06-26T16:48:52Z] ingest | Slack thread C0ALN0C856U 1777510754.726429
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1777510754-726429-0f842edc
+- wiki_revision_id: wikirev_2c4b4fff37bc1ae8ef1cf7e38b712ee9
+- source_document_id: srcdoc_3af6c16f1eb495b964cb770f0f842edc
+- source_revision_id: srcrev_b18b1995c679cd39e71c95201b182a2c
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:48:52Z] ingest | Slack thread C0ALN0C856U 1774920367.564019
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774920367-564019-a4e90c42
+- wiki_revision_id: wikirev_2d1daf176ab28c9108d03ec94fe86f32
+- source_document_id: srcdoc_3da934b473fa70d4a53b41fda4e90c42
+- source_revision_id: srcrev_603d4fff1830d4b97908fa2afc5b5016
+- summary: <@U0AMLSRK16X> Are you still here?
+
+## [2026-06-26T16:48:52Z] ingest | Slack thread C0ALN0C856U 1782025563.136919
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782025563-136919-fe1f3737
+- wiki_revision_id: wikirev_4be0a80dadf0829574e54ad8c9b6d148
+- source_document_id: srcdoc_4428b049cfb811ec0aca8bcbfe1f3737
+- source_revision_id: srcrev_b945ccca1d9e85a94beab10cec03b1a1
+- summary: <!channel> please review this fix PR: <https://github.com/piplabs/story-geth-private-fork/pull/37>.
+
+## [2026-06-26T16:48:53Z] ingest | Slack thread C0ALN0C856U 1782194092.517519
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782194092-517519-c43499fb
+- wiki_revision_id: wikirev_37d93f00fa09a75dbcfa6b38f14a59ab
+- source_document_id: srcdoc_4517615a1bbcd6e4d35a8307c43499fb
+- source_revision_id: srcrev_cc6094923f64331326b8dd67f7da1d03
+- summary: Action points regarding the DOS attack:
+
+## [2026-06-26T16:48:53Z] ingest | Slack thread C0ALN0C856U 1774479386.976369
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774479386-976369-0c3626d9
+- wiki_revision_id: wikirev_c6d9a2c2d08358a68a06966364635892
+- source_document_id: srcdoc_45e216e4fbd0676ce2fa745e0c3626d9
+- source_revision_id: srcrev_40acccd42194dbeec64b78e889af49fd
+- summary: <@U08951K4SRY> this subnet test plan is for the "post rollup" architecture?
+
+## [2026-06-26T16:48:53Z] ingest | Slack thread C0ALN0C856U 1776154397.134759
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1776154397-134759-b26eb2a6
+- wiki_revision_id: wikirev_e87496e55be341c41ed2f8b15734b258
+- source_document_id: srcdoc_461c2ceffe54cd5dea217435b26eb2a6
+- source_revision_id: srcrev_64c97ea6de3cb2250f3d1f882f6e135a
+- summary: <!subteam^S0ALZAJR610> Please have your items updated in the <https://github.com/orgs/piplabs/projects/4|Lion team sync project board> before tomorrow's meeting.
+
+## [2026-06-26T16:48:54Z] ingest | Slack thread C0ALN0C856U 1774486551.591079
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774486551-591079-54eddaa8
+- wiki_revision_id: wikirev_62f77dec28309a937cf284beee926d02
+- source_document_id: srcdoc_46e7f3cb40fc663aa5b631f054eddaa8
+- source_revision_id: srcrev_cfdb07730e8b8b6f2e60c2f130487973
+- summary: <@U07A7AUGL5V> feedback on GH Project: if you move a task to Cancelled column it remains open, then you mark it as Completed, it moves to Done column.
+
+## [2026-06-26T16:48:54Z] ingest | Slack thread C0ALN0C856U 1773776564.486339
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773776564-486339-fe26019e
+- wiki_revision_id: wikirev_c9e0eed461f94641b956889daf85d8e0
+- source_document_id: srcdoc_4961f3c345b7e6f004a7784efe26019e
+- source_revision_id: srcrev_f33aa07d11ffb592da85aab8166700a5
+- summary: can someone give me the permission to sentry? im creating monitoring/alerts for perpdex
+
+## [2026-06-26T16:48:54Z] ingest | Slack thread C0ALN0C856U 1774486988.405269
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774486988-405269-2768a77c
+- wiki_revision_id: wikirev_762fb70dd9d4f08aa178eb90f9303b88
+- source_document_id: srcdoc_4b581e1538d8ae85eeadbedd2768a77c
+- source_revision_id: srcrev_d8727e20524c9ec513649788fc72730d
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:48:55Z] ingest | Slack thread C0ALN0C856U channel
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-channel-b75d89a9
+- wiki_revision_id: wikirev_ac7260dd594fbaae4301e8f7c9046e0a
+- source_document_id: srcdoc_4c7d28f9a060300675da6a77b75d89a9
+- source_revision_id: srcrev_634427e71e97bb4539eaa8a699446762
+- summary: <!here> Welcome to Lion Team! Feel free to discuss lion team related items here.
+
+## [2026-06-26T16:48:55Z] ingest | Slack thread C0ALN0C856U 1774924673.991249
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774924673-991249-62dc06a3
+- wiki_revision_id: wikirev_8e16758cd172bbfd2f72c05b09837afc
+- source_document_id: srcdoc_4e99d9bbafa2b959ab7bd07a62dc06a3
+- source_revision_id: srcrev_c63ee64216ead820c1d27e0f55c1b17e
+- summary: hi <@U0AMLSRK16X>
+
+## [2026-06-26T16:48:56Z] ingest | Slack thread C0ALN0C856U 1776576614.657539
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1776576614-657539-82f19387
+- wiki_revision_id: wikirev_f1cfce32adf770bb43d81c1514fc4629
+- source_document_id: srcdoc_53372ef81ffbcc4d0fd5cad482f19387
+- source_revision_id: srcrev_b2b949c22a4c466902b2dedeb924a5c7
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:48:56Z] ingest | Slack thread C0ALN0C856U 1773767393.108859
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773767393-108859-45c649ed
+- wiki_revision_id: wikirev_dae6049e18dce437648a2e8891d266cf
+- source_document_id: srcdoc_5c26e4896413b562e0aa697045c649ed
+- source_revision_id: srcrev_bc22c3b10879401dced3283eedf87ff1
+- summary: <@U0ALPHUD1UN> hi
+
+## [2026-06-26T16:48:56Z] ingest | Slack thread C0ALN0C856U 1781640911.064129
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781640911-064129-1a2254c6
+- wiki_revision_id: wikirev_f97fb215d05cefe2ff1bfe431572cbe7
+- source_document_id: srcdoc_5c2961943ca6e18da52156ce1a2254c6
+- source_revision_id: srcrev_05bf5d78a1b4469b339bc883ef589d9d
+- summary: <@U0AKJV8710S> can you add Graphana alerts for multiple blocks with 0 transactions (50 or more in Aeneid, 10 in Mainnet)?
+
+## [2026-06-26T16:48:57Z] ingest | Slack thread C0ALN0C856U 1782403277.285329
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782403277-285329-b34f93d3
+- wiki_revision_id: wikirev_80e30703296845a8164de8f4c5578624
+- source_document_id: srcdoc_5d4105665b04587b9a93aa74b34f93d3
+- source_revision_id: srcrev_fc6f78365797c0137d653068e34205d2
+- summary: <!subteam^S0ALZAJR610> please check this <https://storyprotocol.slack.com/archives/C08NG7D9T28/p1782402984304399|https://storyprotocol.slack.com/archives/C08NG7D9T28/p1782402984304...
+
+## [2026-06-26T16:48:57Z] ingest | Slack thread C0ALN0C856U 1779214064.457939
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1779214064-457939-196f0f73
+- wiki_revision_id: wikirev_ab45ab7bdd81ed2d4216d51afc258563
+- source_document_id: srcdoc_60683491b8709521ab03f653196f0f73
+- source_revision_id: srcrev_be202b82804e8b0f2d412c305dca60c5
+- summary: I need to move the Lion team synch to tomorrow, same time. Please LMK if it works, thanks
+
+## [2026-06-26T16:48:57Z] ingest | Slack thread C0ALN0C856U 1773895984.125389
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773895984-125389-9d08c6e8
+- wiki_revision_id: wikirev_df77ee09e3065625bdd3a82628059c2a
+- source_document_id: srcdoc_61209fd58a2466140d8e59559d08c6e8
+- source_revision_id: srcrev_c72e5f50ce148a7f082b80e6722de3d0
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:48:58Z] ingest | Slack thread C0ALN0C856U 1782143193.778179
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782143193-778179-95b36700
+- wiki_revision_id: wikirev_0230151710155ee510cf2546a032a897
+- source_document_id: srcdoc_6446be8498e22931a246893695b36700
+- source_revision_id: srcrev_e67a6793f22bc48216241a0f8775389a
+- summary: we need to rollout the temp workaround to all validators before the proper fix is in place. Otherwise, it may impact the rollout of the trace app to production if not all validator...
+
+## [2026-06-26T16:48:58Z] ingest | Slack thread C0ALN0C856U 1778135387.822699
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1778135387-822699-68b2a842
+- wiki_revision_id: wikirev_0438be153cd2bd9ba5e95ae335b7c37e
+- source_document_id: srcdoc_64c31e68174944df2b1b1d7868b2a842
+- source_revision_id: srcrev_2bfdd807c5f5422c8ee0242f9a05c7ec
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:48:58Z] ingest | Slack thread C0ALN0C856U 1782372946.923549
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782372946-923549-ef064c33
+- wiki_revision_id: wikirev_ef83fe80921fa0be008d2b968d4b35c6
+- source_document_id: srcdoc_703f31cd7025fb772edd232cef064c33
+- source_revision_id: srcrev_670f45b7ae3d8d8c434f2994487868ba
+- summary: <@U04VDFP1YQ5> <@U082UKSD3BR> <@U08332YRB7W> cc. <@U07TNT9N4JC>
+
+## [2026-06-26T16:48:59Z] ingest | Slack thread C0ALN0C856U 1782002942.293299
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782002942-293299-28335748
+- wiki_revision_id: wikirev_c779b057e8c780a3f7551beae5f8c49d
+- source_document_id: srcdoc_72c0affb92723c05b318e7e528335748
+- source_revision_id: srcrev_4b996c6a6a69cb323ff38c2466ff2e11
+- summary: I tried to send a tx
+
+## [2026-06-26T16:48:59Z] ingest | Slack thread C0ALN0C856U 1779314355.194209
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1779314355-194209-795aa889
+- wiki_revision_id: wikirev_5b279a9645b256e046a33e421e161962
+- source_document_id: srcdoc_74bb6899fe29bb84c4985fdc795aa889
+- source_revision_id: srcrev_ea6bc33649301e5566e20022f9ed7ae9
+- summary: <@U07KLPN0JN6> what's the progress on this? Adding you on the Trace channel for visibility.
+
+## [2026-06-26T16:48:59Z] ingest | Slack thread C0ALN0C856U 1781625340.925899
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781625340-925899-f0490e6e
+- wiki_revision_id: wikirev_098be872040a8b1d8fa24f23a519d611
+- source_document_id: srcdoc_75be0a299ae5da916daea99df0490e6e
+- source_revision_id: srcrev_743f270988b3bfea54eed7b624dcf96f
+- summary: <!subteam^S07AJT0L1EV> Is Aeneid working? I'm not able to include transactions and there hasn't been any transactions in last 7 hours
+
+## [2026-06-26T16:49:00Z] ingest | Slack thread C0ALN0C856U 1775075235.359999
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1775075235-359999-d1f3a036
+- wiki_revision_id: wikirev_f77713b6a213c83128f715b85db0d148
+- source_document_id: srcdoc_7695dd996834be0a12b21f0ed1f3a036
+- source_revision_id: srcrev_6a826633faf31acd9579054a5ee7d2c5
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:49:00Z] ingest | Slack thread C0ALN0C856U 1780020193.014819
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780020193-014819-bfe729e4
+- wiki_revision_id: wikirev_9e603806c9754bb02079cf8391b5243f
+- source_document_id: srcdoc_82349e0e1d73c075045b5349bfe729e4
+- source_revision_id: srcrev_f299e2a5dd65b69a23eeb06e9d1fcb0a
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:49:01Z] ingest | Slack thread C0ALN0C856U 1782327151.830579
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782327151-830579-4a1e8f8e
+- wiki_revision_id: wikirev_be9d22e093797ef800f42d778becddd9
+- source_document_id: srcdoc_82cc904df729181d20ee520d4a1e8f8e
+- source_revision_id: srcrev_930be76014d9dd89ae32b58dd833b688
+- summary: We are having more mainnet network warnings, checking if the network is processing blocks cc <@U08D32C1EF3> <!subteam^S0ALZAJR610>
+
+## [2026-06-26T16:49:01Z] ingest | Slack thread C0ALN0C856U 1780510650.220829
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780510650-220829-0b6ec075
+- wiki_revision_id: wikirev_71e06ec916c426f1d571eadf7d12aa65
+- source_document_id: srcdoc_8d10ebe431a668fa6badab3e0b6ec075
+- source_revision_id: srcrev_d41f2ca0e103237538ea68bfcd59ce12
+- summary: <!subteam^S07AJT0L1EV> <!subteam^S06H05G5ELA> bybit is asking for the following;
+
+## [2026-06-26T16:49:02Z] ingest | Slack thread C0ALN0C856U 1775668757.740779
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1775668757-740779-26b32112
+- wiki_revision_id: wikirev_c8e306142c851bebd8dfa8bb31d694fa
+- source_document_id: srcdoc_948105ecf7a863ae6f2a615526b32112
+- source_revision_id: srcrev_eb7c0a0a8cd1df28e7b448fa40a947dc
+- summary: <@U0ALPHUD1UN> create a snapshot of the lion team sync project
+
+## [2026-06-26T16:49:03Z] ingest | Slack thread C0ALN0C856U 1782349779.119119
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782349779-119119-35740f4e
+- wiki_revision_id: wikirev_a5c86acf3c63fc26fac7c441462d2553
+- source_document_id: srcdoc_953c487765fbc0f58533945735740f4e
+- source_revision_id: srcrev_cf2154978c0750d37823ebc88307d18c
+- summary: <@U07TNT9N4JC> <@U079ZJ48D62> can you check if the mainnet nodes are OK, Trace upload process has stalled, please check the mempool
+
+## [2026-06-26T16:49:03Z] ingest | Slack thread C0ALN0C856U 1774312821.622539
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774312821-622539-b6852e86
+- wiki_revision_id: wikirev_41234786293fe0af63a165ccd6343ee3
+- source_document_id: srcdoc_97fdfceaf898a879725492bbb6852e86
+- source_revision_id: srcrev_0757bfe18ec715021adad798cac2b146
+- summary: :clipboard: *Known Pipelines*
+
+## [2026-06-26T16:49:04Z] ingest | Slack thread C0ALN0C856U 1782207642.349739
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782207642-349739-8ff08b87
+- wiki_revision_id: wikirev_e1d6363e771c61335fa109817edda04d
+- source_document_id: srcdoc_9e5d323bacb3cb69a2ae3f798ff08b87
+- source_revision_id: srcrev_68a1639859586f1ec00aeb2b811a2523
+- summary: <@U05A515NBFC> Finished a first pass on the Data Foundation site. The issues found so far are documented here: <https://app.notion.com/p/storyprotocol/Found-Issues-388051299a5480e4...
+
+## [2026-06-26T16:49:04Z] ingest | Slack thread C0ALN0C856U 1778879951.157989
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1778879951-157989-c9c12acf
+- wiki_revision_id: wikirev_770618f55da65cc3020bdb0589b7c347
+- source_document_id: srcdoc_a91ba72b764a9cccc4a5fde4c9c12acf
+- source_revision_id: srcrev_2431662a7c041d63911086c47ce32def
+- summary: <@U082UKSD3BR> when you are back, please look into the feasibility of setting a Minimum Base Fee for Story Geth. Many chains and L2s have one (Base, Polygon, Celo, Mantle...), shou...
+
+## [2026-06-26T16:49:04Z] ingest | Slack thread C0ALN0C856U 1774478741.757719
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774478741-757719-1b5848ba
+- wiki_revision_id: wikirev_ff1fd7a859a7605491489b9aeccee583
+- source_document_id: srcdoc_a9e7633de549352c8306554c1b5848ba
+- source_revision_id: srcrev_383f1516ab2c2f6e8af3b2dbcb4dd8a7
+- summary: <@U0AMLSRK16X> create a comprehensive test suit based on test plan: <https://www.notion.so/storyprotocol/Subnet-Test-Design-Plan-31e051299a548003ad3ff968d81b70eb?source=copy_link>
+
+## [2026-06-26T16:49:05Z] ingest | Slack thread C0ALN0C856U 1782008089.185809
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782008089-185809-7dd88474
+- wiki_revision_id: wikirev_2c812a790548b1c65b1572630871566b
+- source_document_id: srcdoc_b7d05b56ffc5c5c2dfe32ac77dd88474
+- source_revision_id: srcrev_af1a6c977e8395c649003410f1699621
+- summary: gonna blocking both the sender and contract:
+
+## [2026-06-26T16:49:05Z] ingest | Slack thread C0ALN0C856U 1777622074.547589
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1777622074-547589-03b2eeae
+- wiki_revision_id: wikirev_f1bd2cea09a78814c2b2efb32bfe75d7
+- source_document_id: srcdoc_bea91b863a19fefa4e95d19c03b2eeae
+- source_revision_id: srcrev_27fd6477140b3a54979de1cd1b5a2073
+- summary: <@U07TNT9N4JC> PRD and initial repo for bug bounty triager agent
+
+## [2026-06-26T16:49:05Z] ingest | Slack thread C0ALN0C856U 1782258080.364889
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782258080-364889-f3bcef55
+- wiki_revision_id: wikirev_0e2280e003132644edcbc5031df84bd7
+- source_document_id: srcdoc_bf726fd7163e0c904ff828a8f3bcef55
+- source_revision_id: srcrev_1c23bf75d5680621a6f6497d4eb83ce7
+- summary: Hi <@U04VDFP1YQ5> <@U07KLPN0JN6> a quick rebrand status sync, details <https://www.notion.so/storyprotocol/Rebrand-Change-Tracker-37b051299a5481769d45e690d26a0278?source=copy_link|...
+
+## [2026-06-26T16:49:06Z] ingest | Slack thread C0ALN0C856U 1780429592.560769
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780429592-560769-4dd85de5
+- wiki_revision_id: wikirev_48cc8c4239b37d33133914f000a55e8d
+- source_document_id: srcdoc_c4670697f39373b013e5e1ed4dd85de5
+- source_revision_id: srcrev_ce6c71c70c8b0c7962640c38906f234d
+- summary: Hey team, I won't be able to attend today lion team sync, will post an async update. thanks. <@U04VDFP1YQ5>
+
+## [2026-06-26T16:49:06Z] ingest | Slack thread C0ALN0C856U 1778808372.081409
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1778808372-081409-99dde7c7
+- wiki_revision_id: wikirev_e3813bc846e748962e1b41bdff8d6eb9
+- source_document_id: srcdoc_c88b509625669d33703d71c899dde7c7
+- source_revision_id: srcrev_ef4d1d39fcea4317556b1eb8d77ff533
+- summary: <@U07TNT9N4JC> first agentic task, bug bounty <https://github.com/piplabs/lion-team-sync/issues/806>
+
+## [2026-06-26T16:49:06Z] ingest | Slack thread C0ALN0C856U 1782006510.982789
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1782006510-982789-796f5b8e
+- wiki_revision_id: wikirev_cfab959a4238a3664cbd9c07cf0277e7
+- source_document_id: srcdoc_caefd3716d27d141a9d0309b796f5b8e
+- source_revision_id: srcrev_575463fdb49c4097de4f94735e9f9513
+- summary: the attacker can easily deploy another contract, right?
+
+## [2026-06-26T16:49:07Z] ingest | Slack thread C0ALN0C856U 1779761358.016059
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1779761358-016059-45bb748d
+- wiki_revision_id: wikirev_d8c95eca4131cff8fd0501c1f0580fad
+- source_document_id: srcdoc_cbbef8dce836b33b72cbfcf045bb748d
+- source_revision_id: srcrev_6f0e2b1c9f23aede9d7a22a831a8ded1
+- summary: <@U04VDFP1YQ5> the staking API is not working anymore no validators are showing
+
+## [2026-06-26T16:49:07Z] ingest | Slack thread C0ALN0C856U 1781749650.288319
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781749650-288319-82724703
+- wiki_revision_id: wikirev_580363a32c076223856b96d43e083bc2
+- source_document_id: srcdoc_cd92da628049c955a389e18282724703
+- source_revision_id: srcrev_ac7450b7dbc33f51aea166db9032b81c
+- summary: <!here> please make sure to request time off with enough heads up time, ideally at least a week/5 days.
+
+## [2026-06-26T16:49:08Z] ingest | Slack thread C0ALN0C856U 1781659400.157349
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781659400-157349-e38d06d0
+- wiki_revision_id: wikirev_ac564db5ae72b7bd7a5c51b303d33e4d
+- source_document_id: srcdoc_db1143122d889564374bd558e38d06d0
+- source_revision_id: srcrev_88393ad96087545aac97a2058078d6ab
+- summary: <@U0A7JJMU5T2> here is the Android testing tool I mentioned (monkey test)
+
+## [2026-06-26T16:49:08Z] ingest | Slack thread C0ALN0C856U 1774553402.631749
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774553402-631749-f5481679
+- wiki_revision_id: wikirev_5b0b643754bdb310abbeef78209458d6
+- source_document_id: srcdoc_db74e19bebdd651bbf648c9af5481679
+- source_revision_id: srcrev_c1b9deb5399b7bc1456f422e546f60b0
+- summary: say hi to <@U0ANHPXBBDM> everyone
+
+## [2026-06-26T16:49:09Z] ingest | Slack thread C0ALN0C856U 1781657870.201619
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781657870-201619-4286ab4b
+- wiki_revision_id: wikirev_23624f29e30a35bbd29406fcd32e561b
+- source_document_id: srcdoc_e0f238ff7762b2a48e60eabc4286ab4b
+- source_revision_id: srcrev_2e3d4a674aa8575d03c7d88d8ea002f7
+- summary: <@U0A7ZQXB160> here is the repo I was talking about. We commissioned a fuzzying campaign when launching the L1 so it may be a bit outdated.
+
+## [2026-06-26T16:49:09Z] ingest | Slack thread C0ALN0C856U 1774553386.473719
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774553386-473719-18a405ce
+- wiki_revision_id: wikirev_2a84b9d9f37cc607c5ff18f57a9dd622
+- source_document_id: srcdoc_e5c2906707b5e2cec6f8e7dc18a405ce
+- source_revision_id: srcrev_a7e3dc4d87177c65b8e99e507f018c2d
+- summary: <@U0ANHPXBBDM> im alive
+
+## [2026-06-26T16:49:09Z] ingest | Slack thread C0ALN0C856U 1780358512.113399
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1780358512-113399-04dc39cf
+- wiki_revision_id: wikirev_165ae8e79b642608069113916d2c5d82
+- source_document_id: srcdoc_e9ebda996043593f022bc13504dc39cf
+- source_revision_id: srcrev_76f281a4978f1e4f13aaa2c336535143
+- summary: For tomorrow's validator reduction, We might need to check the peer list of our nodes to see if they have way of connection to other nodes (their peer list) considering a big porti...
+
+## [2026-06-26T16:49:10Z] ingest | Slack thread C0ALN0C856U 1773963105.696779
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1773963105-696779-2ca9d4ff
+- wiki_revision_id: wikirev_06724c117970ecd388249fff50bef695
+- source_document_id: srcdoc_f46e8c0d2d173c1b9574d3db2ca9d4ff
+- source_revision_id: srcrev_20cb040e2bbd2e485f89e8ccb4701494
+- summary: <https://github.com/piplabs/story-orchestration-service/pull/689/changes> trying to create this bot that handles the story orchestration service pipelines like the following since ...
+
+## [2026-06-26T16:49:10Z] ingest | Slack thread C0ALN0C856U 1781783901.776369
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1781783901-776369-0384912d
+- wiki_revision_id: wikirev_0e49ff1dbcae1f32f625127ae9a9b983
+- source_document_id: srcdoc_f6b4359bcd30eec0e2a8f0e50384912d
+- source_revision_id: srcrev_180b878e7fc2bc6e114ac718432100fd
+- summary: Hi team, something about Logo rebrand need to discuss, could someone have any ideas? cc <@U04VDFP1YQ5> <@U07KLPN0JN6>
+
+## [2026-06-26T16:49:11Z] ingest | Slack thread C0ALN0C856U 1775053730.108089
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1775053730-108089-40862c07
+- wiki_revision_id: wikirev_87566dec70c4da7e5fbc6fc241704905
+- source_document_id: srcdoc_fa28d88379592df1e7783a3140862c07
+- source_revision_id: srcrev_7e6d485db391f5c1b116e6db4525e15d
+- summary: Hi <@U07A7AUGL5V> The repo <https://github.com/piplabs/cdr-sdk|piplabs/cdr-sdk> cannot be linked to the <https://github.com/orgs/piplabs/projects/4|Lion Team Sync> project. Not sur...
+
+## [2026-06-26T16:49:11Z] ingest | Slack thread C0ALN0C856U 1774926233.554889
+
+- status: published
+- slug: slack_message/slack-thread-c0aln0c856u-1774926233-554889-15a43ca5
+- wiki_revision_id: wikirev_a8cbc14b37396156192b25457c3b13bb
+- source_document_id: srcdoc_fcbce0181ef31a0ed108403815a43ca5
+- source_revision_id: srcrev_c8ee3fc911e4b9bdbf7674e55de1284a
+- summary: <@U08951K4SRY> Probably put it in <#C08D5T67BUM>
+
