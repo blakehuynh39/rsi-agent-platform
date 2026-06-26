@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e2b4245bc8198623b0d57bc1cb000b9007aaa3b0f4f8453754e1f270c17a9850",
-        "size": 1196168
+        "sha256": "8de6c1e9274bbe459ab22f9910eb4b94254013d10a25bad5862a5c479602793f",
+        "size": 1196472
       },
       {
         "path": "log.md",
-        "sha256": "e16c309eed1d316bdb950483f2513ce488d9fb769169ab672ac23f2212082cee",
-        "size": 2021428
+        "sha256": "85fc06fe8c29f42a28176c8fd4643f4af83b9a96315e990138d3df95c5053780",
+        "size": 2022097
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8101,8 +8101,8 @@
       },
       {
         "path": "pages/projects/story-api.md",
-        "sha256": "c7d44d47b7f08c7ff62b844be96f8ec2ac36f92e8b0458169677215ee0e375ba",
-        "size": 11606
+        "sha256": "3be4147700dc1409c0b94bd85f84ea00d8d6bad5dcc8652abb0361346c5549bc",
+        "size": 12392
       },
       {
         "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -9073,6 +9073,11 @@
         "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
         "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
         "size": 4162
+      },
+      {
+        "path": "pages/runbooks/payout-testing-status-june-2026.md",
+        "sha256": "2b960f674ddc647a718c5c7bf1cc91cce980f3e1a4243d16efce0826cfb8e8f4",
+        "size": 4813
       },
       {
         "path": "pages/runbooks/periphery-code-freeze-checklist.md",
@@ -10669,8 +10674,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T22:23:25Z",
-  "file_count": 2132,
+  "exported_at": "2026-06-26T22:35:15Z",
+  "file_count": 2133,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13947,7 +13952,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "e76f256f82d921529dd5092bf9c20a8cfd741a4889b8a9ff45e7417ce05074b7",
+  "previous_tree_hash": "c316d0b252b91487c2b89e8880f3a04351fb2e131b3a5a5c9b234a99592e7f42",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13960,14 +13965,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c316d0b252b91487c2b89e8880f3a04351fb2e131b3a5a5c9b234a99592e7f42",
+  "tree_hash": "ca37b61c96b9e1fe8871954bafd87612795f8e2c5fb43e412674243778db8b4c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1478,
+  "wiki_file_count": 1479,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13976,13 +13981,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e2b4245bc8198623b0d57bc1cb000b9007aaa3b0f4f8453754e1f270c17a9850",
-      "size": 1196168
+      "sha256": "8de6c1e9274bbe459ab22f9910eb4b94254013d10a25bad5862a5c479602793f",
+      "size": 1196472
     },
     {
       "path": "log.md",
-      "sha256": "e16c309eed1d316bdb950483f2513ce488d9fb769169ab672ac23f2212082cee",
-      "size": 2021428
+      "sha256": "85fc06fe8c29f42a28176c8fd4643f4af83b9a96315e990138d3df95c5053780",
+      "size": 2022097
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18796,8 +18801,8 @@
     },
     {
       "path": "pages/projects/story-api.md",
-      "sha256": "c7d44d47b7f08c7ff62b844be96f8ec2ac36f92e8b0458169677215ee0e375ba",
-      "size": 11606
+      "sha256": "3be4147700dc1409c0b94bd85f84ea00d8d6bad5dcc8652abb0361346c5549bc",
+      "size": 12392
     },
     {
       "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -19768,6 +19773,11 @@
       "path": "pages/runbooks/payout-obligations-table-fix-2026-06-17.md",
       "sha256": "0814cc9506ce46a3003e8dfb41eb01d49e4fd8fe75035474a5c56b4fba3574e8",
       "size": 4162
+    },
+    {
+      "path": "pages/runbooks/payout-testing-status-june-2026.md",
+      "sha256": "2b960f674ddc647a718c5c7bf1cc91cce980f3e1a4243d16efce0826cfb8e8f4",
+      "size": 4813
     },
     {
       "path": "pages/runbooks/periphery-code-freeze-checklist.md",
@@ -21361,5 +21371,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "fa3a44a46d37ab738bab72c968a745bc9326d3aae7d6e7e6be431dbb04b44371"
+  "wiki_tree_hash": "f48aa851507d7caf49982189dda81f1aedc5e519107ac319d1ed3711bc0d991c"
 }

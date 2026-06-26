@@ -40795,3 +40795,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5cc172f048cc50374da6a1bbaa62aa96
 - summary: story-api is an internal service that has experienced periodic 500 errors, spike protection events, and database issues.
 
+## [2026-06-26T22:32:10Z] synthesis | story-api
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_3d42e152e80b303ffdf7bd5f09f22637
+- summary: Monitoring and incident log for the story-api project, capturing spike protection events, 500 error patterns, and database issues.
+
+## [2026-06-26T22:33:51Z] synthesis | International Payout Testing Status (June 2026)
+
+- status: published
+- slug: runbooks/payout-testing-status-june-2026
+- wiki_revision_id: wikirev_7e479a764d06f26587994cd2eb0b19fc
+- summary: Status of payout testing across multiple countries as of mid-June 2026, covering Vietnam, Indonesia, Philippines, Malaysia, and Bangladesh.
+
