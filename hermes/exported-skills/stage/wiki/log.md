@@ -39946,3 +39946,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - source_revision_id: srcrev_d5b0dc43b014f365e23d60222bcccc3a
 - summary: Hey team! Opening this channel up to keep alignment tight on the Miso partnership rollout. If it's best to open this up to all team or to add other team members to this private cha...
 
+## [2026-06-26T06:45:57Z] synthesis | Numo Admin Access
+
+- status: published
+- slug: systems/numo-admin-access
+- wiki_revision_id: wikirev_00581c4e146dae784e60ffb80a6b623a
+- summary: Information about accessing the Numo admin panel, including the URL (https://admin.numolabs.ai/) and the fact that it is not yet deployed as of 2026-06-16.
+
