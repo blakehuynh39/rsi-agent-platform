@@ -39888,3 +39888,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_44bcc32de44ce277d80f0c00839732f0
 - summary: Decision to temporarily disable Cloudflare proxy for aeneid.portal.story.foundation to resolve SSL cipher mismatch caused by multi-level subdomain wildcard certificate limitation. ...
 
+## [2026-06-26T01:34:23Z] synthesis | SSL Issue for Multi-Level Subdomain with Cloudflare Proxy
+
+- status: published
+- slug: decisions/ssl-subdomain-cloudflare-proxy
+- wiki_revision_id: wikirev_7d94e89d7688d8f13ade610d72cfb776
+- summary: Decision to temporarily remove Cloudflare proxy for aeneid.portal.story.foundation to resolve SSL cipher mismatch, with plan to later migrate to a single-level subdomain to regain ...
+
