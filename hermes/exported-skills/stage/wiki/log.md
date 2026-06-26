@@ -40560,3 +40560,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_13c84c487a9560c7ac30cf1ac0fe16e5
 - summary: The Story API encountered an error due to an invalid twitter_handle field, which was resolved by Blake Huynh.
 
+## [2026-06-26T17:34:55Z] synthesis | Story-API Incident Log
+
+- status: published
+- slug: runbooks/story-api-incidents
+- wiki_revision_id: wikirev_218d4974e275e63a2a81dc2bef8c7a0f
+- summary: Collection of story-api error events and spike protection activations/deactivations observed in Slack channel.
+
