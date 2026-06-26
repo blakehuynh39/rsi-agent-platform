@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6c6207616b738c71f17ae04cababe4d0725c98696e3f4da5f28120e380d8f78e",
-        "size": 1194254
+        "sha256": "6825d9380ec72f4ae4038ad67be1ffefd0be937cea000333e2476caaafe13307",
+        "size": 1194505
       },
       {
         "path": "log.md",
-        "sha256": "64651aed6281708723b6ad5416aa33697af152e614c9462469ae1b60ba68085d",
-        "size": 2016879
+        "sha256": "1d51c11bc09d4605e7c3bfa10e6d272a61474cbffaaf23a7b5d967796aace2d8",
+        "size": 2017452
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8085,9 +8085,14 @@
         "size": 7869
       },
       {
+        "path": "pages/projects/story-api-incidents.md",
+        "sha256": "771570fbc2df6064b8af971aeab4f36901d6f8b71149bbd538f331bcaf46a1ae",
+        "size": 12002
+      },
+      {
         "path": "pages/projects/story-api.md",
-        "sha256": "2876576b11e26a8796489ec7c071c9f32a76475ed610bed95f319cd8b02596e3",
-        "size": 10880
+        "sha256": "c6fe338762a9a173fac746f6cbf3f6745d31e6f8d97d4818be6fbbf87a8910e1",
+        "size": 10713
       },
       {
         "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -10639,8 +10644,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T19:57:42Z",
-  "file_count": 2126,
+  "exported_at": "2026-06-26T20:19:43Z",
+  "file_count": 2127,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13917,7 +13922,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "82682cc49e8cd89010330c5ae2bcebaafbbc4ac2fe5686e1da5732f5bfa67543",
+  "previous_tree_hash": "02f0a89f23b99b43eea5a93e8d5416e8b011f1a1c136af1d0db4b0a1f177de6d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13930,14 +13935,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "02f0a89f23b99b43eea5a93e8d5416e8b011f1a1c136af1d0db4b0a1f177de6d",
+  "tree_hash": "68d691cec79ada8638b95e9c9ff5d4d70ec3f8197c9e560d639e3b0a7b966cd5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1472,
+  "wiki_file_count": 1473,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13946,13 +13951,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6c6207616b738c71f17ae04cababe4d0725c98696e3f4da5f28120e380d8f78e",
-      "size": 1194254
+      "sha256": "6825d9380ec72f4ae4038ad67be1ffefd0be937cea000333e2476caaafe13307",
+      "size": 1194505
     },
     {
       "path": "log.md",
-      "sha256": "64651aed6281708723b6ad5416aa33697af152e614c9462469ae1b60ba68085d",
-      "size": 2016879
+      "sha256": "1d51c11bc09d4605e7c3bfa10e6d272a61474cbffaaf23a7b5d967796aace2d8",
+      "size": 2017452
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -18750,9 +18755,14 @@
       "size": 7869
     },
     {
+      "path": "pages/projects/story-api-incidents.md",
+      "sha256": "771570fbc2df6064b8af971aeab4f36901d6f8b71149bbd538f331bcaf46a1ae",
+      "size": 12002
+    },
+    {
       "path": "pages/projects/story-api.md",
-      "sha256": "2876576b11e26a8796489ec7c071c9f32a76475ed610bed95f319cd8b02596e3",
-      "size": 10880
+      "sha256": "c6fe338762a9a173fac746f6cbf3f6745d31e6f8d97d4818be6fbbf87a8910e1",
+      "size": 10713
     },
     {
       "path": "pages/projects/story-chain-chainlist-listing.md",
@@ -21301,5 +21311,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "11b0f1f5c25e75d023a6b0e79ce1ac1451d100624382ea276c8f2a32fbd79de3"
+  "wiki_tree_hash": "5d13293a19af11f878b0e5ab4d1b72a96a47ad50ea9e63d554d80c0ce06faac0"
 }
