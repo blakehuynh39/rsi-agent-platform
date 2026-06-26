@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "e0dbcbbc4a6fd4bb04172d1009031216d502d782a0c637d6885cef93213441d3",
-        "size": 1196995
+        "sha256": "c82df88c872b27817d65efe3fcafa5e275a1741c5cc20d4858d8b4b43e0d4f30",
+        "size": 1197830
       },
       {
         "path": "log.md",
-        "sha256": "477a19fe50b57c03047a7378914b848a6bf50cac077701ec5dabea0f3038842d",
-        "size": 2024239
+        "sha256": "fb2639feeb8852e8ef3726c0b563baa844ad921995585a35ce922d17e7dfafbf",
+        "size": 2025098
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9310,6 +9310,11 @@
         "size": 2304
       },
       {
+        "path": "pages/runbooks/story-api-dynamodb-access-denied-incident.md",
+        "sha256": "f9fe6f86bf4ccd6f610c1d3dd7b1d09eb653e23de2fad6832965f76a164470eb",
+        "size": 1916
+      },
+      {
         "path": "pages/runbooks/story-api-error-log.md",
         "sha256": "686c83ac4177e745b29d71af37fc6ace3ef5eadc85ac2fd99b61a02f079b212c",
         "size": 11772
@@ -10465,6 +10470,11 @@
         "size": 1790
       },
       {
+        "path": "pages/systems/story-api-eg-sqs-queue-error.md",
+        "sha256": "636622e1aba76b445daa6991569146ac0c7bd536c6297704a715f66721470e80",
+        "size": 1696
+      },
+      {
         "path": "pages/systems/story-api-eh-data-audit-failure.md",
         "sha256": "9c06062f6f05aad9aaa727d622801edf2c0c6ec62f92a9dda3e67fa7f743c205",
         "size": 2056
@@ -10679,8 +10689,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T23:37:48Z",
-  "file_count": 2134,
+  "exported_at": "2026-06-26T23:49:39Z",
+  "file_count": 2136,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13957,7 +13967,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "fb57ef255fe184cb53548f8887c7bc74b9a8a674ba8ed5db3881a60fee918e64",
+  "previous_tree_hash": "bd20d985ee40a060bd0d671374f401ab686ca41a50acdd95f186852b30ca11a6",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13970,14 +13980,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bd20d985ee40a060bd0d671374f401ab686ca41a50acdd95f186852b30ca11a6",
+  "tree_hash": "a979656944790b4bc7ff12d930485f24a8448a2d08ac5fe96228146035f27a25",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1480,
+  "wiki_file_count": 1482,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13986,13 +13996,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "e0dbcbbc4a6fd4bb04172d1009031216d502d782a0c637d6885cef93213441d3",
-      "size": 1196995
+      "sha256": "c82df88c872b27817d65efe3fcafa5e275a1741c5cc20d4858d8b4b43e0d4f30",
+      "size": 1197830
     },
     {
       "path": "log.md",
-      "sha256": "477a19fe50b57c03047a7378914b848a6bf50cac077701ec5dabea0f3038842d",
-      "size": 2024239
+      "sha256": "fb2639feeb8852e8ef3726c0b563baa844ad921995585a35ce922d17e7dfafbf",
+      "size": 2025098
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20015,6 +20025,11 @@
       "size": 2304
     },
     {
+      "path": "pages/runbooks/story-api-dynamodb-access-denied-incident.md",
+      "sha256": "f9fe6f86bf4ccd6f610c1d3dd7b1d09eb653e23de2fad6832965f76a164470eb",
+      "size": 1916
+    },
+    {
       "path": "pages/runbooks/story-api-error-log.md",
       "sha256": "686c83ac4177e745b29d71af37fc6ace3ef5eadc85ac2fd99b61a02f079b212c",
       "size": 11772
@@ -21170,6 +21185,11 @@
       "size": 1790
     },
     {
+      "path": "pages/systems/story-api-eg-sqs-queue-error.md",
+      "sha256": "636622e1aba76b445daa6991569146ac0c7bd536c6297704a715f66721470e80",
+      "size": 1696
+    },
+    {
       "path": "pages/systems/story-api-eh-data-audit-failure.md",
       "sha256": "9c06062f6f05aad9aaa727d622801edf2c0c6ec62f92a9dda3e67fa7f743c205",
       "size": 2056
@@ -21381,5 +21401,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "510c2fa912101f3dd402aeea23087e7d2dde69fd6d44af2b80bc5efda1ddb9c0"
+  "wiki_tree_hash": "ef268cad1fbba6b81aaa0d5d00ed4436f47e5b7bf128947b1453088739b14d3a"
 }

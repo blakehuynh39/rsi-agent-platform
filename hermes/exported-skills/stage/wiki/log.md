@@ -40851,3 +40851,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3848897b827d6baaef1d3e9963de9670
 - summary: The Story API endpoint /api/v1/data-audit/scoped-groups returned a 500 error due to an AccessDeniedException when calling DynamoDB PutItem. The issue was resolved by Blake Huynh in...
 
+## [2026-06-26T23:46:19Z] synthesis | STORY-API-EG: SQS Queue Non-Existent Error
+
+- status: published
+- slug: systems/story-api-eg-sqs-queue-error
+- wiki_revision_id: wikirev_7d5c3b334d1c9a33037066f5a1451718
+- summary: The story-api encountered an HTTP 503 error when calling POST /api/v1/data-audit/scoped-groups due to a non-existent SQS queue. The issue was tracked as STORY-API-EG and resolved b...
+
+## [2026-06-26T23:46:34Z] synthesis | Story-API DynamoDB AccessDeniedException on POST /webhook/v1/data-audit/records
+
+- status: published
+- slug: runbooks/story-api-dynamodb-access-denied-incident
+- wiki_revision_id: wikirev_8ecf60e2a7cfb0ee74e9082914c55b64
+- summary: The Story-API experienced a 500 error on endpoint POST /webhook/v1/data-audit/records due to an AccessDeniedException when calling DynamoDB BatchGetItem. The issue was resolved by ...
+
