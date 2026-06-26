@@ -40581,3 +40581,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_96f45663e0470499682f5b4335cbe37e
 - summary: The Story API service has encountered multiple 500 errors, database authentication failures, constraint violations, and spike protection activations. Root cause investigations are ...
 
+## [2026-06-26T18:03:18Z] synthesis | story-api Error Log
+
+- status: published
+- slug: runbooks/story-api-error-log
+- wiki_revision_id: wikirev_e56fb9c6cdc3e347e1522b06a3ed3e5b
+- summary: Log of errors and spike protection events for the story-api service, as reported in the monitoring Slack channel #C07K3J4JTH6.
+
