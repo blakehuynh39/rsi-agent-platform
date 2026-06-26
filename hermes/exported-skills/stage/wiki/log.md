@@ -40781,3 +40781,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_a92b08812d66f3c5af693935174bc037
 - summary: The Story API project provides story-related services. As of latest logs, it has experienced intermittent outages, repeated spike protection activations, and various backend errors...
 
+## [2026-06-26T22:18:24Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_ef6049151f187f77d5f58c4a6fea912a
+- summary: Story API handles stories, assets, licenses, transactions, disputes, collections, user notifications, and search. It has experienced multiple 500 errors related to database connect...
+
+## [2026-06-26T22:20:03Z] synthesis | story-api Service
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_5cc172f048cc50374da6a1bbaa62aa96
+- summary: story-api is an internal service that has experienced periodic 500 errors, spike protection events, and database issues.
+
