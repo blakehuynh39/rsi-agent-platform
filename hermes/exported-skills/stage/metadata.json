@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "43d155d0aeec53e5a584d5cbd17b2e8c1e416c5e2ebe40b5e47acf03d2b11717",
-        "size": 1975788
+        "sha256": "60ac773187ab1616584969a792d1bdc0c34c701fcec44f60e86591908a28653b",
+        "size": 1976201
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5628,6 +5628,11 @@
         "path": "pages/decisions/ssl-issue-aeneid-portal-resolution.md",
         "sha256": "03ce9a10fede2773461e2b425e195a9f22c13553272951e84ace2f4e8febbd01",
         "size": 5292
+      },
+      {
+        "path": "pages/decisions/ssl-resolution-aeneid-portal.md",
+        "sha256": "0214617f95a179c95b93165351b0808c6aaf4e5b48dd0485b871ff5829051d3d",
+        "size": 8670
       },
       {
         "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
@@ -10549,8 +10554,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T01:20:15Z",
-  "file_count": 2108,
+  "exported_at": "2026-06-26T01:32:04Z",
+  "file_count": 2109,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13827,7 +13832,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a2ffd5b76e0fd37c79917718903b7169771093cef957ea2cbd4d735fb41befa1",
+  "previous_tree_hash": "41625c1638b1689e1296c8733ede8db8aa3d00a1132090f57b389974c7de5976",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13840,14 +13845,14 @@
   ],
   "skill_tree_hash": "8d16f9b1329b619f1fbf0b272bd3767bfd4f23355244e02d28ad186dba6241c3",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "41625c1638b1689e1296c8733ede8db8aa3d00a1132090f57b389974c7de5976",
+  "tree_hash": "4e06d4e23df297a30d0a0b6e2c1d0aacfcd16b89f03183714a09d41bb707910a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1454,
+  "wiki_file_count": 1455,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13861,8 +13866,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "43d155d0aeec53e5a584d5cbd17b2e8c1e416c5e2ebe40b5e47acf03d2b11717",
-      "size": 1975788
+      "sha256": "60ac773187ab1616584969a792d1bdc0c34c701fcec44f60e86591908a28653b",
+      "size": 1976201
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16203,6 +16208,11 @@
       "path": "pages/decisions/ssl-issue-aeneid-portal-resolution.md",
       "sha256": "03ce9a10fede2773461e2b425e195a9f22c13553272951e84ace2f4e8febbd01",
       "size": 5292
+    },
+    {
+      "path": "pages/decisions/ssl-resolution-aeneid-portal.md",
+      "sha256": "0214617f95a179c95b93165351b0808c6aaf4e5b48dd0485b871ff5829051d3d",
+      "size": 8670
     },
     {
       "path": "pages/decisions/stop-self-hosted-blockscout-explorers.md",
@@ -21121,5 +21131,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d6c7f16e6d01a672bf9bd791737b045ecf4b9ea8629f20ab3d3d4dc8f4e41b7d"
+  "wiki_tree_hash": "166033df45d3c7b66c22a2cc94882a2e10d33d2fd511845dc42cf7c5305d5c17"
 }
