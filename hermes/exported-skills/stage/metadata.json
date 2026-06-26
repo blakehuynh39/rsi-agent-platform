@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "53ce4108f9578cef4bac99555418945e55e529ab17d8b0e0c2f54badf2414e0b",
-        "size": 1191228
+        "sha256": "1780ddfe5f75dcf457b6d7a1c371db25c32dace4dad6666fbcc7da8896d5e641",
+        "size": 1191594
       },
       {
         "path": "log.md",
-        "sha256": "a497ee907d9e65ce5e6095574b0718aca56a48175e28e076cc18d4f9ada36663",
-        "size": 2009194
+        "sha256": "9385f4347d7294e02cae0234ad0e48126b7d4fd68404174f7c4308cc13b394ef",
+        "size": 2009856
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10405,6 +10405,11 @@
         "size": 2056
       },
       {
+        "path": "pages/systems/story-api-incident-log.md",
+        "sha256": "df530ee57ace9b328978a062f36069adba4103ad526b715137ef3c429908a60a",
+        "size": 11166
+      },
+      {
         "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
         "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
         "size": 3534
@@ -10421,8 +10426,8 @@
       },
       {
         "path": "pages/systems/story-api.md",
-        "sha256": "ff410581e59afbdc5c1a356b64bb4b1769f4ee78fc455a8157109c079813eaf0",
-        "size": 11621
+        "sha256": "c619b8196955c6c8a6585443058c4c67400325517d4529e46760a149ff0ebbee",
+        "size": 10825
       },
       {
         "path": "pages/systems/story-mainnet-rpc.md",
@@ -10604,8 +10609,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T16:51:25Z",
-  "file_count": 2119,
+  "exported_at": "2026-06-26T17:08:26Z",
+  "file_count": 2120,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13882,7 +13887,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f95697aa63c190d72416dc095c59a625864f1a6edc7282e0e0c120948dd4cf8d",
+  "previous_tree_hash": "25765df449633e3a503ab2113b1a42a155a5fe1f9cc3a7cd153ab8a817e3cf35",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13895,14 +13900,14 @@
   ],
   "skill_tree_hash": "8b1c3ed5bfd2c57358bb6274386b773fbe47ee95589432afc76d6f3a97ef8068",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "25765df449633e3a503ab2113b1a42a155a5fe1f9cc3a7cd153ab8a817e3cf35",
+  "tree_hash": "e939dbab785a3059a450ee42b3dfa82984f77c14c6a7eaee3e3bf229f4ec6c5f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1465,
+  "wiki_file_count": 1466,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13911,13 +13916,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "53ce4108f9578cef4bac99555418945e55e529ab17d8b0e0c2f54badf2414e0b",
-      "size": 1191228
+      "sha256": "1780ddfe5f75dcf457b6d7a1c371db25c32dace4dad6666fbcc7da8896d5e641",
+      "size": 1191594
     },
     {
       "path": "log.md",
-      "sha256": "a497ee907d9e65ce5e6095574b0718aca56a48175e28e076cc18d4f9ada36663",
-      "size": 2009194
+      "sha256": "9385f4347d7294e02cae0234ad0e48126b7d4fd68404174f7c4308cc13b394ef",
+      "size": 2009856
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21035,6 +21040,11 @@
       "size": 2056
     },
     {
+      "path": "pages/systems/story-api-incident-log.md",
+      "sha256": "df530ee57ace9b328978a062f36069adba4103ad526b715137ef3c429908a60a",
+      "size": 11166
+    },
+    {
       "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
       "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
       "size": 3534
@@ -21051,8 +21061,8 @@
     },
     {
       "path": "pages/systems/story-api.md",
-      "sha256": "ff410581e59afbdc5c1a356b64bb4b1769f4ee78fc455a8157109c079813eaf0",
-      "size": 11621
+      "sha256": "c619b8196955c6c8a6585443058c4c67400325517d4529e46760a149ff0ebbee",
+      "size": 10825
     },
     {
       "path": "pages/systems/story-mainnet-rpc.md",
@@ -21231,5 +21241,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "9f77b0d7a9792c1d5999a79d68e9792e9f127e41ae4b15f6d4e30a3e9bfe502d"
+  "wiki_tree_hash": "658d1780f9043f2972107bd7549b6c7ea67d6a6e5ea25e03f713b9b2e1336fc5"
 }
