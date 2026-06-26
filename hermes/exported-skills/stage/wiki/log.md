@@ -39832,3 +39832,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_dace0a3b35766e82c2dbc738c79b3d94
 - summary: Guide for accessing AWS servers including aeneid and mainnet. Hosted on Notion. Account and instance info were added for easier access. Internal devnet server info is not included ...
 
+## [2026-06-26T00:01:48Z] synthesis | AWS Server Access Guide
+
+- status: published
+- slug: runbooks/aws-server-access-guide
+- wiki_revision_id: wikirev_529ab8b0249cc065a619072e32f7ef64
+- summary: Instructions for accessing Aeneid, mainnet, and devnet servers in AWS.
+
