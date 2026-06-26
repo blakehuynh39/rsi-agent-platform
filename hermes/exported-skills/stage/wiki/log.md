@@ -39953,3 +39953,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_00581c4e146dae784e60ffb80a6b623a
 - summary: Information about accessing the Numo admin panel, including the URL (https://admin.numolabs.ai/) and the fact that it is not yet deployed as of 2026-06-16.
 
+## [2026-06-26T08:01:52Z] synthesis | FINDING NUMO
+
+- status: published
+- slug: projects/finding-numo
+- wiki_revision_id: wikirev_ffd530d9c7c3cded8b3c2162b1893233
+- summary: A concept or project about finding real data amidst a haystack of nonsense deepfakes.
+

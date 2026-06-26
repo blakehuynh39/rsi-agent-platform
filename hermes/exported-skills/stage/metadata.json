@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "2b703afb9aeaf7539ae49b46adbceedc46a6244e80c5ce7b51c5236ca038bd9d",
-        "size": 1170209
+        "sha256": "44cf227ab6deb034ed77433c456e16a5b2a3cacfe593abf094ef21ba4eab9d31",
+        "size": 1170111
       },
       {
         "path": "log.md",
-        "sha256": "9f5142f69720612f7b40fc7db3f59affbe57e0c6e41f02aef04b37952869de24",
-        "size": 1979188
+        "sha256": "9bd50693931aeefc75d6adab9686a3719e7d1eac21fae0828c76282063a00845",
+        "size": 1979449
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -7041,8 +7041,8 @@
       },
       {
         "path": "pages/projects/finding-numo.md",
-        "sha256": "80cfaec4920700077f71f28b928e160be5adb82900c7e306c09a48f3bfcac000",
-        "size": 1778
+        "sha256": "06b331f4b6c4a7f2f6faacb6defded72ff7fb6a2cc7a6e1551ff5ad5dde361a2",
+        "size": 2879
       },
       {
         "path": "pages/projects/first-party-app.md",
@@ -10594,7 +10594,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T06:46:27Z",
+  "exported_at": "2026-06-26T08:04:30Z",
   "file_count": 2117,
   "files": [
     {
@@ -13872,7 +13872,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "aaffc90592de012a48d6fafc11faf41c3d8e4dd568ae37e168d4b1d4fa546ea2",
+  "previous_tree_hash": "f39bf8b547ec7abffcaec0a71baea120a22af5e4a95f16f21f30ba2aa5e47327",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13885,7 +13885,7 @@
   ],
   "skill_tree_hash": "f70f4366e2797d160dad6fc4c8d3b7ad5be433d257b40cf3ba04e7dd105dab8b",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f39bf8b547ec7abffcaec0a71baea120a22af5e4a95f16f21f30ba2aa5e47327",
+  "tree_hash": "84fb06a04aa00ee849d1e6cd60fcc4295e2159ec98c8bf2bde43ae75fc2a296b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -13901,13 +13901,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "2b703afb9aeaf7539ae49b46adbceedc46a6244e80c5ce7b51c5236ca038bd9d",
-      "size": 1170209
+      "sha256": "44cf227ab6deb034ed77433c456e16a5b2a3cacfe593abf094ef21ba4eab9d31",
+      "size": 1170111
     },
     {
       "path": "log.md",
-      "sha256": "9f5142f69720612f7b40fc7db3f59affbe57e0c6e41f02aef04b37952869de24",
-      "size": 1979188
+      "sha256": "9bd50693931aeefc75d6adab9686a3719e7d1eac21fae0828c76282063a00845",
+      "size": 1979449
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -17661,8 +17661,8 @@
     },
     {
       "path": "pages/projects/finding-numo.md",
-      "sha256": "80cfaec4920700077f71f28b928e160be5adb82900c7e306c09a48f3bfcac000",
-      "size": 1778
+      "sha256": "06b331f4b6c4a7f2f6faacb6defded72ff7fb6a2cc7a6e1551ff5ad5dde361a2",
+      "size": 2879
     },
     {
       "path": "pages/projects/first-party-app.md",
@@ -21211,5 +21211,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2dd9e58c426a58a6a40c0c4279e4a155e6bce4cf76ced7540287e49e20c6add8"
+  "wiki_tree_hash": "0b71a9263abd9cc99a4cde8cbe4b4a977dea269b7566cf9fb95840ee3d5eade6"
 }
