@@ -39960,3 +39960,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_ffd530d9c7c3cded8b3c2162b1893233
 - summary: A concept or project about finding real data amidst a haystack of nonsense deepfakes.
 
+## [2026-06-26T10:46:37Z] synthesis | QA Team
+
+- status: published
+- slug: concepts/qa-team
+- wiki_revision_id: wikirev_32d9eeab9a4864bd58005dc1a4448a53
+- summary: The QA team responsible for testing the Android app, consisting of Royce Zhao, Shen Wang, and Yao Wang.
+
