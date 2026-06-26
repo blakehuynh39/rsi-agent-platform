@@ -40809,3 +40809,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_7e479a764d06f26587994cd2eb0b19fc
 - summary: Status of payout testing across multiple countries as of mid-June 2026, covering Vietnam, Indonesia, Philippines, Malaysia, and Bangladesh.
 
+## [2026-06-26T22:47:10Z] synthesis | Story API Incidents
+
+- status: published
+- slug: runbooks/story-api-incidents
+- wiki_revision_id: wikirev_5b722d7ac3e4010c371c4e4b3ebe04cd
+- summary: Incident log for the story-api service, including spike protection activations/deactivations and various 500 errors observed from Slack channel C07K3J4JTH6.
+
+## [2026-06-26T22:49:41Z] synthesis | Story API Incidents
+
+- status: published
+- slug: runbooks/story-api-incidents
+- wiki_revision_id: wikirev_399b285bfd9e853efdce739754526c03
+- summary: Log of operational incidents for story-api reported in the #story-api Slack channel, including spike protection events and numerous HTTP 500 errors across multiple endpoints.
+
