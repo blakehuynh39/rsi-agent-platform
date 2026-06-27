@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "24e61e0b76a228d6949b8fa4a6d0dc6f72443d3478e9470ce843598f4f539346",
-        "size": 1198113
+        "sha256": "3b1dae8a80bbb3ad6e74bb4892509fc416d57fdd66ab7a5155fd0ec1016a0fa8",
+        "size": 1198918
       },
       {
         "path": "log.md",
-        "sha256": "0ed740eac58ae507e9f1766e3b24a273f1499cd8034875ad9ee92c06076e2a76",
-        "size": 2025393
+        "sha256": "472b3f1b2aadba22ad63b058ce73ce10356dfef667444686c75f658708c54ba2",
+        "size": 2026222
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4855,6 +4855,11 @@
         "size": 4656
       },
       {
+        "path": "pages/decisions/broadcaster-bootstrap-gate-override.md",
+        "sha256": "a47e24f69cc898b41ff4308e685d9c5288e462b0c36dcc59d28ff731248587ec",
+        "size": 2786
+      },
+      {
         "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
         "sha256": "919da96e8cb15c5c37f29f886d790da4e53d6872e793937ac7299ce48ac942da",
         "size": 2014
@@ -5668,6 +5673,11 @@
         "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
         "sha256": "eaac2ec89278121d98bba9342c6836bdfabaa9d0559f1205bd997fcc71e52cbe",
         "size": 1757
+      },
+      {
+        "path": "pages/decisions/story-api-broadcaster-skip-bootstrap-gate.md",
+        "sha256": "8997050e9446111815bb1a44470702e6b4856d35716cf915a78f4754c210a640",
+        "size": 1887
       },
       {
         "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
@@ -10694,8 +10704,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T00:01:30Z",
-  "file_count": 2137,
+  "exported_at": "2026-06-27T00:18:35Z",
+  "file_count": 2139,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13972,7 +13982,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "a979656944790b4bc7ff12d930485f24a8448a2d08ac5fe96228146035f27a25",
+  "previous_tree_hash": "771f52d1f1f8892a8aa7478130c84e771f65412c84a60004561753f2083fd1b3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13985,14 +13995,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "771f52d1f1f8892a8aa7478130c84e771f65412c84a60004561753f2083fd1b3",
+  "tree_hash": "bb10d6687efd335d4b8063579af9e37b8eefe93222dfdda588ca0d9ff45be620",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1483,
+  "wiki_file_count": 1485,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14001,13 +14011,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "24e61e0b76a228d6949b8fa4a6d0dc6f72443d3478e9470ce843598f4f539346",
-      "size": 1198113
+      "sha256": "3b1dae8a80bbb3ad6e74bb4892509fc416d57fdd66ab7a5155fd0ec1016a0fa8",
+      "size": 1198918
     },
     {
       "path": "log.md",
-      "sha256": "0ed740eac58ae507e9f1766e3b24a273f1499cd8034875ad9ee92c06076e2a76",
-      "size": 2025393
+      "sha256": "472b3f1b2aadba22ad63b058ce73ce10356dfef667444686c75f658708c54ba2",
+      "size": 2026222
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15575,6 +15585,11 @@
       "size": 4656
     },
     {
+      "path": "pages/decisions/broadcaster-bootstrap-gate-override.md",
+      "sha256": "a47e24f69cc898b41ff4308e685d9c5288e462b0c36dcc59d28ff731248587ec",
+      "size": 2786
+    },
+    {
       "path": "pages/decisions/cdr-bootnode-migration-to-azure.md",
       "sha256": "919da96e8cb15c5c37f29f886d790da4e53d6872e793937ac7299ce48ac942da",
       "size": 2014
@@ -16388,6 +16403,11 @@
       "path": "pages/decisions/story-api-broadcaster-bootstrap-gate-disabled.md",
       "sha256": "eaac2ec89278121d98bba9342c6836bdfabaa9d0559f1205bd997fcc71e52cbe",
       "size": 1757
+    },
+    {
+      "path": "pages/decisions/story-api-broadcaster-skip-bootstrap-gate.md",
+      "sha256": "8997050e9446111815bb1a44470702e6b4856d35716cf915a78f4754c210a640",
+      "size": 1887
     },
     {
       "path": "pages/decisions/story-app-initiative-three-phase-strategy.md",
@@ -21411,5 +21431,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "64f4a74b78847f83d08ae9b15089a7d96f688166f40a7ace6b81bd998a35af1e"
+  "wiki_tree_hash": "7a3b7764a194b50cfc8b32b34b3bc57d9fb3317e9cc5146176ffd8358e442c43"
 }

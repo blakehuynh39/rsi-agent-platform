@@ -40872,3 +40872,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_818ae674fa16ca19b153e0ea39d4bedd
 - summary: A list of users was provided by @U07FH407ZU5; support is available to contact them when next steps are ready.
 
+## [2026-06-27T00:16:25Z] synthesis | Broadcaster Bootstrap Gate Override
+
+- status: published
+- slug: decisions/broadcaster-bootstrap-gate-override
+- wiki_revision_id: wikirev_9b930d2e0ec0f708ad6b0b40bbbb86d8
+- summary: The broadcaster bootstrap gate in story-api is disabled via the environment variable BROADCASTER_SKIP_BOOTSTRAP_GATE=true, as an operator override. Associated Sentry issue STORY-AP...
+
+## [2026-06-27T00:17:23Z] synthesis | story-api: Broadcaster Bootstrap Gate Override
+
+- status: published
+- slug: decisions/story-api-broadcaster-skip-bootstrap-gate
+- wiki_revision_id: wikirev_83a5574f68c934c2fd8d0e0276970b74
+- summary: The story-api broadcaster bootstrap gate is currently disabled by an operator override via the environment variable BROADCASTER_SKIP_BOOTSTRAP_GATE=true. The related Sentry issue S...
+
