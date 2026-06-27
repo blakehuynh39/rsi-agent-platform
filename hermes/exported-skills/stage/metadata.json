@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "3b1dae8a80bbb3ad6e74bb4892509fc416d57fdd66ab7a5155fd0ec1016a0fa8",
-        "size": 1198918
+        "sha256": "6f1adac59e638edfd2151948f8b283b7a4a029227cd049fd5968430fa53dda24",
+        "size": 1199663
       },
       {
         "path": "log.md",
-        "sha256": "472b3f1b2aadba22ad63b058ce73ce10356dfef667444686c75f658708c54ba2",
-        "size": 2026222
+        "sha256": "0d42a3ab75370ae969a36c5e64f065094c1d196f34801943932c1a4d92610534",
+        "size": 2026991
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4853,6 +4853,11 @@
         "path": "pages/decisions/blockscout-hosting-strategy.md",
         "sha256": "ff2fc527b1d04f56113e69d42b914b0a2cf561c583a5e4f11490b9bbf2df23a3",
         "size": 4656
+      },
+      {
+        "path": "pages/decisions/bootstrap-gate-disable-override-story-api.md",
+        "sha256": "f87dd8fb4e4e1d736bdb4c6a48b2acaa4b3ab61918819921584097a6aae70bc0",
+        "size": 1665
       },
       {
         "path": "pages/decisions/broadcaster-bootstrap-gate-override.md",
@@ -10500,6 +10505,11 @@
         "size": 9637
       },
       {
+        "path": "pages/systems/story-api-replacement-gas-failure.md",
+        "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
+        "size": 2019
+      },
+      {
         "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
         "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
         "size": 3534
@@ -10704,8 +10714,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T00:18:35Z",
-  "file_count": 2139,
+  "exported_at": "2026-06-27T00:35:34Z",
+  "file_count": 2141,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13982,7 +13992,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "771f52d1f1f8892a8aa7478130c84e771f65412c84a60004561753f2083fd1b3",
+  "previous_tree_hash": "bb10d6687efd335d4b8063579af9e37b8eefe93222dfdda588ca0d9ff45be620",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13995,14 +14005,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "bb10d6687efd335d4b8063579af9e37b8eefe93222dfdda588ca0d9ff45be620",
+  "tree_hash": "20e2aa3e6fec9cd91a155311a242f44b0bd190d33ac835cd9c5819a13e500257",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1485,
+  "wiki_file_count": 1487,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14011,13 +14021,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "3b1dae8a80bbb3ad6e74bb4892509fc416d57fdd66ab7a5155fd0ec1016a0fa8",
-      "size": 1198918
+      "sha256": "6f1adac59e638edfd2151948f8b283b7a4a029227cd049fd5968430fa53dda24",
+      "size": 1199663
     },
     {
       "path": "log.md",
-      "sha256": "472b3f1b2aadba22ad63b058ce73ce10356dfef667444686c75f658708c54ba2",
-      "size": 2026222
+      "sha256": "0d42a3ab75370ae969a36c5e64f065094c1d196f34801943932c1a4d92610534",
+      "size": 2026991
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15583,6 +15593,11 @@
       "path": "pages/decisions/blockscout-hosting-strategy.md",
       "sha256": "ff2fc527b1d04f56113e69d42b914b0a2cf561c583a5e4f11490b9bbf2df23a3",
       "size": 4656
+    },
+    {
+      "path": "pages/decisions/bootstrap-gate-disable-override-story-api.md",
+      "sha256": "f87dd8fb4e4e1d736bdb4c6a48b2acaa4b3ab61918819921584097a6aae70bc0",
+      "size": 1665
     },
     {
       "path": "pages/decisions/broadcaster-bootstrap-gate-override.md",
@@ -21230,6 +21245,11 @@
       "size": 9637
     },
     {
+      "path": "pages/systems/story-api-replacement-gas-failure.md",
+      "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
+      "size": 2019
+    },
+    {
       "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
       "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
       "size": 3534
@@ -21431,5 +21451,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7a3b7764a194b50cfc8b32b34b3bc57d9fb3317e9cc5146176ffd8358e442c43"
+  "wiki_tree_hash": "dca25937745adab51d2aad553ab49a43ebb6fbdeb067713e25c85589792866c8"
 }

@@ -40886,3 +40886,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_83a5574f68c934c2fd8d0e0276970b74
 - summary: The story-api broadcaster bootstrap gate is currently disabled by an operator override via the environment variable BROADCASTER_SKIP_BOOTSTRAP_GATE=true. The related Sentry issue S...
 
+## [2026-06-27T00:31:15Z] synthesis | Bootstrap Gate Disable Override for story-api
+
+- status: published
+- slug: decisions/bootstrap-gate-disable-override-story-api
+- wiki_revision_id: wikirev_cb55c2318074e089d9b61bc09cc4ff30
+- summary: The story-api bootstrap gate was disabled via BROADCASTER_SKIP_BOOTSTRAP_GATE=true override. Related Sentry issue STORY-API-EJ was resolved.
+
+## [2026-06-27T00:31:54Z] synthesis | Story API Replacement Gas Re-estimate Failure
+
+- status: published
+- slug: systems/story-api-replacement-gas-failure
+- wiki_revision_id: wikirev_30a85ad94218489377dc8457c0409d92
+- summary: The story-api experienced a deterministic failure in replacement gas re-estimation, resulting in batch quarantining. The issue (STORY-API-EK) was later resolved.
+
