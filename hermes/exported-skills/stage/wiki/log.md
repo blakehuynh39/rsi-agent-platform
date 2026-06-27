@@ -40984,3 +40984,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_5f2af95663a01d8110ab63f73da38cea
 - summary: Documented incidents and spike protection events for the story-api service.
 
+## [2026-06-27T02:17:56Z] synthesis | story-api
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_bf619b25d38314f82060a01bd58be3b2
+- summary: Incidents and spike protection events for the story-api service, as reported in Slack channel C07K3J4JTH6.
+
+## [2026-06-27T02:22:27Z] synthesis | story-api
+
+- status: published
+- slug: projects/story-api
+- wiki_revision_id: wikirev_350f3a753755972293acd946473e6b0d
+- summary: story-api is a microservice that experienced multiple 500 Internal Server Errors and spike protection events between late 2025 and early 2026.
+
