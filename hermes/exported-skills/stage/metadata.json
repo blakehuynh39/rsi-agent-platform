@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "704d71a2bf5cdcb105e51cdd97a7421317bf91695f4cde9cf5612c0fb94afa0e",
-        "size": 1202158
+        "sha256": "999f7876aa5eb44ab495fb57cfb7226ba50ea31b0bcc2839f1289ee28772b9fe",
+        "size": 1202538
       },
       {
         "path": "log.md",
-        "sha256": "a527c12288ce842b768f5623fd84615e275e863bb4ea9b28e7db666ab00d9b58",
-        "size": 2029919
+        "sha256": "5894dfa245dd9d9bfb0528dfd58426bc7d4d32482506b4187047869c8e76de38",
+        "size": 2030634
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9415,6 +9415,11 @@
         "size": 1639
       },
       {
+        "path": "pages/runbooks/story-api-submitter-tick-failure.md",
+        "sha256": "940cfd29c855c6a14190f0fc90f3d204988c926da519d670425750eefce6ebb4",
+        "size": 2377
+      },
+      {
         "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
         "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
         "size": 10947
@@ -10749,8 +10754,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T01:36:40Z",
-  "file_count": 2148,
+  "exported_at": "2026-06-27T01:48:31Z",
+  "file_count": 2149,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14027,7 +14032,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d2aed5087e9ace5c8ff0a1668b7baebc7c369e1811df522290b0b3b56c1a21fe",
+  "previous_tree_hash": "8fd8477396e3379a47a0b115ed31adbf35b4fc5326464df2c5eb963f6f121338",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14040,14 +14045,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8fd8477396e3379a47a0b115ed31adbf35b4fc5326464df2c5eb963f6f121338",
+  "tree_hash": "830efe417934c1fc8cd4d866db5551570e1cd3eed5510b102068461bd292d358",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1494,
+  "wiki_file_count": 1495,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14056,13 +14061,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "704d71a2bf5cdcb105e51cdd97a7421317bf91695f4cde9cf5612c0fb94afa0e",
-      "size": 1202158
+      "sha256": "999f7876aa5eb44ab495fb57cfb7226ba50ea31b0bcc2839f1289ee28772b9fe",
+      "size": 1202538
     },
     {
       "path": "log.md",
-      "sha256": "a527c12288ce842b768f5623fd84615e275e863bb4ea9b28e7db666ab00d9b58",
-      "size": 2029919
+      "sha256": "5894dfa245dd9d9bfb0528dfd58426bc7d4d32482506b4187047869c8e76de38",
+      "size": 2030634
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20190,6 +20195,11 @@
       "size": 1639
     },
     {
+      "path": "pages/runbooks/story-api-submitter-tick-failure.md",
+      "sha256": "940cfd29c855c6a14190f0fc90f3d204988c926da519d670425750eefce6ebb4",
+      "size": 2377
+    },
+    {
       "path": "pages/runbooks/story-l1-single-node-setup-macos.md",
       "sha256": "e0e98bc5b5eec8a97a7690e31d745050e22015ae73f495d84e761b5754972c53",
       "size": 10947
@@ -21521,5 +21531,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "e50611ffc3ede05d5650a3e593be5cd70d3662709cff86bafa484cdad12889c3"
+  "wiki_tree_hash": "6b37e68b4dc63b5af092afd82ce3b68291d37bae9ea3dabe13db2e6999476737"
 }
