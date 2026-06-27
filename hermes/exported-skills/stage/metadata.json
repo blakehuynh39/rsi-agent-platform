@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d882f567f616e3e0e5d8670cf0ca8bfc9eb5a9f60721915397389abf600df914",
-        "size": 1215439
+        "sha256": "19d12917d6cc31ad94a6710d05d56e73cc3a1bfca5dcccd515f43f578c5533fa",
+        "size": 1217062
       },
       {
         "path": "log.md",
-        "sha256": "ff967c43258a8fd246664a22f6d673465232d3bdc6b1c91a7a0ad2e0283f1390",
-        "size": 2050520
+        "sha256": "c33c7e735663f2bfc1546f9a4455a21e3c866c2eeabcbb10360c8c8d0798a0b2",
+        "size": 2051359
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5653,6 +5653,11 @@
         "path": "pages/decisions/rsi-executor-commit-signing-capabilities.md",
         "sha256": "b2d4279ba4383ca207b639f27a8d0decd158ed2f84920f66cf7f6c57ae80aab4",
         "size": 3150
+      },
+      {
+        "path": "pages/decisions/rsi-executor-commit-signing-policy.md",
+        "sha256": "119d7ab56439c726f83ed29dcf091fe3c456a6712e49f8a8d4aa7d9048a7bdb6",
+        "size": 2849
       },
       {
         "path": "pages/decisions/rsi-executor-commit-signing.md",
@@ -9550,6 +9555,11 @@
         "size": 4778
       },
       {
+        "path": "pages/runbooks/story-orchestration-nil-pointer-incident.md",
+        "sha256": "9fe8bda143380c90aafc14002027d784c47621b36c74771a7db8b7996df0e895",
+        "size": 3729
+      },
+      {
         "path": "pages/runbooks/story-orchestration-service-aggregation-error-ip-transactions.md",
         "sha256": "667cbe6156768127ad161aeece8c2bdf4f6a85bca1a1eb3b615783c278664ca9",
         "size": 1744
@@ -10934,8 +10944,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T09:33:50Z",
-  "file_count": 2185,
+  "exported_at": "2026-06-27T09:40:36Z",
+  "file_count": 2187,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14212,7 +14222,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "9f8bf5eec00592ef9ca95941b4f6fe94db7a3ac3bf4cba275643885a4edd92c7",
+  "previous_tree_hash": "c7b9abbd76d02e337fb2f8c64c30c974daae2ea733834e5d669631ff602476c1",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14225,14 +14235,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c7b9abbd76d02e337fb2f8c64c30c974daae2ea733834e5d669631ff602476c1",
+  "tree_hash": "6236edd2be6a627ecbc2f556b86093007af3066620b9c8f736a464fb8d183ea9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1531,
+  "wiki_file_count": 1533,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14241,13 +14251,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d882f567f616e3e0e5d8670cf0ca8bfc9eb5a9f60721915397389abf600df914",
-      "size": 1215439
+      "sha256": "19d12917d6cc31ad94a6710d05d56e73cc3a1bfca5dcccd515f43f578c5533fa",
+      "size": 1217062
     },
     {
       "path": "log.md",
-      "sha256": "ff967c43258a8fd246664a22f6d673465232d3bdc6b1c91a7a0ad2e0283f1390",
-      "size": 2050520
+      "sha256": "c33c7e735663f2bfc1546f9a4455a21e3c866c2eeabcbb10360c8c8d0798a0b2",
+      "size": 2051359
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16613,6 +16623,11 @@
       "path": "pages/decisions/rsi-executor-commit-signing-capabilities.md",
       "sha256": "b2d4279ba4383ca207b639f27a8d0decd158ed2f84920f66cf7f6c57ae80aab4",
       "size": 3150
+    },
+    {
+      "path": "pages/decisions/rsi-executor-commit-signing-policy.md",
+      "sha256": "119d7ab56439c726f83ed29dcf091fe3c456a6712e49f8a8d4aa7d9048a7bdb6",
+      "size": 2849
     },
     {
       "path": "pages/decisions/rsi-executor-commit-signing.md",
@@ -20510,6 +20525,11 @@
       "size": 4778
     },
     {
+      "path": "pages/runbooks/story-orchestration-nil-pointer-incident.md",
+      "sha256": "9fe8bda143380c90aafc14002027d784c47621b36c74771a7db8b7996df0e895",
+      "size": 3729
+    },
+    {
       "path": "pages/runbooks/story-orchestration-service-aggregation-error-ip-transactions.md",
       "sha256": "667cbe6156768127ad161aeece8c2bdf4f6a85bca1a1eb3b615783c278664ca9",
       "size": 1744
@@ -21891,5 +21911,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4a784c6cf19b56429a25aa41378d6356975298c9d19ce308be96f81315e14870"
+  "wiki_tree_hash": "b7c5716da7bb3c4745c5c4752f478a4d07b1e769331640db280e43dc8230a8ff"
 }

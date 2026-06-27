@@ -41341,3 +41341,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_324ebf57f87fb6699594d5fc22667c6f
 - summary: The RSI executor bot (rsi-platform-bot) cannot sign commits because the GitHub App token lacks signing keys and no GPG/SSH keys are installed on the executor. The commit fa1f78e ne...
 
+## [2026-06-27T09:35:00Z] synthesis | story-orchestration-service nil pointer dereference incident
+
+- status: published
+- slug: runbooks/story-orchestration-nil-pointer-incident
+- wiki_revision_id: wikirev_e2cdb85ec45615cd688271f13172374b
+- summary: Production story-orchestration-service encountered 2,046 nil pointer dereference events since Feb 12 due to missing nil checks in Temporal workflow handlers. Fix in PR #718 deploye...
+
+## [2026-06-27T09:35:00Z] synthesis | RSI executor commit signing policy
+
+- status: published
+- slug: decisions/rsi-executor-commit-signing-policy
+- wiki_revision_id: wikirev_b5732ab0e1f03e74cbcff4b663a851f3
+- summary: The RSI executor bot made a commit (fa1f78e) without a verified signature, violating GitHub policy. The executor lacks GPG/SSH keys. Options: human operator amend and sign, or infr...
+
