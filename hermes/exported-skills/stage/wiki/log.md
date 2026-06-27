@@ -41117,3 +41117,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2584cba54da6bc3cc64c3c358579f9c4
 - summary: On 2026-06-14, the story-api endpoint GET /api/v1/data-audit/stats returned a 500 Internal Server Error. The issue was later resolved as indicated by Blake Huynh marking it resolve...
 
+## [2026-06-27T05:15:45Z] synthesis | Data Audit Feed 500 Incident
+
+- status: published
+- slug: runbooks/data-audit-feed-500-incident
+- wiki_revision_id: wikirev_70c96e35b6e44a0e3ce1c71a72ff6bf0
+- summary: The story-api endpoint GET /api/v1/data-audit/feed failed with a 500 Internal Server Error, reading EOF. The incident was tracked in Sentry as STORY-API-F0 and later resolved by Bl...
+
