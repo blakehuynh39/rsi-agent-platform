@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "9059495a3c1c5a932a5a3b39ead20bc6d9979fcce13b481956f4a82e79a7a5e5",
-        "size": 1208252
+        "sha256": "6c650bbc4cace311c4f5126a7aac03fbb87f4ee2ae863b16bed94ea5d0552ff6",
+        "size": 1209052
       },
       {
         "path": "log.md",
-        "sha256": "e57797b51c29bcbc591dabd7f6751c42392ff2519c4d17770688f6282486ea12",
-        "size": 2039158
+        "sha256": "4da2169f646068f6d04373279a222a92a82d53183b6a353943f1c9a04a9de233",
+        "size": 2039982
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4463,6 +4463,11 @@
         "path": "pages/concepts/storj.md",
         "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
         "size": 1012
+      },
+      {
+        "path": "pages/concepts/story-api-assets-500-incident.md",
+        "sha256": "fd47758015806c956e135fe5878caac957c23a7b3d3d5edef92e3c720a5b5151",
+        "size": 1583
       },
       {
         "path": "pages/concepts/story-api-dispute-500-error.md",
@@ -9280,6 +9285,11 @@
         "size": 5811
       },
       {
+        "path": "pages/runbooks/runbook-story-orchestration-licensing-indexing-error-2025-12-26.md",
+        "sha256": "9a36c19b34b869e7e381dcb03ea36121021e6289e9ec15769443448c77ed0bb8",
+        "size": 1753
+      },
+      {
         "path": "pages/runbooks/running-a-node.md",
         "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
         "size": 4260
@@ -10834,8 +10844,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T05:38:36Z",
-  "file_count": 2165,
+  "exported_at": "2026-06-27T05:50:23Z",
+  "file_count": 2167,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14112,7 +14122,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "9c0e72828121b7440ea3935a8d86dfd8a51859b07f8cee83ee7208d478e0716b",
+  "previous_tree_hash": "b134da8e3e89d5b242da13f0ea106b1b0b5d84f2c09be3fdfd199504a605d388",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14125,14 +14135,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b134da8e3e89d5b242da13f0ea106b1b0b5d84f2c09be3fdfd199504a605d388",
+  "tree_hash": "0dbb0f5acf7df2b59664253acd2bffdabd0577fb3a914562d6528586770aa5c9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1511,
+  "wiki_file_count": 1513,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14141,13 +14151,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "9059495a3c1c5a932a5a3b39ead20bc6d9979fcce13b481956f4a82e79a7a5e5",
-      "size": 1208252
+      "sha256": "6c650bbc4cace311c4f5126a7aac03fbb87f4ee2ae863b16bed94ea5d0552ff6",
+      "size": 1209052
     },
     {
       "path": "log.md",
-      "sha256": "e57797b51c29bcbc591dabd7f6751c42392ff2519c4d17770688f6282486ea12",
-      "size": 2039158
+      "sha256": "4da2169f646068f6d04373279a222a92a82d53183b6a353943f1c9a04a9de233",
+      "size": 2039982
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15323,6 +15333,11 @@
       "path": "pages/concepts/storj.md",
       "sha256": "c5d2187c48b7e532bf88c89e5b61a5e33aa3c32fb6bd0b4965e81af79d8a8a09",
       "size": 1012
+    },
+    {
+      "path": "pages/concepts/story-api-assets-500-incident.md",
+      "sha256": "fd47758015806c956e135fe5878caac957c23a7b3d3d5edef92e3c720a5b5151",
+      "size": 1583
     },
     {
       "path": "pages/concepts/story-api-dispute-500-error.md",
@@ -20140,6 +20155,11 @@
       "size": 5811
     },
     {
+      "path": "pages/runbooks/runbook-story-orchestration-licensing-indexing-error-2025-12-26.md",
+      "sha256": "9a36c19b34b869e7e381dcb03ea36121021e6289e9ec15769443448c77ed0bb8",
+      "size": 1753
+    },
+    {
       "path": "pages/runbooks/running-a-node.md",
       "sha256": "9bfd734eec74ecde8153101d83504c183a8c3064b85b58b9ef481e76bcabb136",
       "size": 4260
@@ -21691,5 +21711,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ab90401c224996e30cd377cb649515b1ee2b8fade45e12e272785928b2b168b6"
+  "wiki_tree_hash": "e62fb340c3596c25865f3575958b48531120c9ce073fa084c3a6eb0001eca263"
 }

@@ -41138,3 +41138,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4fa8808676f83042e1710fd711c0ec92
 - summary: Incident where Story-API failed to retrieve IP assets due to a connection refused error to PostgreSQL at 10.32.101.130:5432, later resolved.
 
+## [2026-06-27T05:45:38Z] synthesis | Story-API POST /api/v4/assets 500 Error Incident
+
+- status: published
+- slug: concepts/story-api-assets-500-incident
+- wiki_revision_id: wikirev_de6a8e19480ebefffe3001be95a11fcc
+- summary: Incident where Story-API's POST /api/v4/assets endpoint returned 500 error: Failed to retrieve IP assets. Resolved by blake.huynh.
+
+## [2026-06-27T05:46:22Z] synthesis | Story Orchestration Service Licensing Indexing Error (Dec 26, 2025)
+
+- status: published
+- slug: runbooks/runbook-story-orchestration-licensing-indexing-error-2025-12-26
+- wiki_revision_id: wikirev_13577d861ba6f0fbe67f833137cfec55
+- summary: On 2025-12-26, story-orchestration-service reported an indexing error related to licensing. The error was tracked in Sentry as issue STORY-ORCHESTRATION-SERVICE-FA and was marked r...
+
