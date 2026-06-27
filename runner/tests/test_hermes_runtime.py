@@ -7874,6 +7874,141 @@ class HermesRuntimeTests(unittest.TestCase):
         self.assertNotIn("execution_envelope", result.raw)
         attach_mock.assert_not_called()
 
+    def test_native_required_final_tool_missing_enters_partial_finalization(self) -> None:
+        class RequiredFinalReducerAIAgent:
+            init_history: list[dict[str, object]] = []
+            run_history: list[dict[str, object]] = []
+
+            def __init__(self, **kwargs) -> None:
+                type(self).init_history.append(dict(kwargs))
+
+            def run_conversation(
+                self,
+                prompt: str,
+                system_message: str | None = None,
+                conversation_history: list[dict] | None = None,
+                task_id: str | None = None,
+            ) -> dict[str, object]:
+                type(self).run_history.append(
+                    {
+                        "prompt": prompt,
+                        "system_message": system_message,
+                        "history": list(conversation_history or []),
+                        "task_id": task_id,
+                    }
+                )
+                return {
+                    "final_response": json.dumps(
+                        partial_structured_output(
+                            reply_text="Partial answer after missing final Slack delivery."
+                        )
+                    )
+                }
+
+            def get_activity_summary(self) -> dict[str, object]:
+                return {
+                    "last_activity_desc": "composing partial reply",
+                    "current_tool": "",
+                    "api_call_count": 0,
+                    "budget_used": 0,
+                    "budget_max": 20,
+                }
+
+        class FakePopen:
+            def __init__(self, cmd, cwd, env, stdout, stderr, text):
+                request = json.loads(Path(cmd[-1]).read_text(encoding="utf-8"))
+                payload = {
+                    "ok": False,
+                    "error": "Model produced a final response without calling a required final delivery tool.",
+                    "response": "",
+                    "result": {
+                        "final_response": None,
+                        "completed": False,
+                        "partial": True,
+                        "failed": True,
+                        "api_calls": 19,
+                        "termination_reason": "required_final_tool_missing",
+                        "completion_verdict": "failed",
+                        "required_final_tool_names": [
+                            "rsi_slack_message_post",
+                            "rsi_slack_report_post",
+                        ],
+                    },
+                    "session_id": "rsi-prod-conversation-123",
+                    "termination_reason": "required_final_tool_missing",
+                    "completion_verdict": "failed",
+                }
+                Path(request["result_path"]).write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                self.returncode = 0
+                self.stdout = io.StringIO("")
+                self.stderr = io.StringIO("")
+
+            def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
+                return self.returncode
+
+            def terminate(self):
+                self.returncode = -15
+
+            def kill(self):
+                self.returncode = -9
+
+        task = RunnerTaskRequest.from_payload(
+            {
+                "task": {
+                    "task_type": "workflow",
+                    "repo": "numo-monorepo",
+                    "prompt": "Debug the login input issue and report back.",
+                    "execution_id": "hexec-native-required-final-missing",
+                    "trace_id": "trace-native-required-final-missing",
+                    "workflow_id": "wf-native-required-final-missing",
+                    "operation_id": "op-native-required-final-missing",
+                    "channel_id": "C123",
+                    "thread_ts": "171000001.000100",
+                    "reply_delivery_mode": "mediated",
+                    "session_scope_kind": "conversation",
+                    "session_scope_id": "conv-native-required-final-missing",
+                    "memory_backend": "honcho",
+                    "assistant_peer_id": "rsi:stage:prod",
+                }
+            }
+        )
+        with tempfile.TemporaryDirectory() as hermes_home, tempfile.TemporaryDirectory() as tempdir, mock.patch(
+            "rsi_runner.hermes_runtime.AIAgent", RequiredFinalReducerAIAgent
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.SessionManager", FakeSessionManager
+        ), mock.patch(
+            "rsi_runner.hermes_runtime.subprocess.Popen", side_effect=FakePopen
+        ), mock.patch.dict(
+            os.environ,
+            {
+                **runner_env("prod"),
+                "HERMES_HOME": hermes_home,
+                "RSI_HERMES_EXECUTOR_ENABLED": "true",
+                "RSI_HERMES_EXECUTOR_WORKSPACE_ROOT": tempdir,
+                "RSI_RUNNER_PROD_TASK_TIMEOUT": "60s",
+            },
+            clear=True,
+        ):
+            runtime = HermesRuntime(RunnerConfig.from_env())
+            result = runtime.execute_task(task)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.provider, "hermes-native-executor")
+        self.assertEqual(result.raw["completion_verdict"], "partial")
+        self.assertEqual(result.raw["termination_reason"], "required_final_tool_missing")
+        self.assertEqual(result.raw["runner_diagnostics"]["termination_reason"], "required_final_tool_missing")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_mode"], "hermes_reducer")
+        self.assertEqual(result.raw["runner_diagnostics"]["partial_finalization_attempts"], 1)
+        structured = result.raw["structured_output"]
+        actions = structured["proposed_actions"]
+        self.assertEqual(actions[0]["kind"], "slack_post")
+        self.assertEqual(actions[0]["request_payload"]["thread_ts"], "171000001.000100")
+        self.assertIn("required_final_tool_missing", actions[0]["idempotency_key"])
+        self.assertIn('"termination_reason": "required_final_tool_missing"', RequiredFinalReducerAIAgent.run_history[0]["prompt"])
+
     def test_native_executor_persists_run_dir_when_postprocess_raises(self) -> None:
         request_paths: list[Path] = []
         run_dir_exists_before_temp_cleanup = False

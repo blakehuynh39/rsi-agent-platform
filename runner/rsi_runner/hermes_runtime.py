@@ -87,6 +87,7 @@ PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
         "inactivity_timeout",
         "iteration_budget_exhausted",
         "output_token_budget_exhausted",
+        "required_final_tool_missing",
     }
 )
 DIRECT_DELIVERY_SUCCESS_STATUSES = frozenset({"posted", "sent", "uploaded", "completed", "ok", "success", "shared"})

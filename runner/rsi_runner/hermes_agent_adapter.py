@@ -103,6 +103,7 @@ _PARTIAL_COMPLETION_TERMINATION_REASONS = frozenset(
         "inactivity_timeout",
         "iteration_budget_exhausted",
         "output_token_budget_exhausted",
+        "required_final_tool_missing",
     }
 )
 def _string(value: Any) -> str:
