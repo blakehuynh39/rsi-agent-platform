@@ -41033,3 +41033,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e35dc21fa5f0692b815170fc3fad014a
 - summary: Story-API encountered a fatal stream error on shard tasks, reported via Sentry issue STORY-API-ES. The issue has been resolved multiple times.
 
+## [2026-06-27T03:17:01Z] synthesis | STORY-API Fatal Stream Error
+
+- status: published
+- slug: systems/story-api-fatal-stream-error
+- wiki_revision_id: wikirev_544a5560eee246096237ff734fd070bc
+- summary: The Story API repeatedly threw a fatal stream error, requiring multiple resolutions.
+
+## [2026-06-27T03:17:53Z] synthesis | Story API Shard Task Fatal Stream Error
+
+- status: published
+- slug: runbooks/story-api-shard-task-fatal-stream-error
+- wiki_revision_id: wikirev_d95b353a6770df26fc0d185107b98452
+- summary: Recurring fatal stream error in the story-api shard task, tracked as STORY-API-ES in Sentry, with multiple resolution attempts.
+
