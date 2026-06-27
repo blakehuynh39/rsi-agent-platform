@@ -40998,3 +40998,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_350f3a753755972293acd946473e6b0d
 - summary: story-api is a microservice that experienced multiple 500 Internal Server Errors and spike protection events between late 2025 and early 2026.
 
+## [2026-06-27T02:32:14Z] synthesis | Story-API Projector Tick Failure
+
+- status: published
+- slug: systems/story-api-projector-tick-failure
+- wiki_revision_id: wikirev_04035339210edd5787669422f2699819
+- summary: Recurring projector tick failures in story-api trigger STORY-API-ER Sentry alerts. The issue has been marked resolved multiple times but continues to reappear.
+
+## [2026-06-27T02:33:40Z] synthesis | story-api Projector Tick Failure
+
+- status: published
+- slug: runbooks/story-api-projector-tick-failure
+- wiki_revision_id: wikirev_9eb3c3ca9cb2ab175ea3bff4337bac56
+- summary: The story-api projector occasionally throws a tick failure error and retries after sleeping. The issue is tracked in Sentry as STORY-API-ER and has been manually resolved multiple ...
+
