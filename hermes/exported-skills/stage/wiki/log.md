@@ -41061,3 +41061,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f117e5e65bb7e46290df95d66131dc6c
 - summary: An incident where story-api's projection layer encountered a conflict when trying to overwrite an existing tx_hash. The issue was reported via Sentry and later marked as resolved b...
 
+## [2026-06-27T03:50:47Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_eb6e07b7dd865d9ebad97d9d931f9ba8
+- summary: Story API service experienced spike protection activations and multiple HTTP 500 errors across various endpoints, including database authentication failures and data integrity issu...
+
