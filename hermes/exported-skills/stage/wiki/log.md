@@ -41208,3 +41208,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_73986bb049ae3a65fae4afae9cec04fc
 - summary: On the story-orchestration-service, an aggregation error occurred related to ip_transactions. The issue was later marked as resolved by blake.huynh@storyprotocol.xyz.
 
+## [2026-06-27T07:19:00Z] synthesis | Story Orchestration Service Error Catalog
+
+- status: published
+- slug: runbooks/story-orchestration-service-errors
+- wiki_revision_id: wikirev_4830ddd5c559d84780915c9e65a4195e
+- summary: Collection of errors observed in the story-orchestration-service, including nil pointer dereferences, context cancellations, database constraint violations, and aggregation failure...
+

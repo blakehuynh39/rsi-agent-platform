@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "baba4bba12148e6964dc1ef9e1a3d5bc7d048f4dfe6a594783d14c3864d10707",
-        "size": 1210532
+        "sha256": "39acca70bffce2b53aed0f470f7194c5a7fe3075dfc1f4fdf613677daec07253",
+        "size": 1210539
       },
       {
         "path": "log.md",
-        "sha256": "33af0b66e94c2ec6f02725e91cf6dbc55cfaabbf2cf77540988e5560c26dcd17",
-        "size": 2042893
+        "sha256": "4b1e5965d3b784175ff6691bbdbaf4ab59301f1d16d027a523acf0f26efd2c52",
+        "size": 2043303
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9511,8 +9511,8 @@
       },
       {
         "path": "pages/runbooks/story-orchestration-service-errors.md",
-        "sha256": "e65c5f7aeb115cb9e29c597e514369361d81f408e297cb58f60571bf993e52c1",
-        "size": 5716
+        "sha256": "98819cb5e29f1b2f857429a2983d614e0bc5133b2d13733a37dde7e5ea2a487b",
+        "size": 6179
       },
       {
         "path": "pages/runbooks/story-orchestration-service-ip-transactions-aggregation-error.md",
@@ -10864,7 +10864,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T07:06:35Z",
+  "exported_at": "2026-06-27T07:23:35Z",
   "file_count": 2171,
   "files": [
     {
@@ -14142,7 +14142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "88b233784b26a69ca24a6cbb11567f4c2636bc99accfd21f370cb485b19b168d",
+  "previous_tree_hash": "ad328956f087cb99f02ac977025d03fba8ca4a273503ac1d4d95d127870a0e18",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14155,7 +14155,7 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "ad328956f087cb99f02ac977025d03fba8ca4a273503ac1d4d95d127870a0e18",
+  "tree_hash": "f44e9df1ff04b2c51b341254bf1a8c8725e8e6a2151f94120c70fdf411038f3d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -14171,13 +14171,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "baba4bba12148e6964dc1ef9e1a3d5bc7d048f4dfe6a594783d14c3864d10707",
-      "size": 1210532
+      "sha256": "39acca70bffce2b53aed0f470f7194c5a7fe3075dfc1f4fdf613677daec07253",
+      "size": 1210539
     },
     {
       "path": "log.md",
-      "sha256": "33af0b66e94c2ec6f02725e91cf6dbc55cfaabbf2cf77540988e5560c26dcd17",
-      "size": 2042893
+      "sha256": "4b1e5965d3b784175ff6691bbdbaf4ab59301f1d16d027a523acf0f26efd2c52",
+      "size": 2043303
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20401,8 +20401,8 @@
     },
     {
       "path": "pages/runbooks/story-orchestration-service-errors.md",
-      "sha256": "e65c5f7aeb115cb9e29c597e514369361d81f408e297cb58f60571bf993e52c1",
-      "size": 5716
+      "sha256": "98819cb5e29f1b2f857429a2983d614e0bc5133b2d13733a37dde7e5ea2a487b",
+      "size": 6179
     },
     {
       "path": "pages/runbooks/story-orchestration-service-ip-transactions-aggregation-error.md",
@@ -21751,5 +21751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "61e50a9cab595dbedd630aee15348ff82ac94fecc0fac3fd3451a3a02eab4dea"
+  "wiki_tree_hash": "31872c578599afc7787bafe8ad59e283d0269b9afa1ec1ce1b518e9d7910742b"
 }
