@@ -41292,3 +41292,38 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_3c1b19c23777356f794de327fd6ad68d
 - summary: A nil pointer dereference in story-orchestration-service caused ~2,046 errors in production since Feb 12, 2026. Root cause: GetJobByWorkflowID returns nil for missing workflow IDs,...
 
+## [2026-06-27T09:17:25Z] synthesis | story-orchestration-service nil pointer dereference runbook
+
+- status: published
+- slug: runbooks/story-orchestration-service-nil-pointer-dereference-runbook
+- wiki_revision_id: wikirev_d0a9cf467b5623ff80ea5c6339d3487c
+- summary: Runbook for diagnosing and fixing nil pointer dereference errors in story-orchestration-service, based on an incident starting Feb 12, 2026.
+
+## [2026-06-27T09:19:16Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_b2eebbf5b827a49743d909f9973eae7f
+- summary: Production microservice that orchestrates story workflows using Temporal. Recently experienced a nil pointer dereference bug (see incident runbook).
+
+## [2026-06-27T09:19:16Z] synthesis | Nil Pointer Dereference in Story Orchestration Service (2026-06-04)
+
+- status: published
+- slug: runbooks/nil-pointer-dereference-in-story-orchestration-service-2026-06-04
+- wiki_revision_id: wikirev_f67b79de07854cc9664a97bae4c13634
+- summary: A nil pointer dereference in story-orchestration-service production was diagnosed on June 4, 2026. Root cause: GetJobByWorkflowID returns nil,nil for non‑existent workflow IDs; han...
+
+## [2026-06-27T09:19:17Z] synthesis | Commit Signing Requirements
+
+- status: published
+- slug: policies/commit-signing-requirements
+- wiki_revision_id: wikirev_5e85c30006866661c79b54ba2d247159
+- summary: All commits pushed to GitHub repositories must carry verified cryptographic signatures, enforced by GitHub branch protection policies.
+
+## [2026-06-27T09:19:17Z] synthesis | RSI Executor Commit Signing Capabilities
+
+- status: published
+- slug: decisions/rsi-executor-commit-signing-capabilities
+- wiki_revision_id: wikirev_394f9db654b271e53c3e3a5ad0181145
+- summary: The RSI executor, running as rsi-platform-bot via GitHub App token, cannot produce signed commits because it lacks cryptographic keys. Resolution options require either manual oper...
+

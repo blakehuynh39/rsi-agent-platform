@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "4aaba578c76949d3617d1702f3ef2a664a6b3aa3df585da9d5d9a8419d9c2eee",
-        "size": 1213829
+        "sha256": "d882f567f616e3e0e5d8670cf0ca8bfc9eb5a9f60721915397389abf600df914",
+        "size": 1215439
       },
       {
         "path": "log.md",
-        "sha256": "db77a21c1d5ae350ad237760f0c8789a75ffed94f37c1212a247523789b8d928",
-        "size": 2047700
+        "sha256": "d637aafb20a3706d1d4e72a2ac444f3bb3f49bd18abfa1593763e814485defca",
+        "size": 2049688
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5650,6 +5650,11 @@
         "size": 1609
       },
       {
+        "path": "pages/decisions/rsi-executor-commit-signing-capabilities.md",
+        "sha256": "b2d4279ba4383ca207b639f27a8d0decd158ed2f84920f66cf7f6c57ae80aab4",
+        "size": 3150
+      },
+      {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
@@ -6268,6 +6273,11 @@
         "path": "pages/policies/build-in-public-initiative.md",
         "sha256": "481192ac02ac632f492f938524cf8d466114cf48d612ba7263a0c3f020424e55",
         "size": 5676
+      },
+      {
+        "path": "pages/policies/commit-signing-requirements.md",
+        "sha256": "bee7a0b9968fa2329fe2d7ca13235e89d25bddeb9668894319b9048cc892f965",
+        "size": 1599
       },
       {
         "path": "pages/policies/country-risk-tiers-data-acquisition.md",
@@ -9060,6 +9070,11 @@
         "size": 8637
       },
       {
+        "path": "pages/runbooks/nil-pointer-dereference-in-story-orchestration-service-2026-06-04.md",
+        "sha256": "fd2423d5716680e8b958faaed1276f27b985c3168953ec7787b1299545627d55",
+        "size": 4858
+      },
+      {
         "path": "pages/runbooks/node-recovery-process.md",
         "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
         "size": 6068
@@ -9558,6 +9573,11 @@
         "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-2026-06-04.md",
         "sha256": "8a5d62de7f8f9b3885299d3d70a42d09ac738c9d0ec8683488b894eb4db52870",
         "size": 4159
+      },
+      {
+        "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-runbook.md",
+        "sha256": "2261af1379a0879089c6780d225f035ffd2d05715657e2bab1c0e4f90cdf9671",
+        "size": 3081
       },
       {
         "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
@@ -10741,8 +10761,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "d88596ba0e7d589dc0a8cbecab3d6f30385dea7f41e638469170aeb05481b4a1",
-        "size": 5513
+        "sha256": "40535d0bbfbaa01848d89fda13683542238531de96b37086b0dcd68858dc5721",
+        "size": 1564
       },
       {
         "path": "pages/systems/story-private-fork.md",
@@ -10904,8 +10924,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T09:10:11Z",
-  "file_count": 2179,
+  "exported_at": "2026-06-27T09:22:00Z",
+  "file_count": 2183,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14182,7 +14202,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d001c4f5f6ef60bb254de62d68f74f3ad933a9d4d147433467e3f4bdefe8982a",
+  "previous_tree_hash": "5fd0c5b432be462ee69bffeecaed6cdd46a4b30133729c2fa32e19736502b8b5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14195,14 +14215,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "5fd0c5b432be462ee69bffeecaed6cdd46a4b30133729c2fa32e19736502b8b5",
+  "tree_hash": "9f8bf5eec00592ef9ca95941b4f6fe94db7a3ac3bf4cba275643885a4edd92c7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1525,
+  "wiki_file_count": 1529,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14211,13 +14231,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "4aaba578c76949d3617d1702f3ef2a664a6b3aa3df585da9d5d9a8419d9c2eee",
-      "size": 1213829
+      "sha256": "d882f567f616e3e0e5d8670cf0ca8bfc9eb5a9f60721915397389abf600df914",
+      "size": 1215439
     },
     {
       "path": "log.md",
-      "sha256": "db77a21c1d5ae350ad237760f0c8789a75ffed94f37c1212a247523789b8d928",
-      "size": 2047700
+      "sha256": "d637aafb20a3706d1d4e72a2ac444f3bb3f49bd18abfa1593763e814485defca",
+      "size": 2049688
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16580,6 +16600,11 @@
       "size": 1609
     },
     {
+      "path": "pages/decisions/rsi-executor-commit-signing-capabilities.md",
+      "sha256": "b2d4279ba4383ca207b639f27a8d0decd158ed2f84920f66cf7f6c57ae80aab4",
+      "size": 3150
+    },
+    {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
@@ -17198,6 +17223,11 @@
       "path": "pages/policies/build-in-public-initiative.md",
       "sha256": "481192ac02ac632f492f938524cf8d466114cf48d612ba7263a0c3f020424e55",
       "size": 5676
+    },
+    {
+      "path": "pages/policies/commit-signing-requirements.md",
+      "sha256": "bee7a0b9968fa2329fe2d7ca13235e89d25bddeb9668894319b9048cc892f965",
+      "size": 1599
     },
     {
       "path": "pages/policies/country-risk-tiers-data-acquisition.md",
@@ -19990,6 +20020,11 @@
       "size": 8637
     },
     {
+      "path": "pages/runbooks/nil-pointer-dereference-in-story-orchestration-service-2026-06-04.md",
+      "sha256": "fd2423d5716680e8b958faaed1276f27b985c3168953ec7787b1299545627d55",
+      "size": 4858
+    },
+    {
       "path": "pages/runbooks/node-recovery-process.md",
       "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
       "size": 6068
@@ -20488,6 +20523,11 @@
       "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-2026-06-04.md",
       "sha256": "8a5d62de7f8f9b3885299d3d70a42d09ac738c9d0ec8683488b894eb4db52870",
       "size": 4159
+    },
+    {
+      "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-runbook.md",
+      "sha256": "2261af1379a0879089c6780d225f035ffd2d05715657e2bab1c0e4f90cdf9671",
+      "size": 3081
     },
     {
       "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
@@ -21671,8 +21711,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "d88596ba0e7d589dc0a8cbecab3d6f30385dea7f41e638469170aeb05481b4a1",
-      "size": 5513
+      "sha256": "40535d0bbfbaa01848d89fda13683542238531de96b37086b0dcd68858dc5721",
+      "size": 1564
     },
     {
       "path": "pages/systems/story-private-fork.md",
@@ -21831,5 +21871,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67f20c073e81f380e9f07aa5b1b05c32e02b0c1deae76e8f50dbe7e6a61c8ae3"
+  "wiki_tree_hash": "70f2d30d997c908b972875b48298051fd98cd1c6625a98403760dcfb5b810ea1"
 }
