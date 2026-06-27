@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "e55d73149356ec12a709d1f06a577182a832dca711c01319481d1f568c24e965",
-        "size": 2046759
+        "sha256": "0b81e13aac09cd793563c2981b7d97560ab8374373ba041057af294b168c539f",
+        "size": 2047229
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9550,6 +9550,11 @@
         "size": 1610
       },
       {
+        "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-2026-06-04.md",
+        "sha256": "8a5d62de7f8f9b3885299d3d70a42d09ac738c9d0ec8683488b894eb4db52870",
+        "size": 4159
+      },
+      {
         "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
         "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
         "size": 2417
@@ -10894,8 +10899,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T08:51:34Z",
-  "file_count": 2177,
+  "exported_at": "2026-06-27T09:03:25Z",
+  "file_count": 2178,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14172,7 +14177,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "11fe7b3a2cc5680341e49d60bd083499c48c80004ebc57826f33059ef207d516",
+  "previous_tree_hash": "590e3915fac26ce3ed2108a302a8666b10971eface4fec493aa288a94a71669d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14185,14 +14190,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "590e3915fac26ce3ed2108a302a8666b10971eface4fec493aa288a94a71669d",
+  "tree_hash": "d001c4f5f6ef60bb254de62d68f74f3ad933a9d4d147433467e3f4bdefe8982a",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1523,
+  "wiki_file_count": 1524,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14206,8 +14211,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "e55d73149356ec12a709d1f06a577182a832dca711c01319481d1f568c24e965",
-      "size": 2046759
+      "sha256": "0b81e13aac09cd793563c2981b7d97560ab8374373ba041057af294b168c539f",
+      "size": 2047229
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20470,6 +20475,11 @@
       "size": 1610
     },
     {
+      "path": "pages/runbooks/story-orchestration-service-nil-pointer-dereference-2026-06-04.md",
+      "sha256": "8a5d62de7f8f9b3885299d3d70a42d09ac738c9d0ec8683488b894eb4db52870",
+      "size": 4159
+    },
+    {
       "path": "pages/runbooks/story-orchestration-service-postgresql-error-42p10.md",
       "sha256": "99c1288c016e73e9fdacd1ea7abd1ccaa7a24e3a7db0fcc1f0b53d0c6d930e48",
       "size": 2417
@@ -21811,5 +21821,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "7c07e7da984a7bd1732690c439f0b4f92e3964eaf23cac405621789e68ec0986"
+  "wiki_tree_hash": "49dde8e851e237d7642804323ceb5b58c1469b404d2a1aa62614801d82141196"
 }

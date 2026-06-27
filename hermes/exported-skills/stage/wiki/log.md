@@ -41278,3 +41278,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1f9abbb200f4bc58bd7ec1b0326e0faa
 - summary: Documented errors from the story-orchestration-service as reported in Slack channel C08BWTULNPP.
 
+## [2026-06-27T09:01:53Z] synthesis | story-orchestration-service nil pointer dereference incident (2026-06-04)
+
+- status: published
+- slug: runbooks/story-orchestration-service-nil-pointer-dereference-2026-06-04
+- wiki_revision_id: wikirev_20e18e17ad08e59a02e3529e1c4e269c
+- summary: On 2026-06-04, a nil pointer dereference in story-orchestration-service caused 2,046 events. Root cause: GetJobByWorkflowID returning nil, nil. Fix committed in PR #718, deployed t...
+
+## [2026-06-27T09:04:19Z] synthesis | Story Orchestration Service Nil Pointer Dereference Incident (2026-02-12)
+
+- status: published
+- slug: runbooks/story-orchestration-nil-pointer-dereference-incident-2026-02-12
+- wiki_revision_id: wikirev_3c1b19c23777356f794de327fd6ad68d
+- summary: A nil pointer dereference in story-orchestration-service caused ~2,046 errors in production since Feb 12, 2026. Root cause: GetJobByWorkflowID returns nil for missing workflow IDs,...
+
