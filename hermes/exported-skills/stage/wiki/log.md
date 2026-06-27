@@ -40928,3 +40928,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_e491453071106e0bad5012db101694dc
 - summary: Runbook for the recurring 'confirmer batch failed; continuing sibling batches' error in story-api, including its resolution by marking the Sentry issue as resolved.
 
+## [2026-06-27T01:16:00Z] synthesis | Broadcaster Active Wallet Nonce Drift Incident
+
+- status: published
+- slug: runbooks/story-api-broadcaster-nonce-drift-incident
+- wiki_revision_id: wikirev_d8d4825f92b87c664b9bb17ca39b37ed
+- summary: The story-api service detected a broadcaster active wallet nonce drift, which was subsequently resolved.
+
+## [2026-06-27T01:16:24Z] synthesis | Broadcaster Active Wallet Nonce Drift Incident
+
+- status: published
+- slug: runbooks/broadcaster-active-wallet-nonce-drift-incident
+- wiki_revision_id: wikirev_15d37b411687f95e74bb6aae0ad63088
+- summary: An alert for broadcaster active wallet nonce drift was triggered in story-api on multiple occasions. The issue was later resolved by Blake Huynh via Sentry.
+

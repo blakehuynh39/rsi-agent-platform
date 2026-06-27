@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "5eb0db87f233f36076f63c1cff20c16d7a116f8aa955804077b95af5f53cb51f",
-        "size": 2028463
+        "sha256": "d54a8960d1ffcd44f292d1af49b0299527986934b68f932d18363028c17fc74b",
+        "size": 2028807
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9315,6 +9315,11 @@
         "size": 1589
       },
       {
+        "path": "pages/runbooks/story-api-broadcaster-nonce-drift-incident.md",
+        "sha256": "4a2f0a677bfda2f01399f20f6964839251d89c7717b7c8b2bb218cf59c9ca64c",
+        "size": 1518
+      },
+      {
         "path": "pages/runbooks/story-api-broadcaster-nonce-drift.md",
         "sha256": "59a858fb6eae734c8453648e7839e60dd4e55a2f8e75859d80cf435951acfb6e",
         "size": 1529
@@ -10729,8 +10734,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T01:04:27Z",
-  "file_count": 2144,
+  "exported_at": "2026-06-27T01:16:24Z",
+  "file_count": 2145,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14007,7 +14012,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d1303c9dbae03ab2deeea7647098a933901163d4793263e7b706d7bcf96b7994",
+  "previous_tree_hash": "2c4066c4d41a51b7399b16f9eea1bd9d633660c594e0745880e5d89474944a94",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14020,14 +14025,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "2c4066c4d41a51b7399b16f9eea1bd9d633660c594e0745880e5d89474944a94",
+  "tree_hash": "b3f492de7b656d12fb0e77df8bbb299a5d89ac4db4817d0240a70e179109301c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1490,
+  "wiki_file_count": 1491,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14041,8 +14046,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "5eb0db87f233f36076f63c1cff20c16d7a116f8aa955804077b95af5f53cb51f",
-      "size": 2028463
+      "sha256": "d54a8960d1ffcd44f292d1af49b0299527986934b68f932d18363028c17fc74b",
+      "size": 2028807
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20070,6 +20075,11 @@
       "size": 1589
     },
     {
+      "path": "pages/runbooks/story-api-broadcaster-nonce-drift-incident.md",
+      "sha256": "4a2f0a677bfda2f01399f20f6964839251d89c7717b7c8b2bb218cf59c9ca64c",
+      "size": 1518
+    },
+    {
       "path": "pages/runbooks/story-api-broadcaster-nonce-drift.md",
       "sha256": "59a858fb6eae734c8453648e7839e60dd4e55a2f8e75859d80cf435951acfb6e",
       "size": 1529
@@ -21481,5 +21491,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "880569ec7c7d0bdf8b4fb3d54935c7e570e0cf0e74357591ee9f4f7f1003cecd"
+  "wiki_tree_hash": "529b2dbc64f1e0689a7d155ae3300e428f92816e51fd913a5368859b8e89b6ab"
 }
