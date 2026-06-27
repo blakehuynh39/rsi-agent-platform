@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "a938d178ea42bb960ca8f7780c2ccac1cf4d54c093b9ab4df947c846e24aa429",
-        "size": 2038438
+        "sha256": "4282b317a14262e4e25b951c827c4002156fdd17f14bc1f9df40c3d86dc8b636",
+        "size": 2038786
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8730,6 +8730,11 @@
         "size": 3793
       },
       {
+        "path": "pages/runbooks/dispute-api-500-error-incident.md",
+        "sha256": "9b3dbb51471deb3ce0ac68e44a3f245ae602ecaeb421eda655c98a0966ef1220",
+        "size": 1485
+      },
+      {
         "path": "pages/runbooks/docker-ecr-login.md",
         "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
         "size": 1616
@@ -10824,8 +10829,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T05:20:04Z",
-  "file_count": 2163,
+  "exported_at": "2026-06-27T05:31:51Z",
+  "file_count": 2164,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14102,7 +14107,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8cda9da679de8b90b6bd8e738bb9159824e8052dccec832c9b8422a593eada58",
+  "previous_tree_hash": "c869588deb194325719a1aa62aa0870fa191f9ee2034b9b480a870537381fc99",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14115,14 +14120,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "c869588deb194325719a1aa62aa0870fa191f9ee2034b9b480a870537381fc99",
+  "tree_hash": "9c0e72828121b7440ea3935a8d86dfd8a51859b07f8cee83ee7208d478e0716b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1509,
+  "wiki_file_count": 1510,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14136,8 +14141,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "a938d178ea42bb960ca8f7780c2ccac1cf4d54c093b9ab4df947c846e24aa429",
-      "size": 2038438
+      "sha256": "4282b317a14262e4e25b951c827c4002156fdd17f14bc1f9df40c3d86dc8b636",
+      "size": 2038786
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19580,6 +19585,11 @@
       "size": 3793
     },
     {
+      "path": "pages/runbooks/dispute-api-500-error-incident.md",
+      "sha256": "9b3dbb51471deb3ce0ac68e44a3f245ae602ecaeb421eda655c98a0966ef1220",
+      "size": 1485
+    },
+    {
       "path": "pages/runbooks/docker-ecr-login.md",
       "sha256": "ba88e0a35801b5dd8d5e90bf184c9ec5ff5f0d7a3dad185156a09aba64a2e3a1",
       "size": 1616
@@ -21671,5 +21681,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4ecee6b9817d23cf3c597797b83b6b47aa7e2718025d852e0bd4e35317bba38c"
+  "wiki_tree_hash": "3b69d361be72be48d92d8c3a7fcdde026f7a79747d74cdf1b6ada3170ddd0f69"
 }

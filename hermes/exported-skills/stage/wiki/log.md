@@ -41124,3 +41124,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_70c96e35b6e44a0e3ce1c71a72ff6bf0
 - summary: The story-api endpoint GET /api/v1/data-audit/feed failed with a 500 Internal Server Error, reading EOF. The incident was tracked in Sentry as STORY-API-F0 and later resolved by Bl...
 
+## [2026-06-27T05:31:06Z] synthesis | Dispute API 500 Error Incident
+
+- status: published
+- slug: runbooks/dispute-api-500-error-incident
+- wiki_revision_id: wikirev_3501f7927669093a6f71b104c81d7da8
+- summary: An incident where POST /api/v4/disputes returned a 500 Internal Server Error, which was later resolved by blake.huynh@storyprotocol.xyz.
+
+## [2026-06-27T05:31:51Z] synthesis | Story-API F3: IP Assets Retrieval Connection Refused
+
+- status: published
+- slug: runbooks/story-api-f3-ip-assets-error
+- wiki_revision_id: wikirev_4fa8808676f83042e1710fd711c0ec92
+- summary: Incident where Story-API failed to retrieve IP assets due to a connection refused error to PostgreSQL at 10.32.101.130:5432, later resolved.
+
