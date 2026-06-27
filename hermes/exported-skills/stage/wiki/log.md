@@ -41187,3 +41187,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_0b69d3ff933587dea85b9911f8d8aa13
 - summary: A service that encountered an indexing error with ip_group, which was resolved by Blake Huynh.
 
+## [2026-06-27T06:46:26Z] synthesis | Dispute Aggregation Error in Story Orchestration Service
+
+- status: published
+- slug: concepts/dispute-aggregation-error
+- wiki_revision_id: wikirev_0ab49fe68fae600826ce4b3a3179c708
+- summary: An aggregation error related to dispute aggregation occurred in the story-orchestration-service. It was marked as resolved via Sentry issue STORY-ORCHESTRATION-SERVICE-FM.
+
+## [2026-06-27T06:47:35Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_c31163b0fa0725a5455325bf7d5a50ea
+- summary: Service that aggregates IP-related data streams, observed producing various errors.
+

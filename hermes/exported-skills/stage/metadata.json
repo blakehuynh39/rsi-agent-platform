@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "14b1c89fd008582e3122c4085f93aa2c1919bb3b902009fdee4e5f9679c0a85a",
-        "size": 1210145
+        "sha256": "ddea2b296c5ff0f00f70c7e6a6ea8e5b5881811d1cb97227c4b7f64fb0df5e89",
+        "size": 1210527
       },
       {
         "path": "log.md",
-        "sha256": "5c4fdd1420e4edbcdce01a7531d3f1d93bf8c1c3b47fd04a71d741680ba6e869",
-        "size": 2041760
+        "sha256": "d63e3e670fd7bb2bf5aee796cf9f1476ac83b1734e632b5a72e29b8904c0eff2",
+        "size": 2042452
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3578,6 +3578,11 @@
         "path": "pages/concepts/devex.md",
         "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
         "size": 1244
+      },
+      {
+        "path": "pages/concepts/dispute-aggregation-error.md",
+        "sha256": "dae394b329418c0caf7c911d7f6988df883d8242cd2a7bca8100e9c85b563eef",
+        "size": 1700
       },
       {
         "path": "pages/concepts/documentation-portal-structure.md",
@@ -10696,8 +10701,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "14c5b737cde6f3717b061dc55251fb9d0ee82753b130b8b1cffe3744c4c8a0fb",
-        "size": 1526
+        "sha256": "d091e01d44630cf9b7bd1584b57297e849afa1642f124be83f645f84baac23c1",
+        "size": 5734
       },
       {
         "path": "pages/systems/story-private-fork.md",
@@ -10859,8 +10864,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T06:37:56Z",
-  "file_count": 2170,
+  "exported_at": "2026-06-27T06:49:42Z",
+  "file_count": 2171,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14137,7 +14142,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1a01594b368ced9760af9f462b1c2d3ab2aa4202a9d638058c4ba7eb786ceac9",
+  "previous_tree_hash": "e0d69da419d9994fd2a63ce070b91db1766599236d850d223fb2e76396f72ea4",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14150,14 +14155,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e0d69da419d9994fd2a63ce070b91db1766599236d850d223fb2e76396f72ea4",
+  "tree_hash": "88b233784b26a69ca24a6cbb11567f4c2636bc99accfd21f370cb485b19b168d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1516,
+  "wiki_file_count": 1517,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14166,13 +14171,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "14b1c89fd008582e3122c4085f93aa2c1919bb3b902009fdee4e5f9679c0a85a",
-      "size": 1210145
+      "sha256": "ddea2b296c5ff0f00f70c7e6a6ea8e5b5881811d1cb97227c4b7f64fb0df5e89",
+      "size": 1210527
     },
     {
       "path": "log.md",
-      "sha256": "5c4fdd1420e4edbcdce01a7531d3f1d93bf8c1c3b47fd04a71d741680ba6e869",
-      "size": 2041760
+      "sha256": "d63e3e670fd7bb2bf5aee796cf9f1476ac83b1734e632b5a72e29b8904c0eff2",
+      "size": 2042452
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14463,6 +14468,11 @@
       "path": "pages/concepts/devex.md",
       "sha256": "d45a5dfa63ec8979832b8573324d05793aa724ac8125f2b0eb6b01abdea0c612",
       "size": 1244
+    },
+    {
+      "path": "pages/concepts/dispute-aggregation-error.md",
+      "sha256": "dae394b329418c0caf7c911d7f6988df883d8242cd2a7bca8100e9c85b563eef",
+      "size": 1700
     },
     {
       "path": "pages/concepts/documentation-portal-structure.md",
@@ -21581,8 +21591,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "14c5b737cde6f3717b061dc55251fb9d0ee82753b130b8b1cffe3744c4c8a0fb",
-      "size": 1526
+      "sha256": "d091e01d44630cf9b7bd1584b57297e849afa1642f124be83f645f84baac23c1",
+      "size": 5734
     },
     {
       "path": "pages/systems/story-private-fork.md",
@@ -21741,5 +21751,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6bb7cf2c96acbe82df2080f006bc843e79406a19afabbbbc59c80eaee8060d7a"
+  "wiki_tree_hash": "08ab693daa296e608ae9c74da91fe250d98dac6a75f26c0d98376177072e6510"
 }
