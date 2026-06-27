@@ -41152,3 +41152,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_13577d861ba6f0fbe67f833137cfec55
 - summary: On 2025-12-26, story-orchestration-service reported an indexing error related to licensing. The error was tracked in Sentry as issue STORY-ORCHESTRATION-SERVICE-FA and was marked r...
 
+## [2026-06-27T06:01:24Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_0848edb27d64174dd456bf4a00be93b3
+- summary: The story-orchestration-service experienced an aggregation error on collection_aggregation, which was later resolved by Blake Huynh.
+
+## [2026-06-27T06:02:09Z] synthesis | Story Orchestration Service Errors
+
+- status: published
+- slug: runbooks/story-orchestration-service-errors
+- wiki_revision_id: wikirev_f3d1d23c9edf7ce3302e39d19c94e1cc
+- summary: Record of known errors from the story-orchestration-service, including aggregation failures and database constraint violations, with an indication that these are expected to be rep...
+

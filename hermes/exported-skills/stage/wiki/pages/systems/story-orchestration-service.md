@@ -2,16 +2,16 @@
 title: "Story Orchestration Service"
 type: "system"
 slug: "systems/story-orchestration-service"
-freshness: "2026-04-18T06:52:07Z"
+freshness: "2026-02-28T16:00:58Z"
 tags:
-  - "error"
-  - "story-orchestration"
-  - "timeout"
-owners: []
+  - "aggregation-error"
+  - "orchestration"
+  - "resolved"
+owners:
+  - "blake.huynh@storyprotocol.xyz"
 source_revision_ids:
-  - "srcrev_719bd46f2709b7be3e068d84b4652555"
-  - "srcrev_a7df68cbb8869604c3f187601dedae5b"
-  - "srcrev_fc2249db3c5c937a609f642ca588db8f"
+  - "srcrev_3494aa2639faaed64f40bfcbe2721c52"
+  - "srcrev_60c7999debb8c5798cc919dd265d9efb"
 conflict_state: "none"
 ---
 
@@ -19,22 +19,16 @@ conflict_state: "none"
 
 ## Summary
 
-The story-orchestration-service has experienced multiple request timeout errors (context deadline exceeded).
+The story-orchestration-service experienced an aggregation error on collection_aggregation, which was later resolved by Blake Huynh.
 
 ## Claims
 
-- The story-orchestration-service logged a request timeout error: 'fmt.wrapError: request timeout: context deadline exceeded'. `claim:claim_1_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_521f84d36c8b0382f53c871b53846bdd` `source_revision_id=srcrev_fc2249db3c5c937a609f642ca588db8f` `chunk_id=srcchunk_ae13e53de80c7764b760da6f09057428` `native_locator=slack:C08BWTULNPP:1770906899.979959:1770906899.979959` `source_timestamp=2026-02-12T14:34:59Z`
-- The Sentry issue STORY-ORCHESTRATION-SERVICE-FK was marked as resolved. `claim:claim_1_2` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_521f84d36c8b0382f53c871b53846bdd` `source_revision_id=srcrev_719bd46f2709b7be3e068d84b4652555` `chunk_id=srcchunk_fe22ca16c94bfff6f753d07336dfe6d4` `native_locator=slack:C08BWTULNPP:1770906899.979959:1772294460.476209` `source_timestamp=2026-02-28T16:01:00Z`
-- A later occurrence of the same request timeout error was observed. `claim:claim_1_3` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_521f84d36c8b0382f53c871b53846bdd` `source_revision_id=srcrev_a7df68cbb8869604c3f187601dedae5b` `chunk_id=srcchunk_cedb97c895d09331692adfdf9ab71b1e` `native_locator=slack:C08BWTULNPP:1770906899.979959:1776495127.641279` `source_timestamp=2026-04-18T06:52:07Z`
-
-## Open Questions
-
-- Why did the request timeout error reoccur after the Sentry issue STORY-ORCHESTRATION-SERVICE-FK was resolved?
+- The story orchestration service encountered an aggregation error on collection_aggregation. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_3494aa2639faaed64f40bfcbe2721c52` `chunk_id=srcchunk_8e16c4f98db5fd69927e07756c735a79` `native_locator=slack:C08BWTULNPP:1769811680.364389:1769811680.364389` `source_timestamp=2026-01-30T22:21:20Z`
+- The aggregation error was resolved, as marked by blake.huynh@storyprotocol.xyz in Sentry. `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_60c7999debb8c5798cc919dd265d9efb` `chunk_id=srcchunk_9e442309ceb999fc21f96bd30a4fb4e6` `native_locator=slack:C08BWTULNPP:1769811680.364389:1772294458.385469` `source_timestamp=2026-02-28T16:00:58Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_521f84d36c8b0382f53c871b53846bdd`
-- `source_revision_id`: `srcrev_a7df68cbb8869604c3f187601dedae5b`
+- `source_document_id`: `srcdoc_2e3156dcfc319ad4f1adbd22e72bf779`
+- `source_revision_id`: `srcrev_3494aa2639faaed64f40bfcbe2721c52`
