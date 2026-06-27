@@ -41236,3 +41236,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_320585fc0bf98f3ef0449786a6b9ef92
 - summary: Discussion on whether the Numo app should target gameplay recording (screen, keystrokes, voice comms) for competitive games to create a data product for AI labs, inspired by Medal....
 
+## [2026-06-27T08:03:08Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_1f576f4992e5f2f3b2ec1b0d1382cf41
+- summary: The story-orchestration-service produced a 'context canceled' error, which was marked resolved by Blake Huynh.
+

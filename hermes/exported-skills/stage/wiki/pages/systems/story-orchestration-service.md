@@ -2,25 +2,16 @@
 title: "Story Orchestration Service"
 type: "system"
 slug: "systems/story-orchestration-service"
-freshness: "2026-05-30T05:07:19Z"
+freshness: "2026-02-28T16:00:58Z"
 tags:
-  - "errors"
-  - "ip"
+  - "incident"
   - "orchestration"
-  - "story"
-owners: []
+  - "service"
+owners:
+  - "Blake Huynh"
 source_revision_ids:
-  - "srcrev_078012d6bf004c9bf41a379c9cc01703"
-  - "srcrev_2373a038a5b933db0de8fc000aa2770c"
-  - "srcrev_3820b01d575299701a0894fe812898e6"
-  - "srcrev_452228c6884cb4dc8e16b65ed20bd437"
-  - "srcrev_48b7dd575a78fb52e2cebe455db25ad5"
-  - "srcrev_5eae208e55c0a78d02ec6ec4d406553a"
-  - "srcrev_8ca3cce31936672de2fc53830f92cdb7"
-  - "srcrev_b5bbc6d2ca9a574316905f624b62d460"
-  - "srcrev_db6e842a6f596165a1c372d971fd092a"
-  - "srcrev_deae808adc1aeb6f5b0482b706dee7b7"
-  - "srcrev_f7a1351902c991b994a1576b15628b90"
+  - "srcrev_089fd96d88ae741e49261eba14cec5c5"
+  - "srcrev_e330a62774c606de972faac6de4291bd"
 conflict_state: "none"
 ---
 
@@ -28,41 +19,16 @@ conflict_state: "none"
 
 ## Summary
 
-Service that aggregates IP-related data streams, observed producing various errors.
+The story-orchestration-service produced a 'context canceled' error, which was marked resolved by Blake Huynh.
 
 ## Claims
 
-- Story-orchestration-service experienced a runtime panic (nil pointer dereference). `claim:claim_1_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_db6e842a6f596165a1c372d971fd092a` `chunk_id=srcchunk_67c6aecf38ded26757e7cbf86cead4ca` `native_locator=slack:C08BWTULNPP:1770903185.138749:1770903185.138749` `source_timestamp=2026-02-12T13:33:05Z`
-- Aggregation Error encountered: nft_ownership. `claim:claim_1_2` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_deae808adc1aeb6f5b0482b706dee7b7` `chunk_id=srcchunk_b022660efa21da63f5831bc96a4fef2d` `native_locator=slack:C08BWTULNPP:1771973672.136439:1771973672.136439` `source_timestamp=2026-02-24T22:54:32Z`
-- Aggregation Error: ip_licensing_enrichment. `claim:claim_1_3` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_5eae208e55c0a78d02ec6ec4d406553a` `chunk_id=srcchunk_44437b64311f7de255379ee4f202201c` `native_locator=slack:C08BWTULNPP:1771976184.985769:1771976184.985769` `source_timestamp=2026-02-24T23:36:24Z`
-- Aggregation Error: ip_transactions. `claim:claim_1_4` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_8ca3cce31936672de2fc53830f92cdb7` `chunk_id=srcchunk_1b71efe3238176201607b2fa327a6cab` `native_locator=slack:C08BWTULNPP:1771985122.941059:1771985122.941059` `source_timestamp=2026-02-25T02:05:22Z`
-- Context canceled error occurred. `claim:claim_1_5` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_078012d6bf004c9bf41a379c9cc01703` `chunk_id=srcchunk_549ce15ef6f05e9d32d19aa80d0fd929` `native_locator=slack:C08BWTULNPP:1772180932.085359:1772180932.085359` `source_timestamp=2026-02-27T08:28:52Z`
-- A team member mentioned that expected errors will be replaced, possibly indicating a planned improvement in error handling. `claim:claim_1_6` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_48b7dd575a78fb52e2cebe455db25ad5` `chunk_id=srcchunk_62429d0a3da8a1af61ba54802e84da09` `native_locator=slack:C08BWTULNPP:1772241055.836429:1772241055.836429` `source_timestamp=2026-02-28T01:10:55Z`
-- Aggregation Error: ip_infringement_processing. `claim:claim_1_7` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_3820b01d575299701a0894fe812898e6` `chunk_id=srcchunk_f46e0a76a30f5de634ed46b2c98f01c1` `native_locator=slack:C08BWTULNPP:1772294659.456609:1772294659.456609` `source_timestamp=2026-02-28T16:04:19Z`
-- Null value constraint violation in 'nodes' table (created_at column missing). `claim:claim_1_8` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_452228c6884cb4dc8e16b65ed20bd437` `chunk_id=srcchunk_1e4a594de05cb04ff692e695f93cce40` `native_locator=slack:C08BWTULNPP:1772500292.953819:1772500292.953819` `source_timestamp=2026-03-03T01:11:32Z`
-- Null value constraint violation in 'edges' table (id column missing). `claim:claim_1_9` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_f7a1351902c991b994a1576b15628b90` `chunk_id=srcchunk_677039f44734ddc313b67c812817e42a` `native_locator=slack:C08BWTULNPP:1772501506.764919:1772501506.764919` `source_timestamp=2026-03-03T01:31:46Z`
-- Aggregation Error: ip_graph_aggregation. `claim:claim_1_10` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_b5bbc6d2ca9a574316905f624b62d460` `chunk_id=srcchunk_7581b957581cc52a8a475a250ec57479` `native_locator=slack:C08BWTULNPP:1773873790.654569:1773873790.654569` `source_timestamp=2026-03-18T22:43:10Z`
-- Aggregation Error: ip_ownership (separate from earlier nft_ownership error). `claim:claim_1_11` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_6d98173eca656bf5435ac44d48403fb0` `source_revision_id=srcrev_2373a038a5b933db0de8fc000aa2770c` `chunk_id=srcchunk_e92228eccc6d184560ff4401ec00afff` `native_locator=slack:C08BWTULNPP:1780117639.004389:1780117639.004389` `source_timestamp=2026-05-30T05:07:19Z`
-
-## Open Questions
-
-- Are errors due to upstream service unavailability or data inconsistencies?
-- How critical are these errors to the overall story orchestration pipeline?
-- What are the root causes of these aggregation errors?
-- What is the planned 'expected errors will replace' change?
+- The story-orchestration-service produced an error: 'errors.withStack: context canceled'. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_19ae1cafc3b1803c363f1a7c3ef68659` `source_revision_id=srcrev_e330a62774c606de972faac6de4291bd` `chunk_id=srcchunk_a36ea56ea9ff66fd2ec32faa020a78da` `native_locator=slack:C08BWTULNPP:1772246494.323179:1772246494.323179` `source_timestamp=2026-02-28T02:41:34Z`
+- The error was marked resolved by Blake Huynh (blake.huynh@storyprotocol.xyz). `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_19ae1cafc3b1803c363f1a7c3ef68659` `source_revision_id=srcrev_089fd96d88ae741e49261eba14cec5c5` `chunk_id=srcchunk_ef417b13ca5d0c6b6f00e3118a5f4592` `native_locator=slack:C08BWTULNPP:1772246494.323179:1772294458.521619` `source_timestamp=2026-02-28T16:00:58Z`
 
 ## Sources
 
-- `source_document_id`: `srcdoc_6d98173eca656bf5435ac44d48403fb0`
-- `source_revision_id`: `srcrev_deae808adc1aeb6f5b0482b706dee7b7`
+- `source_document_id`: `srcdoc_19ae1cafc3b1803c363f1a7c3ef68659`
+- `source_revision_id`: `srcrev_e330a62774c606de972faac6de4291bd`
