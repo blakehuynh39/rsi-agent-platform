@@ -41362,3 +41362,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_57c7ceb81c672443c076120fc0db9493
 - summary: Runbook for diagnosing and fixing nil pointer dereference errors in story-orchestration-service production.
 
+## [2026-06-27T09:48:20Z] synthesis | Runbook: Nil Pointer Dereference in story-orchestration-service
+
+- status: published
+- slug: runbooks/nil-pointer-dereference-story-orchestration-service
+- wiki_revision_id: wikirev_7bbc44016e15375173e47df6a8dcc674
+- summary: Diagnosis and fix for a production nil pointer dereference in story-orchestration-service. Root cause: GetJobByWorkflowID returning nil for non-existent workflow IDs, and Temporal ...
+
+## [2026-06-27T09:48:20Z] synthesis | Open Question: Commit Signing for RSI Executor Bot
+
+- status: published
+- slug: open-questions/commit-signing-rsi-executor-bot
+- wiki_revision_id: wikirev_11876113d04a30766b3b24b9a297b595
+- summary: The RSI executor bot (rsi-platform-bot[bot]) runs as a GitHub App and cannot sign commits due to lack of GPG keys or SSH keys. The GitHub App model does not support commit signing....
+

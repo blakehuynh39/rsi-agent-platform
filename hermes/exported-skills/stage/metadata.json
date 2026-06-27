@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "19d12917d6cc31ad94a6710d05d56e73cc3a1bfca5dcccd515f43f578c5533fa",
-        "size": 1217062
+        "sha256": "f5acdd433af40862d34132403f25ca07fe4da48ff1835d052a731933ba8bae18",
+        "size": 1218274
       },
       {
         "path": "log.md",
-        "sha256": "29214902912683f2aafe6b52fc26aeaf53dc76c61e380bcc81403f2dc4ce4907",
-        "size": 2051736
+        "sha256": "d40c98ed4e85852e6050fc75d4e67f999366f49882c6c76702cc26392f828bcd",
+        "size": 2052607
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5953,6 +5953,11 @@
         "path": "pages/open-questions/blueprint-repo-access.md",
         "sha256": "c0b838d5d99d648fc7ce14119ecd965fd223c8b647dd3899c70bb5bdf2a10f6e",
         "size": 1654
+      },
+      {
+        "path": "pages/open-questions/commit-signing-rsi-executor-bot.md",
+        "sha256": "810cefd87c8b9671e1127e88350e90c68629c6bc69b24503a10290837fbcb481",
+        "size": 3227
       },
       {
         "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
@@ -9095,6 +9100,11 @@
         "size": 3148
       },
       {
+        "path": "pages/runbooks/nil-pointer-dereference-story-orchestration-service.md",
+        "sha256": "42af171df22f81a2d60cba60495b1901be331928d2ddf272dd933cebc5d4655e",
+        "size": 4307
+      },
+      {
         "path": "pages/runbooks/node-recovery-process.md",
         "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
         "size": 6068
@@ -10949,8 +10959,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T09:47:21Z",
-  "file_count": 2188,
+  "exported_at": "2026-06-27T09:54:05Z",
+  "file_count": 2190,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14227,7 +14237,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6236edd2be6a627ecbc2f556b86093007af3066620b9c8f736a464fb8d183ea9",
+  "previous_tree_hash": "d36a2f1f9fbf917ac18c812ff0c37061e4a59bf30cedcb8d97d1e2c73ed7654a",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14240,14 +14250,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d36a2f1f9fbf917ac18c812ff0c37061e4a59bf30cedcb8d97d1e2c73ed7654a",
+  "tree_hash": "e0429a5015131ed23bd6ab1affa944ddad6b984c0b875e899b910f4b6e84ee5b",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1534,
+  "wiki_file_count": 1536,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14256,13 +14266,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "19d12917d6cc31ad94a6710d05d56e73cc3a1bfca5dcccd515f43f578c5533fa",
-      "size": 1217062
+      "sha256": "f5acdd433af40862d34132403f25ca07fe4da48ff1835d052a731933ba8bae18",
+      "size": 1218274
     },
     {
       "path": "log.md",
-      "sha256": "29214902912683f2aafe6b52fc26aeaf53dc76c61e380bcc81403f2dc4ce4907",
-      "size": 2051736
+      "sha256": "d40c98ed4e85852e6050fc75d4e67f999366f49882c6c76702cc26392f828bcd",
+      "size": 2052607
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16928,6 +16938,11 @@
       "path": "pages/open-questions/blueprint-repo-access.md",
       "sha256": "c0b838d5d99d648fc7ce14119ecd965fd223c8b647dd3899c70bb5bdf2a10f6e",
       "size": 1654
+    },
+    {
+      "path": "pages/open-questions/commit-signing-rsi-executor-bot.md",
+      "sha256": "810cefd87c8b9671e1127e88350e90c68629c6bc69b24503a10290837fbcb481",
+      "size": 3227
     },
     {
       "path": "pages/open-questions/cosmos-upgrade-process-questions.md",
@@ -20070,6 +20085,11 @@
       "size": 3148
     },
     {
+      "path": "pages/runbooks/nil-pointer-dereference-story-orchestration-service.md",
+      "sha256": "42af171df22f81a2d60cba60495b1901be331928d2ddf272dd933cebc5d4655e",
+      "size": 4307
+    },
+    {
       "path": "pages/runbooks/node-recovery-process.md",
       "sha256": "2d77986dd78a017e9f954551557749879c45581f8509c8f501ead85ba85418fa",
       "size": 6068
@@ -21921,5 +21941,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "16e18b1433d2c911289ea00d3801d30bcb01e8de7f762237013c91a018f24632"
+  "wiki_tree_hash": "5cafcb8cade586c99a9f09a23fdf0fa1403310fe28249d20468a03134a4c3b33"
 }
