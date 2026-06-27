@@ -41257,3 +41257,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_fa76f28b568d438ba8f218c99adf69ef
 - summary: The Story Orchestration Service responsible for aggregating IP-related data, experiencing various errors as logged in Slack.
 
+## [2026-06-27T08:30:51Z] synthesis | story-orchestration-service: ON CONFLICT constraint error (42P10)
+
+- status: published
+- slug: runbooks/incident-story-orchestration-42p10
+- wiki_revision_id: wikirev_3d116318687c6c0c9b64a7edfaa19b5e
+- summary: story-orchestration-service experienced a PostgreSQL error #42P10 due to a missing unique or exclusion constraint for an ON CONFLICT clause. The Sentry issue was resolved by Blake ...
+
+## [2026-06-27T08:32:23Z] synthesis | Story Orchestration Service Error Catalog
+
+- status: published
+- slug: runbooks/story-orchestration-service-error-catalog
+- wiki_revision_id: wikirev_8c3aa01a2c7b0b8ea633e774720cc286
+- summary: Catalog of errors observed in the story-orchestration-service, including aggregation failures, nil pointer dereferences, context cancellations, and not-null constraint violations.
+

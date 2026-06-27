@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "da0cded5800126e9a4935be4451d3588cacfdde069207d8abf459152c8bdb3bc",
-        "size": 1212182
+        "sha256": "de733fcf026e4871a3e5eac910105de0552d1a1cb7cdd5b3e381d12a8cb3d0a0",
+        "size": 1213006
       },
       {
         "path": "log.md",
-        "sha256": "25a0ae0073321f8c6f4e6c8384651d88d2334452bdd0810a01f9c7c9205e7b9a",
-        "size": 2045596
+        "sha256": "b935ea1c86a788658320a69dad2e5688e0801ba4e7087c3613967b14a4633bb4",
+        "size": 2046443
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8915,6 +8915,11 @@
         "size": 1823
       },
       {
+        "path": "pages/runbooks/incident-story-orchestration-42p10.md",
+        "sha256": "ff58d643a438cb55d908be43f8c56830030c66f1c3c3ae1fa872d65dede20ba8",
+        "size": 1796
+      },
+      {
         "path": "pages/runbooks/intercom-setup-for-numolabs.md",
         "sha256": "87db296ea798b5281732aa17245413dee9ccc309fdb4cb12b940cbc0b555eb45",
         "size": 4353
@@ -9523,6 +9528,11 @@
         "path": "pages/runbooks/story-orchestration-service-context-canceled-incident.md",
         "sha256": "84315c2b98aedd6c6a2a678153c74c022a9a027a9590fd73173e9d3b7fdde0d6",
         "size": 1690
+      },
+      {
+        "path": "pages/runbooks/story-orchestration-service-error-catalog.md",
+        "sha256": "e7f120d4243ba60851dab5fd3bdae410ae68d9191dd3a81ff433ba3f0b34d761",
+        "size": 5810
       },
       {
         "path": "pages/runbooks/story-orchestration-service-errors.md",
@@ -10884,8 +10894,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T08:17:45Z",
-  "file_count": 2175,
+  "exported_at": "2026-06-27T08:34:39Z",
+  "file_count": 2177,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14162,7 +14172,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "079869e4504641f536e49e165557d7f63b835fb531d44024e4cebe22fcc665ce",
+  "previous_tree_hash": "7473aa8c769d13489c94bdc2b69515ae15c35266680a1b93eb6462665c833ba5",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14175,14 +14185,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7473aa8c769d13489c94bdc2b69515ae15c35266680a1b93eb6462665c833ba5",
+  "tree_hash": "11fe7b3a2cc5680341e49d60bd083499c48c80004ebc57826f33059ef207d516",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1521,
+  "wiki_file_count": 1523,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14191,13 +14201,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "da0cded5800126e9a4935be4451d3588cacfdde069207d8abf459152c8bdb3bc",
-      "size": 1212182
+      "sha256": "de733fcf026e4871a3e5eac910105de0552d1a1cb7cdd5b3e381d12a8cb3d0a0",
+      "size": 1213006
     },
     {
       "path": "log.md",
-      "sha256": "25a0ae0073321f8c6f4e6c8384651d88d2334452bdd0810a01f9c7c9205e7b9a",
-      "size": 2045596
+      "sha256": "b935ea1c86a788658320a69dad2e5688e0801ba4e7087c3613967b14a4633bb4",
+      "size": 2046443
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19825,6 +19835,11 @@
       "size": 1823
     },
     {
+      "path": "pages/runbooks/incident-story-orchestration-42p10.md",
+      "sha256": "ff58d643a438cb55d908be43f8c56830030c66f1c3c3ae1fa872d65dede20ba8",
+      "size": 1796
+    },
+    {
       "path": "pages/runbooks/intercom-setup-for-numolabs.md",
       "sha256": "87db296ea798b5281732aa17245413dee9ccc309fdb4cb12b940cbc0b555eb45",
       "size": 4353
@@ -20433,6 +20448,11 @@
       "path": "pages/runbooks/story-orchestration-service-context-canceled-incident.md",
       "sha256": "84315c2b98aedd6c6a2a678153c74c022a9a027a9590fd73173e9d3b7fdde0d6",
       "size": 1690
+    },
+    {
+      "path": "pages/runbooks/story-orchestration-service-error-catalog.md",
+      "sha256": "e7f120d4243ba60851dab5fd3bdae410ae68d9191dd3a81ff433ba3f0b34d761",
+      "size": 5810
     },
     {
       "path": "pages/runbooks/story-orchestration-service-errors.md",
@@ -21791,5 +21811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d53ef8c04136a43ba9b834d946a82add330b71a8cf3b5f737e73a5add92c7d10"
+  "wiki_tree_hash": "ce5801995f3dc4e59b7213c7ed3d3e3e928379ab4c8f99f01f1496245e9f78f6"
 }
