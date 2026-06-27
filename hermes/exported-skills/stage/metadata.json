@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6e66bfe40796837580898f41a827a3e16b5b2d2ec95e059f35825e4fb607e40c",
-        "size": 1204740
+        "sha256": "2d93d12154f57c57edb50bbef766422c6422422820989196427fbbf03a391c26",
+        "size": 1205529
       },
       {
         "path": "log.md",
-        "sha256": "17bf828fb5d000d8ef8099e76d68408d845515a6ee0a0f077f306c435b7c41ef",
-        "size": 2034267
+        "sha256": "55384979d6a6d3cb9764341cf94b59248f912329a9a8bbe705aa364b12a5b854",
+        "size": 2035080
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9395,6 +9395,11 @@
         "size": 1594
       },
       {
+        "path": "pages/runbooks/story-api-projection-conflict-tx-hash.md",
+        "sha256": "54c32e3dbd77d644d4f603643a04491292d18bd79571c7cc16cc78c5e6ca8f09",
+        "size": 1715
+      },
+      {
         "path": "pages/runbooks/story-api-projection-conflict-txhash-overwrite.md",
         "sha256": "1765e6916898171597e11988b694102253507ac68de69b70c65ab894496441d3",
         "size": 1649
@@ -9758,6 +9763,11 @@
         "path": "pages/systems/bank-vault.md",
         "sha256": "f0b1668850d62bd0fb4962d1fd9dc9fb168a6544cde5f5464f304601cae1df4e",
         "size": 2286
+      },
+      {
+        "path": "pages/systems/block-util-observer-rpc-failure.md",
+        "sha256": "c5285ac4e53037fc94e78eb59b39e82cd30184eae69fbba26b177774ff9d634a",
+        "size": 1558
       },
       {
         "path": "pages/systems/broadcaster-gas-control-system.md",
@@ -10789,8 +10799,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T03:21:41Z",
-  "file_count": 2156,
+  "exported_at": "2026-06-27T03:33:34Z",
+  "file_count": 2158,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14067,7 +14077,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "3480752aa08dc8195efbe74e99e9242534a052c3d80f1e863cdfb9848d1e71dd",
+  "previous_tree_hash": "dc0d1e3b3e1069bccb602d69997be91b9cd896ad9e5ef8060620e7a005b1def3",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14080,14 +14090,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "dc0d1e3b3e1069bccb602d69997be91b9cd896ad9e5ef8060620e7a005b1def3",
+  "tree_hash": "c05b728da411cbf5ad875a4aef8169b3d06c57cc53e0e833bba4a89200de20ea",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1502,
+  "wiki_file_count": 1504,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14096,13 +14106,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6e66bfe40796837580898f41a827a3e16b5b2d2ec95e059f35825e4fb607e40c",
-      "size": 1204740
+      "sha256": "2d93d12154f57c57edb50bbef766422c6422422820989196427fbbf03a391c26",
+      "size": 1205529
     },
     {
       "path": "log.md",
-      "sha256": "17bf828fb5d000d8ef8099e76d68408d845515a6ee0a0f077f306c435b7c41ef",
-      "size": 2034267
+      "sha256": "55384979d6a6d3cb9764341cf94b59248f912329a9a8bbe705aa364b12a5b854",
+      "size": 2035080
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20210,6 +20220,11 @@
       "size": 1594
     },
     {
+      "path": "pages/runbooks/story-api-projection-conflict-tx-hash.md",
+      "sha256": "54c32e3dbd77d644d4f603643a04491292d18bd79571c7cc16cc78c5e6ca8f09",
+      "size": 1715
+    },
+    {
       "path": "pages/runbooks/story-api-projection-conflict-txhash-overwrite.md",
       "sha256": "1765e6916898171597e11988b694102253507ac68de69b70c65ab894496441d3",
       "size": 1649
@@ -20573,6 +20588,11 @@
       "path": "pages/systems/bank-vault.md",
       "sha256": "f0b1668850d62bd0fb4962d1fd9dc9fb168a6544cde5f5464f304601cae1df4e",
       "size": 2286
+    },
+    {
+      "path": "pages/systems/block-util-observer-rpc-failure.md",
+      "sha256": "c5285ac4e53037fc94e78eb59b39e82cd30184eae69fbba26b177774ff9d634a",
+      "size": 1558
     },
     {
       "path": "pages/systems/broadcaster-gas-control-system.md",
@@ -21601,5 +21621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "d76cb52d45bafd33949cf3801951e0f1402cf2a68598cbd648809a26fee3ec1f"
+  "wiki_tree_hash": "0fa73affd7eb821ef0ff32807c317489b4499b81f531c8706fdb4437074fb393"
 }

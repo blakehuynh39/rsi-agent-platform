@@ -41047,3 +41047,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_d95b353a6770df26fc0d185107b98452
 - summary: Recurring fatal stream error in the story-api shard task, tracked as STORY-API-ES in Sentry, with multiple resolution attempts.
 
+## [2026-06-27T03:31:04Z] synthesis | Block-util observer RPC failure
+
+- status: published
+- slug: systems/block-util-observer-rpc-failure
+- wiki_revision_id: wikirev_0263998c852e1d6bd5909cd4dabf4fd7
+- summary: On 2026-06-08, the story-api block-util observer encountered an RPC failure, causing the gate open to fail. The issue was marked as resolved by Blake Huynh.
+
+## [2026-06-27T03:32:38Z] synthesis | story-api projection conflict: refusing to overwrite an existing tx_hash
+
+- status: published
+- slug: runbooks/story-api-projection-conflict-tx-hash
+- wiki_revision_id: wikirev_f117e5e65bb7e46290df95d66131dc6c
+- summary: An incident where story-api's projection layer encountered a conflict when trying to overwrite an existing tx_hash. The issue was reported via Sentry and later marked as resolved b...
+
