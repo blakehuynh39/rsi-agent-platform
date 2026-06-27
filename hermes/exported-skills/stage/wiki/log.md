@@ -41355,3 +41355,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_b5732ab0e1f03e74cbcff4b663a851f3
 - summary: The RSI executor bot made a commit (fa1f78e) without a verified signature, violating GitHub policy. The executor lacks GPG/SSH keys. Options: human operator amend and sign, or infr...
 
+## [2026-06-27T09:46:48Z] synthesis | Story Orchestration Service Nil Pointer Dereference Runbook
+
+- status: published
+- slug: runbooks/nil-pointer-dereference-story-orchestration-service-runbook
+- wiki_revision_id: wikirev_57c7ceb81c672443c076120fc0db9493
+- summary: Runbook for diagnosing and fixing nil pointer dereference errors in story-orchestration-service production.
+
