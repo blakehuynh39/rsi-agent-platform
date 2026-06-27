@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "8293b4b77f76a1da7db6342d7dce50ac42f4913f49cfa05fa9cb74930fb9ade2",
-        "size": 1210932
+        "sha256": "3f8af9919107da85b099d23629a805133f334b7a551acb20d8db40050a32ed97",
+        "size": 1211715
       },
       {
         "path": "log.md",
-        "sha256": "43dddc83afdff4fafae1ede67a562a02115824a0c7900a387da9ff7347ce8ce8",
-        "size": 2044101
+        "sha256": "4a28ad6d615ea947c52e60b304ff3e253b025fade7f68b230a06d553b2612fbe",
+        "size": 2044514
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -3698,6 +3698,11 @@
         "path": "pages/concepts/future-research-direction-wishlist.md",
         "sha256": "406df965369e01ea5fdf36ec8fbe5ba70dfc7df42afb09e26b6e853a82457ce0",
         "size": 4703
+      },
+      {
+        "path": "pages/concepts/gameplay-recording-for-ai-training-data.md",
+        "sha256": "895d0d744ab1760dfa21a449f935a2e426402d288b841e2070542013ca0d5e08",
+        "size": 6236
       },
       {
         "path": "pages/concepts/gas-estimations.md",
@@ -10874,8 +10879,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T07:47:28Z",
-  "file_count": 2173,
+  "exported_at": "2026-06-27T07:54:08Z",
+  "file_count": 2174,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14152,7 +14157,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8f043e6c401b74fd5daacb85d8d1cb92714e03c9f7ba92b92f9e6fce28a2bd56",
+  "previous_tree_hash": "906042c83eebf4f595581fd04423ac239161dd56848d44b25f318345655aa9da",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14165,14 +14170,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "906042c83eebf4f595581fd04423ac239161dd56848d44b25f318345655aa9da",
+  "tree_hash": "f19ccd127c239b40be8a00a8a33766f31709fbf34b76d4385f53cbe9ea240198",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1519,
+  "wiki_file_count": 1520,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14181,13 +14186,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "8293b4b77f76a1da7db6342d7dce50ac42f4913f49cfa05fa9cb74930fb9ade2",
-      "size": 1210932
+      "sha256": "3f8af9919107da85b099d23629a805133f334b7a551acb20d8db40050a32ed97",
+      "size": 1211715
     },
     {
       "path": "log.md",
-      "sha256": "43dddc83afdff4fafae1ede67a562a02115824a0c7900a387da9ff7347ce8ce8",
-      "size": 2044101
+      "sha256": "4a28ad6d615ea947c52e60b304ff3e253b025fade7f68b230a06d553b2612fbe",
+      "size": 2044514
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -14598,6 +14603,11 @@
       "path": "pages/concepts/future-research-direction-wishlist.md",
       "sha256": "406df965369e01ea5fdf36ec8fbe5ba70dfc7df42afb09e26b6e853a82457ce0",
       "size": 4703
+    },
+    {
+      "path": "pages/concepts/gameplay-recording-for-ai-training-data.md",
+      "sha256": "895d0d744ab1760dfa21a449f935a2e426402d288b841e2070542013ca0d5e08",
+      "size": 6236
     },
     {
       "path": "pages/concepts/gas-estimations.md",
@@ -21771,5 +21781,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "eace1c7f16f4a87e1a04dde5add78ec0348dc75ee21f9298ce9f87c5fef64c80"
+  "wiki_tree_hash": "9214fffa62698c2638684a0d957fe36720af778f00a4d8a71e61585331492572"
 }

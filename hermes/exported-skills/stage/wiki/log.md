@@ -41229,3 +41229,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1181dee537dbed1732af23395b5286be
 - summary: The story-orchestration-service reported an aggregation error for ip_transactions. The issue was later resolved by Blake Huynh via Sentry issue STORY-ORCHESTRATION-SERVICE-FQ.
 
+## [2026-06-27T07:50:22Z] synthesis | Gameplay Recording for AI Training Data
+
+- status: published
+- slug: concepts/gameplay-recording-for-ai-training-data
+- wiki_revision_id: wikirev_320585fc0bf98f3ef0449786a6b9ef92
+- summary: Discussion on whether the Numo app should target gameplay recording (screen, keystrokes, voice comms) for competitive games to create a data product for AI labs, inspired by Medal....
+
