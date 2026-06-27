@@ -41012,3 +41012,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_9eb3c3ca9cb2ab175ea3bff4337bac56
 - summary: The story-api projector occasionally throws a tick failure error and retries after sleeping. The issue is tracked in Sentry as STORY-API-ER and has been manually resolved multiple ...
 
+## [2026-06-27T02:48:16Z] synthesis | Story API Projector Tick Failures
+
+- status: published
+- slug: systems/story-api-projector-tick-failures
+- wiki_revision_id: wikirev_bccb7e55bc257f67592d96aab143d278
+- summary: Recurring failures of the story-api projector tick, tracked in Sentry as STORY-API-ER. The issue has been resolved multiple times but reappears.
+

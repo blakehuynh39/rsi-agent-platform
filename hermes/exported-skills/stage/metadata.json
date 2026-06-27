@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "ec47342937bff6c38cb39b453ecd9864d05fc76d9e2bfadc3face38a3e5f3382",
-        "size": 1203091
+        "sha256": "b4f53c9575268d47be69b3212875b7b519f27f9ccd953343f9ad1d123a1d3712",
+        "size": 1203440
       },
       {
         "path": "log.md",
-        "sha256": "c7dd14ce7412a398cba9147a7a7588673b6501c3a4be55435009d000719bb134",
-        "size": 2032558
+        "sha256": "a114fa642e0c9cf9ed12335368bd0d85db868f10e93b781227f32b9ddc2750b3",
+        "size": 2032919
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10555,6 +10555,11 @@
         "size": 3149
       },
       {
+        "path": "pages/systems/story-api-projector-tick-failures.md",
+        "sha256": "10fbaf2cb02117e84308868a564e201043a2830797ec38f737fe3eb0c25f5c2f",
+        "size": 2914
+      },
+      {
         "path": "pages/systems/story-api-replacement-gas-failure.md",
         "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
         "size": 2019
@@ -10764,8 +10769,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T02:35:58Z",
-  "file_count": 2151,
+  "exported_at": "2026-06-27T02:52:55Z",
+  "file_count": 2152,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14042,7 +14047,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "cf32f90a830c531d3e06548d13ba5c46ca4235b5b31cd04d0dc8c0459a25f772",
+  "previous_tree_hash": "4d193501e060f8cbd841a7447e638c30e368af17d040eb371ec2487b96037312",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14055,14 +14060,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "4d193501e060f8cbd841a7447e638c30e368af17d040eb371ec2487b96037312",
+  "tree_hash": "aee03b9178c429be73ffc350ae7f4e3f6de62568faf7db705b25b8208277dc4c",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1497,
+  "wiki_file_count": 1498,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14071,13 +14076,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "ec47342937bff6c38cb39b453ecd9864d05fc76d9e2bfadc3face38a3e5f3382",
-      "size": 1203091
+      "sha256": "b4f53c9575268d47be69b3212875b7b519f27f9ccd953343f9ad1d123a1d3712",
+      "size": 1203440
     },
     {
       "path": "log.md",
-      "sha256": "c7dd14ce7412a398cba9147a7a7588673b6501c3a4be55435009d000719bb134",
-      "size": 2032558
+      "sha256": "a114fa642e0c9cf9ed12335368bd0d85db868f10e93b781227f32b9ddc2750b3",
+      "size": 2032919
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21345,6 +21350,11 @@
       "size": 3149
     },
     {
+      "path": "pages/systems/story-api-projector-tick-failures.md",
+      "sha256": "10fbaf2cb02117e84308868a564e201043a2830797ec38f737fe3eb0c25f5c2f",
+      "size": 2914
+    },
+    {
       "path": "pages/systems/story-api-replacement-gas-failure.md",
       "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
       "size": 2019
@@ -21551,5 +21561,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4d0287fdbcbb16872c427ef0d8c04f75e8e270e88ea602daddf7d5caa95a68f6"
+  "wiki_tree_hash": "135424771dcd9b5056f73a5032236b9540728cd3edca6e76d563d01c64e6d72d"
 }
