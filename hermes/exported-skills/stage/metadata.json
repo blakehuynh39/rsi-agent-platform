@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "79ae0e17cf5cb1f93c0fe1b49c0a98f5a95c13520a261ea3f4232f9820cf44e6",
-        "size": 2035432
+        "sha256": "997adfbddaed0a24c3fa10172baee67c194aae44e424075d4adf1c1680bd71e5",
+        "size": 2035804
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10571,8 +10571,8 @@
       },
       {
         "path": "pages/systems/story-api-incidents.md",
-        "sha256": "1fa10c7defc3ef4149770dc5aee6b4c1adc96e7d7b3396281f88c3982f3d4efb",
-        "size": 10590
+        "sha256": "fc048f5585b7a3869076c034cbd8294dced1bc064d5089943222672c7aea8cd8",
+        "size": 11288
       },
       {
         "path": "pages/systems/story-api-projector-tick-failure.md",
@@ -10799,7 +10799,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T03:55:38Z",
+  "exported_at": "2026-06-27T04:02:21Z",
   "file_count": 2158,
   "files": [
     {
@@ -14077,7 +14077,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c05b728da411cbf5ad875a4aef8169b3d06c57cc53e0e833bba4a89200de20ea",
+  "previous_tree_hash": "7b61a1a8326f3d77a31ea9bdd69d977675785d921ec99a61fefb8291d6369150",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14090,7 +14090,7 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "7b61a1a8326f3d77a31ea9bdd69d977675785d921ec99a61fefb8291d6369150",
+  "tree_hash": "c48e893109861044190566e786fdff9f158e42da6a8337eedd2f70a92fdccabd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -14111,8 +14111,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "79ae0e17cf5cb1f93c0fe1b49c0a98f5a95c13520a261ea3f4232f9820cf44e6",
-      "size": 2035432
+      "sha256": "997adfbddaed0a24c3fa10172baee67c194aae44e424075d4adf1c1680bd71e5",
+      "size": 2035804
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21396,8 +21396,8 @@
     },
     {
       "path": "pages/systems/story-api-incidents.md",
-      "sha256": "1fa10c7defc3ef4149770dc5aee6b4c1adc96e7d7b3396281f88c3982f3d4efb",
-      "size": 10590
+      "sha256": "fc048f5585b7a3869076c034cbd8294dced1bc064d5089943222672c7aea8cd8",
+      "size": 11288
     },
     {
       "path": "pages/systems/story-api-projector-tick-failure.md",
@@ -21621,5 +21621,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "985dd9da73f7677a9fc1a160cd35afeea7e7644edeee4c0c7283498b7bc11dbd"
+  "wiki_tree_hash": "728ae4dfd35eaf470b1650ca8320d1c0446173be5b633fdae7fcf22528d0c1df"
 }
