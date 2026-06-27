@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c82df88c872b27817d65efe3fcafa5e275a1741c5cc20d4858d8b4b43e0d4f30",
-        "size": 1197830
+        "sha256": "24e61e0b76a228d6949b8fa4a6d0dc6f72443d3478e9470ce843598f4f539346",
+        "size": 1198113
       },
       {
         "path": "log.md",
-        "sha256": "fb2639feeb8852e8ef3726c0b563baa844ad921995585a35ce922d17e7dfafbf",
-        "size": 2025098
+        "sha256": "0ed740eac58ae507e9f1766e3b24a273f1499cd8034875ad9ee92c06076e2a76",
+        "size": 2025393
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8370,6 +8370,11 @@
         "size": 3960
       },
       {
+        "path": "pages/projects/user-contact-list.md",
+        "sha256": "a5bb41ce4162dddebeb333922452c7511381efd7f2bb9e615fb9052368f6ae9f",
+        "size": 1566
+      },
+      {
         "path": "pages/projects/v1-relationships.md",
         "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
         "size": 4508
@@ -10689,8 +10694,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-26T23:49:39Z",
-  "file_count": 2136,
+  "exported_at": "2026-06-27T00:01:30Z",
+  "file_count": 2137,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13967,7 +13972,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "bd20d985ee40a060bd0d671374f401ab686ca41a50acdd95f186852b30ca11a6",
+  "previous_tree_hash": "a979656944790b4bc7ff12d930485f24a8448a2d08ac5fe96228146035f27a25",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -13980,14 +13985,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "a979656944790b4bc7ff12d930485f24a8448a2d08ac5fe96228146035f27a25",
+  "tree_hash": "771f52d1f1f8892a8aa7478130c84e771f65412c84a60004561753f2083fd1b3",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1482,
+  "wiki_file_count": 1483,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -13996,13 +14001,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c82df88c872b27817d65efe3fcafa5e275a1741c5cc20d4858d8b4b43e0d4f30",
-      "size": 1197830
+      "sha256": "24e61e0b76a228d6949b8fa4a6d0dc6f72443d3478e9470ce843598f4f539346",
+      "size": 1198113
     },
     {
       "path": "log.md",
-      "sha256": "fb2639feeb8852e8ef3726c0b563baa844ad921995585a35ce922d17e7dfafbf",
-      "size": 2025098
+      "sha256": "0ed740eac58ae507e9f1766e3b24a273f1499cd8034875ad9ee92c06076e2a76",
+      "size": 2025393
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19085,6 +19090,11 @@
       "size": 3960
     },
     {
+      "path": "pages/projects/user-contact-list.md",
+      "sha256": "a5bb41ce4162dddebeb333922452c7511381efd7f2bb9e615fb9052368f6ae9f",
+      "size": 1566
+    },
+    {
       "path": "pages/projects/v1-relationships.md",
       "sha256": "b4d7c05249b0782a1c1291427ee5a65406512b774aa7f08af3c584ed228f6780",
       "size": 4508
@@ -21401,5 +21411,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ef268cad1fbba6b81aaa0d5d00ed4436f47e5b7bf128947b1453088739b14d3a"
+  "wiki_tree_hash": "64f4a74b78847f83d08ae9b15089a7d96f688166f40a7ace6b81bd998a35af1e"
 }

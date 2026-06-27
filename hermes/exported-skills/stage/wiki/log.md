@@ -40865,3 +40865,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8ecf60e2a7cfb0ee74e9082914c55b64
 - summary: The Story-API experienced a 500 error on endpoint POST /webhook/v1/data-audit/records due to an AccessDeniedException when calling DynamoDB BatchGetItem. The issue was resolved by ...
 
+## [2026-06-27T00:00:41Z] synthesis | User Contact List
+
+- status: published
+- slug: projects/user-contact-list
+- wiki_revision_id: wikirev_818ae674fa16ca19b153e0ea39d4bedd
+- summary: A list of users was provided by @U07FH407ZU5; support is available to contact them when next steps are ready.
+
