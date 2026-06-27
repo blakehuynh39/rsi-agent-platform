@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "74ec3f243b7bde42789b5f29c7ef39ed7ea604dbb2df1f0339a5df45c7963de2",
-        "size": 1210183
+        "sha256": "14b1c89fd008582e3122c4085f93aa2c1919bb3b902009fdee4e5f9679c0a85a",
+        "size": 1210145
       },
       {
         "path": "log.md",
-        "sha256": "5ece947ec238ae8ab7972786cfde1c6dcebc70ffba5fc91a1adadac787c9109c",
-        "size": 2041461
+        "sha256": "5c4fdd1420e4edbcdce01a7531d3f1d93bf8c1c3b47fd04a71d741680ba6e869",
+        "size": 2041760
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10696,8 +10696,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "c8dc613a5e669e5a4a21bedf0eef8b0283f480a2ea11648f4446c0f5138e44c2",
-        "size": 1575
+        "sha256": "14c5b737cde6f3717b061dc55251fb9d0ee82753b130b8b1cffe3744c4c8a0fb",
+        "size": 1526
       },
       {
         "path": "pages/systems/story-private-fork.md",
@@ -10859,7 +10859,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T06:20:49Z",
+  "exported_at": "2026-06-27T06:37:56Z",
   "file_count": 2170,
   "files": [
     {
@@ -14137,7 +14137,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "1656abc0a58006acc0dc3e5fd446798252e546d9b7bd6fee055d6dc54c124141",
+  "previous_tree_hash": "1a01594b368ced9760af9f462b1c2d3ab2aa4202a9d638058c4ba7eb786ceac9",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14150,7 +14150,7 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1a01594b368ced9760af9f462b1c2d3ab2aa4202a9d638058c4ba7eb786ceac9",
+  "tree_hash": "e0d69da419d9994fd2a63ce070b91db1766599236d850d223fb2e76396f72ea4",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -14166,13 +14166,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "74ec3f243b7bde42789b5f29c7ef39ed7ea604dbb2df1f0339a5df45c7963de2",
-      "size": 1210183
+      "sha256": "14b1c89fd008582e3122c4085f93aa2c1919bb3b902009fdee4e5f9679c0a85a",
+      "size": 1210145
     },
     {
       "path": "log.md",
-      "sha256": "5ece947ec238ae8ab7972786cfde1c6dcebc70ffba5fc91a1adadac787c9109c",
-      "size": 2041461
+      "sha256": "5c4fdd1420e4edbcdce01a7531d3f1d93bf8c1c3b47fd04a71d741680ba6e869",
+      "size": 2041760
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21581,8 +21581,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "c8dc613a5e669e5a4a21bedf0eef8b0283f480a2ea11648f4446c0f5138e44c2",
-      "size": 1575
+      "sha256": "14c5b737cde6f3717b061dc55251fb9d0ee82753b130b8b1cffe3744c4c8a0fb",
+      "size": 1526
     },
     {
       "path": "pages/systems/story-private-fork.md",
@@ -21741,5 +21741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "4266d39f52b05402f141580a66bbb10601e99343c5f7293e0d4258d1cffbc9d9"
+  "wiki_tree_hash": "6bb7cf2c96acbe82df2080f006bc843e79406a19afabbbbc59c80eaee8060d7a"
 }

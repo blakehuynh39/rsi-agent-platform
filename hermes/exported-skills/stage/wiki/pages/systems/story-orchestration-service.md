@@ -4,14 +4,14 @@ type: "system"
 slug: "systems/story-orchestration-service"
 freshness: "2026-02-28T16:00:58Z"
 tags:
-  - "aggregation-error"
-  - "orchestration"
+  - "indexing-error"
   - "resolved"
+  - "story-protocol"
 owners:
-  - "blake.huynh@storyprotocol.xyz"
+  - "blake.huynh"
 source_revision_ids:
-  - "srcrev_3494aa2639faaed64f40bfcbe2721c52"
-  - "srcrev_60c7999debb8c5798cc919dd265d9efb"
+  - "srcrev_805de14aa474a85acf3b83fbca6055bd"
+  - "srcrev_8da7b1f2dc395eafd36844f34c47ac6e"
 conflict_state: "none"
 ---
 
@@ -19,16 +19,20 @@ conflict_state: "none"
 
 ## Summary
 
-The story-orchestration-service experienced an aggregation error on collection_aggregation, which was later resolved by Blake Huynh.
+A service that encountered an indexing error with ip_group, which was resolved by Blake Huynh.
 
 ## Claims
 
-- The story orchestration service encountered an aggregation error on collection_aggregation. `claim:claim_1_1` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_3494aa2639faaed64f40bfcbe2721c52` `chunk_id=srcchunk_8e16c4f98db5fd69927e07756c735a79` `native_locator=slack:C08BWTULNPP:1769811680.364389:1769811680.364389` `source_timestamp=2026-01-30T22:21:20Z`
-- The aggregation error was resolved, as marked by blake.huynh@storyprotocol.xyz in Sentry. `claim:claim_1_2` `confidence:1.00`
-  - citation: `source_document_id=srcdoc_2e3156dcfc319ad4f1adbd22e72bf779` `source_revision_id=srcrev_60c7999debb8c5798cc919dd265d9efb` `chunk_id=srcchunk_9e442309ceb999fc21f96bd30a4fb4e6` `native_locator=slack:C08BWTULNPP:1769811680.364389:1772294458.385469` `source_timestamp=2026-02-28T16:00:58Z`
+- Story Orchestration Service encountered an indexing error related to ip_group. `claim:claim_1_1` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_5ad7ab806d1c5c9dda578e12a8d29365` `source_revision_id=srcrev_805de14aa474a85acf3b83fbca6055bd` `chunk_id=srcchunk_df08fe10f47047fef85d2dc75df88f2b` `native_locator=slack:C08BWTULNPP:1771905641.569179:1771905641.569179` `source_timestamp=2026-02-24T04:00:41Z`
+- The indexing error was marked as resolved by Blake Huynh. `claim:claim_1_2` `confidence:1.00`
+  - citation: `source_document_id=srcdoc_5ad7ab806d1c5c9dda578e12a8d29365` `source_revision_id=srcrev_8da7b1f2dc395eafd36844f34c47ac6e` `chunk_id=srcchunk_1b8c14e6bc4885febfaba287a2b035cc` `native_locator=slack:C08BWTULNPP:1771905641.569179:1772294458.065889` `source_timestamp=2026-02-28T16:00:58Z`
+
+## Open Questions
+
+- What caused the indexing error?
 
 ## Sources
 
-- `source_document_id`: `srcdoc_2e3156dcfc319ad4f1adbd22e72bf779`
-- `source_revision_id`: `srcrev_3494aa2639faaed64f40bfcbe2721c52`
+- `source_document_id`: `srcdoc_5ad7ab806d1c5c9dda578e12a8d29365`
+- `source_revision_id`: `srcrev_805de14aa474a85acf3b83fbca6055bd`

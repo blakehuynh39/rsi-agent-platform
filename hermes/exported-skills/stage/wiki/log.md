@@ -41180,3 +41180,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_335f011e7aa6220fe6a4eeaad525ee1c
 - summary: Handles occurrences of request timeout: context deadline exceeded in the story-orchestration-service.
 
+## [2026-06-27T06:33:15Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_0b69d3ff933587dea85b9911f8d8aa13
+- summary: A service that encountered an indexing error with ip_group, which was resolved by Blake Huynh.
+
