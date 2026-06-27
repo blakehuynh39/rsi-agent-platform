@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0560d412bb3f0beba4c730db162c6e7fabc06853cec890493e530e0b50aaf518",
-        "size": 1207556
+        "sha256": "9059495a3c1c5a932a5a3b39ead20bc6d9979fcce13b481956f4a82e79a7a5e5",
+        "size": 1208252
       },
       {
         "path": "log.md",
-        "sha256": "4282b317a14262e4e25b951c827c4002156fdd17f14bc1f9df40c3d86dc8b636",
-        "size": 2038786
+        "sha256": "e57797b51c29bcbc591dabd7f6751c42392ff2519c4d17770688f6282486ea12",
+        "size": 2039158
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9390,6 +9390,11 @@
         "size": 11938
       },
       {
+        "path": "pages/runbooks/story-api-f3-ip-assets-error.md",
+        "sha256": "76399333b7034eb31183d8e68473bc30d27d249e80e8fbe7cab1cfacc1191307",
+        "size": 1659
+      },
+      {
         "path": "pages/runbooks/story-api-fatal-stream-error.md",
         "sha256": "b7b39ef9d6c2c3b882587d0b334006a9dbd39150e79d75f7510ee369db2cd634",
         "size": 2920
@@ -10829,8 +10834,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T05:31:51Z",
-  "file_count": 2164,
+  "exported_at": "2026-06-27T05:38:36Z",
+  "file_count": 2165,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14107,7 +14112,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "c869588deb194325719a1aa62aa0870fa191f9ee2034b9b480a870537381fc99",
+  "previous_tree_hash": "9c0e72828121b7440ea3935a8d86dfd8a51859b07f8cee83ee7208d478e0716b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14120,14 +14125,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9c0e72828121b7440ea3935a8d86dfd8a51859b07f8cee83ee7208d478e0716b",
+  "tree_hash": "b134da8e3e89d5b242da13f0ea106b1b0b5d84f2c09be3fdfd199504a605d388",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1510,
+  "wiki_file_count": 1511,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14136,13 +14141,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0560d412bb3f0beba4c730db162c6e7fabc06853cec890493e530e0b50aaf518",
-      "size": 1207556
+      "sha256": "9059495a3c1c5a932a5a3b39ead20bc6d9979fcce13b481956f4a82e79a7a5e5",
+      "size": 1208252
     },
     {
       "path": "log.md",
-      "sha256": "4282b317a14262e4e25b951c827c4002156fdd17f14bc1f9df40c3d86dc8b636",
-      "size": 2038786
+      "sha256": "e57797b51c29bcbc591dabd7f6751c42392ff2519c4d17770688f6282486ea12",
+      "size": 2039158
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20245,6 +20250,11 @@
       "size": 11938
     },
     {
+      "path": "pages/runbooks/story-api-f3-ip-assets-error.md",
+      "sha256": "76399333b7034eb31183d8e68473bc30d27d249e80e8fbe7cab1cfacc1191307",
+      "size": 1659
+    },
+    {
       "path": "pages/runbooks/story-api-fatal-stream-error.md",
       "sha256": "b7b39ef9d6c2c3b882587d0b334006a9dbd39150e79d75f7510ee369db2cd634",
       "size": 2920
@@ -21681,5 +21691,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3b69d361be72be48d92d8c3a7fcdde026f7a79747d74cdf1b6ada3170ddd0f69"
+  "wiki_tree_hash": "ab90401c224996e30cd377cb649515b1ee2b8fade45e12e272785928b2b168b6"
 }
