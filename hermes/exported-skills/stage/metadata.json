@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "c691b87ef1e33cfd209fe80a2ec3b6818be0a8d1dcecc0130e6f6c5e58d0729d",
-        "size": 1206374
+        "sha256": "6cffe6b7e03e26b28de0098f13c2336da6499d4140ce3c5fcc85c56d880721a0",
+        "size": 1207177
       },
       {
         "path": "log.md",
-        "sha256": "3d136b54d11bce4e317ff3537545bc44d3a4d6a17eef5143efd35cff29c26643",
-        "size": 2037629
+        "sha256": "2bc631ef07e7afcf04f635812ac04f8caff2d8c63cd32abb3f14a5fb2f86e1d6",
+        "size": 2038047
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10555,6 +10555,11 @@
         "size": 2019
       },
       {
+        "path": "pages/systems/story-api-data-audit-stats-500-incident.md",
+        "sha256": "43dec0c28f4b69fc8f184e3f98814d551f2301c7243da7086d07d1647cd47be3",
+        "size": 1662
+      },
+      {
         "path": "pages/systems/story-api-db-connection-refusal-incident.md",
         "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
         "size": 1790
@@ -10814,8 +10819,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T05:01:28Z",
-  "file_count": 2161,
+  "exported_at": "2026-06-27T05:08:14Z",
+  "file_count": 2162,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14092,7 +14097,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "b3f615b8b009ae91eb586efca279dd3b9047d7967a7c87638d24d673df6843eb",
+  "previous_tree_hash": "3dc06350049e84e38d159331f56997ddbd32118c8aed141cbfa92e442093ab4d",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14105,14 +14110,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "3dc06350049e84e38d159331f56997ddbd32118c8aed141cbfa92e442093ab4d",
+  "tree_hash": "8cda9da679de8b90b6bd8e738bb9159824e8052dccec832c9b8422a593eada58",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1507,
+  "wiki_file_count": 1508,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14121,13 +14126,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "c691b87ef1e33cfd209fe80a2ec3b6818be0a8d1dcecc0130e6f6c5e58d0729d",
-      "size": 1206374
+      "sha256": "6cffe6b7e03e26b28de0098f13c2336da6499d4140ce3c5fcc85c56d880721a0",
+      "size": 1207177
     },
     {
       "path": "log.md",
-      "sha256": "3d136b54d11bce4e317ff3537545bc44d3a4d6a17eef5143efd35cff29c26643",
-      "size": 2037629
+      "sha256": "2bc631ef07e7afcf04f635812ac04f8caff2d8c63cd32abb3f14a5fb2f86e1d6",
+      "size": 2038047
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21395,6 +21400,11 @@
       "size": 2019
     },
     {
+      "path": "pages/systems/story-api-data-audit-stats-500-incident.md",
+      "sha256": "43dec0c28f4b69fc8f184e3f98814d551f2301c7243da7086d07d1647cd47be3",
+      "size": 1662
+    },
+    {
       "path": "pages/systems/story-api-db-connection-refusal-incident.md",
       "sha256": "2e6442eb42ba5a46d50ad916738cc7b2ddf5487e8f3f770ad956f55249781bee",
       "size": 1790
@@ -21651,5 +21661,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "55c73f5001bf56f222ad4c910a05d96e3e834cfc9177b8ca3281ca9d810869eb"
+  "wiki_tree_hash": "4b792bb5aea86269d4e025f993aea2a5e1db214faf10da5a78c60566421dca45"
 }
