@@ -41166,3 +41166,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_f3d1d23c9edf7ce3302e39d19c94e1cc
 - summary: Record of known errors from the story-orchestration-service, including aggregation failures and database constraint violations, with an indication that these are expected to be rep...
 
+## [2026-06-27T06:15:58Z] synthesis | Story Orchestration Service - Request Timeout
+
+- status: published
+- slug: runbooks/story-orchestration-service-request-timeout
+- wiki_revision_id: wikirev_335775d0a0307e7207021df24bdf390b
+- summary: Incidents of 'request timeout: context deadline exceeded' errors in story-orchestration-service, and resolution via Sentry issue STORY-ORCHESTRATION-SERVICE-FK.
+
+## [2026-06-27T06:17:19Z] synthesis | Story Orchestration Service Timeout Runbook
+
+- status: published
+- slug: runbooks/story-orchestration-service-timeout-runbook
+- wiki_revision_id: wikirev_335f011e7aa6220fe6a4eeaad525ee1c
+- summary: Handles occurrences of request timeout: context deadline exceeded in the story-orchestration-service.
+

@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f2ef5587b5fbe9c3960ed19a23c9460142ff5752639b1c1c95b1b781e8c97fa7",
-        "size": 1209468
+        "sha256": "74ec3f243b7bde42789b5f29c7ef39ed7ea604dbb2df1f0339a5df45c7963de2",
+        "size": 1210183
       },
       {
         "path": "log.md",
-        "sha256": "b5fd585ab64f68b6c03f889a070d99a94269bf3b36e7e54549fd9de8da9df49e",
-        "size": 2040722
+        "sha256": "5ece947ec238ae8ab7972786cfde1c6dcebc70ffba5fc91a1adadac787c9109c",
+        "size": 2041461
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9520,6 +9520,16 @@
         "size": 2417
       },
       {
+        "path": "pages/runbooks/story-orchestration-service-request-timeout.md",
+        "sha256": "aa4598e05b43c95515bd1102f3abcb26a43f84251f8102beb8ebf8499066c4e0",
+        "size": 2040
+      },
+      {
+        "path": "pages/runbooks/story-orchestration-service-timeout-runbook.md",
+        "sha256": "5de099ea0f32404ba81deaa05643c764129a5b7719929df27c3bc93bff8f9ca4",
+        "size": 2541
+      },
+      {
         "path": "pages/runbooks/story-protocol-database-exploration-20260515.md",
         "sha256": "c36eb7f4d322fca9456ffa2f28b457bda930bbb5e4ab80676702d45e88608b28",
         "size": 10915
@@ -10849,8 +10859,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T06:08:55Z",
-  "file_count": 2168,
+  "exported_at": "2026-06-27T06:20:49Z",
+  "file_count": 2170,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14127,7 +14137,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "427a5455ecd51ab3fd012244c5b147a535374cd633162a5d0325c86a38573761",
+  "previous_tree_hash": "1656abc0a58006acc0dc3e5fd446798252e546d9b7bd6fee055d6dc54c124141",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14140,14 +14150,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "1656abc0a58006acc0dc3e5fd446798252e546d9b7bd6fee055d6dc54c124141",
+  "tree_hash": "1a01594b368ced9760af9f462b1c2d3ab2aa4202a9d638058c4ba7eb786ceac9",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1514,
+  "wiki_file_count": 1516,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14156,13 +14166,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f2ef5587b5fbe9c3960ed19a23c9460142ff5752639b1c1c95b1b781e8c97fa7",
-      "size": 1209468
+      "sha256": "74ec3f243b7bde42789b5f29c7ef39ed7ea604dbb2df1f0339a5df45c7963de2",
+      "size": 1210183
     },
     {
       "path": "log.md",
-      "sha256": "b5fd585ab64f68b6c03f889a070d99a94269bf3b36e7e54549fd9de8da9df49e",
-      "size": 2040722
+      "sha256": "5ece947ec238ae8ab7972786cfde1c6dcebc70ffba5fc91a1adadac787c9109c",
+      "size": 2041461
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20395,6 +20405,16 @@
       "size": 2417
     },
     {
+      "path": "pages/runbooks/story-orchestration-service-request-timeout.md",
+      "sha256": "aa4598e05b43c95515bd1102f3abcb26a43f84251f8102beb8ebf8499066c4e0",
+      "size": 2040
+    },
+    {
+      "path": "pages/runbooks/story-orchestration-service-timeout-runbook.md",
+      "sha256": "5de099ea0f32404ba81deaa05643c764129a5b7719929df27c3bc93bff8f9ca4",
+      "size": 2541
+    },
+    {
       "path": "pages/runbooks/story-protocol-database-exploration-20260515.md",
       "sha256": "c36eb7f4d322fca9456ffa2f28b457bda930bbb5e4ab80676702d45e88608b28",
       "size": 10915
@@ -21721,5 +21741,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b4d5fbe6fac483d4f4b06d74725caf5aacc19a6d490be588751655ca5cbf9ce9"
+  "wiki_tree_hash": "4266d39f52b05402f141580a66bbb10601e99343c5f7293e0d4258d1cffbc9d9"
 }
