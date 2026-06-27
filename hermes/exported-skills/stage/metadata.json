@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "999f7876aa5eb44ab495fb57cfb7226ba50ea31b0bcc2839f1289ee28772b9fe",
-        "size": 1202538
+        "sha256": "1c42f2257323bd6dcf8cd7cdc8cabf87a226524981ce8499a68a5af8d3ac12ff",
+        "size": 1202774
       },
       {
         "path": "log.md",
-        "sha256": "5894dfa245dd9d9bfb0528dfd58426bc7d4d32482506b4187047869c8e76de38",
-        "size": 2030634
+        "sha256": "bf4f52a13589ec4345058a5eb48df632393a99824b16814773c28d3ea8c1a297",
+        "size": 2031197
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9366,8 +9366,8 @@
       },
       {
         "path": "pages/runbooks/story-api-error-log.md",
-        "sha256": "686c83ac4177e745b29d71af37fc6ace3ef5eadc85ac2fd99b61a02f079b212c",
-        "size": 11772
+        "sha256": "d0ca194053abdc76818e7a95a9be21e036e5e87e5dc4db6d17c7b3ea27e6c1a9",
+        "size": 11938
       },
       {
         "path": "pages/runbooks/story-api-incidents.md",
@@ -10545,6 +10545,11 @@
         "size": 9637
       },
       {
+        "path": "pages/systems/story-api-incidents.md",
+        "sha256": "1fa10c7defc3ef4149770dc5aee6b4c1adc96e7d7b3396281f88c3982f3d4efb",
+        "size": 10590
+      },
+      {
         "path": "pages/systems/story-api-replacement-gas-failure.md",
         "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
         "size": 2019
@@ -10754,8 +10759,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T01:48:31Z",
-  "file_count": 2149,
+  "exported_at": "2026-06-27T02:05:29Z",
+  "file_count": 2150,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14032,7 +14037,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "8fd8477396e3379a47a0b115ed31adbf35b4fc5326464df2c5eb963f6f121338",
+  "previous_tree_hash": "830efe417934c1fc8cd4d866db5551570e1cd3eed5510b102068461bd292d358",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14045,14 +14050,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "830efe417934c1fc8cd4d866db5551570e1cd3eed5510b102068461bd292d358",
+  "tree_hash": "74cea7b1887a50d097f76621e4782fcdeae316cda5372ffca2fc544e5844f367",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1495,
+  "wiki_file_count": 1496,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14061,13 +14066,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "999f7876aa5eb44ab495fb57cfb7226ba50ea31b0bcc2839f1289ee28772b9fe",
-      "size": 1202538
+      "sha256": "1c42f2257323bd6dcf8cd7cdc8cabf87a226524981ce8499a68a5af8d3ac12ff",
+      "size": 1202774
     },
     {
       "path": "log.md",
-      "sha256": "5894dfa245dd9d9bfb0528dfd58426bc7d4d32482506b4187047869c8e76de38",
-      "size": 2030634
+      "sha256": "bf4f52a13589ec4345058a5eb48df632393a99824b16814773c28d3ea8c1a297",
+      "size": 2031197
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20146,8 +20151,8 @@
     },
     {
       "path": "pages/runbooks/story-api-error-log.md",
-      "sha256": "686c83ac4177e745b29d71af37fc6ace3ef5eadc85ac2fd99b61a02f079b212c",
-      "size": 11772
+      "sha256": "d0ca194053abdc76818e7a95a9be21e036e5e87e5dc4db6d17c7b3ea27e6c1a9",
+      "size": 11938
     },
     {
       "path": "pages/runbooks/story-api-incidents.md",
@@ -21325,6 +21330,11 @@
       "size": 9637
     },
     {
+      "path": "pages/systems/story-api-incidents.md",
+      "sha256": "1fa10c7defc3ef4149770dc5aee6b4c1adc96e7d7b3396281f88c3982f3d4efb",
+      "size": 10590
+    },
+    {
       "path": "pages/systems/story-api-replacement-gas-failure.md",
       "sha256": "a99432a293076cefaa0612f697721172b103fc6456d11d8508d2742dc1b17ca0",
       "size": 2019
@@ -21531,5 +21541,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "6b37e68b4dc63b5af092afd82ce3b68291d37bae9ea3dabe13db2e6999476737"
+  "wiki_tree_hash": "60f532dcbe9a37788927322d4f812991e85d2c20c0bffa166e77305ade69bf91"
 }

@@ -40970,3 +40970,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c46a9ba45c5d7d64457b164ba88d69fa
 - summary: The story-api service experienced a submitter tick failure, which automatically retried. The associated Sentry issue STORY-API-EQ was resolved by blake.huynh@storyprotocol.xyz.
 
+## [2026-06-27T02:01:24Z] synthesis | Story API Error Log
+
+- status: published
+- slug: runbooks/story-api-error-log
+- wiki_revision_id: wikirev_b99023b91c2721212ed5025a50ed5031
+- summary: Log of error occurrences and spike protection events for the story-api project from 2025-12-22 to 2026-06-07.
+
+## [2026-06-27T02:03:46Z] synthesis | Story API Incidents
+
+- status: published
+- slug: systems/story-api-incidents
+- wiki_revision_id: wikirev_5f2af95663a01d8110ab63f73da38cea
+- summary: Documented incidents and spike protection events for the story-api service.
+
