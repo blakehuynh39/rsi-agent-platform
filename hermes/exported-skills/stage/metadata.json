@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "dd5301670b557c3a6b52cea6ef475318f3f7c5112c52ccb7ee24346eedfd6187",
-        "size": 2037220
+        "sha256": "3d136b54d11bce4e317ff3537545bc44d3a4d6a17eef5143efd35cff29c26643",
+        "size": 2037629
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9310,6 +9310,11 @@
         "size": 3855
       },
       {
+        "path": "pages/runbooks/staging-postgresql-outage-2026-06-14.md",
+        "sha256": "6dd87897a77419b545455f44086d39aef653ce7b187fa3657cb0c030008151df",
+        "size": 3151
+      },
+      {
         "path": "pages/runbooks/staging-test-collection-custom-images.md",
         "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
         "size": 3584
@@ -10809,8 +10814,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T04:49:38Z",
-  "file_count": 2160,
+  "exported_at": "2026-06-27T05:01:28Z",
+  "file_count": 2161,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14087,7 +14092,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "380cab5ffba8ac1741f7b0d1dbbedfd59dd10ec6a58aeb744dc60ffddfc483a7",
+  "previous_tree_hash": "b3f615b8b009ae91eb586efca279dd3b9047d7967a7c87638d24d673df6843eb",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14100,14 +14105,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b3f615b8b009ae91eb586efca279dd3b9047d7967a7c87638d24d673df6843eb",
+  "tree_hash": "3dc06350049e84e38d159331f56997ddbd32118c8aed141cbfa92e442093ab4d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1506,
+  "wiki_file_count": 1507,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14121,8 +14126,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "dd5301670b557c3a6b52cea6ef475318f3f7c5112c52ccb7ee24346eedfd6187",
-      "size": 2037220
+      "sha256": "3d136b54d11bce4e317ff3537545bc44d3a4d6a17eef5143efd35cff29c26643",
+      "size": 2037629
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20145,6 +20150,11 @@
       "size": 3855
     },
     {
+      "path": "pages/runbooks/staging-postgresql-outage-2026-06-14.md",
+      "sha256": "6dd87897a77419b545455f44086d39aef653ce7b187fa3657cb0c030008151df",
+      "size": 3151
+    },
+    {
       "path": "pages/runbooks/staging-test-collection-custom-images.md",
       "sha256": "bdbe06e5854c63f0691a5698601cbe905b279977299a45d249efdb7a95beb6b7",
       "size": 3584
@@ -21641,5 +21651,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "67985504e60742fc5a2758c3062f65a094d3b5eb52ccea04621bf538b27e94e4"
+  "wiki_tree_hash": "55c73f5001bf56f222ad4c910a05d96e3e834cfc9177b8ca3281ca9d810869eb"
 }

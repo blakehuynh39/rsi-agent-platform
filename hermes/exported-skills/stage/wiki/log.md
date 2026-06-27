@@ -41103,3 +41103,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1e1a180273b8dd2e2dacbc4c3096b455
 - summary: On 2026-06-14 at ~04:32 UTC, story-api GET /api/v1/data-audit/search returned 500 errors due to a transient staging PostgreSQL RDS restart causing both analytics and protocol DBs t...
 
+## [2026-06-27T05:00:56Z] synthesis | Staging PostgreSQL Outage (2026-06-14)
+
+- status: published
+- slug: runbooks/staging-postgresql-outage-2026-06-14
+- wiki_revision_id: wikirev_64caf330fb783eacf15973ea8e99e1d2
+- summary: A ~20-second outage of staging PostgreSQL (RDS restart) on 2026-06-14 at 04:32 UTC caused story-api 500 errors. The incident resolved automatically and was tracked in Sentry as STO...
+
+## [2026-06-27T05:01:51Z] synthesis | story-api data-audit stats 500 error incident
+
+- status: published
+- slug: systems/story-api-data-audit-stats-500-incident
+- wiki_revision_id: wikirev_2584cba54da6bc3cc64c3c358579f9c4
+- summary: On 2026-06-14, the story-api endpoint GET /api/v1/data-audit/stats returned a 500 Internal Server Error. The issue was later resolved as indicated by Blake Huynh marking it resolve...
+
