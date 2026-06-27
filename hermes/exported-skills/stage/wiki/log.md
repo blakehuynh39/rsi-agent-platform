@@ -41215,3 +41215,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_4830ddd5c559d84780915c9e65a4195e
 - summary: Collection of errors observed in the story-orchestration-service, including nil pointer dereferences, context cancellations, database constraint violations, and aggregation failure...
 
+## [2026-06-27T07:30:37Z] synthesis | Story Orchestration Service: ip_ownership Aggregation Error
+
+- status: published
+- slug: runbooks/story-orchestration-service-ip-ownership-aggregation-error
+- wiki_revision_id: wikirev_304a2672a35069dd08a66187229deb44
+- summary: The story-orchestration-service encountered an aggregation error related to ip_ownership. The issue was subsequently marked as resolved.
+
