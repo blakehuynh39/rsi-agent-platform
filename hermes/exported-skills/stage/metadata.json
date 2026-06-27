@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "b4f53c9575268d47be69b3212875b7b519f27f9ccd953343f9ad1d123a1d3712",
-        "size": 1203440
+        "sha256": "e4cc5be9ec2e7f4951f2d0defc5a53b6d780ae1580ba4ecad7938642f09320ad",
+        "size": 1204116
       },
       {
         "path": "log.md",
-        "sha256": "a114fa642e0c9cf9ed12335368bd0d85db868f10e93b781227f32b9ddc2750b3",
-        "size": 2032919
+        "sha256": "d64cb9bcf2f927876f65a105352357ce90684da7d896046607716bc9f1c80968",
+        "size": 2033619
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9370,6 +9370,11 @@
         "size": 11938
       },
       {
+        "path": "pages/runbooks/story-api-fatal-stream-error.md",
+        "sha256": "b7b39ef9d6c2c3b882587d0b334006a9dbd39150e79d75f7510ee369db2cd634",
+        "size": 2920
+      },
+      {
         "path": "pages/runbooks/story-api-incidents.md",
         "sha256": "23dc30fcd2d5ba80d5621e70c46e84fed3d3f96bd405efff2bea38362405cd80",
         "size": 11874
@@ -10565,6 +10570,11 @@
         "size": 2019
       },
       {
+        "path": "pages/systems/story-api-shard-task-error.md",
+        "sha256": "0eba09c7cd48b0fc91ca0b5fe74ffca9c5db586e429445913a6b0dcef078c5f1",
+        "size": 2989
+      },
+      {
         "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
         "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
         "size": 3534
@@ -10769,8 +10779,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T02:52:55Z",
-  "file_count": 2152,
+  "exported_at": "2026-06-27T03:04:44Z",
+  "file_count": 2154,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14047,7 +14057,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "4d193501e060f8cbd841a7447e638c30e368af17d040eb371ec2487b96037312",
+  "previous_tree_hash": "aee03b9178c429be73ffc350ae7f4e3f6de62568faf7db705b25b8208277dc4c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14060,14 +14070,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "aee03b9178c429be73ffc350ae7f4e3f6de62568faf7db705b25b8208277dc4c",
+  "tree_hash": "3480752aa08dc8195efbe74e99e9242534a052c3d80f1e863cdfb9848d1e71dd",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1498,
+  "wiki_file_count": 1500,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14076,13 +14086,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "b4f53c9575268d47be69b3212875b7b519f27f9ccd953343f9ad1d123a1d3712",
-      "size": 1203440
+      "sha256": "e4cc5be9ec2e7f4951f2d0defc5a53b6d780ae1580ba4ecad7938642f09320ad",
+      "size": 1204116
     },
     {
       "path": "log.md",
-      "sha256": "a114fa642e0c9cf9ed12335368bd0d85db868f10e93b781227f32b9ddc2750b3",
-      "size": 2032919
+      "sha256": "d64cb9bcf2f927876f65a105352357ce90684da7d896046607716bc9f1c80968",
+      "size": 2033619
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20165,6 +20175,11 @@
       "size": 11938
     },
     {
+      "path": "pages/runbooks/story-api-fatal-stream-error.md",
+      "sha256": "b7b39ef9d6c2c3b882587d0b334006a9dbd39150e79d75f7510ee369db2cd634",
+      "size": 2920
+    },
+    {
       "path": "pages/runbooks/story-api-incidents.md",
       "sha256": "23dc30fcd2d5ba80d5621e70c46e84fed3d3f96bd405efff2bea38362405cd80",
       "size": 11874
@@ -21360,6 +21375,11 @@
       "size": 2019
     },
     {
+      "path": "pages/systems/story-api-shard-task-error.md",
+      "sha256": "0eba09c7cd48b0fc91ca0b5fe74ffca9c5db586e429445913a6b0dcef078c5f1",
+      "size": 2989
+    },
+    {
       "path": "pages/systems/story-api-staging-outage-2026-06-16.md",
       "sha256": "c5aaf7144b190e74557e3e4e438625045d5d8ad1c9fcaa1c933f89b771325f01",
       "size": 3534
@@ -21561,5 +21581,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "135424771dcd9b5056f73a5032236b9540728cd3edca6e76d563d01c64e6d72d"
+  "wiki_tree_hash": "8e04cca0a455411c45ae064d2749a6654871717081bc4ea80149aca0925416be"
 }

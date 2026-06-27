@@ -41019,3 +41019,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_bccb7e55bc257f67592d96aab143d278
 - summary: Recurring failures of the story-api projector tick, tracked in Sentry as STORY-API-ER. The issue has been resolved multiple times but reappears.
 
+## [2026-06-27T03:02:09Z] synthesis | Story API Fatal Stream Error Incident
+
+- status: published
+- slug: runbooks/story-api-fatal-stream-error
+- wiki_revision_id: wikirev_3d0bcfe5a674ed36d76fe7d13732ca63
+- summary: The Story API periodically encounters fatal stream errors on shard tasks. This runbook documents the observed occurrences and resolutions.
+
+## [2026-06-27T03:02:44Z] synthesis | Story-API Shard Task Error
+
+- status: published
+- slug: systems/story-api-shard-task-error
+- wiki_revision_id: wikirev_e35dc21fa5f0692b815170fc3fad014a
+- summary: Story-API encountered a fatal stream error on shard tasks, reported via Sentry issue STORY-API-ES. The issue has been resolved multiple times.
+
