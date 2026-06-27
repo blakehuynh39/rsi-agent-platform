@@ -41201,3 +41201,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_c31163b0fa0725a5455325bf7d5a50ea
 - summary: Service that aggregates IP-related data streams, observed producing various errors.
 
+## [2026-06-27T07:03:41Z] synthesis | Story Orchestration Service: Aggregation Error ip_transactions
+
+- status: published
+- slug: runbooks/story-orchestration-service-aggregation-error-ip-transactions
+- wiki_revision_id: wikirev_73986bb049ae3a65fae4afae9cec04fc
+- summary: On the story-orchestration-service, an aggregation error occurred related to ip_transactions. The issue was later marked as resolved by blake.huynh@storyprotocol.xyz.
+
