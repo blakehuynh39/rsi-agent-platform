@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "0ab8d33ea7f43c49b0359433d3be287c428c0c957553462a2073db85b73644e1",
-        "size": 1200750
+        "sha256": "02425c2d9c6693f01927269669e29b29c15e3e7c4f47293082391090c96b504c",
+        "size": 1201470
       },
       {
         "path": "log.md",
-        "sha256": "d54a8960d1ffcd44f292d1af49b0299527986934b68f932d18363028c17fc74b",
-        "size": 2028807
+        "sha256": "7e3e74b65b76b28627f6019194a4ac7d6cbe2bd8c255c4ef4e340ef26ac71282",
+        "size": 2029207
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8570,6 +8570,11 @@
         "size": 1459
       },
       {
+        "path": "pages/runbooks/broadcaster-active-wallet-nonce-drift-incident.md",
+        "sha256": "c2878b8c96d989c43d1929d4539a61c967949787b5586556c2f5f90453c0bec5",
+        "size": 1959
+      },
+      {
         "path": "pages/runbooks/broadcaster-gas-strategy.md",
         "sha256": "5532043a03ec84637d4fc757330d13ff019a64ad9b2d8b11371d057517b9c044",
         "size": 11528
@@ -10734,8 +10739,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T01:16:24Z",
-  "file_count": 2145,
+  "exported_at": "2026-06-27T01:23:08Z",
+  "file_count": 2146,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14012,7 +14017,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "2c4066c4d41a51b7399b16f9eea1bd9d633660c594e0745880e5d89474944a94",
+  "previous_tree_hash": "b3f492de7b656d12fb0e77df8bbb299a5d89ac4db4817d0240a70e179109301c",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14025,14 +14030,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "b3f492de7b656d12fb0e77df8bbb299a5d89ac4db4817d0240a70e179109301c",
+  "tree_hash": "6673ac2145231ca4b9e5b1ee77f270c89bc9c27bbca4203beb14a117a6b0f074",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1491,
+  "wiki_file_count": 1492,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14041,13 +14046,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "0ab8d33ea7f43c49b0359433d3be287c428c0c957553462a2073db85b73644e1",
-      "size": 1200750
+      "sha256": "02425c2d9c6693f01927269669e29b29c15e3e7c4f47293082391090c96b504c",
+      "size": 1201470
     },
     {
       "path": "log.md",
-      "sha256": "d54a8960d1ffcd44f292d1af49b0299527986934b68f932d18363028c17fc74b",
-      "size": 2028807
+      "sha256": "7e3e74b65b76b28627f6019194a4ac7d6cbe2bd8c255c4ef4e340ef26ac71282",
+      "size": 2029207
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19330,6 +19335,11 @@
       "size": 1459
     },
     {
+      "path": "pages/runbooks/broadcaster-active-wallet-nonce-drift-incident.md",
+      "sha256": "c2878b8c96d989c43d1929d4539a61c967949787b5586556c2f5f90453c0bec5",
+      "size": 1959
+    },
+    {
       "path": "pages/runbooks/broadcaster-gas-strategy.md",
       "sha256": "5532043a03ec84637d4fc757330d13ff019a64ad9b2d8b11371d057517b9c044",
       "size": 11528
@@ -21491,5 +21501,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "529b2dbc64f1e0689a7d155ae3300e428f92816e51fd913a5368859b8e89b6ab"
+  "wiki_tree_hash": "52b9f0323c0be0f0a4d0da5aedc30073a191a1797ca6ae326ec8e46c6fdf61f6"
 }
