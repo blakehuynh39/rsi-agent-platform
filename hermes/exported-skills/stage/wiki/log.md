@@ -41096,3 +41096,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_210912810a623bbf6b41a0751304d04e
 - summary: Monitor component for gas prices in story-api. Experienced an RPC failure, mitigated by holding last-good snapshot and gate vote. Issue resolved.
 
+## [2026-06-27T04:45:57Z] synthesis | story-api: data-audit/search 500 due to PostgreSQL outage
+
+- status: published
+- slug: runbooks/story-api-data-audit-search-500-postgresql-outage
+- wiki_revision_id: wikirev_1e1a180273b8dd2e2dacbc4c3096b455
+- summary: On 2026-06-14 at ~04:32 UTC, story-api GET /api/v1/data-audit/search returned 500 errors due to a transient staging PostgreSQL RDS restart causing both analytics and protocol DBs t...
+

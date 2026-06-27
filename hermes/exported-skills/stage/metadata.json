@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "1c14220aa23365d0f2b1db3bc4289f353157838e398481c5c89080d3a08607f5",
-        "size": 1205945
+        "sha256": "c691b87ef1e33cfd209fe80a2ec3b6818be0a8d1dcecc0130e6f6c5e58d0729d",
+        "size": 1206374
       },
       {
         "path": "log.md",
-        "sha256": "705aa1c39c3b42ab201e1bd79191072ba441cdf483e78aa9cc05392f7b57eab5",
-        "size": 2036779
+        "sha256": "dd5301670b557c3a6b52cea6ef475318f3f7c5112c52ccb7ee24346eedfd6187",
+        "size": 2037220
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9350,6 +9350,11 @@
         "size": 1589
       },
       {
+        "path": "pages/runbooks/story-api-data-audit-search-500-postgresql-outage.md",
+        "sha256": "1245ad3b62b7d19749b82eb00d644d3bc1aee6fd75543f066280782adc8150e2",
+        "size": 3774
+      },
+      {
         "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
         "sha256": "60b4f487cd886d4b5d2a83867d0b706ce9e151e8ce2de919a928f0de1214beb1",
         "size": 1689
@@ -10804,8 +10809,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T04:32:43Z",
-  "file_count": 2159,
+  "exported_at": "2026-06-27T04:49:38Z",
+  "file_count": 2160,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14082,7 +14087,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f0500a7c7468b0516c5fa884f6249ad25b4ef673f849cbcd0b4ce4884fbc1b41",
+  "previous_tree_hash": "380cab5ffba8ac1741f7b0d1dbbedfd59dd10ec6a58aeb744dc60ffddfc483a7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14095,14 +14100,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "380cab5ffba8ac1741f7b0d1dbbedfd59dd10ec6a58aeb744dc60ffddfc483a7",
+  "tree_hash": "b3f615b8b009ae91eb586efca279dd3b9047d7967a7c87638d24d673df6843eb",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1505,
+  "wiki_file_count": 1506,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14111,13 +14116,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "1c14220aa23365d0f2b1db3bc4289f353157838e398481c5c89080d3a08607f5",
-      "size": 1205945
+      "sha256": "c691b87ef1e33cfd209fe80a2ec3b6818be0a8d1dcecc0130e6f6c5e58d0729d",
+      "size": 1206374
     },
     {
       "path": "log.md",
-      "sha256": "705aa1c39c3b42ab201e1bd79191072ba441cdf483e78aa9cc05392f7b57eab5",
-      "size": 2036779
+      "sha256": "dd5301670b557c3a6b52cea6ef475318f3f7c5112c52ccb7ee24346eedfd6187",
+      "size": 2037220
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20180,6 +20185,11 @@
       "size": 1589
     },
     {
+      "path": "pages/runbooks/story-api-data-audit-search-500-postgresql-outage.md",
+      "sha256": "1245ad3b62b7d19749b82eb00d644d3bc1aee6fd75543f066280782adc8150e2",
+      "size": 3774
+    },
+    {
       "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
       "sha256": "60b4f487cd886d4b5d2a83867d0b706ce9e151e8ce2de919a928f0de1214beb1",
       "size": 1689
@@ -21631,5 +21641,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "b826f01d62bce9900077a3e4828ccf1e34df92026e81f97937e813b3cd327348"
+  "wiki_tree_hash": "67985504e60742fc5a2758c3062f65a094d3b5eb52ccea04621bf538b27e94e4"
 }
