@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "b9518d3ea11cd8f7dacf2b489a1a670d240b060c9c4cadc3634ef31013fa6641",
-        "size": 2043708
+        "sha256": "43dddc83afdff4fafae1ede67a562a02115824a0c7900a387da9ff7347ce8ce8",
+        "size": 2044101
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -8960,6 +8960,11 @@
         "size": 5860
       },
       {
+        "path": "pages/runbooks/ip_transactions_aggregation_error.md",
+        "sha256": "bb727200d142ea651acc981e7a6ca12213cc83f6f32e6fccbb7ab83d4dbf0e3f",
+        "size": 1749
+      },
+      {
         "path": "pages/runbooks/ipgraph-royalty-dos-fix-verification-test.md",
         "sha256": "bf9e8c5dae4ef38a3c7f02de34a56d5d80fe3c6a4a26b4cba808f9b36edeb1d1",
         "size": 7430
@@ -10869,8 +10874,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T07:35:38Z",
-  "file_count": 2172,
+  "exported_at": "2026-06-27T07:47:28Z",
+  "file_count": 2173,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14147,7 +14152,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f44e9df1ff04b2c51b341254bf1a8c8725e8e6a2151f94120c70fdf411038f3d",
+  "previous_tree_hash": "8f043e6c401b74fd5daacb85d8d1cb92714e03c9f7ba92b92f9e6fce28a2bd56",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14160,14 +14165,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "8f043e6c401b74fd5daacb85d8d1cb92714e03c9f7ba92b92f9e6fce28a2bd56",
+  "tree_hash": "906042c83eebf4f595581fd04423ac239161dd56848d44b25f318345655aa9da",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1518,
+  "wiki_file_count": 1519,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14181,8 +14186,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "b9518d3ea11cd8f7dacf2b489a1a670d240b060c9c4cadc3634ef31013fa6641",
-      "size": 2043708
+      "sha256": "43dddc83afdff4fafae1ede67a562a02115824a0c7900a387da9ff7347ce8ce8",
+      "size": 2044101
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19855,6 +19860,11 @@
       "size": 5860
     },
     {
+      "path": "pages/runbooks/ip_transactions_aggregation_error.md",
+      "sha256": "bb727200d142ea651acc981e7a6ca12213cc83f6f32e6fccbb7ab83d4dbf0e3f",
+      "size": 1749
+    },
+    {
       "path": "pages/runbooks/ipgraph-royalty-dos-fix-verification-test.md",
       "sha256": "bf9e8c5dae4ef38a3c7f02de34a56d5d80fe3c6a4a26b4cba808f9b36edeb1d1",
       "size": 7430
@@ -21761,5 +21771,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "edf769ff30ddc12e888d0ee57685e895d4e28b57e56c05f4ead57613e4ad0874"
+  "wiki_tree_hash": "eace1c7f16f4a87e1a04dde5add78ec0348dc75ee21f9298ce9f87c5fef64c80"
 }
