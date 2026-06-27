@@ -41082,3 +41082,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_816eecb56fd1e25f98a1d85fdfbba87c
 - summary: The story-api service experiences intermittent spike protection events and a variety of internal server errors, including database authentication failures, null constraint violatio...
 
+## [2026-06-27T04:18:11Z] synthesis | Story API Incident Log
+
+- status: published
+- slug: systems/story-api-incidents
+- wiki_revision_id: wikirev_1c2b6580030df7b465622613b9583859
+- summary: Collected incident reports and spike protection events for the story-api service.
+
