@@ -41075,3 +41075,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_2e576856f0d159fc869edf6c18450e79
 - summary: Alerts and errors from the story-api project observed via Slack channel C07K3J4JTH6 from December 2025 to March 2026. Includes spike protection activations/deactivations, 500 Inter...
 
+## [2026-06-27T04:03:31Z] synthesis | Story API
+
+- status: published
+- slug: systems/story-api
+- wiki_revision_id: wikirev_816eecb56fd1e25f98a1d85fdfbba87c
+- summary: The story-api service experiences intermittent spike protection events and a variety of internal server errors, including database authentication failures, null constraint violatio...
+
