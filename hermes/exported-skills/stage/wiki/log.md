@@ -40914,3 +40914,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_28c1d3f959b34a74f06386854d3d1070
 - summary: Story API confirmer batch encountered multiple failures, but sibling batches continued. The Sentry issue STORY-API-EM was tracked and later resolved by Blake Huynh.
 
+## [2026-06-27T01:01:27Z] synthesis | Story-API Confirmer Batch Failures
+
+- status: published
+- slug: systems/story-api-confirmer-batch-failures
+- wiki_revision_id: wikirev_c8d0c420adac78d1c776abc117194920
+- summary: Documented repeated confirmer batch failures in story-api and their resolution.
+
+## [2026-06-27T01:02:26Z] synthesis | Story API Confirmer Batch Failure
+
+- status: published
+- slug: runbooks/story-api-confirmer-batch-failure
+- wiki_revision_id: wikirev_e491453071106e0bad5012db101694dc
+- summary: Runbook for the recurring 'confirmer batch failed; continuing sibling batches' error in story-api, including its resolution by marking the Sentry issue as resolved.
+

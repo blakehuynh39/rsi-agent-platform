@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "d880c08a3961fe065e3b7145e2fbe93b8176ae807b0e93181f7b351b7d38e8e7",
-        "size": 1200431
+        "sha256": "0ab8d33ea7f43c49b0359433d3be287c428c0c957553462a2073db85b73644e1",
+        "size": 1200750
       },
       {
         "path": "log.md",
-        "sha256": "85e5975564ad31e9f2f784c490960c9f5178987a73261a465314f150b6ec9bc1",
-        "size": 2027783
+        "sha256": "5eb0db87f233f36076f63c1cff20c16d7a116f8aa955804077b95af5f53cb51f",
+        "size": 2028463
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9326,8 +9326,8 @@
       },
       {
         "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
-        "sha256": "95144400c40531124f2575e28f647d3865216ab6e117d4f8ef6b66fb4e3961f1",
-        "size": 3215
+        "sha256": "b494b3c79ce7ec63770381020e791fbccf5d8b8ff87f08e6cf2e05b6ff66af68",
+        "size": 1589
       },
       {
         "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
@@ -10490,6 +10490,11 @@
         "size": 1539
       },
       {
+        "path": "pages/systems/story-api-confirmer-batch-failures.md",
+        "sha256": "f4e66724c82509b12053ab882a72f4257b27dc0967754e68d261d4f2eb1453df",
+        "size": 1890
+      },
+      {
         "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
         "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
         "size": 2019
@@ -10724,8 +10729,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T00:47:27Z",
-  "file_count": 2143,
+  "exported_at": "2026-06-27T01:04:27Z",
+  "file_count": 2144,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14002,7 +14007,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "20e2aa3e6fec9cd91a155311a242f44b0bd190d33ac835cd9c5819a13e500257",
+  "previous_tree_hash": "d1303c9dbae03ab2deeea7647098a933901163d4793263e7b706d7bcf96b7994",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14015,14 +14020,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d1303c9dbae03ab2deeea7647098a933901163d4793263e7b706d7bcf96b7994",
+  "tree_hash": "2c4066c4d41a51b7399b16f9eea1bd9d633660c594e0745880e5d89474944a94",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1489,
+  "wiki_file_count": 1490,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14031,13 +14036,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "d880c08a3961fe065e3b7145e2fbe93b8176ae807b0e93181f7b351b7d38e8e7",
-      "size": 1200431
+      "sha256": "0ab8d33ea7f43c49b0359433d3be287c428c0c957553462a2073db85b73644e1",
+      "size": 1200750
     },
     {
       "path": "log.md",
-      "sha256": "85e5975564ad31e9f2f784c490960c9f5178987a73261a465314f150b6ec9bc1",
-      "size": 2027783
+      "sha256": "5eb0db87f233f36076f63c1cff20c16d7a116f8aa955804077b95af5f53cb51f",
+      "size": 2028463
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20076,8 +20081,8 @@
     },
     {
       "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
-      "sha256": "95144400c40531124f2575e28f647d3865216ab6e117d4f8ef6b66fb4e3961f1",
-      "size": 3215
+      "sha256": "b494b3c79ce7ec63770381020e791fbccf5d8b8ff87f08e6cf2e05b6ff66af68",
+      "size": 1589
     },
     {
       "path": "pages/runbooks/story-api-data-audit-stats-500-error.md",
@@ -21240,6 +21245,11 @@
       "size": 1539
     },
     {
+      "path": "pages/systems/story-api-confirmer-batch-failures.md",
+      "sha256": "f4e66724c82509b12053ab882a72f4257b27dc0967754e68d261d4f2eb1453df",
+      "size": 1890
+    },
+    {
       "path": "pages/systems/story-api-data-audit-scoped-groups-error.md",
       "sha256": "86bd9772501e3d4b6cef8d15f4a6e0c7fafe96979eb6ade6999a6817b0933bbf",
       "size": 2019
@@ -21471,5 +21481,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "2e035590ad61be8ee7056c940a2d6c7c59f78dc66cc19caa5dc7cbe1fa2e1969"
+  "wiki_tree_hash": "880569ec7c7d0bdf8b4fb3d54935c7e570e0cf0e74357591ee9f4f7f1003cecd"
 }
