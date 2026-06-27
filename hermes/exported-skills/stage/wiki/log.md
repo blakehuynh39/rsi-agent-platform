@@ -40900,3 +40900,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_30a85ad94218489377dc8457c0409d92
 - summary: The story-api experienced a deterministic failure in replacement gas re-estimation, resulting in batch quarantining. The issue (STORY-API-EK) was later resolved.
 
+## [2026-06-27T00:45:51Z] synthesis | Replacement Gas Re-estimate Failure
+
+- status: published
+- slug: runbooks/replacement-gas-re-estimate-failure
+- wiki_revision_id: wikirev_425da29d291b5818fcdba0d4cceced5a
+- summary: The story-api reported a deterministic failure in replacement gas re-estimate, leading to batch quarantining. The issue was resolved by Blake Huynh (Sentry issue STORY-API-EK).
+
+## [2026-06-27T00:46:24Z] synthesis | Story API confirmer batch failure (2026)
+
+- status: published
+- slug: runbooks/story-api-confirmer-batch-failure-2026
+- wiki_revision_id: wikirev_28c1d3f959b34a74f06386854d3d1070
+- summary: Story API confirmer batch encountered multiple failures, but sibling batches continued. The Sentry issue STORY-API-EM was tracked and later resolved by Blake Huynh.
+

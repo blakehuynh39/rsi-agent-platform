@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "6f1adac59e638edfd2151948f8b283b7a4a029227cd049fd5968430fa53dda24",
-        "size": 1199663
+        "sha256": "d880c08a3961fe065e3b7145e2fbe93b8176ae807b0e93181f7b351b7d38e8e7",
+        "size": 1200431
       },
       {
         "path": "log.md",
-        "sha256": "0d42a3ab75370ae969a36c5e64f065094c1d196f34801943932c1a4d92610534",
-        "size": 2026991
+        "sha256": "85e5975564ad31e9f2f784c490960c9f5178987a73261a465314f150b6ec9bc1",
+        "size": 2027783
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9205,6 +9205,11 @@
         "size": 3533
       },
       {
+        "path": "pages/runbooks/replacement-gas-re-estimate-failure.md",
+        "sha256": "58c74078a05addf228eb87892cc336aa17640287d9b966f9fa379535399cd802",
+        "size": 1819
+      },
+      {
         "path": "pages/runbooks/requesting-ip-tokens-testing.md",
         "sha256": "ce68c37a3b4ba91ba4a6162d531710cdb61a9375dbf5aff2ffe517a952027664",
         "size": 4731
@@ -9313,6 +9318,11 @@
         "path": "pages/runbooks/story-api-broadcaster-nonce-drift.md",
         "sha256": "59a858fb6eae734c8453648e7839e60dd4e55a2f8e75859d80cf435951acfb6e",
         "size": 1529
+      },
+      {
+        "path": "pages/runbooks/story-api-confirmer-batch-failure-2026.md",
+        "sha256": "d4e328e459a4b42470f9db542c21356498848ffffa1560c306faeef3510fe4c1",
+        "size": 2308
       },
       {
         "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
@@ -10714,8 +10724,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T00:35:34Z",
-  "file_count": 2141,
+  "exported_at": "2026-06-27T00:47:27Z",
+  "file_count": 2143,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -13992,7 +14002,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "bb10d6687efd335d4b8063579af9e37b8eefe93222dfdda588ca0d9ff45be620",
+  "previous_tree_hash": "20e2aa3e6fec9cd91a155311a242f44b0bd190d33ac835cd9c5819a13e500257",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14005,14 +14015,14 @@
   ],
   "skill_tree_hash": "6192d16e96db8af2865b315699137820814d5b2478f854da48f5ca9235af71a6",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "20e2aa3e6fec9cd91a155311a242f44b0bd190d33ac835cd9c5819a13e500257",
+  "tree_hash": "d1303c9dbae03ab2deeea7647098a933901163d4793263e7b706d7bcf96b7994",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1487,
+  "wiki_file_count": 1489,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14021,13 +14031,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "6f1adac59e638edfd2151948f8b283b7a4a029227cd049fd5968430fa53dda24",
-      "size": 1199663
+      "sha256": "d880c08a3961fe065e3b7145e2fbe93b8176ae807b0e93181f7b351b7d38e8e7",
+      "size": 1200431
     },
     {
       "path": "log.md",
-      "sha256": "0d42a3ab75370ae969a36c5e64f065094c1d196f34801943932c1a4d92610534",
-      "size": 2026991
+      "sha256": "85e5975564ad31e9f2f784c490960c9f5178987a73261a465314f150b6ec9bc1",
+      "size": 2027783
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -19945,6 +19955,11 @@
       "size": 3533
     },
     {
+      "path": "pages/runbooks/replacement-gas-re-estimate-failure.md",
+      "sha256": "58c74078a05addf228eb87892cc336aa17640287d9b966f9fa379535399cd802",
+      "size": 1819
+    },
+    {
       "path": "pages/runbooks/requesting-ip-tokens-testing.md",
       "sha256": "ce68c37a3b4ba91ba4a6162d531710cdb61a9375dbf5aff2ffe517a952027664",
       "size": 4731
@@ -20053,6 +20068,11 @@
       "path": "pages/runbooks/story-api-broadcaster-nonce-drift.md",
       "sha256": "59a858fb6eae734c8453648e7839e60dd4e55a2f8e75859d80cf435951acfb6e",
       "size": 1529
+    },
+    {
+      "path": "pages/runbooks/story-api-confirmer-batch-failure-2026.md",
+      "sha256": "d4e328e459a4b42470f9db542c21356498848ffffa1560c306faeef3510fe4c1",
+      "size": 2308
     },
     {
       "path": "pages/runbooks/story-api-confirmer-batch-failure.md",
@@ -21451,5 +21471,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "dca25937745adab51d2aad553ab49a43ebb6fbdeb067713e25c85589792866c8"
+  "wiki_tree_hash": "2e035590ad61be8ee7056c940a2d6c7c59f78dc66cc19caa5dc7cbe1fa2e1969"
 }
