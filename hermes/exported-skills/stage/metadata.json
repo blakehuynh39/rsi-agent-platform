@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "02425c2d9c6693f01927269669e29b29c15e3e7c4f47293082391090c96b504c",
-        "size": 1201470
+        "sha256": "704d71a2bf5cdcb105e51cdd97a7421317bf91695f4cde9cf5612c0fb94afa0e",
+        "size": 1202158
       },
       {
         "path": "log.md",
-        "sha256": "7e3e74b65b76b28627f6019194a4ac7d6cbe2bd8c255c4ef4e340ef26ac71282",
-        "size": 2029207
+        "sha256": "a527c12288ce842b768f5623fd84615e275e863bb4ea9b28e7db666ab00d9b58",
+        "size": 2029919
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -4480,6 +4480,11 @@
         "size": 2179
       },
       {
+        "path": "pages/concepts/story-api-submitter-tick-failure.md",
+        "sha256": "bf252775432a541d997b3875de6211c949f9a36322fd025a4f7e7d8f4e28ffb6",
+        "size": 2198
+      },
+      {
         "path": "pages/concepts/story-l1-peer-discovery-insights.md",
         "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
         "size": 4711
@@ -4998,6 +5003,11 @@
         "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
         "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
         "size": 3065
+      },
+      {
+        "path": "pages/decisions/decision-resolve-story-api-submitter-tick-failure.md",
+        "sha256": "7d6796e3daa6872bf56779771ad4ed6abe2b1b49359d371180ea925b218d1c5f",
+        "size": 1809
       },
       {
         "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
@@ -10739,8 +10749,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T01:29:53Z",
-  "file_count": 2146,
+  "exported_at": "2026-06-27T01:36:40Z",
+  "file_count": 2148,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14017,7 +14027,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6673ac2145231ca4b9e5b1ee77f270c89bc9c27bbca4203beb14a117a6b0f074",
+  "previous_tree_hash": "d2aed5087e9ace5c8ff0a1668b7baebc7c369e1811df522290b0b3b56c1a21fe",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14030,14 +14040,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "d2aed5087e9ace5c8ff0a1668b7baebc7c369e1811df522290b0b3b56c1a21fe",
+  "tree_hash": "8fd8477396e3379a47a0b115ed31adbf35b4fc5326464df2c5eb963f6f121338",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1492,
+  "wiki_file_count": 1494,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14046,13 +14056,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "02425c2d9c6693f01927269669e29b29c15e3e7c4f47293082391090c96b504c",
-      "size": 1201470
+      "sha256": "704d71a2bf5cdcb105e51cdd97a7421317bf91695f4cde9cf5612c0fb94afa0e",
+      "size": 1202158
     },
     {
       "path": "log.md",
-      "sha256": "7e3e74b65b76b28627f6019194a4ac7d6cbe2bd8c255c4ef4e340ef26ac71282",
-      "size": 2029207
+      "sha256": "a527c12288ce842b768f5623fd84615e275e863bb4ea9b28e7db666ab00d9b58",
+      "size": 2029919
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -15245,6 +15255,11 @@
       "size": 2179
     },
     {
+      "path": "pages/concepts/story-api-submitter-tick-failure.md",
+      "sha256": "bf252775432a541d997b3875de6211c949f9a36322fd025a4f7e7d8f4e28ffb6",
+      "size": 2198
+    },
+    {
       "path": "pages/concepts/story-l1-peer-discovery-insights.md",
       "sha256": "87f4307693176889fe3fe279a0883be6ae99e2d5fcf73fb9e8c3a2d1901e3258",
       "size": 4711
@@ -15763,6 +15778,11 @@
       "path": "pages/decisions/decision-remove-storyapis-tlv-backend-domains.md",
       "sha256": "d55b54cb9f8ae34e943f6df92deb163073b481b63e19b51987d5ba400f311203",
       "size": 3065
+    },
+    {
+      "path": "pages/decisions/decision-resolve-story-api-submitter-tick-failure.md",
+      "sha256": "7d6796e3daa6872bf56779771ad4ed6abe2b1b49359d371180ea925b218d1c5f",
+      "size": 1809
     },
     {
       "path": "pages/decisions/decision-share-private-fork-aeneid-api-bitgo.md",
@@ -21501,5 +21521,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "52b9f0323c0be0f0a4d0da5aedc30073a191a1797ca6ae326ec8e46c6fdf61f6"
+  "wiki_tree_hash": "e50611ffc3ede05d5650a3e593be5cd70d3662709cff86bafa484cdad12889c3"
 }

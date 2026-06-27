@@ -40942,3 +40942,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_15d37b411687f95e74bb6aae0ad63088
 - summary: An alert for broadcaster active wallet nonce drift was triggered in story-api on multiple occasions. The issue was later resolved by Blake Huynh via Sentry.
 
+## [2026-06-27T01:31:52Z] synthesis | Decision: Resolve fatal story-api submitter tick failure
+
+- status: published
+- slug: decisions/decision-resolve-story-api-submitter-tick-failure
+- wiki_revision_id: wikirev_516bbb4de50903ba466be392961888c0
+- summary: The story-api submitter tick failed terminally, stopping the worker. The corresponding Sentry issue STORY-API-EP was marked resolved by Blake Huynh.
+
+## [2026-06-27T01:32:23Z] synthesis | Story API Submitter Tick Failure
+
+- status: published
+- slug: concepts/story-api-submitter-tick-failure
+- wiki_revision_id: wikirev_c57097267351ce58248736c04fb7af7d
+- summary: Repeated errors from story-api submitter tick resulted in a resolve of STORY-API-EQ issue.
+
