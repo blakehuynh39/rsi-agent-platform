@@ -41089,3 +41089,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1c2b6580030df7b465622613b9583859
 - summary: Collected incident reports and spike protection events for the story-api service.
 
+## [2026-06-27T04:30:45Z] synthesis | Story API Gas Price Monitor
+
+- status: published
+- slug: systems/story-api-gas-price-monitor
+- wiki_revision_id: wikirev_210912810a623bbf6b41a0751304d04e
+- summary: Monitor component for gas prices in story-api. Experienced an RPC failure, mitigated by holding last-good snapshot and gate vote. Issue resolved.
+

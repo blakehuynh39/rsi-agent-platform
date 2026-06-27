@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "99ec3a68e0fed17158be37d38fd2c5beb0cd50baa3166af127b86cd1febc8b0b",
-        "size": 1205607
+        "sha256": "1c14220aa23365d0f2b1db3bc4289f353157838e398481c5c89080d3a08607f5",
+        "size": 1205945
       },
       {
         "path": "log.md",
-        "sha256": "9fcca89744fc32625682201a48f81cca34da6c1b30fb91fc8876a57c1cac750b",
-        "size": 2036429
+        "sha256": "705aa1c39c3b42ab201e1bd79191072ba441cdf483e78aa9cc05392f7b57eab5",
+        "size": 2036779
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -10565,6 +10565,11 @@
         "size": 2923
       },
       {
+        "path": "pages/systems/story-api-gas-price-monitor.md",
+        "sha256": "117772a695df19a993caf3022722dd00de38f906d715ef93e0a4257e8a0ee629",
+        "size": 2000
+      },
+      {
         "path": "pages/systems/story-api-incident-log.md",
         "sha256": "4a8b26f76745a65f184d02e4fb6fe0e5d464c39f290cd52d934460153bb9a182",
         "size": 9637
@@ -10799,8 +10804,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T04:20:55Z",
-  "file_count": 2158,
+  "exported_at": "2026-06-27T04:32:43Z",
+  "file_count": 2159,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14077,7 +14082,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "6539fdda9c123c2875f1b39ba530ce0f7daa7d8c68f4a5c90a2cc94a82ae173b",
+  "previous_tree_hash": "f0500a7c7468b0516c5fa884f6249ad25b4ef673f849cbcd0b4ce4884fbc1b41",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14090,14 +14095,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "f0500a7c7468b0516c5fa884f6249ad25b4ef673f849cbcd0b4ce4884fbc1b41",
+  "tree_hash": "380cab5ffba8ac1741f7b0d1dbbedfd59dd10ec6a58aeb744dc60ffddfc483a7",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1504,
+  "wiki_file_count": 1505,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14106,13 +14111,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "99ec3a68e0fed17158be37d38fd2c5beb0cd50baa3166af127b86cd1febc8b0b",
-      "size": 1205607
+      "sha256": "1c14220aa23365d0f2b1db3bc4289f353157838e398481c5c89080d3a08607f5",
+      "size": 1205945
     },
     {
       "path": "log.md",
-      "sha256": "9fcca89744fc32625682201a48f81cca34da6c1b30fb91fc8876a57c1cac750b",
-      "size": 2036429
+      "sha256": "705aa1c39c3b42ab201e1bd79191072ba441cdf483e78aa9cc05392f7b57eab5",
+      "size": 2036779
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -21390,6 +21395,11 @@
       "size": 2923
     },
     {
+      "path": "pages/systems/story-api-gas-price-monitor.md",
+      "sha256": "117772a695df19a993caf3022722dd00de38f906d715ef93e0a4257e8a0ee629",
+      "size": 2000
+    },
+    {
       "path": "pages/systems/story-api-incident-log.md",
       "sha256": "4a8b26f76745a65f184d02e4fb6fe0e5d464c39f290cd52d934460153bb9a182",
       "size": 9637
@@ -21621,5 +21631,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "21ef678021cc634864baa7635c1bc991cf23ff1b793e2e66e5d899ec48185ea6"
+  "wiki_tree_hash": "b826f01d62bce9900077a3e4828ccf1e34df92026e81f97937e813b3cd327348"
 }
