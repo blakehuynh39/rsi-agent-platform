@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "de733fcf026e4871a3e5eac910105de0552d1a1cb7cdd5b3e381d12a8cb3d0a0",
-        "size": 1213006
+        "sha256": "5e0567af4fbf8e30d338e8ec21aeb21787765c51cea86a828f42415034ebde15",
+        "size": 1212912
       },
       {
         "path": "log.md",
-        "sha256": "b935ea1c86a788658320a69dad2e5688e0801ba4e7087c3613967b14a4633bb4",
-        "size": 2046443
+        "sha256": "e55d73149356ec12a709d1f06a577182a832dca711c01319481d1f568c24e965",
+        "size": 2046759
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9536,8 +9536,8 @@
       },
       {
         "path": "pages/runbooks/story-orchestration-service-errors.md",
-        "sha256": "98819cb5e29f1b2f857429a2983d614e0bc5133b2d13733a37dde7e5ea2a487b",
-        "size": 6179
+        "sha256": "6550f3851d44fe72de3a7d9c6df3792e0ed7bb5ae5447cffc6ebcd8aa315b066",
+        "size": 5640
       },
       {
         "path": "pages/runbooks/story-orchestration-service-ip-ownership-aggregation-error.md",
@@ -10894,7 +10894,7 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T08:34:39Z",
+  "exported_at": "2026-06-27T08:51:34Z",
   "file_count": 2177,
   "files": [
     {
@@ -14172,7 +14172,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "7473aa8c769d13489c94bdc2b69515ae15c35266680a1b93eb6462665c833ba5",
+  "previous_tree_hash": "11fe7b3a2cc5680341e49d60bd083499c48c80004ebc57826f33059ef207d516",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14185,7 +14185,7 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "11fe7b3a2cc5680341e49d60bd083499c48c80004ebc57826f33059ef207d516",
+  "tree_hash": "590e3915fac26ce3ed2108a302a8666b10971eface4fec493aa288a94a71669d",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
@@ -14201,13 +14201,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "de733fcf026e4871a3e5eac910105de0552d1a1cb7cdd5b3e381d12a8cb3d0a0",
-      "size": 1213006
+      "sha256": "5e0567af4fbf8e30d338e8ec21aeb21787765c51cea86a828f42415034ebde15",
+      "size": 1212912
     },
     {
       "path": "log.md",
-      "sha256": "b935ea1c86a788658320a69dad2e5688e0801ba4e7087c3613967b14a4633bb4",
-      "size": 2046443
+      "sha256": "e55d73149356ec12a709d1f06a577182a832dca711c01319481d1f568c24e965",
+      "size": 2046759
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20456,8 +20456,8 @@
     },
     {
       "path": "pages/runbooks/story-orchestration-service-errors.md",
-      "sha256": "98819cb5e29f1b2f857429a2983d614e0bc5133b2d13733a37dde7e5ea2a487b",
-      "size": 6179
+      "sha256": "6550f3851d44fe72de3a7d9c6df3792e0ed7bb5ae5447cffc6ebcd8aa315b066",
+      "size": 5640
     },
     {
       "path": "pages/runbooks/story-orchestration-service-ip-ownership-aggregation-error.md",
@@ -21811,5 +21811,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "ce5801995f3dc4e59b7213c7ed3d3e3e928379ab4c8f99f01f1496245e9f78f6"
+  "wiki_tree_hash": "7c07e7da984a7bd1732690c439f0b4f92e3964eaf23cac405621789e68ec0986"
 }

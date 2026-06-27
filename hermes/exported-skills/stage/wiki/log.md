@@ -41271,3 +41271,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_8c3aa01a2c7b0b8ea633e774720cc286
 - summary: Catalog of errors observed in the story-orchestration-service, including aggregation failures, nil pointer dereferences, context cancellations, and not-null constraint violations.
 
+## [2026-06-27T08:46:30Z] synthesis | Story Orchestration Service Errors
+
+- status: published
+- slug: runbooks/story-orchestration-service-errors
+- wiki_revision_id: wikirev_1f9abbb200f4bc58bd7ec1b0326e0faa
+- summary: Documented errors from the story-orchestration-service as reported in Slack channel C08BWTULNPP.
+
