@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "07635a18a0826d8e500de0f48f2837e9d42d39e13b97f64bcc2b239bc0b0e953",
-        "size": 1211741
+        "sha256": "da0cded5800126e9a4935be4451d3588cacfdde069207d8abf459152c8bdb3bc",
+        "size": 1212182
       },
       {
         "path": "log.md",
-        "sha256": "80d15f19b6a6c595688e2eee5408db3135efe0da9cd5c17ab642775f2559a007",
-        "size": 2044829
+        "sha256": "25a0ae0073321f8c6f4e6c8384651d88d2334452bdd0810a01f9c7c9205e7b9a",
+        "size": 2045596
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -9205,6 +9205,11 @@
         "size": 1740
       },
       {
+        "path": "pages/runbooks/postgres-unique-constraint-error-story-orchestration-service.md",
+        "sha256": "d5fea6072bdf028153eef0d0282bc88aa54993172e347b456aae54ae5876aeac",
+        "size": 1785
+      },
+      {
         "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
         "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
         "size": 10032
@@ -10716,8 +10721,8 @@
       },
       {
         "path": "pages/systems/story-orchestration-service.md",
-        "sha256": "626658593d7d57280c56853d331ab6fc3d1ffd4ac38d0c298bf9795296200870",
-        "size": 1510
+        "sha256": "d88596ba0e7d589dc0a8cbecab3d6f30385dea7f41e638469170aeb05481b4a1",
+        "size": 5513
       },
       {
         "path": "pages/systems/story-private-fork.md",
@@ -10879,8 +10884,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T08:05:57Z",
-  "file_count": 2174,
+  "exported_at": "2026-06-27T08:17:45Z",
+  "file_count": 2175,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14157,7 +14162,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "f19ccd127c239b40be8a00a8a33766f31709fbf34b76d4385f53cbe9ea240198",
+  "previous_tree_hash": "079869e4504641f536e49e165557d7f63b835fb531d44024e4cebe22fcc665ce",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14170,14 +14175,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "079869e4504641f536e49e165557d7f63b835fb531d44024e4cebe22fcc665ce",
+  "tree_hash": "7473aa8c769d13489c94bdc2b69515ae15c35266680a1b93eb6462665c833ba5",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1520,
+  "wiki_file_count": 1521,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14186,13 +14191,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "07635a18a0826d8e500de0f48f2837e9d42d39e13b97f64bcc2b239bc0b0e953",
-      "size": 1211741
+      "sha256": "da0cded5800126e9a4935be4451d3588cacfdde069207d8abf459152c8bdb3bc",
+      "size": 1212182
     },
     {
       "path": "log.md",
-      "sha256": "80d15f19b6a6c595688e2eee5408db3135efe0da9cd5c17ab642775f2559a007",
-      "size": 2044829
+      "sha256": "25a0ae0073321f8c6f4e6c8384651d88d2334452bdd0810a01f9c7c9205e7b9a",
+      "size": 2045596
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -20110,6 +20115,11 @@
       "size": 1740
     },
     {
+      "path": "pages/runbooks/postgres-unique-constraint-error-story-orchestration-service.md",
+      "sha256": "d5fea6072bdf028153eef0d0282bc88aa54993172e347b456aae54ae5876aeac",
+      "size": 1785
+    },
+    {
       "path": "pages/runbooks/postmortem-l1-testnet-startup-failure-jul-2024.md",
       "sha256": "0d07dfac8992d95adcc4f095ec7b7911ccf8637bf222f9c597a5a851c20928cd",
       "size": 10032
@@ -21621,8 +21631,8 @@
     },
     {
       "path": "pages/systems/story-orchestration-service.md",
-      "sha256": "626658593d7d57280c56853d331ab6fc3d1ffd4ac38d0c298bf9795296200870",
-      "size": 1510
+      "sha256": "d88596ba0e7d589dc0a8cbecab3d6f30385dea7f41e638469170aeb05481b4a1",
+      "size": 5513
     },
     {
       "path": "pages/systems/story-private-fork.md",
@@ -21781,5 +21791,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "3c77b341f651bd0d8503e167afe4acbdf73a9302c3c3fce38b556458a341fb5a"
+  "wiki_tree_hash": "d53ef8c04136a43ba9b834d946a82add330b71a8cf3b5f737e73a5add92c7d10"
 }

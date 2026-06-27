@@ -41243,3 +41243,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_1f576f4992e5f2f3b2ec1b0d1382cf41
 - summary: The story-orchestration-service produced a 'context canceled' error, which was marked resolved by Blake Huynh.
 
+## [2026-06-27T08:16:07Z] synthesis | PostgreSQL Unique Constraint Error in Story Orchestration Service
+
+- status: published
+- slug: runbooks/postgres-unique-constraint-error-story-orchestration-service
+- wiki_revision_id: wikirev_fa164cbfb4c1a377f05764feac67ca1c
+- summary: Story Orchestration Service encountered a PostgreSQL error #42P10: no unique or exclusion constraint matching ON CONFLICT. The error was resolved by Blake Huynh.
+
+## [2026-06-27T08:17:25Z] synthesis | Story Orchestration Service
+
+- status: published
+- slug: systems/story-orchestration-service
+- wiki_revision_id: wikirev_fa76f28b568d438ba8f218c99adf69ef
+- summary: The Story Orchestration Service responsible for aggregating IP-related data, experiencing various errors as logged in Slack.
+
