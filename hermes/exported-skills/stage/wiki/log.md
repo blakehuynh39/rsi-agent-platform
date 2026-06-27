@@ -41327,3 +41327,17 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_394f9db654b271e53c3e3a5ad0181145
 - summary: The RSI executor, running as rsi-platform-bot via GitHub App token, cannot produce signed commits because it lacks cryptographic keys. Resolution options require either manual oper...
 
+## [2026-06-27T09:32:48Z] synthesis | story-orchestration-service nil pointer dereference incident
+
+- status: published
+- slug: decisions/story-orchestration-nil-pointer-incident
+- wiki_revision_id: wikirev_ff036b42ca55b5baa9e3d95663b34a60
+- summary: The story-orchestration-service experienced a nil pointer dereference in production, with 2,046 events since Feb 12. Root cause was GetJobByWorkflowID returning nil for non-existen...
+
+## [2026-06-27T09:32:48Z] synthesis | RSI executor commit signing issue
+
+- status: published
+- slug: decisions/rsi-executor-commit-signing
+- wiki_revision_id: wikirev_324ebf57f87fb6699594d5fc22667c6f
+- summary: The RSI executor bot (rsi-platform-bot) cannot sign commits because the GitHub App token lacks signing keys and no GPG/SSH keys are installed on the executor. The commit fa1f78e ne...
+

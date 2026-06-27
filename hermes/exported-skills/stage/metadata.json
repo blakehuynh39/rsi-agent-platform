@@ -3286,8 +3286,8 @@
       },
       {
         "path": "log.md",
-        "sha256": "d637aafb20a3706d1d4e72a2ac444f3bb3f49bd18abfa1593763e814485defca",
-        "size": 2049688
+        "sha256": "ff967c43258a8fd246664a22f6d673465232d3bdc6b1c91a7a0ad2e0283f1390",
+        "size": 2050520
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5655,6 +5655,11 @@
         "size": 3150
       },
       {
+        "path": "pages/decisions/rsi-executor-commit-signing.md",
+        "sha256": "9f035af7a5f0a4975358ca15ac49e3734c74c6bf74090a2a4ff0af39e40693ac",
+        "size": 2361
+      },
+      {
         "path": "pages/decisions/sdk-v1-3-design-considerations.md",
         "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
         "size": 3132
@@ -5728,6 +5733,11 @@
         "path": "pages/decisions/story-archive-node-gcp-deprecation.md",
         "sha256": "1e5ef17e2889729d85743e6c46e989d90749a5aeec090a89d2536bb74ec22939",
         "size": 5274
+      },
+      {
+        "path": "pages/decisions/story-orchestration-nil-pointer-incident.md",
+        "sha256": "04ef6a219d762853a02f12b5e78c2100c4176c4ef440cd041b0d2f29d5287aba",
+        "size": 2894
       },
       {
         "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -10924,8 +10934,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T09:22:00Z",
-  "file_count": 2183,
+  "exported_at": "2026-06-27T09:33:50Z",
+  "file_count": 2185,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14202,7 +14212,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "5fd0c5b432be462ee69bffeecaed6cdd46a4b30133729c2fa32e19736502b8b5",
+  "previous_tree_hash": "9f8bf5eec00592ef9ca95941b4f6fe94db7a3ac3bf4cba275643885a4edd92c7",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14215,14 +14225,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "9f8bf5eec00592ef9ca95941b4f6fe94db7a3ac3bf4cba275643885a4edd92c7",
+  "tree_hash": "c7b9abbd76d02e337fb2f8c64c30c974daae2ea733834e5d669631ff602476c1",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1529,
+  "wiki_file_count": 1531,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14236,8 +14246,8 @@
     },
     {
       "path": "log.md",
-      "sha256": "d637aafb20a3706d1d4e72a2ac444f3bb3f49bd18abfa1593763e814485defca",
-      "size": 2049688
+      "sha256": "ff967c43258a8fd246664a22f6d673465232d3bdc6b1c91a7a0ad2e0283f1390",
+      "size": 2050520
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16605,6 +16615,11 @@
       "size": 3150
     },
     {
+      "path": "pages/decisions/rsi-executor-commit-signing.md",
+      "sha256": "9f035af7a5f0a4975358ca15ac49e3734c74c6bf74090a2a4ff0af39e40693ac",
+      "size": 2361
+    },
+    {
       "path": "pages/decisions/sdk-v1-3-design-considerations.md",
       "sha256": "07154b66b553489b1e6e938a2e09a0ce8badd9cfcb00fd20b4f4efb31af9ae0e",
       "size": 3132
@@ -16678,6 +16693,11 @@
       "path": "pages/decisions/story-archive-node-gcp-deprecation.md",
       "sha256": "1e5ef17e2889729d85743e6c46e989d90749a5aeec090a89d2536bb74ec22939",
       "size": 5274
+    },
+    {
+      "path": "pages/decisions/story-orchestration-nil-pointer-incident.md",
+      "sha256": "04ef6a219d762853a02f12b5e78c2100c4176c4ef440cd041b0d2f29d5287aba",
+      "size": 2894
     },
     {
       "path": "pages/decisions/story-protocol-website-i18n-options.md",
@@ -21871,5 +21891,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "70f2d30d997c908b972875b48298051fd98cd1c6625a98403760dcfb5b810ea1"
+  "wiki_tree_hash": "4a784c6cf19b56429a25aa41378d6356975298c9d19ce308be96f81315e14870"
 }
