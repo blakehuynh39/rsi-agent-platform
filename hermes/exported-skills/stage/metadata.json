@@ -3281,13 +3281,13 @@
       },
       {
         "path": "index.md",
-        "sha256": "f5acdd433af40862d34132403f25ca07fe4da48ff1835d052a731933ba8bae18",
-        "size": 1218274
+        "sha256": "cfb381a49eee19567a30923f5874e1b1ce969b29268408dc30c56419fce1e7af",
+        "size": 1218570
       },
       {
         "path": "log.md",
-        "sha256": "d40c98ed4e85852e6050fc75d4e67f999366f49882c6c76702cc26392f828bcd",
-        "size": 2052607
+        "sha256": "319738c8130b4354314079c1c309e90cb57a3ba216c3ef7baf222f42299bf412",
+        "size": 2052915
       },
       {
         "path": "pages/concepts/100b-submissions-scenario.md",
@@ -5528,6 +5528,11 @@
         "path": "pages/decisions/payment-method-prioritization-decision.md",
         "sha256": "8e02ba53f5356c779408105b02319ef203b0f4446545d8e529a5cbf71859f2d3",
         "size": 3776
+      },
+      {
+        "path": "pages/decisions/payment-release-funding-transfer-2026-06.md",
+        "sha256": "790e9528a47233c60d09dfdbf9fc518b013835d6dc306eddc41f0ebf0c86875f",
+        "size": 2390
       },
       {
         "path": "pages/decisions/payment-rollout-call-async-decision.md",
@@ -10959,8 +10964,8 @@
   "company_wiki_root": "/workspace/company/wiki",
   "export_environment": "stage",
   "export_format_version": 2,
-  "exported_at": "2026-06-27T09:54:05Z",
-  "file_count": 2190,
+  "exported_at": "2026-06-27T13:19:44Z",
+  "file_count": 2191,
   "files": [
     {
       "path": ".curator_backups/2026-05-25T09-00-43Z/manifest.json",
@@ -14237,7 +14242,7 @@
   "git_repository": "piplabs/rsi-agent-platform",
   "hermes_home": "/var/lib/hermes",
   "pod_name": "use1-stage-rsi-agent-platform-hermes-skill-exporter-5c8765mqqlh",
-  "previous_tree_hash": "d36a2f1f9fbf917ac18c812ff0c37061e4a59bf30cedcb8d97d1e2c73ed7654a",
+  "previous_tree_hash": "e0429a5015131ed23bd6ab1affa944ddad6b984c0b875e899b910f4b6e84ee5b",
   "schema_version": 1,
   "skill_file_count": 654,
   "skill_manage_sessions": [
@@ -14250,14 +14255,14 @@
   ],
   "skill_tree_hash": "1c886da89782ac054671dc2b14d6b4eacb28dc61344bd6b33e0c68b5aabc2462",
   "skills_root": "/var/lib/hermes/skills",
-  "tree_hash": "e0429a5015131ed23bd6ab1affa944ddad6b984c0b875e899b910f4b6e84ee5b",
+  "tree_hash": "77501e8a99667f58a9ec854553dc0fe55ca6517cc21374e73328654372d94c8f",
   "wiki_export_include_paths": [
     "SCHEMA.md",
     "index.md",
     "log.md",
     "pages/"
   ],
-  "wiki_file_count": 1536,
+  "wiki_file_count": 1537,
   "wiki_files": [
     {
       "path": "SCHEMA.md",
@@ -14266,13 +14271,13 @@
     },
     {
       "path": "index.md",
-      "sha256": "f5acdd433af40862d34132403f25ca07fe4da48ff1835d052a731933ba8bae18",
-      "size": 1218274
+      "sha256": "cfb381a49eee19567a30923f5874e1b1ce969b29268408dc30c56419fce1e7af",
+      "size": 1218570
     },
     {
       "path": "log.md",
-      "sha256": "d40c98ed4e85852e6050fc75d4e67f999366f49882c6c76702cc26392f828bcd",
-      "size": 2052607
+      "sha256": "319738c8130b4354314079c1c309e90cb57a3ba216c3ef7baf222f42299bf412",
+      "size": 2052915
     },
     {
       "path": "pages/concepts/100b-submissions-scenario.md",
@@ -16513,6 +16518,11 @@
       "path": "pages/decisions/payment-method-prioritization-decision.md",
       "sha256": "8e02ba53f5356c779408105b02319ef203b0f4446545d8e529a5cbf71859f2d3",
       "size": 3776
+    },
+    {
+      "path": "pages/decisions/payment-release-funding-transfer-2026-06.md",
+      "sha256": "790e9528a47233c60d09dfdbf9fc518b013835d6dc306eddc41f0ebf0c86875f",
+      "size": 2390
     },
     {
       "path": "pages/decisions/payment-rollout-call-async-decision.md",
@@ -21941,5 +21951,5 @@
     }
   ],
   "wiki_root_exists": true,
-  "wiki_tree_hash": "5cafcb8cade586c99a9f09a23fdf0fa1403310fe28249d20468a03134a4c3b33"
+  "wiki_tree_hash": "6a72c6c7d1a700f8e4cb185282139b636f6967e6ce84a0a7148c37173b802029"
 }

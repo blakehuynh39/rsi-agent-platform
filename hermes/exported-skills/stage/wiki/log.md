@@ -41376,3 +41376,10 @@ Append-only timeline. Entries intentionally start with `## [` so Unix tools can 
 - wiki_revision_id: wikirev_11876113d04a30766b3b24b9a297b595
 - summary: The RSI executor bot (rsi-platform-bot[bot]) runs as a GitHub App and cannot sign commits due to lack of GPG keys or SSH keys. The GitHub App model does not support commit signing....
 
+## [2026-06-27T13:16:34Z] synthesis | Payment Release Funding Transfer
+
+- status: published
+- slug: decisions/payment-release-funding-transfer-2026-06
+- wiki_revision_id: wikirev_73a55a807b7075ba303cfac232b3bbc8
+- summary: Decision to fund the Stripe payouts account with $5,000 for upcoming user payments.
+
